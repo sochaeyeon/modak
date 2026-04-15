@@ -24,7 +24,7 @@
             <!-- ── 왼쪽 패널 ── -->
             <div class="left-panel">
                 <div class="brand">
-                    <div class="brand-icon">
+                    <!-- <div class="brand-icon">
                         <svg width="28" height="34" viewBox="0 0 28 34" fill="none">
                             <path
                                 d="M14 34C9 27 6.5 20 10 13 12 8.5 9.5 4.5 12 1 13 -0.5 14 0 14 0 14 0 15 -0.5 16 1 18.5 4.5 16 8.5 18 13 21.5 20 19 27 14 34Z"
@@ -46,7 +46,7 @@
                                 </linearGradient>
                             </defs>
                         </svg>
-                    </div>
+                    </div> -->
                     <span class="brand-name">모닥모닥</span>
                 </div>
 
@@ -59,65 +59,73 @@
                         아늑한 공간이 기다리고 있어요.
                     </p>
                 </div>
-
-                <!-- 모닥불 씬 -->
-                <svg class="fire-scene" viewBox="0 0 320 170" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- ground glow -->
-                    <ellipse class="glow-el" cx="160" cy="148" rx="90" ry="18" fill="#f07d3a" opacity="0.2" />
-                    <ellipse cx="160" cy="152" rx="60" ry="10" fill="#3d1a07" opacity="0.45" />
-
-                    <!-- logs -->
-                    <rect x="85" y="136" width="88" height="16" rx="8" fill="#4e2810" transform="rotate(-17 105 144)" />
-                    <rect x="147" y="136" width="88" height="16" rx="8" fill="#5a3012" transform="rotate(17 185 144)" />
-                    <rect x="128" y="144" width="44" height="12" rx="6" fill="#3d1a07" />
-
-                    <!-- coals -->
-                    <ellipse cx="152" cy="148" rx="8" ry="3.5" fill="#c94f1e" opacity="0.55" />
-                    <ellipse cx="168" cy="149" rx="6" ry="3" fill="#e0621a" opacity="0.45" />
-                    <ellipse cx="158" cy="151" rx="5" ry="2.5" fill="#f07d3a" opacity="0.4" />
-
-                    <!-- main flame -->
-                    <g class="flame-main">
-                        <path
-                            d="M160 150 C145 130 138 112 148 92 C153 80 146 68 151 56 C155 44 160 36 160 36 C160 36 165 44 169 56 C174 68 167 80 172 92 C182 112 175 130 160 150Z"
-                            fill="url(#fg1)" opacity="0.93" />
-                    </g>
-                    <!-- inner flame -->
-                    <g class="flame-inner">
-                        <path
-                            d="M160 150 C151 136 149 122 154 108 C157 98 153 89 156 78 C158 68 160 62 160 62 C160 62 162 68 164 78 C167 89 163 98 166 108 C171 122 169 136 160 150Z"
-                            fill="url(#fg2)" opacity="0.96" />
-                    </g>
-                    <!-- core -->
-                    <path
-                        d="M160 150 C156 140 155 130 158 121 C159 115 157.5 109 160 104 C162.5 109 161 115 162 121 C165 130 164 140 160 150Z"
-                        fill="url(#fg3)" opacity="0.88" />
-
-                    <!-- embers -->
-                    <circle class="e1" cx="146" cy="96" r="2.2" fill="#f4a460" />
-                    <circle class="e2" cx="174" cy="102" r="1.8" fill="#e0621a" />
-                    <circle class="e3" cx="153" cy="84" r="1.5" fill="#fbbf7a" />
-                    <circle class="e4" cx="168" cy="90" r="1.3" fill="#f07d3a" />
-
-                    <defs>
-                        <linearGradient id="fg1" x1="160" y1="150" x2="160" y2="36" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#e0621a" />
-                            <stop offset="42%" stop-color="#f07d3a" />
-                            <stop offset="78%" stop-color="#f4a460" />
-                            <stop offset="100%" stop-color="#fde8a0" stop-opacity="0.25" />
-                        </linearGradient>
-                        <linearGradient id="fg2" x1="160" y1="150" x2="160" y2="62" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#c94f1e" />
-                            <stop offset="52%" stop-color="#f07d3a" />
-                            <stop offset="100%" stop-color="#fde090" stop-opacity="0.35" />
-                        </linearGradient>
-                        <linearGradient id="fg3" x1="160" y1="150" x2="160" y2="104" gradientUnits="userSpaceOnUse">
-                            <stop offset="0%" stop-color="#fff8e0" />
-                            <stop offset="60%" stop-color="#fbbf7a" />
-                            <stop offset="100%" stop-color="#f07d3a" stop-opacity="0.4" />
-                        </linearGradient>
-                    </defs>
-                </svg>
+                <!-- 피처 카드 -->
+                <div class="features">
+                    <div class="feat-card">
+                        <div class="feat-icon">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path
+                                    d="M9 2C5 2 2 5 2 9c0 1.5.4 2.9 1.2 4L2 16l3.2-1.1A6.9 6.9 0 0 0 9 16c4 0 7-3 7-7s-3-7-7-7Z"
+                                    stroke="#e0621a" stroke-width="1.4" stroke-linejoin="round" />
+                                <circle cx="6" cy="9" r="1" fill="#e0621a" />
+                                <circle cx="9" cy="9" r="1" fill="#e0621a" />
+                                <circle cx="12" cy="9" r="1" fill="#e0621a" />
+                            </svg>
+                        </div>
+                        <div class="feat-text">
+                            <h4>따뜻한 이야기 공간</h4>
+                            <p>일상의 작은 이야기부터 깊은 고민까지 편하게 나눠요.</p>
+                        </div>
+                    </div>
+                    <div class="feat-card">
+                        <div class="feat-icon">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <circle cx="9" cy="7" r="3.5" stroke="#e0621a" stroke-width="1.4" />
+                                <path d="M2 16c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke="#e0621a" stroke-width="1.4"
+                                    stroke-linecap="round" />
+                            </svg>
+                        </div>
+                        <div class="feat-text">
+                            <h4>나만의 모닥불 커뮤니티</h4>
+                            <p>비슷한 관심사를 가진 사람들과 모닥불 주위에 모여요.</p>
+                        </div>
+                    </div>
+                    <div class="feat-card">
+                        <div class="feat-icon">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                <path d="M9 2.5L11 7h4.5L12 10l1.5 4.5L9 12l-4.5 2.5L6 10 2.5 7H7Z" stroke="#e0621a"
+                                    stroke-width="1.4" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div class="feat-text">
+                            <h4>오늘의 불씨 Pick</h4>
+                            <p>매일 새로운 주제로 이야기에 불을 지펴보세요.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Campfire -->
+                <div class="campfire-wrap">
+                    <div class="flames">
+                        <div class="flame flame-outer"></div>
+                        <div class="flame flame-mid"></div>
+                        <div class="flame flame-inner"></div>
+                        <div class="flame flame-core"></div>
+                    </div>
+                    <div class="logs">
+                        <div class="log log-3"></div>
+                        <div class="log log-1"></div>
+                        <div class="log log-2"></div>
+                        <div class="ember-glow"></div>
+                    </div>
+                    <div class="stones">
+                        <div class="stone stone-1"></div>
+                        <div class="stone stone-2"></div>
+                        <div class="stone stone-3"></div>
+                        <div class="stone stone-4"></div>
+                        <div class="stone stone-5"></div>
+                    </div>
+                    <div class="ground-shadow"></div>
+                </div>
             </div>
 
             <!-- ── 오른쪽 패널 ── -->
@@ -129,9 +137,9 @@
                     </div>
 
                     <div class="field">
-                        <label>이메일</label>
+                        <label>아이디</label>
                         <div class="input-wrap">
-                            <input type="email" placeholder="이메일 주소를 입력하세요">
+                            <input v-model="userId" type="text" placeholder="아이디를 입력하세요">
                             <span class="input-icon">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                                     <rect x="1" y="3" width="14" height="10" rx="2" stroke="#b09070"
@@ -146,7 +154,7 @@
                     <div class="field">
                         <label>비밀번호</label>
                         <div class="input-wrap">
-                            <input type="password" placeholder="비밀번호를 입력하세요" id="pwInput">
+                            <input v-model="userPwd" type="password" placeholder="비밀번호를 입력하세요" id="pwInput">
                             <span class="input-icon" onclick="togglePw()" id="eyeBtn">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                                     <ellipse cx="8" cy="8" rx="6" ry="4" stroke="#b09070" stroke-width="1.4" />
@@ -161,10 +169,10 @@
                             <input type="checkbox">
                             <span>로그인 상태 유지</span>
                         </label>
-                        <a href="#" class="forgot">비밀번호 찾기</a>
+                        <a href="http://localhost:8080/user/find-account.do" class="forgot">비밀번호 찾기</a>
                     </div>
 
-                    <button class="btn-login">로그인</button>
+                    <button class="btn-login" @click="fnLogin">로그인</button>
 
                     <div class="divider">
                         <div class="divider-line"></div>
@@ -195,7 +203,7 @@
 
                     <p class="signup-row">
                         아직 모닥이 없으신가요?
-                        <a href="#">회원가입하기 →</a>
+                        <a href="http://localhost:8080/user/sign-up.do">회원가입하기 →</a>
                     </p>
                 </div>
             </div>
@@ -210,23 +218,29 @@
                 return {
                     // 변수 - (키 : 값)
                     // list : [] 
+                    userId: '',
+                    userPwd: ''
                 };
             },
             methods: {
                 // 함수(메소드) - (key : function())
-                fnList: function () {
+                fnLogin: function () {
                     let self = this;
                     let param = {
                         // 백엔드로 전달할 데이터
+                        userId: self.userId,
+                        userPwd: self.userPwd
                     };
                     $.ajax({
-                        url: "http://localhost:8080/default.dox",
+                        url: "http://localhost:8080/user/login.dox",
                         dataType: "json",
                         type: "POST",
                         data: param,
                         success: function (data) {
                             // 받은 데이터를 변수에 저장하세요
                             // self.list = data.list;
+                            console.log(data);
+
                         }
                     });
                 }

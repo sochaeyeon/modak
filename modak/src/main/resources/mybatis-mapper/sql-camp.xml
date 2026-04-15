@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.modak.def.mapper.CampMapper">
+
+    <select id="selectCampList" parameterType="hashmap" resultType="com.example.modak.def.model.Camp">
+        SELECT 
+            C.CAMP_ID AS contentId, 
+            C.CAMP_NAME AS facltNm, 
+            C.ADDRESS AS addr1, 
+            C.LATITUDE AS mapY, 
+            C.LONGITUDE AS mapX, 
+            C.DESCRIPTION AS lineIntro,
+            I.IMG_URL AS firstImageUrl
+        FROM CAMP C
+        LEFT JOIN CAMP_IMG I ON C.CAMP_ID = I.CAMP_ID AND I.IS_MAIN = 'Y'
+        WHERE 1=1
+        <if test="selectedArea != null and selectedArea != ''">
+            AND C.ADDRESS LIKE CONCAT('%', #{selectedArea}, '%')
+        </if>
+    </select>
+
+    <insert id="insertCampList" parameterType="java.util.List">
+        INSERT INTO CAMP (CAMP_ID, CAMP_NAME, ADDRESS, LATITUDE, LONGITUDE, DESCRIPTION)
+        VALUES 
+        <foreach collection="list" item="item" separator=",">
+            (#{item.contentId}, #{item.facltNm}, #{item.addr1}, #{item.mapY}, #{item.mapX}, #{item.lineIntro})
+        </foreach>
+        ON DUPLICATE KEY UPDATE ADDRESS = VALUES(ADDRESS), DESCRIPTION = VALUES(DESCRIPTION)
+    </insert>
+
+    <insert id="insertCampImg" parameterType="hashmap">
+        INSERT INTO CAMP_IMG (CAMP_ID, IMG_URL, IS_MAIN)
+        VALUES (#{campId}, #{imgUrl}, 'Y')
+        ON DUPLICATE KEY UPDATE IMG_URL = VALUES(IMG_URL)
+    </insert>
+
+    <select id="selectReviewList" parameterType="hashmap" resultType="hashmap">
+        SELECT USER_ID AS userId, CONTENT AS content, RATING AS rating, DATE_FORMAT(CREATED_AT, '%Y-%m-%d') AS createdAt
+        FROM CAMP_REVIEW WHERE CAMP_ID = #{campId} ORDER BY CREATED_AT DESC
+    </select>
+</mapper>

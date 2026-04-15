@@ -12,38 +12,52 @@ import org.springframework.security.web.firewall.StrictHttpFirewall;
 
 @Configuration
 public class SecurityConfig {
+	
+	private final CustomOAuth2UserService customOAuth2UserService;
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();  // 비밀번호 해싱 기능만 사용
-    }
+	// 🔥 생성자 주입 추가
+	public SecurityConfig(CustomOAuth2UserService customOAuth2UserService) {
+		this.customOAuth2UserService = customOAuth2UserService;
+	}
 
-    // ✅ 핵심: firewall 설정 추가
-    @Bean
-    public HttpFirewall allowDoubleSlashFirewall() {
-        StrictHttpFirewall firewall = new StrictHttpFirewall();
-        firewall.setAllowUrlEncodedDoubleSlash(true);
-        firewall.setAllowSemicolon(true);
-        return firewall;
-    }
+	// ✅ 핵심: firewall 설정 추가
+	@Bean
+	public HttpFirewall allowDoubleSlashFirewall() {
+		StrictHttpFirewall firewall = new StrictHttpFirewall();
+		firewall.setAllowUrlEncodedDoubleSlash(true);
+		firewall.setAllowSemicolon(true);
+		return firewall;
+	}
 
-    // ✅ firewall 적용
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.httpFirewall(allowDoubleSlashFirewall());
-    }
+	// ✅ firewall 적용
+	@Bean
+	public WebSecurityCustomizer webSecurityCustomizer() {
+		return web -> web.httpFirewall(allowDoubleSlashFirewall());
+	}
 
-    
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll() // 모든 요청 허용 (로그인 필요 없음)
-            )
-            .csrf(csrf -> csrf.disable()) // CSRF 보호 비활성화 (필요 시 설정 가능)
-//            .formLogin(form -> form.disable()) // 기본 로그인 페이지 비활성화
-            .httpBasic(basic -> basic.disable()); // HTTP Basic 인증 비활성화
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http
+				// csrf 비활성화
+				.csrf(csrf -> csrf.disable())
 
-        return http.build();
-    }
+				// http basic 비활성화
+				.httpBasic(basic -> basic.disable())
+
+				// 요청 허용 설정
+				.authorizeHttpRequests(auth -> auth
+						.requestMatchers("/", "/user/**", "/oauth2/**", "/login/**", "/css/**", "/js/**", "/images/**")
+						.permitAll().anyRequest().permitAll())
+
+				// 일반 로그인 페이지를 사용할 경우
+				.formLogin(form -> form.loginPage("/user/login.do").loginProcessingUrl("/user/login")
+						.defaultSuccessUrl("/", true).failureUrl("/user/login.do?error=true").permitAll())
+
+				// 소셜 로그인 설정 추가
+				.oauth2Login(oauth -> oauth.loginPage("/user/login.do")
+						.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService) // 🔥 이거 꼭
+						).defaultSuccessUrl("/main.do", true).defaultSuccessUrl("/user/login.do", true)
+						.failureUrl("/user/login.do?socialError=true"));
+		return http.build();
+	}
 }

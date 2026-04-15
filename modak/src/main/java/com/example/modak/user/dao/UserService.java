@@ -1,6 +1,7 @@
 package com.example.modak.user.dao;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.modak.common.Message;
 import com.example.modak.user.mapper.UserMapper;
+import com.example.modak.user.model.SocialUserInfo;
 import com.example.modak.user.model.User;
 
 import jakarta.servlet.http.HttpSession;
@@ -72,7 +74,6 @@ public class UserService {
 			User info = userMapper.selectUser(map);
 			if (info != null) {
 				if (passwordEncoder.matches((String) map.get("userPwd"), info.getUserPwd())) {
-					System.out.println(info);
 					resultMap.put("message", Message.USER_LOGIN_SUCCESS);
 					resultMap.put("loginResult", true);
 					session.setAttribute("sessionId", info.getUserId());
@@ -96,4 +97,54 @@ public class UserService {
 		
 		return resultMap;
 	}
+	
+	// 소셜 로그인
+	 public UserService(UserMapper userMapper) {
+	        this.userMapper = userMapper;
+	    }
+
+	    public User getOrCreateSocialUser(SocialUserInfo info) {
+
+	        HashMap<String, Object> map = new HashMap<>();
+	        map.put("socialType", info.getSocialType());
+	        map.put("socialId", info.getSocialId());
+
+	        // 1. 기존 회원 조회
+	        User user = userMapper.selectUserBySocial(map);
+	        if (user != null) {
+	            return user;
+	        }
+
+	        // 2. 신규 회원 생성
+	        String userId = createUserId(info.getSocialType());
+
+	        HashMap<String, Object> insertMap = new HashMap<>();
+	        insertMap.put("userId", userId);
+	        insertMap.put("userName", info.getUserName());
+	        insertMap.put("email", info.getEmail());
+	        insertMap.put("nickName", info.getNickName());
+	        insertMap.put("socialType", info.getSocialType());
+	        insertMap.put("socialId", info.getSocialId());
+
+	        userMapper.insertSocialUser(insertMap);
+
+	        map.put("socialType", info.getSocialType());
+	        map.put("socialId", info.getSocialId());
+
+	        return userMapper.selectUserBySocial(map);
+	    }
+
+	    private String createUserId(String socialType) {
+	        while (true) {
+	            String userId = socialType.toLowerCase() + "_" +
+	                    UUID.randomUUID().toString().substring(0, 8);
+
+	            HashMap<String, Object> map = new HashMap<>();
+	            map.put("userId", userId);
+
+	            if (userMapper.countUserId(map) == 0) {
+	                return userId;
+	            }
+	        }
+	    }
 }

@@ -15,4 +15,5 @@ public class Product {
 	String createdAt; // 등록일
 	
 	int categoryId; // 카테고리id
+	
 }

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   
+<mapper namespace="com.example.modak.mapper.DefaultMapper">
+
+   <!-- 여러개 검색 -->
+   <select id="selectDefaultList" parameterType="hashmap" resultType="com.example.modak.model.Default">
+      
+   </select>
+
+   <!-- 한 개 검색 -->
+   <select id="selectDefault" parameterType="hashmap" resultType="com.example.modak.model.Default">
+
+   </select>
+
+   <!-- 삽입 -->
+   <insert id="insertDefault" parameterType="hashmap">
+
+   </insert>
+
+   <!-- 삭제 -->
+   <delete id="deleteDefault" parameterType="hashmap">
+
+   </delete>
+   <!-- 수정 -->
+
+   <update id="updateDefault" parameterType="hashmap">
+
+   </update>
+
+   <!-- 주요 문법 -->
+   <!-- CONCAT (오라클의 LIKE) -->
+   <!-- WHERE NAME LIKE CONCAT('%', #{name}, '%') -->
+
+   <!-- += -->
+   <!-- CNT += 1 이거 안 됨 -->
+   <!-- CNT = CNT + 1 이렇게 분리해서 -->
+
+   <!-- ; -->
+   <!-- 뒤에 세미콜론 붙이지 말기 -->
+
+   <!-- 페이징 -->
+   <!-- LIMIT #{pageSize} OFFSET #{offSet} 기억 나시나요? -->
+
+   <!-- 반복문 -->
+   <!-- WHERE EMPNO IN
+          <foreach collection="list" item="item" open="(" separator="," close=")"> 
+             #{item}   
+          </foreach> -->
+
+   <!-- 조건문 -->
+   <!-- WHERE 1=1 
+      <if test="position != null and position != ''">
+         AND POSITION = #{position}
+      </if>
+      <if test="deptNo != null and deptNo != ''">
+         AND P.DEPTNO = #{deptNo}
+      </if> -->
+
+   <!-- choose -->
+   <!-- <choose>
+         <when test="order == 'NAME'">
+            ORDER BY NAME
+         </when>
+         <when test="order == 'GRADE'">
+            ORDER BY GRADE
+         </when>
+         <when test="order == 'DNAME2'">
+            ORDER BY DNAME2
+         </when>
+         <otherwise>
+         
+         </otherwise>
+      </choose> -->
+</mapper>

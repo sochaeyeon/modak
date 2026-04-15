@@ -1,4 +1,4 @@
-package com.example.modak.controller;
+package com.example.modak.def.controller;
 
 import java.util.HashMap;
 
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.example.modak.dao.DefaultService;
+import com.example.modak.def.dao.DefaultService;
 import com.google.gson.Gson;
 
 import jakarta.servlet.http.HttpServletRequest;

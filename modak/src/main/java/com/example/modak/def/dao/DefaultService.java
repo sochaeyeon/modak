@@ -1,11 +1,11 @@
-package com.example.modak.dao;
+package com.example.modak.def.dao;
 
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.modak.mapper.DefaultMapper;
+import com.example.modak.def.mapper.DefaultMapper;
 
 // 규칙
 // 검색 - get, 삭제 - remove, 수정 - edit, 추가 - add

@@ -1,11 +1,11 @@
-package com.example.modak.mapper;
+package com.example.modak.def.mapper;
 
 import java.util.HashMap;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.example.modak.model.Default;
+import com.example.modak.def.model.Default;
 
 // 규칙
 // 검색 - select, 삭제 - delete, 추가 - insert, 수정 - update

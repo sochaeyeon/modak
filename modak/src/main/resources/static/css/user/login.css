@@ -29,7 +29,11 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
 }
-
+a {
+    text-decoration: none;
+    color: inherit;
+	cursor: pointer;
+}
 /* ── 왼쪽 패널 ── */
 .left-panel {
   flex: 1;

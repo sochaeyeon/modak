@@ -14,4 +14,14 @@ public interface UserMapper {
 	
 	// 회원 한 명 검색
 	public User selectUser(HashMap<String, Object> map);
+	
+	
+	
+	
+	// 소셜 로그인
+	User selectUserBySocial(HashMap<String, Object> map);
+
+	int insertSocialUser(HashMap<String, Object> map);
+
+	int countUserId(HashMap<String, Object> map);
 }

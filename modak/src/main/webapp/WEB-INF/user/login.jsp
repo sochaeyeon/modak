@@ -179,26 +179,30 @@
                         <span>소셜 계정으로 로그인</span>
                         <div class="divider-line"></div>
                     </div>
-
                     <div class="social-row">
-                        <button class="btn-social">
-                            <svg width="16" height="16" viewBox="0 0 16 16"><text x="8" y="12" text-anchor="middle"
-                                    font-size="10" font-weight="700" fill="#FFBC00"
-                                    font-family="sans-serif">K</text></svg>
+                        <a class="btn-social" href="/oauth2/authorization/kakao">
+                            <svg width="16" height="16" viewBox="0 0 16 16">
+                                <text x="8" y="12" text-anchor="middle" font-size="10" font-weight="700" fill="#FFBC00"
+                                    font-family="sans-serif">K</text>
+                            </svg>
                             카카오
-                        </button>
-                        <button class="btn-social">
-                            <svg width="16" height="16" viewBox="0 0 16 16"><text x="8" y="12" text-anchor="middle"
-                                    font-size="11" font-weight="700" fill="#03C75A"
-                                    font-family="sans-serif">N</text></svg>
+                        </a>
+
+                        <a class="btn-social" href="/oauth2/authorization/naver">
+                            <svg width="16" height="16" viewBox="0 0 16 16">
+                                <text x="8" y="12" text-anchor="middle" font-size="11" font-weight="700" fill="#03C75A"
+                                    font-family="sans-serif">N</text>
+                            </svg>
                             네이버
-                        </button>
-                        <button class="btn-social">
-                            <svg width="16" height="16" viewBox="0 0 16 16"><text x="8" y="12" text-anchor="middle"
-                                    font-size="10" font-weight="700" fill="#EA4335"
-                                    font-family="sans-serif">G</text></svg>
+                        </a>
+
+                        <a class="btn-social" href="/oauth2/authorization/google">
+                            <svg width="16" height="16" viewBox="0 0 16 16">
+                                <text x="8" y="12" text-anchor="middle" font-size="10" font-weight="700" fill="#EA4335"
+                                    font-family="sans-serif">G</text>
+                            </svg>
                             구글
-                        </button>
+                        </a>
                     </div>
 
                     <p class="signup-row">
@@ -240,6 +244,9 @@
                             // 받은 데이터를 변수에 저장하세요
                             // self.list = data.list;
                             console.log(data);
+                            if(data.loginResult) {
+                                location.href ="http://localhost:8080/main.do";
+                            }
 
                         }
                     });

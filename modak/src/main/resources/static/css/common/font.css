@@ -1,0 +1,24 @@
+/* 서울한강체 */
+@font-face {
+  font-family: 'SeoulHangangCL';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/SeoulHangangCL.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SeoulHangangCEB';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/SeoulHangangCEB.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+html, body {
+  font-family: 'SeoulHangangCL', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+}
+
+input, textarea, button, select {
+  font-family: 'SeoulHangangCL', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+}

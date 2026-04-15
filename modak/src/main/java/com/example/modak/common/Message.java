@@ -54,8 +54,9 @@ public class Message {
 
 
     // 5. 사용자 관련    
-    public static final String USER_LOGIN_SUCCESS = "로그인되었습니다.";
-    public static final String USER_LOGIN_FAIL = "아이디 또는 비밀번호가 올바르지 않습니다.";
+    public static final String USER_LOGIN_SUCCESS = "로그인 성공.";
+    public static final String USER_LOGIN_FAIL_ID = "아이디를 다시 확인하세요.";
+    public static final String USER_LOGIN_FAIL_PWD = "비밀번호를 다시 확인하세요.";
     public static final String USER_SIGNUP_SUCCESS = "회원가입이 완료되었습니다.";
     public static final String USER_SIGNUP_FAIL = "회원가입에 실패했습니다.";  
     public static final String USER_NOT_FOUND = "사용자 정보를 찾을 수 없습니다.";

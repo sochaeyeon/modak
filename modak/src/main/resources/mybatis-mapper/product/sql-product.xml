@@ -4,9 +4,11 @@
    
 <mapper namespace="com.example.modak.product.mapper.ProductMapper">
 
-   <!-- 제품 리스트 -->
+  <!--  제품 리스트 product list -->
    <select id="selectProductList" resultType="com.example.modak.product.model.Product">
    		SELECT * FROM PRODUCT
    </select>
+
+
 
 </mapper>

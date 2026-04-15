@@ -15,7 +15,7 @@ public class ProductService {
 
 	@Autowired 
 	ProductMapper productMapper;
-	// 제품 리스트 불러오기
+	// 제품 리스트 불러오기 product list
 	public HashMap<String, Object> getProductList(HashMap<String, Object> map){
 	      HashMap<String, Object> resultMap = new HashMap<String, Object>();
 	      try {

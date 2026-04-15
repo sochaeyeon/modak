@@ -1,4 +1,4 @@
-package com.example.modak.def.controller;
+package com.example.modak.camp.controller;
 
 import java.util.HashMap;
 
@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.example.modak.def.dao.CampService;
+import com.example.modak.camp.dao.CampService;
 import com.google.gson.Gson;
 
 @Controller

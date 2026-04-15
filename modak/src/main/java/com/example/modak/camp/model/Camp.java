@@ -1,4 +1,4 @@
-package com.example.modak.def.model;
+package com.example.modak.camp.model;
 
 import lombok.Data;
 

@@ -1,9 +1,11 @@
-package com.example.modak.def.mapper;
+package com.example.modak.camp.mapper;
 
 import java.util.HashMap;
 import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
-import com.example.modak.def.model.Camp;
+
+import com.example.modak.camp.model.Camp;
 
 @Mapper
 public interface CampMapper {

@@ -1,16 +1,26 @@
-package com.example.modak.def.dao;
+package com.example.modak.camp.dao;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.example.modak.def.mapper.CampMapper;
-import com.example.modak.def.model.Camp;
-import com.google.gson.*;
+
+import com.example.modak.camp.mapper.CampMapper;
+import com.example.modak.camp.model.Camp;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 @Service
 public class CampService {

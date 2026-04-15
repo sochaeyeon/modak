@@ -1,4 +1,4 @@
-package com.example.modak.def.mapper;
+package com.example.modak.camp.mapper;
 
 import java.util.HashMap;
 import java.util.List;

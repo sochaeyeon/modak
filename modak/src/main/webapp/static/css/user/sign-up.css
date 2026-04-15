@@ -1,0 +1,633 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #faf6f0;
+  --ember-deep: #c94f1e;
+  --ember: #e0621a;
+  --ember-light: #f07d3a;
+  --text-dark: #2e1a0e;
+  --text-mid: #7a5c3e;
+  --text-light: #b09070;
+  --border: rgba(200, 165, 130, 0.3);
+  --success: #5a9a6a;
+  --error: #c94f1e;
+}
+
+#app {
+  display: flex;
+  height: 100vh;
+}
+
+body {
+  font-family: 'SeoulHangangCL', 'Apple SD Gothic Neo', sans-serif !important;
+  background: var(--bg);
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* ─── 왼쪽 패널 (로그인 페이지와 동일) ─── */
+.left-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 52px 64px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.left-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 65% 80%, rgba(240, 125, 58, .14) 0%, transparent 58%),
+    radial-gradient(ellipse at 15% 25%, rgba(244, 164, 96, .07) 0%, transparent 45%);
+  pointer-events: none;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  animation: fadeUp .7s ease both;
+}
+
+.brand-name {
+  font-family: 'SeoulHangangCEB', sans-serif;
+  font-size: 21px;
+  color: var(--ember-deep);
+}
+
+.hero {
+  margin-top: 52px;
+  animation: fadeUp .7s .1s ease both;
+}
+
+.hero-eyebrow {
+  font-size: 11px;
+  letter-spacing: 3.5px;
+  color: var(--ember-light);
+  margin-bottom: 18px;
+}
+
+.hero-title {
+  font-family: 'SeoulHangangCEB', sans-serif;
+  font-size: 44px;
+  line-height: 1.22;
+  color: var(--text-dark);
+  letter-spacing: -1px;
+  margin-bottom: 18px;
+}
+
+.hero-title em {
+  font-style: normal;
+  color: var(--ember-deep);
+}
+
+.hero-desc {
+  font-size: 14.5px;
+  color: var(--text-mid);
+  line-height: 1.78;
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 40px;
+  animation: fadeUp .7s .2s ease both;
+  width: 50%;
+}
+
+.feat-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 18px;
+  background: rgba(255, 255, 255, .52);
+  border: 1px solid rgba(210, 180, 150, .28);
+  border-radius: 14px;
+  backdrop-filter: blur(6px);
+  transition: transform .18s, box-shadow .18s;
+}
+
+.feat-card:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 16px rgba(180, 100, 40, .09);
+}
+
+.feat-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(240, 125, 58, .15), rgba(244, 164, 96, .1));
+  border: 1px solid rgba(240, 125, 58, .2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.feat-text h4 {
+  font-family: 'SeoulHangangCEB', sans-serif;
+  font-size: 13.5px;
+  color: var(--text-dark);
+  margin-bottom: 3px;
+}
+
+.feat-text p {
+  font-size: 12px;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+.fire-wrap {
+  position: absolute;
+  bottom: 55px;
+  right: 48px;
+  width: 220px;
+  pointer-events: none;
+}
+
+/* ─── 오른쪽 패널 ─── */
+.right-panel {
+  width: 468px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 52px 40px;
+  background: rgba(255, 255, 255, .52);
+  backdrop-filter: blur(14px);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+}
+
+.signup-box {
+  width: 100%;
+  animation: fadeUp .7s .25s ease both;
+  padding-bottom: 24px;
+}
+
+.signup-heading {
+  margin-bottom: 28px;
+}
+
+.signup-heading h2 {
+  font-family: 'SeoulHangangCEB', sans-serif;
+  font-size: 27px;
+  color: var(--text-dark);
+  letter-spacing: -.5px;
+  margin-bottom: 8px;
+}
+
+.signup-heading p {
+  font-size: 13.5px;
+  color: var(--text-light);
+  line-height: 1.6;
+}
+
+/* 2열 그리드 */
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 0;
+}
+
+.field {
+  margin-bottom: 13px;
+}
+
+.field label {
+  display: block;
+  font-size: 12px;
+  letter-spacing: .4px;
+  color: var(--text-mid);
+  margin-bottom: 6px;
+}
+
+.field label .required {
+  color: var(--ember);
+  margin-left: 2px;
+  font-size: 11px;
+}
+
+.input-wrap {
+  position: relative;
+}
+
+.input-wrap input {
+  width: 100%;
+  padding: 12px 40px 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 252, 248, .92);
+  font-family: 'SeoulHangangCL', sans-serif;
+  font-size: 14px;
+  color: var(--text-dark);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.input-wrap input::placeholder {
+  color: #cbbba5;
+  font-size: 13px;
+}
+
+.input-wrap input:focus {
+  border-color: var(--ember-light);
+  box-shadow: 0 0 0 4px rgba(240, 125, 58, .1);
+}
+
+.input-wrap input.valid {
+  border-color: var(--success);
+}
+
+.input-wrap input.invalid {
+  border-color: var(--error);
+}
+
+.input-icon {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+/* 입력 상태 피드백 */
+.field-hint {
+  font-size: 11px;
+  margin-top: 2px;
+  padding-left: 2px;
+  min-height: 10px;
+  line-height: 1.2;
+  color: var(--text-light);
+}
+
+.field-hint.ok {
+  color: var(--success);
+}
+
+.field-hint.error {
+  color: var(--error);
+}
+
+/* 약관 동의 */
+.terms-section {
+  margin: 4px 0 18px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, .45);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.terms-all {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.terms-all span {
+  font-family: 'SeoulHangangCEB', sans-serif;
+  font-size: 13px;
+  color: var(--text-dark);
+}
+
+.terms-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.terms-item:last-child {
+  margin-bottom: 0;
+}
+
+.terms-check {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+}
+
+.terms-check span {
+  font-size: 12.5px;
+  color: var(--text-mid);
+}
+
+.terms-check span em {
+  font-style: normal;
+  color: var(--ember);
+  font-size: 11px;
+  margin-right: 3px;
+}
+
+.terms-link {
+  font-size: 11.5px;
+  color: var(--text-light);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+  transition: color .18s, border-color .18s;
+  flex-shrink: 0;
+}
+
+.terms-link:hover {
+  color: var(--ember);
+  border-color: var(--ember);
+}
+
+/* 커스텀 체크박스 */
+.cb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid rgba(180, 140, 100, .4);
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: all .18s;
+}
+
+.cb:checked {
+  background: var(--ember);
+  border-color: var(--ember);
+}
+
+.cb:checked::after {
+  content: '';
+  position: absolute;
+  left: 3.5px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: 2px solid white;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+}
+
+.cb.all-cb {
+  width: 17px;
+  height: 17px;
+  border-radius: 5px;
+}
+
+/* 가입 버튼 */
+.btn-signup {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--ember-deep), var(--ember-light));
+  border: none;
+  border-radius: 13px;
+  color: white;
+  font-family: 'SeoulHangangCEB', sans-serif;
+  font-size: 15.5px;
+  cursor: pointer;
+  letter-spacing: .2px;
+  position: relative;
+  overflow: hidden;
+  transition: transform .15s, box-shadow .2s;
+  box-shadow: 0 6px 20px rgba(201, 79, 30, .3);
+}
+
+.btn-signup::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, .18) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+.btn-signup:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(201, 79, 30, .38);
+}
+
+.btn-signup:active {
+  transform: translateY(0);
+}
+
+.btn-signup:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* 소셜 가입 */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin: 18px 0;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.divider span {
+  font-size: 11.5px;
+  color: var(--text-light);
+  letter-spacing: .4px;
+  white-space: nowrap;
+}
+
+.social-row {
+  display: flex;
+  gap: 9px;
+}
+
+.btn-social {
+  flex: 1;
+  padding: 11px 6px;
+  border: 1.5px solid var(--border);
+  border-radius: 11px;
+  background: rgba(255, 252, 248, .8);
+  cursor: pointer;
+  font-family: 'SeoulHangangCL', sans-serif;
+  font-size: 12.5px;
+  color: var(--text-mid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background .2s, border-color .2s, transform .15s;
+}
+
+.btn-social:hover {
+  background: rgba(255, 248, 240, 1);
+  border-color: rgba(180, 140, 100, .4);
+  transform: translateY(-1px);
+}
+
+.login-row {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--text-light);
+}
+
+.login-row a {
+  color: var(--ember);
+  text-decoration: none;
+  margin-left: 4px;
+  transition: color .2s;
+}
+
+.login-row a:hover {
+  color: var(--ember-deep);
+}
+
+/* .bg-video {
+  position: fixed;
+  top: 40px;
+  left: 0;
+  width: 80%;
+  height: 80%;
+  border-radius: 50px 0 0 50px;
+  z-index: -1;
+} */
+
+/* 애니메이션 */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes flicker1 {
+
+  0%,
+  100% {
+    transform: scaleY(1) scaleX(1) translateX(0);
+  }
+
+  25% {
+    transform: scaleY(1.07) scaleX(.95) translateX(-1px);
+  }
+
+  50% {
+    transform: scaleY(.97) scaleX(1.04) translateX(1px);
+  }
+
+  75% {
+    transform: scaleY(1.04) scaleX(.97);
+  }
+}
+
+@keyframes flicker2 {
+
+  0%,
+  100% {
+    transform: scaleY(1) scaleX(1);
+    opacity: .92;
+  }
+
+  30% {
+    transform: scaleY(1.1) scaleX(.93) translateX(1px);
+    opacity: .86;
+  }
+
+  65% {
+    transform: scaleY(.95) scaleX(1.05) translateX(-1px);
+    opacity: .94;
+  }
+}
+
+@keyframes glow-pulse {
+
+  0%,
+  100% {
+    opacity: .2;
+  }
+
+  50% {
+    opacity: .35;
+  }
+}
+
+@keyframes ef1 {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: .85;
+  }
+
+  100% {
+    transform: translateY(-70px) translateX(9px);
+    opacity: 0;
+  }
+}
+
+@keyframes ef2 {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: .7;
+  }
+
+  100% {
+    transform: translateY(-55px) translateX(-11px);
+    opacity: 0;
+  }
+}
+
+@keyframes ef3 {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: .75;
+  }
+
+  100% {
+    transform: translateY(-62px) translateX(6px);
+    opacity: 0;
+  }
+}
+
+.fl-main {
+  animation: flicker1 1.9s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.fl-inner {
+  animation: flicker2 1.5s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+.glow-el {
+  animation: glow-pulse 2.3s ease-in-out infinite;
+}
+
+.e1 {
+  animation: ef1 2.8s ease-out infinite;
+}
+
+.e2 {
+  animation: ef2 3.2s ease-out .9s infinite;
+}
+
+.e3 {
+  animation: ef3 2.4s ease-out 1.5s infinite;
+}
+

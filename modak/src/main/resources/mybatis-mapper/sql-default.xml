@@ -2,15 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
    
-<mapper namespace="com.example.modak.mapper.DefaultMapper">
+<mapper namespace="com.example.modak.mapper.def.DefaultMapper">
 
    <!-- 여러개 검색 -->
-   <select id="selectDefaultList" parameterType="hashmap" resultType="com.example.modak.model.Default">
+   <select id="selectDefaultList" parameterType="hashmap" resultType="com.example.modak.def.model.Default">
       
    </select>
 
    <!-- 한 개 검색 -->
-   <select id="selectDefault" parameterType="hashmap" resultType="com.example.modak.model.Default">
+   <select id="selectDefault" parameterType="hashmap" resultType="com.example.modak.def.model.Default">
 
    </select>
 

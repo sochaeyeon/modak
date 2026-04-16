@@ -40,4 +40,6 @@ public interface FindAccountMapper {
     Map<String, Object> selectVerifiedPwResetAuth(HashMap<String, Object> map);
 
     int updateUserPassword(HashMap<String, Object> map);
+    
+    User selectUserById(HashMap<String, Object> map);
 }

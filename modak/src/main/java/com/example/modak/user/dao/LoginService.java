@@ -16,16 +16,16 @@ import jakarta.servlet.http.HttpSession;
 
 @Service
 public class LoginService {
-	
+
 	@Autowired
 	PasswordEncoder passwordEncoder;
-	
+
 	@Autowired
 	HttpSession session;
-	
+
 	@Autowired
 	LoginMapper loginMapper;
-	
+
 //  일반 로그인
 	public HashMap<String, Object> getUser(HashMap<String, Object> map) {
 		HashMap<String, Object> resultMap = new HashMap<>();
@@ -39,6 +39,18 @@ public class LoginService {
 
 					session.setAttribute("sessionId", info.getUserId());
 					session.setAttribute("sessionName", info.getUserName());
+					session.setAttribute("sessionNickName", info.getNickName());
+					session.setAttribute("sessionGradeId", info.getGradeId());
+					session.setMaxInactiveInterval(30 * 60);
+
+					String returnUrl = (String) session.getAttribute("returnUrl");
+
+					if (returnUrl != null && !returnUrl.equals("")) {
+						resultMap.put("moveUrl", returnUrl);
+						session.removeAttribute("returnUrl");
+					} else {
+						resultMap.put("moveUrl", "/main.do");
+					}
 
 				} else {
 					resultMap.put("message", Message.USER_LOGIN_FAIL_PWD);
@@ -67,11 +79,9 @@ public class LoginService {
 		map.put("socialType", info.getSocialType());
 		map.put("socialId", info.getSocialId());
 
-		// 1. 기존 회원 조회
 		User user = loginMapper.selectUserBySocial(map);
 
 		if (user == null) {
-			// 2. 신규 회원 생성
 			String userId = createUserId(info.getSocialType());
 
 			HashMap<String, Object> insertMap = new HashMap<>();
@@ -87,11 +97,12 @@ public class LoginService {
 			user = loginMapper.selectUserBySocial(map);
 		}
 
-		// 3. 일반 로그인과 동일하게 세션 값 저장
 		if (user != null) {
 			session.setAttribute("sessionId", user.getUserId());
 			session.setAttribute("sessionName", user.getUserName());
-
+			session.setAttribute("sessionNickName", user.getNickName());
+			session.setAttribute("sessionGradeId", user.getGradeId());
+			session.setMaxInactiveInterval(30 * 60);
 		}
 		return user;
 	}

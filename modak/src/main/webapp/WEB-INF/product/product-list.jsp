@@ -16,6 +16,7 @@
 <body>
     <div id="app">
         <div>
+            <!-- 리스트출력 -->
             <div v-for="item in list" :key="item.id">
                 
                 <div>

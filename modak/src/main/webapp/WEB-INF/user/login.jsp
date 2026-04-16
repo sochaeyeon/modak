@@ -162,14 +162,15 @@
                                 </svg>
                             </span>
                         </div>
+                        <p v-if="loginMsg" class="login-msg">{{ loginMsg }}</p>
+
                     </div>
 
                     <div class="row-options">
                         <label class="remember">
-                            <input type="checkbox">
-                            <span>로그인 상태 유지</span>
+                            
                         </label>
-                        <a href="http://localhost:8080/user/find-account.do" class="forgot">비밀번호 찾기</a>
+                        <a href="http://localhost:8080/user/find-account.do" class="forgot">아이디/비밀번호 찾기</a>
                     </div>
 
                     <button class="btn-login" @click="fnLogin">로그인</button>
@@ -223,7 +224,8 @@
                     // 변수 - (키 : 값)
                     // list : [] 
                     userId: '',
-                    userPwd: ''
+                    userPwd: '',
+                    loginMsg: ''
                 };
             },
             methods: {
@@ -231,23 +233,27 @@
                 fnLogin: function () {
                     let self = this;
                     let param = {
-                        // 백엔드로 전달할 데이터
                         userId: self.userId,
                         userPwd: self.userPwd
                     };
+
                     $.ajax({
                         url: "http://localhost:8080/user/login.dox",
                         dataType: "json",
                         type: "POST",
                         data: param,
                         success: function (data) {
-                            // 받은 데이터를 변수에 저장하세요
-                            // self.list = data.list;
                             console.log(data);
-                            if(data.loginResult) {
-                                location.href ="http://localhost:8080/main.do";
-                            }
 
+                            if (data.loginResult) {
+                                // 🔥 여기 바꿔야 함
+                                location.href = data.moveUrl;
+                            } else {
+                                self.loginMsg = data.message;
+                            }
+                        },
+                        error: function () {
+                            self.loginMsg = "로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
                         }
                     });
                 }

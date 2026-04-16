@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.modak.membership.mapper.MembershipMapper">
+
+	<select id="selectMembershipInfo"
+		parameterType="hashmap"
+		resultType="com.example.modak.membership.model.MembershipInfo">
+
+		SELECT
+		U.USER_ID,
+		U.USER_NAME,
+		U.NICKNAME,
+		U.TOTAL_AMOUNT,
+		U.POINT,
+
+		G.GRADE_ID,
+		G.GRADE_NAME,
+		G.MIN_AMOUNT,
+		G.DISCOUNT_RATE,
+		G.DESCRIPTION
+
+		FROM USER U
+		LEFT JOIN USER_GRADE G
+		ON U.GRADE_ID = G.GRADE_ID
+		WHERE U.USER_ID = #{userId}
+
+	</select>
+</mapper>

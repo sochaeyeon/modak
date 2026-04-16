@@ -374,137 +374,87 @@
 	<body>
 
 		<!-- Header -->
-		<a href="/header"></a>
+		<%@ include file="/WEB-INF/common/header.jsp" %>
 
-		<!-- Main -->
-		<main>
-			<h1 class="page-title">모닥모닥 소식</h1>
-			<p class="page-subtitle">특별한 혜택과 캠핑 소식을 가장 먼저 확인해보세요.</p>
+			<!-- Main -->
+			<main>
+				<h1 class="page-title">모닥모닥 소식</h1>
+				<p class="page-subtitle">특별한 혜택과 캠핑 소식을 가장 먼저 확인해보세요.</p>
 
-			<!-- Tabs -->
-			<div class="tabs">
-				<button class="tab active" onclick="setTab(this)">진행중인 이벤트</button>
-				<button class="tab" onclick="setTab(this)">종료된 이벤트</button>
-				<button class="tab" onclick="setTab(this)">당첨자 발표</button>
-			</div>
-
-			<!-- Cards -->
-			<div class="cards-grid">
-				<!-- Card 1 -->
-				<div class="card">
-					<div class="card-image">
-						<span class="card-badge badge-active">진행중</span>
-						<div class="card-image-placeholder">메인 배너 이미지<br>(4:3 비율)</div>
-					</div>
-					<div class="card-body">
-						<h3 class="card-title">신규 회원이라면? 캠핑 장비 대여<br>20% 할인 쿠폰!</h3>
-						<p class="card-desc">모닥모닥과 함께하는 첫 캠핑을 응원합니다. 지금 바로 할인 쿠폰을 다운로드하고 가까운 마음으로 떠나보세요.</p>
-						<div class="card-date">2026.04.01 ~ 2026.05.31</div>
-					</div>
+				<!-- Tabs -->
+				<div class="tabs">
+					<button class="tab active" onclick="setTab(this)">진행중인 이벤트</button>
+					<button class="tab" onclick="setTab(this)">종료된 이벤트</button>
+					<button class="tab" onclick="setTab(this)">당첨자 발표</button>
 				</div>
 
-				<!-- Card 2 -->
-				<div class="card">
-					<div class="card-image">
-						<span class="card-badge badge-active">진행중</span>
-						<div class="card-image-placeholder">메인 배너 이미지<br>(4:3 비율)</div>
-					</div>
-					<div class="card-body">
-						<h3 class="card-title">나만의 차박 성지 공유하고 포인트<br>받자!</h3>
-						<p class="card-desc">알려지지 않은 나만의 좋은 차박지를 커뮤니티에 공유해주세요. 베스트 리뷰어로 선정되면 3만 포인트를 드립니다.</p>
-						<div class="card-date">2026.04.15 ~ 2026.05.15</div>
-					</div>
-				</div>
-
-				<!-- Card 3 -->
-				<div class="card">
-					<div class="card-image">
-						<span class="card-badge badge-ended">종료</span>
-						<div class="card-image-placeholder">메인 배너 이미지<br>(4:3 비율)</div>
-					</div>
-					<div class="card-body">
-						<h3 class="card-title">[조기종료] 겨울 장비 클리어런스 최<br>대 50% 세일</h3>
-						<p class="card-desc">한정 수량으로 진행된 겨울 캠핑 장비 세일이 여러분의 뜨거운 성원에 힘입어 조기 종료되었습니다.</p>
-						<div class="card-date">2026.03.01 ~ 2026.03.31</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Pagination -->
-			<div class="pagination">
-				<button class="page-btn active">1</button>
-				<button class="page-btn">2</button>
-				<button class="page-btn">3</button>
-			</div>
-		</main>
-
-		<!-- Footer -->
-		<footer>
-			<div class="footer-top">
-				<div class="footer-brand">
-					<div class="brand-name">모닥모닥</div>
-					<p>사람이 함께하는 뜨한한 손손을<br>모닥모닥이 함께합니다.</p>
-				</div>
-
-				<div class="footer-col">
-					<h4>서비스</h4>
-					<ul>
-						<li><a href="#">대여시기</a></li>
-						<li><a href="#">구매하기</a></li>
-						<li><a href="#">캠핑장 찾기</a></li>
-						<li><a href="#">신요음</a></li>
-						<li><a href="#">에스토</a></li>
-					</ul>
-				</div>
-
-				<div class="footer-col">
-					<h4>고객지원</h4>
-					<ul>
-						<li><a href="#">공지사항</a></li>
-						<li><a href="#">자주 묻는 질문</a></li>
-						<li><a href="#">1:1 문의</a></li>
-						<li><a href="#">배송 조회</a></li>
-						<li><a href="#">반품/환불</a></li>
-					</ul>
-				</div>
-
-				<div class="footer-col">
-					<h4>문의</h4>
-					<div class="footer-contact">
-						<div class="phone">1588-0000</div>
-						<div class="hours">
-							연평시간<br>
-							평일 09:00 ~ 18:00<br>
-							이메일
+				<!-- Cards -->
+				<div class="cards-grid">
+					<!-- Card 1 -->
+					<div class="card">
+						<div class="card-image">
+							<span class="card-badge badge-active">진행중</span>
+							<div class="card-image-placeholder">메인 배너 이미지<br>(4:3 비율)</div>
 						</div>
-						<div class="email">help@modakmodak.kr</div>
+						<div class="card-body">
+							<h3 class="card-title">신규 회원이라면? 캠핑 장비 대여<br>20% 할인 쿠폰!</h3>
+							<p class="card-desc">모닥모닥과 함께하는 첫 캠핑을 응원합니다. 지금 바로 할인 쿠폰을 다운로드하고 가까운 마음으로 떠나보세요.</p>
+							<div class="card-date">2026.04.01 ~ 2026.05.31</div>
+						</div>
+					</div>
+
+					<!-- Card 2 -->
+					<div class="card">
+						<div class="card-image">
+							<span class="card-badge badge-active">진행중</span>
+							<div class="card-image-placeholder">메인 배너 이미지<br>(4:3 비율)</div>
+						</div>
+						<div class="card-body">
+							<h3 class="card-title">나만의 차박 성지 공유하고 포인트<br>받자!</h3>
+							<p class="card-desc">알려지지 않은 나만의 좋은 차박지를 커뮤니티에 공유해주세요. 베스트 리뷰어로 선정되면 3만 포인트를 드립니다.</p>
+							<div class="card-date">2026.04.15 ~ 2026.05.15</div>
+						</div>
+					</div>
+
+					<!-- Card 3 -->
+					<div class="card">
+						<div class="card-image">
+							<span class="card-badge badge-ended">종료</span>
+							<div class="card-image-placeholder">메인 배너 이미지<br>(4:3 비율)</div>
+						</div>
+						<div class="card-body">
+							<h3 class="card-title">[조기종료] 겨울 장비 클리어런스 최<br>대 50% 세일</h3>
+							<p class="card-desc">한정 수량으로 진행된 겨울 캠핑 장비 세일이 여러분의 뜨거운 성원에 힘입어 조기 종료되었습니다.</p>
+							<div class="card-date">2026.03.01 ~ 2026.03.31</div>
+						</div>
 					</div>
 				</div>
-			</div>
 
-			<div class="footer-bottom">
-				<span class="copy">© 2026 MODAK MODAK. All rights reserved.</span>
-				<div class="links">
-					<a href="#">이용약관</a>
-					<a href="#">개인정보처리방침</a>
-					<a href="#">회사소개</a>
+				<!-- Pagination -->
+				<div class="pagination">
+					<button class="page-btn active">1</button>
+					<button class="page-btn">2</button>
+					<button class="page-btn">3</button>
 				</div>
-			</div>
-		</footer>
+			</main>
 
-		<script>
-			function setTab(el) {
-				document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-				el.classList.add('active');
-			}
+			<!-- Footer -->
+			<%@ include file="/WEB-INF/common/footer.jsp" %>
 
-			document.querySelectorAll('.page-btn').forEach(btn => {
-				btn.addEventListener('click', function () {
-					document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
-					this.classList.add('active');
-				});
-			});
-		</script>
+
+				<script>
+					function setTab(el) {
+						document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+						el.classList.add('active');
+					}
+
+					document.querySelectorAll('.page-btn').forEach(btn => {
+						btn.addEventListener('click', function () {
+							document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+							this.classList.add('active');
+						});
+					});
+				</script>
 	</body>
 
 	</html>
@@ -513,28 +463,7 @@
 		<div id="app">
 			<!-- html 코드는 id가 app인 태그 안에서 작업 -->
 		</div>
-		<div>
-			<table>
-				<tr>
-					<th>번호</th>
-					<th>제목</th>
-					<th>내용</th>
-					<th>이벤트 시작일</th>
-					<th>이벤트 종료일</th>
-					<div class="event-period">
-						<label>이벤트 기간:</label>
-						<span>${event.startDate}</span> ~ <span>${event.endDate}</span>
-					</div>
-				</tr>
-				<tr v-for="item in list">
-					<td>{{item.eventId}}</td>
-					<td>{{item.title}}</td>
-					<td>{{item.content}}</td>
-					<td>{{item.startDate}}</td>
-					<td>{{item.endDate}}</td>
-				</tr>
-			</table>
-		</div>
+		
 	</body>
 
 	</html>

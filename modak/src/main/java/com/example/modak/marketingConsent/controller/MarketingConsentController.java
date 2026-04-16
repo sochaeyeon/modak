@@ -1,4 +1,4 @@
-package com.example.modak.error.controller;
+package com.example.modak.marketingConsent.controller;
 
 import java.util.HashMap;
 
@@ -14,21 +14,20 @@ import com.google.gson.Gson;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
-public class ErrorController {
+public class MarketingConsentController {
 
 	// 파라미터 없을 때
-	@RequestMapping("/error.do")
-	public String error(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
+	@RequestMapping("/marketingConsent.do")
+	public String marketingConsent(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
 			throws Exception {
-		return "/error/error";
+		return "/policy/marketingConsent";
 	}
 
 	// Ajax 호출 주소
-	@RequestMapping(value = "/error.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@RequestMapping(value = "/marketingConsent.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String error(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+	public String marketingConsent(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
 		HashMap<String, Object> resultMap = new HashMap<String, Object>();
-		// resultMap = defaultService.getDefaultList(map);
 		return new Gson().toJson(resultMap);
 	}
 

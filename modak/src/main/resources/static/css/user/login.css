@@ -825,3 +825,20 @@ a {
     color: #d44b4b;
     line-height: 1.4;
 }
+/* Chrome, Edge */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none;
+}
+
+/* 최신 브라우저 */
+input[type="password"]::-webkit-credentials-auto-fill-button {
+    display: none !important;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* 사파리/크롬 눈아이콘 제거 */
+input[type="password"]::-webkit-textfield-decoration-container {
+    display: none;
+}

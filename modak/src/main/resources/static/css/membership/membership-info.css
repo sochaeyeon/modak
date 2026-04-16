@@ -5,8 +5,8 @@
  }
 
  a {
-    text-decoration: none;
-    color: black;
+     text-decoration: none;
+     color: black;
  }
 
  body {
@@ -476,6 +476,7 @@
  }
 
  .faq-a {
+     margin-top: 5px;
      font-size: 13px;
      color: #666;
      line-height: 1.7;
@@ -551,3 +552,46 @@
  .btn-login:hover {
      border-color: #888;
  }
+
+ .grade-card {
+     position: relative;
+     border: 2px solid transparent;
+     transition: all 0.25s ease;
+ }
+
+ .grade-card.current {
+     border: 2px solid #e8610a;
+     box-shadow: 0 10px 24px rgba(232, 97, 10, 0.16);
+     transform: translateY(-4px);
+ }
+
+ .current-label {
+     position: absolute;
+     top: -14px;
+     left: 50%;
+     transform: translateX(-50%);
+     background: #e8610a;
+     color: #fff;
+     font-size: 13px;
+     font-weight: 700;
+     padding: 6px 14px;
+     border-radius: 999px;
+     z-index: 2;
+ }
+ .cta-btns {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.cta-btns .btn-join,
+.cta-btns .btn-login {
+    width: auto;
+    min-width: 140px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}

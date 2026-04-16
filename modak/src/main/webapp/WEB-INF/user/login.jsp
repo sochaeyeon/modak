@@ -168,7 +168,7 @@
 
                     <div class="row-options">
                         <label class="remember">
-                            
+
                         </label>
                         <a href="http://localhost:8080/user/find-account.do" class="forgot">아이디/비밀번호 찾기</a>
                     </div>
@@ -218,11 +218,38 @@
     </html>
 
     <script>
+
+        function togglePw() {
+            const input = document.getElementById("pwInput");
+            const eye = document.getElementById("eyeBtn");
+
+            if (input.type === "password") {
+                input.type = "text";
+
+                // 👁 열린 눈
+                eye.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <ellipse cx="8" cy="8" rx="6" ry="4" stroke="#e0621a" stroke-width="1.4" />
+                <circle cx="8" cy="8" r="2" fill="#e0621a" />
+            </svg>
+            `;
+            } else {
+                input.type = "password";
+
+                // 👁‍🗨 닫힌 눈 (선 추가)
+                eye.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <ellipse cx="8" cy="8" rx="6" ry="4" stroke="#b09070" stroke-width="1.4" />
+                <line x1="3" y1="13" x2="13" y2="3" stroke="#b09070" stroke-width="1.4" />
+            </svg>
+        `;
+            }
+        }
         const app = Vue.createApp({
             data() {
                 return {
                     // 변수 - (키 : 값)
-                    // list : [] 
+                    // list : []
                     userId: '',
                     userPwd: '',
                     loginMsg: ''

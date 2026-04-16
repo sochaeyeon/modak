@@ -26,4 +26,10 @@
 		WHERE U.USER_ID = #{userId}
 
 	</select>
+
+	<update id="updateUserGrade" parameterType="hashmap">
+		UPDATE `USER`
+		SET GRADE_ID = #{gradeId}
+		WHERE USER_ID = #{userId}
+	</update>
 </mapper>

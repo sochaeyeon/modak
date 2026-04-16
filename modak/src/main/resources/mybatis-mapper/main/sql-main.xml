@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.modak.main.mapper.MainMapper">
+
+    <select id="selectMainCampList" parameterType="hashmap" resultType="com.example.modak.camp.model.Camp">
+        SELECT * FROM CAMP
+        WHERE 1=1
+        <if test="keyword != null and keyword != ''">
+            AND FACLTNM LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        ORDER BY CAMP_NO DESC
+        LIMIT 8
+    </select>
+
+    <insert id="insertMainCamp" parameterType="hashmap">
+        INSERT INTO CAMP (FACLTNM, ADDR1, FIRST_IMAGE_URL, TEL)
+        VALUES (#{facltNm}, #{addr1}, #{firstImageUrl}, #{tel})
+    </insert>
+
+    <update id="updateMainCamp" parameterType="hashmap">
+        UPDATE CAMP SET
+            FACLTNM = #{facltNm},
+            ADDR1 = #{addr1},
+            TEL = #{tel},
+            FIRST_IMAGE_URL = #{firstImageUrl}
+        WHERE CAMP_NO = #{campNo}
+    </update>
+
+    <delete id="deleteMainCamp" parameterType="hashmap">
+        DELETE FROM CAMP WHERE CAMP_NO = #{campNo}
+    </delete>
+
+</mapper>

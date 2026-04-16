@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,50 +25,76 @@ import com.google.gson.JsonParser;
 
 @Service
 public class CampService {
-    @Autowired private CampMapper campMapper;
-    private final String key = "7ba3239d3f13c3f5b4e4bb63f24e43a0c4c227ed527b4561a2e569ff7bf4d632";
 
-    // 1. 목록 조회 (중복 데이터 제거 로직 포함)
+    @Autowired 
+    private CampMapper campMapper;
+
+    // [수정] application.properties에서 GoCamping API 키를 가져옵니다.
+    @Value("${gocamp.api.key}")
+    private String serviceKey;
+
+    /**
+     * 1. 캠핑장 목록 조회 (이름+주소 중복 제거 로직 포함)
+     */
     public HashMap<String, Object> getCampList(HashMap<String, Object> params) {
         HashMap<String, Object> resultMap = new HashMap<>();
         List<Camp> rawList = campMapper.selectCampList(params);
         
-        // 이름+주소 키값으로 중복 제거
+        // LinkedHashMap을 사용하여 순서를 유지하면서 이름+주소 키값으로 중복 제거
         Map<String, Camp> cleanMap = new LinkedHashMap<>();
         for (Camp c : rawList) {
-            String uniqueKey = c.getFacltNm() + c.getAddr1();
-            if (!cleanMap.containsKey(uniqueKey)) {
-                cleanMap.put(uniqueKey, c);
+            if (c.getFacltNm() != null && c.getAddr1() != null) {
+                String uniqueKey = c.getFacltNm() + c.getAddr1();
+                if (!cleanMap.containsKey(uniqueKey)) {
+                    cleanMap.put(uniqueKey, c);
+                }
             }
         }
+        
         resultMap.put("list", new ArrayList<>(cleanMap.values()));
         resultMap.put("result", "success");
         return resultMap;
     }
 
-    // 2. API 데이터 동기화 (CAMP + CAMP_IMG)
-    @Transactional
+    /**
+     * 2. 공공데이터 API 데이터 동기화 (CAMP 정보 및 이미지 저장)
+     */
+    @Transactional(rollbackFor = Exception.class)
     public void syncCampData() throws Exception {
-        String urlStr = "http://apis.data.go.kr/B551011/GoCamping/basedList?serviceKey=" + key 
+        // [수정] 하드코딩된 key 대신 @Value로 주입받은 serviceKey를 사용합니다.
+        String urlStr = "http://apis.data.go.kr/B551011/GoCamping/basedList?serviceKey=" + serviceKey 
                       + "&MobileOS=ETC&MobileApp=Modak&_type=json&numOfRows=1000";
+        
         URL url = new URL(urlStr);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-        StringBuilder sb = new StringBuilder(); String line;
-        while ((line = rd.readLine()) != null) sb.append(line);
-        rd.close();
+        conn.setRequestMethod("GET");
 
-        JsonObject res = JsonParser.parseString(sb.toString()).getAsJsonObject().getAsJsonObject("response");
-        JsonArray items = res.getAsJsonObject("body").getAsJsonObject("items").getAsJsonArray("item");
+        BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+        StringBuilder sb = new StringBuilder(); 
+        String line;
+        while ((line = rd.readLine()) != null) {
+            sb.append(line);
+        }
+        rd.close();
+        conn.disconnect();
+
+        // JSON 파싱
+        JsonObject jsonResponse = JsonParser.parseString(sb.toString()).getAsJsonObject();
+        JsonObject responseBody = jsonResponse.getAsJsonObject("response").getAsJsonObject("body");
+        JsonArray items = responseBody.getAsJsonObject("items").getAsJsonArray("item");
         
         List<Camp> list = new ArrayList<>();
         Gson gson = new Gson();
+
         for (JsonElement item : items) {
             JsonObject obj = item.getAsJsonObject();
             Camp c = gson.fromJson(obj, Camp.class);
+            
+            // 좌표 정보가 있는 데이터만 처리
             if (c.getMapX() != null && !c.getMapX().isEmpty()) {
                 list.add(c);
-                // 이미지 데이터 추출 및 저장
+                
+                // 이미지 데이터(firstImageUrl) 추출 및 CAMP_IMG 테이블 저장
                 JsonElement imgElem = obj.get("firstImageUrl");
                 if (imgElem != null && !imgElem.isJsonNull() && !imgElem.getAsString().isEmpty()) {
                     HashMap<String, Object> imgMap = new HashMap<>();
@@ -77,9 +104,16 @@ public class CampService {
                 }
             }
         }
-        if (!list.isEmpty()) campMapper.insertCampList(list);
+        
+        // 데이터가 존재할 경우 일괄 인서트
+        if (!list.isEmpty()) {
+            campMapper.insertCampList(list);
+        }
     }
 
+    /**
+     * 3. 캠핑장 리뷰 목록 조회
+     */
     public List<HashMap<String, Object>> getReviewList(HashMap<String, Object> params) {
         return campMapper.selectReviewList(params);
     }

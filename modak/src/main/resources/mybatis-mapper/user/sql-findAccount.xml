@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.modak.user.mapper.FindAccountMapper">
+
+	<!-- 아이디 찾기 -->
+	<select id="selectUserId" parameterType="hashmap"
+		resultType="com.example.modak.user.model.User"> SELECT * FROM USER WHERE
+		USER_NAME = #{userName} <if test="email!= null and email != ''">
+			AND EMAIL = #{email}
+		</if>
+      	<if
+			test="userPhone != null and userPhone != ''">
+			AND USER_PHONE = #{userPhone}
+		</if>
+	</select>
+
+	<!-- 기존 미인증 인증번호 만료 -->
+	<update id="expireSmsAuth" parameterType="hashmap">
+		UPDATE SMS_AUTH
+		SET EXPIRE_AT = NOW()
+		WHERE USER_PHONE = #{userPhone}
+		AND AUTH_PURPOSE = 'FIND_ID'
+		AND AUTH_YN = 'N'
+	</update>
+
+	<!-- 인증번호 저장 -->
+	<insert id="insertSmsAuth" parameterType="hashmap">
+		INSERT INTO SMS_AUTH (
+		USER_NAME,
+		USER_PHONE,
+		AUTH_CODE,
+		AUTH_PURPOSE,
+		AUTH_YN,
+		EXPIRE_AT,
+		CREATED_AT
+		) VALUES (
+		#{userName},
+		#{userPhone},
+		#{authCode},
+		#{authPurpose},
+		'N',
+		#{expireAt},
+		NOW()
+		)
+	</insert>
+
+	<!-- 최신 인증번호 조회 -->
+	<select id="selectLatestSmsAuth" parameterType="hashmap"
+		resultType="hashmap">
+		SELECT AUTH_ID, AUTH_CODE, AUTH_YN, EXPIRE_AT
+		FROM SMS_AUTH
+		WHERE USER_PHONE = #{userPhone}
+		AND AUTH_PURPOSE = 'FIND_ID'
+		ORDER BY AUTH_ID DESC
+		LIMIT 1
+	</select>
+
+	<!-- 인증 완료 처리 -->
+	<update id="updateSmsAuthVerified" parameterType="hashmap">
+		UPDATE SMS_AUTH
+		SET AUTH_YN = 'Y',
+		VERIFIED_AT = NOW()
+		WHERE USER_PHONE = #{userPhone}
+		AND AUTH_CODE = #{authCode}
+		AND AUTH_PURPOSE = 'FIND_ID'
+		AND AUTH_YN = 'N'
+	</update>
+
+	<!-- 인증 완료 여부 확인 -->
+	<select id="selectVerifiedSmsAuth" parameterType="hashmap"
+		resultType="hashmap">
+		SELECT AUTH_ID
+		FROM SMS_AUTH
+		WHERE USER_NAME = #{userName}
+		AND USER_PHONE = #{userPhone}
+		AND AUTH_PURPOSE = 'FIND_ID'
+		AND AUTH_YN = 'Y'
+		ORDER BY AUTH_ID DESC
+		LIMIT 1
+	</select>
+
+	<!-- 이름 + 전화번호로 회원 조회 -->
+	<select id="selectUserByNameAndPhone" parameterType="hashmap"
+		resultType="com.example.modak.user.model.User">
+		SELECT *
+		FROM USER
+		WHERE USER_NAME = #{userName}
+		AND USER_PHONE = #{userPhone}
+	</select>
+	
+	<!-- 메일 인증 -->
+	 <!-- 아이디 + 이메일 회원 확인 -->
+    <select id="selectUserByIdAndEmail" parameterType="hashmap"
+            resultType="com.example.modak.user.model.User">
+        SELECT *
+        FROM USER
+        WHERE USER_ID = #{userId}
+          AND EMAIL = #{email}
+    </select>
+
+    <!-- 기존 비밀번호 재설정 인증 삭제 -->
+    <delete id="deletePwResetAuth" parameterType="hashmap">
+        DELETE FROM PASSWORD_RESET_AUTH
+        WHERE USER_ID = #{userId}
+          AND EMAIL = #{email}
+          AND AUTH_TYPE = #{authType}
+    </delete>
+
+    <!-- 인증 저장 -->
+    <insert id="insertPwResetAuth" parameterType="hashmap">
+        INSERT INTO PASSWORD_RESET_AUTH (
+            USER_ID,
+            EMAIL,
+            AUTH_CODE,
+            AUTH_TYPE,
+            VERIFIED_YN,
+            EXPIRE_AT,
+            CREATED_AT
+        ) VALUES (
+            #{userId},
+            #{email},
+            #{authCode},
+            #{authType},
+            'N',
+            #{expireAt},
+            NOW()
+        )
+    </insert>
+
+    <!-- 인증번호 조회 -->
+    <select id="selectPwResetAuth" parameterType="hashmap" resultType="hashmap">
+        SELECT *
+        FROM PASSWORD_RESET_AUTH
+        WHERE USER_ID = #{userId}
+          AND EMAIL = #{email}
+          AND AUTH_CODE = #{authCode}
+          AND AUTH_TYPE = #{authType}
+          AND VERIFIED_YN = 'N'
+          AND EXPIRE_AT >= NOW()
+        ORDER BY AUTH_ID DESC
+        LIMIT 1
+    </select>
+
+    <!-- 인증 완료 처리 -->
+    <update id="updatePwResetAuthVerified" parameterType="hashmap">
+        UPDATE PASSWORD_RESET_AUTH
+        SET VERIFIED_YN = 'Y'
+        WHERE USER_ID = #{userId}
+          AND EMAIL = #{email}
+          AND AUTH_CODE = #{authCode}
+          AND AUTH_TYPE = #{authType}
+    </update>
+
+    <!-- 인증 완료 여부 확인 -->
+    <select id="selectVerifiedPwResetAuth" parameterType="hashmap" resultType="hashmap">
+        SELECT *
+        FROM PASSWORD_RESET_AUTH
+        WHERE USER_ID = #{userId}
+          AND AUTH_TYPE = #{authType}
+          AND VERIFIED_YN = 'Y'
+          AND EXPIRE_AT >= NOW()
+        ORDER BY AUTH_ID DESC
+        LIMIT 1
+    </select>
+
+    <!-- 비밀번호 변경 -->
+    <update id="updateUserPassword" parameterType="hashmap">
+        UPDATE USER
+        SET USER_PWD = #{userPwd}
+        WHERE USER_ID = #{userId}
+    </update>
+</mapper>

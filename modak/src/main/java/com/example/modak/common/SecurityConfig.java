@@ -4,8 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
@@ -50,14 +48,30 @@ public class SecurityConfig {
 						.permitAll().anyRequest().permitAll())
 
 				// 일반 로그인 페이지를 사용할 경우
-				.formLogin(form -> form.loginPage("/user/login.do").loginProcessingUrl("/user/login")
-						.defaultSuccessUrl("/", true).failureUrl("/user/login.do?error=true").permitAll())
+				.formLogin(form -> form
+		                .loginPage("/user/login.do")
+		                .loginProcessingUrl("/user/login")
+		                .defaultSuccessUrl("/user/login.do", true)
+		                .failureUrl("/user/login.do?error=true")
+		                .permitAll()
+		            )
 
 				// 소셜 로그인 설정 추가
-				.oauth2Login(oauth -> oauth.loginPage("/user/login.do")
-						.userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService) // 🔥 이거 꼭
-						).defaultSuccessUrl("/main.do", true).defaultSuccessUrl("/user/login.do", true)
-						.failureUrl("/user/login.do?socialError=true"));
+				.oauth2Login(oauth -> oauth
+		                .loginPage("/user/login.do")
+		                .userInfoEndpoint(userInfo -> userInfo
+		                    .userService(customOAuth2UserService)
+		                )
+		                .defaultSuccessUrl("/user/login.do", true)
+		                .failureUrl("/user/login.do?socialError=true")
+		            )
+				
+				.logout(logout -> logout
+		                .logoutUrl("/logout")
+		                .logoutSuccessUrl("/user/login.do")
+		                .invalidateHttpSession(true)
+		                .deleteCookies("JSESSIONID")
+		            );
 		return http.build();
 	}
 }

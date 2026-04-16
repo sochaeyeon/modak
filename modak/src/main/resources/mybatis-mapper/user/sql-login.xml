@@ -1,22 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.modak.user.mapper.UserMapper">
+<mapper namespace="com.example.modak.user.mapper.LoginMapper">
 
-	<!-- 회원 한 명 검색 -->
+	<!-- 로그인 -->
 	<select id="selectUser" parameterType="hashmap"
 		resultType="com.example.modak.user.model.User">
 		SELECT *
 		FROM USER
 		WHERE USER_ID = #{userId}
 	</select>
-
-	<!-- 회원가입 -->
-	<insert id="insertUser" parameterType="hashmap">
-		INSERT INTO USER(USER_ID, USER_PWD, USER_NAME, NICKNAME, EMAIL,
-		CREATED_AT) VALUES( #{userId}, #{userPwd}, #{userName}, #{nickName},
-		#{email}, NOW());
-	</insert>
 
 	<!-- 소셜 계정 조회 -->
 	<select id="selectUserBySocial" parameterType="hashmap"
@@ -26,7 +19,6 @@
 		WHERE SOCIAL_TYPE = #{socialType}
 		AND SOCIAL_ID = #{socialId}
 	</select>
-	
 	
 	<!-- 소셜 로그인 -->
 
@@ -61,4 +53,5 @@
 		#{socialId}
 		)
 	</insert>
+	
 </mapper>

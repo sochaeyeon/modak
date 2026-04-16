@@ -1,22 +1,22 @@
 package com.example.modak.common;
 
-import java.util.Map;
-
-import org.springframework.security.oauth2.client.userinfo.*;
-import org.springframework.security.oauth2.core.user.*;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import com.example.modak.user.dao.UserService;
+import com.example.modak.user.dao.LoginService;
 import com.example.modak.user.model.SocialUserInfo;
 import com.example.modak.user.model.User;
 
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
-    private final UserService userService;
+    private final LoginService loginService;
 
-    public CustomOAuth2UserService(UserService userService) {
-        this.userService = userService;
+    public CustomOAuth2UserService(LoginService loginService) {
+        this.loginService = loginService;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         }
 
         // 🔥 핵심: DB 처리
-        User user = userService.getOrCreateSocialUser(info);
+        User user = loginService.getOrCreateSocialUser(info);
 
         return oAuth2User; // 세션 유지용 (간단 버전)
     }

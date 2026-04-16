@@ -1,8 +1,8 @@
 .site-header {
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.75);
     border-bottom: 1px solid #e8dfd0;
     height: 65px;
-    box-shadow: #ccc 0px 1px 9px;
+    box-shadow: #eee 0px 1px 9px;
     display: flex;
     align-items: center;
     justify-content: space-between;

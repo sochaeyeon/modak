@@ -1,22 +1,40 @@
 package com.example.modak.user.controller;
 
-import java.util.HashMap;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import jakarta.servlet.http.HttpServletRequest;
+import com.example.modak.user.dao.MypageService;
+import com.example.modak.user.model.MypageSummary;
+import com.example.modak.user.model.User;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class MypageController {
+	@Autowired
+	MypageService mypageService;
 
-	// 파라미터 전달할 때
+	@Autowired
+	HttpSession session;
+
 	@RequestMapping("/user/mypage.do")
-	public String boardView(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
-			throws Exception {
-		request.setAttribute("map", map); // jsp에서 꺼낼 때 "${map.~}" 으로 꺼내기
+	public String myPage(Model model) {
+
+		String sessionId = (String) session.getAttribute("sessionId");
+
+		if (sessionId == null || sessionId.equals("")) {
+			return "redirect:/user/login.do";
+		}
+
+		User user = mypageService.getMyPageUser(sessionId);
+		MypageSummary summary = mypageService.getMypageSummary(sessionId);
+
+		model.addAttribute("user", user);
+		model.addAttribute("summary", summary);
+
 		return "user/mypage";
 	}
+
 }

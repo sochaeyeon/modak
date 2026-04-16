@@ -11,5 +11,6 @@ import com.example.modak.product.model.Product;
 public interface ProductMapper {
 	// 제품리스트 product list
 	public List<Product> selectProductList(HashMap<String, Object> map);
+	
 
 }

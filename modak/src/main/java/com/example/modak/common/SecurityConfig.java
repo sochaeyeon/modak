@@ -51,7 +51,7 @@ public class SecurityConfig {
 				.formLogin(form -> form
 		                .loginPage("/user/login.do")
 		                .loginProcessingUrl("/user/login")
-		                .defaultSuccessUrl("/user/login.do", true)
+		                .defaultSuccessUrl("/main.do", true)
 		                .failureUrl("/user/login.do?error=true")
 		                .permitAll()
 		            )
@@ -62,7 +62,7 @@ public class SecurityConfig {
 		                .userInfoEndpoint(userInfo -> userInfo
 		                    .userService(customOAuth2UserService)
 		                )
-		                .defaultSuccessUrl("/user/login.do", true)
+		                .defaultSuccessUrl("/main.do", true)
 		                .failureUrl("/user/login.do?socialError=true")
 		            )
 				

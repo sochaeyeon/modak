@@ -16,4 +16,5 @@ public class Product {
 	
 	int categoryId; // 카테고리id
 	
+	String imgUrl; // ⭐ 대표 이미지 추가
 }

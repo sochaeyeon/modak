@@ -102,6 +102,7 @@
 			<groupId>jakarta.servlet.jsp.jstl</groupId>
 			<artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
 			<version>3.0.0</version>
+		</dependency>
 		<!-- spring mail -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

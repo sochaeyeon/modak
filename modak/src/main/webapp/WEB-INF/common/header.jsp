@@ -158,12 +158,12 @@
 	<header class="site-header">
 		<!-- 왼쪽: 아이콘 영역 -->
 		<div class="header-left">
-			<button class="icon-btn" title="마이페이지"><i class="fa-regular fa-user"></i></button>
-			<button class="icon-btn" title="검색"><i class="fa-solid fa-magnifying-glass"></i></button>
-			<button class="icon-btn" title="찜목록"><i class="fa-regular fa-heart"></i></button>
-			<div class="cart-wrap">
+			<a href="javascript:;" @click="fnMove('mypage')"><button class="icon-btn" title="마이페이지"><i class="fa-regular fa-user"></i></button></a>
+			<a href="javascript:;" @click="fnMove('search')"><button class="icon-btn" title="검색"><i class="fa-solid fa-magnifying-glass"></i></button></a>
+			<a href="javascript:;" @click="fnMove('wishlist')"><button class="icon-btn" title="찜목록"><i class="fa-regular fa-heart"></i></button></a>
+			<div class="cart-wrap" @click="fnMove('cart')">
 				<button class="icon-btn" title="장바구니"><i class="fa-solid fa-basket-shopping"></i></button>
-				<span class="cart-badge">3</span>
+				<span class="cart-badge">{{ cartCount }}</span>
 			</div>
 			<a class="header-logout" href="/logout">
 				<i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -172,7 +172,7 @@
 		</div>
 
 		<!-- 가운데: 로고 -->
-		<a class="header-logo" href="/">모닥모닥</a>
+		<a class="header-logo" href="/main.do">모닥모닥</a>
 
 		<!-- 오른쪽: 카테고리 -->
 		<div class="header-right" onclick="toggleCategory()">
@@ -181,7 +181,7 @@
 		</div>
 
 		<!-- 카테고리 드롭다운 -->
-		<div class="category-menu" id="categoryMenu">
+		<div class="category-menu" @click="fnMove('category')" id="categoryMenu">
 			<a href="#">텐트 / 타프</a>
 			<a href="#">취사 용품</a>
 			<a href="#">캠핑 가구</a>
@@ -203,3 +203,40 @@
 			}
 		});
 	</script>
+	
+	<script>
+			const app = Vue.createApp({
+				data() {
+					return {
+						// 변수 - (키 : 값)
+						
+					};
+				},
+				methods: {
+					// 함수(메소드) - (key : function())
+					fnMove: function () {
+						let self = this;
+						let param = {
+							// 백엔드로 전달할 데이터
+						};
+						$.ajax({
+							url: "http://localhost:8080/",
+							dataType: "json",
+							type: "POST",
+							data: param,
+							success: function (data) {
+								console.log(data);
+								
+							}
+						});
+					}
+				}, // methods
+				mounted() {
+					// 처음 시작할 때 실행되는 부분
+					let self = this;
+					self.fnMove();
+				}
+			});
+
+			app.mount('#app');
+		</script>

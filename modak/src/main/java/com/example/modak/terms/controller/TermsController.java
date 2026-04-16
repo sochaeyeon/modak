@@ -1,4 +1,4 @@
-package com.example.modak.error.controller;
+package com.example.modak.terms.controller;
 
 import java.util.HashMap;
 
@@ -14,21 +14,20 @@ import com.google.gson.Gson;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
-public class ErrorController {
+public class TermsController {
 
 	// 파라미터 없을 때
-	@RequestMapping("/error.do")
-	public String error(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
+	@RequestMapping("/terms.do")
+	public String terms(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
 			throws Exception {
-		return "/error/error";
+		return "/policy/terms";
 	}
 
 	// Ajax 호출 주소
-	@RequestMapping(value = "/error.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@RequestMapping(value = "/terms.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String error(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+	public String terms(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
 		HashMap<String, Object> resultMap = new HashMap<String, Object>();
-		// resultMap = defaultService.getDefaultList(map);
 		return new Gson().toJson(resultMap);
 	}
 

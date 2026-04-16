@@ -20,7 +20,7 @@ public class MarketingConsentController {
 	@RequestMapping("/marketingConsent.do")
 	public String marketingConsent(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
 			throws Exception {
-		return "/policy/marketingConsent";
+		return "/policy/marketing-consent";
 	}
 
 	// Ajax 호출 주소

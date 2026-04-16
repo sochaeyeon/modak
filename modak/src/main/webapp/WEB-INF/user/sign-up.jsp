@@ -245,14 +245,14 @@
                                 <input type="checkbox" class="cb term-cb required-term" onchange="updateAll()">
                                 <span><em>[필수]</em>개인정보처리방침 동의</span>
                             </label>
-                            <a href="http://localhost:8080/privacy-policy.do" class="terms-link">보기</a>
+                            <a href="http://localhost:8080/privacyPolicy.do" class="terms-link">보기</a>
                         </div>
                         <div class="terms-item">
                             <label class="terms-check">
                                 <input type="checkbox" class="cb term-cb" onchange="updateAll()">
                                 <span><em>[선택]</em>마케팅 정보 수신 동의</span>
                             </label>
-                            <a href="http://localhost:8080/marketing-consent.do" class="terms-link">보기</a>
+                            <a href="http://localhost:8080/marketingConsent.do" class="terms-link">보기</a>
                         </div>
                     </div>
 

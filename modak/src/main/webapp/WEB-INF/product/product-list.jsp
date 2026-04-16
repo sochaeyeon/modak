@@ -376,35 +376,9 @@ input[type=range]::-webkit-slider-thumb {
 
 </head>
 <body>
-
+<%@ include file="/WEB-INF/common/header.jsp" %>
 <!-- Vue 마운트 대상 루트 요소 -->
 <div id="app">
-
-  <!-- ── 상단 내비게이션 ── -->
-  <nav>
-    <a class="nav-logo" href="#">
-      <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-        <path d="M16 3C16 3 10 10 10 16a6 6 0 0 0 12 0c0-6-6-13-6-13z" fill="#E8884A" opacity=".9"/>
-        <path d="M16 10C16 10 12 15 12 18a4 4 0 0 0 8 0c0-3-4-8-4-8z" fill="#FAC878"/>
-        <ellipse cx="16" cy="26" rx="7" ry="2.5" fill="#5A7A4E" opacity=".6"/>
-      </svg>
-      <span class="logo-text">모닥모닥</span>
-    </a>
-    <div class="nav-links">
-      <a href="#">홈</a>
-      <a href="#" class="active">대여</a>
-      <a href="#">구매</a>
-      <a href="#">커뮤니티</a>
-      <a href="#">고객센터</a>
-    </div>
-    <div class="nav-right">
-      <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-      <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
-      <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
-      <button class="nav-cta">로그인</button>
-    </div>
-  </nav>
-
   <!-- ── 브레드크럼 ── -->
   <div class="breadcrumb">
     <div class="breadcrumb-inner">

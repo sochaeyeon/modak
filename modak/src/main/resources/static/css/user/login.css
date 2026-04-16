@@ -819,3 +819,9 @@ a {
   color: var(--text-light);
   line-height: 1.6;
 }
+.login-msg{
+    margin-top: 8px;
+    font-size: 13px;
+    color: #d44b4b;
+    line-height: 1.4;
+}

@@ -1,4 +1,4 @@
-package com.example.modak.privacyPolicy.controller;
+package com.example.modak.common.controller;
 
 import java.util.HashMap;
 
@@ -14,19 +14,19 @@ import com.google.gson.Gson;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
-public class PrivacyPolicy {
+public class TermsController {
 
 	// 파라미터 없을 때
-	@RequestMapping("/privacyPolicy.do")
+	@RequestMapping("/terms.do")
 	public String terms(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
 			throws Exception {
-		return "/policy/privacy-policy";
+		return "/policy/terms";
 	}
 
 	// Ajax 호출 주소
-	@RequestMapping(value = "/privacyPolicy.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@RequestMapping(value = "/terms.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String privacyPolicy(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+	public String terms(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
 		HashMap<String, Object> resultMap = new HashMap<String, Object>();
 		return new Gson().toJson(resultMap);
 	}

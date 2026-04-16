@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.modak.chat.mapper.ChatMapper">
+
+    <insert id="insertChatHistory" parameterType="hashmap">
+        INSERT INTO CAMP_CHAT_HISTORY (USER_ID, ROLE, MESSAGE, ROOM_ID, REG_DATE)
+        VALUES (#{userId}, #{role}, #{message}, #{roomId}, NOW())
+    </insert>
+
+    <select id="selectChatHistory" parameterType="hashmap" resultType="hashmap">
+        SELECT ROOM_ID as roomId, MESSAGE as message, MAX(REG_DATE) as regDate
+        FROM CAMP_CHAT_HISTORY
+        WHERE USER_ID = #{userId}
+        GROUP BY ROOM_ID
+        ORDER BY regDate DESC
+    </select>
+
+    <select id="selectChatMessagesByRoom" parameterType="hashmap" resultType="hashmap">
+        SELECT ROLE as role, MESSAGE as message
+        FROM CAMP_CHAT_HISTORY
+        WHERE USER_ID = #{userId} AND ROOM_ID = #{roomId}
+        ORDER BY REG_DATE ASC
+    </select>
+
+    <delete id="deleteChatRoom" parameterType="hashmap">
+        DELETE FROM CAMP_CHAT_HISTORY
+        WHERE USER_ID = #{userId} AND ROOM_ID = #{roomId}
+    </delete>
+
+</mapper>

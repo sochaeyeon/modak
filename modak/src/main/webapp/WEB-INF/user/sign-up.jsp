@@ -10,12 +10,6 @@
             integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
         <script src="/js/page-change.js"></script>
-        <link rel="stylesheet" href="/css/common/reset.css">
-        <link rel="stylesheet" href="/css/common/variables.css">
-        <link rel="stylesheet" href="/css/common/font.css">
-        <link rel="stylesheet" href="/css/common/layout.css">
-        <link rel="stylesheet" href="/css/common/component.css">
-        <link rel="stylesheet" href="/css/common/animation.css">
         <link rel="stylesheet" href="/css/user/sign-up.css">
     </head>
 
@@ -245,14 +239,14 @@
                                 <input type="checkbox" class="cb term-cb required-term" onchange="updateAll()">
                                 <span><em>[필수]</em>개인정보처리방침 동의</span>
                             </label>
-                            <a href="http://localhost:8080/privacy-policy.do" class="terms-link">보기</a>
+                            <a href="http://localhost:8080/privacyPolicy.do" class="terms-link">보기</a>
                         </div>
                         <div class="terms-item">
                             <label class="terms-check">
                                 <input type="checkbox" class="cb term-cb" onchange="updateAll()">
                                 <span><em>[선택]</em>마케팅 정보 수신 동의</span>
                             </label>
-                            <a href="http://localhost:8080/marketing-consent.do" class="terms-link">보기</a>
+                            <a href="http://localhost:8080/marketingConsent.do" class="terms-link">보기</a>
                         </div>
                     </div>
 

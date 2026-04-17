@@ -1,4 +1,4 @@
-package com.example.modak.weather.controller;
+package com.example.modak.common.controller;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

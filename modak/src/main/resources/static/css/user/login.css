@@ -39,10 +39,13 @@ a {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 52px 64px 0;
+  padding: 52px 64px 40px;
   position: relative;
   overflow: hidden;
+  justify-content: flex-start;
+  gap: 28px;
 }
+
 
 .left-panel::before {
   content: '';
@@ -72,12 +75,8 @@ a {
 
 
 .hero-text {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  margin-top: 52px;
+  margin-top: 0;
   padding-bottom: 0;
-  animation: fadeUp 0.7s 0.15s ease both;
 }
 
 
@@ -126,9 +125,9 @@ a {
   width: 468px;
   flex-shrink: 0;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  padding: 24px 52px 40px;
+  padding: 24px 52px;
   background: rgba(255, 255, 255, .52);
   backdrop-filter: blur(14px);
   border-left: 1px solid var(--border);
@@ -137,8 +136,9 @@ a {
 
 .login-box {
   width: 100%;
+  max-width: 360px;
   animation: fadeUp 0.7s 0.25s ease both;
-  padding-top: 150px;
+  padding-top: 0;
 }
 
 .login-heading {
@@ -509,10 +509,11 @@ a {
 
 /* ── CAMPFIRE ── */
 .campfire-wrap {
-  position: fixed;
-  bottom: 40px;
-  left: 67%;
-  transform: translateX(-50%);
+  position: absolute;
+  right: 32px;
+  bottom: 24px;
+  left: auto;
+  transform: none;
   width: 200px;
   display: flex;
   flex-direction: column;
@@ -781,9 +782,8 @@ a {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-top: 40px;
-  width: 50%;
-  animation: fadeUp .7s .2s ease both;
+  margin-top: 0;
+  width: min(420px, 100%);
 }
 .feat-card {
   display: flex;

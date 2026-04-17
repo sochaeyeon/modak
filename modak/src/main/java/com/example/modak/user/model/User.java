@@ -16,4 +16,6 @@ public class User {
 	private String gradeId;
 	private String socialType;
 	private String socialId;
+
+	private String gradeName;
 }

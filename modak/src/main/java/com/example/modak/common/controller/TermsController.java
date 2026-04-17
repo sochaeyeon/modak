@@ -1,4 +1,4 @@
-package com.example.modak.terms.controller;
+package com.example.modak.common.controller;
 
 import java.util.HashMap;
 

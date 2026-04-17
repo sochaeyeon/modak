@@ -5,32 +5,44 @@
 	<link rel="stylesheet" href="/css/common/header.css">
 
 	<header class="site-header">
-		<!-- 왼쪽: 아이콘 영역 -->
+
+		<!-- 왼쪽 -->
 		<div class="header-left">
-			<a href="javascript:;" @click="fnMove('mypage')"><button class="icon-btn" title="마이페이지"><i class="fa-regular fa-user"></i></button></a>
-			<a href="javascript:;" @click="fnMove('search')"><button class="icon-btn" title="검색"><i class="fa-solid fa-magnifying-glass"></i></button></a>
-			<a href="javascript:;" @click="fnMove('wishlist')"><button class="icon-btn" title="찜목록"><i class="fa-regular fa-heart"></i></button></a>
-			<div class="cart-wrap" @click="fnMove('cart')">
-				<button class="icon-btn" title="장바구니"><i class="fa-solid fa-basket-shopping"></i></button>
-				<span class="cart-badge">{{ cartCount }}</span>
+			<button class="icon-btn" onclick="fnMove('mypage')" title="마이페이지">
+				<i class="fa-regular fa-user"></i>
+			</button>
+
+			<button class="icon-btn" onclick="fnMove('search')" title="검색">
+				<i class="fa-solid fa-magnifying-glass"></i>
+			</button>
+
+			<button class="icon-btn" onclick="fnMove('wishlist')" title="찜목록">
+				<i class="fa-regular fa-heart"></i>
+			</button>
+
+			<div class="cart-wrap" onclick="fnMove('cart')">
+				<button class="icon-btn" title="장바구니">
+					<i class="fa-solid fa-basket-shopping"></i>
+				</button>
+				<span class="cart-badge" id="cartCount">0</span>
 			</div>
+
 			<a class="header-logout" href="/logout">
 				<i class="fa-solid fa-arrow-right-from-bracket"></i>
 				Log out
 			</a>
 		</div>
 
-		<!-- 가운데: 로고 -->
+		<!-- 로고 -->
 		<a class="header-logo" href="/main.do">모닥모닥</a>
 
-		<!-- 오른쪽: 카테고리 -->
+		<!-- 카테고리 -->
 		<div class="header-right" onclick="toggleCategory()">
 			<i class="fa-solid fa-bars"></i>
 			<span>카테고리</span>
 		</div>
 
-		<!-- 카테고리 드롭다운 -->
-		<div class="category-menu" @click="fnMove('category')" id="categoryMenu">
+		<div class="category-menu" id="categoryMenu">
 			<a href="#">텐트 / 타프</a>
 			<a href="#">취사 용품</a>
 			<a href="#">캠핑 가구</a>
@@ -45,6 +57,7 @@
 			const menu = document.getElementById('categoryMenu');
 			menu.classList.toggle('open');
 		}
+
 		document.addEventListener('click', function (e) {
 			const menu = document.getElementById('categoryMenu');
 			if (!e.target.closest('.header-right') && !e.target.closest('.category-menu')) {
@@ -52,38 +65,26 @@
 			}
 		});
 
-			const app = Vue.createApp({
-				data() {
-					return {
-						// 변수 - (키 : 값)
-						
-					};
-				},
-				methods: {
-					// 함수(메소드) - (key : function())
-					fnMove: function () {
-						let self = this;
-						let param = {
-							// 백엔드로 전달할 데이터
-						};
-						$.ajax({
-							url: "http://localhost:8080/",
-							dataType: "json",
-							type: "POST",
-							data: param,
-							success: function (data) {
-								console.log(data);
-								
-							}
-						});
-					}
-				}, // methods
-				mounted() {
-					// 처음 시작할 때 실행되는 부분
-					let self = this;
-					self.fnMove();
-				}
-			});
+		function fnMove(type) {
+			if (type === 'mypage') location.href = '/user/mypage.do';
+			if (type === 'search') location.href = '/product/search.do';
+			if (type === 'wishlist') location.href = '/user/wishlist.do';
+			if (type === 'cart') location.href = '/cart/list.do';
+			if (type === 'category') location.href = '/product/list.do';
+		}
 
-			app.mount('#app');
-		</script>
+		// 장바구니 개수 (선택)  cart/count/dox 컨트롤러가 아직 없어서 오류나가지고 지금은 주석으로 막아둘게요
+		// function loadCartCount() {
+		// 	$.ajax({
+		// 		url: "/cart/count.dox",
+		// 		type: "GET",
+		// 		success: function (data) {
+		// 			$("#cartCount").text(data.count || 0);
+		// 		}
+		// 	});
+		// }
+
+		$(document).ready(function () {
+			// loadCartCount();
+		});
+	</script>

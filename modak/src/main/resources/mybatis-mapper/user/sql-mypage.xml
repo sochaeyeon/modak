@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.modak.user.mapper.MypageMapper">
+
+	<select id="selectMypageUser" parameterType="string"
+		resultType="com.example.modak.user.model.User">
+		SELECT
+		U.USER_ID,
+		U.USER_NAME,
+		U.NICKNAME,
+		U.EMAIL,
+		U.USER_PHONE,
+		U.GRADE_ID,
+		G.GRADE_NAME
+		FROM USER U
+		LEFT JOIN USER_GRADE G
+		ON U.GRADE_ID = G.GRADE_ID
+		WHERE U.USER_ID = #{userId}
+	</select>
+
+	<select id="selectMypageSummary"
+		parameterType="string"
+		resultType="com.example.modak.user.model.MypageSummary">
+
+		SELECT
+		(
+		SELECT COUNT(*)
+		FROM ORDERS O
+		WHERE O.USER_ID = #{userId}
+		) AS orderCount,
+
+		(
+		SELECT COALESCE(U.POINT, 0)
+		FROM USER U
+		WHERE U.USER_ID = #{userId}
+		) AS pointAmount,
+
+		(
+		SELECT COUNT(*)
+		FROM USER_COUPON UC
+		WHERE UC.USER_ID = #{userId}
+		AND UC.USED_YN = 'N'
+		AND UC.STATUS = 'AVAILABLE'
+		AND (UC.EXPIRED_AT IS NULL OR UC.EXPIRED_AT >= NOW())
+		) AS couponCount,
+
+		(
+		SELECT COUNT(*)
+		FROM WISHLIST W
+		WHERE W.USER_ID = #{userId}
+		) AS wishlistCount
+	</select>
+
+</mapper>

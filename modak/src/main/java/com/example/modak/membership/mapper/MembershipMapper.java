@@ -11,4 +11,7 @@ public interface MembershipMapper {
 	
 	// 멤버십 정보 조회
     MembershipInfo selectMembershipInfo(HashMap<String, Object> map);
+
+    // 멤버십 정보 갱신
+    int updateUserGrade(HashMap<String, Object> map);
 }	

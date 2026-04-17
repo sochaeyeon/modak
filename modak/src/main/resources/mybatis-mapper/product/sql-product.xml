@@ -5,7 +5,7 @@
 <mapper namespace="com.example.modak.product.mapper.ProductMapper">
 
   <!--  제품 리스트 product list -->
-   <select id="selectProductList" resultType="com.example.modak.product.model.Product">
+	<select id="selectProductList" resultType="com.example.modak.product.model.Product">
 	    SELECT 
 	        p.PRODUCT_ID as productId,
 	        p.PRODUCT_NAME as productName,
@@ -48,8 +48,10 @@
 		</if>
 	</select>
 
-	
-
+	<!-- 제품상세보기에 들어갈 제품 productId로 검색 -->
+   <!--<select id="selectProduct" parameterType="hashmap" resultType="com.example.modak.product.model.Product">
+		
+   </select>-->
 
 
 </mapper>

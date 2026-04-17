@@ -1,6 +1,7 @@
 package com.example.modak.chat.dao;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,9 +13,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import com.example.modak.chat.mapper.ChatMapper;
 
@@ -27,78 +27,128 @@ public class ChatService {
     @Value("${gemini.api.key}")
     private String apiKey;
 
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    /* ── 메시지 전송 + Gemini 호출 ── */
     public String getGeminiResponse(String userId, String userMessage, String roomId) {
-        if (roomId == null || roomId.isEmpty()) {
-            roomId = String.valueOf(System.currentTimeMillis());
+
+        if (roomId == null || roomId.trim().isEmpty()) {
+            roomId = "ROOM_" + userId + "_" + System.currentTimeMillis();
         }
 
-        // 1. 사용자 메시지 저장
+        // 사용자 메시지 저장
         saveChat(userId, "user", userMessage, roomId);
 
-        String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey;
+        // 이전 대화 조회 (최근 10개)
+        HashMap<String, Object> param = new HashMap<>();
+        param.put("userId", userId);
+        param.put("roomId", roomId);
+        List<HashMap<String, Object>> history = chatMapper.selectChatMessagesByRoom(param);
 
-        RestTemplate restTemplate = new RestTemplate();
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/"
+                   + "gemini-2.5-flash:generateContent?key=" + apiKey;
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        String systemInstruction = "너는 캠핑 상담원 '모닥이'야. 말끝에 '~닥'을 붙여줘. 끝엔 '즐거운 캠핑 되라닥! 🔥'라고 해줘.";
-
-        // ===== 요청 바디 생성 =====
-        Map<String, Object> requestBody = new HashMap<>();
+        String systemInstruction =
+            "너는 캠핑 전문 AI 도우미 '모닥이'야. " +
+            "사용자들에게 친절하고 따뜻하게 캠핑 정보와 장비 추천을 해줘. " +
+            "답변은 반드시 한국어로 하고, 끝에는 항상 '즐거운 캠핑 되세요! 🔥'라고 덧붙여줘.";
 
         List<Map<String, Object>> contents = new ArrayList<>();
-        Map<String, Object> content = new HashMap<>();
+        int startIdx = Math.max(0, history.size() - 10);
 
-        List<Map<String, Object>> parts = new ArrayList<>();
-        Map<String, Object> textPart = new HashMap<>();
+        for (int i = startIdx; i < history.size(); i++) {
+            HashMap<String, Object> msg = history.get(i);
+            String role = "bot".equals(msg.get("role")) ? "model" : "user";
+            String text = msg.get("message").toString();
 
-        textPart.put("text", systemInstruction + "\n질문: " + userMessage);
+            if (i == startIdx && "user".equals(role)) {
+                text = systemInstruction + "\n\n" + text;
+            }
 
-        parts.add(textPart);
-        content.put("parts", parts);
-        content.put("role", "user"); // 중요 (Gemini 구조)
+            Map<String, Object> part = new HashMap<>();
+            part.put("text", text);
+            Map<String, Object> content = new HashMap<>();
+            content.put("role", role);
+            content.put("parts", Collections.singletonList(part));
+            contents.add(content);
+        }
 
-        contents.add(content);
+        Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("contents", contents);
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
-        int maxRetry = 3;
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+            String botResponse = parseBotMessage(response);
+            saveChat(userId, "bot", botResponse, roomId);
+            return botResponse;
 
-        for (int i = 0; i < maxRetry; i++) {
-            try {
-                ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+        } catch (HttpClientErrorException.TooManyRequests e) {
+            System.err.println("[챗봇] 쿼터 초과(429)");
+            return "지금 모닥불 앞에 사람이 너무 많아요! 잠시 후 다시 질문해 주세요 🔥";
+        } catch (Exception e) {
+            System.err.println("[챗봇] API 오류: " + e.getMessage());
+            return "서버 통신 오류가 발생했습니다. 불씨가 잠시 꺼진 것 같아요! 🔥";
+        }
+    }
 
-                String botResponse = parseBotMessage(response);
-
-                // 2. 봇 응답 저장
-                saveChat(userId, "bot", botResponse, roomId);
-
-                return botResponse;
-
-            } catch (HttpClientErrorException.TooManyRequests e) {
-                // 429 에러 (쿼터 초과)
-                System.err.println("429 Too Many Requests - 재시도 중...");
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ie) {
-                }
-
-            } catch (HttpServerErrorException.ServiceUnavailable e) {
-                // 503 에러
-                System.err.println("503 Service Unavailable - 재시도 중...");
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ie) {
-                }
-
-            } catch (Exception e) {
-                System.err.println("Gemini API Error: " + e.getMessage());
-                break;
-            }
+    /* ── 추천 질문 생성 ── */
+    public List<String> getRecommendQuestions(String lastMessage) {
+        // "START" 이면 기본 추천 질문 반환
+        if ("START".equals(lastMessage)) {
+            List<String> defaults = new ArrayList<>();
+            defaults.add("⛺ 텐트 추천해줘");
+            defaults.add("🛏️ 침낭 종류 알려줘");
+            defaults.add("🎒 초보 캠퍼 필수 장비");
+            defaults.add("🚨 일산화탄소 경보기 필요해?");
+            defaults.add("❄️ 겨울 캠핑 준비물");
+            return defaults;
         }
 
-        return "지금 모닥불 앞에 사람이 너무 많다닥! 잠시 후에 다시 말해줘라닥! 🔥";
+        String url = "https://generativelanguage.googleapis.com/v1beta/models/"
+                   + "gemini-2.5-flash:generateContent?key=" + apiKey;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        String prompt =
+            "다음 캠핑 대화 내용을 보고 사용자가 다음에 물어볼 법한 추천 질문 3개를 만들어줘. " +
+            "반드시 아래 형식으로만 답해줘 (다른 말 없이 딱 3줄):\n" +
+            "질문1\n질문2\n질문3\n\n대화 내용: " + lastMessage;
+
+        Map<String, Object> part = new HashMap<>();
+        part.put("text", prompt);
+        Map<String, Object> content = new HashMap<>();
+        content.put("role", "user");
+        content.put("parts", Collections.singletonList(part));
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("contents", Collections.singletonList(content));
+
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
+            String raw = parseBotMessage(response);
+            List<String> result = new ArrayList<>();
+            for (String line : raw.split("\n")) {
+                String trimmed = line.trim();
+                if (!trimmed.isEmpty()) result.add(trimmed);
+                if (result.size() >= 3) break;
+            }
+            return result;
+        } catch (Exception e) {
+            System.err.println("[추천질문] 오류: " + e.getMessage());
+            List<String> fallback = new ArrayList<>();
+            fallback.add("⛺ 텐트 추천해줘");
+            fallback.add("🛏️ 침낭 어떤 거 골라야 해?");
+            fallback.add("🏕️ 캠핑 초보 팁 알려줘");
+            return fallback;
+        }
     }
 
     private void saveChat(String userId, String role, String message, String roomId) {
@@ -107,34 +157,21 @@ public class ChatService {
         map.put("role", role);
         map.put("message", message);
         map.put("roomId", roomId);
-
         chatMapper.insertChatHistory(map);
     }
 
     private String parseBotMessage(ResponseEntity<Map> response) {
         try {
             Map body = response.getBody();
-
-            if (body != null && body.containsKey("candidates")) {
-                List candidates = (List) body.get("candidates");
-
-                if (candidates != null && !candidates.isEmpty()) {
-                    Map firstCandidate = (Map) candidates.get(0);
-                    Map content = (Map) firstCandidate.get("content");
-                    List parts = (List) content.get("parts");
-
-                    if (parts != null && !parts.isEmpty()) {
-                        Map firstPart = (Map) parts.get(0);
-                        return (String) firstPart.get("text");
-                    }
-                }
-            }
-
+            List candidates = (List) body.get("candidates");
+            Map firstCandidate = (Map) candidates.get(0);
+            Map content = (Map) firstCandidate.get("content");
+            List parts = (List) content.get("parts");
+            Map firstPart = (Map) parts.get(0);
+            return (String) firstPart.get("text");
         } catch (Exception e) {
-            e.printStackTrace();
+            return "답변을 가져오지 못했어요. 다시 시도해 주세요!";
         }
-
-        return "모닥불 연기 때문에 대답을 못했다닥! 다시 물어봐줘라닥!";
     }
 
     public List<HashMap<String, Object>> getChatHistory(HashMap<String, Object> map) {

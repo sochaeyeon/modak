@@ -11,16 +11,15 @@
     position: sticky; top: 0; z-index: 1000;
 }
 
-/* ── 중앙 로고 (완전 중앙 정렬) ── */
 .header-logo {
     position: absolute; left: 50%; transform: translateX(-50%);
     font-size: 26px; font-weight: 800; color: #2c1f0e; text-decoration: none;
     letter-spacing: 1px;
 }
 
-/* ── 왼쪽 아이콘 그룹 ── */
-.header-left { display: flex; align-items: center; gap: 22px; min-width: 300px; }
-.icon-btn { background: none; border: none; cursor: pointer; font-size: 20px; color: #333; transition: 0.2s; }
+/* ── 왼쪽 아이콘 그룹 (간격 조정닥!) ── */
+.header-left { display: flex; align-items: center; gap: 20px; min-width: 320px; }
+.icon-btn { background: none; border: none; cursor: pointer; font-size: 20px; color: #333; transition: 0.2s; outline: none; }
 .icon-btn:hover { color: #E8732A; }
 
 .cart-wrap { position: relative; cursor: pointer; }
@@ -30,77 +29,72 @@
     border-radius: 50%; display: flex; align-items: center; justify-content: center;
 }
 
+/* 🔔 알림 아이콘 스타일닥! */
+.notice-wrap { position: relative; cursor: pointer; }
+.notice-dot {
+    position: absolute; top: 0; right: 0;
+    width: 7px; height: 7px;
+    background: #ff4d4d;
+    border-radius: 50%;
+    border: 1.5px solid #fff;
+}
+
+/* 마우스 올리면 종이 딸랑딸랑~ 🐾 */
+.notice-wrap:hover .notice-btn i {
+    animation: bellRing 0.6s ease-in-out infinite;
+    color: #E8732A;
+}
+
+@keyframes bellRing {
+    0%, 100% { transform: rotate(0); }
+    20% { transform: rotate(15deg); }
+    40% { transform: rotate(-15deg); }
+    60% { transform: rotate(10deg); }
+    80% { transform: rotate(-10deg); }
+}
+
 /* ── 오른쪽 유틸 & 메뉴 그룹 ── */
 .header-right-group {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 8px;
-    min-width: 300px;
+    display: flex; flex-direction: column; align-items: flex-end; gap: 8px; min-width: 300px;
 }
 
 .top-utils { display: flex; align-items: center; gap: 15px; margin-right: 5px; }
 
-/* ── [수정] 경로 표시 (Breadcrumb) ── */
 .header-breadcrumb { 
-    font-size: 11px; 
-    color: #bbb; 
-    letter-spacing: 0.5px;
-    display: flex;
-    align-items: center;
+    font-size: 11px; color: #bbb; letter-spacing: 0.5px; display: flex; align-items: center;
 }
 .header-breadcrumb .sep { margin: 0 6px; color: #eee; font-style: normal; }
 .header-breadcrumb .node.current { color: #E8732A; font-weight: 600; }
 
-/* ── [강조] 상단 로그아웃 버튼 ── */
 .header-top-logout {
-    font-size: 11px;
-    color: #E8732A;
-    font-weight: 700;
-    text-decoration: none;
-    padding: 3px 12px;
-    border: 1.5px solid #fde8d8;
-    border-radius: 12px;
-    transition: 0.2s;
+    font-size: 11px; color: #E8732A; font-weight: 700; text-decoration: none;
+    padding: 3px 12px; border: 1.5px solid #fde8d8; border-radius: 12px; transition: 0.2s;
 }
 .header-top-logout:hover { background: #E8732A; color: #fff; border-color: #E8732A; }
 
-/* ── 메뉴 트리거 (MENU) ── */
-.category-trigger {
-    display: flex; align-items: center; gap: 10px; cursor: pointer;
-    margin-right: 5px; padding: 5px; transition: 0.2s;
-}
+.category-trigger { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-right: 5px; padding: 5px; }
 .trigger-text { font-size: 14px; font-weight: 800; color: #222; }
 
-/* 🍔 햄버거 아이콘 스타일 */
 .burger-icon { width: 20px; height: 14px; display: flex; flex-direction: column; justify-content: space-between; }
 .burger-icon span { display: block; width: 100%; height: 2.5px; background: #222; border-radius: 2px; transition: 0.3s; }
 
-/* 메뉴 활성화 시 애니메이션 */
 .category-trigger.active .burger-icon span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
 .category-trigger.active .burger-icon span:nth-child(2) { opacity: 0; }
 .category-trigger.active .burger-icon span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
 
-/* ── 카테고리 드롭다운 메뉴 ── */
 .category-menu {
-    position: absolute; top: 85px; right: 40px;
-    background: #fff; width: 250px; border-radius: 20px;
-    box-shadow: 0 12px 45px rgba(0,0,0,0.12);
-    display: none; transform-origin: top right;
+    position: absolute; top: 85px; right: 40px; background: #fff; width: 250px; border-radius: 20px;
+    box-shadow: 0 12px 45px rgba(0,0,0,0.12); display: none; transform-origin: top right;
     animation: slideDown 0.3s ease-out;
 }
 .category-menu.open { display: block; }
-
 .menu-inner { padding: 30px 0 20px; }
 .section-label { font-size: 11px; color: #ccc; font-weight: 800; margin-left: 25px; margin-bottom: 15px; letter-spacing: 1px; }
-
 .link-grid a { display: block; padding: 10px 25px; font-size: 15px; color: #444; text-decoration: none; transition: 0.2s; }
 .link-grid a:hover { background: #faf7f2; color: #E8732A; padding-left: 30px; }
 
-/* 전체 상품 보기 강조 */
 .all-view { font-weight: 700; color: #222 !important; border-bottom: 1px solid #f8f8f8; padding-bottom: 15px !important; margin-bottom: 8px; }
 .guide-link { color: #E8732A !important; font-weight: 700; }
-
 .menu-line { height: 1px; background: #eee; margin: 20px 0; }
 
 @keyframes slideDown { 

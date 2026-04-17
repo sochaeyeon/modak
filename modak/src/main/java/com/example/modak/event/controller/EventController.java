@@ -19,38 +19,38 @@ import jakarta.servlet.http.HttpServletRequest;
 @Controller
 public class EventController {
 
-	@Autowired
-	EventService eventService;
+   @Autowired
+   EventService eventService;
 
-	@RequestMapping("/event/list.do")
-	public String test(Model model) throws Exception {
-		return "/event/event-list";
-	}
+   @RequestMapping("/event/list.do")
+   public String test(Model model) throws Exception {
+      return "/event/event-list";
+   }
 
-	@RequestMapping("/event/detail.do")
-	public String eventView(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
-			throws Exception {
-		System.out.println(map);
-		request.setAttribute("map", map);
-		return "/event/event-detail";
-	}
+   @RequestMapping("/event/detail.do")
+   public String eventView(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
+         throws Exception {
+      System.out.println(map);
+      request.setAttribute("map", map);
+      return "/event/event-detail";
+   }
 
-	@RequestMapping(value = "/event/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public String eventList(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
-		HashMap<String, Object> resultMap = new HashMap<String, Object>();
+   @RequestMapping(value = "/event/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+   @ResponseBody
+   public String eventList(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+      HashMap<String, Object> resultMap = new HashMap<String, Object>();
 
-		resultMap = eventService.getEventList(map);
+      resultMap = eventService.getEventList(map);
 
-		return new Gson().toJson(resultMap);
-	}
+      return new Gson().toJson(resultMap);
+   }
 
-	@RequestMapping(value = "/event/info.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public String eventInfo(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
-		HashMap<String, Object> resultMap = new HashMap<String, Object>();
-		resultMap = eventService.getEventInfo(map);
-		return new Gson().toJson(resultMap);
-	}
+   @RequestMapping(value = "/event/info.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+   @ResponseBody
+   public String eventInfo(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+      HashMap<String, Object> resultMap = new HashMap<String, Object>();
+      resultMap = eventService.getEventInfo(map);
+      return new Gson().toJson(resultMap);
+   }
 
 }

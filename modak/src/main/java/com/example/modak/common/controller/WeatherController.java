@@ -7,13 +7,15 @@ import java.net.URL;
 import java.util.Calendar;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import com.google.gson.Gson;
-import com.google.gson.JsonParser;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonParser;
 
 @RestController
 @RequestMapping("/weather")
@@ -24,7 +26,7 @@ public class WeatherController {
 
     /**
      * 단기예보 (오늘 + 내일)
-     * 파라미터: nx, ny (지역 격자 좌표)
+     * GET /weather/short.dox?nx=60&ny=127
      */
     @GetMapping("/short.dox")
     public String getShortWeather(
@@ -34,12 +36,11 @@ public class WeatherController {
         HashMap<String, Object> resultMap = new HashMap<>();
         try {
             // 단기예보 발표시각: 0200, 0500, 0800, 1100, 1400, 1700, 2000, 2300
-            // 가장 최근 발표시각 계산
             Calendar cal = Calendar.getInstance();
             int hour = cal.get(Calendar.HOUR_OF_DAY);
             int min  = cal.get(Calendar.MINUTE);
 
-            // 발표시각 목록 (분 40 이후에 데이터 완성)
+            // 발표시각 목록 (매시 40분 이후 데이터 완성)
             int[] fcstHours = {2, 5, 8, 11, 14, 17, 20, 23};
             int baseHour = 23;
 
@@ -50,7 +51,7 @@ public class WeatherController {
                 }
             }
 
-            // baseHour가 현재보다 크면 전날 2300 사용
+            // 현재 시각보다 baseHour가 크면 전날 2300 사용
             if (baseHour > hour || (baseHour == hour && min < 40)) {
                 cal.add(Calendar.DATE, -1);
                 baseHour = 23;
@@ -58,8 +59,6 @@ public class WeatherController {
 
             String baseDate = new SimpleDateFormat("yyyyMMdd").format(cal.getTime());
             String baseTime = String.format("%02d00", baseHour);
-
-            System.out.println("[단기예보] baseDate=" + baseDate + " baseTime=" + baseTime + " nx=" + nx + " ny=" + ny);
 
             String apiUrl = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"
                     + "?serviceKey=" + weatherKey.trim()
@@ -70,17 +69,24 @@ public class WeatherController {
                     + "&ny=" + ny;
 
             String raw = callApi(apiUrl);
-            System.out.println("[단기예보] 응답코드OK raw 앞부분: " + raw.substring(0, Math.min(200, raw.length())));
 
-            if (raw.trim().startsWith("<")) {
+            // ✅ 비정상 응답 체크 (XML, Forbidden 등)
+            if (!raw.trim().startsWith("{")) {
                 resultMap.put("result", "fail");
-                resultMap.put("msg", "XML응답-인증키확인");
+                resultMap.put("msg", "비정상 응답: " + raw.substring(0, Math.min(50, raw.length())));
                 return new Gson().toJson(resultMap);
             }
 
-            resultMap.put("result", "success");
-            resultMap.put("data", JsonParser.parseString(raw));
-            return new Gson().toJson(resultMap);
+            // ✅ JSON 파싱 시도
+            try {
+                resultMap.put("result", "success");
+                resultMap.put("data", JsonParser.parseString(raw));
+                return new Gson().toJson(resultMap);
+            } catch (Exception parseEx) {
+                resultMap.put("result", "fail");
+                resultMap.put("msg", "JSON 파싱 실패: " + parseEx.getMessage());
+                return new Gson().toJson(resultMap);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -92,7 +98,7 @@ public class WeatherController {
 
     /**
      * 중기예보 (D+3 ~ D+5)
-     * 파라미터: taRegId(기온코드), landRegId(육상코드)
+     * GET /weather/mid.dox?taRegId=11B10101&landRegId=11B00000
      */
     @GetMapping("/mid.dox")
     public String getMidWeather(
@@ -115,8 +121,6 @@ public class WeatherController {
                 tmFc = sdf.format(cal.getTime()) + "1800";
             }
 
-            System.out.println("[중기예보] tmFc=" + tmFc + " taRegId=" + taRegId);
-
             String taUrl = "https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa"
                     + "?serviceKey=" + weatherKey.trim()
                     + "&pageNo=1&numOfRows=10&dataType=JSON"
@@ -132,16 +136,23 @@ public class WeatherController {
             String taRaw   = callApi(taUrl);
             String landRaw = callApi(landUrl);
 
-            if (taRaw.trim().startsWith("<") || landRaw.trim().startsWith("<")) {
+            // 비정상 응답 체크
+            if (!taRaw.trim().startsWith("{") || !landRaw.trim().startsWith("{")) {
                 resultMap.put("result", "fail");
-                resultMap.put("msg", "XML응답-인증키확인");
+                resultMap.put("msg", "비정상 응답");
                 return new Gson().toJson(resultMap);
             }
 
-            resultMap.put("result", "success");
-            resultMap.put("ta",   JsonParser.parseString(taRaw));
-            resultMap.put("land", JsonParser.parseString(landRaw));
-            return new Gson().toJson(resultMap);
+            try {
+                resultMap.put("result", "success");
+                resultMap.put("ta",   JsonParser.parseString(taRaw));
+                resultMap.put("land", JsonParser.parseString(landRaw));
+                return new Gson().toJson(resultMap);
+            } catch (Exception parseEx) {
+                resultMap.put("result", "fail");
+                resultMap.put("msg", "JSON 파싱 실패: " + parseEx.getMessage());
+                return new Gson().toJson(resultMap);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -160,7 +171,6 @@ public class WeatherController {
         conn.setReadTimeout(7000);
 
         int code = conn.getResponseCode();
-        System.out.println("[날씨API] 응답코드: " + code + " URL: " + apiUrl.substring(0, 80));
 
         BufferedReader rd = new BufferedReader(
             new InputStreamReader(

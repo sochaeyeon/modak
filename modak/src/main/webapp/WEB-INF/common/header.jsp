@@ -8,9 +8,17 @@
         <button class="icon-btn" onclick="fnMove('mypage')" title="마이페이지"><i class="fa-regular fa-user"></i></button>
         <button class="icon-btn" onclick="fnMove('search')" title="검색"><i class="fa-solid fa-magnifying-glass"></i></button>
         <button class="icon-btn" onclick="fnMove('wishlist')" title="찜목록"><i class="fa-regular fa-heart"></i></button>
+        
         <div class="cart-wrap" onclick="fnMove('cart')">
             <button class="icon-btn" title="장바구니"><i class="fa-solid fa-basket-shopping"></i></button>
             <span class="cart-badge" id="cartCount">0</span>
+        </div>
+
+        <div class="notice-wrap" onclick="fnMove('notice')">
+            <button class="icon-btn notice-btn" title="알림">
+                <i class="fa-regular fa-bell"></i>
+            </button>
+            <span class="notice-dot"></span>
         </div>
     </div>
 
@@ -83,9 +91,8 @@
         const $sep = $(".header-breadcrumb .sep");
         const $pageName = $("#currentPageName");
         
-        let name = ""; // 초기값을 비워두는게 핵심닥!
+        let name = "";
 
-        // 🎯 홈 판별 (includes를 써서 유연하게 잡는다닥)
         if (path === "/" || path.includes("main.do") || path === "") {
             $sep.hide(); 
             $pageName.text(""); 
@@ -103,10 +110,12 @@
         }
     });
 
+    // 🎯 이동 로직 통합 관리닥!
     function fnMove(type) {
         if (type === 'mypage') location.href = '/user/mypage.do';
         if (type === 'search') location.href = '/product/search.do';
         if (type === 'wishlist') location.href = '/user/wishlist.do';
         if (type === 'cart') location.href = '/cart/list.do';
+        if (type === 'notice') location.href = '/user/mypage.do'; // 알림 누르면 마이페이지로 이동닥!
     }
 </script>

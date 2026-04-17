@@ -6,28 +6,49 @@
 
   <!--  제품 리스트 product list -->
    <select id="selectProductList" resultType="com.example.modak.product.model.Product">
-    SELECT 
-        p.PRODUCT_ID as productId,
-        p.PRODUCT_NAME as productName,
-        p.PRODUCT_TYPE as productType,
-        p.PRICE as price,
-        p.DEPOSIT as deposit,
-        p.DESCRIPTION as description,
-        p.IS_AVAILABLE as isAvailable,
-        p.CREATED_AT as createdAt,
-        p.CATEGORY_ID as categoryId,
-        p.BRAND_ID as brandId,
-        b.BRAND_NAME as brandName,
-        i.IMG_URL as imgUrl
-    FROM PRODUCT p
+	    SELECT 
+	        p.PRODUCT_ID as productId,
+	        p.PRODUCT_NAME as productName,
+	        p.PRODUCT_TYPE as productType,
+	        p.PRICE as price,
+	        p.DEPOSIT as deposit,
+	        p.DESCRIPTION as description,
+	        p.IS_AVAILABLE as isAvailable,
+	        p.CREATED_AT as createdAt,
+	        p.CATEGORY_ID as categoryId,
+	        p.BRAND_ID as brandId,
+	        b.BRAND_NAME as brandName,
+	        i.IMG_URL as imgUrl
+	    FROM PRODUCT p
+	
+	    LEFT JOIN BRAND b
+	        ON p.BRAND_ID = b.BRAND_ID
+	
+	    LEFT JOIN PRODUCT_IMG i
+	        ON p.PRODUCT_ID = i.PRODUCT_ID
+	        AND i.IS_MAIN = 'Y'
+	    WHERE 1=1
+	
+		<if test="rentable == true and buyable == false">
+		    AND p.PRODUCT_TYPE = 'RENTAL'
+		</if>
+		
+		<if test="rentable == false and buyable == true">
+		    AND p.PRODUCT_TYPE = 'PURCHASE'
+		</if>
+		
+		<if test="rentable == false and buyable == false">
+		    AND 1 = 0
+		</if>
+		<if test="brandId != null and brandId.size() > 0">
+		    AND p.BRAND_ID IN
+		    <foreach item="id" collection="brandId" open="(" separator="," close=")">
+		        #{id}
+		    </foreach>
+		</if>
+	</select>
 
-    LEFT JOIN BRAND b
-        ON p.BRAND_ID = b.BRAND_ID
-
-    LEFT JOIN PRODUCT_IMG i
-        ON p.PRODUCT_ID = i.PRODUCT_ID
-        AND i.IS_MAIN = 'Y'
-</select>
+	
 
 
 

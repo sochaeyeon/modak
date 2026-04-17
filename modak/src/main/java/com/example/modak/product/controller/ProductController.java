@@ -28,8 +28,18 @@ public class ProductController {
 	   } 
 	   @RequestMapping(value = "/product/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 		@ResponseBody
-		public String productList(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+		public String productList(Model model, @RequestParam HashMap<String, Object> map, 
+				@RequestParam(value="brandId", required=false) java.util.List<Integer> brandId, 
+				@RequestParam(value="priceMax", required=false) Integer priceMax) throws Exception {
 			HashMap<String, Object> resultMap = new HashMap<String, Object>();
+			boolean rentable = Boolean.parseBoolean(String.valueOf(map.get("rentable")));
+		    boolean buyable  = Boolean.parseBoolean(String.valueOf(map.get("buyable")));
+		    
+		    map.put("rentable", rentable);
+		    map.put("buyable", buyable);
+		    
+		    map.put("brandId", brandId);
+		    map.put("priceMax", priceMax);
 			
 			resultMap = productService.getProductList(map);
 			

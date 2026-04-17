@@ -25,6 +25,7 @@ public class MainController {
     @Value("${kakao.js.key}")
     private String kakaoJsKey;
 
+    
     /**
      * [페이지 이동] 메인 페이지 접속 (localhost:8080/main.do)
      * 카카오 맵 API 키를 Model에 담아 JSP로 전달합니다.

@@ -10,6 +10,9 @@
 <link rel="stylesheet" href="/css/product/product-list.css">
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<!-- 슬라이더 라이브러리 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.css">
+<script src="https://cdn.jsdelivr.net/npm/nouislider@15.7.1/dist/nouislider.min.js"></script>
 </head>
 
 <body>
@@ -154,17 +157,18 @@
           </div>
         </div>
 
-        <!-- 가격 범위 슬라이더 -->
         <div class="filter-section">
-          <div class="fs-header">
-            <span class="fs-title">1박 가격</span>
-          </div>
-          <div class="range-wrap">
-            <div class="range-row">
-              <span class="range-val">0원</span>
-              <span class="range-val">{{ priceRangeLabel }}</span>
+        <div class="fs-header">
+          <span class="fs-title">1박 가격</span>
+        </div>
+
+        <div class="price-filter">
+            <div class="price-label">
+              <span>₩ <span id="minPrice">0</span></span>
+              <span>₩ <span id="maxPrice">50,000</span></span>
             </div>
-            <input type="range" min="0" max="100" v-model="filter.priceRange" @input="updateRangeStyle">
+
+            <div id="price-slider"></div>
           </div>
         </div>
 
@@ -297,7 +301,10 @@ createApp({
         rentable:   true,
         buyable:    true,
         brandId:   [],
-        priceRange: 50,
+        priceRange: {   
+          min: 0,
+          max: 50000
+        },
         minRating:  null,
       },
     };
@@ -332,10 +339,6 @@ createApp({
       return Math.ceil(this.filteredProducts.length / this.perPage);
     },
 
-    priceRangeLabel() {
-      const v = Math.round(this.filter.priceRange * 500);
-      return v >= 50000 ? '50,000원+' : v.toLocaleString() + '원';
-    },
   },
 
   methods: {
@@ -358,6 +361,8 @@ createApp({
         // 브랜드 필터링
         brandId: self.filter.brandId || [],
         // 1박 가격 필터링
+        minPrice: self.filter.priceRange.min,
+        maxPrice: self.filter.priceRange.max
       };
 
       $.ajax({
@@ -454,12 +459,14 @@ createApp({
         minRating:  null,
       };
       this.currentPage = 1;
-    },
 
-    updateRangeStyle(event) {
-      const el  = event.target;
-      const pct = el.value + '%';
-      el.style.background = `linear-gradient(to right, var(--ember) 0%, var(--ember) ${pct}, var(--border) ${pct}, var(--border) 100%)`;
+       // 🔥 슬라이더도 같이 리셋
+      const slider = document.getElementById('price-slider');
+      if (slider && slider.noUiSlider) {
+        slider.noUiSlider.set([0, 50000]);
+      }
+
+      this.fnList();
     },
 
     starsHTML(rating) {
@@ -469,12 +476,46 @@ createApp({
       for (let i = 0; i < full; i++) html += '<span class="star">★</span>';
       if (half) html += '<span class="star" style="opacity:.5">★</span>';
       return html;
+    },
+
+    initPriceSlider() {
+      const slider = document.getElementById('price-slider');
+
+      if (!slider || typeof noUiSlider === 'undefined') return;
+
+      noUiSlider.create(slider, {
+        start: [0, 50000],
+        connect: true,
+        step: 1000,
+        range: {
+          min: 0,
+          max: 50000
+        }
+      });
+
+      slider.noUiSlider.on('update', (values) => {
+        const min = Math.round(values[0]);
+        const max = Math.round(values[1]);
+
+        document.getElementById("minPrice").innerText = min.toLocaleString();
+        document.getElementById("maxPrice").innerText = max.toLocaleString();
+
+        this.filter.priceRange.min = min;
+        this.filter.priceRange.max = max;
+      });
+
+      slider.noUiSlider.on('change', () => {
+        this.fnList();
+      });
     }
   },
 
   mounted() {
     this.fetchCategory();  // 부모 카테고리 로드
     this.fnList();           // 상품 목록 로드 (fetchProducts 제거, fnList로 통일)
+    this.$nextTick(() => {
+    this.initPriceSlider();
+    });
   },
 
 }).mount('#app');

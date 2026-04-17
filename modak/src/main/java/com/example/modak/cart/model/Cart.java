@@ -2,13 +2,13 @@ package com.example.modak.cart.model;
 
 public class Cart {
 	
-	int cartId; // 장바구니id
-	int quantity; // 수량
-	String cartType; // 타입구분
-	String createdAt; // 등록일시
+	private int cartId; // 장바구니id
+	private int quantity; // 수량
+	private String cartType; // 타입구분
+	private String createdAt; // 등록일시
 	
-	String userId; // 회원 id
-	int productId; // 상품 id
-	int optionId; // 옵션 id
+	private String userId; // 회원 id
+	private int productId; // 상품 id
+	private int optionId; // 옵션 id
 
 }

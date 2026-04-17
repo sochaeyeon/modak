@@ -2,11 +2,41 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
    
-<mapper namespace="com.example.modak.def.mapper.DefaultMapper">
+<mapper namespace="com.example.modak.category.mapper.CategoryMapper">
 
    <!-- 여러개 검색 -->
-   <select id="selectCategoryList" parameterType="hashmap" resultType="com.example.modak.category.model.Category">
+   <!--<select id="selectCategoryList" parameterType="hashmap" resultType="com.example.modak.category.model.Category">
       SELECT * FROM PRODUCT_CATEGORY
+   </select>-->
+   
+    <!-- 부모 카테고리 조회 -->
+   <select id="selectParentCategory" parameterType="hashmap" resultType="com.example.modak.category.model.Category">
+      SELECT 
+            category_id       AS categoryId
+          , parent_category  AS parentCategory
+          , category_name    AS categoryName
+      FROM product_category
+      WHERE parent_category IS NULL
+      ORDER BY category_id ASC
    </select>
+
+   <!-- 전체 카테고리 조회 -->
+   <select id="selectAllCategory" parameterType="hashmap" resultType="com.example.modak.category.model.Category">
+      SELECT 
+            category_id       AS categoryId
+          , parent_category  AS parentCategory
+          , category_name    AS categoryName
+      FROM product_category
+      ORDER BY category_id ASC
+   </select>
+   
+   <select id="selectChildCategory" parameterType="int" resultType="com.example.modak.category.model.Category">
+	    SELECT 
+	        category_id      AS categoryId,
+	        parent_category  AS parentCategory,
+	        category_name    AS categoryName
+	    FROM product_category
+	    WHERE parent_category = #{value}
+	</select>
 
 </mapper>

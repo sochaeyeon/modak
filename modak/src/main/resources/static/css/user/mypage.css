@@ -1,13 +1,3 @@
-@font-face {
-    font-family: 'SeoulHangangCL';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/SeoulHangangCL.woff') format('woff');
-}
-
-@font-face {
-    font-family: 'SeoulHangangCEB';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/SeoulHangangCEB.woff') format('woff');
-}
-
 * {
     margin: 0;
     padding: 0;
@@ -391,6 +381,12 @@ body {
     padding: 4px 10px;
     border-radius: 20px;
     flex-shrink: 0;
+}
+
+.order-sub {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 4px;
 }
 
 .status-배송완료 {
@@ -896,7 +892,7 @@ body {
 .grade-silver {
     background: linear-gradient(135deg, #9aa0a6, #d3d6da);
     color: #2f2f2f;
-    border:1px solid rgba(150, 150, 150, 0.3);
+    border: 1px solid rgba(150, 150, 150, 0.3);
 }
 
 .grade-실버 svg,
@@ -919,7 +915,7 @@ body {
 .grade-vvip {
     background: linear-gradient(135deg, #9559d4, #74a1ef);
     color: #fff;
-    border: 1px solid  rgba(101, 74, 255, 0.5);
+    border: 1px solid rgba(101, 74, 255, 0.5);
     position: relative;
     overflow: hidden;
 }
@@ -957,4 +953,262 @@ body {
 .level-badge:not([class*="grade-"]) {
     background: #eee;
     color: #555;
+}
+
+.status-PENDING {
+    background: rgba(180, 140, 100, .12);
+    color: #8b6b4d;
+}
+
+.status-PAID {
+    background: rgba(201, 79, 30, .1);
+    color: #c94f1e;
+}
+
+.status-READY {
+    background: rgba(255, 193, 7, 0.15);
+    color: #9b6a00;
+}
+
+.status-SHIPPING {
+    background: rgba(33, 150, 243, 0.12);
+    color: #1565c0;
+}
+
+.status-DONE {
+    background: rgba(76, 175, 80, 0.12);
+    color: #2e7d32;
+}
+
+.status-CANCELLED {
+    background: rgba(244, 67, 54, 0.12);
+    color: #c62828;
+}
+
+/* 전체 메타 영역 */
+.order-meta {
+    font-size: 13px;
+    color: #9a8f85;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 날짜 */
+.order-date {
+    color: #b0a59b;
+}
+
+/* 점 */
+.order-meta .dot {
+    margin: 0 2px;
+}
+
+/* 🔥 주문유형 뱃지 */
+.order-type-badge {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* 구매 */
+.order-type-badge.purchase {
+    background-color: #fff4ec;
+    color: #e0621a;
+}
+
+/* 대여 */
+.order-type-badge.rental {
+    background-color: #eef6ff;
+    color: #2f6fd8;
+}
+
+.flow-step.is-selected .flow-circle {
+    border-color: var(--ember-deep);
+    background: rgba(201, 79, 30, .14);
+    box-shadow: 0 0 0 4px rgba(201, 79, 30, .08);
+}
+
+.flow-step.is-selected .flow-count,
+.flow-step.is-selected .flow-name {
+    color: var(--ember-deep);
+}
+
+.order-head-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-filter-reset {
+    border: 1px solid var(--border);
+    background: rgba(255, 252, 248, .9);
+    color: var(--text-mid);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: 'SeoulHangangCL', sans-serif;
+    transition: all .18s ease;
+}
+
+.btn-filter-reset:hover {
+    border-color: rgba(201, 79, 30, .35);
+    color: var(--ember-deep);
+    background: rgba(201, 79, 30, .06);
+}
+
+/* 배송지 입력 폼 */
+/* 배송지 입력 폼 전체 박스 */
+.address-form-box {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid #eee;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    animation: fadeIn 0.2s ease;
+    margin: 18px 33px;
+}
+
+/* 타이틀 */
+.address-form-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: #333;
+}
+
+/* 한 줄 */
+.address-form-row {
+    margin-bottom: 14px;
+}
+
+/* 라벨 */
+.address-form-row label {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 6px;
+    color: #666;
+}
+
+/* 인풋 */
+.address-form-row input {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+/* 포커스 */
+.address-form-row input:focus {
+    border-color: #c94f1e;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(201, 79, 30, 0.1);
+}
+
+/* 체크박스 영역 */
+.address-form-check {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #555;
+}
+
+/* 버튼 영역 */
+.address-form-box .settings-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+/* 저장 버튼 */
+.address-form-box .btn-save {
+    background: #c94f1e;
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+/* 취소 버튼 */
+.address-form-box .btn-outline {
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+/* 개수 표시 */
+.address-limit-text {
+    font-size: 12px;
+    color: #888;
+    margin-left: 8px;
+    margin-top: 3px;
+}
+
+/* 부드럽게 나타나는 효과 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 제목 + 개수 묶음 */
+.address-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 왼쪽 묶음 */
+.title-wrap {
+    display: flex;
+    align-items: center;
+}
+
+/* 개수 텍스트 */
+.address-limit-text {
+    font-size: 12px;
+    color: #999;
+}
+
+.zipcode-wrap {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.zipcode-wrap input {
+    flex: 1;
+}
+
+.zipcode-wrap .btn-outline {
+    flex-shrink: 0;
+    min-width: 96px;
+    height: 40px;
+}
+
+.address-msg {
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+.address-msg.success {
+    color: #2e7d32;
+}
+
+.address-msg.error {
+    color: #d32f2f;
 }

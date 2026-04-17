@@ -25,6 +25,9 @@ public class LoginService {
 
 	@Autowired
 	LoginMapper loginMapper;
+	
+	@Autowired
+	CouponService couponService;
 
 //  일반 로그인
 	public HashMap<String, Object> getUser(HashMap<String, Object> map) {
@@ -92,7 +95,11 @@ public class LoginService {
 			insertMap.put("socialType", info.getSocialType());
 			insertMap.put("socialId", info.getSocialId());
 
-			loginMapper.insertSocialUser(insertMap);
+			int result = loginMapper.insertSocialUser(insertMap);
+
+	        if (result > 0) {
+	            couponService.issueWelcomeCoupon(userId);
+	        }
 
 			user = loginMapper.selectUserBySocial(map);
 		}

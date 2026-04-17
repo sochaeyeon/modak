@@ -14,6 +14,7 @@
                         crossorigin="anonymous"></script>
                     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
                     <script src="/js/page-change.js"></script>
+                    <script src="//t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
                     <link rel="stylesheet" href="/css/user/mypage.css">
 
                 </head>
@@ -186,61 +187,84 @@
                                                 <h3>주문 현황</h3>
                                             </div>
                                             <div class="order-flow">
-                                                <div class="flow-step has-count">
-                                                    <div class="flow-circle"><svg width="20" height="20"
-                                                            viewBox="0 0 20 20" fill="none">
+                                                <div class="flow-step"
+                                                    :class="{ 'has-count': statusSummary.paid > 0, 'is-selected': selectedOrderStatus === 'PAID' }"
+                                                    @click="fnFilterByStatus('PAID')">
+                                                    <div class="flow-circle">
+                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                                             <rect x="4" y="3" width="12" height="14" rx="2"
                                                                 stroke="#c94f1e" stroke-width="1.5" />
                                                             <path d="M7 7h6M7 10h4" stroke="#c94f1e" stroke-width="1.3"
                                                                 stroke-linecap="round" />
-                                                        </svg></div>
-                                                    <div class="flow-count">2</div>
+                                                        </svg>
+                                                    </div>
+                                                    <div class="flow-count">{{ statusSummary.paid }}</div>
                                                     <div class="flow-name">결제완료</div>
                                                 </div>
+
                                                 <div class="flow-arrow">›</div>
-                                                <div class="flow-step">
-                                                    <div class="flow-circle"><svg width="20" height="20"
-                                                            viewBox="0 0 20 20" fill="none">
+
+                                                <div class="flow-step"
+                                                    :class="{ 'has-count': statusSummary.ready > 0, 'is-selected': selectedOrderStatus === 'READY' }"
+                                                    @click="fnFilterByStatus('READY')">
+                                                    <div class="flow-circle">
+                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                                             <rect x="3" y="5" width="14" height="10" rx="2"
                                                                 stroke="#b09070" stroke-width="1.4" />
                                                             <path d="M3 9h14" stroke="#b09070" stroke-width="1.3" />
-                                                        </svg></div>
-                                                    <div class="flow-count">0</div>
+                                                        </svg>
+                                                    </div>
+                                                    <div class="flow-count">{{ statusSummary.ready }}</div>
                                                     <div class="flow-name">배송준비</div>
                                                 </div>
+
                                                 <div class="flow-arrow">›</div>
-                                                <div class="flow-step has-count">
-                                                    <div class="flow-circle"><svg width="20" height="20"
-                                                            viewBox="0 0 20 20" fill="none">
+
+                                                <div class="flow-step"
+                                                    :class="{ 'has-count': statusSummary.shipping > 0, 'is-selected': selectedOrderStatus === 'SHIPPING' }"
+                                                    @click="fnFilterByStatus('SHIPPING')">
+                                                    <div class="flow-circle">
+                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                                             <path d="M2 11l4-6h8l4 4v4H2v-2Z" stroke="#c94f1e"
                                                                 stroke-width="1.4" stroke-linejoin="round" />
                                                             <circle cx="6" cy="15" r="1.5" stroke="#c94f1e"
                                                                 stroke-width="1.3" />
                                                             <circle cx="14" cy="15" r="1.5" stroke="#c94f1e"
                                                                 stroke-width="1.3" />
-                                                        </svg></div>
-                                                    <div class="flow-count">1</div>
+                                                        </svg>
+                                                    </div>
+                                                    <div class="flow-count">{{ statusSummary.shipping }}</div>
                                                     <div class="flow-name">배송중</div>
                                                 </div>
+
                                                 <div class="flow-arrow">›</div>
-                                                <div class="flow-step">
-                                                    <div class="flow-circle"><svg width="20" height="20"
-                                                            viewBox="0 0 20 20" fill="none">
+
+                                                <div class="flow-step"
+                                                    :class="{ 'has-count': statusSummary.done > 0, 'is-selected': selectedOrderStatus === 'DONE' }"
+                                                    @click="fnFilterByStatus('DONE')">
+                                                    <div class="flow-circle">
+                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                                             <path d="M5 10l3.5 3.5L15 7" stroke="#b09070"
                                                                 stroke-width="1.6" stroke-linecap="round"
                                                                 stroke-linejoin="round" />
-                                                        </svg></div>
-                                                    <div class="flow-count">9</div>
+                                                        </svg>
+                                                    </div>
+                                                    <div class="flow-count">{{ statusSummary.done }}</div>
                                                     <div class="flow-name">배송완료</div>
                                                 </div>
+
                                                 <div class="flow-arrow">›</div>
-                                                <div class="flow-step">
-                                                    <div class="flow-circle"><svg width="20" height="20"
-                                                            viewBox="0 0 20 20" fill="none">
+
+                                                <div class="flow-step"
+                                                    :class="{ 'has-count': statusSummary.cancelled > 0, 'is-selected': selectedOrderStatus === 'CANCELLED' }"
+                                                    @click="fnFilterByStatus('CANCELLED')">
+                                                    <div class="flow-circle">
+                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                                                             <path d="M7 7l6 6M13 7l-6 6" stroke="#b09070"
                                                                 stroke-width="1.4" stroke-linecap="round" />
-                                                        </svg></div>
-                                                    <div class="flow-count">0</div>
+                                                        </svg>
+                                                    </div>
+                                                    <div class="flow-count">{{ statusSummary.cancelled }}</div>
                                                     <div class="flow-name">취소/반품</div>
                                                 </div>
                                             </div>
@@ -249,55 +273,49 @@
                                         <div class="section-card">
                                             <div class="section-head">
                                                 <h3>최근 주문내역</h3>
-                                                <a href="#">전체보기 →</a>
+                                                <div class="order-head-actions">
+                                                    <a href="/order/history.do">더보기 →</a>
+                                                </div>
                                             </div>
                                             <div class="order-list">
-                                                <div class="order-item">
-                                                    <div class="order-thumb">🏕️</div>
-                                                    <div class="order-info">
-                                                        <div class="order-name">감성 캠핑 테이블 / 원목 접이식</div>
-                                                        <div class="order-meta">2026.04.10 · 주문번호 20260410-001</div>
-                                                    </div>
-                                                    <div
-                                                        style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
-                                                        <div class="order-status status-배송중">배송중</div>
-                                                        <div class="order-price">89,000원</div>
-                                                    </div>
+                                                <div v-if="filteredOrderList.length === 0" class="empty-state">
+                                                    <p>해당 상태의 주문내역이 없습니다.</p>
                                                 </div>
-                                                <div class="order-item">
-                                                    <div class="order-thumb">🪵</div>
-                                                    <div class="order-info">
-                                                        <div class="order-name">참나무 장작 10kg + 불쏘시개 세트</div>
-                                                        <div class="order-meta">2026.04.06 · 주문번호 20260406-002</div>
+
+                                                <div v-for="item in filteredOrderList" :key="item.orderId"
+                                                    class="order-item">
+                                                    <div class="order-thumb">
+                                                        <span v-if="item.orderType === 'PURCHASE'">🛒</span>
+                                                        <span v-else-if="item.orderType === 'RENTAL'">⛺</span>
+                                                        <span v-else>📦</span>
                                                     </div>
+
+                                                    <div class="order-info">
+                                                        <div class="order-name">
+                                                            {{ item.productName }}{{ item.itemCount > 1 ? ' 외 ' +
+                                                            (item.itemCount - 1) + '건' : '' }}
+                                                        </div>
+
+                                                        <div class="order-meta">
+                                                            <span class="order-number">주문번호 {{ item.orderId }}</span>
+                                                            <span class="dot">·</span>
+                                                            <span class="order-date">{{ item.createdAt }}</span>
+                                                            <span class="dot">·</span>
+                                                            <span class="order-type-badge"
+                                                                :class="item.orderType === 'PURCHASE' ? 'purchase' : 'rental'">
+                                                                {{ item.orderType === 'PURCHASE' ? '구매' : '대여' }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
                                                     <div
                                                         style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
-                                                        <div class="order-status status-배송완료">배송완료</div>
-                                                        <div class="order-price">32,000원</div>
-                                                    </div>
-                                                </div>
-                                                <div class="order-item">
-                                                    <div class="order-thumb">🔥</div>
-                                                    <div class="order-info">
-                                                        <div class="order-name">모닥모닥 화로대 미니 스탠드형</div>
-                                                        <div class="order-meta">2026.03.28 · 주문번호 20260328-001</div>
-                                                    </div>
-                                                    <div
-                                                        style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
-                                                        <div class="order-status status-배송완료">배송완료</div>
-                                                        <div class="order-price">145,000원</div>
-                                                    </div>
-                                                </div>
-                                                <div class="order-item">
-                                                    <div class="order-thumb">⛺</div>
-                                                    <div class="order-info">
-                                                        <div class="order-name">4인용 경량 텐트 + 그라운드시트</div>
-                                                        <div class="order-meta">2026.03.15 · 주문번호 20260315-003</div>
-                                                    </div>
-                                                    <div
-                                                        style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
-                                                        <div class="order-status status-결제완료">결제완료</div>
-                                                        <div class="order-price">218,000원</div>
+                                                        <div class="order-status" :class="'status-' + item.orderStatus">
+                                                            {{ fnGetStatusText(item.orderStatus) }}
+                                                        </div>
+                                                        <div class="order-price">
+                                                            {{ Number(item.totalPrice || 0).toLocaleString() }}원
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -392,29 +410,93 @@
                                     <!-- ── 배송지 목록 탭 ── -->
                                     <div class="tab-panel" id="tab-address">
                                         <div class="section-card">
-                                            <div class="section-head">
-                                                <h3>배송지 목록</h3>
-                                                <button class="btn-save" @click="fnAddAddress">배송지 추가</button>
+                                            <div class="section-head address-head">
+                                                <div class="title-wrap">
+                                                    <h3>배송지 목록</h3>
+                                                    <span class="address-limit-text">
+                                                        최대 7개 ({{ addressList.length }}/7)
+                                                    </span>
+                                                </div>
+
+                                                <button class="btn-save" @click="fnShowAddressForm">배송지 추가</button>
+                                            </div>
+
+                                            <!-- 추가 버튼 눌렀을 때만 보이게 -->
+                                            <div class="address-form-box" v-if="showAddressForm">
+                                                <div class="address-form-title">새 배송지 입력</div>
+
+                                                <div class="address-form-row">
+                                                    <div class="setting-field">
+                                                        <label>배송지 별칭</label>
+                                                        <input type="text" v-model="addressForm.addressAlias"
+                                                            placeholder="예: 집, 회사, 본가">
+                                                    </div>
+                                                </div>
+
+                                                <div class="address-form-row">
+                                                    <div class="setting-field">
+                                                        <label>우편번호</label>
+                                                        <div class="zipcode-wrap">
+                                                            <input type="text" v-model="addressForm.zipCode"
+                                                                placeholder="우편번호" readonly>
+                                                            <button type="button" class="btn-outline"
+                                                                @click="fnSearchAddress">
+                                                                주소 검색
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="address-form-row">
+                                                    <div class="setting-field">
+                                                        <label>주소</label>
+                                                        <input type="text" v-model="addressForm.address"
+                                                            placeholder="주소 검색 버튼을 눌러주세요" readonly>
+                                                    </div>
+                                                </div>
+
+                                                <div class="address-form-row">
+                                                    <div class="setting-field">
+                                                        <label>상세주소</label>
+                                                        <input type="text" v-model="addressForm.detailedAddress"
+                                                            placeholder="상세주소를 입력하세요" ref="detailAddressInput">
+                                                    </div>
+                                                </div>
+
+                                                <div class="address-form-check">
+                                                    <label>
+                                                        <input type="checkbox" v-model="addressForm.defaultYn">
+                                                        기본 배송지로 설정
+                                                    </label>
+                                                </div>
+
+                                                <div class="settings-actions">
+                                                    <button type="button" class="btn-save"
+                                                        @click="fnSaveAddress">저장</button>
+                                                    <button type="button" class="btn-outline"
+                                                        @click="fnCancelAddressForm">취소</button>
+                                                </div>
+                                                <div v-if="addressMsg" class="address-msg" :class="addressMsgType">
+                                                    {{ addressMsg }}
+                                                </div>
                                             </div>
 
                                             <div class="address-list">
                                                 <div class="address-item" v-for="addr in addressList"
                                                     :key="addr.addressId">
                                                     <div class="address-top">
-                                                        <div class="address-badge" v-if="addr.basicYn === 'Y'">기본 배송지
+                                                        <div class="address-badge" v-if="addr.defaultYn === 'Y'">기본 배송지
                                                         </div>
-                                                        <div class="address-name">{{ addr.receiverName }}</div>
-                                                        <div class="address-phone">{{ addr.phone }}</div>
+                                                        <div class="address-name">{{ addr.addressAlias }}</div>
                                                     </div>
 
                                                     <div class="address-detail">
-                                                        ({{ addr.zipcode }}) {{ addr.address }} {{ addr.detailAddress }}
+                                                        {{ addr.address }} {{ addr.detailedAddress }}
                                                     </div>
+                                                </div>
 
-                                                    <div class="address-actions">
-                                                        <button class="btn-outline">수정</button>
-                                                        <button class="btn-outline">삭제</button>
-                                                    </div>
+                                                <div v-if="addressList.length === 0" class="empty-state">
+                                                    <p>등록된 배송지가 없습니다.</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -509,7 +591,8 @@
                                                             </svg>
                                                         </div>
                                                     </div>
-                                                    <div class="review-body">정말 예뻐요! 사이즈도 딱 적당하고 조립도 쉬웠어요. 혼자 캠핑할 때 이
+                                                    <div class="review-body">정말 예뻐요! 사이즈도 딱 적당하고 조립도 쉬웠어요. 혼자 캠핑할 때
+                                                        이
                                                         화로대
                                                         하나면 충분할 것
                                                         같아요.
@@ -542,7 +625,8 @@
                                                             </svg>
                                                         </div>
                                                     </div>
-                                                    <div class="review-body">장작 품질은 좋은데 불쏘시개가 생각보다 적게 들어있어요. 불 잘 붙고 오래
+                                                    <div class="review-body">장작 품질은 좋은데 불쏘시개가 생각보다 적게 들어있어요. 불 잘 붙고
+                                                        오래
                                                         타는 건
                                                         만족스럽습니다.
                                                     </div>
@@ -583,14 +667,16 @@
 
                                                 <div class="detail-card">
                                                     <div class="detail-label">문의 내용</div>
-                                                    <div class="detail-value detail-content">{{ selectedInquiry.content
+                                                    <div class="detail-value detail-content">{{
+                                                        selectedInquiry.content
                                                         }}
                                                     </div>
                                                 </div>
 
                                                 <div class="detail-card" v-if="selectedInquiry.answer">
                                                     <div class="detail-label">관리자 답변</div>
-                                                    <div class="detail-value detail-content">{{ selectedInquiry.answer
+                                                    <div class="detail-value detail-content">{{
+                                                        selectedInquiry.answer
                                                         }}
                                                     </div>
                                                 </div>
@@ -687,12 +773,27 @@
                     function switchTab(tabId, clickedEl) {
                         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
                         document.getElementById('tab-' + tabId).classList.add('active');
+
                         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                        if (clickedEl) clickedEl.classList.add('active');
-                        else {
-                            const map = { orders: 0, wishlist: 1, recent: 2, benefits: 3, reviews: 4, settings: 5 };
+
+                        if (clickedEl) {
+                            clickedEl.classList.add('active');
+                        } else {
+                            const map = {
+                                orders: 0,
+                                address: 1,
+                                wishlist: 2,
+                                recent: 3,
+                                benefits: 4,
+                                reviews: 5,
+                                chatbot: 6,
+                                inquiries: 7,
+                                settings: 8
+                            };
                             const items = document.querySelectorAll('.nav-item');
-                            if (items[map[tabId]]) items[map[tabId]].classList.add('active');
+                            if (items[map[tabId]]) {
+                                items[map[tabId]].classList.add('active');
+                            }
                         }
                     }
 
@@ -700,27 +801,227 @@
                         data() {
                             return {
                                 // 변수 - (key : value)
+                                orderList: [],
+                                selectedOrderStatus: 'ALL',
+
+                                addressList: [],
+                                showAddressForm: false,
+
+                                addressForm: {
+                                    addressAlias: "",
+                                    zipCode: "",
+                                    address: "",
+                                    detailedAddress: "",
+                                    defaultYn: false
+                                },
+
+                                addressMsg: "",
+                                addressMsgType: ""
                             };
+                        },
+                        computed: {
+                            statusSummary() {
+                                const summary = {
+                                    paid: 0,
+                                    ready: 0,
+                                    shipping: 0,
+                                    done: 0,
+                                    cancelled: 0
+                                };
+
+                                this.orderList.forEach(function (item) {
+                                    if (item.orderStatus === "PAID") {
+                                        summary.paid++;
+                                    } else if (item.orderStatus === "READY") {
+                                        summary.ready++;
+                                    } else if (item.orderStatus === "SHIPPING") {
+                                        summary.shipping++;
+                                    } else if (item.orderStatus === "DONE") {
+                                        summary.done++;
+                                    } else if (item.orderStatus === "CANCELLED") {
+                                        summary.cancelled++;
+                                    }
+                                });
+
+                                return summary;
+                            },
+                            filteredOrderList() {
+                                if (this.selectedOrderStatus === "ALL") {
+                                    return this.orderList;
+                                }
+
+                                return this.orderList.filter(item => item.orderStatus === this.selectedOrderStatus);
+                            },
                         },
                         methods: {
                             // 함수(메소드) - (key : function())
-                            fnList: function () {
+                            fnGetOrderList: function () {
                                 let self = this;
                                 let param = {};
                                 $.ajax({
-                                    url: "http://localhost:8080/test.dox",
+                                    url: "http://localhost:8080/order/list.dox",
                                     dataType: "json",
                                     type: "POST",
                                     data: param,
                                     success: function (data) {
-
+                                        if (data.result === "success") {
+                                            self.orderList = data.list;
+                                        } else {
+                                            self.orderList = [];
+                                        }
+                                        console.log(data);
                                     }
                                 });
-                            }
+                            },
+                            fnGetStatusText: function (status) {
+                                if (status === "PAID") return "결제완료";
+                                if (status === "READY") return "배송준비";
+                                if (status === "SHIPPING") return "배송중";
+                                if (status === "DONE") return "배송완료";
+                                if (status === "CANCELLED") return "취소됨";
+                                return "-";
+                            },
+                            fnFilterByStatus: function (status) {
+                                if (this.selectedOrderStatus === status) {
+                                    // 같은 거 다시 누르면 전체로
+                                    this.selectedOrderStatus = "ALL";
+                                } else {
+                                    this.selectedOrderStatus = status;
+                                }
+                            },
+
+                            fnShowAddressForm: function () {
+                                if (this.addressList.length >= 7) {
+                                    this.addressMsg = "배송지는 최대 7개까지 등록할 수 있습니다.";
+                                    this.addressMsgType = "error";
+                                    return;
+                                }
+
+                                this.addressMsg = "";
+                                this.showAddressForm = true;
+                            },
+
+                            fnCancelAddressForm: function () {
+                                this.showAddressForm = false;
+                                this.addressMsg = "";
+
+                                this.addressForm = {
+                                    addressAlias: "",
+                                    zipCode: "",
+                                    address: "",
+                                    detailedAddress: "",
+                                    defaultYn: false
+                                };
+                            },
+
+                            // 배송지 관련 함수
+                            fnSaveAddress: function () {
+                                let self = this;
+
+                                self.addressMsg = "";
+
+                                if (!self.addressForm.addressAlias.trim()) {
+                                    self.addressMsg = "배송지 별칭을 입력해주세요.";
+                                    self.addressMsgType = "error";
+                                    return;
+                                }
+
+                                if (!self.addressForm.zipCode.trim()) {
+                                    self.addressMsg = "주소 검색을 통해 우편번호를 입력해주세요.";
+                                    self.addressMsgType = "error";
+                                    return;
+                                }
+
+                                if (!self.addressForm.address.trim()) {
+                                    self.addressMsg = "주소를 입력해주세요.";
+                                    self.addressMsgType = "error";
+                                    return;
+                                }
+
+                                if (!self.addressForm.detailedAddress.trim()) {
+                                    self.addressMsg = "상세주소를 입력해주세요.";
+                                    self.addressMsgType = "error";
+                                    return;
+                                }
+
+                                let param = {
+                                    addressAlias: self.addressForm.addressAlias,
+                                    zipCode: self.addressForm.zipCode,
+                                    address: self.addressForm.address,
+                                    detailedAddress: self.addressForm.detailedAddress,
+                                    defaultYn: self.addressForm.defaultYn ? "Y" : "N"
+                                };
+
+                                $.ajax({
+                                    url: "/user/address/add.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: param,
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.addressMsg = "배송지가 등록되었습니다.";
+                                            self.addressMsgType = "success";
+
+                                            self.fnCancelAddressForm();
+                                            self.fnGetAddressList(); // 🔥 리스트 갱신
+                                        } else {
+                                            self.addressMsg = data.message || "등록 실패";
+                                            self.addressMsgType = "error";
+                                        }
+                                    },
+                                    error: function () {
+                                        self.addressMsg = "서버 오류가 발생했습니다.";
+                                        self.addressMsgType = "error";
+                                    }
+                                });
+                            },
+
+                            fnGetAddressList: function () {
+                                let self = this;
+
+                                $.ajax({
+                                    url: "http://localhost:8080/user/address/list.dox",
+                                    dataType: "json",
+                                    type: "POST",
+                                    data: {},
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.addressList = data.list;
+                                        } else {
+                                            self.addressList = [];
+                                        }
+                                    }
+                                });
+                            },
+                            fnSearchAddress: function () {
+                                let self = this;
+
+                                new kakao.Postcode({
+                                    oncomplete: function (data) {
+                                        let addr = "";
+
+                                        if (data.userSelectedType === "R") {
+                                            addr = data.roadAddress;   // 도로명 주소
+                                        } else {
+                                            addr = data.jibunAddress;  // 지번 주소
+                                        }
+
+                                        self.addressForm.zipCode = data.zonecode;
+                                        self.addressForm.address = addr;
+
+                                        self.$nextTick(function () {
+                                            if (self.$refs.detailAddressInput) {
+                                                self.$refs.detailAddressInput.focus();
+                                            }
+                                        });
+                                    }
+                                }).open();
+                            },
                         }, // methods
                         mounted() {
-                            // 처음 시작할 때 실행되는 부분
                             let self = this;
+                            self.fnGetOrderList();
+                            self.fnGetAddressList();
                         }
                     });
 

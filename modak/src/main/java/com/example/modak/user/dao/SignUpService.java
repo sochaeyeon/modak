@@ -15,6 +15,9 @@ public class SignUpService {
 	
 	@Autowired
 	SignUpMapper signUpMapper;
+
+	@Autowired
+	CouponService couponService; // 쿠폰 관리
 	
 	@Autowired
 	PasswordEncoder passwordEncoder;
@@ -52,6 +55,7 @@ public class SignUpService {
 			int result = signUpMapper.insertUser(map);
 			
 			if (result > 0) {
+				couponService.issueWelcomeCoupon((String) map.get("userId"));
 				resultMap.put("message", Message.USER_SIGNUP_SUCCESS);
 			} else {
 				resultMap.put("message", Message.ERROR_COMMON);

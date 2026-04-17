@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.modak.rental.mapper.RentalCalendarMapper">
+
+    <select id="selectProductPrice" parameterType="hashmap" resultType="hashmap">
+        SELECT 
+            p.PRODUCT_ID as itemId,
+            p.PRODUCT_NAME as itemName,
+            p.PRICE as dailyPrice,
+            i.IMG_URL as imgUrl
+        FROM product p
+        LEFT JOIN product_img i ON p.PRODUCT_ID = i.PRODUCT_ID AND i.IS_MAIN = 'Y'
+        WHERE p.PRODUCT_ID = #{itemId}
+          AND p.PRODUCT_TYPE = 'RENTAL'
+    </select>
+
+    <select id="selectRentedDates" parameterType="hashmap" resultType="hashmap">
+        SELECT 
+            START_DATE as startDate,
+            RETURN_DATE as returnDate
+        FROM rentals
+        WHERE ITEM_ID = #{itemId} 
+          AND RENTAL_STATUS IN ('RESERVED', 'RENTING')
+          AND RETURN_DATE >= CURDATE()
+    </select>
+
+    <insert id="insertRental" parameterType="hashmap">
+        INSERT INTO rentals (ITEM_ID, USER_ID, START_DATE, RETURN_DATE, RENTAL_STATUS)
+        VALUES (#{itemId}, #{userId}, #{startDate}, #{endDate}, 'RESERVED')
+    </insert>
+
+</mapper>

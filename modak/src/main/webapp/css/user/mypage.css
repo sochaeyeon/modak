@@ -104,7 +104,6 @@ body {
     border: 1px solid var(--border);
     border-radius: 14px;
     overflow: hidden;
-    backdrop-filter: blur(8px);
 }
 
 .nav-section-title {
@@ -122,7 +121,6 @@ body {
     font-size: 13px;
     color: var(--text-mid);
     cursor: pointer;
-    transition: background .15s, color .15s;
     border-left: 2px solid transparent;
 }
 
@@ -145,6 +143,8 @@ body {
     color: var(--ember-deep);
     border-left-color: var(--ember);
     font-family: 'SeoulHangangCEB', sans-serif;
+    transform: translateX(6px);
+    
 }
 
 .nav-item.active svg {
@@ -166,15 +166,19 @@ body {
     gap: 20px;
 }
 
-/* 탭 패널 */
 .tab-panel {
     display: none;
     flex-direction: column;
     gap: 20px;
+    opacity: 0;
+    transform: translateY(20px);
 }
 
+/* 핵심 */
 .tab-panel.active {
-    display: flex;
+     display: flex;
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* 섹션 공통 */
@@ -768,7 +772,6 @@ body {
 .inquiry-list {
     display: flex;
     flex-direction: column;
-    gap: 14px;
 }
 
 .address-item,
@@ -779,6 +782,7 @@ body {
     background: #fffaf5;
     border-radius: 16px;
     padding: 18px 20px;
+    margin: 12px 15px;
 }
 
 .address-top {
@@ -1203,12 +1207,80 @@ body {
 .address-msg {
     margin-top: 10px;
     font-size: 13px;
-}
-
-.address-msg.success {
-    color: #2e7d32;
+    margin-left: 20px;
 }
 
 .address-msg.error {
     color: #d32f2f;
+}
+
+.address-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.address-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.address-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-sm {
+    padding: 6px 10px;
+    font-size: 12px;
+    min-width: auto;
+}
+
+.btn-outline.danger {
+    color: #c94f1e;
+    border-color: #e7b7a6;
+}
+
+/* 사이드 메뉴 기본 */
+.nav-item {
+    position: relative;
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease,
+        transform 0.2s ease,
+        box-shadow 0.25s ease;
+    cursor: pointer;
+}
+
+/* 마우스 올렸을 때 */
+.nav-item:hover {
+    transform: translateX(4px);
+}
+
+/* 클릭 순간 느낌 */
+.nav-item:active {
+    transform: translateX(2px) scale(0.98);
+}
+
+.empty-state {
+    width: 100%;
+    display: flex;
+    justify-content: center;   /* 가로 가운데 */
+    align-items: center;       /* 세로 가운데 */
+    padding: 60px 0;
+    text-align: center;
+    color: #a89a8a;
+    font-size: 14px;
+}
+
+.empty-state {
+    padding: 52px 20px;
+    text-align: center;
+
+    display: flex;
+    justify-content: center;   /* 가로 가운데 */
+    align-items: center;       /* 세로 가운데 */
+    height: 200px;             /* 높이 기준 필요 */
 }

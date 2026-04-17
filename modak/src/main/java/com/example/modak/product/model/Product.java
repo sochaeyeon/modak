@@ -17,4 +17,7 @@ public class Product {
 	int categoryId; // 카테고리id
 	
 	String imgUrl; // ⭐ 대표 이미지 추가
+	
+	int brandId; // 브랜드 아이디 1,2,3
+	String brandName; // 브랜드명 - 브랜드없으면 1번 자체제작
 }

@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-	
+
 	<style>
 		.main-footer {
 			background-color: #fdfaf7;
@@ -101,54 +101,56 @@
 		}
 	</style>
 	<footer class="main-footer">
-			<div class="footer-container">
-				<div class="footer-top">
-					<div class="footer-col">
+		<div class="footer-container">
+			<div class="footer-top">
+				<div class="footer-col">
+					<a href="/main.do">
 						<h4 class="footer-logo">🔥 모닥모닥</h4>
-						<p class="slogan">자연과 함께하는 특별한 순간을<br>모닥모닥이 함께합니다.</p>
-					</div>
-
-					<div class="footer-col">
-						<h4>서비스</h4>
-						<ul>
-							<li><a href="/rent">대여하기</a></li>
-							<li><a href="/buy">구매하기</a></li>
-							<li><a href="/campsite">캠핑장 찾기</a></li>
-							<li><a href="/new-items">신상품</a></li>
-							<li><a href="/best">베스트</a></li>
-						</ul>
-					</div>
-
-					<div class="footer-col">
-						<h4>고객지원</h4>
-						<ul>
-							<li><a href="/notice">공지사항</a></li>
-							<li><a href="/faq">자주 묻는 질문</a></li>
-							<li><a href="/qna">1:1 문의</a></li>
-							<li><a href="/delivery">배송 조회</a></li>
-							<li><a href="/return">반품/교환</a></li>
-						</ul>
-					</div>
-
-					<div class="footer-col info-col">
-						<h4>문의</h4>
-						<p class="cs-number">1588-0000</p>
-						<p>운영시간<br>평일 09:00 - 18:00</p>
-						<p>이메일<br><a href="mailto:hello@modakmodak.kr">hello@modakmodak.kr</a></p>
-					</div>
+					</a>
+					<p class="slogan">자연과 함께하는 특별한 순간을<br>모닥모닥이 함께합니다.</p>
 				</div>
 
-				<hr class="footer-divider">
+				<div class="footer-col">
+					<h4>서비스</h4>
+					<ul>
+						<li><a href="/rent.do">대여하기</a></li>
+						<li><a href="/buy.do">구매하기</a></li>
+						<li><a href="/camp/map.do">캠핑장 찾기</a></li>
+						<li><a href="/new-items.do">신상품</a></li>
+						<li><a href="/best.do">베스트</a></li>
+					</ul>
+				</div>
 
-				<div class="footer-bottom">
-					<div class="copyright">
-						© 2026 MODAK MODAK. All rights reserved.
-					</div>
-					<div class="legal-links">
-						<a href="/terms.jsp">이용약관</a>
-						<a href="/privacy-policy.jsp" class="bold">개인정보처리방침</a>
-						<a href="/marketing-consent.jsp">환불정책</a>
-					</div>
+				<div class="footer-col">
+					<h4>고객지원</h4>
+					<ul>
+						<li><a href="/notice.do">공지사항</a></li>
+						<li><a href="/faq.do">자주 묻는 질문</a></li>
+						<li><a href="/qna.do">1:1 문의</a></li>
+						<li><a href="/deliveryTracking.do">배송 조회</a></li>
+						<li><a href="/return.do">반품/교환</a></li>
+					</ul>
+				</div>
+
+				<div class="footer-col info-col">
+					<h4>문의</h4>
+					<p class="cs-number">1588-0000</p>
+					<p>운영시간<br>평일 09:00 - 18:00</p>
+					<p>이메일<br><a href="mailto:hello@modakmodak.kr">hello@modakmodak.kr</a></p>
 				</div>
 			</div>
-		</footer>
+
+			<hr class="footer-divider">
+
+			<div class="footer-bottom">
+				<div class="copyright">
+					© 2026 MODAK MODAK. All rights reserved.
+				</div>
+				<div class="legal-links">
+					<a href="/terms.do">이용약관</a>
+					<a href="/privacyPolicy.do" class="bold">개인정보처리방침</a>
+					<a href="/terms.do">환불정책</a>
+				</div>
+			</div>
+		</div>
+	</footer>

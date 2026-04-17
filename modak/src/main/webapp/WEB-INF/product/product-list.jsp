@@ -373,6 +373,7 @@ input[type=range]::-webkit-slider-thumb {
   .breadcrumb-inner { padding: 0 16px; }
 }
 </style>
+
 </head>
 <body>
 
@@ -418,18 +419,20 @@ input[type=range]::-webkit-slider-thumb {
   <!-- :class로 currentCat와 일치하면 active 클래스 적용 -->
   <!-- @click으로 카테고리 선택 메서드 호출 -->
   <div class="cat-bar">
-    <div class="cat-bar-inner">
-      <button
-        v-for="cat in categories"
-        :key="cat.name"
-        class="cat-pill"
-        :class="{ active: currentCat === cat.name }"
-        @click="selectCat(cat)"
-      >
-        <span class="pill-emoji">{{ cat.emoji }}</span> {{ cat.name }}
-      </button>
-    </div>
+  <div class="cat-bar-inner">
+
+    <button
+      v-for="cat in categories"
+      :key="cat.categoryId"
+      class="cat-pill"
+      :class="{ active: currentCat === cat.categoryId }"
+      @click="selectCat(cat.categoryId)"
+    >
+      {{ cat.categoryName }}
+    </button>
+
   </div>
+</div>
 
   <!-- ── 메인 컨텐츠 영역 ── -->
   <div class="page-wrap">
@@ -438,7 +441,7 @@ input[type=range]::-webkit-slider-thumb {
         <div class="result-label">인기 장비</div>
         <div>
           <!-- Vue 반응형 데이터로 현재 카테고리명·결과 수 표시 -->
-          <span class="result-title">{{ currentCat === '전체' ? '전체 장비' : currentCat }}</span>
+          <span class="result-title">{{ getCurrentCategoryName() }}</span>
           <span class="result-count">총 {{ filteredProducts.length }}개</span>
         </div>
       </div>
@@ -474,42 +477,40 @@ input[type=range]::-webkit-slider-thumb {
       <div class="sidebar" v-show="sidebarVisible">
         <!-- 대여/구매 필터 -->
         <div class="filter-section">
-        <div class="fs-header" @click="toggleSection($event)">
-        <span class="fs-title">대여 / 구매</span>
-        <svg class="fs-arrow open" viewBox="0 0 24 24">
-            <polyline points="6 9 12 15 18 9"/>
-        </svg>
+            <div class="fs-header">
+            <span class="fs-title">대여 / 구매</span>
+            </div>
+            <div class="filter-opts">
+                <label class="fopt">
+                    <input type="checkbox" v-model="filter.rentable"> 대여 가능
+                    <span class="fopt-count">38</span>
+                </label>
+                <label class="fopt">
+                    <input type="checkbox" v-model="filter.buyable"> 구매 가능
+                    <span class="fopt-count">42</span>
+                </label>
+            </div>
         </div>
 
-        <div class="filter-opts">
-        <label class="fopt">
-            <input type="checkbox" v-model="filter.rentable"> 대여 가능
-            <span class="fopt-count">38</span>
-        </label>
-        <label class="fopt">
-            <input type="checkbox" v-model="filter.buyable"> 구매 가능
-            <span class="fopt-count">42</span>
-        </label>
-        </div>
-    </div>
-
-        <!-- 대여 기간 필터 -->
+        <!-- 브랜드 필터 -->
         <div class="filter-section">
-          <div class="fs-header" @click="toggleSection($event)">
-            <span class="fs-title">대여 기간</span>
-            <svg class="fs-arrow open" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-          </div>
-          <div class="filter-opts">
-            <label class="fopt"><input type="checkbox" v-model="filter.period" value="1"> 1박 2일</label>
-            <label class="fopt"><input type="checkbox" v-model="filter.period" value="2"> 2박 3일</label>
-            <label class="fopt"><input type="checkbox" v-model="filter.period" value="3"> 3박 이상</label>
-          </div>
+            <div class="fs-header">
+            <span class="fs-title">브랜드</span>
+            </div>
+            <div class="filter-opts">
+                <label class="fopt">
+                    <input type="checkbox" v-model="filter.brandIds" value="1">케로로
+                </label>
+                <label class="fopt">
+                    <input type="checkbox" v-model="filter.brandIds" value="2"> 타마마
+                </label>
+            </div>
         </div>
+
         <!-- 가격 범위 슬라이더 -->
         <div class="filter-section">
-          <div class="fs-header" @click="toggleSection($event)">
+          <div class="fs-header">
             <span class="fs-title">1박 가격</span>
-            <svg class="fs-arrow open" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
           <div class="range-wrap">
             <div class="range-row">
@@ -522,9 +523,8 @@ input[type=range]::-webkit-slider-thumb {
         </div>
         <!-- 평점 필터 -->
         <div class="filter-section">
-          <div class="fs-header" @click="toggleSection($event)">
+          <div class="fs-header">
             <span class="fs-title">평점</span>
-            <svg class="fs-arrow open" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </div>
           <div class="filter-opts">
             <label class="fopt"><input type="radio" name="rating" v-model="filter.minRating" value="5"> ★★★★★ 5.0</label>
@@ -695,22 +695,12 @@ createApp({
       filter: {
         rentable:   true,
         buyable:    true,
-        period:     [],        /* 선택된 대여 기간 배열 */
+        brandIds: [1, 2, 3, 4, 5], /* 브랜드 */
         priceRange: 50,        /* 0~100 슬라이더 값 */
         minRating:  null,      /* 최소 평점 */
       },
-
-      /* 카테고리 pill 목록 (필요 시 서버에서 불러올 수 있음) */
-      categories: [
-        { id: '전체', name: '전체', emoji: '🏕️' },
-        { id: 4, name: '텐트', emoji: '⛺' },
-        { id: 5, name: '침낭·매트', emoji: '🛏️' },
-        { id: 6, name: '취사도구', emoji: '🔥' },
-        { id: 7, name: '조명', emoji: '💡' },
-        { id: 8, name: '테이블·의자', emoji: '🪑' },
-        { id: 9, name: '안전용품', emoji: '🔒' },
-        { id: 10, name: '기타 용품', emoji: '🎒' },
-        ]
+    //   카테고리
+      categories: []
 
     };
   },
@@ -768,10 +758,10 @@ createApp({
       self.loading = true;
 
       let param = {
-        cat:      self.currentCat,   /* 선택된 카테고리 */
-        sortKey:  self.sortKey,      /* 정렬 기준 */
-        page:     self.currentPage,  /* 페이지 번호 */
-        perPage:  self.perPage,      /* 페이지당 항목 수 */
+        categoryId: self.currentCat,   /* 선택된 카테고리 */
+        sortKey: self.sortKey,      /* 정렬 기준 */
+        page: self.currentPage,  /* 페이지 번호 */
+        perPage: self.perPage,      /* 페이지당 항목 수 */
       };
 
       $.ajax({
@@ -781,13 +771,13 @@ createApp({
         data:     param,
         success: function(data) {
           /* 서버 응답 구조 예시: { list: [...], total: 48 } */
-          self.products    = data.list;
-          self.loading     = false;
-          self.currentPage = 1;
+            self.products = data.list;
+            self.loading = false;
+            self.currentPage = 1;
 
-          console.log("서버 데이터:", data.list);
-        console.log("첫번째 상품:", data.list[0]);
-        self.products = data.list;
+            console.log("서버 데이터:", data.list);
+            
+            self.products = data.list;
         },
         error: function(xhr, status, err) {
           /* 에러 발생 시 처리 */
@@ -815,9 +805,9 @@ createApp({
 
     /* ── 카테고리 선택 ── */
     selectCat(cat) {
-        this.currentCat = cat.id;   // ⭐ 핵심
+        this.currentCat = categoryId;
         this.currentPage = 1;
-      /* 카테고리 변경 시 서버 재조회 필요하면 this.fnList() 호출 */
+        this.fnList(); // 서버 재조회 구조일 경우
     },
 
     /* ── 페이지 이동 ── */
@@ -851,16 +841,6 @@ createApp({
       console.log('구매하기:', product);
     },
 
-    /* ── 사이드바 필터 섹션 접기/펼치기 ── */
-    toggleSection(event) {
-      const header = event.currentTarget;
-      const opts   = header.nextElementSibling;
-      const arrow  = header.querySelector('.fs-arrow');
-      const isOpen = arrow.classList.contains('open');
-      opts.style.display = isOpen ? 'none' : 'flex';
-      arrow.classList.toggle('open', !isOpen);
-    },
-
     /* ── 가격 슬라이더 배경 그라데이션 업데이트 ── */
     updateRangeStyle(event) {
       const el  = event.target;
@@ -876,6 +856,12 @@ createApp({
       for (let i = 0; i < full; i++) html += '<span class="star">★</span>';
       if (half) html += '<span class="star" style="opacity:.5">★</span>';
       return html;
+    },
+    getCurrentCategoryName() {
+        if (this.currentCat === '전체') return '전체 장비';
+
+        const cat = this.categories.find(c => c.categoryId === this.currentCat);
+        return cat ? cat.categoryName : '';
     }
 
     // /* ── 뱃지 CSS 클래스 반환 ── */

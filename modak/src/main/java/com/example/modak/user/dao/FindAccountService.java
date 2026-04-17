@@ -318,37 +318,42 @@ public class FindAccountService {
 
 	// 이메일 인증번호 확인
 	public HashMap<String, Object> verifyPwAuthEmail(HashMap<String, Object> map) {
-		HashMap<String, Object> resultMap = new HashMap<>();
+	    HashMap<String, Object> resultMap = new HashMap<>();
 
-		try {
-			String userId = String.valueOf(map.get("userId")).trim();
-			String email = String.valueOf(map.get("email")).trim();
-			String authCode = String.valueOf(map.get("authCode")).trim();
+	    try {
+	        String userId = String.valueOf(map.get("userId")).trim();
+	        String email = String.valueOf(map.get("email")).trim();
+	        String authCode = String.valueOf(map.get("authCode")).trim();
 
-			map.put("userId", userId);
-			map.put("email", email);
-			map.put("authCode", authCode);
-			map.put("authType", "PW_RESET");
+	        map.put("userId", userId);
+	        map.put("email", email);
+	        map.put("authCode", authCode);
+	        map.put("authType", "PW_RESET");
 
-			Map<String, Object> authInfo = findAccountMapper.selectPwResetAuth(map);
+	        Map<String, Object> authInfo = findAccountMapper.selectPwResetAuth(map);
 
-			if (authInfo == null) {
-				resultMap.put("result", "fail");
-				resultMap.put("message", "인증번호가 올바르지 않아요.");
-				return resultMap;
-			}
+	        if (authInfo == null) {
+	            resultMap.put("result", "fail");
+	            resultMap.put("message", "인증번호가 올바르지 않아요.");
+	            return resultMap;
+	        }
 
-			findAccountMapper.updatePwResetAuthVerified(map);
+	        findAccountMapper.updatePwResetAuthVerified(map);
 
-			resultMap.put("result", "success");
-			resultMap.put("message", "이메일 인증이 완료되었어요.");
-		} catch (Exception e) {
-			e.printStackTrace();
-			resultMap.put("result", "fail");
-			resultMap.put("message", "인증 확인 중 오류가 발생했어요.");
-		}
+	        // 🔥 여기 추가: 사용자 조회
+	        User info = findAccountMapper.selectUserById(map);
 
-		return resultMap;
+	        resultMap.put("result", "success");
+	        resultMap.put("message", "이메일 인증이 완료되었어요.");
+	        resultMap.put("userName", info.getUserName());
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result", "fail");
+	        resultMap.put("message", "인증 확인 중 오류가 발생했어요.");
+	    }
+
+	    return resultMap;
 	}
 
 	// 비밀번호 재설정

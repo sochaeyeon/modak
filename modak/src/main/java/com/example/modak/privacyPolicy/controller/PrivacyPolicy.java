@@ -20,7 +20,7 @@ public class PrivacyPolicy {
 	@RequestMapping("/privacyPolicy.do")
 	public String terms(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
 			throws Exception {
-		return "/policy/privacyPolicy";
+		return "/policy/privacy-policy";
 	}
 
 	// Ajax 호출 주소

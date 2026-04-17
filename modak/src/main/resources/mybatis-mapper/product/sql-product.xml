@@ -16,8 +16,14 @@
         p.IS_AVAILABLE as isAvailable,
         p.CREATED_AT as createdAt,
         p.CATEGORY_ID as categoryId,
+        p.BRAND_ID as brandId,
+        b.BRAND_NAME as brandName,
         i.IMG_URL as imgUrl
     FROM PRODUCT p
+
+    LEFT JOIN BRAND b
+        ON p.BRAND_ID = b.BRAND_ID
+
     LEFT JOIN PRODUCT_IMG i
         ON p.PRODUCT_ID = i.PRODUCT_ID
         AND i.IS_MAIN = 'Y'

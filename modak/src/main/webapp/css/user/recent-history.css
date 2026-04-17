@@ -1,0 +1,327 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #faf6f0;
+    --bg2: rgba(255, 255, 255, .55);
+    --footer-bg: #ede8de;
+    --ember-deep: #c94f1e;
+    --ember: #e0621a;
+    --ember-light: #f07d3a;
+    --text-dark: #2e1a0e;
+    --text-mid: #7a5c3e;
+    --text-light: #b09070;
+    --border: rgba(200, 165, 130, .50);
+    --white: rgba(255, 252, 248, .92);
+}
+
+body {
+    font-family: 'SeoulHangangCL', 'Apple SD Gothic Neo', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: var(--text-dark);
+}
+
+.wishlist-history-page {
+    flex: 1;
+}
+
+.wishlist-history-wrap {
+    max-width: 1160px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 36px 32px 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    animation: fadeUp .6s ease both;
+}
+
+.page-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+}
+
+.page-eyebrow {
+    font-size: 11px;
+    letter-spacing: 1.8px;
+    color: var(--text-light);
+    margin-bottom: 8px;
+}
+
+.page-title {
+    font-family: 'SeoulHangangCEB', sans-serif;
+    font-size: 28px;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.page-desc {
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.7;
+}
+
+.hero-summary-card {
+    min-width: 160px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 20px;
+    text-align: center;
+    backdrop-filter: blur(8px);
+}
+
+.hero-summary-label {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 8px;
+}
+
+.hero-summary-value {
+    font-family: 'SeoulHangangCEB', sans-serif;
+    font-size: 28px;
+    color: var(--ember-deep);
+}
+
+.hero-summary-value .result-count-number {
+    display: inline-block;
+    min-width: 1ch;
+    font-family: 'SeoulHangangCEB', sans-serif;
+    font-size: 28px;
+    color: var(--ember-deep);
+    line-height: 1;
+}
+
+.hero-summary-value .result-count-unit {
+    font-family: 'SeoulHangangCL', sans-serif;
+    font-size: 12px;
+    margin-left: 4px;
+    color: var(--text-light);
+}
+
+.section-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+}
+
+.section-head {
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.section-head-left {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.section-head h3 {
+    font-family: 'SeoulHangangCEB', sans-serif;
+    font-size: 14.5px;
+    color: var(--text-dark);
+}
+
+.recent-guide-text {
+    font-size: 12px;
+    color: var(--text-light);
+    line-height: 1.5;
+}
+
+.wishlist-content {
+    padding: 20px 22px 22px;
+}
+
+.wish-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.wish-item {
+    border: 1px solid #eadfce;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    background: #fffaf5;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.wish-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(180, 100, 40, .08);
+}
+
+.wish-thumb {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+    background: rgba(210, 180, 150, .12);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.wish-body {
+    padding: 14px 14px 10px;
+}
+
+.wish-name {
+    font-size: 14px;
+    color: var(--text-dark);
+    font-family: 'SeoulHangangCEB', sans-serif;
+    margin-bottom: 8px;
+    line-height: 1.5;
+    min-height: 42px;
+}
+
+.wish-price {
+    font-family: 'SeoulHangangCEB', sans-serif;
+    font-size: 16px;
+    color: var(--ember-deep);
+}
+
+.wish-bottom {
+    padding: 0 14px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.wish-date {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.empty-state {
+    min-height: 260px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.empty-state p {
+    font-size: 13.5px;
+    color: var(--text-light);
+    line-height: 1.7;
+}
+
+.pagination-wrap {
+    margin-top: 28px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    min-width: 38px;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    background: rgba(255, 252, 248, .92);
+    color: var(--text-mid);
+    border-radius: 10px;
+    font-family: 'SeoulHangangCL', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .18s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+    border-color: rgba(201, 79, 30, .35);
+    color: var(--ember-deep);
+    background: rgba(201, 79, 30, .06);
+}
+
+.page-btn.active {
+    background: var(--ember);
+    color: #fff;
+    border-color: var(--ember);
+    font-family: 'SeoulHangangCEB', sans-serif;
+}
+
+.page-btn:disabled {
+    opacity: .45;
+    cursor: default;
+}
+
+.list-rise-enter-active,
+.list-rise-leave-active {
+    transition: all .36s ease;
+}
+
+.list-rise-enter-from,
+.list-rise-leave-to {
+    opacity: 0;
+    transform: translateY(18px);
+}
+
+.count-rise-enter-active,
+.count-rise-leave-active {
+    display: inline-block;
+    transition: all .28s ease;
+}
+
+.count-rise-enter-from {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.count-rise-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 1024px) {
+    .wishlist-history-wrap {
+        padding: 28px 20px 48px;
+    }
+
+    .page-hero {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .hero-summary-card {
+        width: 100%;
+    }
+
+    .wish-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .wish-grid {
+        grid-template-columns: 1fr;
+    }
+}

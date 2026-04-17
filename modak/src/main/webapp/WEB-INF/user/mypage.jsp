@@ -326,49 +326,25 @@
                                     <div class="tab-panel" id="tab-wishlist">
                                         <div class="section-card">
                                             <div class="section-head">
-                                                <h3>찜한 상품</h3><a href="#">전체보기 →</a>
+                                                <h3>찜한 상품</h3><a href="javascript:;" @click="fnGoWishlistHistory">더보기
+                                                    →</a>
                                             </div>
                                             <div class="wish-grid">
-                                                <div class="wish-item">
-                                                    <div class="wish-thumb">🔥</div>
-                                                    <div class="wish-body">
-                                                        <div class="wish-name">모닥모닥 화로대 미니</div>
-                                                        <div class="wish-price">145,000원</div>
-                                                    </div>
+                                                <div v-if="wishlist.length === 0" class="empty-state">
+                                                    <p>찜한 상품이 없습니다.</p>
                                                 </div>
-                                                <div class="wish-item">
-                                                    <div class="wish-thumb">🏕️</div>
-                                                    <div class="wish-body">
-                                                        <div class="wish-name">감성 원목 캠핑 테이블</div>
-                                                        <div class="wish-price">89,000원</div>
+
+                                                <div class="wish-item" v-for="item in wishlist" :key="item.productId"
+                                                    @click="fnGoProductDetail(item.productId)">
+                                                    <div class="wish-thumb">
+                                                        <img :src="item.imgUrl" v-if="item.imgUrl"
+                                                            style="width:100%; height:100%; object-fit:cover;">
+                                                        <span v-else>🛒</span>
                                                     </div>
-                                                </div>
-                                                <div class="wish-item">
-                                                    <div class="wish-thumb">🌙</div>
                                                     <div class="wish-body">
-                                                        <div class="wish-name">별빛 랜턴 LED 캠핑용</div>
-                                                        <div class="wish-price">54,000원</div>
-                                                    </div>
-                                                </div>
-                                                <div class="wish-item">
-                                                    <div class="wish-thumb">☕</div>
-                                                    <div class="wish-body">
-                                                        <div class="wish-name">캠핑 드립 커피 세트</div>
-                                                        <div class="wish-price">38,000원</div>
-                                                    </div>
-                                                </div>
-                                                <div class="wish-item">
-                                                    <div class="wish-thumb">🪑</div>
-                                                    <div class="wish-body">
-                                                        <div class="wish-name">경량 접이식 캠핑 체어</div>
-                                                        <div class="wish-price">62,000원</div>
-                                                    </div>
-                                                </div>
-                                                <div class="wish-item">
-                                                    <div class="wish-thumb">🪵</div>
-                                                    <div class="wish-body">
-                                                        <div class="wish-name">참나무 장작 프리미엄</div>
-                                                        <div class="wish-price">28,000원</div>
+                                                        <div class="wish-name">{{ item.productName }}</div>
+                                                        <div class="wish-price">{{ Number(item.price ||
+                                                            0).toLocaleString() }}원</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -380,27 +356,22 @@
                                         <div class="section-card">
                                             <div class="section-head">
                                                 <h3>최근 본 상품</h3>
+                                                <a href="javascript:;" @click="fnGoRecentHistory">더보기 →</a>
                                             </div>
                                             <div class="wish-grid">
-                                                <div class="wish-item">
-                                                    <div class="wish-thumb">⛺</div>
-                                                    <div class="wish-body">
-                                                        <div class="wish-name">4인용 경량 텐트</div>
-                                                        <div class="wish-price">218,000원</div>
-                                                    </div>
+                                                <div v-if="recentList.length === 0" class="empty-state">
+                                                    <p>최근 본 상품이 없습니다.</p>
                                                 </div>
-                                                <div class="wish-item">
-                                                    <div class="wish-thumb">🔦</div>
+
+                                                <div class="wish-item" v-for="item in recentList" :key="item.productId">
+
+                                                    <div class="wish-thumb">🛒</div>
+
                                                     <div class="wish-body">
-                                                        <div class="wish-name">다기능 캠핑 헤드랜턴</div>
-                                                        <div class="wish-price">32,000원</div>
-                                                    </div>
-                                                </div>
-                                                <div class="wish-item">
-                                                    <div class="wish-thumb">🍳</div>
-                                                    <div class="wish-body">
-                                                        <div class="wish-name">캠핑 코펠 4종 세트</div>
-                                                        <div class="wish-price">76,000원</div>
+                                                        <div class="wish-name">{{ item.productName }}</div>
+                                                        <div class="wish-price">
+                                                            {{ Number(item.price || 0).toLocaleString() }}원
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -421,9 +392,16 @@
                                                 <button class="btn-save" @click="fnShowAddressForm">배송지 추가</button>
                                             </div>
 
+                                            <!-- 폼 바깥으로 메시지 이동 -->
+                                            <div v-if="addressMsg" class="address-msg" :class="addressMsgType">
+                                                {{ addressMsg }}
+                                            </div>
+
                                             <!-- 추가 버튼 눌렀을 때만 보이게 -->
                                             <div class="address-form-box" v-if="showAddressForm">
-                                                <div class="address-form-title">새 배송지 입력</div>
+                                                <div class="address-form-title">
+                                                    {{ isEditMode ? '배송지 수정' : '새 배송지 입력' }}
+                                                </div>
 
                                                 <div class="address-form-row">
                                                     <div class="setting-field">
@@ -471,27 +449,34 @@
                                                 </div>
 
                                                 <div class="settings-actions">
-                                                    <button type="button" class="btn-save"
-                                                        @click="fnSaveAddress">저장</button>
+                                                    <button type="button" class="btn-save" @click="fnSaveAddress">
+                                                        {{ isEditMode ? '수정' : '저장' }}
+                                                    </button>
                                                     <button type="button" class="btn-outline"
                                                         @click="fnCancelAddressForm">취소</button>
                                                 </div>
-                                                <div v-if="addressMsg" class="address-msg" :class="addressMsgType">
-                                                    {{ addressMsg }}
-                                                </div>
                                             </div>
-
                                             <div class="address-list">
                                                 <div class="address-item" v-for="addr in addressList"
                                                     :key="addr.addressId">
                                                     <div class="address-top">
-                                                        <div class="address-badge" v-if="addr.defaultYn === 'Y'">기본 배송지
+                                                        <div class="address-left">
+                                                            <div class="address-badge" v-if="addr.defaultYn === 'Y'">기본
+                                                                배송지</div>
+                                                            <div class="address-name">{{ addr.addressAlias }}</div>
                                                         </div>
-                                                        <div class="address-name">{{ addr.addressAlias }}</div>
+
+                                                        <div class="address-actions">
+                                                            <button type="button" class="btn-outline btn-sm"
+                                                                @click="fnEditAddress(addr)">수정</button>
+                                                            <button type="button" class="btn-outline btn-sm danger"
+                                                                @click="fnDeleteAddress(addr.addressId)">삭제</button>
+                                                        </div>
                                                     </div>
 
                                                     <div class="address-detail">
-                                                        {{ addr.address }} {{ addr.detailedAddress }}
+                                                        ({{ addr.zipCode }}) {{ addr.address }} {{ addr.detailedAddress
+                                                        }}
                                                     </div>
                                                 </div>
 
@@ -816,7 +801,13 @@
                                 },
 
                                 addressMsg: "",
-                                addressMsgType: ""
+                                addressMsgType: "",
+
+                                isEditMode: false,
+                                editAddressId: "",
+
+                                wishlist: [],
+                                recentList: []
                             };
                         },
                         computed: {
@@ -891,18 +882,32 @@
                             },
 
                             fnShowAddressForm: function () {
+                                this.addressMsg = "";
+                                this.addressMsgType = "";
+
                                 if (this.addressList.length >= 7) {
+                                    this.showAddressForm = false;
                                     this.addressMsg = "배송지는 최대 7개까지 등록할 수 있습니다.";
                                     this.addressMsgType = "error";
                                     return;
                                 }
 
-                                this.addressMsg = "";
+                                this.isEditMode = false;
+                                this.editAddressId = "";
                                 this.showAddressForm = true;
-                            },
 
+                                this.addressForm = {
+                                    addressAlias: "",
+                                    zipCode: "",
+                                    address: "",
+                                    detailedAddress: "",
+                                    defaultYn: false
+                                };
+                            },
                             fnCancelAddressForm: function () {
                                 this.showAddressForm = false;
+                                this.isEditMode = false;
+                                this.editAddressId = "";
                                 this.addressMsg = "";
 
                                 this.addressForm = {
@@ -945,6 +950,7 @@
                                 }
 
                                 let param = {
+                                    addressId: self.editAddressId,
                                     addressAlias: self.addressForm.addressAlias,
                                     zipCode: self.addressForm.zipCode,
                                     address: self.addressForm.address,
@@ -952,20 +958,19 @@
                                     defaultYn: self.addressForm.defaultYn ? "Y" : "N"
                                 };
 
+                                let url = self.isEditMode ? "/user/address/edit.dox" : "/user/address/add.dox";
+
                                 $.ajax({
-                                    url: "/user/address/add.dox",
+                                    url: url,
                                     type: "POST",
                                     dataType: "json",
                                     data: param,
                                     success: function (data) {
                                         if (data.result === "success") {
-                                            self.addressMsg = "배송지가 등록되었습니다.";
-                                            self.addressMsgType = "success";
-
                                             self.fnCancelAddressForm();
-                                            self.fnGetAddressList(); // 🔥 리스트 갱신
+                                            self.fnGetAddressList();
                                         } else {
-                                            self.addressMsg = data.message || "등록 실패";
+                                            self.addressMsg = data.message || "처리에 실패했습니다.";
                                             self.addressMsgType = "error";
                                         }
                                     },
@@ -1017,11 +1022,107 @@
                                     }
                                 }).open();
                             },
+                            fnEditAddress: function (addr) {
+                                this.showAddressForm = true;
+                                this.isEditMode = true;
+                                this.editAddressId = addr.addressId;
+                                this.addressMsg = "";
+
+                                this.addressForm = {
+                                    addressAlias: addr.addressAlias || "",
+                                    zipCode: addr.zipCode || "",
+                                    address: addr.address || "",
+                                    detailedAddress: addr.detailedAddress || "",
+                                    defaultYn: addr.defaultYn === "Y"
+                                };
+                            },
+
+                            fnDeleteAddress: function (addressId) {
+                                let self = this;
+
+                                $.ajax({
+                                    url: "/user/address/remove.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: { addressId: addressId },
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.fnGetAddressList();
+                                            if (self.editAddressId == addressId) {
+                                                self.fnCancelAddressForm();
+                                            }
+                                        } else {
+                                            self.addressMsg = data.message || "삭제에 실패했습니다.";
+                                            self.addressMsgType = "error";
+                                        }
+                                    },
+                                    error: function () {
+                                        self.addressMsg = "서버 오류가 발생했습니다.";
+                                        self.addressMsgType = "error";
+                                    }
+                                });
+                            },
+                            fnGetWishlist: function () {
+                                let self = this;
+
+                                $.ajax({
+                                    url: "http://localhost:8080/user/wishlist/list.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {},
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.wishlist = data.list;
+                                        } else {
+                                            self.wishlist = [];
+                                        }
+                                    }
+                                });
+                            },
+                            fnGoProductDetail: function (productId) {
+                                pageChange("/product/detail.do", {
+                                    productId: productId
+                                });
+                            },
+                            fnGoWishlistHistory: function () {
+                                pageChange("/user/wishlist/history.do", {});
+                            },
+                            fnGetRecentList: function () {
+                                let self = this;
+
+                                $.ajax({
+                                    url: "/user/recent/list.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {
+                                        page: 1,
+                                        pageSize: 3
+                                    },
+                                    success: function (data) {
+                                        console.log("마이페이지 최근 본 상품 응답:", data);
+
+                                        if (data.result === "success") {
+                                            self.recentList = data.list || [];
+                                        } else {
+                                            self.recentList = [];
+                                        }
+                                    },
+                                    error: function () {
+                                        self.recentList = [];
+                                    }
+                                });
+                            },
+                            fnGoRecentHistory: function () {
+                                pageChange("/user/recent/history.do", {});
+                            },
+
                         }, // methods
                         mounted() {
                             let self = this;
                             self.fnGetOrderList();
                             self.fnGetAddressList();
+                            self.fnGetWishlist();
+                            self.fnGetRecentList();
                         }
                     });
 

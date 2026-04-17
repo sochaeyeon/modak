@@ -19,22 +19,40 @@ public class AddressController {
 	@Autowired
 	AddressService addressService;
 
-   // 배송지 추가
-   @RequestMapping(value = "/user/address/add.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-   @ResponseBody
-   public String addAddress(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
-      HashMap<String, Object> resultMap = new HashMap<String, Object>();
-       resultMap = addressService.addAddress(map);
-      return new Gson().toJson(resultMap); 
-   }
-   
-   // 배송지 목록 조회
-   @RequestMapping(value = "/user/address/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-   @ResponseBody
-   public String getAddressList(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
-      HashMap<String, Object> resultMap = new HashMap<String, Object>();
-      resultMap = addressService.getAddressList(map);
-      return new Gson().toJson(resultMap); 
-   }
-   
+	// 배송지 추가
+	@RequestMapping(value = "/user/address/add.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String addAddress(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+		HashMap<String, Object> resultMap = new HashMap<String, Object>();
+		resultMap = addressService.addAddress(map);
+		return new Gson().toJson(resultMap);
+	}
+
+	// 배송지 목록 조회
+	@RequestMapping(value = "/user/address/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getAddressList(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+		HashMap<String, Object> resultMap = new HashMap<String, Object>();
+		resultMap = addressService.getAddressList(map);
+		return new Gson().toJson(resultMap);
+	}
+ 
+    // 배송지 수정
+	@RequestMapping(value = "/user/address/edit.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String editAddress(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+		HashMap<String, Object> resultMap = new HashMap<String, Object>();
+		resultMap = addressService.editAddress(map);
+		return new Gson().toJson(resultMap);
+	}
+
+    // 배송지 삭제
+	@RequestMapping(value = "/user/address/remove.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String removeAddress(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+		HashMap<String, Object> resultMap = new HashMap<String, Object>();
+		resultMap = addressService.removeAddress(map);
+		return new Gson().toJson(resultMap);
+	}
+
 }

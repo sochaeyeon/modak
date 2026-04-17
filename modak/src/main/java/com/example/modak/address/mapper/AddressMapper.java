@@ -15,4 +15,14 @@ public interface AddressMapper {
 	
 	// 배송지 목록 조회
 	public List<Address> selectAddressList(HashMap<String, Object> map);
+	
+	// 기본 배송지 해제
+	public int updateDefaultYnToN(HashMap<String, Object> map);
+	
+	// 배송지 수정
+	public int updateAddress(HashMap<String, Object> map);
+	
+	// 배송지 삭제
+	public int deleteAddress(HashMap<String, Object> map);
+
 }

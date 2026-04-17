@@ -28,7 +28,7 @@ public class MarketingConsentController {
 	@ResponseBody
 	public String marketingConsent(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
 		HashMap<String, Object> resultMap = new HashMap<String, Object>();
-		return new Gson().toJson(resultMap);
+		return new Gson().toJson(resultMap); 
 	}
 
 }

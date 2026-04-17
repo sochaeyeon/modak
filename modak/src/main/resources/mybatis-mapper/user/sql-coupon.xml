@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.modak.user.mapper.CouponMapper">
+	<!-- 신규가입 쿠폰 1개 조회 -->
+	<select id="selectWelcomeCouponId" resultType="long">
+		SELECT COUPON_ID
+		FROM COUPON
+		WHERE COUPON_NAME = '신규가입 3000원 쿠폰'
+		AND IS_ACTIVE = 'Y'
+		LIMIT 1
+	</select>
+
+	<!-- 사용자 쿠폰 발급 -->
+	<insert id="insertUserCoupon" parameterType="hashmap"
+		useGeneratedKeys="true" keyProperty="userCouponId">
+		INSERT INTO USER_COUPON (
+		USER_ID,
+		COUPON_ID,
+		ISSUED_AT,
+		EXPIRED_AT,
+		USED_YN,
+		STATUS,
+		CREATED_AT
+		) VALUES (
+		#{userId},
+		#{couponId},
+		NOW(),
+		DATE_ADD(NOW(), INTERVAL 30 DAY),
+		'N',
+		'AVAILABLE',
+		NOW()
+		)
+	</insert>
+
+	<!-- 쿠폰 발급 로그 -->
+	<insert id="insertCouponIssueLog" parameterType="hashmap">
+		INSERT INTO COUPON_ISSUE_LOG (
+		USER_ID,
+		COUPON_ID,
+		USER_COUPON_ID,
+		ISSUE_REASON,
+		ISSUED_AT
+		) VALUES (
+		#{userId},
+		#{couponId},
+		#{userCouponId},
+		#{issueReason},
+		NOW()
+		)
+	</insert>
+
+	<!-- 사용자 쿠폰 조회 -->
+	<select id="selectUserCouponById"
+		parameterType="hashmap"
+		resultType="com.example.modak.user.model.UserCoupon">
+		SELECT
+		USER_COUPON_ID AS userCouponId,
+		USER_ID AS userId,
+		COUPON_ID AS couponId,
+		ISSUED_AT AS issuedAt,
+		EXPIRED_AT AS expiredAt,
+		USED_YN AS usedYn,
+		USED_AT AS usedAt,
+		ORDER_ID AS orderId,
+		STATUS AS status
+		FROM USER_COUPON
+		WHERE USER_COUPON_ID = #{userCouponId}
+	</select>
+
+	<!-- 사용자 쿠폰 사용 처리 -->
+	<update id="updateUserCouponUsed" parameterType="hashmap">
+		UPDATE USER_COUPON
+		SET
+		USED_YN = 'Y',
+		USED_AT = NOW(),
+		ORDER_ID = #{orderId},
+		STATUS = 'USED',
+		UPDATED_AT = NOW()
+		WHERE USER_COUPON_ID = #{userCouponId}
+		AND USER_ID = #{userId}
+		AND USED_YN = 'N'
+		AND STATUS = 'AVAILABLE'
+		AND (EXPIRED_AT IS NULL OR EXPIRED_AT >= NOW())
+	</update>
+
+	<!-- 쿠폰 사용 로그 -->
+	<insert id="insertCouponUseLog" parameterType="hashmap">
+		INSERT INTO COUPON_USE_LOG (
+		USER_COUPON_ID,
+		USER_ID,
+		COUPON_ID,
+		ORDER_ID,
+		USED_AT,
+		DISCOUNT_APPLIED_AMT
+		) VALUES (
+		#{userCouponId},
+		#{userId},
+		#{couponId},
+		#{orderId},
+		NOW(),
+		#{discountAppliedAmt}
+		)
+	</insert>
+
+
+</mapper>

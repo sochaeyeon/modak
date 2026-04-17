@@ -45,5 +45,28 @@ public class ProductController {
 			
 			return new Gson().toJson(resultMap); 
 		}
+	   
+	   @RequestMapping("/product/detail.do")
+		public String view(HttpServletRequest request, @RequestParam HashMap<String, Object> map) throws Exception{
+			System.out.println(map);
+			request.setAttribute("productId", map.get("productId"));
+			return "/product/product-detail";
+		}
+//	   @RequestMapping("/product/detail.do")
+//	   public String productDetail(HttpServletRequest request,@RequestParam HashMap<String, Object> map,Model model) {
+//
+//	       String userId = (String) request.getSession().getAttribute("sessionId");
+//
+//	       if (userId != null && !"".equals(userId)) {
+//	           HashMap<String, Object> recentMap = new HashMap<>();
+//	           recentMap.put("userId", userId);
+//	           recentMap.put("productId", map.get("productId"));
+//
+//	           viewService.addRecentView(recentMap);
+//	       }
+//
+//	       model.addAttribute("productId", map.get("productId"));
+//	       return "/product/product-detail";
+//	   }
 	
 }

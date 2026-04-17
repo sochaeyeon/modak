@@ -520,7 +520,7 @@
 				재가 된 링크일지도 모르니, 주소를 다시 확인해보세요.
 			</div>
 			<br>
-			<a class="btn" href="/">
+			<a class="btn" href="/main.do">
 				<span class="btn-icon">🔥</span>
 				홈으로 돌아가기
 			</a>

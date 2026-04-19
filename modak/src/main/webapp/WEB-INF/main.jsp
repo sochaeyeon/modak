@@ -32,6 +32,73 @@
     <div class="smoke" style="width:25px;height:25px;left:35px;animation-duration:4.5s;animation-delay:3s"></div>
   </div>
   <div class="embers" id="embers"></div>
+
+  <!-- ★ 이벤트 배너 (히어로 상단 풀배너) -->
+  <div class="hero-event-banner">
+    <div class="heb-track" id="hebTrack">
+
+      <!-- 슬라이드 1 : 신규가입 쿠폰 -->
+      <div class="heb-slide">
+        <div class="heb-card heb-card--join">
+          <div class="heb-card-deco"></div>
+          <!-- 아이콘 -->
+          <div class="heb-icon-area">🎁</div>
+          <!-- 텍스트 -->
+          <div class="heb-card-body">
+            <span class="heb-eyebrow">🎉 신규 가입 혜택</span>
+            <p class="heb-headline">가입하면 바로<br><em>3,000원</em> 쿠폰 즉시 지급</p>
+            <p class="heb-desc">가입 즉시 자동 지급 · 첫 대여에 사용 가능 · 30일 유효 · 별도 신청 불필요</p>
+          </div>
+          <!-- 쿠폰 뱃지 -->
+          <div class="heb-coupon-badge">
+            <span class="heb-coupon-amt">3,000</span>
+            <span class="heb-coupon-unit">원 할인</span>
+          </div>
+          <!-- CTA 버튼 -->
+          <button class="heb-btn" onclick="location.href='/user/sign-up.do'">
+            지금 가입하기 →
+          </button>
+        </div>
+      </div>
+
+      <!-- 슬라이드 2 : 친구초대 쿠폰 -->
+      <div class="heb-slide">
+        <div class="heb-card heb-card--invite">
+          <div class="heb-card-deco"></div>
+          <!-- 아이콘 -->
+          <div class="heb-icon-area">👥</div>
+          <!-- 텍스트 -->
+          <div class="heb-card-body">
+            <span class="heb-eyebrow">🔥 친구 초대 이벤트</span>
+            <p class="heb-headline">친구 초대하면<br>나도 친구도 <em>5,000원</em> 지급</p>
+            <p class="heb-desc">초대 인원 제한 없음 · 친구 첫 대여 완료 시 지급 · 14일 유효 · 중복 적용 가능</p>
+          </div>
+          <!-- 쿠폰 뱃지 -->
+          <div class="heb-coupon-badge">
+            <span class="heb-coupon-amt">5,000</span>
+            <span class="heb-coupon-unit">원 할인</span>
+          </div>
+          <!-- CTA 버튼 -->
+          <button class="heb-btn" onclick="location.href='/event/invite.do'">
+            친구 초대하기 →
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 페이지 도트 -->
+    <div class="heb-dots">
+      <button class="heb-dot heb-dot--on" data-idx="0"></button>
+      <button class="heb-dot" data-idx="1"></button>
+    </div>
+
+    <!-- 이전/다음 화살표 -->
+    <button class="heb-arrow heb-arrow--prev" id="hebPrev">&#8249;</button>
+    <button class="heb-arrow heb-arrow--next" id="hebNext">&#8250;</button>
+  </div>
+  <!-- / 이벤트 배너 -->
+
   <div class="hero-content">
     <div class="campfire-wrap">
       <div class="flames">
@@ -571,6 +638,53 @@ function fnFillSearch(v){document.getElementById('searchInput').value=v;}
 function fnSearch(){var kw=document.getElementById('searchInput').value.trim();if(kw)location.href='/product/product-search.do?keyword='+encodeURIComponent(kw);}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')document.getElementById('searchOverlay').classList.remove('open');});
 function toggleMenu(){showToast('전체 메뉴 준비 중입니다');}
+
+/* ★ 9. 이벤트 배너 슬라이더 */
+(function(){
+    var track   = document.getElementById('hebTrack');
+    var dots    = document.querySelectorAll('.heb-dot');
+    var btnPrev = document.getElementById('hebPrev');
+    var btnNext = document.getElementById('hebNext');
+    var total   = dots.length;
+    var cur     = 0;
+    var timer;
+
+    function goTo(idx){
+        cur = (idx + total) % total;
+        track.style.transform = 'translateX(-' + (cur * 100) + '%)';
+        dots.forEach(function(d, i){
+            d.classList.toggle('heb-dot--on', i === cur);
+        });
+    }
+
+    function autoPlay(){
+        timer = setInterval(function(){ goTo(cur + 1); }, 4000);
+    }
+
+    function resetTimer(){
+        clearInterval(timer);
+        autoPlay();
+    }
+
+    btnPrev.addEventListener('click', function(){ goTo(cur - 1); resetTimer(); });
+    btnNext.addEventListener('click', function(){ goTo(cur + 1); resetTimer(); });
+    dots.forEach(function(d){
+        d.addEventListener('click', function(){
+            goTo(parseInt(d.dataset.idx));
+            resetTimer();
+        });
+    });
+
+    /* 터치 스와이프 */
+    var startX = 0;
+    track.addEventListener('touchstart', function(e){ startX = e.touches[0].clientX; }, {passive:true});
+    track.addEventListener('touchend',   function(e){
+        var diff = startX - e.changedTouches[0].clientX;
+        if(Math.abs(diff) > 40){ goTo(diff > 0 ? cur + 1 : cur - 1); resetTimer(); }
+    });
+
+    autoPlay();
+})();
 </script>
 </body>
 </html>

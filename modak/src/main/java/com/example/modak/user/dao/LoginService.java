@@ -43,7 +43,7 @@ public class LoginService {
 					session.setAttribute("sessionId", info.getUserId());
 					session.setAttribute("sessionName", info.getUserName());
 					session.setAttribute("sessionNickName", info.getNickName());
-					session.setAttribute("sessionGradeId", info.getGradeId());
+					session.setAttribute("sessionGradeIdS", info.getGradeId());
 					session.setMaxInactiveInterval(30 * 60);
 
 					String returnUrl = (String) session.getAttribute("returnUrl");

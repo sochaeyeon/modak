@@ -49,9 +49,24 @@ public class ProductController {
 	   @RequestMapping("/product/detail.do")
 		public String view(HttpServletRequest request, @RequestParam HashMap<String, Object> map) throws Exception{
 			System.out.println(map);
+			// jsp에서 "${map.productId}"로 꺼내 쓸 수 있도록 전달
 			request.setAttribute("productId", map.get("productId"));
 			return "/product/product-detail";
 		}
+	// 2. 상품 상세 데이터 호출 (.dox)
+	    // Vue의 ajax에서 호출하여 실제 DB 데이터를 JSON으로 반환
+	    @RequestMapping(value = "/product/detail.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	    @ResponseBody
+	    public String getDetail(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+	        HashMap<String, Object> resultMap = new HashMap<String, Object>();
+	        
+	        // 서비스에서 상세 정보를 가져와서 resultMap에 담음
+	        resultMap = productService.getProduct(map); 
+	        
+	        return new Gson().toJson(resultMap); 
+	    }
+	
+	   
 //	   @RequestMapping("/product/detail.do")
 //	   public String productDetail(HttpServletRequest request,@RequestParam HashMap<String, Object> map,Model model) {
 //

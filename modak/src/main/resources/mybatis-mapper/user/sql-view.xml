@@ -2,29 +2,42 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.modak.user.mapper.ViewMapper">
-	<!-- 최근 본 상품 목록 조회 -->
+
+	<!-- 최근 본 상품 목록 조회 : 중복 제거 + 최신순 + 최대 50개만 -->
 	<select id="selectRecentList" parameterType="hashmap"
 		resultType="com.example.modak.user.model.RecentView">
 		SELECT
-		VH.VIEW_ID ,
-		P.PRODUCT_ID ,
-		P.PRODUCT_NAME ,
-		P.PRICE ,
-		VH.VIEW_DT AS viewDt
-		FROM VIEW_HISTORY VH
+		P.PRODUCT_ID,
+		P.PRODUCT_NAME,
+		P.PRICE,
+		V.LATEST_VIEW_DT AS viewDt
+		FROM (
+		SELECT TARGET_ID, MAX(VIEW_DT) AS LATEST_VIEW_DT
+		FROM VIEW_HISTORY
+		WHERE USER_ID = #{userId}
+		GROUP BY TARGET_ID
+		ORDER BY LATEST_VIEW_DT DESC
+		LIMIT 50
+		) V
 		INNER JOIN PRODUCT P
-		ON VH.TARGET_ID = P.PRODUCT_ID
-		WHERE VH.USER_ID = #{userId}
-		ORDER BY VH.VIEW_DT DESC
-		LIMIT #{pageSize} OFFSET #{offset}
+		ON V.TARGET_ID = P.PRODUCT_ID
+		ORDER BY V.LATEST_VIEW_DT DESC
+		LIMIT ${pageSize} OFFSET ${offset}
 	</select>
 
-	<!-- 최근 본 상품 전체 개수 -->
+	<!-- 최근 본 상품 전체 개수 : 중복 제거 기준, 최대 50 -->
 	<select id="selectRecentCount" parameterType="hashmap" resultType="int">
-		SELECT COUNT(*)
+		SELECT LEAST(COUNT(DISTINCT TARGET_ID), 50)
 		FROM VIEW_HISTORY
 		WHERE USER_ID = #{userId}
 	</select>
+
+	<!-- 같은 상품 기존 기록 삭제 -->
+	<delete id="deleteSameProductViewHistory" parameterType="hashmap">
+		DELETE FROM VIEW_HISTORY
+		WHERE USER_ID = #{userId}
+		AND TARGET_ID = #{productId}
+	</delete>
 
 	<!-- 최근 본 상품 저장 -->
 	<insert id="insertViewHistory" parameterType="hashmap">
@@ -39,9 +52,9 @@
 		)
 	</insert>
 
-	<!-- 현재 최근 본 상품 개수 -->
+	<!-- 현재 최근 본 상품 개수 : 중복 제거 기준 -->
 	<select id="selectViewHistoryCount" parameterType="hashmap" resultType="int">
-		SELECT COUNT(*)
+		SELECT COUNT(DISTINCT TARGET_ID)
 		FROM VIEW_HISTORY
 		WHERE USER_ID = #{userId}
 	</select>
@@ -55,7 +68,7 @@
 		SELECT VIEW_ID
 		FROM VIEW_HISTORY
 		WHERE USER_ID = #{userId}
-		ORDER BY VIEW_DT ASC
+		ORDER BY VIEW_DT ASC, VIEW_ID ASC
 		LIMIT 1
 		) T
 		)

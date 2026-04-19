@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.modak.user.mapper.ViewMapper;
 import com.example.modak.user.model.RecentView;
@@ -12,64 +13,64 @@ import com.example.modak.user.model.RecentView;
 @Service
 public class ViewService {
 
-    @Autowired
-    ViewMapper viewMapper;
+	@Autowired
+	ViewMapper viewMapper;
 
-    // 최근 본 상품 조회 (페이징 포함)
-    public HashMap<String, Object> getRecentList(HashMap<String, Object> map) {
+	// 최근 본 상품 조회
+	public HashMap<String, Object> getRecentList(HashMap<String, Object> map) {
+		HashMap<String, Object> resultMap = new HashMap<>();
 
-        HashMap<String, Object> resultMap = new HashMap<>();
+		try {
+			int page = Integer.parseInt(String.valueOf(map.get("page")));
+			int pageSize = Integer.parseInt(String.valueOf(map.get("pageSize")));
+			int offset = (page - 1) * pageSize;
 
-        try {
-            int page = 1;
-            int pageSize = 9;
+			map.put("offset", offset);
 
-            if (map.get("page") != null) {
-                page = Integer.parseInt(map.get("page").toString());
-            }
+			List<RecentView> list = viewMapper.selectRecentList(map);
+			int totalCount = viewMapper.selectRecentCount(map);
 
-            if (map.get("pageSize") != null) {
-                pageSize = Integer.parseInt(map.get("pageSize").toString());
-            }
+			resultMap.put("result", "success");
+			resultMap.put("list", list);
+			resultMap.put("totalCount", totalCount);
+			resultMap.put("page", page);
+			resultMap.put("pageSize", pageSize);
 
-            int offset = (page - 1) * pageSize;
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMap.put("result", "fail");
+			resultMap.put("message", "최근 본 상품 조회 중 오류가 발생했습니다.");
+		}
 
-            map.put("offset", offset);
-            map.put("pageSize", pageSize);
+		return resultMap;
+	}
 
-            List<RecentView> list = viewMapper.selectRecentList(map);
-            int totalCount = viewMapper.selectRecentCount(map);
+	// 최근 본 상품 저장
+	@Transactional
+	public HashMap<String, Object> addViewHistory(HashMap<String, Object> map) {
+		HashMap<String, Object> resultMap = new HashMap<>();
 
-            resultMap.put("list", list);
-            resultMap.put("totalCount", totalCount);
-            resultMap.put("page", page);
-            resultMap.put("pageSize", pageSize);
-            resultMap.put("result", "success");
+		try {
+			// 1. 같은 상품 기록이 있으면 삭제
+			viewMapper.deleteSameProductViewHistory(map);
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            resultMap.put("result", "fail");
-            resultMap.put("list", List.of());
-            resultMap.put("totalCount", 0);
-        }
+			// 2. 최신 기록으로 다시 삽입
+			viewMapper.insertViewHistory(map);
 
-        return resultMap;
-    }
+			// 3. 100개 초과 시 가장 오래된 1개 삭제
+			int count = viewMapper.selectViewHistoryCount(map);
+			if (count > 100) {
+				viewMapper.deleteOldestViewHistory(map);
+			}
 
-    // 최근 본 상품 저장
-    public void addRecentView(HashMap<String, Object> map) {
-        try {
-            viewMapper.insertViewHistory(map);
+			resultMap.put("result", "success");
 
-            int count = viewMapper.selectViewHistoryCount(map);
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMap.put("result", "fail");
+			resultMap.put("message", "최근 본 상품 저장 중 오류가 발생했습니다.");
+		}
 
-            while (count > 100) {
-                viewMapper.deleteOldestViewHistory(map);
-                count = viewMapper.selectViewHistoryCount(map);
-            }
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
+		return resultMap;
+	}
 }

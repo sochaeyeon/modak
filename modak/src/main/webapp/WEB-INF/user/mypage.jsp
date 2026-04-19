@@ -334,8 +334,8 @@
                                                     <p>찜한 상품이 없습니다.</p>
                                                 </div>
 
-                                                <div class="wish-item" v-for="item in wishlist" :key="item.productId"
-                                                    @click="fnGoProductDetail(item.productId)">
+                                                <div class="wish-item" v-for="item in limitedWishlist"
+                                                    :key="item.productId" @click="fnGoProductDetail(item.productId)">
                                                     <div class="wish-thumb">
                                                         <img :src="item.imgUrl" v-if="item.imgUrl"
                                                             style="width:100%; height:100%; object-fit:cover;">
@@ -836,6 +836,10 @@
 
                                 return summary;
                             },
+
+                            limitedWishlist() {
+                                return this.wishlist.slice(0, 9);
+                            },
                             filteredOrderList() {
                                 if (this.selectedOrderStatus === "ALL") {
                                     return this.orderList;
@@ -1096,7 +1100,7 @@
                                     dataType: "json",
                                     data: {
                                         page: 1,
-                                        pageSize: 3
+                                        pageSize: 9
                                     },
                                     success: function (data) {
                                         console.log("마이페이지 최근 본 상품 응답:", data);

@@ -718,8 +718,6 @@
 				<div class="b-dot"></div>
 				<div class="b-dot"></div>
 			</div>
-			<div class="b-url">modakmodak.com/notice/detail/42</div>
-		</div>
 
 		<div class="page">
 

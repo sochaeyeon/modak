@@ -8,7 +8,7 @@ public class Product {
 	private int productId; // 상품id
 	private String productName; // 상품명
 	private String productType; // 상품타입
-	private int price; // 가격
+	private int price; // 가격 
 	private int deposit; // 보증금
 	private String description; // 상품설명
 	private String isAvailable; // 판매가능여부

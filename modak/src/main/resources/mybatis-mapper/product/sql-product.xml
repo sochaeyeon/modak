@@ -28,23 +28,38 @@
 	        ON p.PRODUCT_ID = i.PRODUCT_ID
 	        AND i.IS_MAIN = 'Y'
 	    WHERE 1=1
+	    <if test="childCatId != null and childCatId > 0">
+		    AND p.CATEGORY_ID = #{childCatId}
+		</if>
+		
+		<if test="(childCatId == null or childCatId == 0) and (categoryId != null and categoryId > 0)">
+		    AND (
+				p.CATEGORY_ID = #{categoryId}
+		        OR p.CATEGORY_ID IN (
+		            SELECT CATEGORY_ID 
+		            FROM PRODUCT_CATEGORY 
+		            WHERE PARENT_CATEGORY = #{categoryId}
+		    ) )
+		</if>
 	    <if test="searchKeyword != null and searchKeyword != ''">
 	        AND (
 	            p.PRODUCT_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
 	            OR b.BRAND_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
 	        )
 	    </if>
-		<if test="rentable == true and buyable == false">
-		    AND p.PRODUCT_TYPE = 'RENTAL'
-		</if>
-		
-		<if test="rentable == false and buyable == true">
-		    AND p.PRODUCT_TYPE = 'PURCHASE'
-		</if>
-		
-		<if test="rentable == false and buyable == false">
-		    AND 1 = 0
-		</if>
+		<choose>
+		    <when test="rentable == true and buyable == false">
+		        AND p.PRODUCT_TYPE = 'RENTAL'
+		    </when>
+		    <when test="rentable == false and buyable == true">
+		        AND p.PRODUCT_TYPE = 'PURCHASE'
+		    </when>
+		    <when test="rentable == false and buyable == false">
+		        AND 1 = 0
+		    </when>
+		    <otherwise>
+		    </otherwise>
+		</choose>
 		<!--가격필터링-->
 		<if test="priceMin != null"> 
 		    AND p.PRICE >= #{priceMin}
@@ -83,8 +98,13 @@
 	        AND i.IS_MAIN = 'Y' <!-- 대표 이미지만 가져오기-->
 	    WHERE p.PRODUCT_ID = #{productId}
 	</select>
-   
-   
-
-
+	
+	<select id="selectProductImages" parameterType="hashmap" resultType="com.example.modak.product.model.Product">
+	    SELECT 
+	        IMG_URL as imgUrl,  IS_MAIN as mainImg,
+	        SORT_ORDER as sortOrder
+	    FROM PRODUCT_IMG
+	    WHERE PRODUCT_ID = #{productId}
+	    ORDER BY IS_MAIN DESC, SORT_ORDER ASC
+	</select>
 </mapper>

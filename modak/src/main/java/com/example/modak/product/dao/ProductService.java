@@ -41,9 +41,11 @@ public class ProductService {
 	    HashMap<String, Object> resultMap = new HashMap<String, Object>();
 	    try {
 	        // 단건 조회이므로 Mapper에서 객체 하나(Product)를 가져옵니다.
-	        Product item = productMapper.selectProduct(map);
+	        Product info = productMapper.selectProduct(map);
+	        List<Product> img = productMapper.selectProductImages(map);
 	        
-	        resultMap.put("item", item);
+	        resultMap.put("info", info);
+	        resultMap.put("img", img);
 	        resultMap.put("result", "success");
 	        resultMap.put("message", Message.SUCCESS_SELECT); 
 	    } catch (Exception e) {

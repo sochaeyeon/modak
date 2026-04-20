@@ -35,8 +35,39 @@
   .crumb { padding: 10px 32px; font-size: 12px; color: var(--light); display: flex; gap: 5px; }
   .crumb a { color: var(--light); text-decoration: none; }
 
-  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px 60px; }
+  .wrap { max-width: 1100px; margin: 30px auto; padding: 10px 24px 60px; }
   .ptop { display: grid; grid-template-columns: 460px 1fr; gap: 40px; margin-bottom: 48px; }
+
+  /* 4. 카테고리 필터 pill 바 (가로 스크롤) */
+  .cat-bar {
+    background: var(--parchment);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 0;
+    position: sticky; top: 60px; z-index: 100;
+  }
+  .cat-bar-inner {
+    max-width: 1200px; margin: 0 auto; padding: 0 32px;
+    display: flex; align-items: center; gap: 10px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .cat-bar-inner::-webkit-scrollbar { display: none; }
+  .cat-pill {
+    display: flex; align-items: center; gap: 7px;
+    padding: 8px 16px; border-radius: 40px;
+    border: 1px solid var(--border); background: var(--card-bg);
+    font-size: 12px; font-weight: 300; color: var(--stone);
+    cursor: pointer; transition: all .2s; white-space: nowrap;
+  }
+  .cat-pill .pill-emoji { font-size: 14px; line-height: 1; }
+  .cat-pill:hover { border-color: var(--ember); color: var(--ember); }
+  .cat-pill.active { background: var(--ember); border-color: var(--ember); color: #fff; font-weight: 400; }
+  .cat-pill.active .pill-emoji { filter: brightness(10); }
+  
+
+  @media (max-width: 640px) {
+    nav { padding: 0 16px; }
+    .cat-bar-inner { padding: 0 16px; }
+  }
 
   /* gallery */
   .gallery { display: flex; flex-direction: column; gap: 12px; }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.modak.product.dao.ProductService;
+import com.example.modak.user.dao.ViewService;
 import com.google.gson.Gson;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,72 +19,60 @@ import jakarta.servlet.http.HttpServletRequest;
 @Controller
 public class ProductController {
 
-	@Autowired 
+	@Autowired
 	ProductService productService;
-	
+//	ViewService viewService;
+
 	// product-list 제품리스트
-	   @RequestMapping("/product/list.do") 
-	   public String test1(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map) throws Exception{
-	      return "/product/product-list";
-	   } 
-	   @RequestMapping(value = "/product/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-		@ResponseBody
-		public String productList(Model model, @RequestParam HashMap<String, Object> map, 
-				@RequestParam(value="brandId", required=false) java.util.List<Integer> brandId, 
-				@RequestParam(value="priceMax", required=false) Integer priceMax) throws Exception {
-			HashMap<String, Object> resultMap = new HashMap<String, Object>();
-			boolean rentable = Boolean.parseBoolean(String.valueOf(map.get("rentable")));
-		    boolean buyable  = Boolean.parseBoolean(String.valueOf(map.get("buyable")));
-		    
-		    map.put("rentable", rentable);
-		    map.put("buyable", buyable);
-		    
-		    map.put("brandId", brandId);
-		    map.put("priceMax", priceMax);
-		    
+	@RequestMapping("/product/list.do")
+	public String test1(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
+			throws Exception {
+		return "/product/product-list";
+	}
+
+	@RequestMapping(value = "/product/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String productList(Model model, @RequestParam HashMap<String, Object> map,
+			@RequestParam(value = "brandId", required = false) java.util.List<Integer> brandId,
+			@RequestParam(value = "priceMax", required = false) Integer priceMax) throws Exception {
+		HashMap<String, Object> resultMap = new HashMap<String, Object>();
+		boolean rentable = Boolean.parseBoolean(String.valueOf(map.get("rentable")));
+		boolean buyable = Boolean.parseBoolean(String.valueOf(map.get("buyable")));
+
+		map.put("rentable", rentable);
+		map.put("buyable", buyable);
+
+		map.put("brandId", brandId);
+		map.put("priceMax", priceMax);
+
 //		    System.out.println("검색어 확인: " + map.get("searchKeyword"));
 //		    System.out.println("전체 파라미터: " + map);
-			
-			resultMap = productService.getProductList(map);
-			return new Gson().toJson(resultMap); 
-		}
-	   
-	   @RequestMapping("/product/detail.do")
-		public String view(HttpServletRequest request, @RequestParam HashMap<String, Object> map) throws Exception{
-			System.out.println(map);
-			// jsp에서 "${map.productId}"로 꺼내 쓸 수 있도록 전달
-			request.setAttribute("productId", map.get("productId"));
-			return "/product/product-detail";
-		}
+//		System.out.println("대여체크: " + map.get("rentable") + " / 타입: " + map.get("rentable").getClass().getName());
+//		System.out.println("구매체크: " + map.get("buyable"));
+
+		resultMap = productService.getProductList(map);
+		return new Gson().toJson(resultMap);
+	}
+
+	@RequestMapping("/product/detail.do")
+	public String view(HttpServletRequest request, @RequestParam HashMap<String, Object> map) throws Exception {
+		// System.out.println(map);
+		// jsp에서 "${map.productId}"로 꺼내 쓸 수 있도록 전달
+		request.setAttribute("productId", map.get("productId"));
+		return "/product/product-detail";
+	}
+
 	// 2. 상품 상세 데이터 호출 (.dox)
-	    // Vue의 ajax에서 호출하여 실제 DB 데이터를 JSON으로 반환
-	    @RequestMapping(value = "/product/detail.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-	    @ResponseBody
-	    public String getDetail(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
-	        HashMap<String, Object> resultMap = new HashMap<String, Object>();
-	        
-	        // 서비스에서 상세 정보를 가져와서 resultMap에 담음
-	        resultMap = productService.getProduct(map); 
-	        
-	        return new Gson().toJson(resultMap); 
-	    }
-	
-	   
-//	   @RequestMapping("/product/detail.do")
-//	   public String productDetail(HttpServletRequest request,@RequestParam HashMap<String, Object> map,Model model) {
-//
-//	       String userId = (String) request.getSession().getAttribute("sessionId");
-//
-//	       if (userId != null && !"".equals(userId)) {
-//	           HashMap<String, Object> recentMap = new HashMap<>();
-//	           recentMap.put("userId", userId);
-//	           recentMap.put("productId", map.get("productId"));
-//
-//	           viewService.addRecentView(recentMap);
-//	       }
-//
-//	       model.addAttribute("productId", map.get("productId"));
-//	       return "/product/product-detail";
-//	   }
-	
+	// Vue의 ajax에서 호출하여 실제 DB 데이터를 JSON으로 반환
+	@RequestMapping(value = "/product/detail.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getDetail(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+		HashMap<String, Object> resultMap = new HashMap<String, Object>();
+
+		// 서비스에서 상세 정보를 가져와서 resultMap에 담음
+		resultMap = productService.getProduct(map);
+
+		return new Gson().toJson(resultMap);
+	}
+
 }

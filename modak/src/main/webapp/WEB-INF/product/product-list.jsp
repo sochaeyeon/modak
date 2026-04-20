@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>모닥모닥 - 장비 목록</title>
 
-<link rel="stylesheet" href="/css/common/font.css">
+<!-- <link rel="stylesheet" href="/css/common/font.css"> -->
 <link rel="stylesheet" href="/css/product/product-list.css">
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -100,17 +100,13 @@
             <span class="fs-title">대여 / 구매</span>
           </div>
           <div class="filter-opts">
-            <div class="fopt-item">
-              <input type="radio" id="type-all" v-model="filter.productType" value="all" @change="fnSearch">
-              <label for="type-all" class="fopt">전체</label>
-            </div>
             <label class="fopt">
               <input type="checkbox" v-model="filter.rentable" @change="fnList"> 대여 가능
-              <span class="fopt-count">38</span>
+              <span class="fopt-count"></span>
             </label>
             <label class="fopt">
               <input type="checkbox" v-model="filter.buyable" @change="fnList"> 구매 가능
-              <span class="fopt-count">42</span>
+              <span class="fopt-count"></span>
             </label>
           </div>
         </div>
@@ -222,12 +218,7 @@
           >
             <div class="pcard-img">
               <a href="javascript:;" @click="fnView(product.productId)">
-                <img
-                  :src="product.imgUrl
-                    ? '/product-img/' + product.imgUrl
-                    : '/product-img/default.jpg'"
-                  class="pcard-img"
-                />
+                <img :src="product.imgUrl ? '/img/product/' + product.imgUrl : '/img/product/default.jpg'" class="pcard-img"/>
               </a>
               <button
                 :class="{ wished: wishedIds.has(product.productId) }"
@@ -236,6 +227,7 @@
                 <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
               </button>
             </div>
+
             <div class="pcard-body">
               <template v-if="currentView === 'list'">
                 <div class="pcard-main">
@@ -339,7 +331,8 @@ createApp({
       priceRange: null, // 가격 필터링
 
       filter: {
-        productType: 'all', // 'all', 'rent', 'buy'
+        rentable: true,  // 페이지 로드 시 '대여 가능' 체크됨
+        buyable: true,   // 페이지 로드 시 '구매 가능' 체크됨
         brandId:   [],
         priceRange: 50,
         minRating:  null,
@@ -350,14 +343,7 @@ createApp({
   computed: {
 
     filteredProducts() {
-      let list = this.currentCat === null          // ← 'null' 문자열에서 수정
-        ? this.products
-        : this.products.filter(p => p.categoryId === this.currentCat);
-
-      // 자식 카테고리 필터 ← 추가
-      if (this.currentChild !== null) {
-        list = list.filter(p => p.childCategoryId === this.currentChild);
-      }
+      let list = this.products;
 
       return [...list].sort((a, b) => {
         if (this.sortKey === 'price-low')  return a.price - b.price;
@@ -405,8 +391,8 @@ createApp({
         page:        self.currentPage,
         perPage:     self.perPage,
         // 구매/대여 필터링
-        rentable: (self.filter.productType === 'all' || self.filter.productType === 'rent'),
-        buyable:  (self.filter.productType === 'all' || self.filter.productType === 'buy'),
+        rentable: self.filter.rentable, 
+        buyable:  self.filter.buyable,
         // 브랜드 필터링 brandId가 빈 배열이면 서버에 보내지 않거나 null 처리
         brandId: self.filter.brandId.length > 0 ? self.filter.brandId : null,
         // 가격 필터링 , 전체일 때는 null이 넘어감
@@ -415,7 +401,7 @@ createApp({
         // 검색어
         searchKeyword: self.searchKeyword
       };
-
+        console.log("서버 전송 전 필터 값:", param.rentable, param.buyable);
       $.ajax({
         url:      "/product/list.dox",
         dataType: "json",
@@ -424,7 +410,7 @@ createApp({
         traditional: true,
         success: function(data) {
           self.products = Array.isArray(data.list) ? data.list : [];
-          self.loading     = false;
+          self.loading = false;
         },
         error: function(xhr, status, err) {
           console.error("상품 목록 조회 실패:", err);
@@ -478,7 +464,7 @@ createApp({
     // ── 부모 카테고리 선택 ──
     selectCategory(catId) {
       this.currentCat   = catId;
-      this.currentChild = null;          // 자식 선택 초기화
+      this.currentChild = null;          // 자식 카테고리 선택 초기화
 
       if (catId !== null) {
         this.fetchChildCategory(catId); // 자식 카테고리 로드
@@ -495,13 +481,6 @@ createApp({
       if (this.currentCat === null) return '전체 장비';  // ← '전체' 문자열에서 수정
       const cat = this.category.find(c => c.categoryId === this.currentCat);
       return cat ? cat.categoryName : '';
-    },
-
-    toggleWish(id) {
-      const next = new Set(this.wishedIds);
-      if (next.has(id)) next.delete(id);
-      else              next.add(id);
-      this.wishedIds = next;
     },
 
     resetFilter() {
@@ -521,18 +500,9 @@ createApp({
       el.style.background = `linear-gradient(to right, var(--ember) 0%, var(--ember) ${pct}, var(--border) ${pct}, var(--border) 100%)`;
     },
 
-    // starsHTML(rating) {
-    //   const full = Math.floor(rating);
-    //   const half = rating % 1 >= 0.5;
-    //   let html = '';
-    //   for (let i = 0; i < full; i++) html += '<span class="star">★</span>';
-    //   if (half) html += '<span class="star" style="opacity:.5">★</span>';
-    //   return html;
-    // },
     fnView : function(productId) {
-                alert("제품상세로 이동");
-                pageChange("/product/detail.do", {productId : productId});
-            },
+      location.href = "/product/detail.do?productId=" + productId;
+    },
     // 페이지 변경 시 호출할 공통 메서드
     changePage(page) {
       this.currentPage = page;

@@ -658,7 +658,7 @@ function toggleMenu(){showToast('전체 메뉴 준비 중입니다');}
     }
 
     function autoPlay(){
-        timer = setInterval(function(){ goTo(cur + 1); }, 4000);
+        timer = setInterval(function(){ goTo(cur + 1); }, 4500);
     }
 
     function resetTimer(){

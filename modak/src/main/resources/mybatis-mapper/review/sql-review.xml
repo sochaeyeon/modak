@@ -14,7 +14,8 @@
 		UPDATED_AT,
 		USER_ID,
 		PRODUCT_ID,
-		ITEM_ID
+		ITEM_ID,
+		TITLE
 		)
 		VALUES (
 		#{rating},
@@ -24,7 +25,8 @@
 		NOW(),
 		#{userId},
 		#{productId},
-		#{itemId}
+		#{itemId},
+		#{title}
 		)
 	</insert>
 
@@ -53,6 +55,7 @@
 		R.USER_ID AS userId,
 		R.PRODUCT_ID AS productId,
 		R.ITEM_ID AS itemId,
+		R.TITLE AS title,
 		P.PRODUCT_NAME AS productName,
 		(
 		SELECT RI.IMG_URL
@@ -69,6 +72,7 @@
 		ORDER BY R.CREATED_AT DESC, R.REVIEW_ID DESC
 		LIMIT ${pageSize} OFFSET ${offset}
 	</select>
+
 	<!-- 내 리뷰 총 개수 -->
 	<select id="selectReviewCount" parameterType="hashmap" resultType="int">
 		SELECT COUNT(*)
@@ -90,6 +94,7 @@
 		R.USER_ID AS userId,
 		R.PRODUCT_ID AS productId,
 		R.ITEM_ID AS itemId,
+		R.TITLE AS title,
 		P.PRODUCT_NAME AS productName,
 		(
 		SELECT RI.IMG_URL
@@ -109,6 +114,7 @@
 	<update id="updateReview" parameterType="hashmap">
 		UPDATE REVIEW
 		SET
+		TITLE = #{title},
 		RATING = #{rating},
 		CONTENT = #{content},
 		UPDATED_AT = NOW()

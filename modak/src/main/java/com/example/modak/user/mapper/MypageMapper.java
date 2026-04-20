@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.example.modak.review.model.Review;
+import com.example.modak.user.model.ChatbotHistory;
 import com.example.modak.user.model.MypageSummary;
 import com.example.modak.user.model.PointHistory;
 import com.example.modak.user.model.User;
@@ -27,4 +28,7 @@ public interface MypageMapper {
 			@Param("pageSize") int pageSize);
 
 	int selectMyReviewCount(@Param("userId") String userId);
+	
+	// 챗봇 기록 조회
+	List<ChatbotHistory> selectChatbotRoomList(@Param("userId") String userId);
 }

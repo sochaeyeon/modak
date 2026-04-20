@@ -45,5 +45,43 @@
 		WHERE USER_ID = #{userId}
 		AND ROOM_ID = #{roomId}
 	</delete>
+	<!-- 챗봇 기록 전체보기 : ROOM별 마지막 메시지 + 페이징 -->
+	<select id="selectChatRoomListPaged" parameterType="hashmap"
+		resultType="hashmap">
+		SELECT
+		T.ROOM_ID AS roomId,
+		T.MESSAGE AS lastMessage,
+		IFNULL(
+		(
+		SELECT SUBSTRING(MESSAGE, 1, 30)
+		FROM CAMP_CHAT_HISTORY
+		WHERE USER_ID = #{userId}
+		AND ROOM_ID = T.ROOM_ID
+		AND ROLE = 'user'
+		ORDER BY REG_DATE ASC
+		LIMIT 1
+		),
+		'제목 없는 대화'
+		) AS title,
+		DATE_FORMAT(T.REG_DATE, '%Y-%m-%d %H:%i:%s') AS lastRegDate
+		FROM CAMP_CHAT_HISTORY T
+		INNER JOIN (
+		SELECT ROOM_ID, MAX(REG_DATE) AS MAX_REG_DATE
+		FROM CAMP_CHAT_HISTORY
+		WHERE USER_ID = #{userId}
+		GROUP BY ROOM_ID
+		) M
+		ON T.ROOM_ID = M.ROOM_ID
+		AND T.REG_DATE = M.MAX_REG_DATE
+		WHERE T.USER_ID = #{userId}
+		ORDER BY T.REG_DATE DESC
+		LIMIT ${pageSize} OFFSET ${offset}
+	</select>
 
+	<!-- 챗봇 대화방 총 개수 -->
+	<select id="selectChatRoomCount" parameterType="hashmap" resultType="int">
+		SELECT COUNT(DISTINCT ROOM_ID)
+		FROM CAMP_CHAT_HISTORY
+		WHERE USER_ID = #{userId}
+	</select>
 </mapper>

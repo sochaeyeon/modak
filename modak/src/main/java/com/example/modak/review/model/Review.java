@@ -16,6 +16,7 @@ public class Review {
     private String userId;
     private String productId;
     private String itemId;
+    private String title;
 
     private String productName;
     private String imageUrl; // 기존 대표 이미지 유지

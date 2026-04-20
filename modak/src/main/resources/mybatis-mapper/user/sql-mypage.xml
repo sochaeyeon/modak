@@ -110,4 +110,29 @@
 		WHERE USER_ID = #{userId}
 		AND REVIEW_STATUS = 'ACTIVE'
 	</select>
+	
+	<!-- 챗봇 기록 -->
+	<select id="selectChatbotRoomList"
+		parameterType="string"
+		resultType="com.example.modak.user.model.ChatbotHistory">
+
+		SELECT
+		T.ROOM_ID AS roomId,
+		T.USER_ID AS userId,
+		(
+		SELECT CH.MESSAGE
+		FROM CAMP_CHAT_HISTORY CH
+		WHERE CH.ROOM_ID = T.ROOM_ID
+		AND CH.USER_ID = T.USER_ID
+		AND CH.ROLE = 'user'
+		ORDER BY CH.REG_DATE ASC
+		LIMIT 1
+		) AS title,
+		DATE_FORMAT(MAX(T.REG_DATE), '%Y-%m-%d %H:%i') AS lastRegDate
+		FROM CAMP_CHAT_HISTORY T
+		WHERE T.USER_ID = #{userId}
+		GROUP BY T.ROOM_ID, T.USER_ID
+		ORDER BY MAX(T.REG_DATE) DESC
+
+	</select>
 </mapper>

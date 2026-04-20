@@ -5,8 +5,8 @@
 	
 	<!-- 회원가입 -->
 	<insert id="insertUser" parameterType="hashmap">
-		INSERT INTO USER(USER_ID, USER_PWD, USER_NAME, NICKNAME, EMAIL,
-		CREATED_AT) VALUES( #{userId}, #{userPwd}, #{userName}, #{nickName},
+		INSERT INTO USER(USER_ID, USER_PWD, USER_NAME, NICKNAME, USER_STATUS, EMAIL,
+		CREATED_AT) VALUES( #{userId}, #{userPwd}, #{userName}, #{nickName}, 'ACTIVE',
 		#{email}, NOW());
 	</insert>
 	

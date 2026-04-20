@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.modak.user.mapper.UserSettingsMapper">
+
+	<!-- 계정설정 조회 -->
+	<select id="selectUserSettings"
+		parameterType="string"
+		resultType="com.example.modak.user.model.User">
+		SELECT
+		USER_ID AS userId,
+		USER_PWD AS userPwd,
+		USER_NAME AS userName,
+		NICKNAME AS nickName,
+		EMAIL AS email,
+		USER_PHONE AS userPhone,
+		PHONE_VERIFY_YN AS phoneVerifyYn,
+		DATE_FORMAT(PHONE_VERIFIED_AT, '%Y-%m-%d %H:%i:%s') AS phoneVerifiedAt
+		FROM USER
+		WHERE USER_ID = #{userId}
+	</select>
+
+	<!-- 휴대폰 인증 초기화 -->
+	<update id="resetPhoneVerification">
+		UPDATE USER
+		SET PHONE_VERIFY_YN = 'N',
+		PHONE_VERIFIED_AT = NULL
+		WHERE USER_ID = #{userId}
+	</update>
+
+	<!-- 인증번호 저장 -->
+	<insert id="insertPhoneVerification"
+		parameterType="com.example.modak.user.model.PhoneVerification"
+		useGeneratedKeys="true"
+		keyProperty="verificationId">
+		INSERT INTO PHONE_VERIFICATION (
+		USER_ID,
+		PHONE,
+		VERIFY_CODE,
+		VERIFIED_YN,
+		EXPIRE_AT,
+		CREATED_AT
+		)
+		VALUES (
+		#{userId},
+		#{phone},
+		#{verifyCode},
+		'N',
+		#{expireAt},
+		NOW()
+		)
+	</insert>
+
+	<!-- 최근 인증번호 조회 -->
+	<select id="selectLatestPhoneVerification"
+		resultType="com.example.modak.user.model.PhoneVerification">
+		SELECT
+		VERIFICATION_ID AS verificationId,
+		USER_ID AS userId,
+		PHONE AS phone,
+		VERIFY_CODE AS verifyCode,
+		VERIFIED_YN AS verifiedYn,
+		DATE_FORMAT(EXPIRE_AT, '%Y-%m-%d %H:%i:%s') AS expireAt,
+		DATE_FORMAT(VERIFIED_AT, '%Y-%m-%d %H:%i:%s') AS verifiedAt,
+		DATE_FORMAT(CREATED_AT, '%Y-%m-%d %H:%i:%s') AS createdAt
+		FROM PHONE_VERIFICATION
+		WHERE USER_ID = #{userId}
+		AND PHONE = #{phone}
+		AND VERIFIED_YN = 'N'
+		ORDER BY VERIFICATION_ID DESC
+		LIMIT 1
+	</select>
+
+	<!-- 인증 완료 처리 -->
+	<update id="updatePhoneVerificationSuccess">
+		UPDATE PHONE_VERIFICATION
+		SET VERIFIED_YN = 'Y',
+		VERIFIED_AT = NOW()
+		WHERE VERIFICATION_ID = #{verificationId}
+	</update>
+
+	<!-- USER 인증 완료 -->
+	<update id="updateUserPhoneVerified">
+		UPDATE USER
+		SET USER_PHONE = #{userPhone},
+		PHONE_VERIFY_YN = 'Y',
+		PHONE_VERIFIED_AT = NOW()
+		WHERE USER_ID = #{userId}
+	</update>
+
+	<update id="updatePhoneVerifySuccess"
+		parameterType="com.example.modak.user.model.User">
+		UPDATE USER
+		SET USER_PHONE = #{userPhone},
+		PHONE_VERIFY_YN = 'Y',
+		PHONE_VERIFIED_AT = NOW(),
+		UPDATED_AT = NOW()
+		WHERE USER_ID = #{userId}
+	</update>
+
+	<update id="updateUserPassword" parameterType="hashmap">
+		UPDATE USER
+		SET USER_PWD = #{userPwd},
+		UPDATED_AT = NOW()
+		WHERE USER_ID = #{sessionId}
+	</update>
+
+	<update id="updatePhoneVerified" parameterType="hashmap">
+		UPDATE USER
+		SET USER_PHONE = #{userPhone},
+		PHONE_VERIFY_YN = 'Y',
+		PHONE_VERIFIED_AT = NOW(),
+		UPDATED_AT = NOW()
+		WHERE USER_ID = #{sessionId}
+	</update>
+
+	<update id="resetPhoneVerifyStatus" parameterType="hashmap">
+		UPDATE USER
+		SET USER_PHONE = #{userPhone},
+		PHONE_VERIFY_YN = 'N',
+		PHONE_VERIFIED_AT = NULL,
+		UPDATED_AT = NOW()
+		WHERE USER_ID = #{sessionId}
+	</update>
+
+	<update id="updateUserBasicInfo" parameterType="hashmap">
+		UPDATE USER
+		SET USER_NAME = #{userName},
+		NICK_NAME = #{nickName},
+		UPDATED_AT = NOW()
+		WHERE USER_ID = #{sessionId}
+	</update>
+
+	<update id="deleteUser" parameterType="string">
+		UPDATE USER
+		SET USER_STATUS = 'DELETED'
+		WHERE USER_ID = #{userId}
+	</update>
+</mapper>

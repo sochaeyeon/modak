@@ -33,11 +33,11 @@
                                         </div>
 
                                         <div class="profile-name">
-                                            ${user.userName}
+                                            {{ displayUser.userName }}
                                         </div>
 
                                         <div class="profile-nick">
-                                            @${user.nickName}
+                                            @{{ displayUser.nickName }}
                                         </div>
 
                                         <div
@@ -363,7 +363,8 @@
                                                     <p>최근 본 상품이 없습니다.</p>
                                                 </div>
 
-                                                <div class="wish-item" v-for="item in recentList" :key="item.productId">
+                                                <div class="wish-item" v-for="item in recentList" :key="item.productId"
+                                                    @click="fnGoProductDetail(item.productId)">
 
                                                     <div class="wish-thumb">🛒</div>
 
@@ -589,8 +590,10 @@
                                                             <div class="review-item">
 
                                                                 <div class="review-head">
-                                                                    <span
-                                                                        class="review-product">${item.productName}</span>
+                                                                    <span class="review-product clickable"
+                                                                        @click="fnGoProductDetail(${item.productId})">
+                                                                        ${ item.productName }
+                                                                    </span>
 
                                                                     <div class="review-stars">
                                                                         <c:forEach begin="1" end="5" var="i">
@@ -601,6 +604,10 @@
                                                                             </svg>
                                                                         </c:forEach>
                                                                     </div>
+                                                                </div>
+
+                                                                <div class="review-title">
+                                                                    ${item.title}
                                                                 </div>
 
                                                                 <div class="review-body">
@@ -632,7 +639,7 @@
                                                                             </c:forEach>
                                                                         </div>
                                                                         <c:if test="${item.imageCount > 4}">
-                                                                            
+
                                                                         </c:if>
 
                                                                     </div>
@@ -723,13 +730,37 @@
                                         <div class="section-card">
                                             <div class="section-head">
                                                 <h3>챗봇 기록</h3>
+                                                <a href="javascript:;" @click="fnGoChatbotHistory">더보기 →</a>
                                             </div>
 
                                             <div class="history-list">
-                                                <div class="history-item" v-for="chat in chatbotList"
-                                                    :key="chat.chatId">
-                                                    <div class="history-title">{{ chat.title }}</div>
-                                                    <div class="history-date">{{ chat.createdAt }}</div>
+                                                <div v-if="chatbotList.length === 0" class="empty-state">
+                                                    <p>챗봇 기록이 없습니다.</p>
+                                                </div>
+
+                                                <div class="history-item chatbot-history-item"
+                                                    v-for="chat in limitedChatbotList" :key="chat.roomId"
+                                                    @click="fnGoChatbotRoom(chat.roomId)">
+
+                                                    <div class="chatbot-history-left">
+                                                        <div class="chatbot-history-icon">💬</div>
+
+                                                        <div class="chatbot-history-text">
+                                                            <div class="history-title">
+                                                                {{ chat.title && chat.title.trim() ? chat.title : '대화'
+                                                                }}
+                                                            </div>
+                                                            <div class="chatbot-history-preview"
+                                                                v-if="chat.lastMessage">
+                                                                {{ chat.lastMessage }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="chatbot-history-right">
+                                                        <div class="history-date">{{ chat.lastRegDate }}</div>
+                                                        <div class="chatbot-history-arrow">→</div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -741,55 +772,152 @@
                                             <div class="section-head">
                                                 <h3>기본 정보</h3>
                                             </div>
+
                                             <div class="settings-form">
+                                                <div v-if="settingsMsg" class="settings-msg" :class="settingsMsgType">
+                                                    {{ settingsMsg }}
+                                                </div>
+
                                                 <div class="setting-row">
-                                                    <div class="setting-field"><label>이름</label><input type="text"
-                                                            value="김모닥">
+                                                    <div class="setting-field">
+                                                        <label>이름</label>
+                                                        <input input type="text" v-model="settingsForm.userName"
+                                                            @input="fnClearSettingsMsg" placeholder="이름 입력">
                                                     </div>
-                                                    <div class="setting-field"><label>닉네임</label><input type="text"
-                                                            value="불꽃이">
+
+                                                    <div class="setting-field">
+                                                        <label>닉네임</label>
+                                                        <input type="text" v-model="settingsForm.nickName"
+                                                            @input="fnClearSettingsMsg" placeholder="닉네임 입력">
                                                     </div>
                                                 </div>
                                                 <div class="setting-row">
-                                                    <div class="setting-field"><label>이메일</label><input type="text"
-                                                            value="modak@modakmodak.kr" readonly></div>
-                                                    <div class="setting-field"><label>연락처</label><input type="text"
-                                                            value="010-1234-5678"></div>
-                                                </div>
-                                                <div class="settings-actions">
-                                                    <button class="btn-save">저장하기</button>
-                                                    <button class="btn-outline">취소</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="section-card">
-                                            <div class="section-head">
-                                                <h3>비밀번호 변경</h3>
-                                            </div>
-                                            <div class="settings-form">
-                                                <div class="setting-row">
-                                                    <div class="setting-field"><label>현재 비밀번호</label><input
-                                                            type="password" placeholder="현재 비밀번호"></div>
-                                                    <div style="display:flex;gap:14px;">
-                                                        <div class="setting-field" style="flex:1"><label>새
-                                                                비밀번호</label><input type="password" placeholder="새 비밀번호">
+                                                    <div class="setting-field">
+                                                        <label>이메일</label>
+                                                        <input type="text" v-model="settingsForm.email" readonly>
+                                                    </div>
+
+                                                    <div class="setting-field">
+                                                        <label>연락처</label>
+
+                                                        <div class="phone-verify-wrap">
+                                                            <div class="phone-input-row">
+                                                                <input type="text" v-model="settingsForm.userPhone"
+                                                                    placeholder="01012345678"
+                                                                    @input="fnHandlePhoneChanged">
+
+                                                                <button type="button" class="btn-outline"
+                                                                    @click="fnSendSmsCode">
+                                                                    인증번호 받기
+                                                                </button>
+                                                            </div>
+
+                                                            <div class="phone-verify-status">
+                                                                <span v-if="settingsForm.phoneVerifyYn === 'Y'"
+                                                                    class="verify-success">
+                                                                    인증 완료
+                                                                    <span v-if="settingsForm.phoneVerifiedAt">
+                                                                        ({{ settingsForm.phoneVerifiedAt }})
+                                                                    </span>
+                                                                </span>
+                                                                <span v-else-if="smsInputVisible"
+                                                                    class="verify-fail">미인증</span>
+                                                            </div>
+
+                                                            <div
+                                                                v-if="smsInputVisible && settingsForm.phoneVerifyYn !== 'Y'">
+                                                                <div class="phone-timer-wrap" v-if="smsTimeLeft > 0">
+                                                                    <span class="phone-timer-text">남은 시간 {{
+                                                                        formattedSmsTime }}</span>
+                                                                </div>
+
+                                                                <div class="phone-timer-wrap" v-if="smsExpired">
+                                                                    <span class="phone-timer-expired">
+                                                                        인증번호가 만료되었습니다. 다시 발급해주세요.
+                                                                    </span>
+                                                                </div>
+
+                                                                <div class="phone-input-row">
+                                                                    <input type="text" v-model="smsAuthCode"
+                                                                        maxlength="6" placeholder="인증번호 6자리 입력">
+
+                                                                    <button type="button" class="btn-save"
+                                                                        @click="fnVerifySmsCode">
+                                                                        인증 확인
+                                                                    </button>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        <div class="setting-field" style="flex:1">
-                                                            <label>확인</label><input type="password"
-                                                                placeholder="비밀번호 확인">
-                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div class="settings-actions"><button class="btn-save">변경하기</button>
+                                                <div class="section-card">
+                                                    <div class="section-head">
+                                                        <h3>비밀번호 변경</h3>
+                                                    </div>
+
+                                                    <!-- 휴대폰 인증 안 된 경우 -->
+                                                    <div class="settings-lock-box"
+                                                        v-if="settingsForm.phoneVerifyYn !== 'Y'">
+                                                        <div class="settings-lock-title">휴대폰 인증 후 비밀번호 변경 가능</div>
+                                                        <div class="settings-lock-desc">
+                                                            계정 보안을 위해 휴대폰 인증을 완료한 뒤 비밀번호를 변경할 수 있습니다.
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- 휴대폰 인증 완료된 경우 -->
+                                                    <div class="settings-form" v-else>
+                                                        <div v-if="passwordMsg" class="settings-msg"
+                                                            :class="passwordMsgType">
+                                                            {{ passwordMsg }}
+                                                        </div>
+
+                                                        <div class="setting-row">
+                                                            <div class="setting-field">
+                                                                <label>현재 비밀번호</label>
+                                                                <input type="password" v-model="passwordForm.currentPwd"
+                                                                    placeholder="현재 비밀번호">
+                                                            </div>
+
+                                                            <div style="display:flex;gap:14px;">
+                                                                <div class="setting-field" style="flex:1">
+                                                                    <label>새 비밀번호</label>
+                                                                    <input type="password" v-model="passwordForm.newPwd"
+                                                                        placeholder="새 비밀번호">
+
+                                                                    <div class="password-guide"
+                                                                        :class="passwordStrengthClass">
+                                                                        {{ passwordStrengthText }}
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="setting-field" style="flex:1">
+                                                                    <label>확인</label>
+                                                                    <input type="password"
+                                                                        v-model="passwordForm.newPwdConfirm"
+                                                                        placeholder="비밀번호 확인">
+
+                                                                    <div class="password-guide"
+                                                                        v-if="passwordForm.newPwdConfirm"
+                                                                        :class="passwordMatch ? 'match-ok' : 'match-fail'">
+                                                                        {{ passwordMatch ? '비밀번호가 일치합니다.' : '비밀번호가 일치하지 않습니다.' }}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="settings-actions">
+                                                            <button type="button" class="btn-save"
+                                                                @click="fnChangePassword">변경하기</button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="settings-divider"></div>
+
+                                                    <div class="danger-zone">
+                                                        <div class="danger-title">계정 관리</div>
+                                                        <button class="btn-danger" @click="fnDeleteUser">회원탈퇴</button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="settings-divider"></div>
-                                            <div class="danger-zone">
-                                                <div class="danger-title">계정 관리</div>
-                                                <button class="btn-danger">회원탈퇴</button>
-                                            </div>
-                                        </div>
-                                    </div>
 
                                 </main>
                             </div>
@@ -852,10 +980,88 @@
                                 editAddressId: "",
 
                                 wishlist: [],
-                                recentList: []
+                                recentList: [],
+                                chatbotList: [],
+
+                                settingsForm: {
+                                    userName: "",
+                                    nickName: "",
+                                    email: "",
+                                    userPhone: "",
+                                    phoneVerifyYn: "N",
+                                    phoneVerifiedAt: ""
+                                },
+                                originalPhone: "",
+                                verifiedPhone: "",
+                                smsAuthCode: "",
+                                settingsMsg: "",
+                                settingsMsgType: "",
+
+                                passwordForm: {
+                                    currentPwd: "",
+                                    newPwd: "",
+                                    newPwdConfirm: ""
+                                },
+
+                                displayUser: {
+                                    userName: "",
+                                    nickName: "",
+                                    gradeName: ""
+                                },
+                                smsTimer: null,
+                                smsTimeLeft: 0,
+                                smsExpired: false,
+
+                                smsInputVisible: false,
+                                passwordMsg: "",
+                                passwordMsgType: "",
                             };
                         },
                         computed: {
+                            passwordStrengthScore() {
+                                let pwd = this.passwordForm.newPwd || "";
+                                let score = 0;
+
+                                if (pwd.length >= 8) score++;
+                                if (/[A-Za-z]/.test(pwd)) score++;
+                                if (/[0-9]/.test(pwd)) score++;
+                                if (/[^A-Za-z0-9]/.test(pwd)) score++;
+
+                                return score;
+                            },
+                            passwordStrengthText() {
+                                let pwd = this.passwordForm.newPwd || "";
+
+                                if (!pwd) {
+                                    return "영문, 숫자, 특수문자를 조합해 8자 이상 입력해주세요.";
+                                }
+
+                                if (this.passwordStrengthScore <= 1) {
+                                    return "비밀번호 강도: 약함";
+                                } else if (this.passwordStrengthScore <= 3) {
+                                    return "비밀번호 강도: 보통";
+                                } else {
+                                    return "비밀번호 강도: 강함";
+                                }
+                            },
+                            passwordStrengthClass() {
+                                if (!this.passwordForm.newPwd) {
+                                    return "";
+                                }
+
+                                if (this.passwordStrengthScore <= 1) {
+                                    return "strength-weak";
+                                } else if (this.passwordStrengthScore <= 3) {
+                                    return "strength-medium";
+                                } else {
+                                    return "strength-strong";
+                                }
+                            },
+                            passwordMatch() {
+                                return this.passwordForm.newPwd &&
+                                    this.passwordForm.newPwdConfirm &&
+                                    this.passwordForm.newPwd === this.passwordForm.newPwdConfirm;
+                            },
                             statusSummary() {
                                 const summary = {
                                     paid: 0,
@@ -881,6 +1087,15 @@
 
                                 return summary;
                             },
+                            formattedSmsTime() {
+                                const minutes = Math.floor(this.smsTimeLeft / 60);
+                                const seconds = this.smsTimeLeft % 60;
+                                return minutes + ":" + String(seconds).padStart(2, "0");
+                            },
+                            limitedChatbotList() {
+                                return this.chatbotList.slice(0, 6);
+                            },
+
 
                             limitedWishlist() {
                                 return this.wishlist.slice(0, 9);
@@ -1169,6 +1384,100 @@
                                 pageChange("/user/review/edit.do", { reviewId: reviewId });
                             },
 
+                           fnChangePassword: function () {
+    let self = this;
+    self.passwordMsg = "";
+    self.passwordMsgType = "";
+
+    if (!(self.passwordForm.currentPwd || "").trim()) {
+        self.passwordMsg = "현재 비밀번호를 입력해주세요.";
+        self.passwordMsgType = "error";
+        return;
+    }
+
+    if (!(self.passwordForm.newPwd || "").trim()) {
+        self.passwordMsg = "새 비밀번호를 입력해주세요.";
+        self.passwordMsgType = "error";
+        return;
+    }
+
+    if ((self.passwordForm.newPwd || "").length < 8) {
+        self.passwordMsg = "새 비밀번호는 8자 이상이어야 합니다.";
+        self.passwordMsgType = "error";
+        return;
+    }
+
+    if (!(self.passwordForm.newPwdConfirm || "").trim()) {
+        self.passwordMsg = "비밀번호 확인을 입력해주세요.";
+        self.passwordMsgType = "error";
+        return;
+    }
+
+    if (self.passwordForm.newPwd !== self.passwordForm.newPwdConfirm) {
+        self.passwordMsg = "새 비밀번호와 비밀번호 확인이 일치하지 않습니다.";
+        self.passwordMsgType = "error";
+        return;
+    }
+
+    $.ajax({
+        url: "/user/settings/password/update.dox",
+        type: "POST",
+        dataType: "json",
+        data: {
+            currentPwd: self.passwordForm.currentPwd,
+            newPwd: self.passwordForm.newPwd
+        },
+        success: function (data) {
+            if (data.result === "success") {
+                self.passwordMsg = data.message || "비밀번호가 변경되었습니다.";
+                self.passwordMsgType = "success";
+
+                self.passwordForm.currentPwd = "";
+                self.passwordForm.newPwd = "";
+                self.passwordForm.newPwdConfirm = "";
+            } else {
+                self.passwordMsg = data.message || "비밀번호 변경에 실패했습니다.";
+                self.passwordMsgType = "error";
+            }
+        },
+        error: function () {
+            self.passwordMsg = "서버 오류가 발생했습니다.";
+            self.passwordMsgType = "error";
+        }
+    });
+},
+                            fnDeleteUser: function () {
+    let self = this;
+
+    // ✅ 1차 확인
+    if (!confirm("정말 회원탈퇴 하시겠습니까?\n탈퇴 시 모든 정보가 삭제됩니다.")) {
+        return;
+    }
+
+    // (선택) 2차 확인까지 하고 싶으면
+    if (!confirm("진짜로 탈퇴하시겠습니까? 되돌릴 수 없습니다.")) {
+        return;
+    }
+
+    $.ajax({
+        url: "/user/settings/delete.dox",
+        type: "POST",
+        dataType: "json",
+        data: {},
+        success: function (data) {
+            if (data.result === "success") {
+                alert("회원탈퇴가 완료되었습니다.");
+                location.href = "/user/login.do"; // 
+            } else {
+                alert(data.message || "탈퇴에 실패했습니다.");
+            }
+        },
+        error: function () {
+            alert("서버 오류가 발생했습니다.");
+        }
+    });
+},
+
                             fnRemoveReview: function (reviewId) {
                                 if (!confirm("리뷰를 삭제하시겠습니까?")) {
                                     return;
@@ -1193,7 +1502,289 @@
                                         alert("서버 오류가 발생했습니다.");
                                     }
                                 });
-                            }
+                            },
+                            fnGetChatbotList: function () {
+                                let self = this;
+
+                                $.ajax({
+                                    url: "/user/chatbot/list.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {},
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.chatbotList = data.list || [];
+                                        } else {
+                                            self.chatbotList = [];
+                                        }
+                                    },
+                                    error: function () {
+                                        self.chatbotList = [];
+                                    }
+                                });
+                            },
+                            fnGoChatbotRoom: function (roomId) {
+                                pageChange("/chat/bot.do", { roomId: roomId });
+                            },
+                            fnGoChatbotHistory: function () {
+                                pageChange("/user/chatbot/history.do", {});
+                            },
+
+                            fnGetUserSettings: function () {
+    let self = this;
+
+    $.ajax({
+        url: "/user/settings/info.dox",
+        type: "POST",
+        dataType: "json",
+        data: {},
+        success: function (data) {
+            if (data.result === "success") {
+                let info = data.info || {};
+
+                self.settingsForm.userName = info.userName || "";
+                self.settingsForm.nickName = info.nickName || "";
+                self.settingsForm.email = info.email || "";
+                self.settingsForm.userPhone = info.userPhone || "";
+                self.settingsForm.phoneVerifyYn = info.phoneVerifyYn || "N";
+                self.settingsForm.phoneVerifiedAt = info.phoneVerifiedAt || "";
+
+                self.displayUser.userName = info.userName || "";
+                self.displayUser.nickName = info.nickName || "";
+
+                self.originalPhone = info.userPhone || "";
+                self.verifiedPhone = (info.phoneVerifyYn === "Y") ? (info.userPhone || "") : "";
+                self.smsAuthCode = "";
+
+                self.fnStopSmsTimer();
+                self.smsExpired = false;
+                self.smsTimeLeft = 0;
+                self.smsInputVisible = false;
+            } else {
+                self.settingsMsg = data.message || "계정정보 조회에 실패했습니다.";
+                self.settingsMsgType = "error";
+            }
+        },
+        error: function () {
+            self.settingsMsg = "서버 오류가 발생했습니다.";
+            self.settingsMsgType = "error";
+        }
+    });
+},
+
+                            fnSendSmsCode: function () {
+    let self = this;
+    self.settingsMsg = "";
+
+    let phone = (self.settingsForm.userPhone || "").replace(/[^0-9]/g, "");
+
+    if (!phone) {
+        self.settingsMsg = "휴대폰 번호를 입력해주세요.";
+        self.settingsMsgType = "error";
+        return;
+    }
+
+    if (self.settingsForm.phoneVerifyYn === "Y" && phone === self.verifiedPhone) {
+        self.settingsMsg = "이미 인증이 완료된 번호입니다.";
+        self.settingsMsgType = "error";
+        self.smsInputVisible = false;
+        self.fnStopSmsTimer();
+        self.smsTimeLeft = 0;
+        self.smsExpired = false;
+        return;
+    }
+
+    $.ajax({
+        url: "/user/sms/send-code.dox",
+        type: "POST",
+        dataType: "json",
+        data: {
+            userName: self.settingsForm.userName,
+            userPhone: phone,
+            authPurpose: "USER_SETTINGS"
+        },
+        success: function (data) {
+            if (data.result === "success") {
+                self.settingsMsg = data.message || "인증번호가 발송되었습니다.";
+                self.settingsMsgType = "success";
+                self.smsAuthCode = "";
+                self.smsInputVisible = true;
+                self.fnStartSmsTimer();
+            } else {
+                self.settingsMsg = data.message || "인증번호 발송에 실패했습니다.";
+                self.settingsMsgType = "error";
+            }
+        },
+        error: function () {
+            self.settingsMsg = "서버 오류가 발생했습니다.";
+            self.settingsMsgType = "error";
+        }
+    });
+},
+                            fnStartSmsTimer: function () {
+                                let self = this;
+
+                                self.fnStopSmsTimer();
+                                self.smsTimeLeft = 180; // 3분
+                                self.smsExpired = false;
+
+                                self.smsTimer = setInterval(function () {
+                                    if (self.smsTimeLeft > 0) {
+                                        self.smsTimeLeft--;
+                                    } else {
+                                        self.fnStopSmsTimer();
+                                        self.smsExpired = true;
+                                        self.settingsMsg = "인증번호가 만료되었습니다. 다시 발급해주세요.";
+                                        self.settingsMsgType = "error";
+                                    }
+                                }, 1000);
+                            },
+                            beforeUnmount() {
+                                this.fnStopSmsTimer();
+                            },
+
+                            fnStopSmsTimer: function () {
+                                if (this.smsTimer) {
+                                    clearInterval(this.smsTimer);
+                                    this.smsTimer = null;
+                                }
+                            },
+
+                           fnHandlePhoneChanged: function () {
+    let phone = (this.settingsForm.userPhone || "").replace(/[^0-9]/g, "");
+    this.settingsForm.userPhone = phone;
+
+    // 이미 인증된 번호와 같으면 인증 유지
+    if (phone && phone === this.verifiedPhone) {
+        this.settingsForm.phoneVerifyYn = "Y";
+        this.smsAuthCode = "";
+        this.smsExpired = false;
+        this.fnStopSmsTimer();
+        this.smsTimeLeft = 0;
+        this.smsInputVisible = false;
+    } else {
+        // 인증된 번호와 다르면 미인증 처리
+        this.settingsForm.phoneVerifyYn = "N";
+        this.settingsForm.phoneVerifiedAt = "";
+        this.smsAuthCode = "";
+        this.smsExpired = false;
+        this.fnStopSmsTimer();
+        this.smsTimeLeft = 0;
+        this.smsInputVisible = false;
+    }
+
+    this.fnClearSettingsMsg();
+},
+
+                            fnVerifySmsCode: function () {
+                                let self = this;
+                                self.settingsMsg = "";
+
+                                let phone = (self.settingsForm.userPhone || "").replace(/[^0-9]/g, "");
+                                let authCode = (self.smsAuthCode || "").trim();
+
+                                if (!phone) {
+                                    self.settingsMsg = "휴대폰 번호를 입력해주세요.";
+                                    self.settingsMsgType = "error";
+                                    return;
+                                }
+
+                                if (!authCode) {
+                                    self.settingsMsg = "인증번호를 입력해주세요.";
+                                    self.settingsMsgType = "error";
+                                    return;
+                                }
+
+                                if (self.smsExpired || self.smsTimeLeft <= 0) {
+                                    self.settingsMsg = "인증번호가 만료되었습니다. 다시 발급해주세요.";
+                                    self.settingsMsgType = "error";
+                                    return;
+                                }
+
+                                $.ajax({
+                                    url: "/user/sms/verify-code.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {
+                                        userPhone: phone,
+                                        authCode: authCode,
+                                        authPurpose: "USER_SETTINGS"
+                                    },
+                                    success: function (data) {
+                                            if (data.result === "success") {
+        self.settingsMsg = data.message || "휴대폰 인증이 완료되었습니다.";
+        self.settingsMsgType = "success";
+
+        self.settingsForm.phoneVerifyYn = "Y";
+        self.settingsForm.phoneVerifiedAt = data.phoneVerifiedAt || "";
+        self.originalPhone = phone;
+        self.verifiedPhone = phone;
+
+        self.fnStopSmsTimer();
+        self.smsExpired = false;
+        self.smsTimeLeft = 0;
+        self.smsInputVisible = false;
+        self.smsAuthCode = "";
+    } else {
+                                            self.settingsMsg = data.message || "인증번호가 올바르지 않거나 만료되었습니다.";
+                                            self.settingsMsgType = "error";
+                                        }
+                                    },
+                                    error: function () {
+                                        self.settingsMsg = "서버 오류가 발생했습니다.";
+                                        self.settingsMsgType = "error";
+                                    }
+                                });
+                            },
+                            fnSaveSettings: function () {
+                                let self = this;
+                                self.settingsMsg = "";
+
+                                if (!(self.settingsForm.userName || "").trim()) {
+                                    self.settingsMsg = "이름을 입력해주세요.";
+                                    self.settingsMsgType = "error";
+                                    return;
+                                }
+
+                                if (!(self.settingsForm.nickName || "").trim()) {
+                                    self.settingsMsg = "닉네임을 입력해주세요.";
+                                    self.settingsMsgType = "error";
+                                    return;
+                                }
+
+                                $.ajax({
+                                    url: "/user/settings/update.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {
+                                        userName: self.settingsForm.userName,
+                                        nickName: self.settingsForm.nickName,
+                                        userPhone: self.settingsForm.userPhone,
+                                        originalPhone: self.originalPhone
+                                    },
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.settingsMsg = data.message || "회원정보가 저장되었습니다.";
+                                            self.settingsMsgType = "success";
+                                            self.fnGetUserSettings();
+                                        } else {
+                                            self.settingsMsg = data.message || "저장에 실패했습니다.";
+                                            self.settingsMsgType = "error";
+                                        }
+                                    },
+                                    error: function () {
+                                        self.settingsMsg = "서버 오류가 발생했습니다.";
+                                        self.settingsMsgType = "error";
+                                    }
+                                });
+                            },
+                            fnResetSettingsForm: function () {
+                                this.fnGetUserSettings();
+                            },
+                            fnClearSettingsMsg: function () {
+                                this.settingsMsg = "";
+                                this.settingsMsgType = "";
+                            },
 
                         }, // methods
                         mounted() {
@@ -1202,7 +1793,8 @@
                             self.fnGetAddressList();
                             self.fnGetWishlist();
                             self.fnGetRecentList();
-
+                            self.fnGetChatbotList();
+                            self.fnGetUserSettings();
 
                             const savedTab = sessionStorage.getItem("activeTab");
                             if (savedTab) {

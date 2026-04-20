@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.example.modak.review.model.Review;
+import com.example.modak.review.model.ReviewImage;
 
 @Mapper
 public interface ReviewMapper {
@@ -33,4 +34,6 @@ public interface ReviewMapper {
 
 	// 기존 리뷰 이미지 삭제
 	int deleteReviewImages(HashMap<String, Object> map);
+	
+	List<ReviewImage> selectReviewImageList(HashMap<String, Object> map);
 }

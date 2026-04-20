@@ -1302,25 +1302,35 @@ body {
     gap: 12px;
 }
 
-.review-head-right {
+.review-stars {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 2px;
 }
 
-.review-thumb-inline {
-    width: 56px;
-    height: 56px;
-    border-radius: 10px;
+.review-image-box {
+    margin-top: 10px;
+    margin-bottom: 12px;
+    width: 100%;
+    max-width: 180px;
+    height: 180px;
+    border-radius: 14px;
     overflow: hidden;
-    flex-shrink: 0;
+    border: 1px solid #eadfce;
+    background: #fffaf5;
 }
 
-.review-thumb-inline img {
+.review-image-box img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+}
+
+.review-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .review-bottom {
@@ -1349,4 +1359,48 @@ body {
 
 .btn-outline.danger:hover {
     background: rgba(201, 79, 30, .08);
+}
+.review-image-wrap {
+    margin-top: 10px;
+}
+
+.review-image-grid {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.review-image-thumb {
+    position: relative;
+    width: 190px;
+    height: 190px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #eadfce;
+    cursor: pointer;
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.review-image-thumb:hover {
+    transform: scale(1.08);
+    z-index: 2;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.review-image-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.review-image-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

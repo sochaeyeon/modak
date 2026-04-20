@@ -1,10 +1,11 @@
 package com.example.modak.review.model;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
 public class Review {
-
 
     private String reviewId;
     private String rating;
@@ -17,5 +18,7 @@ public class Review {
     private String itemId;
 
     private String productName;
-    private String imageUrl; // 대표 이미지
+    private String imageUrl; // 기존 대표 이미지 유지
+    private List<ReviewImage> imageList; // 추가
+    private int imageCount;              // 추가
 }

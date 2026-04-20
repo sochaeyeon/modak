@@ -592,29 +592,51 @@
                                                                     <span
                                                                         class="review-product">${item.productName}</span>
 
-                                                                    <div class="review-head-right">
-                                                                        <c:if test="${not empty item.imageUrl}">
-                                                                            <div class="review-thumb-inline">
-                                                                                <img src="${item.imageUrl}"
-                                                                                    alt="리뷰 이미지">
-                                                                            </div>
-                                                                        </c:if>
-
-                                                                        <div class="review-stars">
-                                                                            <c:forEach begin="1" end="5" var="i">
-                                                                                <svg class="star" viewBox="0 0 13 13"
-                                                                                    fill="${i <= item.rating ? '#e0621a' : '#ccc'}">
-                                                                                    <path
-                                                                                        d="M6.5 1l1.5 3.5H12L9 7l1 3.5-3.5-2-3.5 2L4 7 1 4.5h4Z" />
-                                                                                </svg>
-                                                                            </c:forEach>
-                                                                        </div>
+                                                                    <div class="review-stars">
+                                                                        <c:forEach begin="1" end="5" var="i">
+                                                                            <svg class="star" viewBox="0 0 13 13"
+                                                                                fill="${i <= item.rating ? '#e0621a' : '#ccc'}">
+                                                                                <path
+                                                                                    d="M6.5 1l1.5 3.5H12L9 7l1 3.5-3.5-2-3.5 2L4 7 1 4.5h4Z" />
+                                                                            </svg>
+                                                                        </c:forEach>
                                                                     </div>
                                                                 </div>
 
                                                                 <div class="review-body">
                                                                     ${item.content}
                                                                 </div>
+                                                                <c:if test="${not empty item.imageList}">
+                                                                    <div class="review-image-wrap">
+
+                                                                        <div class="review-image-grid">
+                                                                            <c:forEach var="img"
+                                                                                items="${item.imageList}"
+                                                                                varStatus="status">
+                                                                                <c:if test="${status.index < 4}">
+                                                                                    <div class="review-image-thumb">
+
+                                                                                        <img src="${img.imgUrl}"
+                                                                                            alt="리뷰 이미지">
+
+                                                                                        <c:if
+                                                                                            test="${status.index == 3 && item.imageCount > 4}">
+                                                                                            <div
+                                                                                                class="review-image-overlay">
+                                                                                                +${item.imageCount - 4}
+                                                                                            </div>
+                                                                                        </c:if>
+
+                                                                                    </div>
+                                                                                </c:if>
+                                                                            </c:forEach>
+                                                                        </div>
+                                                                        <c:if test="${item.imageCount > 4}">
+                                                                            
+                                                                        </c:if>
+
+                                                                    </div>
+                                                                </c:if>
 
                                                                 <div class="review-bottom">
                                                                     <div class="review-date">

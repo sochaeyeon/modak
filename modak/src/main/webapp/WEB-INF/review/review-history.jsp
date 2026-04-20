@@ -77,6 +77,23 @@
                                                             {{ item.content }}
                                                         </div>
 
+                                                        <div v-if="item.imageList && item.imageList.length > 0"
+                                                            class="review-image-wrap">
+                                                            <div class="review-image-grid">
+                                                                <div class="review-image-thumb"
+                                                                    v-for="(img, index) in item.imageList.slice(0, 6)"
+                                                                    :key="index"
+                                                                    @click="fnOpenImageModal(item.imageList, index)">
+
+                                                                    <img :src="img.imgUrl" alt="리뷰 이미지">
+
+                                                                    <div v-if="index === 5 && item.imageList.length > 6"
+                                                                        class="review-image-overlay">
+                                                                        +{{ item.imageList.length - 6 }}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                         <div class="review-bottom">
                                                             <div class="review-date">
                                                                 {{ item.createdAt }}
@@ -116,6 +133,24 @@
 
                                 </div>
                             </div>
+                            <div v-if="isImageModalOpen" class="image-modal" @click="fnCloseImageModal">
+                                <div class="image-modal-content" @click.stop>
+                                    <button class="image-modal-close" @click="fnCloseImageModal">×</button>
+
+                                    <button class="image-modal-nav prev" v-if="modalImageList.length > 1"
+                                        @click="fnPrevImage">
+                                        ‹
+                                    </button>
+
+                                    <img :src="modalImageList[currentImageIndex].imgUrl" alt="확대 이미지"
+                                        class="image-modal-img">
+
+                                    <button class="image-modal-nav next" v-if="modalImageList.length > 1"
+                                        @click="fnNextImage">
+                                        ›
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <%@ include file="/WEB-INF/common/footer.jsp" %>
@@ -132,7 +167,10 @@
                                 page: 1,
                                 pageSize: 10,
                                 totalPages: 1,
-                                listAnimateKey: 0
+                                listAnimateKey: 0,
+                                isImageModalOpen: false,
+                                modalImageList: [],
+                                currentImageIndex: 0
                             };
                         },
                         methods: {
@@ -213,7 +251,36 @@
                                         alert("서버 오류");
                                     }
                                 });
-                            }
+                            },
+                            fnOpenImageModal: function (imageList, index) {
+                                this.modalImageList = imageList;
+                                this.currentImageIndex = index;
+                                this.isImageModalOpen = true;
+                                document.body.style.overflow = "hidden";
+                            },
+
+                            fnCloseImageModal: function () {
+                                this.isImageModalOpen = false;
+                                this.modalImageList = [];
+                                this.currentImageIndex = 0;
+                                document.body.style.overflow = "";
+                            },
+
+                            fnPrevImage: function () {
+                                if (this.currentImageIndex > 0) {
+                                    this.currentImageIndex--;
+                                } else {
+                                    this.currentImageIndex = this.modalImageList.length - 1;
+                                }
+                            },
+
+                            fnNextImage: function () {
+                                if (this.currentImageIndex < this.modalImageList.length - 1) {
+                                    this.currentImageIndex++;
+                                } else {
+                                    this.currentImageIndex = 0;
+                                }
+                            },
                         },
                         mounted() {
                             this.fnGetReviewList();

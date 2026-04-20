@@ -1,0 +1,36 @@
+package com.example.modak.review.mapper;
+
+import java.util.HashMap;
+import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import com.example.modak.review.model.Review;
+
+@Mapper
+public interface ReviewMapper {
+
+	// 리뷰 등록
+	int insertReview(HashMap<String, Object> map);
+
+	// 리뷰 이미지 등록
+	int insertReviewImage(HashMap<String, Object> map);
+
+	// 내 리뷰 목록 조회
+	List<Review> selectReviewList(HashMap<String, Object> map);
+
+	// 내 리뷰 총 개수
+	int selectReviewCount(HashMap<String, Object> map);
+
+	// 리뷰 상세 조회
+	Review selectReviewInfo(HashMap<String, Object> map);
+
+	// 리뷰 수정
+	int updateReview(HashMap<String, Object> map);
+
+	// 리뷰 삭제 (soft delete)
+	int updateReviewStatusDeleted(HashMap<String, Object> map);
+
+	// 기존 리뷰 이미지 삭제
+	int deleteReviewImages(HashMap<String, Object> map);
+}

@@ -55,42 +55,49 @@ public class ReviewService {
 	}
 
 	public HashMap<String, Object> getReviewList(HashMap<String, Object> map) {
-	    HashMap<String, Object> resultMap = new HashMap<>();
+		HashMap<String, Object> resultMap = new HashMap<>();
 
-	    try {
-	        int page = Integer.parseInt(String.valueOf(map.get("page")));
-	        int pageSize = Integer.parseInt(String.valueOf(map.get("pageSize")));
-	        int offset = (page - 1) * pageSize;
+		try {
+			// 1. 로그인 사용자 세션값 주입
+			String userId = (String) session.getAttribute("sessionId");
+			map.put("userId", userId);
 
-	        map.put("offset", offset);
+			// 2. 페이지 계산
+			int page = Integer.parseInt(String.valueOf(map.get("page")));
+			int pageSize = Integer.parseInt(String.valueOf(map.get("pageSize")));
+			int offset = (page - 1) * pageSize;
 
-	        List<Review> list = reviewMapper.selectReviewList(map);
-	        int totalCount = reviewMapper.selectReviewCount(map);
+			map.put("offset", offset);
 
-	        for (Review review : list) {
-	            HashMap<String, Object> imgMap = new HashMap<>();
-	            imgMap.put("reviewId", review.getReviewId());
+			// 3. 리뷰 목록 / 개수 조회
+			List<Review> list = reviewMapper.selectReviewList(map);
+			int totalCount = reviewMapper.selectReviewCount(map);
 
-	            List<ReviewImage> imageList = reviewMapper.selectReviewImageList(imgMap);
-	            review.setImageList(imageList);
-	            review.setImageCount(imageList != null ? imageList.size() : 0);
+			// 4. 리뷰별 이미지 목록 조회
+			for (Review review : list) {
+				HashMap<String, Object> imgMap = new HashMap<>();
+				imgMap.put("reviewId", review.getReviewId());
 
-	            if (imageList != null && !imageList.isEmpty()) {
-	                review.setImageUrl(imageList.get(0).getImgUrl());
-	            }
-	        }
+				List<ReviewImage> imageList = reviewMapper.selectReviewImageList(imgMap);
+				review.setImageList(imageList);
+				review.setImageCount(imageList != null ? imageList.size() : 0);
 
-	        resultMap.put("result", "success");
-	        resultMap.put("list", list);
-	        resultMap.put("totalCount", totalCount);
+				if (imageList != null && !imageList.isEmpty()) {
+					review.setImageUrl(imageList.get(0).getImgUrl());
+				}
+			}
 
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        resultMap.put("result", "fail");
-	        resultMap.put("message", "리뷰 목록 조회 실패");
-	    }
+			resultMap.put("result", "success");
+			resultMap.put("list", list);
+			resultMap.put("totalCount", totalCount);
 
-	    return resultMap;
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMap.put("result", "fail");
+			resultMap.put("message", "리뷰 목록 조회 실패");
+		}
+
+		return resultMap;
 	}
 
 	// 리뷰 상세 조회

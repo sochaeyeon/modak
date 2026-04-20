@@ -615,17 +615,24 @@
                                                                                 varStatus="status">
                                                                                 <c:if test="${status.index < 4}">
                                                                                     <div class="review-image-thumb">
+
                                                                                         <img src="${img.imgUrl}"
                                                                                             alt="리뷰 이미지">
+
+                                                                                        <c:if
+                                                                                            test="${status.index == 3 && item.imageCount > 4}">
+                                                                                            <div
+                                                                                                class="review-image-overlay">
+                                                                                                +${item.imageCount - 4}
+                                                                                            </div>
+                                                                                        </c:if>
+
                                                                                     </div>
                                                                                 </c:if>
                                                                             </c:forEach>
                                                                         </div>
-
                                                                         <c:if test="${item.imageCount > 4}">
-                                                                            <div class="review-image-more">
-                                                                                외 ${item.imageCount - 4}장
-                                                                            </div>
+                                                                            
                                                                         </c:if>
 
                                                                     </div>

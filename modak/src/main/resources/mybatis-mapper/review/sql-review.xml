@@ -67,7 +67,7 @@
 		WHERE R.USER_ID = #{userId}
 		AND R.REVIEW_STATUS = 'ACTIVE'
 		ORDER BY R.CREATED_AT DESC, R.REVIEW_ID DESC
-		LIMIT #{pageSize} OFFSET #{offset}
+		LIMIT ${pageSize} OFFSET ${offset}
 	</select>
 	<!-- 내 리뷰 총 개수 -->
 	<select id="selectReviewCount" parameterType="hashmap" resultType="int">

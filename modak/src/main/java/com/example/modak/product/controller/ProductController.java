@@ -45,13 +45,15 @@ public class ProductController {
 		map.put("brandId", brandId);
 		map.put("priceMax", priceMax);
 
-//		    System.out.println("검색어 확인: " + map.get("searchKeyword"));
-//		    System.out.println("전체 파라미터: " + map);
-//		System.out.println("대여체크: " + map.get("rentable") + " / 타입: " + map.get("rentable").getClass().getName());
-//		System.out.println("구매체크: " + map.get("buyable"));
-
 		resultMap = productService.getProductList(map);
 		return new Gson().toJson(resultMap);
+	}
+	
+	@RequestMapping("/product/brandList.dox")
+	@ResponseBody
+	public HashMap<String, Object> getBrandList(@RequestParam HashMap<String, Object> map) {
+	    // 서비스의 getBrandList를 호출하여 그대로 리턴
+	    return productService.getBrandList(map);
 	}
 
 	@RequestMapping("/product/detail.do")

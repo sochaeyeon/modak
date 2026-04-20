@@ -47,7 +47,8 @@
                             </defs>
                         </svg>
                     </div> -->
-                    <span class="brand-name">모닥모닥</span>
+                    
+                    <a href="/main.do" class="brand-name">모닥모닥</a>
                 </div>
 
                 <div class="hero-text">

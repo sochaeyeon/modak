@@ -1,31 +1,31 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>모닥모닥 - 불꽃처럼 빛나는 캠핑 라이프</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-<%-- CSS 분리 --%>
-<link rel="stylesheet" href="/css/common/header.css">
-<link rel="stylesheet" href="/css/main/main.css">
-
-<%-- JS 라이브러리 --%>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoKey}&autoload=false"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>모닥모닥 - 불꽃처럼 빛나는 캠핑 라이프</title>
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
+  <link rel="stylesheet" href="/css/common/header.css">
+  <link rel="stylesheet" href="/css/main/main.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoKey}&autoload=false"></script>
 </head>
 <body>
 
-<%-- ★ 공통 헤더 include --%>
 <%@ include file="/WEB-INF/common/header.jsp" %>
 
 <!-- ════════════════ HERO ════════════════ -->
 <section class="hero">
-  <div class="hero-bg"></div>
+  <div class="hero-bg">
+    <div class="aurora-layer aurora-1"></div>
+    <div class="aurora-layer aurora-2"></div>
+    <div class="aurora-layer aurora-3"></div>
+    <div class="aurora-layer aurora-4"></div>
+    <div class="campfire-glow"></div>
+  </div>
   <div class="smoke-container">
     <div class="smoke" style="width:30px;height:30px;left:25px;animation-duration:5s"></div>
     <div class="smoke" style="width:40px;height:40px;left:10px;animation-duration:6s;animation-delay:1.5s"></div>
@@ -33,7 +33,7 @@
   </div>
   <div class="embers" id="embers"></div>
 
-  <!-- ★ 이벤트 배너 (히어로 상단 풀배너) -->
+  <!-- 이벤트 배너 -->
   <div class="hero-event-banner">
     <div class="heb-track" id="hebTrack">
 
@@ -41,23 +41,17 @@
       <div class="heb-slide">
         <div class="heb-card heb-card--join">
           <div class="heb-card-deco"></div>
-          <!-- 아이콘 -->
           <div class="heb-icon-area">🎁</div>
-          <!-- 텍스트 -->
           <div class="heb-card-body">
             <span class="heb-eyebrow">🎉 신규 가입 혜택</span>
             <p class="heb-headline">가입하면 바로<br><em>3,000원</em> 쿠폰 즉시 지급</p>
             <p class="heb-desc">가입 즉시 자동 지급 · 첫 대여에 사용 가능 · 30일 유효 · 별도 신청 불필요</p>
           </div>
-          <!-- 쿠폰 뱃지 -->
           <div class="heb-coupon-badge">
             <span class="heb-coupon-amt">3,000</span>
             <span class="heb-coupon-unit">원 할인</span>
           </div>
-          <!-- CTA 버튼 -->
-          <button class="heb-btn" onclick="location.href='/user/sign-up.do'">
-            지금 가입하기 →
-          </button>
+          <button class="heb-btn" onclick="location.href='/user/sign-up.do'">지금 가입하기 →</button>
         </div>
       </div>
 
@@ -65,40 +59,50 @@
       <div class="heb-slide">
         <div class="heb-card heb-card--invite">
           <div class="heb-card-deco"></div>
-          <!-- 아이콘 -->
           <div class="heb-icon-area">👥</div>
-          <!-- 텍스트 -->
           <div class="heb-card-body">
             <span class="heb-eyebrow">🔥 친구 초대 이벤트</span>
             <p class="heb-headline">친구 초대하면<br>나도 친구도 <em>5,000원</em> 지급</p>
             <p class="heb-desc">초대 인원 제한 없음 · 친구 첫 대여 완료 시 지급 · 14일 유효 · 중복 적용 가능</p>
           </div>
-          <!-- 쿠폰 뱃지 -->
           <div class="heb-coupon-badge">
             <span class="heb-coupon-amt">5,000</span>
             <span class="heb-coupon-unit">원 할인</span>
           </div>
-          <!-- CTA 버튼 -->
-          <button class="heb-btn" onclick="location.href='/event/invite.do'">
-            친구 초대하기 →
-          </button>
+          <button class="heb-btn" onclick="location.href='/event/invite.do'">친구 초대하기 →</button>
         </div>
       </div>
 
     </div>
-
-    <!-- 페이지 도트 -->
     <div class="heb-dots">
       <button class="heb-dot heb-dot--on" data-idx="0"></button>
       <button class="heb-dot" data-idx="1"></button>
     </div>
-
-    <!-- 이전/다음 화살표 -->
     <button class="heb-arrow heb-arrow--prev" id="hebPrev">&#8249;</button>
     <button class="heb-arrow heb-arrow--next" id="hebNext">&#8250;</button>
   </div>
   <!-- / 이벤트 배너 -->
 
+  <!-- ★ 히어로 검색창 — hero 섹션 안에 위치해야 position:absolute 작동 -->
+  <div class="hero-search-wrap">
+    <div class="hero-search-box">
+      <span class="hero-search-icon">🔍</span>
+      <input type="text" class="hero-search-input" id="heroSearchInput"
+             placeholder="텐트, 침낭, 캠핑장 검색..."
+             onkeydown="if(event.key==='Enter')fnHeroSearch()">
+      <button class="hero-search-btn" onclick="fnHeroSearch()">검색</button>
+    </div>
+    <div class="hero-search-tags">
+      <span class="hero-search-tag-label">인기 검색어</span>
+      <span class="hero-search-tag" onclick="fnHeroFill('텐트')">텐트</span>
+      <span class="hero-search-tag" onclick="fnHeroFill('침낭')">침낭</span>
+      <span class="hero-search-tag" onclick="fnHeroFill('일산화탄소 경보기')">일산화탄소 경보기</span>
+      <span class="hero-search-tag" onclick="fnHeroFill('랜턴')">랜턴</span>
+      <span class="hero-search-tag" onclick="fnHeroFill('캠핑 의자')">캠핑 의자</span>
+    </div>
+  </div>
+
+  <!-- 히어로 본문 -->
   <div class="hero-content">
     <div class="campfire-wrap">
       <div class="flames">
@@ -124,6 +128,7 @@
   </div>
   <div class="hero-scroll">SCROLL<div class="scroll-line"></div></div>
 </section>
+<!-- / HERO -->
 
 <!-- ════════════════ STRIP ════════════════ -->
 <div class="strip">
@@ -184,7 +189,9 @@
     <div class="product-card fade-up" onclick="fnGoDetail(1)">
       <div class="product-img">⛺
         <span class="product-badge">인기</span>
-        <button class="product-wish" onclick="fnWish(event,this,1)"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        <button class="product-wish" onclick="fnWish(event,this,1)">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
       </div>
       <div class="product-info">
         <p class="product-tag">텐트 · 4인용</p>
@@ -200,7 +207,9 @@
     <div class="product-card fade-up" onclick="fnGoDetail(2)">
       <div class="product-img">🔥
         <span class="product-badge">⚠ 안전</span>
-        <button class="product-wish" onclick="fnWish(event,this,2)"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        <button class="product-wish" onclick="fnWish(event,this,2)">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
       </div>
       <div class="product-info">
         <p class="product-tag">안전용품 · 필수</p>
@@ -215,7 +224,9 @@
     </div>
     <div class="product-card fade-up" onclick="fnGoDetail(3)">
       <div class="product-img">🛏️
-        <button class="product-wish" onclick="fnWish(event,this,3)"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        <button class="product-wish" onclick="fnWish(event,this,3)">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
       </div>
       <div class="product-info">
         <p class="product-tag">침낭 · 동계용</p>
@@ -231,7 +242,9 @@
     <div class="product-card fade-up" onclick="fnGoDetail(4)">
       <div class="product-img">🍳
         <span class="product-badge">NEW</span>
-        <button class="product-wish" onclick="fnWish(event,this,4)"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
+        <button class="product-wish" onclick="fnWish(event,this,4)">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </button>
       </div>
       <div class="product-info">
         <p class="product-tag">취사도구 · 세트</p>
@@ -286,7 +299,7 @@
         <select @change="onRegionChange"
                 style="border:none;outline:none;background:transparent;
                        font-size:13px;font-weight:600;color:var(--brown2);
-                       font-family:'Noto Sans KR',sans-serif;cursor:pointer;padding-right:8px">
+                       font-family:'GgiBatang',sans-serif;cursor:pointer;padding-right:8px">
           <option value="seoul">서울</option>
           <option value="gyeonggi">경기</option>
           <option value="gangwon">강원</option>
@@ -300,13 +313,15 @@
         </select>
       </div>
     </div>
+
     <div class="ws-grid">
+      <!-- 날씨 예보 -->
       <div style="background:var(--white);border-radius:24px;padding:32px;
                   box-shadow:0 4px 24px rgba(44,30,15,.07);border:1px solid var(--cream3)">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
           <div>
             <p style="font-size:11px;color:var(--brown4);letter-spacing:1px;margin-bottom:4px">FORECAST</p>
-            <p style="font-family:'Nanum Myeongjo',serif;font-size:20px;font-weight:700;color:var(--brown)">
+            <p style="font-family:'GgiBatang',serif;font-size:20px;font-weight:700;color:var(--brown)">
               {{ regionName }} 날씨 예보
             </p>
           </div>
@@ -358,6 +373,8 @@
           </div>
         </div>
       </div>
+
+      <!-- 캠핑 안전 수칙 -->
       <div style="background:var(--white);border-radius:24px;padding:32px;
                   box-shadow:0 4px 24px rgba(44,30,15,.07);border:1px solid var(--cream3)">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
@@ -365,7 +382,7 @@
                       display:flex;align-items:center;justify-content:center;font-size:22px">🛡️</div>
           <div>
             <p style="font-size:11px;color:var(--brown4);letter-spacing:1px;margin-bottom:2px">SAFETY</p>
-            <p style="font-family:'Nanum Myeongjo',serif;font-size:20px;font-weight:700;color:var(--brown)">캠핑 안전 수칙</p>
+            <p style="font-family:'GgiBatang',serif;font-size:20px;font-weight:700;color:var(--brown)">캠핑 안전 수칙</p>
           </div>
         </div>
         <ul class="safety-list" style="margin-bottom:24px">
@@ -529,117 +546,301 @@
 <div class="toast" id="toast"></div>
 
 <script>
-/* 1. 불씨 */
+/* ── 1. 불씨 + 낙엽 파티클 ── */
 (function(){
-    var ec=document.getElementById('embers');
-    var cols=['rgba(255,120,20,.9)','rgba(255,80,0,.85)','rgba(255,180,30,.8)','rgba(220,60,0,.75)','rgba(255,140,40,.7)'];
-    function mk(){if(!ec)return;var el=document.createElement('div');el.className='ember';var s=Math.random()*4+1.5,l=Math.random()*160+70,d=Math.random()*3+2.5,dx=(Math.random()-.5)*120,c=cols[Math.floor(Math.random()*cols.length)];el.style.cssText='width:'+s+'px;height:'+s+'px;left:'+l+'px;bottom:0;background:'+c+';box-shadow:0 0 '+(s*2)+'px '+c+';--dx:'+dx+'px;animation-duration:'+d+'s;';ec.appendChild(el);setTimeout(function(){el.parentNode&&el.parentNode.removeChild(el);},d*1000);}
-    setInterval(mk,220);for(var i=0;i<12;i++)setTimeout(mk,i*180);
+    var ec = document.getElementById('embers');
+    var fireColors = [
+        'rgba(255,120,20,.9)','rgba(255,80,0,.85)',
+        'rgba(255,180,30,.8)','rgba(220,60,0,.75)','rgba(255,140,40,.7)'
+    ];
+    function mkEmber(){
+        if(!ec) return;
+        var el = document.createElement('div');
+        el.className = 'ember';
+        var s  = Math.random() * 4 + 1.5;
+        var l  = Math.random() * (window.innerWidth * 0.6) + (window.innerWidth * 0.2);
+        var d  = Math.random() * 3 + 2.5;
+        var dx = (Math.random() - .5) * 200;
+        var c  = fireColors[Math.floor(Math.random() * fireColors.length)];
+        el.style.cssText = 'width:'+s+'px;height:'+s+'px;left:'+l+'px;bottom:0;'
+            + 'background:'+c+';box-shadow:0 0 '+(s*2)+'px '+c+';'
+            + '--dx:'+dx+'px;animation-duration:'+d+'s;';
+        ec.appendChild(el);
+        setTimeout(function(){ el.parentNode && el.parentNode.removeChild(el); }, d * 1000);
+    }
+    var leafColors = [
+        'rgba(139,107,74,.5)','rgba(196,130,80,.45)',
+        'rgba(212,147,42,.4)','rgba(184,154,122,.4)'
+    ];
+    function mkLeaf(){
+        if(!ec) return;
+        var el    = document.createElement('div');
+        var size  = Math.random() * 8 + 5;
+        var left  = Math.random() * window.innerWidth;
+        var dur   = Math.random() * 6 + 5;
+        var delay = Math.random() * 2;
+        var sway  = (Math.random() - .5) * 180;
+        var rot   = Math.random() * 360;
+        var color = leafColors[Math.floor(Math.random() * leafColors.length)];
+        el.style.cssText = 'position:absolute;font-size:'+size+'px;left:'+left+'px;'
+            + 'top:-20px;color:'+color+';pointer-events:none;'
+            + '--sway:'+sway+'px;--rot:'+rot+'deg;'
+            + 'animation:leafFall '+dur+'s ease-in '+delay+'s both;';
+        el.textContent = '◆';
+        ec.appendChild(el);
+        setTimeout(function(){ el.parentNode && el.parentNode.removeChild(el); }, (dur + delay) * 1000);
+    }
+    setInterval(mkEmber, 60);
+    setInterval(mkLeaf,  600);
+    for(var i=0; i<36; i++) setTimeout(mkEmber, i*60);
+    for(var j=0; j<15; j++) setTimeout(mkLeaf,  j*200);
 })();
 
-/* 2. 스크롤 리빌 + 네비 */
-var revealObs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:.12});
-document.querySelectorAll('.fade-up').forEach(function(el){revealObs.observe(el);});
-window.addEventListener('scroll',function(){document.getElementById('mainNav').classList.toggle('scrolled',window.scrollY>40);});
+/* ── 2. 스크롤 리빌 + 네비 (null 체크 추가) ── */
+var revealObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: .12 });
+document.querySelectorAll('.fade-up').forEach(function(el){ revealObs.observe(el); });
 
-/* 3. 카카오맵 */
-kakao.maps.load(function(){
-    var container=document.getElementById('mainMap');if(!container)return;
-    var map=new kakao.maps.Map(container,{center:new kakao.maps.LatLng(36.5,127.8),level:11,scrollwheel:false});
-    map.addControl(new kakao.maps.ZoomControl(),kakao.maps.ControlPosition.RIGHT);
-    var iw=new kakao.maps.InfoWindow({zIndex:10});
-    $.ajax({url:'/camp/list.dox',type:'POST',dataType:'json',
-        success:function(data){
-            var el=document.getElementById('mapLoading');if(el)el.classList.add('hide');
-            if(!data||!data.list)return;
-            data.list.slice(0,80).forEach(function(item){
-                var lat=parseFloat(item.mapY),lng=parseFloat(item.mapX);
-                if(!lat||!lng||lat<30||lat>40||lng<120||lng>135)return;
-                var pos=new kakao.maps.LatLng(lat,lng);
-                var ov=new kakao.maps.CustomOverlay({position:pos,yAnchor:0.5,zIndex:3,
-                    content:'<div style="width:12px;height:12px;background:#E8732A;border:2px solid rgba(255,253,248,.85);border-radius:50%;box-shadow:0 2px 6px rgba(232,115,42,.55);cursor:pointer"></div>'});
-                ov.setMap(map);
-                var ct='<div style="padding:10px 14px;font-size:12px;max-width:180px;line-height:1.6;font-family:Noto Sans KR,sans-serif;"><b style="color:#E8732A;display:block;margin-bottom:3px;">⛺ '+item.facltNm+'</b><span style="color:#666;">'+(item.addr1||'')+'</span><br><a href="/camp/map.do" style="color:#E8732A;font-size:11px;font-weight:500;">상세보기 →</a></div>';
-                var hm=new kakao.maps.Marker({position:pos,map:map});hm.setOpacity(0);
-                kakao.maps.event.addListener(hm,'click',function(){iw.setContent(ct);iw.open(map,hm);});
-            });
-        },
-        error:function(){var el=document.getElementById('mapLoading');if(el)el.innerHTML='<span style="color:rgba(255,253,248,.5);font-size:13px">지도 데이터를 불러올 수 없습니다</span>';}
-    });
-    setTimeout(function(){map.relayout();},400);
+window.addEventListener('scroll', function(){
+    var nav = document.getElementById('mainNav');
+    if(nav) nav.classList.toggle('scrolled', window.scrollY > 40);
 });
 
-/* 4. Vue 날씨 */
-const{createApp}=Vue;
-createApp({
-    data(){return{isLoading:true,isError:false,days:[],regionName:'서울',selectedRegion:'seoul',
-        regionMap:{
-            seoul:{nx:60,ny:127,name:'서울',taId:'11B10101',landId:'11B00000'},
-            gyeonggi:{nx:60,ny:121,name:'경기',taId:'11B20601',landId:'11B00000'},
-            gangwon:{nx:73,ny:134,name:'강원',taId:'11D10301',landId:'11D10000'},
-            chungbuk:{nx:69,ny:107,name:'충북',taId:'11C10301',landId:'11C10000'},
-            chungnam:{nx:68,ny:100,name:'충남',taId:'11C20401',landId:'11C20000'},
-            jeonbuk:{nx:63,ny:89,name:'전북',taId:'11F10201',landId:'11F10000'},
-            jeonnam:{nx:51,ny:67,name:'전남',taId:'11F20501',landId:'11F20000'},
-            gyeongbuk:{nx:89,ny:91,name:'경북',taId:'11H10501',landId:'11H10000'},
-            gyeongnam:{nx:91,ny:77,name:'경남',taId:'11H20301',landId:'11H20000'},
-            jeju:{nx:52,ny:38,name:'제주',taId:'11G00201',landId:'11G00000'}
-        }};},
-    methods:{
-        onRegionChange(e){this.selectedRegion=e.target.value;const r=this.regionMap[this.selectedRegion];this.regionName=r.name;this.loadWeather(r);},
-        async loadWeather(region){
-            this.isLoading=true;this.isError=false;this.days=[];
-            try{
-                const[sR,mR]=await Promise.all([this.fetchShort(region.nx,region.ny),this.fetchMid(region.taId,region.landId)]);
-                const result=[];
-                if(sR.result==='success'){
-                    const items=sR.data.response.body.items.item;
-                    const today=this.getDateStr(0),tmr=this.getDateStr(1),byDate={};
-                    items.forEach(item=>{if(!byDate[item.fcstDate])byDate[item.fcstDate]={temps:[]};const d=byDate[item.fcstDate];if(item.category==='TMX')d.max=item.fcstValue;if(item.category==='TMN')d.min=item.fcstValue;if(item.category==='TMP')d.temps.push(parseFloat(item.fcstValue));if(item.category==='SKY'&&item.fcstTime==='1200')d.sky=item.fcstValue;if(item.category==='PTY'&&item.fcstTime==='1200')d.pty=item.fcstValue;if(item.category==='POP'&&item.fcstTime==='1200')d.rain=item.fcstValue;});
-                    [today,tmr].forEach((ds,i)=>{const d=byDate[ds]||{temps:[]};const mx=d.max!=null?Math.round(d.max):d.temps.length>0?Math.max(...d.temps):null;const mn=d.min!=null?Math.round(d.min):d.temps.length>0?Math.min(...d.temps):null;result.push({label:i===0?'오늘':'내일',icon:this.skyToIcon(d.sky,d.pty),max:mx!=null?mx+'°':'-°',min:mn!=null?mn+'°':'-°',rain:d.rain!=null?d.rain+'%':'-%'});});
-                }
-                if(mR.result==='success'){
-                    const ta=Array.isArray(mR.ta.response.body.items.item)?mR.ta.response.body.items.item[0]:mR.ta.response.body.items.item;
-                    const land=Array.isArray(mR.land.response.body.items.item)?mR.land.response.body.items.item[0]:mR.land.response.body.items.item;
-                    [3,4,5].forEach(d=>{const dt=new Date();dt.setDate(dt.getDate()+d);const label=(dt.getMonth()+1)+'/'+dt.getDate();const wf=land['wf'+d+'Am']||'';result.push({label,icon:this.wfToIcon(wf),max:(ta['taMax'+d]!=null?ta['taMax'+d]:'-')+'°',min:(ta['taMin'+d]!=null?ta['taMin'+d]:'-')+'°',rain:(land['rnSt'+d+'Am']!=null?land['rnSt'+d+'Am']:'-')+'%'});});
-                }
-                this.days=result;
-            }catch(e){console.error(e);this.isError=true;}
-            this.isLoading=false;
+/* ── 3. 카카오맵 ── */
+kakao.maps.load(function(){
+    var container = document.getElementById('mainMap');
+    if(!container) return;
+    var map = new kakao.maps.Map(container, { center: new kakao.maps.LatLng(36.5, 127.8), level: 11, scrollwheel: false });
+    map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
+    var iw = new kakao.maps.InfoWindow({ zIndex: 10 });
+    $.ajax({
+        url: '/camp/list.dox', type: 'POST', dataType: 'json',
+        success: function(data){
+            var el = document.getElementById('mapLoading');
+            if(el) el.classList.add('hide');
+            if(!data || !data.list) return;
+            data.list.slice(0,80).forEach(function(item){
+                var lat = parseFloat(item.mapY), lng = parseFloat(item.mapX);
+                if(!lat || !lng || lat<30 || lat>40 || lng<120 || lng>135) return;
+                var pos = new kakao.maps.LatLng(lat, lng);
+                var ov  = new kakao.maps.CustomOverlay({
+                    position: pos, yAnchor: 0.5, zIndex: 3,
+                    content: '<div style="width:12px;height:12px;background:#E8732A;border:2px solid rgba(255,253,248,.85);border-radius:50%;box-shadow:0 2px 6px rgba(232,115,42,.55);cursor:pointer"></div>'
+                });
+                ov.setMap(map);
+                var ct = '<div style="padding:10px 14px;font-size:12px;max-width:180px;line-height:1.6;font-family:GgiBatang,sans-serif;"><b style="color:#E8732A;display:block;margin-bottom:3px;">⛺ '+item.facltNm+'</b><span style="color:#666;">'+(item.addr1||'')+'</span><br><a href="/camp/map.do" style="color:#E8732A;font-size:11px;font-weight:500;">상세보기 →</a></div>';
+                var hm  = new kakao.maps.Marker({ position: pos, map: map });
+                hm.setOpacity(0);
+                kakao.maps.event.addListener(hm, 'click', function(){ iw.setContent(ct); iw.open(map, hm); });
+            });
         },
-        fetchShort(nx,ny){return new Promise(r=>{$.ajax({url:'/weather/short.dox',data:{nx,ny},dataType:'json',success:r,error:()=>r({result:'fail'})});});},
-        fetchMid(taRegId,landRegId){return new Promise(r=>{$.ajax({url:'/weather/mid.dox',data:{taRegId,landRegId},dataType:'json',success:r,error:()=>r({result:'fail'})});});},
-        getDateStr(n){const d=new Date();d.setDate(d.getDate()+n);return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');},
-        skyToIcon(sky,pty){const p=parseInt(pty);if(p===1||p===4)return'🌧️';if(p===2)return'🌨️';if(p===3)return'❄️';const s=parseInt(sky);if(s===1)return'☀️';if(s===3)return'⛅';if(s===4)return'☁️';return'🌤️';},
-        wfToIcon(wf){if(!wf)return'🌤️';if(wf.includes('비'))return'🌧️';if(wf.includes('눈'))return'❄️';if(wf.includes('흐림'))return'☁️';if(wf.includes('구름'))return'⛅';return'☀️';},
-        fnWeatherTab(e){document.querySelectorAll('.weather-tag').forEach(t=>t.classList.remove('on'));e.target.classList.add('on');}
+        error: function(){
+            var el = document.getElementById('mapLoading');
+            if(el) el.innerHTML = '<span style="color:rgba(255,253,248,.5);font-size:13px">지도 데이터를 불러올 수 없습니다</span>';
+        }
+    });
+    setTimeout(function(){ map.relayout(); }, 400);
+});
+
+/* ── 4. Vue 날씨 ── */
+var vueApp = Vue.createApp({
+    data: function(){
+        return {
+            isLoading: true, isError: false, days: [],
+            regionName: '서울', selectedRegion: 'seoul',
+            regionMap: {
+                seoul:    { nx:60, ny:127, name:'서울',  taId:'11B10101', landId:'11B00000' },
+                gyeonggi: { nx:60, ny:121, name:'경기',  taId:'11B20601', landId:'11B00000' },
+                gangwon:  { nx:73, ny:134, name:'강원',  taId:'11D10301', landId:'11D10000' },
+                chungbuk: { nx:69, ny:107, name:'충북',  taId:'11C10301', landId:'11C10000' },
+                chungnam: { nx:68, ny:100, name:'충남',  taId:'11C20401', landId:'11C20000' },
+                jeonbuk:  { nx:63, ny:89,  name:'전북',  taId:'11F10201', landId:'11F10000' },
+                jeonnam:  { nx:51, ny:67,  name:'전남',  taId:'11F20501', landId:'11F20000' },
+                gyeongbuk:{ nx:89, ny:91,  name:'경북',  taId:'11H10501', landId:'11H10000' },
+                gyeongnam:{ nx:91, ny:77,  name:'경남',  taId:'11H20301', landId:'11H20000' },
+                jeju:     { nx:52, ny:38,  name:'제주',  taId:'11G00201', landId:'11G00000' }
+            }
+        };
     },
-    mounted(){this.loadWeather(this.regionMap['seoul']);}
-}).mount('#weatherSection');
+    methods: {
+        onRegionChange: function(e){
+            this.selectedRegion = e.target.value;
+            var r = this.regionMap[this.selectedRegion];
+            this.regionName = r.name;
+            this.loadWeather(r);
+        },
+        loadWeather: async function(region){
+            this.isLoading = true; this.isError = false; this.days = [];
+            try {
+                var results = await Promise.all([this.fetchShort(region.nx, region.ny), this.fetchMid(region.taId, region.landId)]);
+                var sR = results[0], mR = results[1];
+                var result = [];
+                if(sR.result === 'success'){
+                    var items  = sR.data.response.body.items.item;
+                    var today  = this.getDateStr(0), tmr = this.getDateStr(1), byDate = {};
+                    items.forEach(function(item){
+                        if(!byDate[item.fcstDate]) byDate[item.fcstDate] = { temps:[] };
+                        var d = byDate[item.fcstDate];
+                        if(item.category==='TMX') d.max = item.fcstValue;
+                        if(item.category==='TMN') d.min = item.fcstValue;
+                        if(item.category==='TMP') d.temps.push(parseFloat(item.fcstValue));
+                        if(item.category==='SKY' && item.fcstTime==='1200') d.sky  = item.fcstValue;
+                        if(item.category==='PTY' && item.fcstTime==='1200') d.pty  = item.fcstValue;
+                        if(item.category==='POP' && item.fcstTime==='1200') d.rain = item.fcstValue;
+                    });
+                    var self = this;
+                    [today, tmr].forEach(function(ds, i){
+                        var d  = byDate[ds] || { temps:[] };
+                        var mx = d.max!=null ? Math.round(d.max) : d.temps.length>0 ? Math.max.apply(null,d.temps) : null;
+                        var mn = d.min!=null ? Math.round(d.min) : d.temps.length>0 ? Math.min.apply(null,d.temps) : null;
+                        result.push({ label: i===0?'오늘':'내일', icon: self.skyToIcon(d.sky, d.pty),
+                            max: mx!=null?mx+'°':'-°', min: mn!=null?mn+'°':'-°',
+                            rain: d.rain!=null?d.rain+'%':'-%' });
+                    });
+                }
+                if(mR.result === 'success'){
+                    var ta   = Array.isArray(mR.ta.response.body.items.item)   ? mR.ta.response.body.items.item[0]   : mR.ta.response.body.items.item;
+                    var land = Array.isArray(mR.land.response.body.items.item) ? mR.land.response.body.items.item[0] : mR.land.response.body.items.item;
+                    [3,4,5].forEach(function(d){
+                        var dt = new Date(); dt.setDate(dt.getDate()+d);
+                        var label = (dt.getMonth()+1)+'/'+dt.getDate();
+                        var wf = land['wf'+d+'Am'] || '';
+                        result.push({ label: label, icon: self.wfToIcon(wf),
+                            max: (ta['taMax'+d]!=null?ta['taMax'+d]:'-')+'°',
+                            min: (ta['taMin'+d]!=null?ta['taMin'+d]:'-')+'°',
+                            rain:(land['rnSt'+d+'Am']!=null?land['rnSt'+d+'Am']:'-')+'%' });
+                    });
+                }
+                this.days = result;
+            } catch(e){ console.error(e); this.isError = true; }
+            this.isLoading = false;
+        },
+        fetchShort: function(nx, ny){
+            return new Promise(function(r){ $.ajax({ url:'/weather/short.dox', data:{nx:nx,ny:ny}, dataType:'json', success:r, error:function(){ r({result:'fail'}); } }); });
+        },
+        fetchMid: function(taRegId, landRegId){
+            return new Promise(function(r){ $.ajax({ url:'/weather/mid.dox', data:{taRegId:taRegId,landRegId:landRegId}, dataType:'json', success:r, error:function(){ r({result:'fail'}); } }); });
+        },
+        getDateStr: function(n){
+            var d = new Date(); d.setDate(d.getDate()+n);
+            return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+        },
+        skyToIcon: function(sky, pty){
+            var p = parseInt(pty);
+            if(p===1||p===4) return '🌧️'; if(p===2) return '🌨️'; if(p===3) return '❄️';
+            var s = parseInt(sky);
+            if(s===1) return '☀️'; if(s===3) return '⛅'; if(s===4) return '☁️'; return '🌤️';
+        },
+        wfToIcon: function(wf){
+            if(!wf) return '🌤️';
+            if(wf.indexOf('비')>-1) return '🌧️'; if(wf.indexOf('눈')>-1) return '❄️';
+            if(wf.indexOf('흐림')>-1) return '☁️'; if(wf.indexOf('구름')>-1) return '⛅'; return '☀️';
+        },
+        fnWeatherTab: function(e){
+            document.querySelectorAll('.weather-tag').forEach(function(t){ t.classList.remove('on'); });
+            e.target.classList.add('on');
+        }
+    },
+    mounted: function(){ this.loadWeather(this.regionMap['seoul']); }
+});
+vueApp.mount('#weatherSection');
 
-/* 5. 토스트 */
-function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
+/* ── 5. 토스트 ── */
+function showToast(msg){
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 2200);
+}
 
-/* 6. 상품 */
-var PM={1:{no:1,name:'스노우피크 랜드록',icon:'⛺'},2:{no:2,name:'일산화탄소 경보기',icon:'🔥'},3:{no:3,name:'나낙 레인저 침낭',icon:'🛏️'},4:{no:4,name:'코베아 쿡웨어',icon:'🍳'}};
-function fnGoDetail(no){var items=JSON.parse(localStorage.getItem('recentViewed')||'[]');items=items.filter(function(i){return i.no!==no;});items.unshift(PM[no]);if(items.length>5)items.pop();localStorage.setItem('recentViewed',JSON.stringify(items));location.href='/product/product-detail.do?no='+no;}
-(function(){var items=JSON.parse(localStorage.getItem('recentViewed')||'[]');if(!items.length)return;var html='';items.slice(0,5).forEach(function(item){html+='<div class="recent-item" onclick="location.href=\'/product/product-detail.do?no='+item.no+'\'">'+'<span>'+item.icon+'</span><span style="font-size:12px;color:var(--brown2)">'+item.name+'</span></div>';});document.getElementById('recentItems').innerHTML=html;setTimeout(function(){document.getElementById('recentBar').classList.add('visible');},3000);})();
-function closeRecent(){document.getElementById('recentBar').classList.remove('visible');}
+/* ── 6. 상품 ── */
+var PM = {
+    1:{ no:1, name:'스노우피크 랜드록',  icon:'⛺' },
+    2:{ no:2, name:'일산화탄소 경보기',  icon:'🔥' },
+    3:{ no:3, name:'나낙 레인저 침낭',   icon:'🛏️' },
+    4:{ no:4, name:'코베아 쿡웨어',      icon:'🍳' }
+};
+function fnGoDetail(no){
+    var items = JSON.parse(localStorage.getItem('recentViewed')||'[]');
+    items = items.filter(function(i){ return i.no !== no; });
+    items.unshift(PM[no]);
+    if(items.length > 5) items.pop();
+    localStorage.setItem('recentViewed', JSON.stringify(items));
+    location.href = '/product/product-detail.do?no=' + no;
+}
+(function(){
+    var items = JSON.parse(localStorage.getItem('recentViewed')||'[]');
+    if(!items.length) return;
+    var html = '';
+    items.slice(0,5).forEach(function(item){
+        html += '<div class="recent-item" onclick="location.href=\'/product/product-detail.do?no='+item.no+'\'">'
+              + '<span>'+item.icon+'</span>'
+              + '<span style="font-size:12px;color:var(--brown2)">'+item.name+'</span></div>';
+    });
+    document.getElementById('recentItems').innerHTML = html;
+    setTimeout(function(){ document.getElementById('recentBar').classList.add('visible'); }, 3000);
+})();
+function closeRecent(){ document.getElementById('recentBar').classList.remove('visible'); }
 
-/* 7. 위시 / 장바구니 */
-function fnWish(e,btn,no){e.stopPropagation();$.ajax({url:'/product/toggleWish.dox',type:'POST',data:{productNo:no},success:function(res){var r=JSON.parse(res);if(r.result==='success'){btn.classList.toggle('on');showToast(btn.classList.contains('on')?'♥ 위시리스트에 추가됐어요':'위시리스트에서 제거됐어요');}else{showToast('로그인이 필요합니다');setTimeout(function(){location.href='/user/login.do';},1200);}}});}
-function fnAddRental(e,no){e.stopPropagation();$.ajax({url:'/cart/addCart.dox',type:'POST',data:{productNo:no,cartType:'rental'},success:function(res){var r=JSON.parse(res);if(r.result==='success')showToast('🏕️ 대여 장바구니에 담겼어요!');else{showToast('로그인이 필요합니다');setTimeout(function(){location.href='/user/login.do';},1200);}}});}
-function fnAddCart(e,no){e.stopPropagation();$.ajax({url:'/cart/addCart.dox',type:'POST',data:{productNo:no,cartType:'buy'},success:function(res){var r=JSON.parse(res);if(r.result==='success')showToast('🛒 장바구니에 담겼어요!');else{showToast('로그인이 필요합니다');setTimeout(function(){location.href='/user/login.do';},1200);}}});}
+/* ── 7. 위시 / 장바구니 ── */
+function fnWish(e, btn, no){
+    e.stopPropagation();
+    $.ajax({ url:'/product/toggleWish.dox', type:'POST', data:{ productNo:no },
+        success: function(res){
+            var r = JSON.parse(res);
+            if(r.result==='success'){
+                btn.classList.toggle('on');
+                showToast(btn.classList.contains('on') ? '♥ 위시리스트에 추가됐어요' : '위시리스트에서 제거됐어요');
+            } else { showToast('로그인이 필요합니다'); setTimeout(function(){ location.href='/user/login.do'; }, 1200); }
+        }
+    });
+}
+function fnAddRental(e, no){
+    e.stopPropagation();
+    $.ajax({ url:'/cart/addCart.dox', type:'POST', data:{ productNo:no, cartType:'rental' },
+        success: function(res){
+            var r = JSON.parse(res);
+            if(r.result==='success') showToast('🏕️ 대여 장바구니에 담겼어요!');
+            else { showToast('로그인이 필요합니다'); setTimeout(function(){ location.href='/user/login.do'; }, 1200); }
+        }
+    });
+}
+function fnAddCart(e, no){
+    e.stopPropagation();
+    $.ajax({ url:'/cart/addCart.dox', type:'POST', data:{ productNo:no, cartType:'buy' },
+        success: function(res){
+            var r = JSON.parse(res);
+            if(r.result==='success') showToast('🛒 장바구니에 담겼어요!');
+            else { showToast('로그인이 필요합니다'); setTimeout(function(){ location.href='/user/login.do'; }, 1200); }
+        }
+    });
+}
 
-/* 8. 검색 */
-function openSearch(){document.getElementById('searchOverlay').classList.add('open');document.getElementById('searchInput').focus();}
-function closeSearch(e){if(e.target===document.getElementById('searchOverlay'))document.getElementById('searchOverlay').classList.remove('open');}
-function fnFillSearch(v){document.getElementById('searchInput').value=v;}
-function fnSearch(){var kw=document.getElementById('searchInput').value.trim();if(kw)location.href='/product/product-search.do?keyword='+encodeURIComponent(kw);}
-document.addEventListener('keydown',function(e){if(e.key==='Escape')document.getElementById('searchOverlay').classList.remove('open');});
-function toggleMenu(){showToast('전체 메뉴 준비 중입니다');}
+/* ── 8. 검색 ── */
+function openSearch(){ document.getElementById('searchOverlay').classList.add('open'); document.getElementById('searchInput').focus(); }
+function closeSearch(e){ if(e.target===document.getElementById('searchOverlay')) document.getElementById('searchOverlay').classList.remove('open'); }
+function fnFillSearch(v){ document.getElementById('searchInput').value = v; }
+function fnSearch(){
+    var kw = document.getElementById('searchInput').value.trim();
+    if(kw) location.href = '/product/product-search.do?keyword=' + encodeURIComponent(kw);
+}
+document.addEventListener('keydown', function(e){
+    if(e.key==='Escape') document.getElementById('searchOverlay').classList.remove('open');
+});
+function toggleMenu(){ showToast('전체 메뉴 준비 중입니다'); }
 
-/* ★ 9. 이벤트 배너 슬라이더 */
+/* ── 히어로 검색창 ── */
+function fnHeroSearch(){
+    var kw = document.getElementById('heroSearchInput').value.trim();
+    if(kw) location.href = '/product/product-search.do?keyword=' + encodeURIComponent(kw);
+}
+function fnHeroFill(v){
+    document.getElementById('heroSearchInput').value = v;
+    document.getElementById('heroSearchInput').focus();
+}
+
+/* ── 9. 이벤트 배너 슬라이더 ── */
 (function(){
     var track   = document.getElementById('hebTrack');
     var dots    = document.querySelectorAll('.heb-dot');
@@ -652,37 +853,24 @@ function toggleMenu(){showToast('전체 메뉴 준비 중입니다');}
     function goTo(idx){
         cur = (idx + total) % total;
         track.style.transform = 'translateX(-' + (cur * 100) + '%)';
-        dots.forEach(function(d, i){
-            d.classList.toggle('heb-dot--on', i === cur);
-        });
+        dots.forEach(function(d, i){ d.classList.toggle('heb-dot--on', i===cur); });
     }
+    function autoPlay(){ timer = setInterval(function(){ goTo(cur+1); }, 4300); }
+    function resetTimer(){ clearInterval(timer); autoPlay(); }
 
-    function autoPlay(){
-        timer = setInterval(function(){ goTo(cur + 1); }, 4000);
-    }
-
-    function resetTimer(){
-        clearInterval(timer);
-        autoPlay();
-    }
-
-    btnPrev.addEventListener('click', function(){ goTo(cur - 1); resetTimer(); });
-    btnNext.addEventListener('click', function(){ goTo(cur + 1); resetTimer(); });
+    btnPrev.addEventListener('click', function(){ goTo(cur-1); resetTimer(); });
+    btnNext.addEventListener('click', function(){ goTo(cur+1); resetTimer(); });
     dots.forEach(function(d){
-        d.addEventListener('click', function(){
-            goTo(parseInt(d.dataset.idx));
-            resetTimer();
-        });
+        d.addEventListener('click', function(){ goTo(parseInt(d.dataset.idx)); resetTimer(); });
     });
 
-    /* 터치 스와이프 */
     var startX = 0;
-    track.addEventListener('touchstart', function(e){ startX = e.touches[0].clientX; }, {passive:true});
-    track.addEventListener('touchend',   function(e){
+    track.addEventListener('touchstart', function(e){ startX = e.touches[0].clientX; }, { passive:true });
+    track.addEventListener('touchend', function(e){
         var diff = startX - e.changedTouches[0].clientX;
-        if(Math.abs(diff) > 40){ goTo(diff > 0 ? cur + 1 : cur - 1); resetTimer(); }
+        if(Math.abs(diff) > 40){ goTo(diff>0 ? cur+1 : cur-1); resetTimer(); }
     });
-
+    
     autoPlay();
 })();
 </script>

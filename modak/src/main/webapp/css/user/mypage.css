@@ -19,7 +19,7 @@
 }
 
 body {
-    font-family: 'SeoulHangangCL', 'Apple SD Gothic Neo', sans-serif;
+    font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif;
     background: var(--bg);
     min-height: 100vh;
     display: flex;
@@ -64,13 +64,13 @@ body {
     align-items: center;
     justify-content: center;
     margin: 0 auto 12px;
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 26px;
     color: white;
 }
 
 .profile-name {
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 15px;
     color: var(--text-dark);
     margin-bottom: 3px;
@@ -142,7 +142,7 @@ body {
     background: rgba(201, 79, 30, .08);
     color: var(--ember-deep);
     border-left-color: var(--ember);
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     transform: translateX(6px);
 
 }
@@ -199,7 +199,7 @@ body {
 }
 
 .section-head h3 {
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 14.5px;
     color: var(--text-dark);
 }
@@ -245,14 +245,14 @@ body {
 }
 
 .stat-value {
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 24px;
     color: var(--text-dark);
     line-height: 1;
 }
 
 .stat-value span {
-    font-family: 'SeoulHangangCL', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 12px;
     color: var(--text-light);
     margin-left: 3px;
@@ -302,7 +302,7 @@ body {
 }
 
 .flow-count {
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 17px;
     color: var(--text-dark);
 }
@@ -374,7 +374,7 @@ body {
 }
 
 .order-price {
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 14px;
     color: var(--text-dark);
     flex-shrink: 0;
@@ -450,7 +450,7 @@ body {
 }
 
 .wish-price {
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 14px;
     color: var(--ember-deep);
 }
@@ -477,14 +477,14 @@ body {
 }
 
 .benefit-amount {
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 28px;
     color: var(--text-dark);
 }
 
 .benefit-amount span {
     font-size: 13px;
-    font-family: 'SeoulHangangCL', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     color: var(--text-light);
     margin-left: 3px;
 }
@@ -523,7 +523,7 @@ body {
 }
 
 .ph-point {
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 14px;
 }
 
@@ -563,7 +563,7 @@ body {
     border: 1.5px solid var(--border);
     border-radius: 10px;
     background: var(--white);
-    font-family: 'SeoulHangangCL', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 14px;
     color: var(--text-dark);
     outline: none;
@@ -591,7 +591,7 @@ body {
     border: none;
     border-radius: 10px;
     color: white;
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 14px;
     cursor: pointer;
     transition: background .18s, transform .13s;
@@ -609,7 +609,7 @@ body {
     border: 1.5px solid var(--border);
     border-radius: 10px;
     color: var(--text-mid);
-    font-family: 'SeoulHangangCL', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 14px;
     cursor: pointer;
     transition: all .18s;
@@ -631,7 +631,7 @@ body {
 }
 
 .danger-title {
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 13px;
     color: var(--text-mid);
     margin-bottom: 12px;
@@ -643,7 +643,7 @@ body {
     border: 1.5px solid rgba(201, 79, 30, .3);
     border-radius: 9px;
     color: var(--ember-deep);
-    font-family: 'SeoulHangangCL', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 13px;
     cursor: pointer;
     transition: all .18s;
@@ -1053,7 +1053,7 @@ body {
     padding: 6px 12px;
     font-size: 12px;
     cursor: pointer;
-    font-family: 'SeoulHangangCL', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     transition: all .18s ease;
 }
 

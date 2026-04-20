@@ -19,7 +19,7 @@
 }
 
 body {
-    font-family: 'SeoulHangangCL', 'Apple SD Gothic Neo', sans-serif;
+    font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif;
     background: var(--bg);
     min-height: 100vh;
     display: flex;
@@ -57,7 +57,7 @@ body {
 }
 
 .page-title {
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 28px;
     color: var(--text-dark);
     margin-bottom: 8px;
@@ -86,7 +86,7 @@ body {
 }
 
 .hero-summary-value {
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 28px;
     color: var(--ember-deep);
 }
@@ -94,14 +94,14 @@ body {
 .hero-summary-value .result-count-number {
     display: inline-block;
     min-width: 1ch;
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 28px;
     color: var(--ember-deep);
     line-height: 1;
 }
 
 .hero-summary-value .result-count-unit {
-    font-family: 'SeoulHangangCL', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 12px;
     margin-left: 4px;
     color: var(--text-light);
@@ -130,7 +130,7 @@ body {
 }
 
 .section-head h3 {
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 14.5px;
     color: var(--text-dark);
 }
@@ -183,14 +183,14 @@ body {
 .wish-name {
     font-size: 14px;
     color: var(--text-dark);
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     margin-bottom: 8px;
     line-height: 1.5;
     min-height: 42px;
 }
 
 .wish-price {
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 16px;
     color: var(--ember-deep);
 }
@@ -239,7 +239,7 @@ body {
     background: rgba(255, 252, 248, .92);
     color: var(--text-mid);
     border-radius: 10px;
-    font-family: 'SeoulHangangCL', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 13px;
     cursor: pointer;
     transition: all .18s ease;
@@ -255,7 +255,7 @@ body {
     background: var(--ember);
     color: #fff;
     border-color: var(--ember);
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
 }
 
 .page-btn:disabled {

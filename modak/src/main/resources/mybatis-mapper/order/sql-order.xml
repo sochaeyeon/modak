@@ -2,53 +2,67 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.modak.order.mapper.OrderMapper">
-	<!-- 주문 목록 조회 -->
-	<select id="selectOrderList"
-		parameterType="hashmap"
-		resultType="com.example.modak.order.model.Order">
-		SELECT
-			O.ORDER_ID,
-			O.ORDER_TYPE,
-			O.ORDER_STATUS,
-			O.TOTAL_PRICE,
-			O.DISCOUNT_AMT,
-			O.CREATED_AT,
-			O.USER_ID,
-			O.USER_COUPON_ID,
-			MIN(P.PRODUCT_NAME) AS productName,
-			COUNT(OI.ITEM_ID) AS itemCount
-		FROM ORDERS O
-		LEFT JOIN ORDER_ITEM OI	ON O.ORDER_ID = OI.ORDER_ID
-		LEFT JOIN PRODUCT P	ON OI.PRODUCT_ID = P.PRODUCT_ID
-		WHERE O.USER_ID = #{userId}
-		GROUP BY
-			O.ORDER_ID,
-			O.ORDER_TYPE,
-			O.ORDER_STATUS,
-			O.TOTAL_PRICE,
-			O.DISCOUNT_AMT,
-			O.CREATED_AT,
-			O.USER_ID,
-			O.USER_COUPON_ID
-		ORDER BY O.CREATED_AT DESC
-	</select>
 
-	<!-- 주문 상세 조회 -->
-	<select id="selectOrderDetail"
-		parameterType="hashmap"
-		resultType="com.example.modak.order.model.Order">
-		SELECT
-			ORDER_ID,
-			ORDER_TYPE,
-			ORDER_STATUS,
-			TOTAL_PRICE,
-			DISCOUNT_AMT,
-			CREATED_AT,
-			USER_ID,
-			USER_COUPON_ID
-			FROM ORDERS
-		WHERE ORDER_ID = #{orderId}
-		AND USER_ID = #{userId}
-	</select>
+    <resultMap id="orderDetailMap" type="com.example.modak.order.model.Order">
+        <id property="orderId" column="ORDER_ID" />
+        <result property="orderType" column="ORDER_TYPE" />
+        <result property="orderStatus" column="ORDER_STATUS" />
+        <result property="totalPrice" column="TOTAL_PRICE" />
+        <result property="discountAmt" column="DISCOUNT_AMT" />
+        <result property="createdAt" column="CREATED_AT" />
+        <result property="userId" column="USER_ID" />
+        
+        <collection property="itemList" 
+                    javaType="java.util.ArrayList" 
+                    ofType="com.example.modak.order.model.OrderItem">
+            <result property="productName" column="PRODUCT_NAME" />
+            <result property="price" column="ITEM_PRICE" />
+            <result property="count" column="ITEM_COUNT" />
+            <result property="orderType" column="ITEM_TYPE" />
+            <result property="startDate" column="START_DATE" />
+            <result property="endDate" column="END_DATE" />
+        </collection>
+    </resultMap>
+
+    <select id="selectOrderList" resultType="com.example.modak.order.model.Order">
+    SELECT
+        O.ORDER_ID,
+        O.ORDER_TYPE,
+        O.ORDER_STATUS,
+        O.CREATED_AT,
+        O.USER_ID,
+        O.DISCOUNT_AMT,
+        (SELECT SUM(UNIT_PRICE * QUANTITY) FROM ORDER_ITEM WHERE ORDER_ID = O.ORDER_ID) AS totalPrice,
+        MIN(P.PRODUCT_NAME) AS productName,
+        COUNT(OI.ITEM_ID) AS itemCount
+    FROM ORDERS O
+    LEFT JOIN ORDER_ITEM OI ON O.ORDER_ID = OI.ORDER_ID
+    LEFT JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+    WHERE O.USER_ID = #{userId}
+    GROUP BY O.ORDER_ID, O.ORDER_TYPE, O.ORDER_STATUS, O.CREATED_AT, O.USER_ID, O.DISCOUNT_AMT
+    ORDER BY O.CREATED_AT DESC
+</select>
+
+    <select id="selectOrderDetail" resultMap="orderDetailMap">
+        SELECT
+            O.ORDER_ID,
+            O.ORDER_TYPE,
+            O.ORDER_STATUS,
+            O.TOTAL_PRICE,
+            O.DISCOUNT_AMT,
+            O.CREATED_AT,
+            O.USER_ID,
+            P.PRODUCT_NAME,
+            OI.UNIT_PRICE AS ITEM_PRICE,   
+            OI.QUANTITY AS ITEM_COUNT,     
+            O.ORDER_TYPE AS ITEM_TYPE,
+            OI.START_DATE,
+            OI.END_DATE
+        FROM ORDERS O
+        INNER JOIN ORDER_ITEM OI ON O.ORDER_ID = OI.ORDER_ID
+        INNER JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+        WHERE O.ORDER_ID = #{orderId}
+        AND O.USER_ID = #{userId}
+    </select>
+
 </mapper>
-

@@ -5,6 +5,7 @@
     <head>
         <meta charset="UTF-8">
         <title>모닥모닥 - 대여 예약</title>
+        
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/rental/rental-calendar.css">
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>

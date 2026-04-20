@@ -36,7 +36,7 @@
 			}
 
 			body {
-				font-family: 'Noto Sans KR', sans-serif;
+				font-family: 'GgiBatang', sans-serif;
 				background: var(--bg);
 				color: var(--text-primary);
 				min-height: 100vh;

@@ -26,7 +26,7 @@
 		}
 
 		body {
-			font-family: 'Noto Sans KR', sans-serif;
+			font-family: 'GgiBatang', sans-serif;
 			background: var(--white);
 			color: var(--text-dark);
 			font-size: 12px;

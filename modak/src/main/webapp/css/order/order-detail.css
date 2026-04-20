@@ -1,0 +1,67 @@
+@charset "UTF-8";
+
+/* 1. 배경 및 폰트 */
+body { background-color: #faf6f0; margin: 0; color: #2e1a0e; font-family: 'Pretendard', sans-serif; }
+.order-detail-container { max-width: 900px; margin: 50px auto; padding: 0 20px; }
+
+/* 2. 헤더 섹션 */
+.detail-header { text-align: center; margin-bottom: 40px; }
+.page-title { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
+.order-meta-info { color: #b09070; font-size: 15px; }
+.divider { margin: 0 10px; opacity: 0.3; }
+
+/* 3. 글래스모피즘 카드 */
+.glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(200, 165, 130, 0.2);
+    border-radius: 24px;
+    padding: 30px;
+    margin-bottom: 24px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 30px rgba(44, 30, 14, 0.03);
+}
+
+.section-title { font-size: 19px; font-weight: 700; margin-bottom: 25px; color: #5c4033; }
+
+/* 4. 상품 리스트 & 이미지 사이즈 최적화 (핵심) */
+.product-item { display: flex; align-items: center; gap: 20px; padding: 15px 0; border-bottom: 1px solid rgba(200, 165, 130, 0.1); }
+.product-item:last-child { border-bottom: none; }
+
+.product-thumb-box {
+    width: 80px;  /* 이미지(아이콘) 가로 고정 */
+    height: 80px; /* 이미지(아이콘) 세로 고정 */
+    background: #fff;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #f2ede4;
+    flex-shrink: 0; /* 사이즈 축소 방지 */
+}
+.thumb-emoji { font-size: 40px; }
+
+.item-name { font-size: 18px; margin: 5px 0; font-weight: 700; }
+.item-price { font-size: 15px; color: #7a5c3e; }
+
+/* 5. 그리드 레이아웃 */
+.info-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; }
+.info-table th { text-align: left; width: 70px; color: #b09070; padding: 10px 0; }
+.info-table td { font-weight: 600; padding: 10px 0; }
+
+/* 6. 금액 정보 스타일 */
+.price-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 16px; }
+.minus-text { color: #d32f2f; font-weight: 600; }
+.total-row { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 2px solid #fdf5f0; }
+.total-price-text { font-size: 26px; font-weight: 900; color: #e0621a; }
+
+/* 7. 버튼 디자인 */
+.btn-group { text-align: center; margin-top: 40px; padding-bottom: 80px; }
+.btn-back-list {
+    padding: 14px 35px; border-radius: 999px; border: 1.5px solid #dcd0c0;
+    background: #fff; color: #7a5c3e; font-weight: 700; cursor: pointer; transition: 0.3s;
+}
+.btn-back-list:hover { background: #e0621a; color: #fff; border-color: #e0621a; transform: translateY(-3px); }
+
+.badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+.badge.rental { background: #eef6ff; color: #3a86ff; }
+.badge.buy { background: #fff4ec; color: #e0621a; }

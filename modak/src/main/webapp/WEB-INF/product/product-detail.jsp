@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>모닥모닥 - {{ product.productName || '상품 상세' }}</title>
+    <title>모닥모닥 - 상품상세</title>
     <link rel="stylesheet" href="/css/product/product-detail.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>

@@ -331,7 +331,7 @@
                     </div><!-- /find-card -->
                 </main>
         </div>
-          <%@ include file="/WEB-INF/common/footer.jsp" %>
+        <%@ include file="/WEB-INF/common/footer.jsp" %>
     </body>
 
     </html>
@@ -620,12 +620,13 @@
                     }
 
                     $.ajax({
-                        url: "/send-sms-code.dox",
+                        url: "/user/sms/send-code.dox",
                         type: "POST",
                         dataType: "json",
                         data: {
                             userName: self.userName,
-                            userPhone: phone
+                            userPhone: phone,
+                            authPurpose: "FIND_ID"
                         },
                         success: function (data) {
                             if (data.result === "success") {
@@ -662,19 +663,20 @@
                     }
 
                     $.ajax({
-                        url: "/verify-sms-code.dox",
+                        url: "/user/sms/verify-code.dox",
                         type: "POST",
                         dataType: "json",
                         data: {
-                            userPhone: self.userPhone.trim(),
-                            authCode: self.authCode.trim()
+                            userPhone: self.userPhone.trim().replace(/-/g, ''),
+                            authCode: self.authCode.trim(),
+                            authPurpose: "FIND_ID"
                         },
                         success: function (data) {
                             if (data.result === "success") {
                                 self.smsVerified = true;   // 🔥 여기서 잠금
                                 self.verifySuccessMsg = '인증이 완료되었습니다.';
-                                smsSendMsg = '';
-                                findIdErrMsg = '';
+                                self.smsSendMsg = '';
+                                self.findIdErrMsg = '';
                             } else {
                                 // ❗ 실패해도 막지 않는다
                                 self.smsVerified = false;

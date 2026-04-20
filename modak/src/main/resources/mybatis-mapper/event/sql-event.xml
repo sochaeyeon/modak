@@ -3,15 +3,22 @@
 
 <mapper namespace="com.example.modak.event.mapper.EventMapper">
 
-	<select id="selectEventList" parameterType="hashmap" resultType="com.example.modak.event.model.Event">
-	SELECT * FROM EVENT
+	<select id="selectEventList" parameterType="hashmap"
+		resultType="com.example.modak.event.model.Event"> SELECT EVENT_ID,
+		TITLE, CONTENT, START_DATE, END_DATE FROM EVENT WHERE 1=1 <if
+			test="status == '진행중'">
+			AND NOW() BETWEEN START_DATE AND END_DATE
+		</if>
+        <if
+			test="status == '종료된'">
+			AND END_DATE &lt; NOW()
+		</if> ORDER BY EVENT_ID
+		DESC LIMIT #{startNum}, #{contentSize} </select>
 
-	</select>
-
-	<select id="selectEvent" parameterType="hashmap" resultType="com.example.modak.event.model.Event">
-	SELECT * FROM EVENT
-	WHERE EVENT_ID = #{eventId}
-
+	<select id="selectEventCount" parameterType="hashmap" resultType="int">
+		SELECT COUNT(*) FROM EVENT WHERE 1=1 <if test="status == '진행중'">
+			AND NOW() BETWEEN START_DATE AND END_DATE
+		</if>
 	</select>
 
 </mapper>

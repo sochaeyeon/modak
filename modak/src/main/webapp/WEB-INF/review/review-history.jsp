@@ -14,6 +14,8 @@
                         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
                         crossorigin="anonymous"></script>
                     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+                    <script src="/js/page-change.js"></script>
+
 
                     <link rel="stylesheet" href="/css/review/review-history.css">
                 </head>
@@ -65,7 +67,10 @@
                                                         :key="item.reviewId">
 
                                                         <div class="review-head">
-                                                            <span class="review-product">{{ item.productName }}</span>
+                                                            <span class="review-product clickable"
+                                                                @click="fnGoProductDetail(item.productId)">
+                                                                {{ item.productName }}
+                                                            </span>
 
                                                             <div class="review-stars">
                                                                 <span v-for="i in 5" :key="i" class="star-text">
@@ -73,7 +78,24 @@
                                                             </div>
                                                         </div>
 
-                                                        <div class="review-body">
+                                                        <div class="review-title-row">
+                                                            <div class="review-title">
+                                                                {{ item.title || '제목 없음' }}
+                                                            </div>
+
+                                                            <button type="button" class="review-toggle-btn"
+                                                                @click="fnToggleReview(item.reviewId)">
+                                                                <span>
+                                                                    {{ expandedReviewId === item.reviewId ? '접기' : '펼치기'
+                                                                    }}
+                                                                </span>
+                                                                <span class="arrow"
+                                                                    :class="{ open: expandedReviewId === item.reviewId }">▾</span>
+                                                            </button>
+                                                        </div>
+
+                                                        <div v-if="expandedReviewId === item.reviewId"
+                                                            class="review-body">
                                                             {{ item.content }}
                                                         </div>
 
@@ -170,7 +192,8 @@
                                 listAnimateKey: 0,
                                 isImageModalOpen: false,
                                 modalImageList: [],
-                                currentImageIndex: 0
+                                currentImageIndex: 0,
+                                expandedReviewId: null
                             };
                         },
                         methods: {
@@ -191,6 +214,7 @@
                                             self.totalCount = data.totalCount || 0;
                                             self.totalPages = Math.ceil(self.totalCount / self.pageSize) || 1;
                                             self.listAnimateKey++;
+                                            self.expandedReviewId = null;
 
                                             if (moveTop) {
                                                 window.scrollTo({
@@ -208,6 +232,7 @@
                                         self.reviewList = [];
                                         self.totalCount = 0;
                                         self.totalPages = 1;
+                                        self.expandedReviewId = null;
                                     }
                                 });
                             },
@@ -280,6 +305,19 @@
                                 } else {
                                     this.currentImageIndex = 0;
                                 }
+                            },
+                            fnToggleReview: function (reviewId) {
+                                if (this.expandedReviewId === reviewId) {
+                                    this.expandedReviewId = null;
+                                } else {
+                                    this.expandedReviewId = reviewId;
+                                }
+                            },
+
+                            fnGoProductDetail: function (productId) {
+                                pageChange("/product/detail.do", {
+                                    productId: productId
+                                });
                             },
                         },
                         mounted() {

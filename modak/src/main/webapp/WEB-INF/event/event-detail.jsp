@@ -316,7 +316,7 @@
 
 				<!-- Back Button -->
 				<div class="back-wrap">
-					<a href="/" class="btn-back">
+					<a href="/event/list.do" class="btn-back">
 						<i class="fa-solid fa-chevron-left"></i>
 						목록으로 돌아가기
 					</a>

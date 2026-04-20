@@ -1360,6 +1360,7 @@ body {
 .btn-outline.danger:hover {
     background: rgba(201, 79, 30, .08);
 }
+
 .review-image-wrap {
     margin-top: 10px;
 }
@@ -1372,35 +1373,292 @@ body {
 
 .review-image-thumb {
     position: relative;
-    width: 190px;
-    height: 190px;
-    border-radius: 10px;
+    width: 194px;
+    height: 194px;
+    border-radius: 14px;
     overflow: hidden;
     border: 1px solid #eadfce;
+    background: #fffaf5;
     cursor: pointer;
     transition: transform .25s ease, box-shadow .25s ease;
-}
-
-.review-image-thumb:hover {
-    transform: scale(1.08);
-    z-index: 2;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    will-change: transform;
 }
 
 .review-image-thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
+}
+
+.review-image-thumb:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    z-index: 2;
 }
 
 .review-image-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0,0,0,0.45);
+    background: rgba(0, 0, 0, 0.45);
     color: #fff;
     font-size: 18px;
     font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.review-product.clickable {
+    cursor: pointer;
+    transition: color .2s ease;
+}
+
+.review-product.clickable:hover {
+    color: #e0621a;
+    text-decoration: underline;
+}
+
+.review-title {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #2e1a0e;
+    margin: 6px 0 4px;
+}
+
+/* 챗봇 기록 전용 */
+.chatbot-history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    margin: 12px 15px;
+    border: 1px solid #eadfce;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #fffaf5 0%, #fff6ef 100%);
+    box-shadow: 0 6px 18px rgba(120, 70, 30, 0.05);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.chatbot-history-item:hover {
+    transform: translateY(-3px);
+    border-color: rgba(201, 79, 30, 0.28);
+    box-shadow: 0 10px 24px rgba(120, 70, 30, 0.10);
+}
+
+.chatbot-history-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    flex: 1;
+}
+
+.chatbot-history-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(201, 79, 30, 0.14), rgba(240, 125, 58, 0.18));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    box-shadow: inset 0 0 0 1px rgba(201, 79, 30, 0.08);
+}
+
+.chatbot-history-text {
+    min-width: 0;
+    flex: 1;
+}
+
+.chatbot-history-item .history-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #3e2a1f;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chatbot-history-preview {
+    font-size: 12.5px;
+    color: #8a7361;
+    line-height: 1.5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chatbot-history-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.chatbot-history-item .history-date {
+    font-size: 12px;
+    color: #aa9484;
+}
+
+.chatbot-history-arrow {
+    font-size: 14px;
+    font-weight: 700;
+    color: #c94f1e;
+    opacity: 0.85;
+}
+
+.chatbot-history-item:hover .chatbot-history-arrow {
+    transform: translateX(3px);
+    transition: transform 0.2s ease;
+}
+
+.settings-msg {
+    margin-bottom: 14px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.settings-msg.success {
+    background: #f3faf4;
+    color: #2e7d32;
+    border: 1px solid #cfe9d4;
+}
+
+.settings-msg.error {
+    background: #fff6f3;
+    color: #c94f1e;
+    border: 1px solid #f0c8b8;
+}
+
+.phone-verify-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.phone-input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.phone-input-row input {
+    flex: 1;
+}
+
+.phone-verify-status {
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.verify-success {
+    color: #2e7d32;
+    font-weight: 600;
+}
+
+.verify-fail {
+    color: #c94f1e;
+    font-weight: 600;
+}
+
+.settings-lock-box {
+    padding: 20px;
+    border: 1px dashed #d8c2b3;
+    border-radius: 12px;
+    margin: 5px 5px;
+    background: #fffaf7;
+}
+
+.settings-lock-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #7a4b2f;
+    margin-bottom: 6px;
+}
+
+.settings-lock-desc {
+    font-size: 13px;
+    color: #8a6b55;
+    line-height: 1.5;
+}
+
+.phone-timer-wrap {
+    margin-top: 6px;
+    font-size: 13px;
+}
+
+.phone-timer-text {
+    color: #c94f1e;
+    font-weight: 600;
+}
+
+.phone-timer-expired {
+    color: #d9534f;
+    font-weight: 600;
+}
+
+button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+/* 비밀번호 안내 문구 */
+.password-guide {
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* 강도 색상 */
+.strength-weak {
+    color: #e74c3c;   /* 빨강 */
+}
+
+.strength-medium {
+    color: #f39c12;   /* 주황 */
+}
+
+.strength-strong {
+    color: #27ae60;   /* 초록 */
+}
+
+/* 일치 여부 */
+.match-ok {
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.match-fail {
+    color: #e74c3c;
+    font-weight: 600;
+}
+
+/* 비밀번호 메시지 (변경하기 눌렀을 때) */
+.settings-msg {
+    margin-bottom: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* 성공 */
+.settings-msg.success {
+    background-color: #eafaf1;
+    color: #27ae60;
+    border: 1px solid #c8f0d4;
+}
+
+/* 에러 */
+.settings-msg.error {
+    background-color: #fdecea;
+    color: #e74c3c;
+    border: 1px solid #f5c6cb;
 }

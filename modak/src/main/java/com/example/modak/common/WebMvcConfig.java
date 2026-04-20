@@ -30,7 +30,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
                     "/user/find-account.do",
                     "/css/**",
                     "/js/**",
-                    "/images/**"
+                    "/images/**",
+                    "/order/guest/**",
+                    "/rental/extension/inquiry.do",      // ← 추가
+                    "/rental/extension/guest/**" 
                 );
     }
 }

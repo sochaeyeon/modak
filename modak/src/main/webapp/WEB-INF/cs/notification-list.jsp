@@ -32,7 +32,7 @@
 			}
 
 			body {
-				font-family: 'Noto Sans KR', sans-serif;
+				font-family: 'GgiBatang', sans-serif;
 				background: #eeebe6;
 				color: var(--text-dark);
 				font-size: 12px;
@@ -320,7 +320,7 @@
 				outline: none;
 				padding: 6px 10px;
 				font-size: 10px;
-				font-family: 'Noto Sans KR', sans-serif;
+				font-family: 'GgiBatang', sans-serif;
 				color: var(--text-dark);
 				width: 160px;
 				background: transparent;
@@ -351,7 +351,7 @@
 				font-size: 10px;
 				color: var(--text-mid);
 				cursor: pointer;
-				font-family: 'Noto Sans KR', sans-serif;
+				font-family: 'GgiBatang', sans-serif;
 			}
 
 			/* ── TOTAL COUNT ── */

@@ -23,7 +23,7 @@
 }
 
 body {
-  font-family: 'SeoulHangangCL', 'Apple SD Gothic Neo', sans-serif !important;
+  font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif !important;
   background: var(--bg);
   min-height: 100vh;
   overflow-x: hidden;
@@ -58,7 +58,7 @@ body {
 }
 
 .brand-name {
-  font-family: 'SeoulHangangCEB', sans-serif;
+  font-family: 'GgiBatang', sans-serif;
   font-size: 21px;
   color: var(--ember-deep);
 }
@@ -80,7 +80,7 @@ a {
 }
 
 .hero-title {
-  font-family: 'SeoulHangangCEB', sans-serif;
+  font-family: 'GgiBatang', sans-serif;
   font-size: 44px;
   line-height: 1.22;
   color: var(--text-dark);
@@ -138,7 +138,7 @@ a {
 }
 
 .feat-text h4 {
-  font-family: 'SeoulHangangCEB', sans-serif;
+  font-family: 'GgiBatang', sans-serif;
   font-size: 13.5px;
   color: var(--text-dark);
   margin-bottom: 3px;
@@ -185,7 +185,7 @@ a {
 }
 
 .signup-heading h2 {
-  font-family: 'SeoulHangangCEB', sans-serif;
+  font-family: 'GgiBatang', sans-serif;
   font-size: 27px;
   color: var(--text-dark);
   letter-spacing: -.5px;
@@ -234,7 +234,7 @@ a {
   border: 1.5px solid var(--border);
   border-radius: 12px;
   background: rgba(255, 252, 248, .92);
-  font-family: 'SeoulHangangCL', sans-serif;
+  font-family: 'GgiBatang', sans-serif;
   font-size: 14px;
   color: var(--text-dark);
   outline: none;
@@ -305,7 +305,7 @@ a {
 }
 
 .terms-all span {
-  font-family: 'SeoulHangangCEB', sans-serif;
+  font-family: 'GgiBatang', sans-serif;
   font-size: 13px;
   color: var(--text-dark);
 }
@@ -400,7 +400,7 @@ a {
   border: none;
   border-radius: 13px;
   color: white;
-  font-family: 'SeoulHangangCEB', sans-serif;
+  font-family: 'GgiBatang', sans-serif;
   font-size: 15.5px;
   cursor: pointer;
   letter-spacing: .2px;
@@ -467,7 +467,7 @@ a {
   border-radius: 11px;
   background: rgba(255, 252, 248, .8);
   cursor: pointer;
-  font-family: 'SeoulHangangCL', sans-serif;
+  font-family: 'GgiBatang', sans-serif;
   font-size: 12.5px;
   color: var(--text-mid);
   display: flex;
@@ -655,7 +655,7 @@ a {
 
   background: linear-gradient(135deg, var(--ember-deep), var(--ember-light));
   color: #fff;
-  font-family: 'SeoulHangangCL', sans-serif;
+  font-family: 'GgiBatang', sans-serif;
   font-size: 12px;
   line-height: 32px;
   cursor: pointer;
@@ -697,7 +697,7 @@ a {
 }
 
 .signup-success-box h2 {
-  font-family: 'SeoulHangangCEB', sans-serif;
+  font-family: 'GgiBatang', sans-serif;
   font-size: 28px;
   color: var(--text-dark);
   margin-bottom: 10px;

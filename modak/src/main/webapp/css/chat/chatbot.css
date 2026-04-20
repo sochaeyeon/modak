@@ -8,7 +8,7 @@
 /* ── 기본 레이아웃 ── */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 [v-cloak] { display: none; }
-body { font-family: 'SeoulHangangCL', sans-serif; background: var(--bg); color: var(--brown); overflow: hidden; }
+body { font-family: 'GgiBatang', sans-serif; background: var(--bg); color: var(--brown); overflow: hidden; }
 #app { display: flex; height: 100vh; width: 100vw; }
 
 /* ── 사이드바 ── */
@@ -16,7 +16,7 @@ body { font-family: 'SeoulHangangCL', sans-serif; background: var(--bg); color: 
     width: 280px; background: var(--sidebar); backdrop-filter: blur(12px); border-right: 1px solid rgba(255,255,255,0.3);
     display: flex; flex-direction: column; padding: 25px 20px; flex-shrink: 0; 
 }
-.sidebar-logo { display: flex; align-items: center; gap: 10px; font-size: 20px; color: var(--brown); margin-bottom: 30px; cursor: pointer; font-family: 'SeoulHangangCEB'; }
+.sidebar-logo { display: flex; align-items: center; gap: 10px; font-size: 20px; color: var(--brown); margin-bottom: 30px; cursor: pointer; font-family: 'GgiBatang'; }
 .new-chat-btn { background: var(--brown); color: #fff; border: none; padding: 13px; border-radius: 15px; font-weight: 600; cursor: pointer; margin-bottom: 30px; transition: 0.3s; }
 .new-chat-btn:hover { background: #35281d; transform: translateY(-2px); }
 

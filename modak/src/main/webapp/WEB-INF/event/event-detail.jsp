@@ -29,7 +29,7 @@
 			}
 
 			body {
-				font-family: 'Noto Sans KR', sans-serif;
+				font-family: 'GgiBatang', sans-serif;
 				background: var(--bg);
 				color: var(--text-primary);
 				min-height: 100vh;
@@ -157,7 +157,7 @@
 				border-radius: 8px;
 				border: none;
 				cursor: pointer;
-				font-family: 'Noto Sans KR', sans-serif;
+				font-family: 'GgiBatang', sans-serif;
 				letter-spacing: -0.2px;
 				transition: background .2s, transform .15s;
 			}
@@ -236,7 +236,7 @@
 				padding: 10px 24px;
 				border-radius: 8px;
 				cursor: pointer;
-				font-family: 'Noto Sans KR', sans-serif;
+				font-family: 'GgiBatang', sans-serif;
 				transition: all .2s;
 				text-decoration: none;
 			}

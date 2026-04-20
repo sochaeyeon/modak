@@ -44,7 +44,7 @@ public class SecurityConfig {
 
 				// 요청 허용 설정
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/", "/user/**", "/oauth2/**", "/login/**", "/css/**", "/js/**", "/images/**")
+						.requestMatchers("/", "/user/**", "/oauth2/**", "/login/**", "/css/**", "/js/**", "/images/**","/static/**")
 						.permitAll().anyRequest().permitAll())
 
 				// 일반 로그인 페이지를 사용할 경우

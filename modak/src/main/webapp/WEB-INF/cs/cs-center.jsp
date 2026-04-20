@@ -29,7 +29,7 @@
 			}
 
 			body {
-				font-family: 'Noto Sans KR', sans-serif;
+				font-family: 'GgiBatang', sans-serif;
 				background: var(--cream);
 				color: var(--text-dark);
 				font-size: 12px;
@@ -183,7 +183,7 @@
 				outline: none;
 				padding: 8px 12px;
 				font-size: 11px;
-				font-family: 'Noto Sans KR', sans-serif;
+				font-family: 'GgiBatang', sans-serif;
 				background: transparent;
 				color: var(--text-dark);
 			}
@@ -341,7 +341,7 @@
 				font-size: 10px;
 				cursor: pointer;
 				white-space: nowrap;
-				font-family: 'Noto Sans KR', sans-serif;
+				font-family: 'GgiBatang', sans-serif;
 				letter-spacing: 0.3px;
 			}
 
@@ -513,7 +513,7 @@
 				border-radius: 4px;
 				font-size: 10px;
 				cursor: pointer;
-				font-family: 'Noto Sans KR', sans-serif;
+				font-family: 'GgiBatang', sans-serif;
 			}
 
 			.c-btn.blue {
@@ -568,7 +568,7 @@
 				border-radius: 4px;
 				padding: 6px 9px;
 				font-size: 10px;
-				font-family: 'Noto Sans KR', sans-serif;
+				font-family: 'GgiBatang', sans-serif;
 				outline: none;
 				color: var(--text-dark);
 				background: #fff;
@@ -608,7 +608,7 @@
 				font-size: 12px;
 				font-weight: 700;
 				cursor: pointer;
-				font-family: 'Noto Sans KR', sans-serif;
+				font-family: 'GgiBatang', sans-serif;
 				letter-spacing: 0.3px;
 				transition: background 0.15s;
 			}

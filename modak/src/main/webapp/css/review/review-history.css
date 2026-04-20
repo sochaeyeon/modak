@@ -16,7 +16,7 @@
 }
 
 body {
-    font-family: 'SeoulHangangCL', 'Apple SD Gothic Neo', sans-serif;
+    font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif;
     background: var(--bg);
     min-height: 100vh;
     display: flex;
@@ -55,7 +55,7 @@ body {
 }
 
 .page-title {
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 28px;
     color: var(--text-dark);
     margin-bottom: 8px;
@@ -84,7 +84,7 @@ body {
 }
 
 .hero-summary-value {
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 28px;
     color: var(--ember-deep);
 }
@@ -112,7 +112,7 @@ body {
 }
 
 .section-head h3 {
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 14.5px;
     color: var(--text-dark);
 }
@@ -147,10 +147,9 @@ body {
 }
 
 .review-product {
-    font-size: 13px;
-    font-family: 'SeoulHangangCL', sans-serif;
-    color: var(--text-light);
-    line-height: 1.4;
+    font-family: 'GgiBatang', sans-serif;
+    font-size: 15px;
+    color: var(--text-dark);
 }
 
 .review-stars {
@@ -247,14 +246,14 @@ body {
 .hero-summary-value .result-count-number {
     display: inline-block;
     min-width: 1ch;
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 28px;
     color: var(--ember-deep);
     line-height: 1;
 }
 
 .hero-summary-value .result-count-unit {
-    font-family: 'SeoulHangangCL', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 12px;
     margin-left: 4px;
     color: var(--text-light);
@@ -343,7 +342,7 @@ body {
     inset: 0;
     background: rgba(46, 26, 14, 0.45);
     color: #fff;
-    font-family: 'SeoulHangangCEB', sans-serif;
+    font-family: 'GgiBatang', sans-serif;
     font-size: 28px;
     display: flex;
     align-items: center;

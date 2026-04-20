@@ -23,7 +23,7 @@
 }
 
 body {
-  font-family: 'SeoulHangangCL', 'Apple SD Gothic Neo', sans-serif !important;
+  font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif !important;
   background: var(--bg);
   min-height: 100vh;
   overflow-x: hidden;
@@ -68,7 +68,7 @@ a {
 }
 
 .brand-name {
-  font-family: 'SeoulHangangCEB', sans-serif;
+  font-family: 'GgiBatang', sans-serif;
   font-size: 21px;
   color: var(--ember-deep);
 }
@@ -89,7 +89,7 @@ a {
 }
 
 .hero-title {
-  font-family: 'SeoulHangangCEB', 'Apple SD Gothic Neo', sans-serif;
+  font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif;
   font-weight: bold;
   font-size: 46px;
   line-height: 1.25;
@@ -146,7 +146,7 @@ a {
 }
 
 .login-heading h2 {
-  font-family: 'SeoulHangangCEB', 'Apple SD Gothic Neo', sans-serif;
+  font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif;
   font-weight: bold;
   font-size: 28px;
   color: var(--text-dark);
@@ -183,7 +183,7 @@ a {
   border: 1.5px solid var(--border);
   border-radius: 12px;
   background: rgba(255, 252, 248, 0.9);
-  font-family: 'SeoulHangangCL', 'Apple SD Gothic Neo', sans-serif;
+  font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif;
   font-size: 15px;
   color: var(--text-dark);
   outline: none;
@@ -280,7 +280,7 @@ a {
   border: none;
   border-radius: 14px;
   color: white;
-  font-family: 'SeoulHangangCEB', 'Apple SD Gothic Neo', sans-serif;
+  font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif;
   font-weight: bold;
   font-size: 16px;
   cursor: pointer;
@@ -341,7 +341,7 @@ a {
   border-radius: 12px;
   background: rgba(255, 252, 248, 0.8);
   cursor: pointer;
-  font-family: 'SeoulHangangCL', 'Apple SD Gothic Neo', sans-serif;
+  font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif;
   font-size: 13px;
   color: var(--text-mid);
   display: flex;
@@ -759,7 +759,7 @@ a {
   border: 1.5px solid var(--border);
   border-radius: 13px;
   color: var(--text-mid);
-  font-family: 'SeoulHangangCL', sans-serif;
+  font-family: 'GgiBatang', sans-serif;
   font-size: 14px;
   cursor: pointer;
   transition: background .2s, border-color .2s, color .2s, transform .15s;
@@ -809,7 +809,7 @@ a {
   flex-shrink: 0;
 }
 .feat-text h4 {
-  font-family: 'SeoulHangangCEB', sans-serif;
+  font-family: 'GgiBatang', sans-serif;
   font-size: 13.5px;
   color: var(--text-dark);
   margin-bottom: 3px;

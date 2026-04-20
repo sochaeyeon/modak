@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.modak.order.mapper.GuestOrderMapper">
+
+    <!-- ════════════════════════════════════════
+         ResultMap — DELIVERY 중첩 매핑
+    ════════════════════════════════════════ -->
+    <resultMap id="guestOrderResultMap"
+               type="com.example.modak.order.model.GuestOrder">
+        <id     property="orderId"      column="ORDER_ID"/>
+        <result property="orderType"    column="ORDER_TYPE"/>
+        <result property="orderStatus"  column="ORDER_STATUS"/>
+        <result property="totalPrice"   column="TOTAL_PRICE"/>
+        <result property="discountAmt"  column="DISCOUNT_AMT"/>
+        <result property="createdAt"    column="CREATED_AT"/>
+        <result property="userCouponId" column="USER_COUPON_ID"/>
+        <result property="guestName"    column="GUEST_NAME"/>
+        <result property="guestPhone"   column="GUEST_PHONE"/>
+
+        <!-- DELIVERY 테이블 중첩 객체 -->
+        <association property="delivery"
+                     javaType="com.example.modak.order.model.Delivery">
+            <id     property="deliveryId"     column="DELIVERY_ID"/>
+            <result property="deliveryStatus" column="DELIVERY_STATUS"/>
+            <result property="trackingNo"     column="TRACKING_NO"/>
+            <result property="shippedAt"      column="SHIPPED_AT"/>
+            <result property="deliveredAt"    column="DELIVERED_AT"/>
+            <result property="pickedUpAt"     column="PICKED_UP_AT"/>
+            <result property="receiverName"   column="RECEIVER_NAME"/>
+            <result property="address"        column="ADDRESS"/>
+            <result property="orderId"        column="D_ORDER_ID"/>
+        </association>
+    </resultMap>
+
+    <!-- ════════════════════════════════════════
+         비회원 주문 조회 (조회폼 — 3중 검증)
+         USER_ID = 'GUEST' 로 비회원만 대상
+    ════════════════════════════════════════ -->
+    <select id="selectGuestOrder"
+            resultMap="guestOrderResultMap">
+        SELECT
+            O.ORDER_ID,
+            O.ORDER_TYPE,
+            O.ORDER_STATUS,
+            O.TOTAL_PRICE,
+            O.DISCOUNT_AMT,
+            O.CREATED_AT,
+            O.USER_COUPON_ID,
+            O.GUEST_NAME,
+            O.GUEST_PHONE,
+            D.DELIVERY_ID,
+            D.DELIVERY_STATUS,
+            D.TRACKING_NO,
+            D.SHIPPED_AT,
+            D.DELIVERED_AT,
+            D.PICKED_UP_AT,
+            D.RECEIVER_NAME,
+            D.ADDRESS,
+            D.ORDER_ID AS D_ORDER_ID
+        FROM ORDERS O
+        LEFT JOIN DELIVERY D ON O.ORDER_ID = D.ORDER_ID
+        WHERE O.ORDER_ID    = #{orderId}
+          AND O.GUEST_NAME  = #{guestName}
+          AND O.GUEST_PHONE = #{guestPhone}
+          AND O.USER_ID     = 'GUEST'
+    </select>
+
+    <!-- ════════════════════════════════════════
+         주문번호만으로 조회 (토큰 검증 통과 후)
+    ════════════════════════════════════════ -->
+    <select id="selectGuestOrderById"
+            resultMap="guestOrderResultMap">
+        SELECT
+            O.ORDER_ID,
+            O.ORDER_TYPE,
+            O.ORDER_STATUS,
+            O.TOTAL_PRICE,
+            O.DISCOUNT_AMT,
+            O.CREATED_AT,
+            O.USER_COUPON_ID,
+            O.GUEST_NAME,
+            O.GUEST_PHONE,
+            D.DELIVERY_ID,
+            D.DELIVERY_STATUS,
+            D.TRACKING_NO,
+            D.SHIPPED_AT,
+            D.DELIVERED_AT,
+            D.PICKED_UP_AT,
+            D.RECEIVER_NAME,
+            D.ADDRESS,
+            D.ORDER_ID AS D_ORDER_ID
+        FROM ORDERS O
+        LEFT JOIN DELIVERY D ON O.ORDER_ID = D.ORDER_ID
+        WHERE O.ORDER_ID = #{orderId}
+          AND O.USER_ID  = 'GUEST'
+    </select>
+
+    <!-- ════════════════════════════════════════
+         주문 상품 목록
+         실제 컬럼명: UNIT_PRICE, START_DATE, END_DATE
+         PRODUCT 테이블에 IMAGE_URL 없으므로 제외
+    ════════════════════════════════════════ -->
+    <select id="selectGuestOrderItems"
+            resultType="com.example.modak.order.model.GuestOrderItem">
+        SELECT
+            OI.ITEM_ID,
+            OI.ORDER_ID,
+            OI.PRODUCT_ID,
+            P.PRODUCT_NAME,
+            OI.UNIT_PRICE,
+            OI.QUANTITY,
+            OI.START_DATE,
+            OI.END_DATE
+        FROM ORDER_ITEM OI
+        LEFT JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+        WHERE OI.ORDER_ID = #{orderId}
+        ORDER BY OI.ITEM_ID ASC
+    </select>
+
+    <!-- ════════════════════════════════════════
+         주문 상태 업데이트 (취소 / 반품)
+    ════════════════════════════════════════ -->
+    <update id="updateOrderStatus">
+        UPDATE ORDERS
+        SET    ORDER_STATUS = #{orderStatus}
+        WHERE  ORDER_ID     = #{orderId}
+          AND  USER_ID      = 'GUEST'
+    </update>
+
+</mapper>

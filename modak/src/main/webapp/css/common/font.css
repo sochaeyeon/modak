@@ -1,26 +1,45 @@
-/* 서울한강체 */
+/* 경기서체 바탕 */
 @font-face {
-  font-family: 'SeoulHangangCL';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/SeoulHangangCL.woff') format('woff');
+  font-family: 'GgiBatang';
+  src: url('/static/fonts/Batang_Regular.woff') format('woff');
   font-weight: 400;
-  font-style: normal;
   font-display: swap;
 }
-
 @font-face {
-  font-family: 'SeoulHangangCEB';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/SeoulHangangCEB.woff') format('woff');
+  font-family: 'GgiBatang';
+  src: url('/static/fonts/Batang_Bold.woff') format('woff');
   font-weight: 700;
-  font-style: normal;
   font-display: swap;
 }
 
-
-html, body {
-  font-family: 'SeoulHangangCL', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+/* 경기서체 타이틀 */
+@font-face {
+  font-family: 'GgiTitle';
+  src: url('/static/fonts/Title_Light.woff') format('woff');
+  font-weight: 300;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'GgiTitle';
+  src: url('/static/fonts/Title_Medium.woff') format('woff');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'GgiTitle';
+  src: url('/static/fonts/Title_Bold.woff') format('woff');
+  font-weight: 700;
+  font-display: swap;
 }
 
+/* 전체 기본: 경기바탕 */
+* {
+  font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif;
+  font-weight: 400;
+}
 
-input, textarea, button, select {
-  font-family: 'SeoulHangangCL', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+/* 제목: 경기타이틀 */
+h1, h2, h3, h4 {
+  font-family: 'GgiTitle', sans-serif;
+  font-weight: 700;
 }

@@ -40,9 +40,11 @@ public class ProductController {
 		    
 		    map.put("brandId", brandId);
 		    map.put("priceMax", priceMax);
+		    
+//		    System.out.println("검색어 확인: " + map.get("searchKeyword"));
+//		    System.out.println("전체 파라미터: " + map);
 			
 			resultMap = productService.getProductList(map);
-			
 			return new Gson().toJson(resultMap); 
 		}
 	   

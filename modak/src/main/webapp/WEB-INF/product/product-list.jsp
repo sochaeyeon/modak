@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>모닥모닥 - 장비 목록</title>
 
-<!-- <link rel="stylesheet" href="/css/common/font.css"> -->
+<link rel="stylesheet" href="/css/common/font.css">
 <link rel="stylesheet" href="/css/product/product-list.css">
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -53,6 +53,22 @@
           <span class="result-count">총 {{ filteredProducts.length }}개</span>
         </div>
       </div>
+      <div class="search-product">
+        <div class="search-wrapper">
+          <svg class="search-icon" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input 
+            type="text" 
+            v-model="searchKeyword" 
+            placeholder="어떤 장비를 찾으시나요?" 
+            @keyup.enter="fnList"
+          >
+          <button v-if="searchKeyword" class="search-clear" @click="searchKeyword = ''; fnList();">
+            &times;
+          </button>
+        </div>
+      </div>
       <div class="controls">
         <button class="filter-toggle" @click="sidebarVisible = !sidebarVisible">
           <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
@@ -84,6 +100,10 @@
             <span class="fs-title">대여 / 구매</span>
           </div>
           <div class="filter-opts">
+            <div class="fopt-item">
+              <input type="radio" id="type-all" v-model="filter.productType" value="all" @change="fnSearch">
+              <label for="type-all" class="fopt">전체</label>
+            </div>
             <label class="fopt">
               <input type="checkbox" v-model="filter.rentable" @change="fnList"> 대여 가능
               <span class="fopt-count">38</span>
@@ -138,37 +158,40 @@
           </div>
           <div class="filter-opts">
             <label class="fopt">
-              <input type="checkbox" v-model="filter.brandId" :value="1" @change="fnList"> 케로로
+              <input 
+                type="radio" 
+                :checked="filter.brandId.length === 0" 
+                @change="clearBrands"
+              > 전체
             </label>
             <label class="fopt">
-              <input type="checkbox" v-model="filter.brandId" :value="2" @change="fnList"> 타마마
+              <input type="checkbox" v-model="filter.brandId" :value="1" @change="fnList"> 자체
+            </label>
+            <label class="fopt">
+              <input type="checkbox" v-model="filter.brandId" :value="2" @change="fnList"> 케로로
+            </label>
+            <label class="fopt">
+              <input type="checkbox" v-model="filter.brandId" :value="3" @change="fnList"> 타마마
+            </label>
+            <label class="fopt">
+              <input type="checkbox" v-model="filter.brandId" :value="4" @change="fnList"> 기로로
+            </label>
+            <label class="fopt">
+              <input type="checkbox" v-model="filter.brandId" :value="5" @change="fnList"> 쿠루루
             </label>
           </div>
         </div>
 
-        <!-- 가격 범위 슬라이더
         <div class="filter-section">
           <div class="fs-header">
-            <span class="fs-title">1박 가격</span>
-          </div>
-          <div class="range-wrap">
-            <div class="range-row">
-              <span class="range-val">0원</span>
-              <span class="range-val">{{ priceRangeLabel }}</span>
-            </div>
-            <input type="range" min="0" max="100" v-model="filter.priceRange" @input="updateRangeStyle">
-          </div>
-        </div> -->
-
-        <!-- 평점 필터 -->
-        <div class="filter-section">
-          <div class="fs-header">
-            <span class="fs-title">평점</span>
+            <span class="fs-title">1박 대여 가격</span>
           </div>
           <div class="filter-opts">
-            <label class="fopt"><input type="radio" name="rating" v-model="filter.minRating" value="5"> ★★★★★ 5.0</label>
-            <label class="fopt"><input type="radio" name="rating" v-model="filter.minRating" value="4"> ★★★★☆ 4.0 이상</label>
-            <label class="fopt"><input type="radio" name="rating" v-model="filter.minRating" value="3"> ★★★☆☆ 3.0 이상</label>
+            <label class="fopt"><input type="radio" v-model="filter.priceRange" :value="null" @change="fnSearch" checked="checked"> 전체</label>
+            <label class="fopt"><input type="radio" v-model="filter.priceRange" value="0-10000" @change="fnSearch"> 1만원 이하</label>
+            <label class="fopt"><input type="radio" v-model="filter.priceRange" value="10000-30000" @change="fnSearch"> 1만원 ~ 3만원</label>
+            <label class="fopt"><input type="radio" v-model="filter.priceRange" value="30000-50000" @change="fnSearch"> 3만원 ~ 5만원</label>
+            <label class="fopt"><input type="radio" v-model="filter.priceRange" value="50000-999999" @change="fnSearch"> 5만원 이상</label>
           </div>
         </div>
 
@@ -255,6 +278,35 @@
             </div>
           </div>
         </div><!-- /product-grid -->
+        <div class="grid-wrap">
+          <div class="pagination" v-if="totalPages > 1">
+            <button 
+              class="page-btn prev" 
+              :disabled="currentPage === 1" 
+              @click="changePage(currentPage - 1)"
+            >
+              &lt;
+            </button>
+            
+            <button 
+              v-for="page in totalPages" 
+              :key="page" 
+              class="page-number" 
+              :class="{ active: currentPage === page }"
+              @click="changePage(page)"
+            >
+              {{ page }}
+            </button>
+
+            <button 
+              class="page-btn next" 
+              :disabled="currentPage === totalPages" 
+              @click="changePage(currentPage + 1)"
+            >
+              &gt;
+            </button>
+          </div>
+        </div>
 
       </div><!-- /grid-wrap -->
     </div><!-- /content-wrap -->
@@ -283,10 +335,11 @@ createApp({
       perPage:         12,
       sidebarVisible:  true,
       wishedIds:       new Set(),
+      searchKeyword: '', // 검색어 변수
+      priceRange: null, // 가격 필터링
 
       filter: {
-        rentable:   true,
-        buyable:    true,
+        productType: 'all', // 'all', 'rent', 'buy'
         brandId:   [],
         priceRange: 50,
         minRating:  null,
@@ -335,8 +388,16 @@ createApp({
     fnList() {
       let self = this;
       self.loading = true;
+      // 가격 필터링
+      let minP = null;
+      let maxP = null;
+      // ⭐ 수정: priceRange가 존재하고(null이 아니고), 동시에 빈 문자열이 아닐 때만 split 실행
+      if (self.filter.priceRange && typeof self.filter.priceRange === 'string') {
+          const prices = self.filter.priceRange.split('-');
+          minP = parseInt(prices[0]);
+          maxP = parseInt(prices[1]);
+      }
       
-
       let param = {
         categoryId:  self.currentCat,
         childCatId:  self.currentChild,  // ← 자식 카테고리 파라미터 추가
@@ -344,10 +405,15 @@ createApp({
         page:        self.currentPage,
         perPage:     self.perPage,
         // 구매/대여 필터링
-        rentable: self.filter.rentable,  
-        buyable:  self.filter.buyable,
-        // 브랜드 필터링
-        brandId: self.filter.brandId || []
+        rentable: (self.filter.productType === 'all' || self.filter.productType === 'rent'),
+        buyable:  (self.filter.productType === 'all' || self.filter.productType === 'buy'),
+        // 브랜드 필터링 brandId가 빈 배열이면 서버에 보내지 않거나 null 처리
+        brandId: self.filter.brandId.length > 0 ? self.filter.brandId : null,
+        // 가격 필터링 , 전체일 때는 null이 넘어감
+        priceMin: minP, 
+        priceMax: maxP,
+        // 검색어
+        searchKeyword: self.searchKeyword
       };
 
       $.ajax({
@@ -359,13 +425,16 @@ createApp({
         success: function(data) {
           self.products = Array.isArray(data.list) ? data.list : [];
           self.loading     = false;
-          self.currentPage = 1;
         },
         error: function(xhr, status, err) {
           console.error("상품 목록 조회 실패:", err);
           self.loading = false;
         }
       });
+    },
+    fnSearch() {
+      this.currentPage = 1;
+      this.fnList();
     },
 
     // ── 부모 카테고리 조회 (pill 바) ──
@@ -437,13 +506,13 @@ createApp({
 
     resetFilter() {
       this.filter = {
-        rentable:   true,
-        buyable:    true,
+        productType: 'all', // 초기화 시 '전체'로 이동
         brandId:   [],
-        priceRange: 50,
+        priceRange: null,
         minRating:  null,
       };
       this.currentPage = 1;
+      this.fnList();
     },
 
     updateRangeStyle(event) {
@@ -463,7 +532,22 @@ createApp({
     fnView : function(productId) {
                 alert("제품상세로 이동");
                 pageChange("/product/detail.do", {productId : productId});
-            }
+            },
+    // 페이지 변경 시 호출할 공통 메서드
+    changePage(page) {
+      this.currentPage = page;
+      
+      // 화면 상단으로 부드럽게 이동 (선택 사항)
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth' // 'smooth'를 넣으면 스르륵 올라가고, 빼면 바로 점프합니다.
+      });
+    },
+    clearBrands() {
+      this.filter.brandId = []; // 배열을 비워서 다른 체크를 모두 해제
+      this.fnSearch();
+    }
+
   },
 
   mounted() {

@@ -10,9 +10,9 @@ import com.example.modak.product.model.Product;
 
 @Mapper
 public interface ProductMapper {
-	// 제품리스트 product list
+	// 제품 리스트 product list
 	public List<Product> selectProductList(HashMap<String, Object> map);
-	
+	// 상품 상세 조회 product detail
 	public Product selectProduct(HashMap<String, Object> map);
 
 }

@@ -28,7 +28,12 @@
 	        ON p.PRODUCT_ID = i.PRODUCT_ID
 	        AND i.IS_MAIN = 'Y'
 	    WHERE 1=1
-	
+	    <if test="searchKeyword != null and searchKeyword != ''">
+	        AND (
+	            p.PRODUCT_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
+	            OR b.BRAND_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
+	        )
+	    </if>
 		<if test="rentable == true and buyable == false">
 		    AND p.PRODUCT_TYPE = 'RENTAL'
 		</if>
@@ -39,6 +44,13 @@
 		
 		<if test="rentable == false and buyable == false">
 		    AND 1 = 0
+		</if>
+		<!--가격필터링-->
+		<if test="priceMin != null"> 
+		    AND p.PRICE >= #{priceMin}
+		</if>
+		<if test="priceMax != null">
+		    AND p.PRICE &lt;= #{priceMax}
 		</if>
 		<if test="brandId != null and brandId.size() > 0">
 		    AND p.BRAND_ID IN

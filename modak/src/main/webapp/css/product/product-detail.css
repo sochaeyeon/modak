@@ -19,14 +19,14 @@
     --red-light: #fdecea;
     --yellow: #f0b429;
   }
-  body { background: var(--bg); font-family: 'Noto Sans KR', sans-serif; color: var(--text); font-size: 14px; line-height: 1.6; }
+  body { background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
 
   header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; }
   .logo { font-size: 17px; font-weight: 700; }
   .h-right { display: flex; align-items: center; gap: 14px; }
   .icon-btn { background: none; border: none; cursor: pointer; font-size: 18px; padding: 4px; position: relative; }
   .badge { position: absolute; top: -2px; right: -4px; background: var(--orange); color: #fff; border-radius: 50%; font-size: 9px; font-weight: 700; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; }
-  .btn-out { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; font-family: inherit; }
+  .btn-out { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; }
 
   .nav-strip { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; overflow-x: auto; }
   .ntab { padding: 10px 15px; font-size: 13px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
@@ -57,7 +57,7 @@
 
   /* MODE TOGGLE */
   .mtog { display: flex; background: var(--bg); border-radius: 10px; padding: 4px; gap: 4px; margin-bottom: 14px; border: 1px solid var(--border); }
-  .mbtn { flex: 1; padding: 9px; border-radius: 7px; border: none; background: none; font-size: 14px; font-weight: 500; cursor: pointer; font-family: inherit; color: var(--muted); transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .mbtn { flex: 1; padding: 9px; border-radius: 7px; border: none; background: none; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--muted); transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
   .mbtn.on { background: var(--surface); color: var(--orange); box-shadow: 0 1px 4px rgba(0,0,0,.1); }
 
   /* price */
@@ -89,7 +89,7 @@
   .qbtn:first-child { border-radius: 6px 0 0 6px; }
   .qbtn:last-child { border-radius: 0 6px 6px 0; }
   .qbtn:hover { background: var(--bg); }
-  .qinp { width: 48px; height: 34px; border: 1px solid var(--border); border-left: none; border-right: none; text-align: center; font-size: 14px; font-family: inherit; background: var(--surface); }
+  .qinp { width: 48px; height: 34px; border: 1px solid var(--border); border-left: none; border-right: none; text-align: center; font-size: 14px; background: var(--surface); }
   .qinp:focus { outline: none; }
 
   /* ─── CALENDAR ─── */
@@ -161,11 +161,11 @@
   .arow { display: flex; gap: 10px; margin-top: 2px; }
   .bwish { width: 48px; height: 48px; border: 1.5px solid var(--border); background: var(--surface); border-radius: 8px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; flex-shrink: 0; }
   .bwish:hover, .bwish.on { border-color: #e04b6a; }
-  .bcart { flex: 1; height: 48px; border: 1.5px solid var(--orange); background: var(--surface); border-radius: 8px; font-size: 14px; font-weight: 700; color: var(--orange); cursor: pointer; font-family: inherit; }
+  .bcart { flex: 1; height: 48px; border: 1.5px solid var(--orange); background: var(--surface); border-radius: 8px; font-size: 14px; font-weight: 700; color: var(--orange); cursor: pointer; }
   .bcart:hover { background: var(--orange-light); }
-  .bbuy { flex: 1; height: 48px; border: none; background: var(--orange); border-radius: 8px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; font-family: inherit; }
+  .bbuy { flex: 1; height: 48px; border: none; background: var(--orange); border-radius: 8px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; }
   .bbuy:hover { background: var(--orange-dark); }
-  .brent { flex: 1; height: 48px; border: none; background: var(--blue); border-radius: 8px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; font-family: inherit; transition: all .15s; }
+  .brent { flex: 1; height: 48px; border: none; background: var(--blue); border-radius: 8px; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; transition: all .15s; }
   .brent:hover:not(:disabled) { background: #2d7ad4; }
   .brent:disabled { background: #b0c9ec; cursor: not-allowed; }
 
@@ -182,7 +182,7 @@
 
   /* tabs */
   .tnav { display: flex; border-bottom: 2px solid var(--border); background: var(--surface); border-radius: var(--radius) var(--radius) 0 0; }
-  .tbtn { flex: 1; padding: 13px; font-size: 13px; font-weight: 500; background: none; border: none; cursor: pointer; color: var(--muted); font-family: inherit; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color .15s; }
+  .tbtn { flex: 1; padding: 13px; font-size: 13px; font-weight: 500; background: none; border: none; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: color .15s; }
   .tbtn.on { color: var(--orange); border-bottom-color: var(--orange); }
   .tcont { background: var(--surface); border-radius: 0 0 var(--radius) var(--radius); padding: 26px; border: 1px solid var(--border); border-top: none; }
   .tpane { display: none; }
@@ -211,7 +211,7 @@
   .rtext { font-size: 13px; line-height: 1.65; }
   .rprod { font-size: 11px; color: var(--muted); margin-top: 5px; }
   .rhelprow { margin-top: 6px; font-size: 12px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
-  .hbtn { background: none; border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 12px; font-family: inherit; color: var(--muted); }
+  .hbtn { background: none; border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 12px; color: var(--muted); }
   .hbtn:hover { border-color: var(--orange); color: var(--orange); }
 
   .rel { margin-top: 44px; }
@@ -228,5 +228,5 @@
   .pcs .s { color: var(--star); }
   .pcprice { font-size: 14px; font-weight: 700; }
   .pcacts { display: flex; gap: 5px; margin-top: 7px; }
-  .pca1 { flex: 1; padding: 6px; border: 1px solid var(--orange); background: none; border-radius: 5px; font-size: 11px; color: var(--orange); cursor: pointer; font-family: inherit; font-weight: 500; }
-  .pca2 { flex: 1; padding: 6px; background: var(--orange); border: none; border-radius: 5px; font-size: 11px; color: #fff; cursor: pointer; font-family: inherit; font-weight: 500; }
+  .pca1 { flex: 1; padding: 6px; border: 1px solid var(--orange); background: none; border-radius: 5px; font-size: 11px; color: var(--orange); cursor: pointer; font-weight: 500; }
+  .pca2 { flex: 1; padding: 6px; background: var(--orange); border: none; border-radius: 5px; font-size: 11px; color: #fff; cursor: pointer; font-weight: 500; }

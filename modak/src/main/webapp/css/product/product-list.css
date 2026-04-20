@@ -21,7 +21,6 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--parchment);
   color: var(--ink);
-  font-family: 'Noto Sans KR', sans-serif;
   font-weight: 300;
   line-height: 1.7;
   min-height: 100vh;
@@ -35,7 +34,7 @@ nav {
   position: sticky; top: 0; z-index: 200;
 }
 .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.logo-text { font-family: 'Noto Serif KR', serif; font-size: 16px; font-weight: 600; color: #FBF7F0; letter-spacing: .06em; }
+.logo-text { font-size: 16px; font-weight: 600; color: #FBF7F0; letter-spacing: .06em; }
 .nav-links { display: flex; gap: 28px; }
 .nav-links a { font-size: 12px; color: var(--mist); text-decoration: none; letter-spacing: .08em; transition: color .2s; }
 .nav-links a:hover { color: #fff; }
@@ -50,21 +49,6 @@ nav {
   letter-spacing: .08em; transition: all .2s;
 }
 .nav-cta:hover { background: var(--sage); color: var(--forest); }
-
-/* 3. 브레드크럼 (경로 표시) */
-.breadcrumb {
-  padding: 14px 0;
-  border-bottom: 1px solid var(--border);
-  background: var(--parchment);
-}
-.breadcrumb-inner {
-  max-width: 1200px; margin: 0 auto; padding: 0 32px;
-  display: flex; align-items: center; gap: 6px;
-}
-.bc { font-size: 12px; color: var(--stone); text-decoration: none; transition: color .2s; }
-.bc:hover { color: var(--ember); }
-.bc-sep { font-size: 11px; color: var(--mist); }
-.bc-current { font-size: 12px; color: var(--ink); }
 
 /* 4. 카테고리 필터 pill 바 (가로 스크롤) */
 .cat-bar {
@@ -85,12 +69,87 @@ nav {
   border: 1px solid var(--border); background: var(--card-bg);
   font-size: 12px; font-weight: 300; color: var(--stone);
   cursor: pointer; transition: all .2s; white-space: nowrap;
-  font-family: 'Noto Sans KR', sans-serif;
 }
 .cat-pill .pill-emoji { font-size: 14px; line-height: 1; }
 .cat-pill:hover { border-color: var(--ember); color: var(--ember); }
 .cat-pill.active { background: var(--ember); border-color: var(--ember); color: #fff; font-weight: 400; }
 .cat-pill.active .pill-emoji { filter: brightness(10); }
+
+/* 검색창 컨테이너 */
+.search-product {
+  flex: 1;
+  max-width: 510px; /* 너무 넓어지지 않게 제한 */
+  margin: 0 20px;
+}
+
+.search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-wrapper input {
+  width: 100%;
+  padding: 10px 40px 10px 45px; /* 양옆 아이콘 공간 확보 */
+  border: 2px solid #eef0f2;
+  border-radius: 30px;
+  background-color: #f8f9fa;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+/* 포커스 되었을 때 포인트 컬러 */
+.search-wrapper input:focus {
+  border-color: #ffa04b; 
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 138, 61, 0.1);
+}
+
+/* 돋보기 아이콘 */
+.search-icon {
+  position: absolute;
+  left: 15px;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: #adb5bd;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+/* 입력 내용 지우기 버튼 */
+.search-clear {
+  position: absolute;
+  right: 12px;
+  background: #dee2e6;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.search-clear:hover {
+  background: #adb5bd86;
+}
+
+/* 반응형 대응 */
+@media (max-width: 768px) {
+  .search-product {
+    order: 3; /* 모바일에서 순서 조정 필요시 */
+    max-width: 100%;
+    margin: 10px 0;
+  }
+}
 
 /* 5. 메인 레이아웃 (페이지 감싸기) */
 .page-wrap { max-width: 1200px; margin: 0 auto; padding: 32px 32px 80px; }
@@ -100,7 +159,7 @@ nav {
   margin-bottom: 24px; flex-wrap: wrap; gap: 14px;
 }
 .result-label { font-size: 12px; color: var(--stone); margin-bottom: 4px; letter-spacing: .04em; }
-.result-title { font-family: 'Noto Serif KR', serif; font-size: 22px; font-weight: 400; color: var(--forest); }
+.result-title { font-size: 22px; font-weight: 400; color: var(--forest); }
 .result-count { font-size: 13px; color: var(--stone); margin-left: 8px; }
 .controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
@@ -109,7 +168,7 @@ nav {
   padding: 8px 28px 8px 14px;
   border: 1px solid var(--border); border-radius: 3px;
   background: var(--card-bg);
-  font-family: 'Noto Sans KR', sans-serif; font-size: 12px; color: var(--ink);
+  font-size: 12px; color: var(--ink);
   cursor: pointer; outline: none; -webkit-appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23A09080' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 10px center;
@@ -131,7 +190,7 @@ nav {
   display: flex; align-items: center; gap: 6px;
   padding: 8px 14px; border: 1px solid var(--border); border-radius: 3px;
   background: var(--card-bg); font-size: 12px; color: var(--stone);
-  cursor: pointer; font-family: 'Noto Sans KR', sans-serif; transition: all .2s;
+  cursor: pointer; transition: all .2s;
 }
 .filter-toggle:hover { border-color: var(--ember); color: var(--ember); }
 .filter-toggle svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 1.5; }
@@ -155,20 +214,84 @@ nav {
   display: flex; align-items: center; justify-content: space-between;
   cursor: pointer; margin-bottom: 14px;
 }
-.fs-title { font-size: 12px; font-weight: 500; color: var(--forest); letter-spacing: .06em; }
+.fs-title { font-size: 14px; font-weight: 600; color: var(--forest); letter-spacing: .06em; }
 .fs-arrow { width: 12px; height: 12px; stroke: var(--stone); fill: none; stroke-width: 2; transition: transform .2s; }
 .fs-arrow.open { transform: rotate(180deg); }
 .filter-opts { display: flex; flex-direction: column; gap: 8px; }
 .fopt {
   display: flex; align-items: center; gap: 8px; cursor: pointer;
-  font-size: 12px; color: var(--stone); transition: color .15s;
+  font-size: 13px; color: var(--stone); transition: all 0.2s ease;font-weight: 300;
+}
+/* 1. 글자색 변경 및 볼드체 적용 */
+input:checked + .fopt {
+  color: var(--ember) !important; /* 포인트 컬러: 엠버 */
+  font-weight: 600 !important;   /* 볼드체 */
+}
+/* 2. 선택되었을 때 아이콘 효과 (선택사항: 앞에 불 들어오게 하기) */
+/* 만약 라벨 안에 별도의 체크박스 모양을 안 만드셨다면 
+   글자 앞에 작은 점을 찍어주면 훨씬 직관적입니다. */
+input:checked + .fopt::before {
+  content: '•';
+  margin-right: 4px;
+  color: var(--ember);
 }
 .fopt:hover { color: var(--ember); }
-.fopt input { accent-color: var(--ember); cursor: pointer; }
 .fopt-count { margin-left: auto; font-size: 11px; color: var(--mist); }
 
+/* 기본 input 선택버튼 숨기기 */
+.filter-opts input[type="checkbox"],
+.filter-opts input[type="radio"] {
+    display: none;
+}
 
 
+/* 필터 초기화 버튼 컨테이너 (여백 조절) */
+.filter-reset-wrap {
+    padding: 20px;
+    margin-top: 10px;
+    border-top: 1px solid #f1f1f1; /* 구분선으로 깔끔하게 분리 */
+}
+
+/* 필터 초기화 버튼 본체 */
+.filter-reset {
+    width: 100%;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* 아이콘과 텍스트 사이 간격 */
+    
+    background-color: #fff;
+    color: #555;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+/* 마우스 호버 시  */
+.filter-reset:hover {
+    background-color: #f9f9f9;
+    border-color: #ff8a3d; 
+    color: #ff8a3d;
+    box-shadow: 0 2px 8px rgba(255, 138, 61, 0.1);
+}
+
+/* 클릭하는 순간의 피드백 */
+.filter-reset:active {
+    transform: scale(0.98);
+    background-color: #f0f0f0;
+}
+
+/* 초기화 아이콘 (SVG나 이모지 활용 시) */
+.reset-icon {
+    width: 16px;
+    height: 16px;
+    fill: currentColor; /* 글자색과 동기화 */
+}
 
 /* 7. 상품 카드 (그리드 뷰) */
 .grid-wrap { flex: 1; min-width: 0; }
@@ -239,7 +362,7 @@ nav {
   flex: 1; padding: 9px 0;
   background: var(--ember); color: #fff;
   border: none; border-radius: 4px;
-  font-family: 'Noto Sans KR', sans-serif; font-size: 12px; letter-spacing: .04em;
+  font-size: 12px; letter-spacing: .04em;
   cursor: pointer; transition: background .2s;
 }
 .btn-rent:hover { background: var(--flame); }
@@ -247,14 +370,12 @@ nav {
   flex: 1; padding: 9px 0;
   background: transparent; color: var(--forest);
   border: 1px solid var(--border); border-radius: 4px;
-  font-family: 'Noto Sans KR', sans-serif; font-size: 12px; letter-spacing: .04em;
+  font-size: 12px; letter-spacing: .04em;
   cursor: pointer; transition: all .2s;
 }
 .btn-buy:hover { border-color: var(--forest); background: var(--smoke); }
 
-/* ════════════════════════════════════════
-   8. 리스트 뷰 카드 (가로 레이아웃)
-   ════════════════════════════════════════ */
+/* 8. 리스트 뷰 카드 (가로 레이아웃) */
 .pcard.list-card { display: flex; flex-direction: row; border-radius: 8px; }
 .pcard.list-card .pcard-img {
   width: 160px; flex-shrink: 0;
@@ -273,25 +394,19 @@ nav {
 .pcard.list-card .btn-buy { padding: 8px 16px; }
 
 
-/* ════════════════════════════════════════
-   10. 데이터 없을 때 빈 상태 표시
-   ════════════════════════════════════════ */
+/* 10. 데이터 없을 때 빈 상태 표시 */
 .empty { text-align: center; padding: 80px 20px; }
 .empty-emoji { font-size: 48px; margin-bottom: 16px; }
 .empty-msg { font-size: 14px; color: var(--stone); }
 
-/* ════════════════════════════════════════
-   11. 카드 등장 애니메이션
-   ════════════════════════════════════════ */
+/* 11. 카드 등장 애니메이션 */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .pcard { animation: fadeUp .45s ease both; }
 
-/* ════════════════════════════════════════
-   12. 반응형 미디어 쿼리
-   ════════════════════════════════════════ */
+/* 12. 반응형 미디어 쿼리 */
 @media (max-width: 900px) {
   .sidebar { display: none; }
   .product-grid { grid-template-columns: repeat(3, 1fr); }
@@ -303,4 +418,61 @@ nav {
   .cat-bar-inner { padding: 0 16px; }
   .product-grid { grid-template-columns: repeat(2, 1fr); }
   .breadcrumb-inner { padding: 0 16px; }
+}
+/* 페이징 컨테이너 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 50px;
+  margin-bottom: 50px;
+  padding-bottom: 20px;
+}
+
+/* 숫자 버튼 */
+.page-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: white;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page-number:hover {
+  border-color: #ff8a3d;
+  color: #ff8a3d;
+}
+
+.page-number.active {
+  background: #ff8a3d;
+  color: white;
+  border-color: #ff8a3d;
+  font-weight: bold;
+}
+
+/* 이전/다음 버튼 */
+.page-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: #f8f9fa;
+  cursor: pointer;
+}
+
+.page-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.page-btn:not(:disabled):hover {
+  background: #eee;
 }

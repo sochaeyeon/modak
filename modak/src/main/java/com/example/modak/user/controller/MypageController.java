@@ -43,7 +43,7 @@ public class MypageController {
 
 	    HashMap<String, Object> reviewMap = new HashMap<>();
 	    reviewMap.put("page", 1);
-	    reviewMap.put("pageSize", 6);
+	    reviewMap.put("pageSize", 5);
 	    reviewMap.put("userId", sessionId);
 
 	    HashMap<String, Object> reviewResult = reviewService.getReviewList(reviewMap);

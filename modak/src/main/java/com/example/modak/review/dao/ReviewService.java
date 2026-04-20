@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.example.modak.common.Message;
 import com.example.modak.review.mapper.ReviewMapper;
 import com.example.modak.review.model.Review;
+import com.example.modak.review.model.ReviewImage;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -53,37 +54,43 @@ public class ReviewService {
 		return resultMap;
 	}
 
-	// 내 리뷰 목록 조회
 	public HashMap<String, Object> getReviewList(HashMap<String, Object> map) {
-		HashMap<String, Object> resultMap = new HashMap<>();
+	    HashMap<String, Object> resultMap = new HashMap<>();
 
-		try {
-			String userId = (String) session.getAttribute("sessionId");
-			map.put("userId", userId);
+	    try {
+	        int page = Integer.parseInt(String.valueOf(map.get("page")));
+	        int pageSize = Integer.parseInt(String.valueOf(map.get("pageSize")));
+	        int offset = (page - 1) * pageSize;
 
-			int page = Integer.parseInt(String.valueOf(map.get("page")));
-			int pageSize = Integer.parseInt(String.valueOf(map.get("pageSize")));
-			int offset = (page - 1) * pageSize;
+	        map.put("offset", offset);
 
-			map.put("offset", offset);
-			map.put("pageSize", pageSize);
+	        List<Review> list = reviewMapper.selectReviewList(map);
+	        int totalCount = reviewMapper.selectReviewCount(map);
 
-			List<Review> list = reviewMapper.selectReviewList(map);
-			int totalCount = reviewMapper.selectReviewCount(map);
+	        for (Review review : list) {
+	            HashMap<String, Object> imgMap = new HashMap<>();
+	            imgMap.put("reviewId", review.getReviewId());
 
-			resultMap.put("result", "success");
-			resultMap.put("list", list);
-			resultMap.put("totalCount", totalCount);
-			resultMap.put("page", page);
-			resultMap.put("pageSize", pageSize);
+	            List<ReviewImage> imageList = reviewMapper.selectReviewImageList(imgMap);
+	            review.setImageList(imageList);
+	            review.setImageCount(imageList != null ? imageList.size() : 0);
 
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			resultMap.put("result", "fail");
-			resultMap.put("message", Message.ERROR_SERVER);
-		}
+	            if (imageList != null && !imageList.isEmpty()) {
+	                review.setImageUrl(imageList.get(0).getImgUrl());
+	            }
+	        }
 
-		return resultMap;
+	        resultMap.put("result", "success");
+	        resultMap.put("list", list);
+	        resultMap.put("totalCount", totalCount);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result", "fail");
+	        resultMap.put("message", "리뷰 목록 조회 실패");
+	    }
+
+	    return resultMap;
 	}
 
 	// 리뷰 상세 조회

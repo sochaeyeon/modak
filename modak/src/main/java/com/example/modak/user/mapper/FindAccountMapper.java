@@ -13,17 +13,6 @@ public interface FindAccountMapper {
 	// 아이디 찾기
 	public User selectUserId(HashMap<String, Object> map);
 
-	// sms인증
-	void expireSmsAuth(HashMap<String, Object> map);
-
-    void insertSmsAuth(HashMap<String, Object> map);
-
-    HashMap<String, Object> selectLatestSmsAuth(HashMap<String, Object> map);
-
-    void updateSmsAuthVerified(HashMap<String, Object> map);
-
-    HashMap<String, Object> selectVerifiedSmsAuth(HashMap<String, Object> map);
-
     User selectUserByNameAndPhone(HashMap<String, Object> map);
     
     // 이메일 인증

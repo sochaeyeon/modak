@@ -40,15 +40,6 @@ public class FindAccountService {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
-	@Value("${solapi.api-key}")
-	private String solapiApiKey;
-
-	@Value("${solapi.api-secret}")
-	private String solapiApiSecret;
-
-	@Value("${solapi.sender-number}")
-	private String senderNumber;
-
 	// 아이디 찾기
 	public HashMap<String, Object> getUserId(HashMap<String, Object> map) {
 		HashMap<String, Object> resultMap = new HashMap<>();
@@ -71,113 +62,17 @@ public class FindAccountService {
 		return resultMap;
 	}
 
-	// 문자 인증
-
-	// 문자 인증번호 발송
-	public HashMap<String, Object> sendSmsCode(HashMap<String, Object> map) {
-		HashMap<String, Object> resultMap = new HashMap<>();
-
-		try {
-			String userName = String.valueOf(map.get("userName"));
-			String userPhone = String.valueOf(map.get("userPhone"));
-
-			if (userName == null || userName.trim().equals("")) {
-				resultMap.put("result", "fail");
-				resultMap.put("message", "이름을 입력해 주세요.");
-				return resultMap;
-			}
-
-			if (userPhone == null || userPhone.trim().equals("")) {
-				resultMap.put("result", "fail");
-				resultMap.put("message", "휴대폰 번호를 입력해 주세요.");
-				return resultMap;
-			}
-
-			String authCode = createAuthCode();
-
-			map.put("authCode", authCode);
-			map.put("authPurpose", "FIND_ID");
-			map.put("expireAt",
-					LocalDateTime.now().plusMinutes(3).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-
-			// 기존 미인증 번호 만료
-			findAccountMapper.expireSmsAuth(map);
-
-			// 새 인증번호 저장
-			findAccountMapper.insertSmsAuth(map);
-
-			String smsText = "[모닥모닥] 인증번호는 [" + authCode + "] 입니다.";
-			sendSmsBySolapi(userPhone, smsText);
-
-			resultMap.put("result", "success");
-			resultMap.put("message", "인증번호를 발송했어요.");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			resultMap.put("result", "fail");
-			resultMap.put("message", "문자 발송 중 오류가 발생했어요.");
-		}
-
-		return resultMap;
-	}
-
-	// 인증번호 확인
-	public HashMap<String, Object> verifySmsCode(HashMap<String, Object> map) {
-		HashMap<String, Object> resultMap = new HashMap<>();
-
-		try {
-			HashMap<String, Object> authInfo = findAccountMapper.selectLatestSmsAuth(map);
-
-			if (authInfo == null) {
-				resultMap.put("result", "fail");
-				resultMap.put("message", "인증 요청 정보가 없어요.");
-				return resultMap;
-			}
-
-			String dbCode = String.valueOf(authInfo.get("AUTH_CODE"));
-			String authYn = String.valueOf(authInfo.get("AUTH_YN"));
-			String expireAt = String.valueOf(authInfo.get("EXPIRE_AT"));
-			String inputCode = String.valueOf(map.get("authCode"));
-
-			if ("Y".equals(authYn)) {
-				resultMap.put("result", "fail");
-				resultMap.put("message", "이미 인증이 완료되었어요.");
-				return resultMap;
-			}
-
-			LocalDateTime expireTime = LocalDateTime.parse(expireAt.replace(" ", "T"));
-			if (LocalDateTime.now().isAfter(expireTime)) {
-				resultMap.put("result", "fail");
-				resultMap.put("message", "인증번호가 만료되었어요.");
-				return resultMap;
-			}
-
-			if (!dbCode.equals(inputCode)) {
-				resultMap.put("result", "fail");
-				resultMap.put("message", "인증번호가 일치하지 않아요.");
-				return resultMap;
-			}
-
-			findAccountMapper.updateSmsAuthVerified(map);
-
-			resultMap.put("result", "success");
-			resultMap.put("message", "휴대폰 인증이 완료되었어요.");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			resultMap.put("result", "fail");
-			resultMap.put("message", "인증 확인 중 오류가 발생했어요.");
-		}
-
-		return resultMap;
-	}
-
 	// 이름 + 전화번호 + 인증완료 후 아이디 찾기
+	@Autowired
+	SmsAuthService smsAuthService;
+
 	public HashMap<String, Object> findIdByPhone(HashMap<String, Object> map) {
 		HashMap<String, Object> resultMap = new HashMap<>();
 
 		try {
-			HashMap<String, Object> verifiedInfo = findAccountMapper.selectVerifiedSmsAuth(map);
+			map.put("authPurpose", "FIND_ID");
+
+			HashMap<String, Object> verifiedInfo = smsAuthService.selectVerifiedSmsAuth(map);
 
 			if (verifiedInfo == null) {
 				resultMap.put("result", "fail");
@@ -211,62 +106,16 @@ public class FindAccountService {
 		return String.valueOf(number);
 	}
 
-	private void sendSmsBySolapi(String to, String text) throws Exception {
-		String url = "https://api.solapi.com/messages/v4/send";
+	
 
-		String date = DateTimeFormatter.ISO_INSTANT.format(Instant.now());
-		String salt = UUID.randomUUID().toString().replace("-", "");
-
-		String signature = makeSolapiSignature(date, salt);
-
-		RestTemplate restTemplate = new RestTemplate();
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.set("Authorization", "HMAC-SHA256 apiKey=" + solapiApiKey + ", date=" + date + ", salt=" + salt
-				+ ", signature=" + signature);
-
-		Map<String, Object> message = new HashMap<>();
-		message.put("to", to);
-		message.put("from", senderNumber);
-		message.put("text", text);
-
-		Map<String, Object> body = new HashMap<>();
-		body.put("message", message);
-
-		HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-
-		ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-
-		if (!response.getStatusCode().is2xxSuccessful()) {
-			throw new RuntimeException("SMS 발송 실패 : " + response.getBody());
-		}
-
-		System.out.println("SOLAPI 응답 : " + response.getBody());
-	}
-
-	private String makeSolapiSignature(String date, String salt) throws Exception {
-		String message = date + salt;
-
-		Mac mac = Mac.getInstance("HmacSHA256");
-		SecretKeySpec secretKeySpec = new SecretKeySpec(solapiApiSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-		mac.init(secretKeySpec);
-
-		byte[] rawHmac = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
-
-		StringBuilder sb = new StringBuilder();
-		for (byte b : rawHmac) {
-			sb.append(String.format("%02x", b));
-		}
-		return sb.toString();
-	}
+	
 
 	// 이메일 인증
 	public HashMap<String, Object> sendPwAuthEmail(HashMap<String, Object> map) {
 		HashMap<String, Object> resultMap = new HashMap<>();
 
 		try {
-			String userId = String.valueOf(map.get("userId")).trim();
+			String userId = String.valueOf(map.get("userId")).trim(); 
 			String email = String.valueOf(map.get("email")).trim();
 
 			map.put("userId", userId);
@@ -318,42 +167,42 @@ public class FindAccountService {
 
 	// 이메일 인증번호 확인
 	public HashMap<String, Object> verifyPwAuthEmail(HashMap<String, Object> map) {
-	    HashMap<String, Object> resultMap = new HashMap<>();
+		HashMap<String, Object> resultMap = new HashMap<>();
 
-	    try {
-	        String userId = String.valueOf(map.get("userId")).trim();
-	        String email = String.valueOf(map.get("email")).trim();
-	        String authCode = String.valueOf(map.get("authCode")).trim();
+		try {
+			String userId = String.valueOf(map.get("userId")).trim();
+			String email = String.valueOf(map.get("email")).trim();
+			String authCode = String.valueOf(map.get("authCode")).trim();
 
-	        map.put("userId", userId);
-	        map.put("email", email);
-	        map.put("authCode", authCode);
-	        map.put("authType", "PW_RESET");
+			map.put("userId", userId);
+			map.put("email", email);
+			map.put("authCode", authCode);
+			map.put("authType", "PW_RESET");
 
-	        Map<String, Object> authInfo = findAccountMapper.selectPwResetAuth(map);
+			Map<String, Object> authInfo = findAccountMapper.selectPwResetAuth(map);
 
-	        if (authInfo == null) {
-	            resultMap.put("result", "fail");
-	            resultMap.put("message", "인증번호가 올바르지 않아요.");
-	            return resultMap;
-	        }
+			if (authInfo == null) {
+				resultMap.put("result", "fail");
+				resultMap.put("message", "인증번호가 올바르지 않아요.");
+				return resultMap;
+			}
 
-	        findAccountMapper.updatePwResetAuthVerified(map);
+			findAccountMapper.updatePwResetAuthVerified(map);
 
-	        // 🔥 여기 추가: 사용자 조회
-	        User info = findAccountMapper.selectUserById(map);
+			// 🔥 여기 추가: 사용자 조회
+			User info = findAccountMapper.selectUserById(map);
 
-	        resultMap.put("result", "success");
-	        resultMap.put("message", "이메일 인증이 완료되었어요.");
-	        resultMap.put("userName", info.getUserName());
+			resultMap.put("result", "success");
+			resultMap.put("message", "이메일 인증이 완료되었어요.");
+			resultMap.put("userName", info.getUserName());
 
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        resultMap.put("result", "fail");
-	        resultMap.put("message", "인증 확인 중 오류가 발생했어요.");
-	    }
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMap.put("result", "fail");
+			resultMap.put("message", "인증 확인 중 오류가 발생했어요.");
+		}
 
-	    return resultMap;
+		return resultMap;
 	}
 
 	// 비밀번호 재설정

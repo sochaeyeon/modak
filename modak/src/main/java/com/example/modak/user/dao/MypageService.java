@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.modak.review.model.Review;
 import com.example.modak.user.mapper.MypageMapper;
+import com.example.modak.user.model.ChatbotHistory;
 import com.example.modak.user.model.MypageSummary;
 import com.example.modak.user.model.PointHistory;
 import com.example.modak.user.model.User;
@@ -37,4 +38,8 @@ public class MypageService {
 	public int getMyReviewCount(String userId) {
 	    return mypageMapper.selectMyReviewCount(userId);
 	}
+	
+	 public List<ChatbotHistory> getChatbotRoomList(String userId) {
+	        return mypageMapper.selectChatbotRoomList(userId);
+	    }
 }

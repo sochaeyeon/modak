@@ -142,15 +142,15 @@ body {
 .review-head {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
-    margin-bottom: 10px;
 }
 
 .review-product {
-    font-family: 'SeoulHangangCEB', sans-serif;
-    font-size: 15px;
-    color: var(--text-dark);
+    font-size: 13px;
+    font-family: 'SeoulHangangCL', sans-serif;
+    color: var(--text-light);
+    line-height: 1.4;
 }
 
 .review-stars {
@@ -221,7 +221,6 @@ body {
     gap: 6px;
 }
 
-/* 버튼 스타일 */
 .btn-outline {
     padding: 8px 14px;
     border: 1px solid #ddd;
@@ -313,13 +312,15 @@ body {
 
 .review-image-thumb {
     position: relative;
-    width: 150px;
-    height: 150px;
+    width: 160px;
+    height: 160px;
     border-radius: 14px;
     overflow: hidden;
     border: 1px solid #eadfce;
     background: #fffaf5;
     cursor: pointer;
+    transition: transform .25s ease, box-shadow .25s ease;
+    will-change: transform;
 }
 
 .review-image-thumb img {
@@ -327,12 +328,15 @@ body {
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: transform .28s ease;
 }
 
 .review-image-thumb:hover {
-    transform: scale(1.1);
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    z-index: 2;
 }
+
+
 
 .review-image-overlay {
     position: absolute;
@@ -421,6 +425,7 @@ body {
 .image-modal-close:hover {
     opacity: 0.85;
 }
+
 @media (max-width: 768px) {
     .review-image-thumb {
         width: 110px;
@@ -438,4 +443,60 @@ body {
     .image-modal-nav.next {
         right: 10px;
     }
+}
+
+.review-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.review-title {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #2e1a0e;
+    margin: 6px 0 4px;
+}
+
+.review-toggle-btn {
+    border: none;
+    background: transparent;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-mid);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color .18s ease;
+    font-weight: 500;
+}
+
+
+.review-toggle-btn:hover {
+    border-color: rgba(201, 79, 30, .35);
+    color: var(--ember-deep);
+    background: rgba(201, 79, 30, .06);
+    border-radius: 10px;
+}
+
+.review-body {
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.7;
+    margin-bottom: 10px;
+    padding-top: 2px;
+}
+
+.review-product.clickable {
+    cursor: pointer;
+    transition: color .18s ease;
+}
+
+.review-product.clickable:hover {
+    color: var(--ember-deep);
+    text-decoration: underline;
 }

@@ -8,7 +8,7 @@
 		resultType="com.example.modak.user.model.User">
 		SELECT *
 		FROM USER
-		WHERE USER_ID = #{userId}
+		WHERE USER_ID = #{userId} AND USER_STATUS = 'ACTIVE'
 	</select>
 
 	<!-- 소셜 계정 조회 -->

@@ -36,6 +36,12 @@ public class LoginService {
 			User info = loginMapper.selectUser(map);
 
 			if (info != null) {
+				 if ("DELETED".equals(info.getUserStatus())) {
+				        resultMap.put("message", "탈퇴한 회원은 로그인할 수 없습니다.");
+				        resultMap.put("loginResult", false);
+				        resultMap.put("result", "success");
+				        return resultMap;
+				    }
 				if (passwordEncoder.matches((String) map.get("userPwd"), info.getUserPwd())) {
 					resultMap.put("message", Message.USER_LOGIN_SUCCESS);
 					resultMap.put("loginResult", true);

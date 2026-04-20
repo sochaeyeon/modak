@@ -496,13 +496,29 @@
                                             <div class="benefit-grid">
                                                 <div class="benefit-card">
                                                     <div class="benefit-title">보유 포인트</div>
-                                                    <div class="benefit-amount">4,200<span>P</span></div>
+                                                    <div class="benefit-amount">
+                                                        <fmt:formatNumber value="${summary.pointAmount}"
+                                                            pattern="#,###" />
+                                                        <span>P</span>
+                                                    </div>
                                                     <div class="benefit-sub">1,000P 이상 사용 가능</div>
                                                 </div>
+
                                                 <div class="benefit-card">
                                                     <div class="benefit-title">사용 가능 쿠폰</div>
-                                                    <div class="benefit-amount">3<span>장</span></div>
-                                                    <div class="benefit-sub">만료 임박 쿠폰 1장</div>
+                                                    <div class="benefit-amount">
+                                                        ${summary.couponCount}<span>장</span>
+                                                    </div>
+                                                    <div class="benefit-sub">
+                                                        <c:choose>
+                                                            <c:when test="${summary.expiringCouponCount > 0}">
+                                                                만료 임박 쿠폰 ${summary.expiringCouponCount}장
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                만료 임박 쿠폰 없음
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -510,35 +526,50 @@
                                             <div class="section-head">
                                                 <h3>포인트 내역</h3>
                                             </div>
+
                                             <div class="point-history">
-                                                <div class="ph-item">
-                                                    <div>
-                                                        <div class="ph-desc">화로대 미니 구매 적립</div>
-                                                        <div class="ph-date">2026.03.28</div>
-                                                    </div>
-                                                    <div class="ph-point plus">+1,450P</div>
-                                                </div>
-                                                <div class="ph-item">
-                                                    <div>
-                                                        <div class="ph-desc">장작 세트 구매 적립</div>
-                                                        <div class="ph-date">2026.04.06</div>
-                                                    </div>
-                                                    <div class="ph-point plus">+320P</div>
-                                                </div>
-                                                <div class="ph-item">
-                                                    <div>
-                                                        <div class="ph-desc">회원가입 웰컴 포인트</div>
-                                                        <div class="ph-date">2026.01.15</div>
-                                                    </div>
-                                                    <div class="ph-point plus">+2,000P</div>
-                                                </div>
-                                                <div class="ph-item">
-                                                    <div>
-                                                        <div class="ph-desc">텐트 구매 사용</div>
-                                                        <div class="ph-date">2026.03.15</div>
-                                                    </div>
-                                                    <div class="ph-point minus">-1,000P</div>
-                                                </div>
+                                                <c:choose>
+                                                    <c:when test="${not empty pointHistoryList}">
+                                                        <c:forEach var="item" items="${pointHistoryList}">
+                                                            <div class="ph-item">
+                                                                <div>
+                                                                    <div class="ph-desc">${item.description}</div>
+                                                                    <div class="ph-date">${item.createdAt}</div>
+                                                                </div>
+
+                                                                <div
+                                                                    style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                                                                    <div
+                                                                        class="ph-point ${item.type eq 'PLUS' ? 'plus' : 'minus'}">
+                                                                        <c:choose>
+                                                                            <c:when test="${item.type eq 'PLUS'}">
+                                                                                +
+                                                                                <fmt:formatNumber value="${item.amount}"
+                                                                                    pattern="#,###" />P
+                                                                            </c:when>
+                                                                            <c:otherwise>
+                                                                                -
+                                                                                <fmt:formatNumber value="${item.amount}"
+                                                                                    pattern="#,###" />P
+                                                                            </c:otherwise>
+                                                                        </c:choose>
+                                                                    </div>
+                                                                    <div class="ph-balance">
+                                                                        잔액
+                                                                        <fmt:formatNumber value="${item.balanceAfter}"
+                                                                            pattern="#,###" />P
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </c:forEach>
+                                                    </c:when>
+
+                                                    <c:otherwise>
+                                                        <div class="empty-state">
+                                                            <p>포인트 내역이 없습니다.</p>
+                                                        </div>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </div>
                                         </div>
                                     </div>
@@ -548,75 +579,67 @@
                                         <div class="section-card">
                                             <div class="section-head">
                                                 <h3>내가 쓴 리뷰</h3>
+                                                <a href="/user/review/history.do">더보기 →</a>
                                             </div>
+
                                             <div class="review-list">
-                                                <div class="review-item">
-                                                    <div class="review-head">
-                                                        <span class="review-product">모닥모닥 화로대 미니 스탠드형</span>
-                                                        <div class="review-stars">
-                                                            <svg class="star" viewBox="0 0 13 13" fill="#e0621a">
-                                                                <path
-                                                                    d="M6.5 1l1.5 3.5H12L9 7l1 3.5-3.5-2-3.5 2L4 7 1 4.5h4Z" />
-                                                            </svg>
-                                                            <svg class="star" viewBox="0 0 13 13" fill="#e0621a">
-                                                                <path
-                                                                    d="M6.5 1l1.5 3.5H12L9 7l1 3.5-3.5-2-3.5 2L4 7 1 4.5h4Z" />
-                                                            </svg>
-                                                            <svg class="star" viewBox="0 0 13 13" fill="#e0621a">
-                                                                <path
-                                                                    d="M6.5 1l1.5 3.5H12L9 7l1 3.5-3.5-2-3.5 2L4 7 1 4.5h4Z" />
-                                                            </svg>
-                                                            <svg class="star" viewBox="0 0 13 13" fill="#e0621a">
-                                                                <path
-                                                                    d="M6.5 1l1.5 3.5H12L9 7l1 3.5-3.5-2-3.5 2L4 7 1 4.5h4Z" />
-                                                            </svg>
-                                                            <svg class="star" viewBox="0 0 13 13" fill="#e0621a">
-                                                                <path
-                                                                    d="M6.5 1l1.5 3.5H12L9 7l1 3.5-3.5-2-3.5 2L4 7 1 4.5h4Z" />
-                                                            </svg>
+                                                <c:choose>
+                                                    <c:when test="${not empty reviewList}">
+                                                        <c:forEach var="item" items="${reviewList}">
+                                                            <div class="review-item">
+
+                                                                <div class="review-head">
+                                                                    <span
+                                                                        class="review-product">${item.productName}</span>
+
+                                                                    <div class="review-head-right">
+                                                                        <c:if test="${not empty item.imageUrl}">
+                                                                            <div class="review-thumb-inline">
+                                                                                <img src="${item.imageUrl}"
+                                                                                    alt="리뷰 이미지">
+                                                                            </div>
+                                                                        </c:if>
+
+                                                                        <div class="review-stars">
+                                                                            <c:forEach begin="1" end="5" var="i">
+                                                                                <svg class="star" viewBox="0 0 13 13"
+                                                                                    fill="${i <= item.rating ? '#e0621a' : '#ccc'}">
+                                                                                    <path
+                                                                                        d="M6.5 1l1.5 3.5H12L9 7l1 3.5-3.5-2-3.5 2L4 7 1 4.5h4Z" />
+                                                                                </svg>
+                                                                            </c:forEach>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="review-body">
+                                                                    ${item.content}
+                                                                </div>
+
+                                                                <div class="review-bottom">
+                                                                    <div class="review-date">
+                                                                        ${item.createdAt}
+                                                                    </div>
+
+                                                                    <div class="review-actions">
+                                                                        <button type="button" class="btn-outline btn-sm"
+                                                                            @click="fnEditReview('${item.reviewId}')">수정</button>
+                                                                        <button type="button"
+                                                                            class="btn-outline btn-sm danger"
+                                                                            @click="fnRemoveReview('${item.reviewId}')">삭제</button>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+                                                        </c:forEach>
+                                                    </c:when>
+
+                                                    <c:otherwise>
+                                                        <div class="empty-state">
+                                                            <p>작성한 리뷰가 없습니다.</p>
                                                         </div>
-                                                    </div>
-                                                    <div class="review-body">정말 예뻐요! 사이즈도 딱 적당하고 조립도 쉬웠어요. 혼자 캠핑할 때
-                                                        이
-                                                        화로대
-                                                        하나면 충분할 것
-                                                        같아요.
-                                                        다음엔 대형도 구매해보려고요.</div>
-                                                    <div class="review-date">2026.04.02</div>
-                                                </div>
-                                                <div class="review-item">
-                                                    <div class="review-head">
-                                                        <span class="review-product">참나무 장작 10kg + 불쏘시개 세트</span>
-                                                        <div class="review-stars">
-                                                            <svg class="star" viewBox="0 0 13 13" fill="#e0621a">
-                                                                <path
-                                                                    d="M6.5 1l1.5 3.5H12L9 7l1 3.5-3.5-2-3.5 2L4 7 1 4.5h4Z" />
-                                                            </svg>
-                                                            <svg class="star" viewBox="0 0 13 13" fill="#e0621a">
-                                                                <path
-                                                                    d="M6.5 1l1.5 3.5H12L9 7l1 3.5-3.5-2-3.5 2L4 7 1 4.5h4Z" />
-                                                            </svg>
-                                                            <svg class="star" viewBox="0 0 13 13" fill="#e0621a">
-                                                                <path
-                                                                    d="M6.5 1l1.5 3.5H12L9 7l1 3.5-3.5-2-3.5 2L4 7 1 4.5h4Z" />
-                                                            </svg>
-                                                            <svg class="star" viewBox="0 0 13 13" fill="#e0621a">
-                                                                <path
-                                                                    d="M6.5 1l1.5 3.5H12L9 7l1 3.5-3.5-2-3.5 2L4 7 1 4.5h4Z" />
-                                                            </svg>
-                                                            <svg class="star" viewBox="0 0 13 13" fill="#ccc">
-                                                                <path
-                                                                    d="M6.5 1l1.5 3.5H12L9 7l1 3.5-3.5-2-3.5 2L4 7 1 4.5h4Z" />
-                                                            </svg>
-                                                        </div>
-                                                    </div>
-                                                    <div class="review-body">장작 품질은 좋은데 불쏘시개가 생각보다 적게 들어있어요. 불 잘 붙고
-                                                        오래
-                                                        타는 건
-                                                        만족스럽습니다.
-                                                    </div>
-                                                    <div class="review-date">2026.04.09</div>
-                                                </div>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </div>
                                         </div>
                                     </div>
@@ -1120,6 +1143,36 @@
                                 pageChange("/user/recent/history.do", {});
                             },
 
+                            fnEditReview: function (reviewId) {
+                                pageChange("/user/review/edit.do", { reviewId: reviewId });
+                            },
+
+                            fnRemoveReview: function (reviewId) {
+                                if (!confirm("리뷰를 삭제하시겠습니까?")) {
+                                    return;
+                                }
+
+                                $.ajax({
+                                    url: "/user/review/remove.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: { reviewId: reviewId },
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            alert("리뷰가 삭제되었습니다.");
+                                            // 리뷰 탭 유지용 저장
+                                            sessionStorage.setItem("activeTab", "reviews");
+                                            location.reload();
+                                        } else {
+                                            alert(data.message || "삭제에 실패했습니다.");
+                                        }
+                                    },
+                                    error: function () {
+                                        alert("서버 오류가 발생했습니다.");
+                                    }
+                                });
+                            }
+
                         }, // methods
                         mounted() {
                             let self = this;
@@ -1127,6 +1180,13 @@
                             self.fnGetAddressList();
                             self.fnGetWishlist();
                             self.fnGetRecentList();
+
+
+                            const savedTab = sessionStorage.getItem("activeTab");
+                            if (savedTab) {
+                                switchTab(savedTab, null);
+                                sessionStorage.removeItem("activeTab");
+                            }
                         }
                     });
 

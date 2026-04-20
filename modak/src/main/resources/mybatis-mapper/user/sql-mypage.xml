@@ -49,7 +49,65 @@
 		SELECT COUNT(*)
 		FROM WISHLIST W
 		WHERE W.USER_ID = #{userId}
-		) AS wishlistCount
+		) AS wishlistCount,
+
+		(
+		SELECT COUNT(*)
+		FROM USER_COUPON
+		WHERE USER_ID = #{userId}
+		AND USED_YN = 'N'
+		AND EXPIRED_AT &gt;= CURDATE()
+		AND EXPIRED_AT &lt; DATE_ADD(CURDATE(), INTERVAL 4 DAY)
+		) AS expiringCouponCount
 	</select>
 
+	<!-- 만료 임박 쿠폰 -->
+	<select id="selectExpiringCouponCount" resultType="int">
+		SELECT COUNT(*)
+		FROM USER_COUPON
+		WHERE USER_ID = #{userId}
+		AND USED_YN = 'N'
+		AND EXPIRE_DT BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 3 DAY)
+	</select>
+
+	<!-- 포인트 사용내역 -->
+	<select id="selectPointHistory"
+		parameterType="string"
+		resultType="com.example.modak.user.model.PointHistory">
+		SELECT
+		HISTORY_ID,
+		USER_ID,
+		DESCRIPTION,
+		AMOUNT,
+		TYPE,
+		DATE_FORMAT(CREATED_AT, '%Y.%m.%d') AS createdAt,
+		BALANCE_AFTER
+		FROM POINT_HISTORY
+		WHERE USER_ID = #{userId}
+		ORDER BY CREATED_AT DESC, HISTORY_ID DESC
+	</select>
+
+	<select id="selectMyReviewList"
+		resultType="com.example.modak.review.model.Review">
+		SELECT
+		R.REVIEW_ID,
+		R.RATING,
+		R.CONTENT,
+		DATE_FORMAT(R.CREATED_AT, '%Y.%m.%d') AS createdAt,
+		P.PRODUCT_NAME
+		FROM REVIEW R
+		LEFT JOIN PRODUCT P
+		ON R.PRODUCT_ID = P.PRODUCT_ID
+		WHERE R.USER_ID = #{userId}
+		AND R.REVIEW_STATUS = 'ACTIVE'
+		ORDER BY R.CREATED_AT DESC, R.REVIEW_ID DESC
+		LIMIT ${pageSize} OFFSET ${offset}
+	</select>
+
+	<select id="selectMyReviewCount" resultType="int">
+		SELECT COUNT(*)
+		FROM REVIEW
+		WHERE USER_ID = #{userId}
+		AND REVIEW_STATUS = 'ACTIVE'
+	</select>
 </mapper>

@@ -8,4 +8,5 @@ public class MypageSummary {
     private int pointAmount;
     private int couponCount;
     private int wishlistCount;
+    private int expiringCouponCount;
 }

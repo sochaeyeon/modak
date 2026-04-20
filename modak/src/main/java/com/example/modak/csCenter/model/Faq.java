@@ -10,7 +10,7 @@ public class Faq {
 	int faqId;
 	String question;
 	String anwser;
-	String createAt;
+	String createdAt;
 	String category;
 
 }

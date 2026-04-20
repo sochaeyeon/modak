@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.modak.csCenter.mapper.InquiryMapper">
+
+    <!-- 내 문의 목록 조회 -->
+    <select id="selectInquiryList"
+            parameterType="hashmap"
+            resultType="com.example.modak.csCenter.model.InquiryHistory">
+        SELECT
+            I.INQUIRY_ID AS inquiryId,
+            I.TITLE AS title,
+            I.CONTENT AS content,
+            I.INQUIRY_STATUS AS inquiryStatus,
+            DATE_FORMAT(I.CREATED_AT, '%Y-%m-%d %H:%i') AS createdAt,
+            DATE_FORMAT(I.UPDATED_AT, '%Y-%m-%d %H:%i') AS updatedAt,
+            I.USER_ID AS userId,
+            R.REPLY_ID AS replyId,
+            R.CONTENT AS answer,
+            DATE_FORMAT(R.CREATED_AT, '%Y-%m-%d %H:%i') AS replyCreatedAt
+        FROM INQUIRY I
+        LEFT JOIN INQUIRY_REPLY R
+            ON I.INQUIRY_ID = R.INQUIRY_ID
+        WHERE I.USER_ID = #{userId}
+        ORDER BY I.CREATED_AT DESC
+        LIMIT ${pageSize} OFFSET ${offset}
+    </select>
+
+    <!-- 내 문의 총 개수 -->
+    <select id="selectInquiryCount"
+            parameterType="hashmap"
+            resultType="int">
+        SELECT COUNT(*)
+        FROM INQUIRY
+        WHERE USER_ID = #{userId}
+    </select>
+
+    <!-- 문의 이미지 조회 -->
+    <select id="selectInquiryImgList"
+            parameterType="hashmap"
+            resultType="com.example.modak.csCenter.model.InquiryImg">
+        SELECT
+            INQUIRY_IMG_ID AS inquiryImgId,
+            IMG_URL AS imgUrl,
+            DATE_FORMAT(CREATED_AT, '%Y-%m-%d %H:%i') AS createdAt,
+            INQUIRY_ID AS inquiryId
+        FROM INQUIRY_IMG
+        WHERE INQUIRY_ID = #{inquiryId}
+        ORDER BY CREATED_AT ASC
+    </select>
+    
+    <!-- 답변 개수 확인 -->
+<select id="selectInquiryReplyCount"
+        parameterType="hashmap"
+        resultType="int">
+    SELECT COUNT(*)
+    FROM INQUIRY_REPLY
+    WHERE INQUIRY_ID = #{inquiryId}
+</select>
+
+<!-- 문의 이미지 삭제 -->
+<delete id="deleteInquiryImg" parameterType="hashmap">
+    DELETE FROM INQUIRY_IMG
+    WHERE INQUIRY_ID = #{inquiryId}
+</delete>
+
+<!-- 문의 답변 삭제 -->
+<delete id="deleteInquiryReply" parameterType="hashmap">
+    DELETE FROM INQUIRY_REPLY
+    WHERE INQUIRY_ID = #{inquiryId}
+</delete>
+
+<!-- 문의 삭제 -->
+<delete id="deleteInquiry" parameterType="hashmap">
+    DELETE FROM INQUIRY
+    WHERE INQUIRY_ID = #{inquiryId}
+      AND USER_ID = #{userId}
+</delete>
+
+</mapper>

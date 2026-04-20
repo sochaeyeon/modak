@@ -15,6 +15,7 @@
 		EMAIL AS email,
 		USER_PHONE AS userPhone,
 		PHONE_VERIFY_YN AS phoneVerifyYn,
+		SOCIAL_TYPE,
 		DATE_FORMAT(PHONE_VERIFIED_AT, '%Y-%m-%d %H:%i:%s') AS phoneVerifiedAt
 		FROM USER
 		WHERE USER_ID = #{userId}

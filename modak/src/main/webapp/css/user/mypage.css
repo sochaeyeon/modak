@@ -1662,3 +1662,296 @@ button:disabled {
     color: #e74c3c;
     border: 1px solid #f5c6cb;
 }
+
+.social-only-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 250px;
+}
+
+.social-message {
+    font-size: 16px;
+    color: #666;
+    text-align: center;
+}
+.grade-default {
+    background: linear-gradient(135deg, #8c7b6a, #b8a999);
+    color: #fff;
+    border: 1px solid rgba(120, 100, 80, 0.25);
+}
+
+.grade-default svg {
+    fill: #fff;
+}
+
+.inquiry-review-list {
+    padding: 4px 22px 12px;
+}
+
+.inquiry-review-item {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    background: transparent;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.inquiry-review-item:last-child {
+    border-bottom: none;
+}
+
+.inquiry-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    cursor: pointer;
+    padding: 2px 0;
+}
+
+.inquiry-head-left {
+    flex: 1;
+    min-width: 0;
+}
+
+.inquiry-main-title {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #2e1a0e;
+    margin: 0 0 6px;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+.inquiry-meta {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-top: 2px;
+}
+
+.inquiry-head-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.inquiry-status {
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.inquiry-status.waiting {
+    background: rgba(176, 144, 112, 0.14);
+    color: #8b6b4d;
+}
+
+.inquiry-status.answered {
+    background: rgba(201, 79, 30, 0.10);
+    color: #c94f1e;
+}
+
+.inquiry-toggle-icon {
+    font-size: 12px;
+    color: var(--text-light);
+    transition: transform 0.2s ease, color 0.2s ease;
+    margin-top: 2px;
+}
+
+.inquiry-toggle-icon.open {
+    transform: rotate(180deg);
+    color: var(--ember-deep);
+}
+
+.inquiry-expand-area {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    animation: fadeInInquiry 0.2s ease;
+}
+
+.inquiry-detail-box {
+    border: 1px solid #eadfce;
+    background: #fffaf5;
+    border-radius: 16px;
+    padding: 18px 18px;
+    box-shadow: 0 2px 8px rgba(120, 70, 30, 0.04);
+}
+
+.inquiry-detail-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.inquiry-detail-box .detail-label {
+    font-size: 12px;
+    color: #9a826f;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+inquiry-detail-box .detail-value {
+    font-size: 13.5px;
+    color: #3e2a1f;
+    line-height: 1.75;
+    font-weight: 400;
+}
+
+.inquiry-detail-box .detail-content {
+    white-space: pre-line;
+    word-break: break-word;
+}
+
+/* 내용-이미지 사이 구분선 */
+.inquiry-detail-divider {
+    height: 1px;
+    background: #eadfce;
+    margin: 16px 0 14px;
+}
+
+/* 첨부이미지 */
+.inquiry-image-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.inquiry-detail-img {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid #eadfce;
+    background: #fff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.inquiry-detail-img:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.10);
+}
+
+/* 답변 박스는 살짝 톤 다르게 */
+.answer-box {
+    background: #fff8f3;
+    border-color: #f0d9c8;
+}
+
+
+@keyframes fadeInInquiry {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================
+   챗봇 기록 - 리뷰 스타일 재사용
+   ========================= */
+
+.chatbot-review-list {
+    padding: 4px 22px 8px;
+}
+
+.chatbot-review-item {
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    border-bottom: 1px solid var(--border);
+}
+
+.chatbot-review-item:hover {
+    transform: translateY(-2px);
+}
+
+.chatbot-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 10px;
+}
+
+.chatbot-head-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+    flex: 1;
+}
+
+.chatbot-icon-wrap {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(201, 79, 30, 0.08);
+    border: 1px solid rgba(201, 79, 30, 0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.chatbot-head-text {
+    min-width: 0;
+    flex: 1;
+}
+
+.chatbot-title {
+    font-size: 14px;
+    color: var(--text-dark);
+    font-family: 'GgiBatang', sans-serif;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.chatbot-preview {
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.65;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+
+.chatbot-arrow {
+    font-size: 18px;
+    color: var(--text-light);
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: transform 0.18s ease, color 0.18s ease;
+}
+
+.chatbot-review-item:hover .chatbot-arrow {
+    transform: translateX(3px);
+    color: var(--ember);
+}
+
+.chatbot-bottom {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.chatbot-date {
+    font-size: 11.5px;
+    color: var(--text-light);
+    margin-top: 0;
+}
+
+/* 마지막 메시지 없을 때도 간격 자연스럽게 */
+.chatbot-preview:empty {
+    display: none;
+}

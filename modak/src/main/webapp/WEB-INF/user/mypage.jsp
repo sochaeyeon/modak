@@ -524,55 +524,49 @@
                                             </div>
                                         </div>
                                         <div class="section-card">
-                                            <div class="section-head">
-                                                <h3>포인트 내역</h3>
-                                            </div>
+    <div class="section-head">
+        <h3>포인트 내역</h3>
+        <a href="javascript:;" @click="fnGoPointHistory">더보기 →</a>
+    </div>
 
-                                            <div class="point-history">
-                                                <c:choose>
-                                                    <c:when test="${not empty pointHistoryList}">
-                                                        <c:forEach var="item" items="${pointHistoryList}">
-                                                            <div class="ph-item">
-                                                                <div>
-                                                                    <div class="ph-desc">${item.description}</div>
-                                                                    <div class="ph-date">${item.createdAt}</div>
-                                                                </div>
+    <div class="point-history">
+        <c:choose>
+            <c:when test="${not empty pointHistoryList}">
+                <c:forEach var="item" items="${pointHistoryList}">
+                    <div class="ph-item">
+                        <div>
+                            <div class="ph-desc">${item.description}</div>
+                            <div class="ph-date">${item.createdAt}</div>
+                        </div>
 
-                                                                <div
-                                                                    style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-                                                                    <div
-                                                                        class="ph-point ${item.type eq 'PLUS' ? 'plus' : 'minus'}">
-                                                                        <c:choose>
-                                                                            <c:when test="${item.type eq 'PLUS'}">
-                                                                                +
-                                                                                <fmt:formatNumber value="${item.amount}"
-                                                                                    pattern="#,###" />P
-                                                                            </c:when>
-                                                                            <c:otherwise>
-                                                                                -
-                                                                                <fmt:formatNumber value="${item.amount}"
-                                                                                    pattern="#,###" />P
-                                                                            </c:otherwise>
-                                                                        </c:choose>
-                                                                    </div>
-                                                                    <div class="ph-balance">
-                                                                        잔액
-                                                                        <fmt:formatNumber value="${item.balanceAfter}"
-                                                                            pattern="#,###" />P
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </c:forEach>
-                                                    </c:when>
+                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                            <div class="ph-point ${item.type eq 'PLUS' ? 'plus' : 'minus'}">
+                                <c:choose>
+                                    <c:when test="${item.type eq 'PLUS'}">
+                                        + <fmt:formatNumber value="${item.amount}" pattern="#,###" />P
+                                    </c:when>
+                                    <c:otherwise>
+                                        - <fmt:formatNumber value="${item.amount}" pattern="#,###" />P
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                            <div class="ph-balance">
+                                잔액
+                                <fmt:formatNumber value="${item.balanceAfter}" pattern="#,###" />P
+                            </div>
+                        </div>
+                    </div>
+                </c:forEach>
+            </c:when>
 
-                                                    <c:otherwise>
-                                                        <div class="empty-state">
-                                                            <p>포인트 내역이 없습니다.</p>
-                                                        </div>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </div>
-                                        </div>
+            <c:otherwise>
+                <div class="empty-state">
+                    <p>포인트 내역이 없습니다.</p>
+                </div>
+            </c:otherwise>
+        </c:choose>
+    </div>
+</div>
                                     </div>
 
                                     <!-- ── 내 리뷰 탭 ── -->
@@ -672,253 +666,316 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <!-- ── 내 문의 목록 탭 ── -->
-                                    <div class="tab-panel" id="tab-inquiries">
-                                        <div class="section-card">
-                                            <div class="section-head">
-                                                <h3>내 문의 목록</h3>
-                                            </div>
+                                   <!-- ── 내 문의 목록 탭 ── -->
+<div class="tab-panel" id="tab-inquiries">
+    <div class="section-card">
+        <div class="section-head">
+            <h3>내 문의 목록</h3>
+            <a href="/user/inquiry/history.do">더보기 →</a>
+        </div>
 
-                                            <!-- 목록 -->
-                                            <div v-if="!selectedInquiry">
-                                                <div class="inquiry-list">
-                                                    <div class="inquiry-item" v-for="item in inquiryList"
-                                                        :key="item.inquiryId" @click="fnSelectInquiry(item)">
-                                                        <div class="inquiry-title">{{ item.title }}</div>
-                                                        <div class="inquiry-date">{{ item.createdAt }}</div>
-                                                    </div>
-                                                </div>
-                                            </div>
+        <div class="review-list inquiry-review-list">
+            <div v-if="inquiryList.length === 0" class="empty-state">
+                <p>문의 내역이 없습니다.</p>
+            </div>
 
-                                            <!-- 상세 -->
-                                            <div v-else class="inquiry-detail-wrap">
-                                                <div class="detail-top">
-                                                    <button class="btn-outline"
-                                                        @click="fnBackToInquiryList">목록으로</button>
-                                                </div>
+            <div class="review-item inquiry-review-item"
+                 v-for="item in inquiryList"
+                 :key="item.inquiryId">
 
-                                                <div class="detail-card">
-                                                    <div class="detail-label">문의 제목</div>
-                                                    <div class="detail-value">{{ selectedInquiry.title }}</div>
-                                                </div>
+                <div class="review-head inquiry-head"
+                     @click="fnToggleInquiry(item)">
+                    <div class="inquiry-head-left">
+                        <div class="review-title inquiry-main-title">
+                            {{ item.title }}
+                        </div>
 
-                                                <div class="detail-card">
-                                                    <div class="detail-label">문의 내용</div>
-                                                    <div class="detail-value detail-content">{{
-                                                        selectedInquiry.content
-                                                        }}
-                                                    </div>
-                                                </div>
+                        <div class="review-date inquiry-meta">
+                            {{ item.createdAt }}
+                        </div>
+                    </div>
 
-                                                <div class="detail-card" v-if="selectedInquiry.answer">
-                                                    <div class="detail-label">관리자 답변</div>
-                                                    <div class="detail-value detail-content">{{
-                                                        selectedInquiry.answer
-                                                        }}
-                                                    </div>
-                                                </div>
+                    <div class="inquiry-head-right">
+                        <div class="inquiry-status"
+                             :class="fnInquiryStatusClass(item)">
+                            {{ fnInquiryStatusText(item) }}
+                        </div>
 
-                                                <div class="detail-card" v-else>
-                                                    <div class="detail-label">관리자 답변</div>
-                                                    <div class="detail-value">아직 답변이 등록되지 않았습니다.</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- ── 챗봇 기록 탭 ── -->
-                                    <div class="tab-panel" id="tab-chatbot">
-                                        <div class="section-card">
-                                            <div class="section-head">
-                                                <h3>챗봇 기록</h3>
-                                                <a href="javascript:;" @click="fnGoChatbotHistory">더보기 →</a>
-                                            </div>
+                        <div class="review-actions" v-if="!item.replyId">
+                            <button type="button"
+                                    class="btn-outline btn-sm"
+                                    @click.stop="fnEditInquiry(item.inquiryId)">
+                                수정
+                            </button>
+                            <button type="button"
+                                    class="btn-outline btn-sm danger"
+                                    @click.stop="fnDeleteInquiry(item.inquiryId)">
+                                삭제
+                            </button>
+                        </div>
 
-                                            <div class="history-list">
-                                                <div v-if="chatbotList.length === 0" class="empty-state">
-                                                    <p>챗봇 기록이 없습니다.</p>
-                                                </div>
+                        <div class="inquiry-toggle-icon"
+                             :class="{ open: openInquiryId === item.inquiryId }">
+                            ▼
+                        </div>
+                    </div>
+                </div>
 
-                                                <div class="history-item chatbot-history-item"
-                                                    v-for="chat in limitedChatbotList" :key="chat.roomId"
-                                                    @click="fnGoChatbotRoom(chat.roomId)">
+                <div v-if="openInquiryId === item.inquiryId" class="inquiry-expand-area">
+                    <div class="inquiry-detail-box">
+                        <div class="inquiry-detail-section">
+                            <div class="detail-label">문의 내용</div>
+                            <div class="detail-value detail-content">
+                                {{ item.content }}
+                            </div>
+                        </div>
 
-                                                    <div class="chatbot-history-left">
-                                                        <div class="chatbot-history-icon">💬</div>
+                        <div class="inquiry-detail-divider"
+                             v-if="item.imageList && item.imageList.length > 0"></div>
 
-                                                        <div class="chatbot-history-text">
-                                                            <div class="history-title">
-                                                                {{ chat.title && chat.title.trim() ? chat.title : '대화'
-                                                                }}
-                                                            </div>
-                                                            <div class="chatbot-history-preview"
-                                                                v-if="chat.lastMessage">
-                                                                {{ chat.lastMessage }}
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                        <div class="inquiry-detail-section"
+                             v-if="item.imageList && item.imageList.length > 0">
+                            <div class="detail-label">첨부 이미지</div>
+                            <div class="detail-value">
+                                <div class="inquiry-image-list">
+                                    <img v-for="img in item.imageList"
+                                         :key="img.inquiryImgId"
+                                         :src="img.imgUrl"
+                                         class="inquiry-detail-img"
+                                         alt="문의 이미지">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                                                    <div class="chatbot-history-right">
-                                                        <div class="history-date">{{ chat.lastRegDate }}</div>
-                                                        <div class="chatbot-history-arrow">→</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                    <div class="inquiry-detail-box answer-box">
+                        <div class="inquiry-detail-section">
+                            <div class="detail-label">문의 답변</div>
+                            <div class="detail-value detail-content" v-if="item.answer">
+                                {{ item.answer }}
+                            </div>
+                            <div class="detail-value" v-else>
+                                아직 답변이 등록되지 않았습니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── 챗봇 기록 탭 ── -->
+<div class="tab-panel" id="tab-chatbot">
+    <div class="section-card">
+        <div class="section-head">
+            <h3>챗봇 기록</h3>
+            <a href="javascript:;" @click="fnGoChatbotHistory">더보기 →</a>
+        </div>
+
+        <div class="review-list chatbot-review-list">
+            <div v-if="chatbotList.length === 0" class="empty-state">
+                <p>챗봇 기록이 없습니다.</p>
+            </div>
+
+            <div class="review-item chatbot-review-item"
+                 v-for="chat in limitedChatbotList"
+                 :key="chat.roomId"
+                 @click="fnGoChatbotRoom(chat.roomId)">
+
+                <div class="review-head chatbot-head">
+                    <div class="chatbot-head-left">
+                        <div class="chatbot-icon-wrap">💬</div>
+
+                        <div class="chatbot-head-text">
+                            <div class="review-title chatbot-title">
+                                {{ chat.title && chat.title.trim() ? chat.title : '대화' }}
+                            </div>
+
+                            <div class="chatbot-preview" v-if="chat.lastMessage">
+                                {{ chat.lastMessage }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chatbot-arrow">→</div>
+                </div>
+
+                <div class="review-bottom chatbot-bottom">
+                    <div class="review-date chatbot-date">
+                        {{ chat.lastRegDate }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
                                     <!-- ── 계정설정 탭 ── -->
-                                    <div class="tab-panel" id="tab-settings">
-                                        <div class="section-card">
-                                            <div class="section-head">
-                                                <h3>기본 정보</h3>
-                                            </div>
+                                   <div class="tab-panel" id="tab-settings">
 
-                                            <div class="settings-form">
-                                                <div v-if="settingsMsg" class="settings-msg" :class="settingsMsgType">
-                                                    {{ settingsMsg }}
-                                                </div>
+    <!-- 일반 회원 -->
+    <template v-if="!settingsForm.socialType">
+        <!-- 기본 정보 -->
+        <div class="section-card">
+            <div class="section-head">
+                <h3>기본 정보</h3>
+            </div>
 
-                                                <div class="setting-row">
-                                                    <div class="setting-field">
-                                                        <label>이름</label>
-                                                        <input input type="text" v-model="settingsForm.userName"
-                                                            @input="fnClearSettingsMsg" placeholder="이름 입력">
-                                                    </div>
+            <div class="settings-form">
+                <div v-if="settingsMsg" class="settings-msg" :class="settingsMsgType">
+                    {{ settingsMsg }}
+                </div>
 
-                                                    <div class="setting-field">
-                                                        <label>닉네임</label>
-                                                        <input type="text" v-model="settingsForm.nickName"
-                                                            @input="fnClearSettingsMsg" placeholder="닉네임 입력">
-                                                    </div>
-                                                </div>
-                                                <div class="setting-row">
-                                                    <div class="setting-field">
-                                                        <label>이메일</label>
-                                                        <input type="text" v-model="settingsForm.email" readonly>
-                                                    </div>
+                <div class="setting-row">
+                    <div class="setting-field">
+                        <label>이름</label>
+                        <input type="text" v-model="settingsForm.userName">
+                    </div>
 
-                                                    <div class="setting-field">
-                                                        <label>연락처</label>
+                    <div class="setting-field">
+                        <label>닉네임</label>
+                        <input type="text" v-model="settingsForm.nickName">
+                    </div>
+                </div>
 
-                                                        <div class="phone-verify-wrap">
-                                                            <div class="phone-input-row">
-                                                                <input type="text" v-model="settingsForm.userPhone"
-                                                                    placeholder="01012345678"
-                                                                    @input="fnHandlePhoneChanged">
+                <div class="setting-row">
+                    <div class="setting-field">
+                        <label>이메일</label>
+                        <input type="text" v-model="settingsForm.email" readonly>
+                    </div>
 
-                                                                <button type="button" class="btn-outline"
-                                                                    @click="fnSendSmsCode">
-                                                                    인증번호 받기
-                                                                </button>
-                                                            </div>
+                    <div class="setting-field">
+                        <label>연락처</label>
 
-                                                            <div class="phone-verify-status">
-                                                                <span v-if="settingsForm.phoneVerifyYn === 'Y'"
-                                                                    class="verify-success">
-                                                                    인증 완료
-                                                                    <span v-if="settingsForm.phoneVerifiedAt">
-                                                                        ({{ settingsForm.phoneVerifiedAt }})
-                                                                    </span>
-                                                                </span>
-                                                                <span v-else-if="smsInputVisible"
-                                                                    class="verify-fail">미인증</span>
-                                                            </div>
+                        <div class="phone-verify-wrap">
+                            <div class="phone-input-row">
+                                <input type="text" v-model="settingsForm.userPhone"
+                                    placeholder="01012345678"
+                                    @input="fnHandlePhoneChanged">
 
-                                                            <div
-                                                                v-if="smsInputVisible && settingsForm.phoneVerifyYn !== 'Y'">
-                                                                <div class="phone-timer-wrap" v-if="smsTimeLeft > 0">
-                                                                    <span class="phone-timer-text">남은 시간 {{
-                                                                        formattedSmsTime }}</span>
-                                                                </div>
+                                <button type="button" class="btn-outline"
+                                    @click="fnSendSmsCode">
+                                    인증번호 받기
+                                </button>
+                            </div>
 
-                                                                <div class="phone-timer-wrap" v-if="smsExpired">
-                                                                    <span class="phone-timer-expired">
-                                                                        인증번호가 만료되었습니다. 다시 발급해주세요.
-                                                                    </span>
-                                                                </div>
+                            <div class="phone-verify-status">
+                                <span v-if="settingsForm.phoneVerifyYn === 'Y'" class="verify-success">
+                                    인증 완료
+                                    <span v-if="settingsForm.phoneVerifiedAt">
+                                        ({{ settingsForm.phoneVerifiedAt }})
+                                    </span>
+                                </span>
+                                <span v-else-if="smsInputVisible" class="verify-fail">미인증</span>
+                            </div>
 
-                                                                <div class="phone-input-row">
-                                                                    <input type="text" v-model="smsAuthCode"
-                                                                        maxlength="6" placeholder="인증번호 6자리 입력">
+                            <div v-if="smsInputVisible && settingsForm.phoneVerifyYn !== 'Y'">
+                                <div class="phone-timer-wrap" v-if="smsTimeLeft > 0">
+                                    <span class="phone-timer-text">남은 시간 {{ formattedSmsTime }}</span>
+                                </div>
 
-                                                                    <button type="button" class="btn-save"
-                                                                        @click="fnVerifySmsCode">
-                                                                        인증 확인
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="section-card">
-                                                    <div class="section-head">
-                                                        <h3>비밀번호 변경</h3>
-                                                    </div>
+                                <div class="phone-timer-wrap" v-if="smsExpired">
+                                    <span class="phone-timer-expired">
+                                        인증번호가 만료되었습니다. 다시 발급해주세요.
+                                    </span>
+                                </div>
 
-                                                    <!-- 휴대폰 인증 안 된 경우 -->
-                                                    <div class="settings-lock-box"
-                                                        v-if="settingsForm.phoneVerifyYn !== 'Y'">
-                                                        <div class="settings-lock-title">휴대폰 인증 후 비밀번호 변경 가능</div>
-                                                        <div class="settings-lock-desc">
-                                                            계정 보안을 위해 휴대폰 인증을 완료한 뒤 비밀번호를 변경할 수 있습니다.
-                                                        </div>
-                                                    </div>
+                                <div class="phone-input-row">
+                                    <input type="text" v-model="smsAuthCode"
+                                        maxlength="6" placeholder="인증번호 6자리 입력">
 
-                                                    <!-- 휴대폰 인증 완료된 경우 -->
-                                                    <div class="settings-form" v-else>
-                                                        <div v-if="passwordMsg" class="settings-msg"
-                                                            :class="passwordMsgType">
-                                                            {{ passwordMsg }}
-                                                        </div>
+                                    <button type="button" class="btn-save"
+                                        @click="fnVerifySmsCode">
+                                        인증 확인
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                                                        <div class="setting-row">
-                                                            <div class="setting-field">
-                                                                <label>현재 비밀번호</label>
-                                                                <input type="password" v-model="passwordForm.currentPwd"
-                                                                    placeholder="현재 비밀번호">
-                                                            </div>
+                <div class="settings-actions">
+                    <button type="button" class="btn-save" @click="fnSaveSettings">저장</button>
+                </div>
+            </div>
+        </div>
 
-                                                            <div style="display:flex;gap:14px;">
-                                                                <div class="setting-field" style="flex:1">
-                                                                    <label>새 비밀번호</label>
-                                                                    <input type="password" v-model="passwordForm.newPwd"
-                                                                        placeholder="새 비밀번호">
+        <!-- 비밀번호 변경 -->
+        <div class="section-card">
+            <div class="section-head">
+                <h3>비밀번호 변경</h3>
+            </div>
 
-                                                                    <div class="password-guide"
-                                                                        :class="passwordStrengthClass">
-                                                                        {{ passwordStrengthText }}
-                                                                    </div>
-                                                                </div>
+            <div class="settings-lock-box" v-if="settingsForm.phoneVerifyYn !== 'Y'">
+                <div class="settings-lock-title">휴대폰 인증 후 비밀번호 변경 가능</div>
+                <div class="settings-lock-desc">
+                    계정 보안을 위해 휴대폰 인증을 완료한 뒤 비밀번호를 변경할 수 있습니다.
+                </div>
+            </div>
 
-                                                                <div class="setting-field" style="flex:1">
-                                                                    <label>확인</label>
-                                                                    <input type="password"
-                                                                        v-model="passwordForm.newPwdConfirm"
-                                                                        placeholder="비밀번호 확인">
+            <div class="settings-form" v-else>
+                <div v-if="passwordMsg" class="settings-msg" :class="passwordMsgType">
+                    {{ passwordMsg }}
+                </div>
 
-                                                                    <div class="password-guide"
-                                                                        v-if="passwordForm.newPwdConfirm"
-                                                                        :class="passwordMatch ? 'match-ok' : 'match-fail'">
-                                                                        {{ passwordMatch ? '비밀번호가 일치합니다.' : '비밀번호가 일치하지 않습니다.' }}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                <div class="setting-row">
+                    <div class="setting-field">
+                        <label>현재 비밀번호</label>
+                        <input type="password" v-model="passwordForm.currentPwd" placeholder="현재 비밀번호">
+                    </div>
 
-                                                        <div class="settings-actions">
-                                                            <button type="button" class="btn-save"
-                                                                @click="fnChangePassword">변경하기</button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="settings-divider"></div>
+                    <div style="display:flex;gap:14px;">
+                        <div class="setting-field" style="flex:1">
+                            <label>새 비밀번호</label>
+                            <input type="password" v-model="passwordForm.newPwd" placeholder="새 비밀번호">
 
-                                                    <div class="danger-zone">
-                                                        <div class="danger-title">계정 관리</div>
-                                                        <button class="btn-danger" @click="fnDeleteUser">회원탈퇴</button>
-                                                    </div>
-                                                </div>
-                                            </div>
+                            <div class="password-guide" :class="passwordStrengthClass">
+                                {{ passwordStrengthText }}
+                            </div>
+                        </div>
 
+                        <div class="setting-field" style="flex:1">
+                            <label>확인</label>
+                            <input type="password" v-model="passwordForm.newPwdConfirm" placeholder="비밀번호 확인">
+
+                            <div class="password-guide"
+                                v-if="passwordForm.newPwdConfirm"
+                                :class="passwordMatch ? 'match-ok' : 'match-fail'">
+                                {{ passwordMatch ? '비밀번호가 일치합니다.' : '비밀번호가 일치하지 않습니다.' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-actions">
+                    <button type="button" class="btn-save" @click="fnChangePassword">변경하기</button>
+                </div>
+            </div>
+
+        </div>
+    </template>
+
+    <!-- 소셜 로그인 회원 -->
+    <div class="section-card social-only-box" v-else>
+        <div class="social-message">
+            소셜 로그인 회원은 계정 정보를 수정할 수 없습니다.
+        </div>
+    </div>
+     <div class="section-card">
+        <div class="settings-divider"></div>
+
+        <div class="danger-zone">
+            <div class="danger-title">계정 관리</div>
+            <button class="btn-danger" @click="fnDeleteUser">회원탈퇴</button>
+        </div>
+    </div>
+
+</div>
+
+</div>
+</div>
                                 </main>
                             </div>
                         </div>
@@ -989,7 +1046,8 @@
                                     email: "",
                                     userPhone: "",
                                     phoneVerifyYn: "N",
-                                    phoneVerifiedAt: ""
+                                    phoneVerifiedAt: "",
+                                    socialType: ""   
                                 },
                                 originalPhone: "",
                                 verifiedPhone: "",
@@ -1015,6 +1073,8 @@
                                 smsInputVisible: false,
                                 passwordMsg: "",
                                 passwordMsgType: "",
+                                inquiryList: [],
+openInquiryId: null,
                             };
                         },
                         computed: {
@@ -1540,6 +1600,7 @@
         data: {},
         success: function (data) {
             if (data.result === "success") {
+                
                 let info = data.info || {};
 
                 self.settingsForm.userName = info.userName || "";
@@ -1548,6 +1609,7 @@
                 self.settingsForm.userPhone = info.userPhone || "";
                 self.settingsForm.phoneVerifyYn = info.phoneVerifyYn || "N";
                 self.settingsForm.phoneVerifiedAt = info.phoneVerifiedAt || "";
+                self.settingsForm.socialType = info.socialType || "";
 
                 self.displayUser.userName = info.userName || "";
                 self.displayUser.nickName = info.nickName || "";
@@ -1785,7 +1847,102 @@
                                 this.settingsMsg = "";
                                 this.settingsMsgType = "";
                             },
+                           fnGetInquiryList: function () {
+    let self = this;
 
+    $.ajax({
+        url: "/user/inquiry/list.dox",
+        type: "POST",
+        dataType: "json",
+        data: {},
+        success: function (data) {
+            if (data.result === "success") {
+                self.inquiryList = (data.list || []).map(function(item) {
+                    item.imageList = item.imageList || [];
+                    return item;
+                });
+            } else {
+                self.inquiryList = [];
+            }
+        },
+        error: function () {
+            self.inquiryList = [];
+        }
+    });
+},
+fnToggleInquiry: function (item) {
+    let self = this;
+
+    if (self.openInquiryId === item.inquiryId) {
+        self.openInquiryId = null;
+        return;
+    }
+
+    self.openInquiryId = item.inquiryId;
+
+    // 이미 불러온 이미지가 있으면 다시 요청 안 함
+    if (item.imageList && item.imageList.length > 0) {
+        return;
+    }
+
+    $.ajax({
+        url: "/user/inquiry/img/list.dox",
+        type: "POST",
+        dataType: "json",
+        data: {
+            inquiryId: item.inquiryId
+        },
+        success: function (data) {
+            if (data.result === "success") {
+                item.imageList = data.list || [];
+            } else {
+                item.imageList = [];
+            }
+        },
+        error: function () {
+            item.imageList = [];
+        }
+    });
+},
+fnInquiryStatusText: function (item) {
+    return item.replyId ? "답변완료" : "답변대기";
+},
+fnInquiryStatusClass: function (item) {
+    return item.replyId ? "answered" : "waiting";
+},
+fnEditInquiry: function (inquiryId) {
+    pageChange("/user/review/edit.do", { inquiryId: inquiryId });
+},
+
+fnDeleteInquiry: function (inquiryId) {
+    let self = this;
+
+    if (!confirm("문의글을 삭제하시겠습니까?")) {
+        return;
+    }
+
+    $.ajax({
+        url: "/user/inquiry/delete.dox",
+        type: "POST",
+        dataType: "json",
+        data: { inquiryId: inquiryId },
+        success: function (data) {
+            if (data.result === "success") {
+                alert("문의가 삭제되었습니다.");
+                self.fnGetInquiryList();
+                self.openInquiryId = null;
+            } else {
+                alert(data.message || "삭제 실패");
+            }
+        },
+        error: function () {
+            alert("서버 오류");
+        }
+    });
+},
+fnGoPointHistory: function () {
+    pageChange("/user/point/history.do", {});
+},
                         }, // methods
                         mounted() {
                             let self = this;
@@ -1795,6 +1952,7 @@
                             self.fnGetRecentList();
                             self.fnGetChatbotList();
                             self.fnGetUserSettings();
+                            self.fnGetInquiryList();
 
                             const savedTab = sessionStorage.getItem("activeTab");
                             if (savedTab) {

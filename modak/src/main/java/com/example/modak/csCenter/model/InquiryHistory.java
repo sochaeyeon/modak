@@ -1,11 +1,9 @@
 package com.example.modak.csCenter.model;
 
-import java.util.List;
-
 import lombok.Data;
 
 @Data
-public class Inquiry {
+public class InquiryHistory {
     private int inquiryId;
     private String title;
     private String content;
@@ -14,11 +12,7 @@ public class Inquiry {
     private String updatedAt;
     private String userId;
 
-    // 답변
-    private int replyId;
+    private Integer replyId;
     private String answer;
     private String replyCreatedAt;
-
-    // 이미지
-    private List<InquiryImg> imageList;
 }

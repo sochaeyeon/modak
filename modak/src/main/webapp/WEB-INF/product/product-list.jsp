@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>모닥모닥 - 장비 목록</title>
 
-<link rel="stylesheet" href="/css/common/font.css">
+<!-- <link rel="stylesheet" href="/css/common/font.css"> -->
 <link rel="stylesheet" href="/css/product/product-list.css">
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -17,15 +17,6 @@
 <%@ include file="/WEB-INF/common/header.jsp" %>
 
 <div id="app">
-
-  <!-- ── 브레드크럼 ──
-  <div class="breadcrumb">
-    <div class="breadcrumb-inner">
-      <a class="bc" href="#">홈</a>
-      <span class="bc-sep">›</span>
-      <a class="bc" href="#">장비</a>
-    </div>
-  </div> -->
 
   <!-- ── 카테고리 pill 바 ── -->
   <div class="cat-bar">
@@ -222,7 +213,6 @@
                 <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
               </button>
             </div>
-
             <div class="pcard-body">
               <template v-if="currentView === 'list'">
                 <div class="pcard-main">
@@ -249,8 +239,8 @@
                 <div class="pcard-name">{{ product.productName }}</div>
                 <!-- <div class="stars">
                   <span v-html="starsHTML(product.rating)"></span>
-                  <span class="star-count">{{ product.rating }} ({{ product.rCount }})</span> <!-- 리뷰 별점 평균 -->
-                </div> -->
+                  <span class="star-count">{{ product.rating }} ({{ product.rCount }})</span> 리뷰 별점 평균 -->
+            </div>
                 <div class="price-row">
                   <span class="price-orig" v-if="product.origRent">{{ product.origRent.toLocaleString() }}원</span>
                   <span class="price-main">{{ (product.price || 0).toLocaleString() }}원</span>

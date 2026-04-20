@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.modak.csCenter.mapper.FaqMapper">
+
+	<!-- 여러개 검색 -->
+	<select id="selectFaqList" parameterType="hashmap"
+		resultType="com.example.modak.csCenter.model.Faq"> SELECT FAQ_ID,
+		CATEGORY, QUESTION, ANSWER, CREATED_AT AS regDate FROM FAQ WHERE 1=1 <if
+			test="category != null and category != '' and category != '전체'">
+			AND CATEGORY = #{category}
+		</if>
+
+   <if
+			test="searchKeyword != null and searchKeyword != ''">
+			AND (
+			QUESTION LIKE CONCAT('%', #{searchKeyword}, '%')
+			OR
+			ANSWER LIKE CONCAT('%', #{searchKeyword}, '%')
+			)
+		</if>
+		ORDER BY FAQ_ID DESC </select>
+</mapper>

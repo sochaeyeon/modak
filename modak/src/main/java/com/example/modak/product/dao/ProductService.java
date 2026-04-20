@@ -19,6 +19,12 @@ public class ProductService {
 	public HashMap<String, Object> getProductList(HashMap<String, Object> map){
 	      HashMap<String, Object> resultMap = new HashMap<String, Object>();
 	      try {
+	    	  // 검색어 앞뒤 공백 제거
+	    	  if (map.get("searchKeyword") != null) {
+	              String keyword = String.valueOf(map.get("searchKeyword")).trim();
+	              map.put("searchKeyword", keyword);
+	          }
+	    	  
 	    	  List<Product> list = productMapper.selectProductList(map);
 	    	  resultMap.put("list", list);
 	    	  resultMap.put("result", "success");

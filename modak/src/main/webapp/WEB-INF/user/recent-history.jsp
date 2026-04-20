@@ -128,7 +128,7 @@
                             };
                         },
                         methods: {
-                            fnGetRecentList: function () {
+                            fnGetRecentList: function (moveTop = false) {
                                 let self = this;
 
                                 $.ajax({
@@ -144,6 +144,14 @@
                                             self.recentList = data.list || [];
                                             self.totalCount = data.totalCount || 0;
                                             self.totalPages = Math.ceil(self.totalCount / self.pageSize) || 1;
+                                            self.listAnimateKey++;
+
+                                            if (moveTop) {
+                                                window.scrollTo({
+                                                    top: 0,
+                                                    behavior: "smooth"
+                                                });
+                                            }
                                         } else {
                                             self.recentList = [];
                                             self.totalCount = 0;
@@ -162,10 +170,11 @@
                                 if (num < 1 || num > this.totalPages || num === this.page) {
                                     return;
                                 }
-                                this.page = num;
-                                this.fnGetRecentList();
-                            },
 
+                                this.page = num;
+                                this.fnGetRecentList(true);
+                            },
+                            
                             fnGoProductDetail: function (productId) {
                                 pageChange("/product/detail.do", { productId: productId });
                             },

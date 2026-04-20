@@ -15,9 +15,11 @@
   font-display: swap;
 }
 
+
 html, body {
   font-family: 'SeoulHangangCL', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
 }
+
 
 input, textarea, button, select {
   font-family: 'SeoulHangangCL', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;

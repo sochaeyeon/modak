@@ -135,6 +135,7 @@
         WHERE EXTENSION_ID = #{extensionId}
           AND RENTAL_ID    = #{rentalId}
     </delete>
+    
 
     <!-- ════════════════════════════════════════
          반납일 업데이트

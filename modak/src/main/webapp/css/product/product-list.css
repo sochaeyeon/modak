@@ -238,11 +238,11 @@ input:checked + .fopt::before {
 .fopt:hover { color: var(--ember); }
 .fopt-count { margin-left: auto; font-size: 11px; color: var(--mist); }
 
-/* 기본 input 선택버튼 숨기기 */
+/* 기본 input 선택버튼 숨기기
 .filter-opts input[type="checkbox"],
 .filter-opts input[type="radio"] {
     display: none;
-}
+} */
 
 
 /* 필터 초기화 버튼 컨테이너 (여백 조절) */

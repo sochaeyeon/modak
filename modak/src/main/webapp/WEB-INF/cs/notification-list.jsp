@@ -10,11 +10,13 @@
 	</head>
 
 	<body>
-		<div class="browser-wrap">
-			<div class="page">
 
-				<!-- Header -->
-				<%@ include file="/WEB-INF/common/header.jsp" %>
+		<!-- Header -->
+		<%@ include file="/WEB-INF/common/header.jsp" %>
+
+			<div class="browser-wrap">
+				<div class="page">
+
 
 					<!-- BREADCRUMB -->
 					<div class="breadcrumb-bar">
@@ -180,29 +182,31 @@
 						</div>
 					</div>
 
-					<!-- Footer -->
-					<%@ include file="/WEB-INF/common/footer.jsp" %>
 
 
-			</div><!-- /page -->
-		</div><!-- /browser-wrap -->
+				</div><!-- /page -->
+			</div><!-- /browser-wrap -->
 
-		<script>
-			// Category tabs
-			document.querySelectorAll('.cat-tab').forEach(t => {
-				t.addEventListener('click', function () {
-					document.querySelectorAll('.cat-tab').forEach(x => x.classList.remove('active'));
-					this.classList.add('active');
-				});
-			});
-			// Pagination
-			document.querySelectorAll('.page-btn:not(.arrow)').forEach(b => {
-				b.addEventListener('click', function () {
-					document.querySelectorAll('.page-btn:not(.arrow)').forEach(x => x.classList.remove('active'));
-					this.classList.add('active');
-				});
-			});
-		</script>
+			<!-- Footer -->
+			<%@ include file="/WEB-INF/common/footer.jsp" %>
+
+
+				<script>
+					// Category tabs
+					document.querySelectorAll('.cat-tab').forEach(t => {
+						t.addEventListener('click', function () {
+							document.querySelectorAll('.cat-tab').forEach(x => x.classList.remove('active'));
+							this.classList.add('active');
+						});
+					});
+					// Pagination
+					document.querySelectorAll('.page-btn:not(.arrow)').forEach(b => {
+						b.addEventListener('click', function () {
+							document.querySelectorAll('.page-btn:not(.arrow)').forEach(x => x.classList.remove('active'));
+							this.classList.add('active');
+						});
+					});
+				</script>
 	</body>
 
 	</html>

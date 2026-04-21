@@ -40,6 +40,5 @@ public class FaqController {
 
 		return new Gson().toJson(resultMap);
 	}
-	
 
 }

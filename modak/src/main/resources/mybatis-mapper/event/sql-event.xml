@@ -1,30 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.modak.event.mapper.EventMapper">
-<!--  이벤트 목록 조회 (탭 필터 + 페이징)  -->
-<select id="selectEventList" parameterType="hashmap" resultType="com.example.modak.event.model.Event">
-SELECT EVENT_ID AS eventId, TITLE AS title, CONTENT AS content, START_DATE AS startDate, END_DATE AS endDate FROM EVENT
-<where>
-<!--  tabType: 'ongoing'=진행중 / 'ended'=종료 / 'winner'=당첨자 발표  -->
-<if test="tabType != null and tabType == 'ongoing'"> <![CDATA[ AND END_DATE >= NOW() ]]></if>
-<if test="tabType != null and tabType == 'ended'"> <![CDATA[ AND END_DATE < NOW() ]]></if>
-</where>
-ORDER BY EVENT_ID DESC 
-LIMIT #{pageSize, jdbcType=INTEGER} 
-OFFSET #{offset, jdbcType=INTEGER}
-</select>
-<!--  전체 건수 (페이징용)  -->
-<select id="selectEventCount" parameterType="hashmap" resultType="int">
-SELECT COUNT(*) FROM EVENT
-<where>
-<if test="tabType != null and tabType == 'ongoing'"><![CDATA[ AND END_DATE >= NOW() ]]></if>
-<if test="tabType != null and tabType == 'ended'"><![CDATA[ AND END_DATE < NOW() ]]></if>
-</where>
-</select>
-<!--  단건 상세 조회  -->
-<select id="selectEvent" parameterType="hashmap" resultType="com.example.modak.event.model.Event"> 
-SELECT EVENT_ID AS eventId, TITLE AS title, CONTENT AS content, START_DATE AS startDate, 
-END_DATE AS endDate FROM event WHERE EVENT_ID = #{eventId} 
-</select>
+
+    <!-- 이벤트 목록 조회 (탭 필터 + 페이징) -->
+    <select id="selectEventList" parameterType="hashmap"
+            resultType="com.example.modak.event.model.Event">
+        SELECT
+            event_id   AS eventId,
+            title,
+            content,
+            start_date AS startDate,
+            end_date   AS endDate
+        FROM event
+        <where>
+            <if test="tabType != null and tabType == 'ongoing'">
+                <![CDATA[ AND start_date <= NOW() AND end_date >= NOW() ]]>
+            </if>
+            <if test="tabType != null and tabType == 'ended'">
+                <![CDATA[ AND end_date < NOW() ]]>
+            </if>
+        </where>
+        ORDER BY event_id DESC
+        LIMIT #{pageSize} OFFSET #{offset}
+    </select>
+
+    <!-- 전체 건수 (페이징용) -->
+    <select id="selectEventCount" parameterType="hashmap" resultType="int">
+        SELECT COUNT(*) FROM event
+        <where>
+            <if test="tabType != null and tabType == 'ongoing'">
+                <![CDATA[ AND start_date <= NOW() AND end_date >= NOW() ]]>
+            </if>
+            <if test="tabType != null and tabType == 'ended'">
+                <![CDATA[ AND end_date < NOW() ]]>
+            </if>
+        </where>
+    </select>
+
+    <!-- 단건 상세 조회 -->
+    <select id="selectEvent" parameterType="hashmap"
+            resultType="com.example.modak.event.model.Event">
+        SELECT
+            event_id   AS eventId,
+            title,
+            content,
+            start_date AS startDate,
+            end_date   AS endDate
+        FROM event
+        WHERE event_id = #{eventId}
+    </select>
+
+    <!-- ════════════════════════════════════════
+         ★ 메인 배너 — 오늘 날짜 기준 진행 중인 이벤트 최대 5개
+         조건: 시작일 <= 오늘 <= 종료일
+         정렬: 종료일 임박 순 (곧 끝나는 이벤트를 먼저)
+    ════════════════════════════════════════ -->
+    <select id="selectBannerList" resultType="com.example.modak.event.model.Event">
+        SELECT
+            event_id   AS eventId,
+            title,
+            content,
+            start_date AS startDate,
+            end_date   AS endDate
+        FROM event
+        <![CDATA[
+        WHERE start_date <= CURDATE()
+          AND end_date   >= CURDATE()
+        ]]>
+        ORDER BY end_date ASC
+        LIMIT 5
+    </select>
+
 </mapper>

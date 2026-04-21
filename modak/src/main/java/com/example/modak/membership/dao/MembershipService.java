@@ -32,7 +32,8 @@ public class MembershipService {
 
 	    resultMap.put("result", "success");
 	    resultMap.put("info", info);
-
+	    resultMap.put("allGrades", membershipMapper.selectAllGrades());
+	    
 	    return resultMap;
 	}
 

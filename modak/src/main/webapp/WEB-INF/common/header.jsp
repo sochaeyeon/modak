@@ -22,9 +22,19 @@
             <span class="cart-badge" id="cartCount">0</span>
         </div>
 
-        <div class="notice-wrap" onclick="fnMove('notice')">
-            <button class="icon-btn" title="알림"><i class="fa-regular fa-bell"></i></button>
-            <span class="notice-dot" id="noticeDot" style="display:none;"></span>
+        <div class="alarm-wrap">
+            <button class="icon-btn" title="알림" onclick="toggleAlarm(event)">
+                <i class="fa-regular fa-bell"></i>
+            </button>
+            <span class="alarm-dot" id="alarmDot" style="display:none;"></span>
+
+            <div class="alarm-dropdown" id="alarmDropdown">
+                <div class="alarm-dropdown-header">
+                    <span>최근 알림</span>
+                    <a href="javascript:void(0)" onclick="fnMove('alarm')" class="view-all-btn">전체보기</a>
+                </div>
+                <div class="alarm-dropdown-body" id="alarmPreviewList"></div>
+            </div>
         </div>
     </div>
 
@@ -48,7 +58,7 @@
             </c:choose>
         </div>
 
-        <div class="category-trigger" onclick="toggleCategory()">
+        <div class="category-trigger" onclick="toggleCategory(event)">
             <div class="burger-icon">
                 <span></span><span></span><span></span>
             </div>
@@ -57,100 +67,159 @@
     </div>
 
     <div class="category-menu" id="categoryMenu">
-        <div class="menu-inner">
-            <div class="menu-section">
-                <p class="section-label">SHOPPING</p>
-                <div class="link-grid">
-                    <a href="/product/list.do" class="all-view-link">전체 상품 보기</a>
-                    <a href="/product/list.do?cat=4">캠핑기본장비</a>
-                    <a href="/product/list.do?cat=5">취사/음식</a>
-                    <a href="/product/list.do?cat=6">캠핑/편의용품</a>
-                </div>
-            </div>
-            <div class="menu-line"></div>
-            <div class="menu-section">
-                <p class="section-label">SUPPORT</p>
-                <div class="link-grid">
-                    <a href="/guide/guide.do" class="support-special">🏕️ 이용 가이드</a>
-                    <a href="/customer/notice.do">공지사항</a>
-                    <a href="/customer/qna.do">1:1 문의하기</a>
-                    <c:choose>
-                        <c:when test="${not empty sessionScope.sessionId}">
-                            <a href="/rental/extension/main.do">대여 연장 신청</a>
-                            <a href="/order/order-history.do">주문 내역</a>
-                        </c:when>
-                        <c:otherwise>
-                            <a href="/rental/extension/inquiry.do">비회원 연장 신청</a>
-                            <a href="/order/guest/inquiry.do">비회원 주문 조회</a>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-            </div>
+        <div class="menu-header">
+            <h3>CATEGORY</h3>
+            <div class="welcome-msg">어서와닥! 캠퍼님 ⛺</div>
+            <button class="close-btn" onclick="toggleCategory()">&times;</button>
+        </div>
+
+        <div class="menu-list-wrap">
+            <ul class="menu-list">
+                <li><a href="/product/list.do"><i class="fa-solid fa-tent"></i> 캠프기본장비</a></li>
+                <li><a href="/product/list.do"><i class="fa-solid fa-chair"></i> 취사/음식</a></li>
+                <li><a href="/product/list.do"><i class="fa-solid fa-bed"></i> 감성/편의용품</a></li>
+
+                <li class="divider"></li>
+
+                <li><a href="/guide/guide.do"><i class="fa-solid fa-compass"></i> 가이드</a></li>
+                <li><a href="/notification/list.do"><i class="fa-solid fa-bullhorn"></i> 공지사항</a></li>
+                <li><a href="/event/list.do"><i class="fa-solid fa-gift"></i> 이벤트</a></li>
+                <li><a href="/cs/center.do"><i class="fa-solid fa-comment-dots"></i> 고객센터</a></li>
+            </ul>
+        </div>
+
+        <div class="menu-footer">
+            <p>모닥모닥과 함께 따뜻한 캠핑을!<br>오늘도 즐거운 불멍 되세요.</p>
+            <span class="brand-logo">모닥모닥</span>
         </div>
     </div>
+
+    <div class="menu-overlay" id="menuOverlay" onclick="toggleCategory()"></div>
 </header>
 
 <script>
-    // 1. 알림 상태 체크 (페이지 로드 시 실행)
-    function fnCheckNotice() {
+    /**
+     * 1. 사이드바 메뉴 토글
+     */
+    function toggleCategory(e) {
+        if (e) e.stopPropagation();
+        const menu = document.getElementById('categoryMenu');
+        const overlay = document.getElementById('menuOverlay');
+        const isOpen = menu.classList.contains('open');
+
+        if (isOpen) {
+            menu.classList.remove('open');
+            overlay.classList.remove('show');
+        } else {
+            const dropdown = document.getElementById('alarmDropdown');
+            if(dropdown) dropdown.classList.remove('open');
+            menu.classList.add('open');
+            overlay.classList.add('show');
+        }
+    }
+
+    /**
+     * 2. 알림 드롭다운 토글
+     */
+    function toggleAlarm(e) {
+        e.stopPropagation();
+        const dropdown = document.getElementById('alarmDropdown');
+        const isOpen = dropdown.classList.contains('open');
+
+        if (isOpen) {
+            dropdown.classList.remove('open');
+        } else {
+            fnLoadAlarmPreview();
+            dropdown.classList.add('open');
+            const menu = document.getElementById('categoryMenu');
+            const overlay = document.getElementById('menuOverlay');
+            if(menu) menu.classList.remove('open');
+            if(overlay) overlay.classList.remove('show');
+        }
+    }
+
+    /**
+     * 3. 최근 알림 5개 로드 (구조 보정 완료)
+     */
+    function fnLoadAlarmPreview() {
         $.ajax({
-            url: "/user/noticeCount.dox", // 알림 개수를 반환하는 컨트롤러 주소
+            url: "/alarm/getAlarmList.dox",
             type: "POST",
             dataType: "json",
-            success: function(res) {
-                const dot = document.getElementById('noticeDot');
-                if (dot) {
-                    // 알림 개수가 0보다 크면 표시, 아니면 숨김
-                    if (res.count > 0) {
-                        dot.style.display = 'block';
-                    } else {
-                        dot.style.display = 'none';
-                    }
+            success: function (res) {
+                const listBody = document.getElementById('alarmPreviewList');
+                let html = '';
+                if (res.list && res.list.length > 0) {
+                    const previewData = res.list.slice(0, 5);
+                    previewData.forEach(item => {
+                        const icon = item.TYPE === 'DELIVERY' ? '🚚' : (item.TYPE === 'EVENT' ? '🎁' : '📢');
+                        const unreadClass = item.IS_READ === 'N' ? 'unread' : '';
+                        // 텍스트 증발 및 선 깨짐 방지를 위해 innerHTML 구조 최적화
+                        html += '<div class="alarm-preview-item ' + unreadClass + '" onclick="location.href=\'/alarm/notice-detail.do?alarmId=' + item.ALARM_ID + '\'">' +
+                                    '<div class="item-icon">' + icon + '</div>' +
+                                    '<div class="item-content">' +
+                                        '<div class="item-title">' + item.TITLE + '</div>' +
+                                        '<div class="item-time">' + item.CREATED_AT + '</div>' +
+                                    '</div>' +
+                                '</div>';
+                    });
+                } else {
+                    html = '<div class="empty-alarm">새로운 소식이 없다닥! ⛺</div>';
                 }
-            },
-            error: function() {
-                // 로그인 안 된 상태 등 에러 시 기본 숨김
-                const dot = document.getElementById('noticeDot');
-                if (dot) dot.style.display = 'none';
+                listBody.innerHTML = html;
             }
         });
     }
 
-    // 2. 메뉴 토글
-    function toggleCategory() {
-        const menu = document.getElementById('categoryMenu');
-        if (menu) menu.classList.toggle('open');
+    /**
+     * 4. 안 읽은 알림 체크 (Dot)
+     */
+    function fnCheckAlarm() {
+        $.ajax({
+            url: "/alarm/alarmCount.dox",
+            type: "POST",
+            dataType: "json",
+            success: function (res) {
+                const dot = document.getElementById('alarmDot');
+                if (dot) dot.style.display = (res.count > 0) ? 'block' : 'none';
+            }
+        });
     }
 
-    // 3. 페이지 이동
+    /**
+     * 5. 페이지 이동 관리 (은동님 주소 체계 유지)
+     */
     function fnMove(type) {
         if (type === 'mypage') location.href = '/user/mypage.do';
         else if (type === 'search') location.href = '/product/search.do';
         else if (type === 'wishlist') location.href = '/user/wishlist/history.do';
         else if (type === 'cart') location.href = '/cart/list.do';
-        else if (type === 'notice') {
-            // 알림 페이지로 이동하면 일단 점을 숨김
-            const dot = document.getElementById('noticeDot');
-            if (dot) dot.style.display = 'none';
-            location.href = '/user/notice.do';
+        else if (type === 'alarm') {
+            const dropdown = document.getElementById('alarmDropdown');
+            if(dropdown) dropdown.classList.remove('open');
+            location.href = '/alarm/notice-list.do';
         }
     }
 
-    // 바깥 클릭 시 메뉴 닫기
+    /**
+     * 6. 기타 외부 클릭 시 닫기
+     */
     document.addEventListener('click', function (e) {
+        const dropdown = document.getElementById('alarmDropdown');
         const menu = document.getElementById('categoryMenu');
-        if (menu && menu.classList.contains('open')) {
-            if (!e.target.closest('.category-trigger') && !e.target.closest('.category-menu')) {
-                menu.classList.remove('open');
-            }
+        const overlay = document.getElementById('menuOverlay');
+
+        if (dropdown && !e.target.closest('.alarm-wrap')) {
+            dropdown.classList.remove('open');
+        }
+        if (menu && !e.target.closest('.category-trigger') && !e.target.closest('.category-menu')) {
+            menu.classList.remove('open');
+            if(overlay) overlay.classList.remove('show');
         }
     });
 
-    // 페이지 로드 완료 시 실행
-    document.addEventListener('DOMContentLoaded', function() {
-        fnCheckNotice(); // 알림 점 체크
-        
-        // 현재 페이지 이름 브레드크럼에 세팅 (예시 로직)
+    document.addEventListener('DOMContentLoaded', function () {
+        fnCheckAlarm();
         const title = document.title.split(' - ')[0];
         const pageNameEl = document.getElementById('currentPageName');
         if (pageNameEl) pageNameEl.innerText = title;

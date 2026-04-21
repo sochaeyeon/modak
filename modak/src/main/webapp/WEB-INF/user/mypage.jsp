@@ -16,6 +16,7 @@
                     <script src="/js/page-change.js"></script>
                     <script src="//t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
                     <link rel="stylesheet" href="/css/user/mypage.css">
+                    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
 
                 </head>
 
@@ -28,9 +29,29 @@
                                 <!-- SIDEBAR -->
                                 <aside class="sidebar">
                                     <div class="profile-card">
-                                        <div class="avatar-ring">
-                                            ${not empty user.userName ? fn:substring(user.userName, 0, 1) : '?'}
-                                        </div>
+                                        <div class="avatar-wrap">
+    <div class="avatar-ring profile-avatar"
+        @click="fnTriggerProfileFile">
+        
+        <template v-if="displayUser.profileImgUrl">
+            <img :src="displayUser.profileImgUrl" alt="프로필 이미지" class="profile-avatar-img">
+        </template>
+
+        <template v-else>
+            ${not empty user.userName ? fn:substring(user.userName, 0, 1) : '?'}
+        </template>
+    </div>
+
+    <input type="file"
+        ref="profileFileInput"
+        accept="image/*"
+        style="display:none;"
+        @change="fnProfileImageChange">
+
+    <button type="button" class="profile-image-btn" @click="fnTriggerProfileFile">
+        사진 변경
+    </button>
+</div>
 
                                         <div class="profile-name">
                                             {{ displayUser.userName }}
@@ -40,8 +61,9 @@
                                             @{{ displayUser.nickName }}
                                         </div>
 
-                                        <div
-                                            class="level-badge grade-${empty user.gradeName ? 'default' : fn:toLowerCase(user.gradeName)}">
+                                        <div class="level-badge 
+    grade-${empty user.gradeName ? 'default' : fn:toLowerCase(user.gradeName)}"
+    @click="fnGoMembershipInfo">
                                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                                                 <path
                                                     d="M6 1L7.5 4.5H11L8.5 7L9.5 10.5L6 8.5L2.5 10.5L3.5 7L1 4.5H4.5Z" />
@@ -308,15 +330,23 @@
                                                         </div>
                                                     </div>
 
-                                                    <div
-                                                        style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
-                                                        <div class="order-status" :class="'status-' + item.orderStatus">
-                                                            {{ fnGetStatusText(item.orderStatus) }}
-                                                        </div>
-                                                        <div class="order-price">
-                                                            {{ Number(item.totalPrice || 0).toLocaleString() }}원
-                                                        </div>
-                                                    </div>
+                                                   <div class="order-side">
+    <div class="order-status" :class="'status-' + item.orderStatus">
+        {{ fnGetStatusText(item.orderStatus) }}
+    </div>
+
+    <div class="order-price">
+        {{ Number(item.totalPrice || 0).toLocaleString() }}원
+    </div>
+
+    <div class="order-action-wrap" v-if="fnHasOrderAction(item)">
+        <button type="button"
+            class="btn-order-action"
+            @click="fnHandleOrderAction(item)">
+            {{ fnGetOrderActionText(item) }}
+        </button>
+    </div>
+</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -524,54 +554,128 @@
                                             </div>
                                         </div>
                                         <div class="section-card">
-                                            <div class="section-head">
-                                                <h3>포인트 내역</h3>
-                                                <a href="javascript:;" @click="fnGoPointHistory">더보기 →</a>
+                                            <div class="section-head benefits-history-head">
+                                                <h3>포인트 · 쿠폰 내역</h3>
+                                                <a href="javascript:;" @click="fnGoBenefitHistory">더보기 →</a>
                                             </div>
 
-                                            <div class="point-history">
-                                                <c:choose>
-                                                    <c:when test="${not empty pointHistoryList}">
-                                                        <c:forEach var="item" items="${pointHistoryList}">
-                                                            <div class="ph-item">
-                                                                <div>
-                                                                    <div class="ph-desc">${item.description}</div>
-                                                                    <div class="ph-date">${item.createdAt}</div>
-                                                                </div>
+                                            <div class="benefits-history-split">
 
-                                                                <div
-                                                                    style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-                                                                    <div
-                                                                        class="ph-point ${item.type eq 'PLUS' ? 'plus' : 'minus'}">
-                                                                        <c:choose>
-                                                                            <c:when test="${item.type eq 'PLUS'}">
-                                                                                +
-                                                                                <fmt:formatNumber value="${item.amount}"
-                                                                                    pattern="#,###" />P
-                                                                            </c:when>
-                                                                            <c:otherwise>
-                                                                                -
-                                                                                <fmt:formatNumber value="${item.amount}"
-                                                                                    pattern="#,###" />P
-                                                                            </c:otherwise>
-                                                                        </c:choose>
-                                                                    </div>
-                                                                    <div class="ph-balance">
-                                                                        잔액
-                                                                        <fmt:formatNumber value="${item.balanceAfter}"
-                                                                            pattern="#,###" />P
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </c:forEach>
-                                                    </c:when>
+                                                <!-- 왼쪽 : 포인트 내역 -->
+                                                <div class="benefits-history-col">
+                                                    <div class="benefits-sub-head">
+                                                        <h4>포인트 내역</h4>
+                                                    </div>
 
-                                                    <c:otherwise>
-                                                        <div class="empty-state">
-                                                            <p>포인트 내역이 없습니다.</p>
-                                                        </div>
-                                                    </c:otherwise>
-                                                </c:choose>
+                                                    <div class="point-history mini-history">
+                                                        <c:choose>
+                                                            <c:when test="${not empty pointHistoryList}">
+                                                                <c:forEach var="item" items="${pointHistoryList}">
+                                                                    <div class="ph-item">
+                                                                        <div>
+                                                                            <div class="ph-desc">${item.description}
+                                                                            </div>
+                                                                            <div class="ph-date">${item.createdAt}</div>
+                                                                        </div>
+
+                                                                        <div
+                                                                            style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                                                                            <div
+                                                                                class="ph-point ${item.type eq 'PLUS' ? 'plus' : 'minus'}">
+                                                                                <c:choose>
+                                                                                    <c:when
+                                                                                        test="${item.type eq 'PLUS'}">
+                                                                                        +
+                                                                                        <fmt:formatNumber
+                                                                                            value="${item.amount}"
+                                                                                            pattern="#,###" />P
+                                                                                    </c:when>
+                                                                                    <c:otherwise>
+                                                                                        -
+                                                                                        <fmt:formatNumber
+                                                                                            value="${item.amount}"
+                                                                                            pattern="#,###" />P
+                                                                                    </c:otherwise>
+                                                                                </c:choose>
+                                                                            </div>
+                                                                            <div class="ph-balance">
+                                                                                잔액
+                                                                                <fmt:formatNumber
+                                                                                    value="${item.balanceAfter}"
+                                                                                    pattern="#,###" />P
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </c:forEach>
+                                                            </c:when>
+
+                                                            <c:otherwise>
+                                                                <div class="empty-state small-empty">
+                                                                    <p>포인트 내역이 없습니다.</p>
+                                                                </div>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </div>
+                                                </div>
+
+                                                <!-- 오른쪽 : 쿠폰 리스트 -->
+                                                <div class="benefits-history-col">
+                                                    <div class="benefits-sub-head">
+                                                        <h4>쿠폰 리스트</h4>
+                                                    </div>
+
+                                                    <div class="coupon-history mini-history">
+                                                        <c:choose>
+                                                            <c:when test="${not empty couponList}">
+                                                                <c:forEach var="item" items="${couponList}">
+                                                                    <div class="coupon-item">
+                                                                        <div class="coupon-left">
+                                                                            <div class="coupon-name">${item.couponName}
+                                                                            </div>
+                                                                            <div class="coupon-date">
+                                                                                <c:choose>
+                                                                                    <c:when
+                                                                                        test="${not empty item.expiredAt}">
+                                                                                        ~ ${item.expiredAt}
+                                                                                    </c:when>
+                                                                                    <c:otherwise>
+                                                                                        사용기한 없음
+                                                                                    </c:otherwise>
+                                                                                </c:choose>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="coupon-right">
+                                                                            <div
+                                                                                class="coupon-status ${fn:toLowerCase(item.status)}">
+                                                                                <c:choose>
+                                                                                    <c:when
+                                                                                        test="${item.status eq 'AVAILABLE'}">
+                                                                                        사용 가능</c:when>
+                                                                                    <c:when
+                                                                                        test="${item.status eq 'USED'}">
+                                                                                        사용 완료</c:when>
+                                                                                    <c:when
+                                                                                        test="${item.status eq 'EXPIRED'}">
+                                                                                        만료</c:when>
+                                                                                    <c:otherwise>${item.status}
+                                                                                    </c:otherwise>
+                                                                                </c:choose>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </c:forEach>
+                                                            </c:when>
+
+                                                            <c:otherwise>
+                                                                <div class="empty-state small-empty">
+                                                                    <p>보유 쿠폰이 없습니다.</p>
+                                                                </div>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </div>
+                                                </div>
+
                                             </div>
                                         </div>
                                     </div>
@@ -794,7 +898,8 @@
 
                                                             <div class="chatbot-head-text">
                                                                 <div class="review-title chatbot-title">
-                                                                    {{ chat.title && chat.title.trim() ? chat.title : '대화' }}
+                                                                    {{ chat.title && chat.title.trim() ? chat.title :
+                                                                    '대화' }}
                                                                 </div>
 
                                                                 <div class="chatbot-preview" v-if="chat.lastMessage">
@@ -1079,12 +1184,6 @@
                                     newPwd: "",
                                     newPwdConfirm: ""
                                 },
-
-                                displayUser: {
-                                    userName: "",
-                                    nickName: "",
-                                    gradeName: ""
-                                },
                                 smsTimer: null,
                                 smsTimeLeft: 0,
                                 smsExpired: false,
@@ -1094,6 +1193,12 @@
                                 passwordMsgType: "",
                                 inquiryList: [],
                                 openInquiryId: null,
+
+                                 displayUser: {
+            userName: "${user.userName}",
+            nickName: "${user.nickName}",
+            profileImgUrl: "${empty user.profileImgUrl ? '' : user.profileImgUrl}"
+        },
                             };
                         },
                         computed: {
@@ -1624,6 +1729,7 @@
 
                                             self.settingsForm.userName = info.userName || "";
                                             self.settingsForm.nickName = info.nickName || "";
+                                            self.displayUser.profileImgUrl = info.profileImgUrl || "";
                                             self.settingsForm.email = info.email || "";
                                             self.settingsForm.userPhone = info.userPhone || "";
                                             self.settingsForm.phoneVerifyYn = info.phoneVerifyYn || "N";
@@ -1959,9 +2065,159 @@
                                     }
                                 });
                             },
-                            fnGoPointHistory: function () {
-                                pageChange("/user/point/history.do", {});
+                            fnGoBenefitHistory: function () {
+                                pageChange("/user/benefit/history.do", {});
                             },
+                            fnTriggerProfileFile: function () {
+    this.$refs.profileFileInput.click();
+},
+
+fnProfileImageChange: function (event) {
+    let self = this;
+    let file = event.target.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("profileImage", file);
+
+    $.ajax({
+        url: "/user/profile/upload.dox",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (data) {
+            if (typeof data === "string") {
+                data = JSON.parse(data);
+            }
+
+            if (data.result === "success") {
+                self.displayUser.profileImgUrl = data.profileImgUrl;
+                self.settingsMsg = data.message || "프로필 이미지가 변경되었습니다.";
+                self.settingsMsgType = "success";
+            } else {
+                self.settingsMsg = data.message || "프로필 이미지 변경에 실패했습니다.";
+                self.settingsMsgType = "error";
+            }
+        },
+        error: function () {
+            self.settingsMsg = "서버 오류가 발생했습니다.";
+            self.settingsMsgType = "error";
+        }
+    });
+
+    event.target.value = "";
+},
+fnHasOrderAction: function (item) {
+    return this.fnGetOrderActionText(item) !== "";
+},
+
+fnGetOrderActionText: function (item) {
+    // 1. 배송중 → 배송조회
+    if (item.orderStatus === "SHIPPING") {
+        return "배송조회";
+    }
+
+    // 2. 결제완료 → 환불 신청
+    if (item.orderStatus === "PAID") {
+        return "환불 신청";
+    }
+
+    // 3. 구매 + 배송완료 → 리뷰 작성 / 작성한 리뷰
+    if (item.orderType === "PURCHASE" && item.orderStatus === "DONE") {
+        if (item.reviewWrittenYn === "Y") {
+            return "작성한 리뷰";
+        }
+        return "리뷰 작성";
+    }
+
+    // 4. 대여 + 배송완료
+    if (item.orderType === "RENTAL" && item.orderStatus === "DONE") {
+        // 반납 완료 후 리뷰
+        if (item.returnCompletedYn === "Y") {
+            if (item.reviewWrittenYn === "Y") {
+                return "작성한 리뷰";
+            }
+            return "리뷰 작성";
+        }
+
+        // 아직 반납 전이면 반납 신청
+        return "반납 신청";
+    }
+
+    return "";
+},
+
+fnHandleOrderAction: function (item) {
+    const actionText = this.fnGetOrderActionText(item);
+
+    if (actionText === "배송조회") {
+        this.fnGoTracking(item);
+        return;
+    }
+
+    if (actionText === "환불 신청") {
+        this.fnGoRefund(item);
+        return;
+    }
+
+    if (actionText === "리뷰 작성") {
+        this.fnGoWriteReview(item);
+        return;
+    }
+
+    if (actionText === "작성한 리뷰") {
+        this.fnGoMyReview(item);
+        return;
+    }
+
+    if (actionText === "반납 신청") {
+        this.fnGoReturnRequest(item);
+        return;
+    }
+},
+fnGoTracking: function (item) {
+    // trackingNo, carrierCode가 있다고 가정
+    pageChange("/order/tracking.do", {
+        orderId: item.orderId,
+        trackingNo: item.trackingNo,
+        carrierCode: item.carrierCode
+    });
+},
+
+fnGoRefund: function (item) {
+    pageChange("/refund/request.do", {
+        orderId: item.orderId
+    });
+},
+
+fnGoWriteReview: function (item) {
+    pageChange("/user/review/edit.do", {
+        orderId: item.orderId,
+        productId: item.productId,
+        itemId: item.itemId
+    });
+},
+
+fnGoMyReview: function (item) {
+    pageChange("/user/review/history.do", {
+        orderId: item.orderId,
+        reviewId: item.reviewId
+    });
+},
+
+fnGoReturnRequest: function (item) {
+    pageChange("/rental/return/request.do", {
+        orderId: item.orderId,
+        rentalId: item.rentalId
+    });
+},
+fnGoMembershipInfo: function () {
+    pageChange("/user/membership/info.do", {});
+},
                         }, // methods
                         mounted() {
                             let self = this;

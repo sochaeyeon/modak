@@ -25,7 +25,7 @@ public class PointHistoryController {
     private HttpSession session;
 
     // 포인트 내역 전체보기 페이지
-    @RequestMapping("/user/point/history.do")
+    @RequestMapping("/user/benefit/history.do")
     public String pointHistoryPage(HttpServletRequest request) {
         return "user/point-history";
     }
@@ -58,4 +58,6 @@ public class PointHistoryController {
 
         return new Gson().toJson(resultMap);
     }
+    
+    
 }

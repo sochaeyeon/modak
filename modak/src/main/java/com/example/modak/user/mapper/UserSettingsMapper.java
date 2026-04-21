@@ -46,4 +46,7 @@ public interface UserSettingsMapper {
 	int updateUserPassword(HashMap<String, Object> map);
 	
 	int deleteUser(String userId);
+	
+	int updateProfileImage(@Param("userId") String userId,
+            @Param("profileImgUrl") String profileImgUrl);
 }

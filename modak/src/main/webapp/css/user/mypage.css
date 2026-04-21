@@ -2181,3 +2181,147 @@ inquiry-detail-box .detail-value {
     transform: translateY(-2px);
     box-shadow: 0 6px 14px rgba(201, 79, 30, 0.15);
 }
+/* 전체 컨테이너 */
+.profile-avatar {
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+/* 이미지 */
+.profile-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+/* 🔥 오버레이 */
+.profile-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    transition: all 0.25s ease;
+}
+
+/* hover 시 등장 */
+.profile-avatar:hover .profile-overlay {
+    opacity: 1;
+}
+
+/* 내용 */
+.overlay-content {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+
+    transform: translateY(10px);
+    transition: all 0.25s ease;
+}
+
+/* 자연스럽게 올라옴 */
+.profile-avatar:hover .overlay-content {
+    transform: translateY(0);
+}
+
+/* 아이콘 크기 */
+.overlay-content span {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.profile-image-actions {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-top: -5px;
+}
+
+.profile-action-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 6px 9px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.profile-action-btn.change {
+    background: #c94f1e;
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(201, 79, 30, 0.18);
+}
+
+.profile-action-btn.change:hover {
+    transform: translateY(-1px);
+    background: #b84418;
+}
+
+.profile-action-btn.delete {
+    background: #f6f1ec;
+    color: #7a5c3e;
+    border: 1px solid #eadfd3;
+}
+
+.profile-action-btn.delete:hover {
+    transform: translateY(-1px);
+    background: #efe4d8;
+    color: #5f4630;
+}
+
+.profile-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(32, 24, 18, 0.38);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    border-radius: 50%;
+}
+
+.profile-avatar:hover .profile-overlay {
+    opacity: 1;
+}
+
+.overlay-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.overlay-icon {
+    font-size: 18px;
+}
+
+.profile-avatar {
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.profile-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}

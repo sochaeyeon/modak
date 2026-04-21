@@ -8,20 +8,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.modak.review.dao.ReviewService;
 import com.example.modak.user.dao.MypageService;
-import com.example.modak.user.model.ChatbotHistory;
 import com.example.modak.user.model.MypageSummary;
 import com.example.modak.user.model.PointHistory;
 import com.example.modak.user.model.User;
+import com.example.modak.user.model.UserCoupon;
 import com.google.gson.Gson;
 
 import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class MypageController {
+
 	@Autowired
 	MypageService mypageService;
 
@@ -43,6 +45,7 @@ public class MypageController {
 		User user = mypageService.getMyPageUser(sessionId);
 		MypageSummary summary = mypageService.getMypageSummary(sessionId);
 		List<PointHistory> pointHistoryList = mypageService.getPointHistory(sessionId);
+		List<UserCoupon> couponList = mypageService.getCouponList(sessionId);
 
 		HashMap<String, Object> reviewMap = new HashMap<>();
 		reviewMap.put("page", 1);
@@ -55,8 +58,41 @@ public class MypageController {
 		model.addAttribute("user", user);
 		model.addAttribute("summary", summary);
 		model.addAttribute("pointHistoryList", pointHistoryList);
+		model.addAttribute("couponList", couponList);
 
 		return "user/mypage";
 	}
+	
+	@RequestMapping(value = "/user/coupon/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getCouponList(@RequestParam HashMap<String, Object> map) {
 
+	    HashMap<String, Object> resultMap = new HashMap<>();
+
+	    try {
+	        String sessionId = (String) session.getAttribute("sessionId");
+
+	        int page = Integer.parseInt(String.valueOf(map.getOrDefault("page", "1")));
+	        int pageSize = Integer.parseInt(String.valueOf(map.getOrDefault("pageSize", "10")));
+	        int offset = (page - 1) * pageSize;
+
+	        map.put("userId", sessionId);
+	        map.put("offset", offset);
+	        map.put("pageSize", pageSize);
+
+	        List<UserCoupon> list = mypageService.getCouponPagingList(map);
+	        int totalCount = mypageService.getCouponCount(sessionId);
+
+	        resultMap.put("result", "success");
+	        resultMap.put("list", list);
+	        resultMap.put("totalCount", totalCount);
+	        resultMap.put("availableCouponCount", mypageService.getAvailableCouponCount(sessionId));
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result", "fail");
+	    }
+
+	    return new Gson().toJson(resultMap);
+	}
 }

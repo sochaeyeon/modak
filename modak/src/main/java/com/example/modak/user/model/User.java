@@ -23,4 +23,6 @@ public class User {
 	// 휴대폰 인증 관련
 	private String phoneVerifyYn;
 	private String phoneVerifiedAt;
+	// 프로필 이미지 URL
+	private String profileImgUrl;
 }

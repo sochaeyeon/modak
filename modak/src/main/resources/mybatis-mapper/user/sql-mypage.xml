@@ -12,7 +12,8 @@
 		U.EMAIL,
 		U.USER_PHONE,
 		U.GRADE_ID,
-		G.GRADE_NAME
+		G.GRADE_NAME,
+		U.PROFILE_IMG_URL AS profileImgUrl
 		FROM USER U
 		LEFT JOIN USER_GRADE G
 		ON U.GRADE_ID = G.GRADE_ID
@@ -72,21 +73,21 @@
 
 	<!-- 포인트 사용내역 -->
 	<select id="selectPointHistory"
-        parameterType="hashmap"
-        resultType="com.example.modak.user.model.PointHistory">
-    SELECT
-        HISTORY_ID,
-        USER_ID,
-        DESCRIPTION,
-        AMOUNT,
-        TYPE,
-        DATE_FORMAT(CREATED_AT, '%Y-%m-%d %H:%i') AS createdAt,
-        BALANCE_AFTER AS balanceAfter
-    FROM point_history
-    WHERE USER_ID = #{userId}
-    ORDER BY CREATED_AT DESC, HISTORY_ID DESC
-    LIMIT 6
-</select>
+		parameterType="hashmap"
+		resultType="com.example.modak.user.model.PointHistory">
+		SELECT
+		HISTORY_ID,
+		USER_ID,
+		DESCRIPTION,
+		AMOUNT,
+		TYPE,
+		DATE_FORMAT(CREATED_AT, '%Y-%m-%d %H:%i') AS createdAt,
+		BALANCE_AFTER AS balanceAfter
+		FROM point_history
+		WHERE USER_ID = #{userId}
+		ORDER BY CREATED_AT DESC, HISTORY_ID DESC
+		LIMIT 6
+	</select>
 	<select id="selectMyReviewList"
 		resultType="com.example.modak.review.model.Review">
 		SELECT
@@ -110,7 +111,7 @@
 		WHERE USER_ID = #{userId}
 		AND REVIEW_STATUS = 'ACTIVE'
 	</select>
-	
+
 	<!-- 챗봇 기록 -->
 	<select id="selectChatbotRoomList"
 		parameterType="string"
@@ -134,5 +135,68 @@
 		GROUP BY T.ROOM_ID, T.USER_ID
 		ORDER BY MAX(T.REG_DATE) DESC
 
+	</select>
+
+	<select id="selectCouponList"
+		parameterType="string"
+		resultType="com.example.modak.user.model.UserCoupon">
+		SELECT
+		UC.USER_COUPON_ID AS userCouponId,
+		UC.USER_ID AS userId,
+		UC.COUPON_ID AS couponId,
+		DATE_FORMAT(UC.ISSUED_AT, '%Y-%m-%d') AS issuedAt,
+		DATE_FORMAT(UC.EXPIRED_AT, '%Y-%m-%d') AS expiredAt,
+		UC.USED_YN AS usedYn,
+		DATE_FORMAT(UC.USED_AT, '%Y-%m-%d') AS usedAt,
+		UC.ORDER_ID AS orderId,
+		UC.STATUS AS status,
+		DATE_FORMAT(UC.CREATED_AT, '%Y-%m-%d %H:%i') AS createdAt,
+		DATE_FORMAT(UC.UPDATED_AT, '%Y-%m-%d %H:%i') AS updatedAt,
+
+		C.COUPON_NAME AS couponName,
+		C.COUPON_TYPE AS discountType,
+		C.DISCOUNT_AMT AS discountValue
+		FROM USER_COUPON UC
+		INNER JOIN COUPON C
+		ON UC.COUPON_ID = C.COUPON_ID
+		WHERE UC.USER_ID = #{userId}
+		ORDER BY
+		CASE
+		WHEN UC.STATUS = 'AVAILABLE' THEN 1
+		WHEN UC.STATUS = 'USED' THEN 2
+		WHEN UC.STATUS = 'EXPIRED' THEN 3
+		ELSE 4
+		END,
+		UC.EXPIRED_AT ASC,
+		UC.USER_COUPON_ID DESC
+		LIMIT 6
+	</select>
+
+	<select id="selectCouponPagingList"
+		parameterType="hashmap"
+		resultType="com.example.modak.user.model.UserCoupon">
+		SELECT
+		UC.USER_COUPON_ID AS userCouponId,
+		UC.USER_ID AS userId,
+		UC.COUPON_ID AS couponId,
+		DATE_FORMAT(UC.ISSUED_AT, '%Y-%m-%d') AS issuedAt,
+		DATE_FORMAT(UC.EXPIRED_AT, '%Y-%m-%d') AS expiredAt,
+		UC.STATUS AS status,
+
+		C.COUPON_NAME AS couponName,
+		C.COUPON_TYPE AS discountType,
+		C.DISCOUNT_AMT AS discountValue
+		FROM USER_COUPON UC
+		INNER JOIN COUPON C
+		ON UC.COUPON_ID = C.COUPON_ID
+		WHERE UC.USER_ID = #{userId}
+		ORDER BY UC.USER_COUPON_ID DESC
+		LIMIT #{pageSize} OFFSET #{offset}
+	</select>
+
+	<select id="selectCouponCount" resultType="int">
+		SELECT COUNT(*)
+		FROM USER_COUPON
+		WHERE USER_ID = #{userId}
 	</select>
 </mapper>

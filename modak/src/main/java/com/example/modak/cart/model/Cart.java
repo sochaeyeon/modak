@@ -1,5 +1,8 @@
 package com.example.modak.cart.model;
 
+import lombok.Data;
+
+@Data
 public class Cart {
 	
 	private int cartId; // 장바구니id
@@ -10,5 +13,9 @@ public class Cart {
 	private String userId; // 회원 id
 	private int productId; // 상품 id
 	private int optionId; // 옵션 id
+	
+	private String productName;
+    private int price;
+    private String imageId;
 
 }

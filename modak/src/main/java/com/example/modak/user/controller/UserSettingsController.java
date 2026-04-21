@@ -243,20 +243,20 @@ public class UserSettingsController {
 			}
 
 			// 저장 경로
-			String uploadDirPath = "C:/modak/upload/profile";
+			String uploadDirPath = session.getServletContext().getRealPath("/img/profile/");
 			File uploadDir = new File(uploadDirPath);
 
 			if (!uploadDir.exists()) {
 				uploadDir.mkdirs();
 			}
 
-			String saveFileName = sessionId + "_" + UUID.randomUUID().toString() + "." + ext;
+			String saveFileName = sessionId + "." + ext;
 			File dest = new File(uploadDir, saveFileName);
 
 			profileImage.transferTo(dest);
 
 			// 웹에서 접근할 경로
-			String profileImgUrl = "/upload/profile/" + saveFileName;
+			String profileImgUrl = "/img/profile/" + saveFileName;
 
 			userSettingsService.updateProfileImage(sessionId, profileImgUrl);
 

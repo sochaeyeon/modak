@@ -8,7 +8,7 @@
                 <head>
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Document</title>
+                    <title>마이페이지</title>
                     <script src="https://code.jquery.com/jquery-3.7.1.js"
                         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
                         crossorigin="anonymous"></script>
@@ -30,27 +30,33 @@
                                 <aside class="sidebar">
                                     <div class="profile-card">
                                         <div class="avatar-wrap">
-    <div class="avatar-ring profile-avatar"
-        @click="fnTriggerProfileFile">
-        
-        <template v-if="displayUser.profileImgUrl">
-            <img :src="displayUser.profileImgUrl" alt="프로필 이미지" class="profile-avatar-img">
-        </template>
+    <div class="avatar-ring profile-avatar" @click="fnTriggerProfileFile">
+        <img :src="fnGetProfileImageSrc()"
+             alt="프로필 이미지"
+             class="profile-avatar-img">
 
-        <template v-else>
-            ${not empty user.userName ? fn:substring(user.userName, 0, 1) : '?'}
-        </template>
+        <div class="profile-overlay">
+            <div class="overlay-content">
+                <span class="overlay-icon">📷</span>
+                <span>사진 변경</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-image-actions">
+        <button type="button" class="profile-action-btn change" @click="fnTriggerProfileFile">
+            변경
+        </button>
+        <button type="button" class="profile-action-btn delete" @click="fnDeleteProfile">
+            삭제
+        </button>
     </div>
 
     <input type="file"
-        ref="profileFileInput"
-        accept="image/*"
-        style="display:none;"
-        @change="fnProfileImageChange">
-
-    <button type="button" class="profile-image-btn" @click="fnTriggerProfileFile">
-        사진 변경
-    </button>
+           ref="profileFileInput"
+           accept="image/*"
+           style="display:none;"
+           @change="fnProfileImageChange">
 </div>
 
                                         <div class="profile-name">
@@ -62,8 +68,7 @@
                                         </div>
 
                                         <div class="level-badge 
-    grade-${empty user.gradeName ? 'default' : fn:toLowerCase(user.gradeName)}"
-    @click="fnGoMembershipInfo">
+    grade-${empty user.gradeName ? 'default' : fn:toLowerCase(user.gradeName)}" @click="fnGoMembershipInfo">
                                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                                                 <path
                                                     d="M6 1L7.5 4.5H11L8.5 7L9.5 10.5L6 8.5L2.5 10.5L3.5 7L1 4.5H4.5Z" />
@@ -330,23 +335,22 @@
                                                         </div>
                                                     </div>
 
-                                                   <div class="order-side">
-    <div class="order-status" :class="'status-' + item.orderStatus">
-        {{ fnGetStatusText(item.orderStatus) }}
-    </div>
+                                                    <div class="order-side">
+                                                        <div class="order-status" :class="'status-' + item.orderStatus">
+                                                            {{ fnGetStatusText(item.orderStatus) }}
+                                                        </div>
 
-    <div class="order-price">
-        {{ Number(item.totalPrice || 0).toLocaleString() }}원
-    </div>
+                                                        <div class="order-price">
+                                                            {{ Number(item.totalPrice || 0).toLocaleString() }}원
+                                                        </div>
 
-    <div class="order-action-wrap" v-if="fnHasOrderAction(item)">
-        <button type="button"
-            class="btn-order-action"
-            @click="fnHandleOrderAction(item)">
-            {{ fnGetOrderActionText(item) }}
-        </button>
-    </div>
-</div>
+                                                        <div class="order-action-wrap" v-if="fnHasOrderAction(item)">
+                                                            <button type="button" class="btn-order-action"
+                                                                @click="fnHandleOrderAction(item)">
+                                                                {{ fnGetOrderActionText(item) }}
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -1194,11 +1198,11 @@
                                 inquiryList: [],
                                 openInquiryId: null,
 
-                                 displayUser: {
-            userName: "${user.userName}",
-            nickName: "${user.nickName}",
-            profileImgUrl: "${empty user.profileImgUrl ? '' : user.profileImgUrl}"
-        },
+                                displayUser: {
+                                    userName: "${user.userName}",
+                                    nickName: "${user.nickName}",
+                                    profileImgUrl: "${empty user.profileImgUrl ? '' : user.profileImgUrl}"
+                                },
                             };
                         },
                         computed: {
@@ -1729,7 +1733,17 @@
 
                                             self.settingsForm.userName = info.userName || "";
                                             self.settingsForm.nickName = info.nickName || "";
-                                            self.displayUser.profileImgUrl = info.profileImgUrl || "";
+                                            let profileImgUrl = info.profileImgUrl || "";
+profileImgUrl = String(profileImgUrl).trim();
+
+if (
+    !profileImgUrl.startsWith("/img/profile/") &&
+    !profileImgUrl.startsWith("/upload/profile/")
+) {
+    profileImgUrl = "";
+}
+
+self.displayUser.profileImgUrl = profileImgUrl;
                                             self.settingsForm.email = info.email || "";
                                             self.settingsForm.userPhone = info.userPhone || "";
                                             self.settingsForm.phoneVerifyYn = info.phoneVerifyYn || "N";
@@ -2069,10 +2083,36 @@
                                 pageChange("/user/benefit/history.do", {});
                             },
                             fnTriggerProfileFile: function () {
-    this.$refs.profileFileInput.click();
+                                this.$refs.profileFileInput.click();
+                            },
+                            fnDeleteProfile: function () {
+    let self = this;
+
+    if (!confirm("프로필 사진을 삭제하시겠습니까?")) {
+        return;
+    }
+
+    $.ajax({
+        url: "/user/profile/delete.dox",
+        type: "POST",
+        dataType: "json",
+        data: {},
+        success: function (data) {
+            if (data.result === "success") {
+                self.displayUser.profileImgUrl = "";
+                self.$refs.profileFileInput.value = "";
+                alert("프로필 사진이 삭제되었습니다.");
+            } else {
+                alert(data.message || "프로필 사진 삭제에 실패했습니다.");
+            }
+        },
+        error: function () {
+            alert("서버 오류가 발생했습니다.");
+        }
+    });
 },
 
-fnProfileImageChange: function (event) {
+                           fnProfileImageChange: function (event) {
     let self = this;
     let file = event.target.files[0];
 
@@ -2095,147 +2135,173 @@ fnProfileImageChange: function (event) {
             }
 
             if (data.result === "success") {
-                self.displayUser.profileImgUrl = data.profileImgUrl;
-                self.settingsMsg = data.message || "프로필 이미지가 변경되었습니다.";
-                self.settingsMsgType = "success";
+                self.$refs.profileFileInput.value = "";
+                self.fnGetUserSettings();
             } else {
-                self.settingsMsg = data.message || "프로필 이미지 변경에 실패했습니다.";
-                self.settingsMsgType = "error";
+                alert(data.message || "업로드 실패");
             }
         },
         error: function () {
-            self.settingsMsg = "서버 오류가 발생했습니다.";
-            self.settingsMsgType = "error";
+            alert("서버 오류 발생");
         }
     });
 
     event.target.value = "";
 },
-fnHasOrderAction: function (item) {
-    return this.fnGetOrderActionText(item) !== "";
-},
+                                    fnHasOrderAction: function (item) {
+                                        return this.fnGetOrderActionText(item) !== "";
+                                    },
 
-fnGetOrderActionText: function (item) {
-    // 1. 배송중 → 배송조회
-    if (item.orderStatus === "SHIPPING") {
-        return "배송조회";
-    }
+                                    fnGetOrderActionText: function (item) {
+                                        // 1. 배송중 → 배송조회
+                                        if (item.orderStatus === "SHIPPING") {
+                                            return "배송조회";
+                                        }
 
-    // 2. 결제완료 → 환불 신청
-    if (item.orderStatus === "PAID") {
-        return "환불 신청";
-    }
+                                        // 2. 결제완료 → 환불 신청
+                                        if (item.orderStatus === "PAID") {
+                                            return "환불 신청";
+                                        }
 
-    // 3. 구매 + 배송완료 → 리뷰 작성 / 작성한 리뷰
-    if (item.orderType === "PURCHASE" && item.orderStatus === "DONE") {
-        if (item.reviewWrittenYn === "Y") {
-            return "작성한 리뷰";
-        }
-        return "리뷰 작성";
-    }
+                                        // 3. 구매 + 배송완료 → 리뷰 작성 / 작성한 리뷰
+                                        if (item.orderType === "PURCHASE" && item.orderStatus === "DONE") {
+                                            if (item.reviewWrittenYn === "Y") {
+                                                return "작성한 리뷰";
+                                            }
+                                            return "리뷰 작성";
+                                        }
 
-    // 4. 대여 + 배송완료
-    if (item.orderType === "RENTAL" && item.orderStatus === "DONE") {
-        // 반납 완료 후 리뷰
-        if (item.returnCompletedYn === "Y") {
-            if (item.reviewWrittenYn === "Y") {
-                return "작성한 리뷰";
-            }
-            return "리뷰 작성";
-        }
+                                        // 4. 대여 + 배송완료
+                                        if (item.orderType === "RENTAL" && item.orderStatus === "DONE") {
+                                            // 반납 완료 후 리뷰
+                                            if (item.returnCompletedYn === "Y") {
+                                                if (item.reviewWrittenYn === "Y") {
+                                                    return "작성한 리뷰";
+                                                }
+                                                return "리뷰 작성";
+                                            }
 
-        // 아직 반납 전이면 반납 신청
-        return "반납 신청";
-    }
+                                            // 아직 반납 전이면 반납 신청
+                                            return "반납 신청";
+                                        }
 
-    return "";
-},
+                                        return "";
+                                    },
 
-fnHandleOrderAction: function (item) {
-    const actionText = this.fnGetOrderActionText(item);
+                                    fnHandleOrderAction: function (item) {
+                                        const actionText = this.fnGetOrderActionText(item);
 
-    if (actionText === "배송조회") {
-        this.fnGoTracking(item);
-        return;
-    }
+                                        if (actionText === "배송조회") {
+                                            this.fnGoTracking(item);
+                                            return;
+                                        }
 
-    if (actionText === "환불 신청") {
-        this.fnGoRefund(item);
-        return;
-    }
+                                        if (actionText === "환불 신청") {
+                                            this.fnGoRefund(item);
+                                            return;
+                                        }
 
-    if (actionText === "리뷰 작성") {
-        this.fnGoWriteReview(item);
-        return;
-    }
+                                        if (actionText === "리뷰 작성") {
+                                            this.fnGoWriteReview(item);
+                                            return;
+                                        }
 
-    if (actionText === "작성한 리뷰") {
-        this.fnGoMyReview(item);
-        return;
-    }
+                                        if (actionText === "작성한 리뷰") {
+                                            this.fnGoMyReview(item);
+                                            return;
+                                        }
 
-    if (actionText === "반납 신청") {
-        this.fnGoReturnRequest(item);
-        return;
-    }
-},
-fnGoTracking: function (item) {
-    // trackingNo, carrierCode가 있다고 가정
-    pageChange("/order/tracking.do", {
-        orderId: item.orderId,
-        trackingNo: item.trackingNo,
-        carrierCode: item.carrierCode
-    });
-},
+                                        if (actionText === "반납 신청") {
+                                            this.fnGoReturnRequest(item);
+                                            return;
+                                        }
+                                    },
+                                    fnGoTracking: function (item) {
+                                        // trackingNo, carrierCode가 있다고 가정
+                                        pageChange("/order/tracking.do", {
+                                            orderId: item.orderId,
+                                            trackingNo: item.trackingNo,
+                                            carrierCode: item.carrierCode
+                                        });
+                                    },
 
-fnGoRefund: function (item) {
-    pageChange("/refund/request.do", {
-        orderId: item.orderId
-    });
-},
+                                    fnGoRefund: function (item) {
+                                        pageChange("/refund/request.do", {
+                                            orderId: item.orderId
+                                        });
+                                    },
 
-fnGoWriteReview: function (item) {
-    pageChange("/user/review/edit.do", {
-        orderId: item.orderId,
-        productId: item.productId,
-        itemId: item.itemId
-    });
-},
+                                    fnGoWriteReview: function (item) {
+                                        pageChange("/user/review/edit.do", {
+                                            orderId: item.orderId,
+                                            productId: item.productId,
+                                            itemId: item.itemId
+                                        });
+                                    },
 
-fnGoMyReview: function (item) {
-    pageChange("/user/review/history.do", {
-        orderId: item.orderId,
-        reviewId: item.reviewId
-    });
-},
+                                    fnGoMyReview: function (item) {
+                                        pageChange("/user/review/history.do", {
+                                            orderId: item.orderId,
+                                            reviewId: item.reviewId
+                                        });
+                                    },
 
-fnGoReturnRequest: function (item) {
-    pageChange("/rental/return/request.do", {
-        orderId: item.orderId,
-        rentalId: item.rentalId
-    });
-},
-fnGoMembershipInfo: function () {
-    pageChange("/user/membership/info.do", {});
-},
-                        }, // methods
-                        mounted() {
-                            let self = this;
-                            self.fnGetOrderList();
-                            self.fnGetAddressList();
-                            self.fnGetWishlist();
-                            self.fnGetRecentList();
-                            self.fnGetChatbotList();
-                            self.fnGetUserSettings();
-                            self.fnGetInquiryList();
+                                    fnGoReturnRequest: function (item) {
+                                        pageChange("/rental/return/request.do", {
+                                            orderId: item.orderId,
+                                            rentalId: item.rentalId
+                                        });
+                                    },
+                                    fnGoMembershipInfo: function () {
+                                        pageChange("/user/membership/info.do", {});
+                                    },
+                                    fnGetProfileImageSrc: function () {
+                                        
+                                        let url = this.displayUser.profileImgUrl;
+                                        
 
-                            const savedTab = sessionStorage.getItem("activeTab");
-                            if (savedTab) {
-                                switchTab(savedTab, null);
-                                sessionStorage.removeItem("activeTab");
+                                        if (!url || url === "null" || url === "undefined") {
+                                            return "/img/profile/default-profile.png";
+                                        }
+
+                                        url = String(url).trim();
+
+                                        // 예전 잘못된 경로 차단
+                                        if (!url.startsWith("/img/profile/")) {
+                                            return "/img/profile/default-profile.png";
+                                        }
+
+                                        return url + "?t=" + new Date().getTime();
+                                    },
+                                }, // methods
+                                    mounted() {
+                                    let profileUrl = String(this.displayUser.profileImgUrl || "").trim();
+
+if (
+    !profileUrl ||
+    (
+        !profileUrl.startsWith("/img/profile/") &&
+        !profileUrl.startsWith("/upload/profile/")
+    )
+) {
+    this.displayUser.profileImgUrl = "";
+}
+                                let self = this;
+                                self.fnGetOrderList();
+                                self.fnGetAddressList();
+                                self.fnGetWishlist();
+                                self.fnGetRecentList();
+                                self.fnGetChatbotList();
+                                self.fnGetUserSettings();
+                                self.fnGetInquiryList();
+
+                                const savedTab = sessionStorage.getItem("activeTab");
+                                if (savedTab) {
+                                    switchTab(savedTab, null);
+                                    sessionStorage.removeItem("activeTab");
+                                }
                             }
-                        }
-                    });
+                        });
 
                     app.mount('#app');
                 </script>

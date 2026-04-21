@@ -7,6 +7,7 @@
 <title>모닥모닥 - 장비 목록</title>
 
 <link rel="stylesheet" href="/css/product/product-list.css">
+<link rel="stylesheet" href="/css/search/search.css">
 <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 <script src="/js/page-change.js"></script>
@@ -52,21 +53,13 @@
           <span class="result-count">총 {{ filteredProducts.length }}개</span>
         </div>
       </div>
-      <div class="search-product">
-        <div class="search-wrapper">
-          <svg class="search-icon" viewBox="0 0 24 24">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <input 
-            type="text" 
-            v-model="searchKeyword" 
-            placeholder="어떤 장비를 찾으시나요?" 
-            @keyup.enter="fnList"
-          >
-          <button v-if="searchKeyword" class="search-clear" @click="searchKeyword = ''; fnList();">
-            &times;
-          </button>
-        </div>
+      <!-- 검색창 -->
+      <div class="search-box">
+        <input type="text"
+              v-model="searchKeyword"
+              placeholder="검색어를 입력하세요"
+              @keyup.enter="fnSearch">
+        <button type="button" @click="fnSearch">검색</button>
       </div>
       <div class="controls">
         <button class="filter-toggle" @click="sidebarVisible = !sidebarVisible">
@@ -298,7 +291,7 @@
   </div><!-- /page-wrap -->
 
 </div><!-- /#app -->
-
+<%@ include file="/WEB-INF/common/footer.jsp" %>
 <script>
 const { createApp } = Vue;
 

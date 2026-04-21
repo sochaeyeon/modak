@@ -7,7 +7,7 @@ public class Cart {
 	
 	private int cartId; // 장바구니id
 	private int quantity; // 수량
-	private String cartType; // 타입구분
+	private String cartType; // 타입구분 구매,대여
 	private String createdAt; // 등록일시
 	
 	private String userId; // 회원 id

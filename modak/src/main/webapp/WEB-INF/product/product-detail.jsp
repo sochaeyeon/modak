@@ -31,6 +31,7 @@
                         style="width:100%; height:100%; object-fit:contain;"> <img v-else src="/img/product/default.jpg" style="width:100%; height:100%; object-fit:cover;">
                 </div>
             </div>
+            <!-- 메인아닌 이미지들 -->
             <div class="gthumbs">
                 <div 
                     v-for="(img, idx) in productImages" 
@@ -94,7 +95,7 @@
         <!-- BUY OPTIONS -->
         <div class="buy-only">
             <div class="osec">
-            <div class="olabel">옵션</div>
+            <div class="olabel">사이즈</div>
             <div class="ochips">
                 <div class="chip on" onclick="pickChip(this,'opt')">텐트 단품</div>
                 <div class="chip" onclick="pickChip(this,'opt')">텐트 + 풋프린트</div>
@@ -180,7 +181,7 @@
             </div>
 
             <div class="arow">
-            <button class="bwish" id="wb2" onclick="togWish()">🤍</button>
+            <button class="bwish" id="wb2" onclick="">🤍</button>
             <button class="brent" id="rentBtn" disabled>날짜를 선택해 주세요</button>
             </div>
         </div>
@@ -285,6 +286,7 @@
     </div>
     </div>
     </div>
+<%@ include file="/WEB-INF/common/footer.jsp" %>
 </div>
 </body>
 </html>
@@ -310,10 +312,7 @@
     //function chgQ(d){qty=Math.max(1,Math.min(99,qty+d));document.getElementById('qinp').value=qty;document.getElementById('qdsp').textContent=qty;updBuy();}
     //function updBuy(){const t=(BP*qty).toLocaleString('ko-KR')+'원';document.getElementById('bprice').textContent=t;document.getElementById('btotal').textContent=t;}
 
-    // wish
-    let wished=false;
-    function togWish(){wished=!wished;['wb1','wb2'].forEach(id=>{const b=document.getElementById(id);if(b){b.textContent=wished?'❤️':'🤍';b.classList.toggle('on',wished);}});}
-
+    
     // tabs
     function stab(n,el){document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('on'));el.classList.add('on');document.getElementById('tp-'+n).classList.add('on');}
 
@@ -326,7 +325,7 @@
                 productId: '${productId}', // 서버에서 전달받은 상품 번호 (JSP 방식)
                 productInfo: {},
                 productImages: [],         // DB에서 가져온 전체 이미지 리스트
-                mainImgUrl: '',            // 현재 큰 화면에 표시되는 파일명
+                mainImgUrl: '',            // 메인이미지
                 categoryId: self.currentCat
             };
         },
@@ -385,7 +384,7 @@
         mounted() {
             // 처음 시작할 때 실행되는 부분
             let self = this;
-            self.fnDetail;
+            self.fnDetail();
             self.fetchProductImages();
         }
     });

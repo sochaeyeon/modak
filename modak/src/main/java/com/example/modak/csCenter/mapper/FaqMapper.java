@@ -12,7 +12,7 @@ import com.example.modak.csCenter.model.Faq;
 
 @Mapper
 public interface FaqMapper {
-	
+
 	public List<Faq> selectFaqList(HashMap<String, Object> map);
 
 	public Faq selectFaq(HashMap<String, Object> map);

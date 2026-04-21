@@ -50,9 +50,26 @@
                 <h3 class="section-title"><i class="fa-solid fa-location-dot"></i> 배송지 정보</h3>
                 <div class="info-content">
                     <table class="info-table">
-                        <tr><th>받는분</th><td>김모닥</td></tr>
-                        <tr><th>연락처</th><td>010-1234-5678</td></tr>
-                        <tr><th>주소</th><td>서울특별시 강남구 캠핑로 123</td></tr>
+                        <tr>
+                            <th>받는분</th>
+                            <td>{{ order.receiverName }}</td>
+                        </tr>
+                        <tr>
+                            <th>연락처</th>
+                            <td>{{ order.receiverPhone }}</td>
+                        </tr>
+                        <tr>
+                            <th>주소</th>
+                            <td>
+                                <template v-if="order.deliveryAddr">
+                                    ({{ order.zipcode }}) {{ order.deliveryAddr }} <br>
+                                    {{ order.deliveryDetailAddr }}
+                                </template>
+                                <template v-else>
+                                    등록된 배송지 정보가 없습니다.
+                                </template>
+                            </td>
+                        </tr>
                     </table>
                 </div>
             </section>
@@ -78,6 +95,11 @@
 
         <div class="btn-group">
             <button class="btn-back-list" @click="fnGoList">목록으로 돌아가기</button>
+            
+            <button v-if="order.orderStatus === 'PAID' || order.orderStatus === 'READY'" 
+                    class="btn-cancel" @click="fnCancelOrder">
+                주문취소
+            </button>
         </div>
     </div>
 </div>
@@ -94,18 +116,15 @@
             }
         },
         computed: {
-            // 유지된 계산 로직 1: 상품가 합계
             calcSubTotal() {
                 if (!this.order || !this.order.itemList) return 0;
                 return this.order.itemList.reduce((acc, item) => acc + (item.price * item.count), 0);
             },
-            // 유지된 계산 로직 2: 최종가
             calcFinalTotal() {
                 return this.calcSubTotal - (this.order.discountAmt || 0);
             }
         },
         methods: {
-            // 유지된 AJAX 로직
             fnGetDetail() {
                 const self = this;
                 $.ajax({
@@ -118,7 +137,28 @@
                     }
                 });
             },
-            fnGoList() { location.href = "/order/history.do"; }
+            fnGoList() { 
+                location.href = "/order/history.do"; 
+            },
+            fnCancelOrder() {
+                if(!confirm("정말로 주문을 취소하시겠습니까?")) return;
+                
+                const self = this;
+                $.ajax({
+                    url: "/order/cancel.dox", // 취소 처리용 컨트롤러 주소
+                    type: "POST",
+                    dataType: "json",
+                    data: { orderId: self.orderId },
+                    success: function(res) {
+                        if (res.result === "success") {
+                            alert("주문이 취소되었습니다.");
+                            self.fnGetDetail(); // 상태 갱신을 위해 재조회
+                        } else {
+                            alert("취소 처리 중 오류가 발생했습니다.");
+                        }
+                    }
+                });
+            }
         },
         mounted() { this.fnGetDetail(); }
     }).mount('#app');

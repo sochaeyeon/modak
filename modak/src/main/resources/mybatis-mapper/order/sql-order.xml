@@ -12,6 +12,12 @@
         <result property="createdAt" column="CREATED_AT" />
         <result property="userId" column="USER_ID" />
         
+        <result property="receiverName" column="RECEIVER_NAME" />
+        <result property="receiverPhone" column="RECEIVER_PHONE" />
+        <result property="zipcode" column="ZIPCODE" />
+        <result property="deliveryAddr" column="DELIVERY_ADDR" />
+        <result property="deliveryDetailAddr" column="DELIVERY_DETAIL_ADDR" />
+        
         <collection property="itemList" 
                     javaType="java.util.ArrayList" 
                     ofType="com.example.modak.order.model.OrderItem">
@@ -25,23 +31,23 @@
     </resultMap>
 
     <select id="selectOrderList" resultType="com.example.modak.order.model.Order">
-    SELECT
-        O.ORDER_ID,
-        O.ORDER_TYPE,
-        O.ORDER_STATUS,
-        O.CREATED_AT,
-        O.USER_ID,
-        O.DISCOUNT_AMT,
-        (SELECT SUM(UNIT_PRICE * QUANTITY) FROM ORDER_ITEM WHERE ORDER_ID = O.ORDER_ID) AS totalPrice,
-        MIN(P.PRODUCT_NAME) AS productName,
-        COUNT(OI.ITEM_ID) AS itemCount
-    FROM ORDERS O
-    LEFT JOIN ORDER_ITEM OI ON O.ORDER_ID = OI.ORDER_ID
-    LEFT JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
-    WHERE O.USER_ID = #{userId}
-    GROUP BY O.ORDER_ID, O.ORDER_TYPE, O.ORDER_STATUS, O.CREATED_AT, O.USER_ID, O.DISCOUNT_AMT
-    ORDER BY O.CREATED_AT DESC
-</select>
+        SELECT
+            O.ORDER_ID,
+            O.ORDER_TYPE,
+            O.ORDER_STATUS,
+            O.CREATED_AT,
+            O.USER_ID,
+            O.DISCOUNT_AMT,
+            (SELECT SUM(UNIT_PRICE * QUANTITY) FROM ORDER_ITEM WHERE ORDER_ID = O.ORDER_ID) AS totalPrice,
+            MIN(P.PRODUCT_NAME) AS productName,
+            COUNT(OI.ITEM_ID) AS itemCount
+        FROM ORDERS O
+        LEFT JOIN ORDER_ITEM OI ON O.ORDER_ID = OI.ORDER_ID
+        LEFT JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+        WHERE O.USER_ID = #{userId}
+        GROUP BY O.ORDER_ID, O.ORDER_TYPE, O.ORDER_STATUS, O.CREATED_AT, O.USER_ID, O.DISCOUNT_AMT
+        ORDER BY O.CREATED_AT DESC
+    </select>
 
     <select id="selectOrderDetail" resultMap="orderDetailMap">
         SELECT
@@ -52,6 +58,13 @@
             O.DISCOUNT_AMT,
             O.CREATED_AT,
             O.USER_ID,
+            
+            U.USER_NAME AS RECEIVER_NAME,
+            U.USER_PHONE AS RECEIVER_PHONE,
+            A.ZIPCODE,
+            A.ADDRESS AS DELIVERY_ADDR,
+            A.DETAILED_ADDRESS AS DELIVERY_DETAIL_ADDR,
+            
             P.PRODUCT_NAME,
             OI.UNIT_PRICE AS ITEM_PRICE,   
             OI.QUANTITY AS ITEM_COUNT,     
@@ -61,8 +74,12 @@
         FROM ORDERS O
         INNER JOIN ORDER_ITEM OI ON O.ORDER_ID = OI.ORDER_ID
         INNER JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+        INNER JOIN USER U ON O.USER_ID = U.USER_ID
+        LEFT JOIN USER_ADDRESS A ON O.USER_ID = A.USER_ID AND A.DEFAULT_YN = 'Y'
         WHERE O.ORDER_ID = #{orderId}
-        AND O.USER_ID = #{userId}
+        <if test="userId != null and userId != ''">
+            AND O.USER_ID = #{userId}
+        </if>
     </select>
 
 </mapper>

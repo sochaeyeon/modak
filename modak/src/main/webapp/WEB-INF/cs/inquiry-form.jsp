@@ -6,231 +6,11 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>온라인 문의 접수 - 모닥모닥</title>
-		<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
-			rel="stylesheet">
-		<style>
-			:root {
-				--cream: #f7f3ee;
-				--cream-dark: #f0ebe3;
-				--orange: #d4714a;
-				--orange-hover: #c05e3a;
-				--orange-pale: #fdf5f0;
-				--text-dark: #3a3530;
-				--text-mid: #7a7068;
-				--text-light: #b0a89e;
-				--border: #e8e0d8;
-				--border-focus: #d4714a;
-				--white: #ffffff;
-				--error: #d9534f;
-				--success: #5a9a72;
-			}
-
-			* {
-				box-sizing: border-box;
-				margin: 0;
-				padding: 0;
-			}
-
-			body {
-				font-family: 'Noto Sans KR', sans-serif;
-				background: var(--cream);
-				min-height: 100vh;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				padding: 32px 16px;
-			}
-
-			/* ── CARD ── */
-			.form-card {
-				background: var(--white);
-				border-radius: 12px;
-				box-shadow: 0 4px 24px rgba(58, 53, 48, 0.10);
-				padding: 32px 28px 28px;
-				width: 100%;
-				max-width: 360px;
-			}
-
-			/* ── TITLE ── */
-			.form-title {
-				font-size: 18px;
-				font-weight: 700;
-				color: var(--text-dark);
-				letter-spacing: -0.4px;
-				margin-bottom: 24px;
-			}
-
-			/* ── FIELD GROUP ── */
-			.field-row {
-				display: flex;
-				gap: 10px;
-				margin-bottom: 14px;
-			}
-
-			.field-group {
-				display: flex;
-				flex-direction: column;
-				gap: 5px;
-				flex: 1;
-				margin-bottom: 14px;
-			}
-
-			.field-row .field-group {
-				margin-bottom: 0;
-			}
-
-			/* ── LABEL ── */
-			.field-label {
-				font-size: 11px;
-				font-weight: 500;
-				color: var(--text-mid);
-				letter-spacing: 0.2px;
-			}
-
-			/* ── INPUTS ── */
-			.field-input,
-			.field-select,
-			.field-textarea {
-				width: 100%;
-				border: 1px solid var(--border);
-				border-radius: 6px;
-				padding: 10px 12px;
-				font-size: 12px;
-				font-family: 'Noto Sans KR', sans-serif;
-				color: var(--text-dark);
-				background: var(--white);
-				outline: none;
-				transition: border-color 0.18s, box-shadow 0.18s;
-				-webkit-appearance: none;
-				appearance: none;
-			}
-
-			.field-input::placeholder,
-			.field-textarea::placeholder {
-				color: var(--text-light);
-			}
-
-			.field-input:focus,
-			.field-select:focus,
-			.field-textarea:focus {
-				border-color: var(--border-focus);
-				box-shadow: 0 0 0 3px rgba(212, 113, 74, 0.10);
-			}
-
-			/* ── SELECT ── */
-			.select-wrap {
-				position: relative;
-			}
-
-			.field-select {
-				padding-right: 32px;
-				cursor: pointer;
-				background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23b0a89e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
-				background-repeat: no-repeat;
-				background-position: right 12px center;
-			}
-
-			.field-select option {
-				color: var(--text-dark);
-			}
-
-			.field-select option[value=""] {
-				color: var(--text-light);
-			}
-
-			/* ── TEXTAREA ── */
-			.field-textarea {
-				resize: vertical;
-				min-height: 100px;
-				line-height: 1.7;
-			}
-
-			/* ── ERROR STATE ── */
-			.field-group.has-error .field-input,
-			.field-group.has-error .field-select,
-			.field-group.has-error .field-textarea {
-				border-color: var(--error);
-				box-shadow: 0 0 0 3px rgba(217, 83, 79, 0.09);
-			}
-
-			.field-error {
-				font-size: 10px;
-				color: var(--error);
-				display: none;
-			}
-
-			.field-group.has-error .field-error {
-				display: block;
-			}
-
-			/* ── NOTE ── */
-			.form-note {
-				font-size: 10px;
-				color: var(--text-light);
-				line-height: 1.7;
-				margin-bottom: 18px;
-			}
-
-			/* ── SUBMIT ── */
-			.submit-btn {
-				width: 100%;
-				background: var(--orange);
-				color: var(--white);
-				border: none;
-				border-radius: 8px;
-				padding: 14px;
-				font-size: 14px;
-				font-weight: 700;
-				font-family: 'Noto Sans KR', sans-serif;
-				letter-spacing: 0.5px;
-				cursor: pointer;
-				transition: background 0.18s, transform 0.12s;
-			}
-
-			.submit-btn:hover {
-				background: var(--orange-hover);
-			}
-
-			.submit-btn:active {
-				transform: scale(0.98);
-			}
-
-			.submit-btn:disabled {
-				background: var(--text-light);
-				cursor: not-allowed;
-				transform: none;
-			}
-
-			/* ── SUCCESS MESSAGE ── */
-			.success-msg {
-				display: none;
-				background: #f0faf4;
-				border: 1px solid #c4e8d0;
-				border-radius: 6px;
-				padding: 14px 16px;
-				text-align: center;
-				margin-bottom: 16px;
-			}
-
-			.success-msg .s-icon {
-				font-size: 22px;
-				margin-bottom: 6px;
-			}
-
-			.success-msg p {
-				font-size: 12px;
-				color: var(--success);
-				font-weight: 500;
-			}
-
-			.success-msg small {
-				font-size: 10px;
-				color: var(--text-light);
-			}
-		</style>
+		<link rel="stylesheet" href="${pageContext.request.contextPath}/css/cs/inquiry-form.css">
 	</head>
 
 	<body>
+
 
 		<div class="form-card">
 			<div class="form-title">온라인 문의 접수</div>
@@ -301,7 +81,12 @@
 				<button class="submit-btn" type="submit" id="submitBtn">문의 접수하기</button>
 
 			</form>
+
+
+
 		</div>
+
+
 
 		<script>
 			// ── 전화번호 자동 하이픈 ──

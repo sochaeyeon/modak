@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.example.modak.def.dao.DefaultService;
 import com.example.modak.event.dao.EventService;
 import com.google.gson.Gson;
 
@@ -19,38 +18,46 @@ import jakarta.servlet.http.HttpServletRequest;
 @Controller
 public class EventController {
 
-   @Autowired
-   EventService eventService;
+	@Autowired
+	EventService eventService;
 
-   @RequestMapping("/event/list.do")
-   public String test(Model model) throws Exception {
-      return "/event/event-list";
-   }
+	/* ── 목록 페이지 이동 ─────────────────────────────── */
+	@RequestMapping("/event/list.do")
+	public String eventListPage(Model model) throws Exception {
+		return "/event/event-list"; // → WEB-INF/views/event/event-list.jsp
+	}
 
-   @RequestMapping("/event/detail.do")
-   public String eventView(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
-         throws Exception {
-      System.out.println(map);
-      request.setAttribute("map", map);
-      return "/event/event-detail";
-   }
+	/* ── 상세 페이지 이동 ─────────────────────────────── */
+	@RequestMapping("/event/detail.do")
+	public String eventDetailPage(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
+			throws Exception {
+		System.out.println("detail param: " + map);
+		request.setAttribute("map", map);
+		return "/event/event-detail"; // → WEB-INF/views/event/event-detail.jsp
+	}
 
-   @RequestMapping(value = "/event/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-   @ResponseBody
-   public String eventList(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
-      HashMap<String, Object> resultMap = new HashMap<String, Object>();
+	/*
+	 * ── 목록 Ajax (JSON) ──────────────────────────────── POST /event/list.dox 요청: {
+	 * tabType: 'ongoing'|'ended'|'winner', page: 1 } 응답: { result, message, list,
+	 * totalCount, totalPages, currentPage }
+	 * ───────────────────────────────────────────────────
+	 */
+	@RequestMapping(value = "/event/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String eventList(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+		HashMap<String, Object> resultMap = eventService.getEventList(map);
+		return new Gson().toJson(resultMap);
+	}
 
-      resultMap = eventService.getEventList(map);
-
-      return new Gson().toJson(resultMap);
-   }
-
-   @RequestMapping(value = "/event/info.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-   @ResponseBody
-   public String eventInfo(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
-      HashMap<String, Object> resultMap = new HashMap<String, Object>();
-      resultMap = eventService.getEventInfo(map);
-      return new Gson().toJson(resultMap);
-   }
-
+	/*
+	 * ── 상세 Ajax (JSON) ──────────────────────────────── POST /event/info.dox 요청: {
+	 * eventId: 1 } 응답: { result, message, info }
+	 * ───────────────────────────────────────────────────
+	 */
+	@RequestMapping(value = "/event/info.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String eventInfo(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+		HashMap<String, Object> resultMap = eventService.getEventInfo(map);
+		return new Gson().toJson(resultMap);
+	}
 }

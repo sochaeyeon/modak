@@ -1,5 +1,14 @@
 @charset "UTF-8";
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
 .search-page {
     width: 1200px;
     margin: 40px auto 80px;

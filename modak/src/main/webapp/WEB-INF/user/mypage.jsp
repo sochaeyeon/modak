@@ -31,9 +31,9 @@
                                     <div class="profile-card">
                                         <div class="avatar-wrap">
     <div class="avatar-ring profile-avatar" @click="fnTriggerProfileFile">
-        <img :src="fnGetProfileImageSrc()"
-             alt="프로필 이미지"
-             class="profile-avatar-img">
+       <img :src="profileImageSrc"
+     alt="프로필 이미지"
+     class="profile-avatar-img">
 
         <div class="profile-overlay">
             <div class="overlay-content">
@@ -1203,6 +1203,7 @@
                                     nickName: "${user.nickName}",
                                     profileImgUrl: "${empty user.profileImgUrl ? '' : user.profileImgUrl}"
                                 },
+                                 profileImageVersion: Date.now(),
                             };
                         },
                         computed: {
@@ -1217,6 +1218,24 @@
 
                                 return score;
                             },
+                            profileImageSrc() {
+        let url = this.displayUser.profileImgUrl;
+
+        if (!url || url === "null" || url === "undefined") {
+            return "/img/profile/default-profile.png";
+        }
+
+        url = String(url).trim();
+
+        if (
+            !url.startsWith("/img/profile/") &&
+            !url.startsWith("/upload/profile/")
+        ) {
+            return "/img/profile/default-profile.png";
+        }
+
+        return url + "?v=" + this.profileImageVersion;
+    },
                             passwordStrengthText() {
                                 let pwd = this.passwordForm.newPwd || "";
 
@@ -2112,7 +2131,7 @@ self.displayUser.profileImgUrl = profileImgUrl;
     });
 },
 
-                           fnProfileImageChange: function (event) {
+                          fnProfileImageChange: function (event) {
     let self = this;
     let file = event.target.files[0];
 
@@ -2129,24 +2148,21 @@ self.displayUser.profileImgUrl = profileImgUrl;
         data: formData,
         processData: false,
         contentType: false,
+        dataType: "json",
         success: function (data) {
-            if (typeof data === "string") {
-                data = JSON.parse(data);
-            }
+    self.$refs.profileFileInput.value = "";
 
-            if (data.result === "success") {
-                self.$refs.profileFileInput.value = "";
-                self.fnGetUserSettings();
-            } else {
-                alert(data.message || "업로드 실패");
-            }
-        },
+    if (data.result === "success") {
+        location.href = location.pathname + "?profileRefresh=" + new Date().getTime();
+    } else {
+        alert(data.message || "프로필 사진 변경에 실패했습니다.");
+    }
+},
         error: function () {
-            alert("서버 오류 발생");
+            self.$refs.profileFileInput.value = "";
+            alert("서버 오류가 발생했습니다.");
         }
     });
-
-    event.target.value = "";
 },
                                     fnHasOrderAction: function (item) {
                                         return this.fnGetOrderActionText(item) !== "";
@@ -2254,24 +2270,6 @@ self.displayUser.profileImgUrl = profileImgUrl;
                                     },
                                     fnGoMembershipInfo: function () {
                                         pageChange("/user/membership/info.do", {});
-                                    },
-                                    fnGetProfileImageSrc: function () {
-                                        
-                                        let url = this.displayUser.profileImgUrl;
-                                        
-
-                                        if (!url || url === "null" || url === "undefined") {
-                                            return "/img/profile/default-profile.png";
-                                        }
-
-                                        url = String(url).trim();
-
-                                        // 예전 잘못된 경로 차단
-                                        if (!url.startsWith("/img/profile/")) {
-                                            return "/img/profile/default-profile.png";
-                                        }
-
-                                        return url + "?t=" + new Date().getTime();
                                     },
                                 }, // methods
                                     mounted() {

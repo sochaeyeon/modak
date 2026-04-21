@@ -14,8 +14,9 @@
 
 <%@ include file="/WEB-INF/common/header.jsp" %>
 
-<div id="app">
+<div id="app" v-cloak>
     <div v-if="order" class="order-detail-container">
+        
         <header class="detail-header">
             <h2 class="page-title">주문 상세 내역</h2>
             <div class="order-meta-info">
@@ -28,9 +29,10 @@
         <section class="glass-card">
             <h3 class="section-title"><i class="fa-solid fa-box"></i> 주문 상품 정보</h3>
             <div class="product-list">
-                <div v-for="(item, index) in order.itemList" :key="index" class="product-item">
+                <div v-for="(item, index) in order.itemList" :key="index" 
+                     class="product-item" @click="fnGoProductDetail(item.productId)">
                     <div class="product-thumb-box">
-                        <span class="thumb-emoji">⛺</span>
+                        <span class="thumb-emoji">{{ item.orderType === 'RENTAL' ? '⛺' : '🛒' }}</span>
                     </div>
                     <div class="product-info-box">
                         <span class="badge" :class="item.orderType === 'RENTAL' ? 'rental' : 'buy'">
@@ -41,6 +43,7 @@
                             <strong>{{ item.price.toLocaleString() }}원</strong> / {{ item.count }}개
                         </p>
                     </div>
+                    <div class="item-arrow"><i class="fa-solid fa-chevron-right"></i></div>
                 </div>
             </div>
         </section>
@@ -50,33 +53,28 @@
                 <h3 class="section-title"><i class="fa-solid fa-location-dot"></i> 배송지 정보</h3>
                 <div class="info-content">
                     <table class="info-table">
-                        <tr>
-                            <th>받는분</th>
-                            <td>{{ order.receiverName }}</td>
-                        </tr>
-                        <tr>
-                            <th>연락처</th>
-                            <td>{{ order.receiverPhone }}</td>
-                        </tr>
+                        <tr><th>받는분</th><td>{{ order.receiverName }}</td></tr>
+                        <tr><th>연락처</th><td>{{ order.receiverPhone }}</td></tr>
                         <tr>
                             <th>주소</th>
-                            <td>
-                                <template v-if="order.deliveryAddr">
-                                    ({{ order.zipcode }}) {{ order.deliveryAddr }} <br>
-                                    {{ order.deliveryDetailAddr }}
-                                </template>
-                                <template v-else>
-                                    등록된 배송지 정보가 없습니다.
-                                </template>
-                            </td>
+                            <td>({{ order.zipcode }}) {{ order.deliveryAddr }} {{ order.deliveryDetailAddr }}</td>
                         </tr>
                     </table>
                 </div>
             </section>
 
             <section class="glass-card">
-                <h3 class="section-title"><i class="fa-solid fa-credit-card"></i> 결제 금액 정보</h3>
+                <h3 class="section-title"><i class="fa-solid fa-credit-card"></i> 결제 정보</h3>
                 <div class="price-summary">
+                    <div class="price-row">
+                        <span class="label">결제 수단</span>
+                        <span class="val-orange">{{ order.payMethod || 'CARD' }}</span>
+                    </div>
+                    <div class="price-row">
+                        <span class="label">결제 시각</span>
+                        <span class="val-sub">{{ order.payDate || '-' }}</span>
+                    </div>
+                    <div class="info-divider"></div>
                     <div class="price-row">
                         <span>주문 합계</span>
                         <span>{{ calcSubTotal.toLocaleString() }}원</span>
@@ -95,8 +93,7 @@
 
         <div class="btn-group">
             <button class="btn-back-list" @click="fnGoList">목록으로 돌아가기</button>
-            
-            <button v-if="order.orderStatus === 'PAID' || order.orderStatus === 'READY'" 
+            <button v-if="['PAID', 'READY', 'PAY_COMPLETED'].includes((order.orderStatus || '').toUpperCase())" 
                     class="btn-cancel" @click="fnCancelOrder">
                 주문취소
             </button>
@@ -109,54 +106,36 @@
 <script>
     const { createApp } = Vue;
     createApp({
-        data() {
-            return {
-                orderId: '${orderId}',
-                order: null
-            }
-        },
+        data() { return { orderId: '${orderId}', order: null } },
         computed: {
             calcSubTotal() {
                 if (!this.order || !this.order.itemList) return 0;
                 return this.order.itemList.reduce((acc, item) => acc + (item.price * item.count), 0);
             },
             calcFinalTotal() {
+                if (!this.order) return 0;
                 return this.calcSubTotal - (this.order.discountAmt || 0);
             }
         },
         methods: {
             fnGetDetail() {
-                const self = this;
                 $.ajax({
-                    url: "/order/detail.dox",
-                    type: "POST",
-                    dataType: "json",
-                    data: { orderId: self.orderId },
-                    success: function(res) {
-                        if (res.result === "success") self.order = res.order;
-                    }
+                    url: "/order/detail.dox", type: "POST", dataType: "json",
+                    data: { orderId: this.orderId },
+                    success: (res) => { if (res.result === "success") this.order = res.order; }
                 });
             },
-            fnGoList() { 
-                location.href = "/order/history.do"; 
+            fnGoProductDetail(id) { 
+                if(!id) return;
+                location.href = "/product/detail.do?productId=" + id; 
             },
+            fnGoList() { location.href = "/order/history.do"; },
             fnCancelOrder() {
                 if(!confirm("정말로 주문을 취소하시겠습니까?")) return;
-                
-                const self = this;
                 $.ajax({
-                    url: "/order/cancel.dox", // 취소 처리용 컨트롤러 주소
-                    type: "POST",
-                    dataType: "json",
-                    data: { orderId: self.orderId },
-                    success: function(res) {
-                        if (res.result === "success") {
-                            alert("주문이 취소되었습니다.");
-                            self.fnGetDetail(); // 상태 갱신을 위해 재조회
-                        } else {
-                            alert("취소 처리 중 오류가 발생했습니다.");
-                        }
-                    }
+                    url: "/order/cancel.dox", type: "POST", dataType: "json",
+                    data: { orderId: this.orderId },
+                    success: (res) => { if (res.result === "success") { alert("취소되었습니다닥!"); this.fnGetDetail(); } }
                 });
             }
         },

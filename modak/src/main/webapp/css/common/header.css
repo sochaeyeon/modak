@@ -4,7 +4,7 @@
 .site-header {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #f2ede4; /* 베이지톤 테두리로 변경 */
     height: 80px;
     display: flex;
     align-items: center;
@@ -79,20 +79,30 @@
     justify-content: center;
 }
 
+/* [수정] 알림 점 - JS로 display:block 될 때만 나타남 */
 .notice-dot {
     position: absolute;
     top: 1px;
     right: 1px;
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     background: #ff4d4d;
     border-radius: 50%;
-    border: 1px solid #fff;
+    border: 1.5px solid #fff;
+    /* 시선을 끄는 부드러운 애니메이션 추가 */
+    animation: pulseRed 2s infinite;
+}
+
+/* 알림 점 깜빡임 효과 */
+@keyframes pulseRed {
+    0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
+    70% { box-shadow: 0 0 0 6px rgba(255, 77, 77, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
 }
 
 /* 알림 종 흔들림 애니메이션 */
 .notice-wrap:hover .fa-bell {
-    animation: bellRing 0.6s ease-in-out infinite;
+    animation: bellRing 0.6s ease-in-out;
     color: #E8732A;
 }
 
@@ -144,8 +154,15 @@
     box-shadow: 0 12px 45px rgba(0,0,0,0.12);
     display: none;
     z-index: 2000;
+    border: 1px solid #f2ede4;
 }
-.category-menu.open { display: block; }
+.category-menu.open { display: block; animation: menuFadeIn 0.3s ease; }
+
+@keyframes menuFadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 .menu-inner { padding: 30px 0 20px; }
 .section-label { font-size: 11px; color: #ccc; font-weight: 800; margin-left: 25px; margin-bottom: 12px; letter-spacing: 1px; }
 

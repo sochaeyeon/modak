@@ -27,4 +27,7 @@ public class Order {
 
     // 주문 상세용
     private List<OrderItem> itemList;
+      
+    private String payMethod; // 쿼리의 PAY_METHOD (PAY_TYPE 데이터)
+    private String payDate;
 }

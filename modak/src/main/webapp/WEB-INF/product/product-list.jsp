@@ -153,29 +153,23 @@
             <span class="fs-title">브랜드</span>
           </div>
           <div class="filter-opts">
-            <label class="fopt">
-              <input 
-                type="radio" 
-                :checked="filter.brandId.length === 0" 
-                @change="clearBrands"
-              > 전체
-            </label>
-            <label class="fopt">
-              <input type="checkbox" v-model="filter.brandId" :value="1" @change="fnList"> 자체
-            </label>
-            <label class="fopt">
-              <input type="checkbox" v-model="filter.brandId" :value="2" @change="fnList"> 케로로
-            </label>
-            <label class="fopt">
-              <input type="checkbox" v-model="filter.brandId" :value="3" @change="fnList"> 타마마
-            </label>
-            <label class="fopt">
-              <input type="checkbox" v-model="filter.brandId" :value="4" @change="fnList"> 기로로
-            </label>
-            <label class="fopt">
-              <input type="checkbox" v-model="filter.brandId" :value="5" @change="fnList"> 쿠루루
-            </label>
-          </div>
+          <label class="fopt">
+            <input 
+              type="radio" 
+              :checked="filter.brandId.length === 0" 
+              @change="clearBrands"
+            > 전체
+          </label>
+
+          <label class="fopt" v-for="brand in brandList" :key="brand.brandId">
+            <input 
+              type="checkbox" 
+              :value="brand.brandId" 
+              v-model="filter.brandId" 
+              @change="fnList"
+            > {{ brand.brandName }}
+          </label>
+        </div>
         </div>
 
         <div class="filter-section">
@@ -314,6 +308,7 @@ createApp({
   data() {
     return {
       products:        [],
+      brandList:     [],
       loading:         false,
 
       category:      [],    // 부모 카테고리 (pill 바)
@@ -333,7 +328,7 @@ createApp({
       filter: {
         rentable: true,  // 페이지 로드 시 '대여 가능' 체크됨
         buyable: true,   // 페이지 로드 시 '구매 가능' 체크됨
-        brandId:   [],
+        brandId:   [], // 체크된 브랜드 아이디가 담김
         priceRange: 50,
         minRating:  null,
       },
@@ -485,11 +480,17 @@ createApp({
 
     resetFilter() {
       this.filter = {
-        productType: 'all', // 초기화 시 '전체'로 이동
-        brandId:   [],
+        // productType: 'all', // 초기화 시 '전체'로 이동
+        rentable: true,   // '대여 가능' 체크박스 활성화
+        buyable: true,    // '구매 가능' 체크박스 활성화
+        brandId: [],
         priceRange: null,
         minRating:  null,
       };
+      // 부모 카테고리와 자식 카테고리도 초기화하고 싶다면 아래 주석 해제
+      this.currentCat = null;
+      this.currentChild = null;
+      this.childCategory = [];
       this.currentPage = 1;
       this.fnList();
     },
@@ -513,6 +514,23 @@ createApp({
         behavior: 'smooth' // 'smooth'를 넣으면 스르륵 올라가고, 빼면 바로 점프합니다.
       });
     },
+    fetchBrandList() {
+      let self = this;
+      $.ajax({
+        url: "/product/brandList.dox", // 브랜드 목록 조회를 위한 URL
+        dataType: "json",
+        type: "POST",
+        data: {}, // 필요 시 조건 전달
+        success: function(data) {
+          if (data.result === 'success') {
+            self.brandList = data.list; // 서버에서 받은 리스트를 할당
+          }
+        },
+        error: function(err) {
+          console.error("브랜드 조회 실패:", err);
+        }
+      });
+    },
     clearBrands() {
       this.filter.brandId = []; // 배열을 비워서 다른 체크를 모두 해제
       this.fnSearch();
@@ -522,7 +540,8 @@ createApp({
 
   mounted() {
     this.fetchCategory();  // 부모 카테고리 로드
-    this.fnList();           // 상품 목록 로드 (fetchProducts 제거, fnList로 통일)
+    this.fnList(); // 상품 목록 로드 (fetchProducts 제거, fnList로 통일)
+    this.fetchBrandList();
   },
 
 }).mount('#app');

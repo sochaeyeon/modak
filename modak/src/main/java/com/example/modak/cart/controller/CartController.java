@@ -14,12 +14,15 @@ import com.example.modak.cart.dao.CartService;
 import com.google.gson.Gson;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class CartController {
 	
 	@Autowired
 	CartService cartService;
+	@Autowired
+	HttpSession session;
 	
 	@RequestMapping("/cart/list.do") 
 	   public String test1(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map) throws Exception{
@@ -31,6 +34,20 @@ public class CartController {
 	@ResponseBody
 	public String getCartList(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
 		HashMap<String, Object> resultMap = new HashMap<String, Object>();
+		
+		// 1. 세션에서 로그인한 사용자의 아이디를 꺼냅니다.
+		// (로그인 시 세션에 저장한 이름이 "userId" 또는 "sessionId"인지 확인 필요!)
+		String userId = (String) session.getAttribute("userId"); 
+				
+		// 2. 세션에 아이디가 있다면 맵에 담아줍니다.
+		if(userId != null) {
+			map.put("userId", userId);
+		} else {
+			// 로그인이 안 된 경우 테스트를 위해 임시 아이디를 넣거나 에러 처리를 합니다.
+			map.put("userId", "user01"); 
+		}
+		
+		// 3. 이제 userId와 cartType이 모두 담긴 map이 서비스로 넘어갑니다.
 		resultMap = cartService.getCartList(map);
 		return new Gson().toJson(resultMap);
 	}

@@ -8,7 +8,7 @@
    <select id="selectCartList" parameterType="hashmap" resultType="com.example.modak.cart.model.Cart">
 	      SELECT 
 	        c.cart_id AS cartId,
-	        c.quantity,
+	        c.quantity AS quantity,
 	        c.user_id AS userId,
 	        c.product_id AS productId,
 	        c.option_id AS optionId, 
@@ -23,6 +23,8 @@
 	                      AND i.is_main = 'Y'  
 	    WHERE 
 	        c.user_id = #{userId}
+	    AND 
+	        c.cart_type = #{cartType}
 	    ORDER BY 
 	        c.created_at DESC
    </select>

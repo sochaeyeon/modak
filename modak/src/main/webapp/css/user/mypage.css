@@ -2,6 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    
 }
 
 :root {
@@ -19,7 +20,7 @@
 }
 
 body {
-    font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif;
+    font-family: 'SeoulNamsanEB', 'Apple SD Gothic Neo', sans-serif;
     background: var(--bg);
     min-height: 100vh;
     display: flex;
@@ -56,24 +57,24 @@ body {
 }
 
 .avatar-ring {
-    width: 72px;
-    height: 72px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     background: linear-gradient(135deg, var(--ember-deep), var(--ember-light));
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 12px;
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     font-size: 26px;
     color: white;
 }
 
 .profile-name {
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     font-size: 15px;
     color: var(--text-dark);
-    margin-bottom: 3px;
+    margin-bottom: 5px;
 }
 
 .profile-nick {
@@ -142,7 +143,7 @@ body {
     background: rgba(201, 79, 30, .08);
     color: var(--ember-deep);
     border-left-color: var(--ember);
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     transform: translateX(6px);
 
 }
@@ -199,7 +200,7 @@ body {
 }
 
 .section-head h3 {
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     font-size: 14.5px;
     color: var(--text-dark);
 }
@@ -245,14 +246,14 @@ body {
 }
 
 .stat-value {
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     font-size: 24px;
     color: var(--text-dark);
     line-height: 1;
 }
 
 .stat-value span {
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     font-size: 12px;
     color: var(--text-light);
     margin-left: 3px;
@@ -302,7 +303,7 @@ body {
 }
 
 .flow-count {
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     font-size: 17px;
     color: var(--text-dark);
 }
@@ -374,7 +375,7 @@ body {
 }
 
 .order-price {
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     font-size: 14px;
     color: var(--text-dark);
     flex-shrink: 0;
@@ -450,7 +451,7 @@ body {
 }
 
 .wish-price {
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     font-size: 14px;
     color: var(--ember-deep);
 }
@@ -477,14 +478,14 @@ body {
 }
 
 .benefit-amount {
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     font-size: 28px;
     color: var(--text-dark);
 }
 
 .benefit-amount span {
     font-size: 13px;
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     color: var(--text-light);
     margin-left: 3px;
 }
@@ -523,7 +524,7 @@ body {
 }
 
 .ph-point {
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     font-size: 14px;
 }
 
@@ -563,7 +564,7 @@ body {
     border: 1.5px solid var(--border);
     border-radius: 10px;
     background: var(--white);
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     font-size: 14px;
     color: var(--text-dark);
     outline: none;
@@ -591,7 +592,7 @@ body {
     border: none;
     border-radius: 10px;
     color: white;
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     font-size: 14px;
     cursor: pointer;
     transition: background .18s, transform .13s;
@@ -609,7 +610,7 @@ body {
     border: 1.5px solid var(--border);
     border-radius: 10px;
     color: var(--text-mid);
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     font-size: 14px;
     cursor: pointer;
     transition: all .18s;
@@ -631,7 +632,7 @@ body {
 }
 
 .danger-title {
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     font-size: 13px;
     color: var(--text-mid);
     margin-bottom: 12px;
@@ -643,7 +644,7 @@ body {
     border: 1.5px solid rgba(201, 79, 30, .3);
     border-radius: 9px;
     color: var(--ember-deep);
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     font-size: 13px;
     cursor: pointer;
     transition: all .18s;
@@ -1053,7 +1054,7 @@ body {
     padding: 6px 12px;
     font-size: 12px;
     cursor: pointer;
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     transition: all .18s ease;
 }
 
@@ -1609,6 +1610,7 @@ button:disabled {
     opacity: 0.55;
     cursor: not-allowed;
 }
+
 /* 비밀번호 안내 문구 */
 .password-guide {
     margin-top: 6px;
@@ -1618,15 +1620,18 @@ button:disabled {
 
 /* 강도 색상 */
 .strength-weak {
-    color: #e74c3c;   /* 빨강 */
+    color: #e74c3c;
+    /* 빨강 */
 }
 
 .strength-medium {
-    color: #f39c12;   /* 주황 */
+    color: #f39c12;
+    /* 주황 */
 }
 
 .strength-strong {
-    color: #27ae60;   /* 초록 */
+    color: #27ae60;
+    /* 초록 */
 }
 
 /* 일치 여부 */
@@ -1675,6 +1680,7 @@ button:disabled {
     color: #666;
     text-align: center;
 }
+
 .grade-default {
     background: linear-gradient(135deg, #8c7b6a, #b8a999);
     color: #fff;
@@ -1789,12 +1795,14 @@ button:disabled {
     flex-direction: column;
     gap: 8px;
 }
+
 .inquiry-detail-box .detail-label {
     font-size: 12px;
     color: #9a826f;
     font-weight: 600;
     margin-bottom: 2px;
 }
+
 inquiry-detail-box .detail-value {
     font-size: 13.5px;
     color: #3e2a1f;
@@ -1848,6 +1856,7 @@ inquiry-detail-box .detail-value {
         opacity: 0;
         transform: translateY(-4px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -1909,7 +1918,7 @@ inquiry-detail-box .detail-value {
 .chatbot-title {
     font-size: 14px;
     color: var(--text-dark);
-    font-family: 'GgiBatang', sans-serif;
+    font-family: 'SeoulNamsanEB', sans-serif;
     margin-bottom: 6px;
     line-height: 1.4;
 }
@@ -1954,4 +1963,221 @@ inquiry-detail-box .detail-value {
 /* 마지막 메시지 없을 때도 간격 자연스럽게 */
 .chatbot-preview:empty {
     display: none;
+}
+
+/* 혜택 내역 2분할 */
+.benefits-history-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+}
+
+.benefits-history-col {
+    min-width: 0;
+    height: 395px;
+}
+
+.benefits-history-col:first-child {
+    border-right: 1px solid var(--border);
+}
+
+.benefits-sub-head {
+    padding: 16px 22px 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.benefits-sub-head h4 {
+    font-family: 'SeoulNamsanEB', sans-serif;
+    font-size: 13.5px;
+    color: var(--text-dark);
+}
+
+.benefits-sub-head a {
+    font-size: 12px;
+    color: var(--text-light);
+    text-decoration: none;
+    transition: color .15s ease;
+}
+
+.benefits-sub-head a:hover {
+    color: var(--ember);
+}
+
+.mini-history {
+    padding: 0 22px 8px;
+    min-height: 420px;
+}
+
+/* 쿠폰 리스트 */
+.coupon-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.coupon-item:last-child {
+    border-bottom: none;
+}
+
+.coupon-left {
+    min-width: 0;
+    flex: 1;
+}
+
+.coupon-name {
+    font-size: 13.5px;
+    color: var(--text-dark);
+    margin-bottom: 4px;
+    line-height: 1.45;
+}
+
+.coupon-date {
+    font-size: 11.5px;
+    color: var(--text-light);
+}
+
+.coupon-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.coupon-discount {
+    font-family: 'SeoulNamsanEB', sans-serif;
+    font-size: 14px;
+    color: var(--ember-deep);
+}
+
+.coupon-status {
+    font-size: 11px;
+    padding: 4px 9px;
+    border-radius: 999px;
+}
+
+.coupon-status.available {
+    background: rgba(201, 79, 30, 0.10);
+    color: var(--ember-deep);
+}
+
+.coupon-status.used {
+    background: rgba(176, 144, 112, 0.14);
+    color: var(--text-mid);
+}
+
+.coupon-status.expired {
+    background: rgba(120, 120, 120, 0.10);
+    color: #777;
+}
+
+.small-empty {
+    min-height: 220px;
+    padding: 40px 16px;
+}
+
+@media (max-width: 900px) {
+    .benefits-history-split {
+        grid-template-columns: 1fr;
+    }
+
+    .benefits-history-col:first-child {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .mini-history {
+        min-height: auto;
+    }
+}
+
+/* 프로필 이미지 */
+.avatar-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.profile-avatar {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.profile-avatar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(201, 79, 30, 0.18);
+}
+
+.profile-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.profile-image-btn {
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgba(255, 252, 248, .95);
+    color: var(--text-mid);
+    font-family: 'SeoulNamsanEB', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .18s ease;
+}
+
+.profile-image-btn:hover {
+    background: rgba(201, 79, 30, .08);
+    border-color: rgba(201, 79, 30, .35);
+    color: var(--ember-deep);
+}
+
+.order-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.order-action-wrap {
+    margin-top: 2px;
+}
+
+.btn-order-action {
+    padding: 7px 12px;
+    border: 1px solid rgba(201, 79, 30, .25);
+    border-radius: 999px;
+    background: rgba(255, 252, 248, .96);
+    color: var(--ember-deep);
+    font-family: 'SeoulNamsanEB', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .18s ease;
+    white-space: nowrap;
+}
+
+.btn-order-action:hover {
+    background: rgba(201, 79, 30, .08);
+    border-color: rgba(201, 79, 30, .4);
+    transform: translateY(-1px);
+}
+.level-badge {
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.level-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(201, 79, 30, 0.15);
 }

@@ -193,4 +193,8 @@ public class UserSettingsService {
 		int number = 100000 + random.nextInt(900000);
 		return String.valueOf(number);
 	}
+
+	public int updateProfileImage(String userId, String profileImgUrl) {
+		return userSettingsMapper.updateProfileImage(userId, profileImgUrl);
+	}
 }

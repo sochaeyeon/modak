@@ -3,7 +3,7 @@ package com.example.modak.order.model;
 import java.util.List;
 import lombok.Data;
 
-@Data // Getter, Setter, ToString 등을 자동으로 생성해줍니다.
+@Data
 public class Order {
     private Long orderId;
     private String orderType;
@@ -14,14 +14,17 @@ public class Order {
     private String userId;
     private Long userCouponId;
 
-    // ✅ MyBatis 에러 해결을 위해 추가해야 하는 배송 정보 필드
-    // XML의 <result property="..." column="..."> 이름과 일치해야 합니다.
-    private String receiverName;    // 받는분 (홍길동)
-    private String receiverPhone;   // 연락처
-    private String zipcode;         // 우편번호
-    private String deliveryAddr;    // 주소
-    private String deliveryDetailAddr; // 상세주소
+    // 최근 주문내역용 대표 상품 정보
+    private String productName;
+    private int itemCount;
 
-    // ✅ 상품 리스트 매핑
-    private List<OrderItem> itemList; 
+    // 배송 정보
+    private String receiverName;
+    private String receiverPhone;
+    private String zipcode;
+    private String deliveryAddr;
+    private String deliveryDetailAddr;
+
+    // 주문 상세용
+    private List<OrderItem> itemList;
 }

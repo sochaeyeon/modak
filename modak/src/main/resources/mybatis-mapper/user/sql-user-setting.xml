@@ -16,7 +16,8 @@
 		USER_PHONE AS userPhone,
 		PHONE_VERIFY_YN AS phoneVerifyYn,
 		SOCIAL_TYPE,
-		DATE_FORMAT(PHONE_VERIFIED_AT, '%Y-%m-%d %H:%i:%s') AS phoneVerifiedAt
+		DATE_FORMAT(PHONE_VERIFIED_AT, '%Y-%m-%d %H:%i:%s') AS phoneVerifiedAt,
+		PROFILE_IMG_URL AS profileImgUrl
 		FROM USER
 		WHERE USER_ID = #{userId}
 	</select>
@@ -137,4 +138,12 @@
 		SET USER_STATUS = 'DELETED'
 		WHERE USER_ID = #{userId}
 	</update>
+	
+	<update id="updateProfileImage">
+    UPDATE USER
+    SET
+        PROFILE_IMG_URL = #{profileImgUrl},
+        UPDATED_AT = NOW()
+    WHERE USER_ID = #{userId}
+</update>
 </mapper>

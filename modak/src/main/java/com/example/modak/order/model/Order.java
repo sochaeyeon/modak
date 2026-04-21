@@ -24,4 +24,7 @@ public class Order {
 
     // ✅ 상품 리스트 매핑
     private List<OrderItem> itemList; 
+    
+    private String payMethod; // 쿼리의 PAY_METHOD (PAY_TYPE 데이터)
+    private String payDate;
 }

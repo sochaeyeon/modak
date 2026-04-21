@@ -1,67 +1,84 @@
 @charset "UTF-8";
 
-/* 1. 배경 및 폰트 */
-body { background-color: #faf6f0; margin: 0; color: #2e1a0e; font-family: 'Pretendard', sans-serif; }
-.order-detail-container { max-width: 900px; margin: 50px auto; padding: 0 20px; }
-
-/* 2. 헤더 섹션 */
-.detail-header { text-align: center; margin-bottom: 40px; }
-.page-title { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
-.order-meta-info { color: #b09070; font-size: 15px; }
-.divider { margin: 0 10px; opacity: 0.3; }
-
-/* 3. 글래스모피즘 카드 */
-.glass-card {
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(200, 165, 130, 0.2);
-    border-radius: 24px;
-    padding: 30px;
-    margin-bottom: 24px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 10px 30px rgba(44, 30, 14, 0.03);
+/* ── [Image_9.png 디자인 적용] 전체 베이지 배경 ── */
+body {
+    background-color: #faf6f0; /* 차분한 베이지색 배경 */
 }
 
-.section-title { font-size: 19px; font-weight: 700; margin-bottom: 25px; color: #5c4033; }
+/* ── 전체 레이아웃 ── */
+.order-detail-container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; font-family: 'Pretendard', sans-serif; }
 
-/* 4. 상품 리스트 & 이미지 사이즈 최적화 (핵심) */
-.product-item { display: flex; align-items: center; gap: 20px; padding: 15px 0; border-bottom: 1px solid rgba(200, 165, 130, 0.1); }
-.product-item:last-child { border-bottom: none; }
+/* ── 헤더 영역 ── */
+.detail-header { margin-bottom: 35px; border-bottom: 2px solid #2c1e0f; padding-bottom: 20px; }
+.page-title { font-size: 28px; font-weight: 800; color: #2c1e0f; margin-bottom: 12px; }
+.order-meta-info { font-size: 15px; color: #8b6b4a; }
+.order-meta-info strong { color: #e8732a; font-weight: 700; }
+.divider { margin: 0 12px; color: #e8e2d6; }
 
-.product-thumb-box {
-    width: 80px;  /* 이미지(아이콘) 가로 고정 */
-    height: 80px; /* 이미지(아이콘) 세로 고정 */
-    background: #fff;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid #f2ede4;
-    flex-shrink: 0; /* 사이즈 축소 방지 */
+/* ── 섹션 카드 (베이지 위 흰색 박스) ── */
+.glass-card { 
+    background: #fff; /* 카드는 하얀색으로 튀게 */
+    border: 1px solid #f2ede4; 
+    border-radius: 20px; 
+    padding: 30px; 
+    margin-bottom: 25px; 
+    box-shadow: 0 4px 15px rgba(44, 30, 15, 0.02); /* 은은한 그림자 */
 }
-.thumb-emoji { font-size: 40px; }
+.section-title { font-size: 18px; font-weight: 800; margin-bottom: 25px; color: #2c1e0f; border-left: 5px solid #e8732a; padding-left: 15px; display: flex; align-items: center; gap: 10px; }
 
-.item-name { font-size: 18px; margin: 5px 0; font-weight: 700; }
-.item-price { font-size: 15px; color: #7a5c3e; }
-
-/* 5. 그리드 레이아웃 */
-.info-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 24px; }
-.info-table th { text-align: left; width: 70px; color: #b09070; padding: 10px 0; }
-.info-table td { font-weight: 600; padding: 10px 0; }
-
-/* 6. 금액 정보 스타일 */
-.price-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 16px; }
-.minus-text { color: #d32f2f; font-weight: 600; }
-.total-row { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 20px; border-top: 2px solid #fdf5f0; }
-.total-price-text { font-size: 26px; font-weight: 900; color: #e0621a; }
-
-/* 7. 버튼 디자인 */
-.btn-group { text-align: center; margin-top: 40px; padding-bottom: 80px; }
-.btn-back-list {
-    padding: 14px 35px; border-radius: 999px; border: 1.5px solid #dcd0c0;
-    background: #fff; color: #7a5c3e; font-weight: 700; cursor: pointer; transition: 0.3s;
+/* ── 상품 리스트 (클릭 유도 효과) ── */
+.product-list { display: flex; flex-direction: column; gap: 15px; }
+.product-item { 
+    display: flex; align-items: center; gap: 20px; 
+    padding: 18px; border-radius: 16px; 
+    background: #fafaf8; border: 1px solid #f2ede4; 
+    cursor: pointer; transition: 0.2s ease-in-out; 
 }
-.btn-back-list:hover { background: #e0621a; color: #fff; border-color: #e0621a; transform: translateY(-3px); }
-
-.badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+.product-item:hover { 
+    background: #fff; 
+    transform: translateX(8px); /* 오른쪽 이동 효과 */
+    box-shadow: 0 6px 20px rgba(232, 115, 42, 0.1); 
+    border-color: #e8732a; 
+}
+.product-thumb-box { width: 64px; height: 64px; background: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 32px; border: 1px solid #eee; }
+.product-info-box { flex: 1; }
+.item-name { font-size: 17px; font-weight: 700; margin-bottom: 6px; color: #2c1e0f; }
+.badge { font-size: 11px; padding: 3px 10px; border-radius: 6px; font-weight: 700; margin-bottom: 6px; display: inline-block; }
+.badge.buy { background: #fff4ec; color: #e8732a; }
 .badge.rental { background: #eef6ff; color: #3a86ff; }
-.badge.buy { background: #fff4ec; color: #e0621a; }
+.item-arrow { color: #ddd; font-size: 16px; transition: 0.2s; }
+.product-item:hover .item-arrow { color: #e8732a; }
+
+/* ── 그리드 시스템 ── */
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+
+/* ── 배송지 정보 테이블 ── */
+.info-table { width: 100%; border-collapse: collapse; }
+.info-table th { text-align: left; font-size: 14px; color: #8b6b4a; padding: 12px 0; width: 90px; vertical-align: top; }
+.info-table td { font-size: 15px; font-weight: 600; color: #2c1e0f; padding: 12px 0; line-height: 1.5; }
+
+/* ── 결제 정보 요약 (가독성 클래스 매핑) ── */
+.price-summary { display: flex; flex-direction: column; gap: 14px; }
+.price-row { display: flex; justify-content: space-between; align-items: center; font-size: 15px; color: #5c4230; }
+
+/* 결제수단 오렌지색 강조 */
+.val-orange { color: #e8732a; font-weight: 800; font-size: 16px; }
+/* 결제시각 흐리게 */
+.val-sub { color: #b09070; font-size: 13px; font-weight: 400; }
+
+.info-divider { border-top: 1px dashed #e8e2d6; margin: 10px 0; }
+.minus-text { color: #cf1322; font-weight: 700; }
+.total-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 18px; border-top: 2px solid #f2ede4; }
+.total-price-text { font-size: 26px; font-weight: 900; color: #e8732a; }
+
+/* ── 하단 버튼 그룹 ── */
+.btn-group { display: flex; justify-content: center; gap: 15px; margin-top: 40px; }
+.btn-back-list { padding: 12px 35px; border-radius: 12px; border: 1.5px solid #dcd0c0; background: #fff; cursor: pointer; font-weight: 700; color: #7a5c3e; transition: 0.2s; }
+.btn-back-list:hover { background: #fdfaf5; border-color: #b89a7a; }
+.btn-cancel { padding: 12px 35px; border-radius: 12px; border: 1.5px solid #ffccc7; background: #fff1f0; color: #cf1322; cursor: pointer; font-weight: 700; transition: 0.2s; }
+.btn-cancel:hover { background: #cf1322; color: #fff; border-color: #cf1322; }
+
+[v-cloak] { display: none; }
+
+/* 반응형 처리 */
+@media (max-width: 800px) { .info-grid { grid-template-columns: 1fr; } }

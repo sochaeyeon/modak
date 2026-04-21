@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class OrderItem {
+    private Integer productId; // ✅ [추가] 상세보기 이동을 위해 반드시 필요!
     private String productName;
     private int price;
     private int count;

@@ -18,9 +18,13 @@
         <result property="deliveryAddr" column="DELIVERY_ADDR" />
         <result property="deliveryDetailAddr" column="DELIVERY_DETAIL_ADDR" />
         
+        <result property="payMethod" column="PAY_METHOD" />
+        <result property="payDate" column="PAY_DATE" />
+        
         <collection property="itemList" 
                     javaType="java.util.ArrayList" 
                     ofType="com.example.modak.order.model.OrderItem">
+            <result property="productId" column="PRODUCT_ID" />
             <result property="productName" column="PRODUCT_NAME" />
             <result property="price" column="ITEM_PRICE" />
             <result property="count" column="ITEM_COUNT" />
@@ -65,6 +69,11 @@
             A.ADDRESS AS DELIVERY_ADDR,
             A.DETAILED_ADDRESS AS DELIVERY_DETAIL_ADDR,
             
+            -- [수정] PM(payment)에서 PAID_AT, PH(payment_history)에서 PAY_TYPE 추출
+            PH.PAY_TYPE AS PAY_METHOD,
+            PM.PAID_AT AS PAY_DATE,
+            
+            P.PRODUCT_ID,
             P.PRODUCT_NAME,
             OI.UNIT_PRICE AS ITEM_PRICE,   
             OI.QUANTITY AS ITEM_COUNT,     
@@ -76,10 +85,21 @@
         INNER JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
         INNER JOIN USER U ON O.USER_ID = U.USER_ID
         LEFT JOIN USER_ADDRESS A ON O.USER_ID = A.USER_ID AND A.DEFAULT_YN = 'Y'
+        
+        -- 결제 마스터 테이블 조인 (PAID_AT 목적)
+        LEFT JOIN payment PM ON O.ORDER_ID = PM.ORDER_ID
+        
+        -- 결제 히스토리 테이블 조인 (PAY_TYPE 목적)
+        -- 결제 완료(PAID) 상태의 가장 최근 기록 매칭
+        LEFT JOIN payment_history PH ON PM.PAY_ID = PH.TARGET_PAY_ID 
+                                     AND PH.NEW_STATUS = 'PAID'
+        
         WHERE O.ORDER_ID = #{orderId}
         <if test="userId != null and userId != ''">
             AND O.USER_ID = #{userId}
         </if>
+        -- 중복 데이터 방지를 위해 하나만 선택
+        LIMIT 1
     </select>
 
 </mapper>

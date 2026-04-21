@@ -39,7 +39,7 @@
 
       <!-- 슬라이드 1 : 신규가입 쿠폰 -->
       <div class="heb-slide">
-        <div class="heb-card heb-card--join">
+        <div class="heb-card heb-card--join" onclick="location.href='/event/detail.do?type=join'" style="cursor:pointer">
           <div class="heb-card-deco"></div>
           <div class="heb-icon-area">🎁</div>
           <div class="heb-card-body">
@@ -51,13 +51,13 @@
             <span class="heb-coupon-amt">3,000</span>
             <span class="heb-coupon-unit">원 할인</span>
           </div>
-          <button class="heb-btn" onclick="location.href='/user/sign-up.do'">지금 가입하기 →</button>
+          <button class="heb-btn" onclick="event.stopPropagation();location.href='/user/sign-up.do'">지금 가입하기 →</button>
         </div>
       </div>
 
       <!-- 슬라이드 2 : 친구초대 쿠폰 -->
       <div class="heb-slide">
-        <div class="heb-card heb-card--invite">
+        <div class="heb-card heb-card--invite" onclick="location.href='/event/detail.do?type=invite'" style="cursor:pointer">
           <div class="heb-card-deco"></div>
           <div class="heb-icon-area">👥</div>
           <div class="heb-card-body">
@@ -69,7 +69,7 @@
             <span class="heb-coupon-amt">5,000</span>
             <span class="heb-coupon-unit">원 할인</span>
           </div>
-          <button class="heb-btn" onclick="location.href='/event/invite.do'">친구 초대하기 →</button>
+          <button class="heb-btn" onclick="event.stopPropagation();location.href='/event/detail.do?type=invite'">친구 초대하기 →</button>
         </div>
       </div>
 
@@ -81,9 +81,8 @@
     <button class="heb-arrow heb-arrow--prev" id="hebPrev">&#8249;</button>
     <button class="heb-arrow heb-arrow--next" id="hebNext">&#8250;</button>
   </div>
-  <!-- / 이벤트 배너 -->
 
-  <!-- ★ 히어로 검색창 — hero 섹션 안에 위치해야 position:absolute 작동 -->
+  <!-- 히어로 검색창 -->
   <div class="hero-search-wrap">
     <div class="hero-search-box">
       <span class="hero-search-icon">🔍</span>
@@ -122,13 +121,12 @@
     <h1 class="hero-title">불꽃처럼 빛나는<br><span>캠핑 라이프</span>를</h1>
     <p class="hero-sub">고품질 캠핑 장비를 합리적으로 대여하고 구매하세요.<br>전국 캠핑장 예약부터 날씨 정보, 안전 가이드까지.</p>
     <div class="hero-btns">
-      <a href="/product/rental-list.do" class="btn-primary">장비 대여하기</a>
+      <a href="/product/list.do" class="btn-primary">장비 대여하기</a>
       <a href="/camp/map.do" class="btn-secondary">캠핑장 찾기</a>
     </div>
   </div>
   <div class="hero-scroll">SCROLL<div class="scroll-line"></div></div>
 </section>
-<!-- / HERO -->
 
 <!-- ════════════════ STRIP ════════════════ -->
 <div class="strip">
@@ -152,13 +150,13 @@
   <h2 class="section-title">필요한 모든 장비</h2>
   <p class="section-sub">대여 또는 구매로 당신의 캠핑을 완성하세요</p>
   <div class="cat-grid">
-    <div class="cat-item fade-up" onclick="location.href='/product/product-list.do?category=tent'">
+    <div class="cat-item fade-up" onclick="location.href='/product/list.do?cat=4'">
       <div class="cat-icon">⛺</div><span class="cat-name">텐트</span>
     </div>
     <div class="cat-item fade-up" onclick="location.href='/product/product-list.do?category=sleeping'">
       <div class="cat-icon">🛏️</div><span class="cat-name">침낭·매트</span>
     </div>
-    <div class="cat-item fade-up" onclick="location.href='/product/product-list.do?category=cooking'">
+    <div class="cat-item fade-up" onclick="location.href='/product/list.do?cat=5'">
       <div class="cat-icon">🍳</div><span class="cat-name">취사도구</span>
     </div>
     <div class="cat-item fade-up" onclick="location.href='/product/product-list.do?category=light'">
@@ -183,7 +181,7 @@
       <p class="section-label">인기 장비</p>
       <h2 class="section-title" style="margin-bottom:0">지금 많이 찾는 장비</h2>
     </div>
-    <a href="/product/product-list.do" class="view-all">전체보기</a>
+    <a href="/product/list.do" class="view-all">전체보기</a>
   </div>
   <div class="product-grid">
     <div class="product-card fade-up" onclick="fnGoDetail(1)">
@@ -313,17 +311,12 @@
         </select>
       </div>
     </div>
-
     <div class="ws-grid">
-      <!-- 날씨 예보 -->
-      <div style="background:var(--white);border-radius:24px;padding:32px;
-                  box-shadow:0 4px 24px rgba(44,30,15,.07);border:1px solid var(--cream3)">
+      <div style="background:var(--white);border-radius:24px;padding:32px;box-shadow:0 4px 24px rgba(44,30,15,.07);border:1px solid var(--cream3)">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
           <div>
             <p style="font-size:11px;color:var(--brown4);letter-spacing:1px;margin-bottom:4px">FORECAST</p>
-            <p style="font-family:'GgiBatang',serif;font-size:20px;font-weight:700;color:var(--brown)">
-              {{ regionName }} 날씨 예보
-            </p>
+            <p style="font-family:'GgiBatang',serif;font-size:20px;font-weight:700;color:var(--brown)">{{ regionName }} 날씨 예보</p>
           </div>
           <div style="font-size:44px;line-height:1">{{ days.length > 0 ? days[0].icon : '🌤️' }}</div>
         </div>
@@ -340,17 +333,13 @@
                @mouseenter="$event.currentTarget.style.transform='translateY(-3px)'"
                @mouseleave="$event.currentTarget.style.transform='translateY(0)'">
             <div style="font-size:12px;font-weight:700;color:var(--brown2);margin-bottom:2px">{{ d.label }}</div>
-            <div :style="{display:'inline-block',fontSize:'9px',fontWeight:'600',padding:'2px 7px',
-                          borderRadius:'10px',marginBottom:'10px',
-                          background:i<2?'rgba(232,115,42,.15)':'var(--cream2)',
-                          color:i<2?'var(--orange)':'var(--brown4)'}">
+            <div :style="{display:'inline-block',fontSize:'9px',fontWeight:'600',padding:'2px 7px',borderRadius:'10px',marginBottom:'10px',background:i<2?'rgba(232,115,42,.15)':'var(--cream2)',color:i<2?'var(--orange)':'var(--brown4)'}">
               {{ i < 2 ? '단기' : '중기' }}
             </div>
             <div style="font-size:30px;line-height:1;margin-bottom:10px">{{ d.icon }}</div>
             <div style="font-size:16px;font-weight:800;color:var(--orange);margin-bottom:2px">{{ d.max }}</div>
             <div style="font-size:12px;color:var(--brown4);margin-bottom:8px">{{ d.min }}</div>
-            <div style="display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--brown3);
-                        background:var(--cream2);border-radius:8px;padding:3px 7px">
+            <div style="display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--brown3);background:var(--cream2);border-radius:8px;padding:3px 7px">
               <span>🌧</span><span>{{ d.rain }}</span>
             </div>
           </div>
@@ -360,26 +349,16 @@
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
           <p style="font-size:11px;color:var(--brown4)">
-            <span style="display:inline-block;width:10px;height:10px;border-radius:3px;
-                         background:#FBE8DC;border:1px solid rgba(232,115,42,.3);margin-right:4px;vertical-align:middle"></span>단기예보
+            <span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#FBE8DC;border:1px solid rgba(232,115,42,.3);margin-right:4px;vertical-align:middle"></span>단기예보
             &nbsp;
-            <span style="display:inline-block;width:10px;height:10px;border-radius:3px;
-                         background:var(--cream2);border:1px solid var(--cream3);margin-right:4px;vertical-align:middle"></span>중기예보
+            <span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--cream2);border:1px solid var(--cream3);margin-right:4px;vertical-align:middle"></span>중기예보
           </p>
-          <div class="weather-tags">
-            <span class="weather-tag on" @click="fnWeatherTab($event)">5일 예보</span>
-            <span class="weather-tag"   @click="fnWeatherTab($event)">주간 예보</span>
-            <span class="weather-tag"   @click="fnWeatherTab($event)">지역 검색</span>
-          </div>
+        
         </div>
       </div>
-
-      <!-- 캠핑 안전 수칙 -->
-      <div style="background:var(--white);border-radius:24px;padding:32px;
-                  box-shadow:0 4px 24px rgba(44,30,15,.07);border:1px solid var(--cream3)">
+      <div style="background:var(--white);border-radius:24px;padding:32px;box-shadow:0 4px 24px rgba(44,30,15,.07);border:1px solid var(--cream3)">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
-          <div style="width:48px;height:48px;background:#FFE8E8;border-radius:50%;
-                      display:flex;align-items:center;justify-content:center;font-size:22px">🛡️</div>
+          <div style="width:48px;height:48px;background:#FFE8E8;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px">🛡️</div>
           <div>
             <p style="font-size:11px;color:var(--brown4);letter-spacing:1px;margin-bottom:2px">SAFETY</p>
             <p style="font-family:'GgiBatang',serif;font-size:20px;font-weight:700;color:var(--brown)">캠핑 안전 수칙</p>
@@ -451,74 +430,20 @@
   </div>
 </section>
 
-<!-- ════════════════ FOOTER ════════════════ -->
-<footer>
-  <div class="footer-top">
-    <div class="footer-brand">
-      <a href="/main.do" class="nav-logo" style="color:var(--cream)">
-        <svg class="logo-flame" viewBox="0 0 24 24" fill="none">
-          <path d="M12 2C10 6 6 8 8 13C9 16 11 17 12 22C13 17 15 16 16 13C18 8 14 6 12 2Z" fill="#E8732A"/>
-          <path d="M12 8C11 10 9 11 10 14C10.5 16 11.5 17 12 20C12.5 17 13.5 16 14 14C15 11 13 10 12 8Z" fill="#F5C842"/>
-        </svg>
-        모닥모닥
-      </a>
-      <p>함께 만들어가는 따뜻한 캠핑 라이프.<br>합리적인 대여와 구매로 더 많은 사람이 캠핑을 즐길 수 있도록.</p>
-    </div>
-    <div class="footer-col">
-      <h5>서비스</h5>
-      <a href="/product/rental-list.do">대여하기</a>
-      <a href="/product/product-list.do">구매하기</a>
-      <a href="/camp/map.do">캠핑장 예약</a>
-      <a href="#">날씨 정보</a>
-      <a href="/board/guide-detail.do?no=1">이용가이드</a>
-    </div>
-    <div class="footer-col">
-      <h5>마이페이지</h5>
-      <a href="/mypage.do">회원정보</a>
-      <a href="/order/order-history.do">예약 내역</a>
-      <a href="/order/order-history.do">주문 내역</a>
-      <a href="/wishlist.do">찜 목록</a>
-      <a href="/cart/cart.do">장바구니</a>
-    </div>
-    <div class="footer-col">
-      <h5>고객지원</h5>
-      <a href="#">공지사항</a>
-      <a href="#">자주 묻는 질문</a>
-      <a href="/inquiry/inquiry-form.do">1:1 문의</a>
-      <a href="#">이용 약관</a>
-      <a href="#">개인정보처리방침</a>
-    </div>
-    <div class="footer-col footer-contact">
-      <h5>고객센터</h5>
-      <p class="phone">1588-0000</p>
-      <p class="hours">평일 09:00 — 18:00<br>주말 · 공휴일 휴무</p>
-      <a href="mailto:hello@modakmodak.com">hello@modakmodak.com</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <p class="footer-copy">© 2025 모닥모닥. All Rights Reserved.</p>
-    <div class="footer-links">
-      <a href="#">이용약관</a>
-      <a href="#">개인정보처리방침</a>
-      <a href="#">청소년보호정책</a>
-    </div>
-  </div>
-</footer>
-
 <!-- 챗봇 FAB -->
 <div class="chatbot-fab">
   <span class="fab-label">챗봇 문의</span>
   <button class="fab-btn" onclick="location.href='/chat/bot.do'">💬</button>
 </div>
 
-<!-- 최근 본 상품 바 -->
+<!-- 최근 본 상품 바 — 최대 10개 -->
 <div class="recent-bar" id="recentBar">
   <span class="recent-label">최근 본 상품</span>
   <div class="recent-items" id="recentItems"></div>
   <button class="recent-close" onclick="closeRecent()">✕</button>
 </div>
 
-<!-- 검색 모달 -->
+<!-- 통합 검색 모달 -->
 <div class="search-overlay" id="searchOverlay" onclick="closeSearch(event)">
   <div class="search-box" onclick="event.stopPropagation()">
     <div class="search-input-row">
@@ -545,63 +470,42 @@
 <!-- 토스트 -->
 <div class="toast" id="toast"></div>
 
+<%@ include file="/WEB-INF/common/footer.jsp" %>
+
 <script>
 /* ── 1. 불씨 + 낙엽 파티클 ── */
 (function(){
     var ec = document.getElementById('embers');
-    var fireColors = [
-        'rgba(255,120,20,.9)','rgba(255,80,0,.85)',
-        'rgba(255,180,30,.8)','rgba(220,60,0,.75)','rgba(255,140,40,.7)'
-    ];
+    var fireColors = ['rgba(255,120,20,.9)','rgba(255,80,0,.85)','rgba(255,180,30,.8)','rgba(220,60,0,.75)','rgba(255,140,40,.7)'];
     function mkEmber(){
         if(!ec) return;
-        var el = document.createElement('div');
-        el.className = 'ember';
-        var s  = Math.random() * 4 + 1.5;
-        var l  = Math.random() * (window.innerWidth * 0.6) + (window.innerWidth * 0.2);
-        var d  = Math.random() * 3 + 2.5;
-        var dx = (Math.random() - .5) * 200;
-        var c  = fireColors[Math.floor(Math.random() * fireColors.length)];
-        el.style.cssText = 'width:'+s+'px;height:'+s+'px;left:'+l+'px;bottom:0;'
-            + 'background:'+c+';box-shadow:0 0 '+(s*2)+'px '+c+';'
-            + '--dx:'+dx+'px;animation-duration:'+d+'s;';
+        var el = document.createElement('div'); el.className = 'ember';
+        var s=Math.random()*4+1.5, l=Math.random()*(window.innerWidth*0.6)+(window.innerWidth*0.2),
+            d=Math.random()*3+2.5, dx=(Math.random()-.5)*200, c=fireColors[Math.floor(Math.random()*fireColors.length)];
+        el.style.cssText='width:'+s+'px;height:'+s+'px;left:'+l+'px;bottom:0;background:'+c+';box-shadow:0 0 '+(s*2)+'px '+c+';--dx:'+dx+'px;animation-duration:'+d+'s;';
         ec.appendChild(el);
-        setTimeout(function(){ el.parentNode && el.parentNode.removeChild(el); }, d * 1000);
+        setTimeout(function(){ el.parentNode && el.parentNode.removeChild(el); }, d*1000);
     }
-    var leafColors = [
-        'rgba(139,107,74,.5)','rgba(196,130,80,.45)',
-        'rgba(212,147,42,.4)','rgba(184,154,122,.4)'
-    ];
+    var leafColors=['rgba(139,107,74,.5)','rgba(196,130,80,.45)','rgba(212,147,42,.4)','rgba(184,154,122,.4)'];
     function mkLeaf(){
         if(!ec) return;
-        var el    = document.createElement('div');
-        var size  = Math.random() * 8 + 5;
-        var left  = Math.random() * window.innerWidth;
-        var dur   = Math.random() * 6 + 5;
-        var delay = Math.random() * 2;
-        var sway  = (Math.random() - .5) * 180;
-        var rot   = Math.random() * 360;
-        var color = leafColors[Math.floor(Math.random() * leafColors.length)];
-        el.style.cssText = 'position:absolute;font-size:'+size+'px;left:'+left+'px;'
-            + 'top:-20px;color:'+color+';pointer-events:none;'
-            + '--sway:'+sway+'px;--rot:'+rot+'deg;'
-            + 'animation:leafFall '+dur+'s ease-in '+delay+'s both;';
-        el.textContent = '◆';
-        ec.appendChild(el);
-        setTimeout(function(){ el.parentNode && el.parentNode.removeChild(el); }, (dur + delay) * 1000);
+        var el=document.createElement('div'),size=Math.random()*8+5,left=Math.random()*window.innerWidth,
+            dur=Math.random()*6+5,delay=Math.random()*2,sway=(Math.random()-.5)*180,rot=Math.random()*360,
+            color=leafColors[Math.floor(Math.random()*leafColors.length)];
+        el.style.cssText='position:absolute;font-size:'+size+'px;left:'+left+'px;top:-20px;color:'+color+';pointer-events:none;--sway:'+sway+'px;--rot:'+rot+'deg;animation:leafFall '+dur+'s ease-in '+delay+'s both;';
+        el.textContent='◆'; ec.appendChild(el);
+        setTimeout(function(){ el.parentNode && el.parentNode.removeChild(el); }, (dur+delay)*1000);
     }
-    setInterval(mkEmber, 60);
-    setInterval(mkLeaf,  600);
-    for(var i=0; i<36; i++) setTimeout(mkEmber, i*60);
-    for(var j=0; j<15; j++) setTimeout(mkLeaf,  j*200);
+    setInterval(mkEmber,60); setInterval(mkLeaf,600);
+    for(var i=0;i<36;i++) setTimeout(mkEmber,i*60);
+    for(var j=0;j<15;j++) setTimeout(mkLeaf,j*200);
 })();
 
-/* ── 2. 스크롤 리빌 + 네비 (null 체크 추가) ── */
+/* ── 2. 스크롤 리빌 + 네비 ── */
 var revealObs = new IntersectionObserver(function(entries){
     entries.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: .12 });
 document.querySelectorAll('.fade-up').forEach(function(el){ revealObs.observe(el); });
-
 window.addEventListener('scroll', function(){
     var nav = document.getElementById('mainNav');
     if(nav) nav.classList.toggle('scrolled', window.scrollY > 40);
@@ -615,29 +519,26 @@ kakao.maps.load(function(){
     map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
     var iw = new kakao.maps.InfoWindow({ zIndex: 10 });
     $.ajax({
-        url: '/camp/list.dox', type: 'POST', dataType: 'json',
+        url:'/camp/list.dox', type:'POST', dataType:'json',
         success: function(data){
-            var el = document.getElementById('mapLoading');
-            if(el) el.classList.add('hide');
-            if(!data || !data.list) return;
+            var el=document.getElementById('mapLoading'); if(el) el.classList.add('hide');
+            if(!data||!data.list) return;
             data.list.slice(0,80).forEach(function(item){
-                var lat = parseFloat(item.mapY), lng = parseFloat(item.mapX);
-                if(!lat || !lng || lat<30 || lat>40 || lng<120 || lng>135) return;
-                var pos = new kakao.maps.LatLng(lat, lng);
-                var ov  = new kakao.maps.CustomOverlay({
-                    position: pos, yAnchor: 0.5, zIndex: 3,
-                    content: '<div style="width:12px;height:12px;background:#E8732A;border:2px solid rgba(255,253,248,.85);border-radius:50%;box-shadow:0 2px 6px rgba(232,115,42,.55);cursor:pointer"></div>'
+                var lat=parseFloat(item.mapY), lng=parseFloat(item.mapX);
+                if(!lat||!lng||lat<30||lat>40||lng<120||lng>135) return;
+                var pos=new kakao.maps.LatLng(lat,lng);
+                var ov=new kakao.maps.CustomOverlay({ position:pos, yAnchor:0.5, zIndex:3,
+                    content:'<div style="width:12px;height:12px;background:#E8732A;border:2px solid rgba(255,253,248,.85);border-radius:50%;box-shadow:0 2px 6px rgba(232,115,42,.55);cursor:pointer"></div>'
                 });
                 ov.setMap(map);
-                var ct = '<div style="padding:10px 14px;font-size:12px;max-width:180px;line-height:1.6;font-family:GgiBatang,sans-serif;"><b style="color:#E8732A;display:block;margin-bottom:3px;">⛺ '+item.facltNm+'</b><span style="color:#666;">'+(item.addr1||'')+'</span><br><a href="/camp/map.do" style="color:#E8732A;font-size:11px;font-weight:500;">상세보기 →</a></div>';
-                var hm  = new kakao.maps.Marker({ position: pos, map: map });
-                hm.setOpacity(0);
-                kakao.maps.event.addListener(hm, 'click', function(){ iw.setContent(ct); iw.open(map, hm); });
+                var ct='<div style="padding:10px 14px;font-size:12px;max-width:180px;line-height:1.6;font-family:GgiBatang,sans-serif;"><b style="color:#E8732A;display:block;margin-bottom:3px;">⛺ '+item.facltNm+'</b><span style="color:#666;">'+(item.addr1||'')+'</span><br><a href="/camp/map.do" style="color:#E8732A;font-size:11px;font-weight:500;">상세보기 →</a></div>';
+                var hm=new kakao.maps.Marker({ position:pos, map:map }); hm.setOpacity(0);
+                kakao.maps.event.addListener(hm,'click',function(){ iw.setContent(ct); iw.open(map,hm); });
             });
         },
         error: function(){
-            var el = document.getElementById('mapLoading');
-            if(el) el.innerHTML = '<span style="color:rgba(255,253,248,.5);font-size:13px">지도 데이터를 불러올 수 없습니다</span>';
+            var el=document.getElementById('mapLoading');
+            if(el) el.innerHTML='<span style="color:rgba(255,253,248,.5);font-size:13px">지도 데이터를 불러올 수 없습니다</span>';
         }
     });
     setTimeout(function(){ map.relayout(); }, 400);
@@ -647,230 +548,166 @@ kakao.maps.load(function(){
 var vueApp = Vue.createApp({
     data: function(){
         return {
-            isLoading: true, isError: false, days: [],
-            regionName: '서울', selectedRegion: 'seoul',
-            regionMap: {
-                seoul:    { nx:60, ny:127, name:'서울',  taId:'11B10101', landId:'11B00000' },
-                gyeonggi: { nx:60, ny:121, name:'경기',  taId:'11B20601', landId:'11B00000' },
-                gangwon:  { nx:73, ny:134, name:'강원',  taId:'11D10301', landId:'11D10000' },
-                chungbuk: { nx:69, ny:107, name:'충북',  taId:'11C10301', landId:'11C10000' },
-                chungnam: { nx:68, ny:100, name:'충남',  taId:'11C20401', landId:'11C20000' },
-                jeonbuk:  { nx:63, ny:89,  name:'전북',  taId:'11F10201', landId:'11F10000' },
-                jeonnam:  { nx:51, ny:67,  name:'전남',  taId:'11F20501', landId:'11F20000' },
-                gyeongbuk:{ nx:89, ny:91,  name:'경북',  taId:'11H10501', landId:'11H10000' },
-                gyeongnam:{ nx:91, ny:77,  name:'경남',  taId:'11H20301', landId:'11H20000' },
-                jeju:     { nx:52, ny:38,  name:'제주',  taId:'11G00201', landId:'11G00000' }
+            isLoading:true, isError:false, days:[], regionName:'서울', selectedRegion:'seoul',
+            regionMap:{
+                seoul:{nx:60,ny:127,name:'서울',taId:'11B10101',landId:'11B00000'},
+                gyeonggi:{nx:60,ny:121,name:'경기',taId:'11B20601',landId:'11B00000'},
+                gangwon:{nx:73,ny:134,name:'강원',taId:'11D10301',landId:'11D10000'},
+                chungbuk:{nx:69,ny:107,name:'충북',taId:'11C10301',landId:'11C10000'},
+                chungnam:{nx:68,ny:100,name:'충남',taId:'11C20401',landId:'11C20000'},
+                jeonbuk:{nx:63,ny:89,name:'전북',taId:'11F10201',landId:'11F10000'},
+                jeonnam:{nx:51,ny:67,name:'전남',taId:'11F20501',landId:'11F20000'},
+                gyeongbuk:{nx:89,ny:91,name:'경북',taId:'11H10501',landId:'11H10000'},
+                gyeongnam:{nx:91,ny:77,name:'경남',taId:'11H20301',landId:'11H20000'},
+                jeju:{nx:52,ny:38,name:'제주',taId:'11G00201',landId:'11G00000'}
             }
         };
     },
-    methods: {
-        onRegionChange: function(e){
-            this.selectedRegion = e.target.value;
-            var r = this.regionMap[this.selectedRegion];
-            this.regionName = r.name;
-            this.loadWeather(r);
-        },
+    methods:{
+        onRegionChange:function(e){ this.selectedRegion=e.target.value; var r=this.regionMap[this.selectedRegion]; this.regionName=r.name; this.loadWeather(r); },
         loadWeather: async function(region){
-            this.isLoading = true; this.isError = false; this.days = [];
-            try {
-                var results = await Promise.all([this.fetchShort(region.nx, region.ny), this.fetchMid(region.taId, region.landId)]);
-                var sR = results[0], mR = results[1];
-                var result = [];
-                if(sR.result === 'success'){
-                    var items  = sR.data.response.body.items.item;
-                    var today  = this.getDateStr(0), tmr = this.getDateStr(1), byDate = {};
+            this.isLoading=true; this.isError=false; this.days=[];
+            try{
+                var results=await Promise.all([this.fetchShort(region.nx,region.ny),this.fetchMid(region.taId,region.landId)]);
+                var sR=results[0],mR=results[1],result=[],self=this;
+                if(sR.result==='success'){
+                    var items=sR.data.response.body.items.item,today=this.getDateStr(0),tmr=this.getDateStr(1),byDate={};
                     items.forEach(function(item){
-                        if(!byDate[item.fcstDate]) byDate[item.fcstDate] = { temps:[] };
-                        var d = byDate[item.fcstDate];
-                        if(item.category==='TMX') d.max = item.fcstValue;
-                        if(item.category==='TMN') d.min = item.fcstValue;
+                        if(!byDate[item.fcstDate]) byDate[item.fcstDate]={temps:[]};
+                        var d=byDate[item.fcstDate];
+                        if(item.category==='TMX') d.max=item.fcstValue;
+                        if(item.category==='TMN') d.min=item.fcstValue;
                         if(item.category==='TMP') d.temps.push(parseFloat(item.fcstValue));
-                        if(item.category==='SKY' && item.fcstTime==='1200') d.sky  = item.fcstValue;
-                        if(item.category==='PTY' && item.fcstTime==='1200') d.pty  = item.fcstValue;
-                        if(item.category==='POP' && item.fcstTime==='1200') d.rain = item.fcstValue;
+                        if(item.category==='SKY'&&item.fcstTime==='1200') d.sky=item.fcstValue;
+                        if(item.category==='PTY'&&item.fcstTime==='1200') d.pty=item.fcstValue;
+                        if(item.category==='POP'&&item.fcstTime==='1200') d.rain=item.fcstValue;
                     });
-                    var self = this;
-                    [today, tmr].forEach(function(ds, i){
-                        var d  = byDate[ds] || { temps:[] };
-                        var mx = d.max!=null ? Math.round(d.max) : d.temps.length>0 ? Math.max.apply(null,d.temps) : null;
-                        var mn = d.min!=null ? Math.round(d.min) : d.temps.length>0 ? Math.min.apply(null,d.temps) : null;
-                        result.push({ label: i===0?'오늘':'내일', icon: self.skyToIcon(d.sky, d.pty),
-                            max: mx!=null?mx+'°':'-°', min: mn!=null?mn+'°':'-°',
-                            rain: d.rain!=null?d.rain+'%':'-%' });
+                    [today,tmr].forEach(function(ds,i){
+                        var d=byDate[ds]||{temps:[]};
+                        var mx=d.max!=null?Math.round(d.max):d.temps.length>0?Math.max.apply(null,d.temps):null;
+                        var mn=d.min!=null?Math.round(d.min):d.temps.length>0?Math.min.apply(null,d.temps):null;
+                        result.push({label:i===0?'오늘':'내일',icon:self.skyToIcon(d.sky,d.pty),max:mx!=null?mx+'°':'-°',min:mn!=null?mn+'°':'-°',rain:d.rain!=null?d.rain+'%':'-%'});
                     });
                 }
-                if(mR.result === 'success'){
-                    var ta   = Array.isArray(mR.ta.response.body.items.item)   ? mR.ta.response.body.items.item[0]   : mR.ta.response.body.items.item;
-                    var land = Array.isArray(mR.land.response.body.items.item) ? mR.land.response.body.items.item[0] : mR.land.response.body.items.item;
+                if(mR.result==='success'){
+                    var ta=Array.isArray(mR.ta.response.body.items.item)?mR.ta.response.body.items.item[0]:mR.ta.response.body.items.item;
+                    var land=Array.isArray(mR.land.response.body.items.item)?mR.land.response.body.items.item[0]:mR.land.response.body.items.item;
                     [3,4,5].forEach(function(d){
-                        var dt = new Date(); dt.setDate(dt.getDate()+d);
-                        var label = (dt.getMonth()+1)+'/'+dt.getDate();
-                        var wf = land['wf'+d+'Am'] || '';
-                        result.push({ label: label, icon: self.wfToIcon(wf),
-                            max: (ta['taMax'+d]!=null?ta['taMax'+d]:'-')+'°',
-                            min: (ta['taMin'+d]!=null?ta['taMin'+d]:'-')+'°',
-                            rain:(land['rnSt'+d+'Am']!=null?land['rnSt'+d+'Am']:'-')+'%' });
+                        var dt=new Date(); dt.setDate(dt.getDate()+d);
+                        var label=(dt.getMonth()+1)+'/'+dt.getDate(), wf=land['wf'+d+'Am']||'';
+                        result.push({label:label,icon:self.wfToIcon(wf),max:(ta['taMax'+d]!=null?ta['taMax'+d]:'-')+'°',min:(ta['taMin'+d]!=null?ta['taMin'+d]:'-')+'°',rain:(land['rnSt'+d+'Am']!=null?land['rnSt'+d+'Am']:'-')+'%'});
                     });
                 }
-                this.days = result;
-            } catch(e){ console.error(e); this.isError = true; }
-            this.isLoading = false;
+                this.days=result;
+            }catch(e){ console.error(e); this.isError=true; }
+            this.isLoading=false;
         },
-        fetchShort: function(nx, ny){
-            return new Promise(function(r){ $.ajax({ url:'/weather/short.dox', data:{nx:nx,ny:ny}, dataType:'json', success:r, error:function(){ r({result:'fail'}); } }); });
-        },
-        fetchMid: function(taRegId, landRegId){
-            return new Promise(function(r){ $.ajax({ url:'/weather/mid.dox', data:{taRegId:taRegId,landRegId:landRegId}, dataType:'json', success:r, error:function(){ r({result:'fail'}); } }); });
-        },
-        getDateStr: function(n){
-            var d = new Date(); d.setDate(d.getDate()+n);
-            return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
-        },
-        skyToIcon: function(sky, pty){
-            var p = parseInt(pty);
-            if(p===1||p===4) return '🌧️'; if(p===2) return '🌨️'; if(p===3) return '❄️';
-            var s = parseInt(sky);
-            if(s===1) return '☀️'; if(s===3) return '⛅'; if(s===4) return '☁️'; return '🌤️';
-        },
-        wfToIcon: function(wf){
-            if(!wf) return '🌤️';
-            if(wf.indexOf('비')>-1) return '🌧️'; if(wf.indexOf('눈')>-1) return '❄️';
-            if(wf.indexOf('흐림')>-1) return '☁️'; if(wf.indexOf('구름')>-1) return '⛅'; return '☀️';
-        },
-        fnWeatherTab: function(e){
-            document.querySelectorAll('.weather-tag').forEach(function(t){ t.classList.remove('on'); });
-            e.target.classList.add('on');
-        }
+        fetchShort:function(nx,ny){ return new Promise(function(r){ $.ajax({url:'/weather/short.dox',data:{nx:nx,ny:ny},dataType:'json',success:r,error:function(){ r({result:'fail'}); }}); }); },
+        fetchMid:function(taRegId,landRegId){ return new Promise(function(r){ $.ajax({url:'/weather/mid.dox',data:{taRegId:taRegId,landRegId:landRegId},dataType:'json',success:r,error:function(){ r({result:'fail'}); }}); }); },
+        getDateStr:function(n){ var d=new Date(); d.setDate(d.getDate()+n); return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0'); },
+        skyToIcon:function(sky,pty){ var p=parseInt(pty); if(p===1||p===4) return '🌧️'; if(p===2) return '🌨️'; if(p===3) return '❄️'; var s=parseInt(sky); if(s===1) return '☀️'; if(s===3) return '⛅'; if(s===4) return '☁️'; return '🌤️'; },
+        wfToIcon:function(wf){ if(!wf) return '🌤️'; if(wf.indexOf('비')>-1) return '🌧️'; if(wf.indexOf('눈')>-1) return '❄️'; if(wf.indexOf('흐림')>-1) return '☁️'; if(wf.indexOf('구름')>-1) return '⛅'; return '☀️'; },
+        fnWeatherTab:function(e){ document.querySelectorAll('.weather-tag').forEach(function(t){ t.classList.remove('on'); }); e.target.classList.add('on'); }
     },
-    mounted: function(){ this.loadWeather(this.regionMap['seoul']); }
+    mounted:function(){ this.loadWeather(this.regionMap['seoul']); }
 });
 vueApp.mount('#weatherSection');
 
 /* ── 5. 토스트 ── */
-function showToast(msg){
-    var t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(function(){ t.classList.remove('show'); }, 2200);
-}
+function showToast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(function(){ t.classList.remove('show'); },2200); }
 
-/* ── 6. 상품 ── */
-var PM = {
-    1:{ no:1, name:'스노우피크 랜드록',  icon:'⛺' },
-    2:{ no:2, name:'일산화탄소 경보기',  icon:'🔥' },
-    3:{ no:3, name:'나낙 레인저 침낭',   icon:'🛏️' },
-    4:{ no:4, name:'코베아 쿡웨어',      icon:'🍳' }
+/* ── 6. 상품 + 최근 본 상품 (10개로 확장) ── */
+var PM={
+    1:{no:1,name:'스노우피크 랜드록',icon:'⛺'},
+    2:{no:2,name:'일산화탄소 경보기',icon:'🔥'},
+    3:{no:3,name:'나낙 레인저 침낭',icon:'🛏️'},
+    4:{no:4,name:'코베아 쿡웨어',icon:'🍳'}
 };
 function fnGoDetail(no){
-    var items = JSON.parse(localStorage.getItem('recentViewed')||'[]');
-    items = items.filter(function(i){ return i.no !== no; });
+    var items=JSON.parse(localStorage.getItem('recentViewed')||'[]');
+    items=items.filter(function(i){ return i.no!==no; });
     items.unshift(PM[no]);
-    if(items.length > 5) items.pop();
-    localStorage.setItem('recentViewed', JSON.stringify(items));
-    location.href = '/product/product-detail.do?no=' + no;
+    if(items.length>10) items.pop();   /* 최대 10개 */
+    localStorage.setItem('recentViewed',JSON.stringify(items));
+    location.href='/product/product-detail.do?no='+no;
 }
 (function(){
-    var items = JSON.parse(localStorage.getItem('recentViewed')||'[]');
+    var items=JSON.parse(localStorage.getItem('recentViewed')||'[]');
     if(!items.length) return;
-    var html = '';
-    items.slice(0,5).forEach(function(item){
-        html += '<div class="recent-item" onclick="location.href=\'/product/product-detail.do?no='+item.no+'\'">'
-              + '<span>'+item.icon+'</span>'
-              + '<span style="font-size:12px;color:var(--brown2)">'+item.name+'</span></div>';
+    var html='';
+    items.slice(0,10).forEach(function(item){   /* 최대 10개 표시 */
+        html+='<div class="recent-item" onclick="location.href=\'/product/product-detail.do?no='+item.no+'\'">'
+            +'<span>'+item.icon+'</span>'
+            +'<span style="font-size:12px;color:var(--brown2)">'+item.name+'</span></div>';
     });
-    document.getElementById('recentItems').innerHTML = html;
-    setTimeout(function(){ document.getElementById('recentBar').classList.add('visible'); }, 3000);
+    document.getElementById('recentItems').innerHTML=html;
+    setTimeout(function(){ document.getElementById('recentBar').classList.add('visible'); },3000);
 })();
 function closeRecent(){ document.getElementById('recentBar').classList.remove('visible'); }
 
 /* ── 7. 위시 / 장바구니 ── */
-function fnWish(e, btn, no){
+function fnWish(e,btn,no){
     e.stopPropagation();
-    $.ajax({ url:'/product/toggleWish.dox', type:'POST', data:{ productNo:no },
-        success: function(res){
-            var r = JSON.parse(res);
-            if(r.result==='success'){
-                btn.classList.toggle('on');
-                showToast(btn.classList.contains('on') ? '♥ 위시리스트에 추가됐어요' : '위시리스트에서 제거됐어요');
-            } else { showToast('로그인이 필요합니다'); setTimeout(function(){ location.href='/user/login.do'; }, 1200); }
-        }
+    $.ajax({url:'/product/toggleWish.dox',type:'POST',data:{productNo:no},
+        success:function(res){ var r=JSON.parse(res); if(r.result==='success'){ btn.classList.toggle('on'); showToast(btn.classList.contains('on')?'♥ 위시리스트에 추가됐어요':'위시리스트에서 제거됐어요'); } else { showToast('로그인이 필요합니다'); setTimeout(function(){ location.href='/user/login.do'; },1200); } }
     });
 }
-function fnAddRental(e, no){
+function fnAddRental(e,no){
     e.stopPropagation();
-    $.ajax({ url:'/cart/addCart.dox', type:'POST', data:{ productNo:no, cartType:'rental' },
-        success: function(res){
-            var r = JSON.parse(res);
-            if(r.result==='success') showToast('🏕️ 대여 장바구니에 담겼어요!');
-            else { showToast('로그인이 필요합니다'); setTimeout(function(){ location.href='/user/login.do'; }, 1200); }
-        }
+    $.ajax({url:'/cart/addCart.dox',type:'POST',data:{productNo:no,cartType:'rental'},
+        success:function(res){ var r=JSON.parse(res); if(r.result==='success') showToast('🏕️ 대여 장바구니에 담겼어요!'); else { showToast('로그인이 필요합니다'); setTimeout(function(){ location.href='/user/login.do'; },1200); } }
     });
 }
-function fnAddCart(e, no){
+function fnAddCart(e,no){
     e.stopPropagation();
-    $.ajax({ url:'/cart/addCart.dox', type:'POST', data:{ productNo:no, cartType:'buy' },
-        success: function(res){
-            var r = JSON.parse(res);
-            if(r.result==='success') showToast('🛒 장바구니에 담겼어요!');
-            else { showToast('로그인이 필요합니다'); setTimeout(function(){ location.href='/user/login.do'; }, 1200); }
-        }
+    $.ajax({url:'/cart/addCart.dox',type:'POST',data:{productNo:no,cartType:'buy'},
+        success:function(res){ var r=JSON.parse(res); if(r.result==='success') showToast('🛒 장바구니에 담겼어요!'); else { showToast('로그인이 필요합니다'); setTimeout(function(){ location.href='/user/login.do'; },1200); } }
     });
 }
 
-/* ── 8. 검색 ── */
+/* ── 8. 통합 검색 (상품 + 캠핑장 모두 이동) ── */
 function openSearch(){ document.getElementById('searchOverlay').classList.add('open'); document.getElementById('searchInput').focus(); }
 function closeSearch(e){ if(e.target===document.getElementById('searchOverlay')) document.getElementById('searchOverlay').classList.remove('open'); }
-function fnFillSearch(v){ document.getElementById('searchInput').value = v; }
+function fnFillSearch(v){ document.getElementById('searchInput').value=v; }
 function fnSearch(){
-    var kw = document.getElementById('searchInput').value.trim();
-    if(kw) location.href = '/product/product-search.do?keyword=' + encodeURIComponent(kw);
+    var kw=document.getElementById('searchInput').value.trim();
+    if(!kw) return;
+    /* 캠핑장 키워드 감지 → 캠핑장 지도로 이동, 나머지는 상품 검색 */
+    var campKw=['캠핑장','캠프','야영','글램핑','카라반'];
+    var isCamp=campKw.some(function(k){ return kw.indexOf(k)>-1; });
+    location.href = isCamp
+        ? '/camp/map.do?keyword='+encodeURIComponent(kw)
+        : '/product/product-search.do?keyword='+encodeURIComponent(kw);
 }
-document.addEventListener('keydown', function(e){
-    if(e.key==='Escape') document.getElementById('searchOverlay').classList.remove('open');
-});
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') document.getElementById('searchOverlay').classList.remove('open'); });
 function toggleMenu(){ showToast('전체 메뉴 준비 중입니다'); }
 
-/* ── 히어로 검색창 ── */
+/* ── 히어로 검색창 (통합 검색과 동일 로직) ── */
 function fnHeroSearch(){
-    var kw = document.getElementById('heroSearchInput').value.trim();
-    if(kw) location.href = '/product/product-search.do?keyword=' + encodeURIComponent(kw);
+    var kw=document.getElementById('heroSearchInput').value.trim();
+    if(!kw) return;
+    var campKw=['캠핑장','캠프','야영','글램핑','카라반'];
+    var isCamp=campKw.some(function(k){ return kw.indexOf(k)>-1; });
+    location.href = isCamp
+        ? '/camp/map.do?keyword='+encodeURIComponent(kw)
+        : '/product/product-search.do?keyword='+encodeURIComponent(kw);
 }
-function fnHeroFill(v){
-    document.getElementById('heroSearchInput').value = v;
-    document.getElementById('heroSearchInput').focus();
-}
+function fnHeroFill(v){ document.getElementById('heroSearchInput').value=v; document.getElementById('heroSearchInput').focus(); }
 
 /* ── 9. 이벤트 배너 슬라이더 ── */
 (function(){
-    var track   = document.getElementById('hebTrack');
-    var dots    = document.querySelectorAll('.heb-dot');
-    var btnPrev = document.getElementById('hebPrev');
-    var btnNext = document.getElementById('hebNext');
-    var total   = dots.length;
-    var cur     = 0;
-    var timer;
-
-    function goTo(idx){
-        cur = (idx + total) % total;
-        track.style.transform = 'translateX(-' + (cur * 100) + '%)';
-        dots.forEach(function(d, i){ d.classList.toggle('heb-dot--on', i===cur); });
-    }
-    function autoPlay(){ timer = setInterval(function(){ goTo(cur+1); }, 4300); }
+    var track=document.getElementById('hebTrack'),dots=document.querySelectorAll('.heb-dot'),
+        btnPrev=document.getElementById('hebPrev'),btnNext=document.getElementById('hebNext'),
+        total=dots.length,cur=0,timer;
+    function goTo(idx){ cur=(idx+total)%total; track.style.transform='translateX(-'+(cur*100)+'%)'; dots.forEach(function(d,i){ d.classList.toggle('heb-dot--on',i===cur); }); }
+    function autoPlay(){ timer=setInterval(function(){ goTo(cur+1); },4300); }
     function resetTimer(){ clearInterval(timer); autoPlay(); }
-
-    btnPrev.addEventListener('click', function(){ goTo(cur-1); resetTimer(); });
-    btnNext.addEventListener('click', function(){ goTo(cur+1); resetTimer(); });
-    dots.forEach(function(d){
-        d.addEventListener('click', function(){ goTo(parseInt(d.dataset.idx)); resetTimer(); });
-    });
-
-    var startX = 0;
-    track.addEventListener('touchstart', function(e){ startX = e.touches[0].clientX; }, { passive:true });
-    track.addEventListener('touchend', function(e){
-        var diff = startX - e.changedTouches[0].clientX;
-        if(Math.abs(diff) > 40){ goTo(diff>0 ? cur+1 : cur-1); resetTimer(); }
-    });
-    
+    btnPrev.addEventListener('click',function(){ goTo(cur-1); resetTimer(); });
+    btnNext.addEventListener('click',function(){ goTo(cur+1); resetTimer(); });
+    dots.forEach(function(d){ d.addEventListener('click',function(){ goTo(parseInt(d.dataset.idx)); resetTimer(); }); });
+    var startX=0;
+    track.addEventListener('touchstart',function(e){ startX=e.touches[0].clientX; },{passive:true});
+    track.addEventListener('touchend',function(e){ var diff=startX-e.changedTouches[0].clientX; if(Math.abs(diff)>40){ goTo(diff>0?cur+1:cur-1); resetTimer(); } });
     autoPlay();
 })();
 </script>

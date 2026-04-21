@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.modak.alarm.mapper.AlarmMapper">
+	<select id="getUnreadAlarmCount" resultType="int">
+		SELECT COUNT(*) FROM ALARM WHERE USER_ID = #{userId} AND IS_READ = 'N'
+	</select>
+
+	<select id="getAlarmList" resultType="map"> SELECT ALARM_ID, TYPE, TITLE,
+		CONTENT, 
+		LINK_ID,
+		IS_READ,
+		DATE_FORMAT(CREATED_AT, '%m-%d %H:%i') AS CREATED_AT
+		FROM ALARM
+		WHERE USER_ID = #{userId}
+		ORDER BY ALARM_ID DESC
+	</select>
+
+	<select id="getAlarmInfo" resultType="map">
+		SELECT * FROM ALARM WHERE ALARM_ID = #{alarmId}
+	</select>
+
+	<update id="updateAlarmRead">
+		UPDATE ALARM SET IS_READ = 'Y' WHERE ALARM_ID = #{alarmId}
+	</update>
+
+	<insert id="insertAlarm">
+		INSERT INTO ALARM (USER_ID, TYPE, TITLE, CONTENT, LINK_ID)
+		VALUES (#{userId}, #{type}, #{title}, #{content}, #{linkId})
+	</insert>
+	<delete id="deleteAlarm" parameterType="int">
+        DELETE FROM ALARM WHERE ALARM_ID = #{alarmId}
+    </delete>
+
+    <delete id="deleteAllAlarms" parameterType="string">
+        DELETE FROM ALARM WHERE USER_ID = #{userId}
+    </delete>
+
+</mapper>

@@ -32,4 +32,15 @@
 		SET GRADE_ID = #{gradeId}
 		WHERE USER_ID = #{userId}
 	</update>
+
+	<select id="selectAllGrades" resultType="hashmap">
+		SELECT
+		GRADE_ID AS gradeId,
+		GRADE_NAME AS gradeName,
+		MIN_AMOUNT AS minAmount,
+		DISCOUNT_RATE AS discountRate,
+		DESCRIPTION AS description
+		FROM USER_GRADE
+		ORDER BY GRADE_ID ASC
+	</select>
 </mapper>

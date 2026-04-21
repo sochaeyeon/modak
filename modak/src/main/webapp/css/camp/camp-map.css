@@ -21,7 +21,7 @@
 [v-cloak] { display: none; }
 
 html, body, #app { height: 100%; overflow: hidden; }
-body { font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif; background: var(--cream); color: var(--brown); }
+body { font-family: var(--font-body), 'Apple SD Gothic Neo', sans-serif; background: var(--cream); color: var(--brown); }
 
 /* ══════════════════════════════
    레이아웃
@@ -50,7 +50,7 @@ body { font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif; background: 
     background: var(--white);
 }
 .logo-text {
-    font-family: 'GgiBatang', serif;
+    font-family: var(--font-title);
     font-size: 20px; font-weight: 700;
     color: var(--brown); cursor: pointer;
     margin-bottom: 14px; display: block;
@@ -65,7 +65,7 @@ body { font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif; background: 
 .search-input {
     flex: 1; padding: 9px 12px;
     border: 1.5px solid var(--cream3); border-radius: 10px;
-    background: var(--cream); font-family: 'GgiBatang', sans-serif;
+    background: var(--cream); font-family: var(--font-body);
     font-size: 13px; color: var(--brown); outline: none;
     transition: border-color .2s;
 }
@@ -74,7 +74,7 @@ body { font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif; background: 
 .search-btn {
     padding: 9px 14px; background: var(--orange); color: #fff;
     border: none; border-radius: 10px; font-size: 13px;
-    font-family: 'GgiBatang', sans-serif; cursor: pointer;
+    font-family: var(--font-body); cursor: pointer;
     transition: background .2s;
     white-space: nowrap;
 }
@@ -84,7 +84,7 @@ body { font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif; background: 
 .area-select {
     width: 100%; padding: 9px 12px;
     border: 1.5px solid var(--cream3); border-radius: 10px;
-    background: var(--cream); font-family: 'GgiBatang', sans-serif;
+    background: var(--cream); font-family: var(--font-body);
     font-size: 13px; color: var(--brown); outline: none;
     cursor: pointer; margin-bottom: 8px;
     transition: border-color .2s;
@@ -105,7 +105,7 @@ body { font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif; background: 
     padding: 5px 12px; border-radius: 16px; font-size: 12px;
     border: 1.5px solid var(--cream3); background: var(--cream);
     color: var(--brown2); cursor: pointer; transition: all .2s;
-    font-family: 'GgiBatang', sans-serif; white-space: nowrap;
+    font-family: var(--font-body); white-space: nowrap;
 }
 .tag-btn:hover  { border-color: var(--orange); color: var(--orange); }
 .tag-btn.active { background: var(--orange); color: #fff; border-color: var(--orange); }
@@ -140,7 +140,7 @@ body { font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif; background: 
     font-size: 11px; padding: 4px 12px;
     background: transparent; border: 1.5px solid var(--orange);
     border-radius: 8px; color: var(--orange);
-    font-family: 'GgiBatang', sans-serif; cursor: pointer;
+    font-family: var(--font-body); cursor: pointer;
     transition: all .2s;
 }
 .btn-detail:hover { background: var(--orange); color: #fff; }
@@ -157,7 +157,7 @@ body { font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif; background: 
 .facility-btn {
     padding: 7px 14px; border-radius: 20px;
     background: var(--white); border: 1.5px solid var(--cream3);
-    font-family: 'GgiBatang', sans-serif; font-size: 12px;
+    font-family: var(--font-body); font-size: 12px;
     color: var(--brown2); cursor: pointer; transition: all .2s;
     box-shadow: 0 2px 8px rgba(44,30,15,.1);
     white-space: nowrap;
@@ -167,7 +167,7 @@ body { font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif; background: 
 .facility-btn-clear {
     padding: 7px 14px; border-radius: 20px;
     background: var(--brown); color: var(--cream);
-    border: none; font-family: 'GgiBatang', sans-serif;
+    border: none; font-family: var(--font-body);
     font-size: 12px; cursor: pointer; transition: background .2s;
     box-shadow: 0 2px 8px rgba(44,30,15,.15);
 }
@@ -216,7 +216,7 @@ body { font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif; background: 
 
 .modal-body { padding: 24px; }
 .detail-title {
-    font-family: 'GgiBatang', serif; font-size: 22px;
+    font-family: var(--font-title); font-size: 22px;
     font-weight: 700; color: var(--brown); margin-bottom: 6px;
 }
 .detail-addr { font-size: 13px; color: var(--brown4); margin-bottom: 16px; }
@@ -241,7 +241,7 @@ body { font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif; background: 
     padding: 5px 12px; border-radius: 16px; font-size: 12px;
     border: 1.5px solid var(--cream3); background: var(--cream);
     color: var(--brown2); cursor: pointer; transition: all .2s;
-    font-family: 'GgiBatang', sans-serif;
+    font-family: var(--font-body);
 }
 .facility-tab:hover  { border-color: var(--orange); color: var(--orange); }
 .facility-tab.active { background: var(--orange); color: #fff; border-color: var(--orange); }
@@ -277,14 +277,14 @@ body { font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif; background: 
     justify-content: space-between; margin-bottom: 14px;
 }
 .review-header {
-    font-family: 'GgiBatang', serif; font-size: 16px;
+    font-family: var(--font-title); font-size: 16px;
     font-weight: 700; color: var(--brown); margin-bottom: 0;
 }
 .btn-review-all {
     font-size: 12px; color: var(--orange);
     background: transparent; border: 1.5px solid var(--orange);
     border-radius: 8px; padding: 4px 12px; cursor: pointer;
-    font-family: 'GgiBatang', sans-serif; transition: all .2s;
+    font-family: var(--font-body); transition: all .2s;
 }
 .btn-review-all:hover { background: var(--orange); color: #fff; }
 
@@ -318,7 +318,7 @@ body { font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif; background: 
 .btn-more-review {
     width: 100%; padding: 10px;
     background: var(--cream2); border: 1px solid var(--cream3);
-    border-radius: 10px; font-family: 'GgiBatang', sans-serif;
+    border-radius: 10px; font-family: var(--font-body);
     font-size: 13px; color: var(--brown3); cursor: pointer;
     transition: all .2s; margin-top: 4px;
 }
@@ -341,7 +341,7 @@ body { font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif; background: 
     flex-shrink: 0;
 }
 .review-modal-title {
-    font-family: 'GgiBatang', serif; font-size: 18px;
+    font-family: var(--font-title); font-size: 18px;
     font-weight: 700; color: var(--brown); margin-bottom: 2px;
 }
 .review-modal-camp { font-size: 12px; color: var(--brown4); }
@@ -353,7 +353,7 @@ body { font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif; background: 
     flex-shrink: 0;
 }
 .review-avg-star  { font-size: 18px; color: #D4932A; letter-spacing: 2px; }
-.review-avg-num   { font-family: 'GgiBatang', serif; font-size: 22px; font-weight: 700; color: var(--brown); }
+.review-avg-num   { font-family: var(--font-title); font-size: 22px; font-weight: 700; color: var(--brown); }
 .review-avg-count { font-size: 12px; color: var(--brown4); }
 
 .review-list-scroll {
@@ -372,7 +372,7 @@ body { font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif; background: 
     text-align: center;
 }
 .review-detail-stars   { font-size: 28px; color: #D4932A; letter-spacing: 3px; margin-bottom: 6px; }
-.review-detail-rating  { font-family: 'GgiBatang', serif; font-size: 32px; font-weight: 700; color: var(--brown); margin-bottom: 12px; }
+.review-detail-rating  { font-family: var(--font-title); font-size: 32px; font-weight: 700; color: var(--brown); margin-bottom: 12px; }
 .review-detail-user    { font-size: 14px; font-weight: 600; color: var(--brown2); margin-bottom: 4px; }
 .review-detail-date    { font-size: 12px; color: var(--brown4); margin-bottom: 20px; }
 .review-detail-content {

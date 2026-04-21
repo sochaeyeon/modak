@@ -1612,7 +1612,7 @@ button:disabled {
 /* 비밀번호 안내 문구 */
 .password-guide {
     margin-top: 6px;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 500;
 }
 

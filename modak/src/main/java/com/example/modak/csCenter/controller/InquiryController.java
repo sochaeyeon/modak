@@ -6,23 +6,102 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.modak.csCenter.dao.InquiryService;
+import com.google.gson.Gson;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class InquiryController {
 
-	@Autowired
-	InquiryService inquiryService;
+    @Autowired
+    InquiryService inquiryService;
 
-	// 파라미터 없을 때
-	@RequestMapping("/inquiry.do")
-	public String test1(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
-			throws Exception {
-		return "/cs/inquiry-form";
-	}
+    @Autowired
+    HttpSession session;
 
+    // 문의 작성 페이지
+    @RequestMapping("/inquiry.do")
+    public String test1(HttpServletRequest request) throws Exception {
+        return "/cs/inquiry-form";
+    }
+
+    // 문의 목록 페이지
+    @RequestMapping("/user/inquiry/history.do")
+    public String inquiryHistory(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
+            throws Exception {
+        request.setAttribute("map", map);
+        return "/inquiry/inquiry-history";
+    }
+
+    // 내 문의 목록 조회
+    @RequestMapping(value = "/user/inquiry/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String getInquiryList(@RequestParam HashMap<String, Object> map) throws Exception {
+        HashMap<String, Object> resultMap = new HashMap<>();
+
+        String sessionId = (String) session.getAttribute("sessionId");
+
+        if (sessionId == null || "".equals(sessionId)) {
+            resultMap.put("result", "fail");
+            resultMap.put("message", "로그인이 필요합니다.");
+            return new Gson().toJson(resultMap);
+        }
+
+        // 프론트에서 page, pageSize 안 왔을 때 대비
+        if (map.get("page") == null || "".equals(String.valueOf(map.get("page")))) {
+            map.put("page", 1);
+        }
+
+        if (map.get("pageSize") == null || "".equals(String.valueOf(map.get("pageSize")))) {
+            map.put("pageSize", 6);
+        }
+
+        map.put("userId", sessionId);
+
+        resultMap = inquiryService.getInquiryList(map);
+        return new Gson().toJson(resultMap);
+    }
+
+    // 문의 이미지 조회
+    @RequestMapping(value = "/user/inquiry/img/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String getInquiryImgList(@RequestParam HashMap<String, Object> map) throws Exception {
+        HashMap<String, Object> resultMap = new HashMap<>();
+
+        String sessionId = (String) session.getAttribute("sessionId");
+
+        if (sessionId == null || "".equals(sessionId)) {
+            resultMap.put("result", "fail");
+            resultMap.put("message", "로그인이 필요합니다.");
+            return new Gson().toJson(resultMap);
+        }
+
+        resultMap = inquiryService.getInquiryImgList(map);
+        return new Gson().toJson(resultMap);
+    }
+    
+    @RequestMapping(value = "/user/inquiry/remove.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String deleteInquiry(@RequestParam HashMap<String, Object> map) throws Exception {
+        HashMap<String, Object> resultMap = new HashMap<>();
+
+        String sessionId = (String) session.getAttribute("sessionId");
+
+        if (sessionId == null || "".equals(sessionId)) {
+            resultMap.put("result", "fail");
+            resultMap.put("message", "로그인이 필요합니다.");
+            return new Gson().toJson(resultMap);
+        }
+
+        map.put("userId", sessionId);
+
+        resultMap = inquiryService.removeInquiry(map);
+        return new Gson().toJson(resultMap);
+    }
 }

@@ -1,0 +1,212 @@
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+	background: #f5f0e8;
+	color: #1a1a18;
+}
+
+/* LAYOUT */
+.layout {
+	display: flex;
+	max-width: 1060px;
+	margin: 0 auto;
+	padding: 36px 24px 80px;
+	gap: 28px;
+	align-items: flex-start;
+}
+
+/* 본문 */
+.content {
+	flex: 1;
+	min-width: 0;
+}
+
+.doc-header {
+	background: #fff;
+	border-radius: 16px;
+	border: 1px solid #ede8de;
+	padding: 28px 32px;
+	margin-bottom: 20px;
+}
+
+.doc-header .badge {
+	display: inline-block;
+	padding: 4px 12px;
+	border-radius: 20px;
+	font-size: 11px;
+	font-weight: 700;
+	margin-bottom: 12px;
+}
+
+.doc-header h1 {
+	font-size: 22px;
+	font-weight: 800;
+	color: #1a1a18;
+	margin-bottom: 8px;
+}
+
+.doc-header .meta {
+	font-size: 12px;
+	color: #aaa;
+	display: flex;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.doc-header .meta span {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+/* 섹션 */
+.doc-section {
+	background: #fff;
+	border-radius: 14px;
+	border: 1px solid #ede8de;
+	padding: 24px 28px;
+	margin-bottom: 14px;
+}
+
+.doc-section h2 {
+	font-size: 15px;
+	font-weight: 700;
+	color: #1a1a18;
+	margin-bottom: 14px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.doc-section h2::before {
+	content: '';
+	display: block;
+	width: 4px;
+	height: 16px;
+	background: #e8610a;
+	border-radius: 2px;
+	flex-shrink: 0;
+}
+
+.doc-section p {
+	font-size: 13px;
+	color: #555;
+	line-height: 1.85;
+	margin-bottom: 10px;
+}
+
+.doc-section p:last-child {
+	margin-bottom: 0;
+}
+
+.doc-section ul,
+.doc-section ol {
+	padding-left: 18px;
+	margin-bottom: 10px;
+}
+
+.doc-section li {
+	font-size: 13px;
+	color: #555;
+	line-height: 1.85;
+	margin-bottom: 4px;
+}
+
+.doc-section strong {
+	font-weight: 700;
+	color: #1a1a18;
+}
+
+/* 표 */
+.doc-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+	margin: 12px 0;
+}
+
+.doc-table th {
+	background: #f5f0e8;
+	padding: 10px 14px;
+	text-align: left;
+	font-weight: 700;
+	color: #555;
+	border-bottom: 1px solid #ede8de;
+}
+
+.doc-table td {
+	padding: 10px 14px;
+	border-bottom: 1px solid #f5f0e8;
+	color: #555;
+	vertical-align: top;
+	line-height: 1.7;
+}
+
+.doc-table tr:last-child td {
+	border-bottom: none;
+}
+
+.doc-table tr:hover td {
+	background: #fafaf8;
+}
+
+/* 강조 박스 */
+.notice-box {
+	border-radius: 10px;
+	padding: 14px 16px;
+	margin: 14px 0;
+	font-size: 13px;
+	line-height: 1.7;
+}
+
+
+
+.notice-box.blue {
+	background: #ddeeff;
+	color: #0c447c;
+	border-left: 3px solid #185fa5;
+}
+
+/* 인쇄 버튼 */
+.doc-actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 20px;
+}
+
+.btn-print {
+	padding: 9px 20px;
+	background: #fff;
+	border: 1px solid #e2dcd2;
+	border-radius: 8px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #555;
+	cursor: pointer;
+	transition: background 0.12s;
+}
+
+.btn-print:hover {
+	background: #f5f0e8;
+}
+
+.btn-download {
+	padding: 9px 20px;
+	background: #1a1a18;
+	border: none;
+	border-radius: 8px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #fff;
+	cursor: pointer;
+	transition: background 0.12s;
+}
+
+.btn-download:hover {
+	background: #333;
+}

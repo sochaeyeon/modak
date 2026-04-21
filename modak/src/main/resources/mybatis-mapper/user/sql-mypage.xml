@@ -72,21 +72,21 @@
 
 	<!-- 포인트 사용내역 -->
 	<select id="selectPointHistory"
-		parameterType="string"
-		resultType="com.example.modak.user.model.PointHistory">
-		SELECT
-		HISTORY_ID,
-		USER_ID,
-		DESCRIPTION,
-		AMOUNT,
-		TYPE,
-		DATE_FORMAT(CREATED_AT, '%Y.%m.%d') AS createdAt,
-		BALANCE_AFTER
-		FROM POINT_HISTORY
-		WHERE USER_ID = #{userId}
-		ORDER BY CREATED_AT DESC, HISTORY_ID DESC
-	</select>
-
+        parameterType="hashmap"
+        resultType="com.example.modak.user.model.PointHistory">
+    SELECT
+        HISTORY_ID,
+        USER_ID,
+        DESCRIPTION,
+        AMOUNT,
+        TYPE,
+        DATE_FORMAT(CREATED_AT, '%Y-%m-%d %H:%i') AS createdAt,
+        BALANCE_AFTER AS balanceAfter
+    FROM point_history
+    WHERE USER_ID = #{userId}
+    ORDER BY CREATED_AT DESC, HISTORY_ID DESC
+    LIMIT 6
+</select>
 	<select id="selectMyReviewList"
 		resultType="com.example.modak.review.model.Review">
 		SELECT

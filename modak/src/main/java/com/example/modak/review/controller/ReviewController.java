@@ -81,4 +81,13 @@ public class ReviewController {
 		resultMap = reviewService.removeReview(map);
 		return new Gson().toJson(resultMap);
 	}
+	
+	// 상품 상세 리뷰 목록 (로그인 불필요)
+	@RequestMapping(value = "/review/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getProductReviewList(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+	    HashMap<String, Object> resultMap = reviewService.getProductReviewList(map);
+	    return new Gson().toJson(resultMap);
+	}
+	
 }

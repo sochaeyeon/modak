@@ -19,28 +19,33 @@
     </div>
 <div class="wrap">
     <div class="ptop">
-        <!-- GALLERY -->
         <div class="gallery">
             <div class="gm">
-                <span class="gtag" v-if="productImages.find(i => i.fileName === mainImgUrl)?.isMain === 'Y'">베스트</span>
-                
+                <!-- mainImg === 'Y'인 이미지가 현재 메인일 때만 베스트 배지 표시 -->
+                <span class="gtag"
+                    v-if="productImages.find(i => i.imgUrl === mainImgUrl)?.mainImg === 'Y'">
+                    베스트
+                </span>
                 <div class="gem" id="gem">
-                    <img v-if="mainImgUrl" 
-                        :src="'/img/product/' + mainImgUrl" 
-                        alt="상품 메인 이미지" 
-                        style="width:100%; height:100%; object-fit:contain;"> <img v-else src="/img/product/default.jpg" style="width:100%; height:100%; object-fit:cover;">
+                    <img v-if="mainImgUrl"
+                        :src="mainImgUrl"
+                        alt="상품 메인 이미지"
+                        style="width:100%; height:100%; object-fit:contain;">
+                    <img v-else
+                        src="/img/product/default.jpg"
+                        style="width:100%; height:100%; object-fit:cover;">
                 </div>
             </div>
-            <!-- 메인아닌 이미지들 -->
+            <!-- 썸네일 목록 -->
             <div class="gthumbs">
-                <div 
-                    v-for="(img, idx) in productImages" 
+                <div
+                    v-for="(img, idx) in productImages"
                     :key="idx"
-                    class="gth" 
-                    :class="{ on: mainImgUrl === img.imgUrl }" 
+                    class="gth"
+                    :class="{ on: mainImgUrl === img.imgUrl }"
                     @click="setMainImg(img.imgUrl)"
                 >
-                    <img :src="'/img/product/' + img.imgUrl" 
+                    <img :src="img.imgUrl"
                         style="width:100%; height:100%; object-fit:cover; display:block;">
                 </div>
             </div>
@@ -65,8 +70,8 @@
         <div class="buy-only">
             <div class="pbox-buy">
             <div class="prow"><span class="pct">10%</span><span class="pnow">{{productInfo.price}}</span></div>
-            <div class="porig">50,000원</div>
-            <div class="pnote">쿠폰 적용시 최대 10% 할인</div>
+            <!-- <div class="porig">50,000원</div>
+            <div class="pnote">쿠폰 적용시 최대 10% 할인</div> -->
             </div>
         </div>
 
@@ -199,10 +204,10 @@
     <!-- TABS -->
     <div>
         <div class="tnav">
-        <button class="tbtn on" onclick="stab('det',this)">상품 정보</button>
-        <button class="tbtn" onclick="stab('rev',this)">리뷰 (119)</button>
-        <button class="tbtn" onclick="stab('qna',this)">Q&amp;A (12)</button>
-        <button class="tbtn" onclick="stab('shp',this)">배송/대여 안내</button>
+            <button class="tbtn on" @click="stab('det', $event)">상품 정보</button>
+            <button class="tbtn" @click="stab('rev', $event)">리뷰 ({{ reviewList.length }})</button>
+            <button class="tbtn" @click="stab('qna', $event)">Q&A (12)</button>
+            <button class="tbtn" @click="stab('shp', $event)">배송/대여 안내</button>
         </div>
         <div class="tcont">
         <div class="tpane on" id="tp-det">
@@ -225,7 +230,7 @@
             <tr><th>원산지</th><td>대한민국</td></tr>
             </table>
         </div>
-        <div class="tpane" id="tp-rev">
+        <!-- <div class="tpane" id="tp-rev">
             <div class="rsum2">
             <div class="rbig">
                 <div class="rn">4.3</div>
@@ -251,6 +256,54 @@
             <div class="rtext">대여로 먼저 써보고 너무 좋아서 구매했습니다. 방수 성능이 탁월해요!</div>
             <div class="rprod">오렌지 / 대여 후 구매</div>
             <div class="rhelprow"><span>도움이 됐나요?</span><button class="hbtn">👍 도움돼요 (17)</button></div>
+            </div>
+        </div> -->
+        <div class="tpane" id="tp-rev">
+            <!-- 별점 요약 (기존 유지) -->
+            <div class="rsum2">
+                <div class="rbig">
+                    <div class="rn">4.3</div>
+                    <div class="stars" style="justify-content:center;display:flex;margin:5px 0">
+                        <span class="st">★</span><span class="st">★</span><span class="st">★</span>
+                        <span class="st">★</span><span class="st" style="color:#ddd">★</span>
+                    </div>
+                    <div class="ro">{{ reviewList.length }}개 리뷰</div>
+                </div>
+                <div class="rbars">
+                    <div class="bbar"><span class="blbl">5점</span><div class="btrk"><div class="bfil" style="width:55%"></div></div><span class="bcnt">65</span></div>
+                    <div class="bbar"><span class="blbl">4점</span><div class="btrk"><div class="bfil" style="width:25%"></div></div><span class="bcnt">30</span></div>
+                    <div class="bbar"><span class="blbl">3점</span><div class="btrk"><div class="bfil" style="width:12%"></div></div><span class="bcnt">14</span></div>
+                    <div class="bbar"><span class="blbl">2점</span><div class="btrk"><div class="bfil" style="width:5%"></div></div><span class="bcnt">6</span></div>
+                    <div class="bbar"><span class="blbl">1점</span><div class="btrk"><div class="bfil" style="width:3%"></div></div><span class="bcnt">4</span></div>
+                </div>
+            </div>
+
+            <!-- 리뷰 없을 때 -->
+            <div v-if="reviewList.length === 0"
+                style="text-align:center;padding:36px 0;color:var(--muted);font-size:14px">
+                아직 작성된 리뷰가 없습니다.
+            </div>
+
+            <!-- 리뷰 목록 -->
+            <div class="rcard" v-for="review in reviewList" :key="review.reviewId">
+                <div class="rhead">
+                    <div>
+                        <div class="rname">{{ review.userId }}</div>
+                        <div class="stars" style="display:flex;gap:1px;margin-top:3px">
+                            <span v-for="(star, i) in getStars(review.rating)" :key="i"
+                                class="st" :style="{ fontSize:'12px', color: star === '★' ? '' : '#ddd' }">
+                                {{ star }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="rdate">{{ formatDate(review.createdAt) }}</div>
+                </div>
+                <div class="rtext" style="font-weight:600;margin-bottom:4px">{{ review.title }}</div>
+                <div class="rtext">{{ review.content }}</div>
+                <div class="rhelprow">
+                    <span>도움이 됐나요?</span>
+                    <button class="hbtn">👍 도움돼요</button>
+                </div>
             </div>
         </div>
         <div class="tpane" id="tp-qna">
@@ -308,13 +361,13 @@
     function pickChip(el,g){el.closest('.ochips').querySelectorAll('.chip:not(.off)').forEach(c=>c.classList.remove('on'));el.classList.add('on');updBuy();}
 
     // buy qty
-    //let qty=1;const BP=42000;
-    //function chgQ(d){qty=Math.max(1,Math.min(99,qty+d));document.getElementById('qinp').value=qty;document.getElementById('qdsp').textContent=qty;updBuy();}
-    //function updBuy(){const t=(BP*qty).toLocaleString('ko-KR')+'원';document.getElementById('bprice').textContent=t;document.getElementById('btotal').textContent=t;}
+    let qty=1;const BP=42000;
+    function chgQ(d){qty=Math.max(1,Math.min(99,qty+d));document.getElementById('qinp').value=qty;document.getElementById('qdsp').textContent=qty;updBuy();}
+    function updBuy(){const t=(BP*qty).toLocaleString('ko-KR')+'원';document.getElementById('bprice').textContent=t;document.getElementById('btotal').textContent=t;}
 
     
     // tabs
-    function stab(n,el){document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('on'));el.classList.add('on');document.getElementById('tp-'+n).classList.add('on');}
+    //function stab(n,el){document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('on'));el.classList.add('on');document.getElementById('tp-'+n).classList.add('on');}
 
     
 
@@ -326,7 +379,7 @@
                 productInfo: {},
                 productImages: [],         // DB에서 가져온 전체 이미지 리스트
                 mainImgUrl: '',            // 메인이미지
-                categoryId: self.currentCat
+                reviewList: []
             };
         },
         methods: {
@@ -345,41 +398,81 @@
                     }
                 });
             },
-            formattedDate() {
-                return String(this.product.day).padStart(2, '0');
-            },
-            fetchProductImages() {
+            fetchProductImages: function () {
                 let self = this;
                 $.ajax({
-                    url: "/product/detail.dox", 
-                    type: "POST",
+                    url: '/product/detail.dox',
+                    type: 'POST',
                     data: { productId: self.productId },
-                    success: function(data) {
+                    success: function (data) {
                         const imageList = data.img || [];
-                        self.productImages = data.img;
+                        self.productImages = imageList;
 
-                        // 리스트가 있을 때만 메인 이미지 초기화
                         if (imageList.length > 0) {
-                            // 1. IS_MAIN이 'Y'인 이미지를 먼저 찾습니다. (필드명 mainImg 확인!)
+                            // mainImg === 'Y' 인 이미지 우선, 없으면 첫 번째
                             const main = imageList.find(i => i.mainImg === 'Y');
-                            
-                            // 2. 메인이 있으면 그걸 쓰고, 없으면 0번째 이미지를 씁니다.
                             self.mainImgUrl = main ? main.imgUrl : imageList[0].imgUrl;
                         } else {
-                            self.mainImgUrl = 'default.jpg';
+                            self.mainImgUrl = '/img/product/default.jpg';
                         }
                     },
-                    error: function(err) {
-                        console.error("이미지 로드 실패:", err);
+                    error: function (err) {
+                        console.error('이미지 로드 실패:', err);
                         self.productImages = [];
+                        self.mainImgUrl = '/img/product/default.jpg';
                     }
                 });
             },
-
             // 2. 썸네일 클릭 시 메인 이미지 변경
-            setMainImg(fileName) {
-                this.mainImgUrl = fileName;
+            setMainImg(imgUrl) {
+                let self = this;
+                self.mainImgUrl = imgUrl;
+            },
+            fnGetReviews: function () {
+                let self = this;
+                let param = { 
+                    productId: self.productId,
+                    page : 1,
+                    pageSize : 10
+                };
+                $.ajax({
+                    url: '/user/review/list.dox',
+                    dataType: 'json',
+                    type: 'POST',
+                    data: param,
+                    success: function (data) {
+                        self.reviewList = data.list || [];
+                        console.log(self.reviewList);
+                    
+                    },
+                    error: function (err) {
+                        console.error('리뷰 로드 실패:', err);
+                        self.reviewList = [];
+                    }
+                });
+            },
+            // 별점 배열 반환 (★/☆ 구분용)
+            getStars: function (rating) {
+                return Array.from({ length: 5 }, (_, i) => i < rating ? '★' : '☆');
+            },
+            // 날짜 포맷 (2026-04-16 20:10:00 → 2026.04.16)
+            formatDate: function (dateStr) {
+                if (!dateStr) return '';
+                return dateStr.slice(0, 10).replace(/-/g, '.');
+            },
+            stab: function(n, event) {
+                const el = event.currentTarget;
+                document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('on'));
+                document.querySelectorAll('.tpane').forEach(p => p.classList.remove('on'));
+                el.classList.add('on');
+                document.getElementById('tp-' + n).classList.add('on');
+
+                // 리뷰 탭 클릭 시 리뷰 불러오기
+                if (n === 'rev') {
+                    this.fnGetReviews();
+                }
             }
+
         }, // methods
         mounted() {
             // 처음 시작할 때 실행되는 부분

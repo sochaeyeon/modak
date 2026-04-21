@@ -186,4 +186,24 @@ public class ReviewService {
 
 		return resultMap;
 	}
+	
+	// 상품 상세 리뷰 목록!!
+	public HashMap<String, Object> getProductReviewList(HashMap<String, Object> map) {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    try {
+	        int page = Integer.parseInt(String.valueOf(map.get("page")));
+	        int pageSize = Integer.parseInt(String.valueOf(map.get("pageSize")));
+	        int offset = (page - 1) * pageSize;
+	        map.put("offset", offset);
+
+	        List<Review> list = reviewMapper.selectProductReviewList(map);
+	        resultMap.put("result", "success");
+	        resultMap.put("list", list);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result", "fail");
+	        resultMap.put("message", "리뷰 목록 조회 실패");
+	    }
+	    return resultMap;
+	}
 }

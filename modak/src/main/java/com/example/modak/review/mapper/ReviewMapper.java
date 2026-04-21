@@ -36,4 +36,7 @@ public interface ReviewMapper {
 	int deleteReviewImages(HashMap<String, Object> map);
 	
 	List<ReviewImage> selectReviewImageList(HashMap<String, Object> map);
+	
+	// 상품 상세 리뷰 목록!!
+	List<Review> selectProductReviewList(HashMap<String, Object> map);
 }

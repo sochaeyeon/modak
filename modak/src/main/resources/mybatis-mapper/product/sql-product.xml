@@ -7,27 +7,35 @@
   <!--  제품 리스트 product list -->
 	<select id="selectProductList" resultType="com.example.modak.product.model.Product">
 	    SELECT DISTINCT
-	        p.PRODUCT_ID as productId,
-	        p.PRODUCT_NAME as productName,
-	        p.PRODUCT_TYPE as productType,
-	        p.PRICE as price,
-	        p.DEPOSIT as deposit,
-	        p.DESCRIPTION as description,
-	        p.IS_AVAILABLE as isAvailable,
-	        p.CREATED_AT as createdAt,
-	        p.CATEGORY_ID as categoryId,
-	        p.BRAND_ID as brandId,
-	        b.BRAND_NAME as brandName,
-	        i.IMG_URL as imgUrl
-	    FROM PRODUCT p
-	    
-	    LEFT JOIN BRAND b
-	        ON p.BRAND_ID = b.BRAND_ID
-	
-	    LEFT JOIN PRODUCT_IMG i
-	        ON p.PRODUCT_ID = i.PRODUCT_ID
-	        AND i.IS_MAIN = 'Y'
-	    WHERE 1=1
+        p.PRODUCT_ID as productId,
+        p.PRODUCT_NAME as productName,
+        p.PRODUCT_TYPE as productType,
+        p.PRICE as price,
+        p.DEPOSIT as deposit,
+        p.DESCRIPTION as description,
+        p.IS_AVAILABLE as isAvailable,
+        p.CREATED_AT as createdAt,
+        p.CATEGORY_ID as categoryId,
+
+        c.CATEGORY_NAME as categoryName,  
+
+        p.BRAND_ID as brandId,
+        b.BRAND_NAME as brandName,
+        i.IMG_URL as imgUrl
+
+    FROM PRODUCT p
+    
+    LEFT JOIN PRODUCT_CATEGORY c   
+        ON p.CATEGORY_ID = c.CATEGORY_ID
+    
+    LEFT JOIN BRAND b
+        ON p.BRAND_ID = b.BRAND_ID
+
+    LEFT JOIN PRODUCT_IMG i
+        ON p.PRODUCT_ID = i.PRODUCT_ID
+        AND i.IS_MAIN = 'Y'
+
+    WHERE 1=1
 	    <if test="childCatId != null and childCatId > 0">
 		    AND p.CATEGORY_ID = #{childCatId}
 		</if>

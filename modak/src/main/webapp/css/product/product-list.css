@@ -251,26 +251,37 @@ input:checked + .fopt::before {
 }
 .pcard-emoji { font-size: 56px; line-height: 1; user-select: none; }
 
-/* 찜(위시리스트) 버튼 */
-.pcard-wish {
-  position: absolute; top: 12px; right: 12px;
-  width: 30px; height: 30px; border-radius: 50%;
-  background: rgba(255,255,255,.85);
-  display: flex; align-items: center; justify-content: center;
-  border: none; cursor: pointer; transition: all .2s;
+.wish-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all .2s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    z-index: 1;
 }
-.pcard-wish svg { width: 15px; height: 15px; stroke: #A09080; fill: none; stroke-width: 1.6; transition: all .2s; }
-.pcard-wish:hover svg { stroke: var(--ember); }
-/* Vue :class로 wished 상태 토글 */
-.pcard-wish.wished svg { stroke: var(--ember); fill: var(--ember); }
 
-/* 뱃지 (NEW, 인기, 할인 등)
-.badge-row { position: absolute; top: 12px; left: 12px; display: flex; gap: 5px; }
-.pbadge { font-size: 10px; padding: 3px 8px; border-radius: 3px; font-weight: 500; letter-spacing: .04em; }
-.pbadge-hot  { background: #E8453C; color: #fff; }
-.pbadge-sale { background: var(--ember); color: #fff; }
-.pbadge-new  { background: var(--forest); color: var(--mist); }
-.pbadge-best { background: var(--bark); color: #FAF0E0; } */
+.wish-btn svg {
+    width: 16px;
+    height: 16px;
+    color: #aaa;
+    transition: all .2s;
+}
+
+.wish-btn:hover svg,
+.wish-btn.wished svg {
+    color: #e04b6a;
+    fill: #e04b6a;
+    stroke: #e04b6a;
+}
 
 /* 카드 텍스트 영역 */
 .pcard-body { padding: 14px 16px 16px; }

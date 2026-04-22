@@ -152,6 +152,17 @@
 		UPDATE product SET IS_AVAILABLE = #{isAvailable} WHERE PRODUCT_ID =
 		#{productId}
 	</update>
+	<select id="selectProductViewStats" resultType="map">
+		SELECT
+		PRODUCT_ID,
+		PRODUCT_NAME,
+		VIEW_COUNT,
+		/* 대표 이미지 조인 */
+		(SELECT IMG_URL FROM product_img pi WHERE pi.PRODUCT_ID = p.PRODUCT_ID
+		LIMIT 1) AS IMG_URL
+		FROM product p
+		ORDER BY VIEW_COUNT DESC
+</select>
 
 	<insert id="insertProduct" parameterType="hashmap">
 		INSERT INTO product (PRODUCT_NAME, PRODUCT_TYPE, PRICE, DEPOSIT,
@@ -180,7 +191,7 @@
 		R.RENTAL_ID AS RENTAL_ID,
 		R.USER_ID AS USER_ID,
 		P.PRODUCT_NAME AS PRODUCT_NAME,
-		
+
 		(SELECT IMG_URL FROM product_img PI WHERE PI.PRODUCT_ID = P.PRODUCT_ID
 		LIMIT 1) AS IMG_URL,
 		DATE_FORMAT(R.START_DATE, '%Y-%m-%d') AS START_DATE,
@@ -211,18 +222,163 @@
 		SELECT COUNT(*) FROM INQUIRY WHERE INQUIRY_STATUS = 'WAITING'
 	</select>
 
-	<select id="selectTotalInquiryCount" resultType="int">
-		SELECT COUNT(*) FROM INQUIRY
+<select id="selectInquiryList" parameterType="hashmap" resultType="map">
+        SELECT 
+            I.INQUIRY_ID,
+            I.USER_ID,
+            I.TITLE,
+            I.CONTENT,
+            I.INQUIRY_STATUS AS STATUS,
+            R.CONTENT AS ANSWER,
+            DATE_FORMAT(I.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT,
+            (SELECT GROUP_CONCAT(IMG_URL) FROM inquiry_img WHERE INQUIRY_ID = I.INQUIRY_ID) AS IMG_URLS
+        FROM inquiry I
+        LEFT OUTER JOIN inquiry_reply R ON I.INQUIRY_ID = R.INQUIRY_ID
+        <where>
+            <if test="status != null and status != ''">
+                AND I.INQUIRY_STATUS = #{status}
+            </if>
+        </where>
+        ORDER BY I.INQUIRY_ID DESC
+    </select>
+
+    <insert id="insertInquiryAnswer" parameterType="hashmap">
+        INSERT INTO inquiry_reply (INQUIRY_ID, CONTENT, CREATED_AT)
+        VALUES (#{inquiryId}, #{answer}, NOW())
+        ON DUPLICATE KEY UPDATE CONTENT = #{answer}
+    </insert>
+
+    <update id="updateInquiryStatus" parameterType="hashmap">
+        UPDATE inquiry SET INQUIRY_STATUS = 'ANSWERED' WHERE INQUIRY_ID = #{inquiryId}
+    </update>
+	<update id="updateMemberStatus" parameterType="hashmap">
+		UPDATE user
+		SET
+		USER_STATUS = #{status},
+		UPDATED_AT = NOW() /* 언제 바뀌었는지 기록 남기기 */
+		WHERE
+		USER_ID = #{userId}
+</update>
+
+	<select id="selectEventList" parameterType="hashmap" resultType="map">
+		SELECT
+		e.EVENT_ID,
+		e.TITLE,
+		DATE_FORMAT(e.START_DATE, '%Y-%m-%d') AS START_DATE,
+		DATE_FORMAT(e.END_DATE, '%Y-%m-%d') AS END_DATE,
+		ei.IMG_URL AS THUMBNAIL,
+		/* ⭐ 상태값 세분화 */
+		CASE
+		WHEN NOW() &lt; e.START_DATE THEN 'READY' /* 시작 전 */
+		WHEN NOW() BETWEEN e.START_DATE AND e.END_DATE THEN 'ING' /* 진행 중 */
+		ELSE 'END' /* 종료됨 */
+		END AS STATUS_CODE
+		FROM event e
+		LEFT JOIN event_img ei ON e.EVENT_ID = ei.EVENT_ID AND ei.IS_MAIN = 'Y'
+		ORDER BY e.START_DATE ASC
+</select>
+	<select id="selectEventCount" resultType="int">
+		SELECT COUNT(*) FROM event
+</select>
+	<select id="selectMemberList" parameterType="hashmap" resultType="map">
+		SELECT USER_ID, USER_NAME, EMAIL, USER_PHONE, SOCIAL_TYPE, USER_STATUS,
+		DATE_FORMAT(CREATED_AT, '%Y-%m-%d') AS CREATED_AT FROM user WHERE 1=1 <if
+			test="keyword != null and keyword != ''">
+			AND (USER_ID LIKE CONCAT('%', #{keyword}, '%') OR USER_NAME LIKE
+		CONCAT('%', #{keyword}, '%'))
+		</if>
+    <if
+			test="status != null and status != ''">
+			AND USER_STATUS = #{status}
+		</if> ORDER BY CREATED_AT DESC LIMIT
+		#{offset}, #{pageSize} </select>
+
+
+	<select id="selectMemberCount" parameterType="hashmap" resultType="int">
+		SELECT COUNT(*) FROM user WHERE 1=1 <if
+			test="keyword != null and keyword != ''">
+			AND (USER_ID LIKE CONCAT('%', #{keyword}, '%') OR USER_NAME LIKE
+		CONCAT('%', #{keyword}, '%'))
+		</if>
+    <if
+			test="status != null and status != ''">
+			AND USER_STATUS = #{status}
+		</if>
 	</select>
 
-	<update id="updateInquiryStatus" parameterType="hashmap">
-		UPDATE INQUIRY SET INQUIRY_STATUS = #{status}, UPDATED_AT = NOW() WHERE
-		INQUIRY_ID = #{inquiryId}
-	</update>
+	<select id="selectMemberSummary" resultType="map">
+		SELECT
+		COUNT(*) AS TOTAL,
+		COUNT(CASE WHEN USER_STATUS = 'ACTIVE' THEN 1 END) AS ACTIVE,
+		COUNT(CASE WHEN USER_STATUS = 'DELETED' THEN 1 END) AS DELETED,
+		/* 최근 30일 이내 가입자 수 예시 */
+		COUNT(CASE WHEN CREATED_AT >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1
+		END) AS NEW_MONTH
+		FROM user
+</select>
+	<select id="selectCampList" parameterType="hashmap" resultType="map"> SELECT
+		MAX(C.CAMP_ID) AS CAMP_ID, C.CAMP_NAME, C.ADDRESS, C.INDUTY,
+		MAX(I.IMG_URL) AS IMG_URL FROM camp C LEFT JOIN camp_img I ON C.CAMP_ID
+		= I.CAMP_ID WHERE 1=1 <if test="keyword != null and keyword != ''">
+			AND (C.CAMP_NAME LIKE CONCAT('%', #{keyword}, '%') OR C.ADDRESS LIKE
+		CONCAT('%', #{keyword}, '%'))
+		</if>
+		GROUP BY C.CAMP_NAME, C.ADDRESS, C.INDUTY ORDER BY CAMP_ID DESC </select>
 
-	<update id="updateMemberStatus" parameterType="hashmap">
-		UPDATE USER SET USER_STATUS = #{userStatus}, UPDATED_AT = NOW() WHERE
-		USER_ID = #{userId}
-	</update>
+	<select id="selectCampDetail" parameterType="hashmap" resultType="map">
+		SELECT
+		C.*,
+		I.IMG_URL
+		FROM camp C
+		LEFT JOIN camp_img I ON C.CAMP_ID = I.CAMP_ID AND I.IS_MAIN = 'Y'
+		WHERE C.CAMP_ID = #{campId}
+</select>
+
+	<update id="updateCampInfo" parameterType="hashmap">
+		UPDATE camp
+		SET
+		CAMP_NAME = #{campName},
+		ADDRESS = #{campAddress},
+		INDUTY = #{campType},
+		DESCRIPTION = #{campContent}
+		WHERE CAMP_ID = #{campId}
+</update>
+
+	<delete id="deleteCamp" parameterType="hashmap">
+		DELETE FROM camp WHERE CAMP_ID = #{campId}
+</delete>
+
+	<select id="selectCouponList" parameterType="hashmap" resultType="map">
+		SELECT COUPON_ID, COUPON_NAME, COUPON_TYPE, DISCOUNT_AMT, DISCOUNT_RATE,
+		MIN_ORDER_AMT, ISSUE_TARGET, IS_ACTIVE, DATE_FORMAT(ISSUE_START_AT,
+		'%Y-%m-%d') AS START_DATE, DATE_FORMAT(ISSUE_END_AT, '%Y-%m-%d') AS
+		END_DATE FROM coupon WHERE 1=1 <if
+			test="keyword != null and keyword != ''">
+			AND COUPON_NAME LIKE CONCAT('%', #{keyword}, '%')
+		</if> ORDER BY
+		COUPON_ID DESC </select>
+
+	<update id="updateCouponStatus" parameterType="hashmap">
+		UPDATE coupon
+		SET IS_ACTIVE = #{isActive}
+		WHERE COUPON_ID = #{couponId}
+</update>
+	<select id="selectAdminReviewList" parameterType="hashmap" resultType="map">
+		SELECT R.REVIEW_ID, R.USER_ID, R.PRODUCT_ID, R.TITLE, R.CONTENT,
+		R.RATING, P.PRODUCT_NAME AS NAME, PI.IMG_URL AS PROD_IMG,
+		GROUP_CONCAT(RI.IMG_URL) AS REVIEW_IMAGES, DATE_FORMAT(R.CREATED_AT,
+		'%Y-%m-%d %H:%i') AS CREATED_AT FROM review R INNER JOIN product P ON
+		R.PRODUCT_ID = P.PRODUCT_ID LEFT JOIN product_img PI ON P.PRODUCT_ID =
+		PI.PRODUCT_ID AND PI.IS_MAIN = 'Y' LEFT JOIN review_img RI ON
+		R.REVIEW_ID = RI.REVIEW_ID WHERE 1=1 <if
+			test="keyword != null and keyword != ''">
+			AND (P.PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
+			OR R.CONTENT LIKE CONCAT('%', #{keyword}, '%'))
+		</if>
+		GROUP BY R.REVIEW_ID ORDER BY R.REVIEW_ID DESC </select>
+
+	<delete id="deleteReview" parameterType="hashmap">
+		DELETE FROM review WHERE REVIEW_ID = #{reviewId}
+</delete>
 
 </mapper>

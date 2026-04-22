@@ -1,0 +1,52 @@
+@charset "UTF-8";
+
+/* 쿠폰 전용 컨테이너 */
+.coupon-page-container {
+    padding: 30px;
+    background: #11131a;
+    min-height: 100vh;
+}
+
+/* 혜택 뱃지 스타일 */
+.benefit-amount {
+    color: #58d68d; /* 금액 할인은 상큼한 초록 */
+    font-weight: 700;
+}
+.benefit-rate {
+    color: #f4d03f; /* 비율 할인은 톡 쏘는 노랑 */
+    font-weight: 700;
+}
+
+/* 발행 대상 전용 뱃지 */
+.badge-target {
+    background: rgba(232, 115, 42, 0.12);
+    color: #E8732A;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+    border: 1px solid rgba(232, 115, 42, 0.3);
+}
+
+/* 기간 텍스트 */
+.date-text {
+    font-size: 12px;
+    color: #8a8f9d;
+    font-family: 'Pretendard', sans-serif;
+}
+
+/* 상태 표시 점 애니메이션 (활성 상태일 때만 반짝임) */
+.status-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+.active-dot {
+    background: #58d68d;
+    box-shadow: 0 0 8px rgba(88, 214, 141, 0.6);
+}
+.inactive-dot {
+    background: #ec7063;
+}

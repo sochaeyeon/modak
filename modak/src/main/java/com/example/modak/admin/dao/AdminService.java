@@ -119,43 +119,49 @@ public class AdminService {
 		return result;
 	}
 
-	/* ─── 고객 문의 관리 ─── */
-	public HashMap<String, Object> getWaitingInquiryCount() {
-		HashMap<String, Object> r = new HashMap<>();
-		r.put("count", mapper.selectWaitingInquiryCount());
-		return r;
+	public HashMap<String, Object> getInquiryList(HashMap<String, Object> map) {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    try {
+	        // 👈 MyBatis 실행 전 파라미터 체크 (keyword나 status가 null이면 에러 날 수 있음)
+	        List<Map<String, Object>> list = mapper.selectInquiryList(map);
+	        
+	        resultMap.put("list", list);
+	        resultMap.put("result", "success");
+	    } catch (Exception e) {
+	        // 👈 중요! 이클립스 콘솔창에 빨간 글씨로 에러 원인이 찍히게 합니다.
+	        e.printStackTrace(); 
+	        resultMap.put("result", "error");
+	        resultMap.put("message", e.getMessage()); // 프론트에서도 확인 가능하게 추가
+	    }
+	    return resultMap;
 	}
-
-	public HashMap<String, Object> getAdminInquiryList(HashMap<String, Object> map) {
-		HashMap<String, Object> result = new HashMap<>();
-		try {
-			int page = Integer.parseInt(String.valueOf(map.getOrDefault("page", "1")));
-			int pageSize = Integer.parseInt(String.valueOf(map.getOrDefault("pageSize", "15")));
-			map.put("offset", (page - 1) * pageSize);
-			map.put("pageSize", pageSize);
-			result.put("result", "success");
-			result.put("list", mapper.selectAdminInquiryList(map));
-			result.put("totalCount", mapper.selectAdminInquiryCount(map));
-			result.put("waitCount", mapper.selectWaitingInquiryCount());
-		} catch (Exception e) {
-			e.printStackTrace();
-			result.put("result", "fail");
-		}
-		return result;
+	public HashMap<String, Object> saveInquiryAnswer(HashMap<String, Object> map) {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    try {
+	        // 1. 답변 테이블(inquiry_reply)에 내용 저장 (insert/update)
+	        mapper.insertInquiryAnswer(map);
+	        
+	        // 2. 문의 테이블(inquiry) 상태를 'ANSWERED'로 변경
+	        mapper.updateInquiryStatus(map);
+	        
+	        resultMap.put("result", "success");
+	    } catch (Exception e) {
+	        e.printStackTrace(); // 에러 발생 시 원인 확인을 위해 남겨두는 게 좋아요!
+	        resultMap.put("result", "error");
+	    }
+	    return resultMap;
 	}
-
-	public HashMap<String, Object> replyInquiry(HashMap<String, Object> map) {
-		HashMap<String, Object> result = new HashMap<>();
-		try {
-			mapper.insertInquiryReply(map);
-			map.put("status", "DONE");
-			mapper.updateInquiryStatus(map);
-			result.put("result", "success");
-		} catch (Exception e) {
-			e.printStackTrace();
-			result.put("result", "fail");
-		}
-		return result;
+	public HashMap<String, Object> getInquiryBadge() {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    try {
+	        int count = mapper.selectWaitingInquiryCount();
+	        resultMap.put("count", count);
+	        resultMap.put("result", "success");
+	    } catch (Exception e) {
+	        resultMap.put("result", "error");
+	        resultMap.put("message", e.getMessage());
+	    }
+	    return resultMap;
 	}
 
 	/* ─── 회원 관리 ─── */
@@ -178,15 +184,19 @@ public class AdminService {
 	}
 
 	public HashMap<String, Object> updateMemberStatus(HashMap<String, Object> map) {
-		HashMap<String, Object> result = new HashMap<>();
-		try {
-			mapper.updateMemberStatus(map);
-			result.put("result", "success");
-		} catch (Exception e) {
-			e.printStackTrace();
-			result.put("result", "fail");
-		}
-		return result;
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    try {
+	        // 1. 매퍼를 통해 DB 업데이트 (USER_STATUS 컬럼 수정)
+	        mapper.updateMemberStatus(map);
+	        
+	        // 2. 성공 결과 반환
+	        resultMap.put("result", "success");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result", "error");
+	        resultMap.put("message", e.getMessage());
+	    }
+	    return resultMap;
 	}
 
 	/* ─── 상품 관리 ─── */
@@ -245,33 +255,33 @@ public class AdminService {
 	}
 
 	/* ─── 리뷰 및 이벤트 관리 ─── */
-	public HashMap<String, Object> getAdminReviewList(HashMap<String, Object> map) {
-		HashMap<String, Object> result = new HashMap<>();
-		try {
-			int page = Integer.parseInt(String.valueOf(map.getOrDefault("page", "1")));
-			int pageSize = Integer.parseInt(String.valueOf(map.getOrDefault("pageSize", "15")));
-			map.put("offset", (page - 1) * pageSize);
-			map.put("pageSize", pageSize);
-			result.put("result", "success");
-			result.put("list", mapper.selectAdminReviewList(map));
-			result.put("totalCount", mapper.selectAdminReviewCount(map));
-		} catch (Exception e) {
-			e.printStackTrace();
-			result.put("result", "fail");
-		}
-		return result;
+	
+	// 상품 리뷰 목록 조회
+	public HashMap<String, Object> getReviewList(HashMap<String, Object> map) {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    try {
+	        // XML의 id="selectAdminReviewList"와 일치해야 함!
+	        List<Map<String, Object>> list = mapper.selectAdminReviewList(map); 
+	        resultMap.put("list", list);
+	        resultMap.put("result", "success");
+	    } catch (Exception e) {
+	        resultMap.put("result", "error");
+	        resultMap.put("message", e.getMessage());
+	    }
+	    return resultMap;
 	}
 
-	public HashMap<String, Object> deleteReview(HashMap<String, Object> map) {
-		HashMap<String, Object> r = new HashMap<>();
-		try {
-			mapper.deleteReview(map);
-			r.put("result", "success");
-		} catch (Exception e) {
-			e.printStackTrace();
-			r.put("result", "fail");
-		}
-		return r;
+	// 리뷰 삭제
+	public HashMap<String, Object> removeReview(HashMap<String, Object> map) {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    try {
+	        mapper.deleteReview(map);
+	        resultMap.put("result", "success");
+	    } catch (Exception e) {
+	        resultMap.put("result", "error");
+	        resultMap.put("message", e.getMessage());
+	    }
+	    return resultMap;
 	}
 
 	public HashMap<String, Object> getEventList(HashMap<String, Object> map) {
@@ -392,4 +402,115 @@ public class AdminService {
 		}
 		return result;
 	}
+	public HashMap<String, Object> getProductViewStats(HashMap<String, Object> map) {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    try {
+	        // adminMapper -> mapper 로 변수명 수정
+	        List<Map<String, Object>> list = mapper.selectProductViewStats();
+	        resultMap.put("list", list);
+	        resultMap.put("result", "success");
+	    } catch (Exception e) {
+	        resultMap.put("result", "error");
+	        resultMap.put("message", e.getMessage());
+	    }
+	    return resultMap;
+	}
+	
+	// 캠핑장 리스트 조회 서비스
+	public HashMap<String, Object> getCampList(HashMap<String, Object> map) {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    try {
+	        // 매퍼 호출 (변수명 'mapper' 사용)
+	        List<Map<String, Object>> list = mapper.selectCampList(map);
+	        resultMap.put("list", list);
+	        resultMap.put("result", "success");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result", "error");
+	        resultMap.put("message", e.getMessage());
+	    }
+	    return resultMap;
+	}
+
+    // 캠핑장 상태 변경 서비스
+    public HashMap<String, Object> updateCampStatus(HashMap<String, Object> map) {
+        HashMap<String, Object> resultMap = new HashMap<>();
+        try {
+            mapper.updateCampStatus(map);
+            resultMap.put("result", "success");
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultMap.put("result", "error");
+            resultMap.put("message", e.getMessage());
+        }
+        return resultMap;
+    }
+ // 캠핑장 상세 정보 조회
+    public HashMap<String, Object> getCampDetail(HashMap<String, Object> map) {
+        HashMap<String, Object> resultMap = new HashMap<>();
+        try {
+            resultMap.put("info", mapper.selectCampDetail(map));
+            resultMap.put("result", "success");
+        } catch (Exception e) {
+            resultMap.put("result", "error");
+            resultMap.put("message", e.getMessage());
+        }
+        return resultMap;
+    }
+
+    // 캠핑장 정보 수정
+    public HashMap<String, Object> editCamp(HashMap<String, Object> map) {
+        HashMap<String, Object> resultMap = new HashMap<>();
+        try {
+            mapper.updateCampInfo(map);
+            resultMap.put("result", "success");
+        } catch (Exception e) {
+            resultMap.put("result", "error");
+            resultMap.put("message", e.getMessage());
+        }
+        return resultMap;
+    }
+
+    // 캠핑장 삭제
+    public HashMap<String, Object> removeCamp(HashMap<String, Object> map) {
+        HashMap<String, Object> resultMap = new HashMap<>();
+        try {
+            mapper.deleteCamp(map);
+            resultMap.put("result", "success");
+        } catch (Exception e) {
+            resultMap.put("result", "error");
+            resultMap.put("message", e.getMessage());
+        }
+        return resultMap;
+    }
+    
+ // 쿠폰 목록 조회 서비스
+    public HashMap<String, Object> getCouponList(HashMap<String, Object> map) {
+        HashMap<String, Object> resultMap = new HashMap<>();
+        try {
+            List<Map<String, Object>> list = mapper.selectCouponList(map);
+            resultMap.put("list", list);
+            resultMap.put("result", "success");
+        } catch (Exception e) {
+            resultMap.put("result", "error");
+            resultMap.put("message", e.getMessage());
+        }
+        return resultMap;
+    }
+
+    // 쿠폰 상태 변경 서비스 (활성/비활성)
+    public HashMap<String, Object> modifyCouponStatus(HashMap<String, Object> map) {
+        HashMap<String, Object> resultMap = new HashMap<>();
+        try {
+            mapper.updateCouponStatus(map);
+            resultMap.put("result", "success");
+        } catch (Exception e) {
+            resultMap.put("result", "error");
+            resultMap.put("message", e.getMessage());
+        }
+        return resultMap;
+    }
+    
+    
+	
 }

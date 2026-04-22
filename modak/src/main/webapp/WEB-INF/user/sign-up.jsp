@@ -17,105 +17,68 @@
         <div id="app">
             <!-- ── 왼쪽 패널 (로그인 동일) ── -->
             <div class="left-panel">
-                <!-- <video autoplay muted loop class="bg-video">
-                        <source src="/video/모닥불.mp4" type="video/mp4">
-                    </video> -->
                 <div class="brand">
-                    <!-- <svg width="26" height="32" viewBox="0 0 26 32" fill="none">
-                        <path
-                            d="M13 32C8.5 25.5 6 19 9.5 12.5 11.5 8 9 4 11.5 1 12.5-.5 13 0 13 0s.5-.5 1.5 1C17 4 14.5 8 16.5 12.5 20 19 17.5 25.5 13 32Z"
-                            fill="url(#bl1)" />
-                        <path
-                            d="M13 32C10.5 27 10 21.5 12 17 12.8 14.2 11.5 11.5 13 9 14.5 11.5 13.2 14.2 14 17 16 21.5 15.5 27 13 32Z"
-                            fill="url(#bl2)" />
-                        <defs>
-                            <linearGradient id="bl1" x1="13" y1="32" x2="13" y2="0" gradientUnits="userSpaceOnUse">
-                                <stop offset="0%" stop-color="#c94f1e" />
-                                <stop offset="55%" stop-color="#f07d3a" />
-                                <stop offset="100%" stop-color="#fde090" stop-opacity=".5" />
-                            </linearGradient>
-                            <linearGradient id="bl2" x1="13" y1="32" x2="13" y2="9" gradientUnits="userSpaceOnUse">
-                                <stop offset="0%" stop-color="#fff3c4" />
-                                <stop offset="100%" stop-color="#fbbf7a" stop-opacity=".4" />
-                            </linearGradient>
-                        </defs>
-                    </svg> -->
-                    <span class="brand-name">모닥모닥</span>
+                    <a href="/main.do" class="brand-name">모닥모닥</a>
                 </div>
 
-                <div class="hero">
-                    <p class="hero-eyebrow">MODAKMODAK</p>
-                    <h1 class="hero-title">새로운 불씨를<br><em>피워보세요</em></h1>
-                    <p class="hero-desc">모닥모닥에 합류하고<br>함께하는 따뜻함을 경험해보세요.</p>
+                <div class="hero-text">
+                    <p class="hero-eyebrow">CAMPING RENTAL & SHOP</p>
+                    <h1 class="hero-title">모닥모닥과 함께<br><em>캠핑을 시작해보세요</em></h1>
+                    <p class="hero-desc">
+                        회원가입 후 캠핑용품 구매부터 대여까지 한 번에.<br>
+                        필요한 장비를 더 가볍고 편리하게 준비하고,<br>
+                        주문과 대여 내역도 손쉽게 관리해보세요.
+                    </p>
                 </div>
 
-                <div class="features">
-                    <div class="feat-card">
-                        <div class="feat-icon">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <path
-                                    d="M9 2C5 2 2 5 2 9c0 1.5.4 2.9 1.2 4L2 16l3.2-1.1A6.9 6.9 0 0 0 9 16c4 0 7-3 7-7s-3-7-7-7Z"
-                                    stroke="#e0621a" stroke-width="1.4" stroke-linejoin="round" />
-                                <circle cx="6" cy="9" r="1" fill="#e0621a" />
-                                <circle cx="9" cy="9" r="1" fill="#e0621a" />
-                                <circle cx="12" cy="9" r="1" fill="#e0621a" />
-                            </svg>
-                        </div>
-                        <div class="feat-text">
-                            <h4>따뜻한 이야기 공간</h4>
-                            <p>일상의 작은 이야기부터 깊은 고민까지 편하게 나눠요.</p>
-                        </div>
+                <div class="left-mini-badge">
+                    <span>캠핑용품 대여</span>
+                    <span>캠핑용품 구매</span>
+                    <span>빠른 배송</span>
+                </div>
+
+                <div class="left-stats">
+                    <div class="stat-card">
+                        <strong>RENTAL</strong>
+                        <p>필요한 기간만 부담 없이 대여</p>
                     </div>
-                    <div class="feat-card">
-                        <div class="feat-icon">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <circle cx="9" cy="7" r="3.5" stroke="#e0621a" stroke-width="1.4" />
-                                <path d="M2 16c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke="#e0621a" stroke-width="1.4"
-                                    stroke-linecap="round" />
-                            </svg>
-                        </div>
-                        <div class="feat-text">
-                            <h4>나만의 모닥불 커뮤니티</h4>
-                            <p>비슷한 관심사를 가진 사람들과 모닥불 주위에 모여요.</p>
-                        </div>
+                    <div class="stat-card">
+                        <strong>SHOP</strong>
+                        <p>원하는 장비는 바로 구매 가능</p>
                     </div>
-                    <div class="feat-card">
-                        <div class="feat-icon">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <path d="M9 2.5L11 7h4.5L12 10l1.5 4.5L9 12l-4.5 2.5L6 10 2.5 7H7Z" stroke="#e0621a"
-                                    stroke-width="1.4" stroke-linejoin="round" />
-                            </svg>
-                        </div>
-                        <div class="feat-text">
-                            <h4>오늘의 불씨 Pick</h4>
-                            <p>매일 새로운 주제로 이야기에 불을 지펴보세요.</p>
-                        </div>
+                    <div class="stat-card">
+                        <strong>DELIVERY</strong>
+                        <p>집에서 받고 캠핑장으로 떠나요</p>
                     </div>
                 </div>
 
-                <!-- Campfire -->
-<div class="campfire-wrap">
-  <div class="flames">
-    <div class="flame flame-outer"></div>
-    <div class="flame flame-mid"></div>
-    <div class="flame flame-inner"></div>
-    <div class="flame flame-core"></div>
-  </div>
-  <div class="logs">
-    <div class="log log-3"></div>
-    <div class="log log-1"></div>
-    <div class="log log-2"></div>
-    <div class="ember-glow"></div>
-  </div>
-  <div class="stones">
-    <div class="stone stone-1"></div>
-    <div class="stone stone-2"></div>
-    <div class="stone stone-3"></div>
-    <div class="stone stone-4"></div>
-    <div class="stone stone-5"></div>
-  </div>
-  <div class="ground-shadow"></div>
-</div>
+                <div class="left-quote">
+                    <span class="quote-mark">“</span>
+                    <p>장비 준비는 가볍게, 캠핑의 설렘은 더 크게.</p>
+                </div>
+
+                <div class="campfire-wrap">
+                    <div class="flames">
+                        <div class="flame flame-outer"></div>
+                        <div class="flame flame-mid"></div>
+                        <div class="flame flame-inner"></div>
+                        <div class="flame flame-core"></div>
+                    </div>
+                    <div class="logs">
+                        <div class="log log-3"></div>
+                        <div class="log log-1"></div>
+                        <div class="log log-2"></div>
+                        <div class="ember-glow"></div>
+                    </div>
+                    <div class="stones">
+                        <div class="stone stone-1"></div>
+                        <div class="stone stone-2"></div>
+                        <div class="stone stone-3"></div>
+                        <div class="stone stone-4"></div>
+                        <div class="stone stone-5"></div>
+                    </div>
+                    <div class="ground-shadow"></div>
+                </div>
             </div>
 
             <!-- ── 오른쪽 패널 ── -->
@@ -125,8 +88,8 @@
                 <div class="signup-box" v-if="!signupSuccessed">
 
                     <div class="signup-heading">
-                        <h2>모닥에 합류하기</h2>
-                        <p>계정을 만들고 따뜻한 불씨를 피워보세요.</p>
+                        <h2>함께 불을 피워볼까요</h2>
+                        <p>회원가입 후 모닥모닥의 구매·대여 서비스를 이용해보세요.</p>
                     </div>
 
                     <div class="field">

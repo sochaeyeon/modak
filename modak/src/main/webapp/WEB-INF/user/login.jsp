@@ -86,49 +86,7 @@
                     <p>장비 준비는 가볍게, 캠핑의 설렘은 더 크게.</p>
                 </div>
                 <!-- 피처 카드 -->
-                <div class="features">
-                    <div class="feat-card">
-                        <div class="feat-icon">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <path
-                                    d="M9 2C5 2 2 5 2 9c0 1.5.4 2.9 1.2 4L2 16l3.2-1.1A6.9 6.9 0 0 0 9 16c4 0 7-3 7-7s-3-7-7-7Z"
-                                    stroke="#e0621a" stroke-width="1.4" stroke-linejoin="round" />
-                                <circle cx="6" cy="9" r="1" fill="#e0621a" />
-                                <circle cx="9" cy="9" r="1" fill="#e0621a" />
-                                <circle cx="12" cy="9" r="1" fill="#e0621a" />
-                            </svg>
-                        </div>
-                        <div class="feat-text">
-                            <h4>대여로 가볍게 준비</h4>
-                            <p>텐트, 테이블, 랜턴 등 필요한 장비만 편하게 대여해보세요.</p>
-                        </div>
-                    </div>
-                    <div class="feat-card">
-                        <div class="feat-icon">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <circle cx="9" cy="7" r="3.5" stroke="#e0621a" stroke-width="1.4" />
-                                <path d="M2 16c0-3.3 3.1-6 7-6s7 2.7 7 6" stroke="#e0621a" stroke-width="1.4"
-                                    stroke-linecap="round" />
-                            </svg>
-                        </div>
-                        <div class="feat-text">
-                            <h4>구매와 대여를 한 번에</h4>
-                            <p>자주 쓰는 용품은 구매하고, 필요한 장비는 대여로 효율적으로 준비하세요.</p>
-                        </div>
-                    </div>
-                    <div class="feat-card">
-                        <div class="feat-icon">
-                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                                <path d="M9 2.5L11 7h4.5L12 10l1.5 4.5L9 12l-4.5 2.5L6 10 2.5 7H7Z" stroke="#e0621a"
-                                    stroke-width="1.4" stroke-linejoin="round" />
-                            </svg>
-                        </div>
-                        <div class="feat-text">
-                            <h4>캠핑 전 준비도 더 간편하게</h4>
-                            <p>장바구니, 주문, 배송조회까지 한 곳에서 빠르게 확인할 수 있어요.</p>
-                        </div>
-                    </div>
-                </div>
+               
 
                 <!-- 떠다니는 불씨 파티클 -->
                 <div class="embers-canvas" id="embersCanvas"></div>
@@ -160,43 +118,6 @@
                     </div>
 
                     <div class="ground-shadow"></div>
-                </div>
-            </div>
-
-            <div class="center-showcase">
-                <div class="showcase-glow"></div>
-                <div class="showcase-ring ring-1"></div>
-                <div class="showcase-ring ring-2"></div>
-
-                <div class="showcase-core">
-                    <div class="showcase-core-image">
-                        <img src="/img/product/productImg1.png" alt="대표 캠핑용품">
-                    </div>
-                    <div class="showcase-core-text">
-                        <span class="showcase-label">CAMPING GEAR</span>
-                        <strong>RENTAL · SHOP · DELIVERY</strong>
-                        <p>필요한 장비만 가볍게 준비하고,<br>캠핑은 더 편하게 떠나보세요.</p>
-                    </div>
-                </div>
-
-                <div class="gear-card gear-lantern">
-                    <img src="/img/product/productImg2.png" class="gear-img" alt="랜턴">
-                    <span class="gear-name">랜턴</span>
-                </div>
-
-                <div class="gear-card gear-chair">
-                    <img src="/img/product/productImg3.png" class="gear-img" alt="체어">
-                    <span class="gear-name">체어</span>
-                </div>
-
-                <div class="gear-card gear-table">
-                    <img src="/img/product/productImg4.png" class="gear-img" alt="테이블">
-                    <span class="gear-name">테이블</span>
-                </div>
-
-                <div class="gear-card gear-sleeping">
-                    <img src="/img/product/productImg5.png" class="gear-img" alt="침낭">
-                    <span class="gear-name">침낭</span>
                 </div>
             </div>
 

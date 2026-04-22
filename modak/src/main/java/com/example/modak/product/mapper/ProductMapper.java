@@ -19,4 +19,6 @@ public interface ProductMapper {
 	public List<Product> selectProductImages(HashMap<String, Object> map);
 	// 브랜드 리스트 만들기용
 	public List<Brand> selectBrandList(Map<String, Object> map);
+	// product detail -> 오더 카운트
+	int selectOrderCount(HashMap<String, Object> map);
 }

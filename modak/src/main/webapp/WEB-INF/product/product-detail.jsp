@@ -21,11 +21,6 @@
     <div class="ptop">
         <div class="gallery">
             <div class="gm">
-                <!-- mainImg === 'Y'인 이미지가 현재 메인일 때만 베스트 배지 표시 -->
-                <span class="gtag"
-                    v-if="productImages.find(i => i.imgUrl === mainImgUrl)?.mainImg === 'Y'">
-                    베스트
-                </span>
                 <div class="gem" id="gem">
                     <img v-if="mainImgUrl"
                         :src="mainImgUrl"
@@ -57,7 +52,10 @@
         <h1 class="ptitle">{{ productInfo.productName }}</h1>
         <div class="rrow">
             <div class="stars"><span class="st" style="color:#ddd">★★★★★</span></div>
-            <span style="font-size:12px;color:var(--muted)"><a href="#" style="color:var(--orange);text-decoration:none">(리뷰 119개)</a> | 구매·대여 238회</span>
+            <span style="font-size:12px;color:var(--muted)">
+                <a href="#" style="color:var(--orange);text-decoration:none">(리뷰 {{ reviewList.length }}개)</a>
+                | 구매·대여 {{ orderCount }}회
+            </span>
         </div>
 
         <!-- MODE TOGGLE -->
@@ -69,7 +67,7 @@
         <!-- BUY PRICE -->
         <div class="buy-only">
             <div class="pbox-buy">
-            <div class="prow"><span class="pct">10%</span><span class="pnow">{{productInfo.price}}</span></div>
+            <div class="prow"><span class="pct">10%</span><span class="pnow">{{ formatPrice(productInfo.price) }}</span></div>
             <!-- <div class="porig">50,000원</div>
             <div class="pnote">쿠폰 적용시 최대 10% 할인</div> -->
             </div>
@@ -296,13 +294,20 @@
                             </span>
                         </div>
                     </div>
-                    <div class="rdate">{{ formatDate(review.createdAt) }}</div>
+                    <div class="rdate">{{ review.createdAt }}</div>
                 </div>
                 <div class="rtext" style="font-weight:600;margin-bottom:4px">{{ review.title }}</div>
                 <div class="rtext">{{ review.content }}</div>
-                <div class="rhelprow">
-                    <span>도움이 됐나요?</span>
-                    <button class="hbtn">👍 도움돼요</button>
+                <div v-if="review.imageUrl" style="margin:10px 0;">
+                        <img :src="review.imageUrl"
+                            style="width:80px;height:80px;object-fit:cover;border-radius:8px;cursor:pointer;"
+                            @click="openImg(review.imageUrl)">
+                    </div>
+
+                    <div class="rhelprow">
+                        <span>도움이 됐나요?</span>
+                        <button class="hbtn">👍 도움돼요</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -379,7 +384,8 @@
                 productInfo: {},
                 productImages: [],         // DB에서 가져온 전체 이미지 리스트
                 mainImgUrl: '',            // 메인이미지
-                reviewList: []
+                reviewList: [],
+                orderCount: 0 // 주문 카운트
             };
         },
         methods: {
@@ -395,6 +401,7 @@
                     success: function (data) {
                         console.log(data);
                         self.productInfo = data.info;
+                        self.orderCount = data.orderCount || 0; // 오더 카운트
                     }
                 });
             },
@@ -436,7 +443,7 @@
                     pageSize : 10
                 };
                 $.ajax({
-                    url: '/user/review/list.dox',
+                    url: '/review/list.dox',
                     dataType: 'json',
                     type: 'POST',
                     data: param,
@@ -447,6 +454,8 @@
                     },
                     error: function (err) {
                         console.error('리뷰 로드 실패:', err);
+                        console.error('status:', err.status);  
+                        console.error('responseText:', err.responseText); 
                         self.reviewList = [];
                     }
                 });
@@ -471,7 +480,14 @@
                 if (n === 'rev') {
                     this.fnGetReviews();
                 }
-            }
+            },
+            openImg: function(url) {
+                window.open(url, '_blank');
+            },
+            formatPrice: function(price) {
+                if (!price) return '0원';
+                return Number(price).toLocaleString('ko-KR') + '원';
+            },
 
         }, // methods
         mounted() {

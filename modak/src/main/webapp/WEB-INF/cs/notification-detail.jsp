@@ -11,18 +11,19 @@
 
 	<body>
 
-		<!-- BROWSER BAR -->
-		<div class="browser-bar">
-			<div class="b-dots">
-				<div class="b-dot"></div>
-				<div class="b-dot"></div>
-				<div class="b-dot"></div>
-			</div>
+		<!-- Header -->
+		<%@ include file="/WEB-INF/common/header.jsp" %>
 
-			<div class="page">
+			<!-- BROWSER BAR -->
+			<div class="browser-bar">
+				<div class="b-dots">
+					<div class="b-dot"></div>
+					<div class="b-dot"></div>
+					<div class="b-dot"></div>
+				</div>
 
-				<!-- Header -->
-				<%@ include file="/WEB-INF/common/header.jsp" %>
+				<div class="page">
+
 					<!-- CONTENT -->
 					<div class="content">
 
@@ -152,28 +153,31 @@
 
 					</div><!-- /content -->
 
-					<!-- Footer -->
-					<%@ include file="/WEB-INF/common/footer.jsp" %>
 
-			</div><!-- /page -->
 
-			<script>
-				// Back button
-				document.querySelector('.back-btn').addEventListener('click', function () {
-					history.back ? history.back() : (window.location.href = '#');
-				});
-				// Attach download mock
-				document.querySelectorAll('.attach-dl').forEach(el => {
-					el.addEventListener('click', function (e) {
-						e.preventDefault();
-						alert('파일 다운로드가 시작됩니다.');
+				</div><!-- /page -->
+			</div><!-- /browser-wrap -->
+
+			<!-- Footer -->
+			<%@ include file="/WEB-INF/common/footer.jsp" %>
+
+				<script>
+					// Back button
+					document.querySelector('.back-btn').addEventListener('click', function () {
+						history.back ? history.back() : (window.location.href = '#');
 					});
-				});
-				// Nav rows
-				document.querySelectorAll('.nav-row').forEach(row => {
-					row.style.cursor = 'pointer';
-				});
-			</script>
+					// Attach download mock
+					document.querySelectorAll('.attach-dl').forEach(el => {
+						el.addEventListener('click', function (e) {
+							e.preventDefault();
+							alert('파일 다운로드가 시작됩니다.');
+						});
+					});
+					// Nav rows
+					document.querySelectorAll('.nav-row').forEach(row => {
+						row.style.cursor = 'pointer';
+					});
+				</script>
 	</body>
 
 	</html>

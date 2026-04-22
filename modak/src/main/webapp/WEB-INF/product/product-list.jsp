@@ -191,7 +191,9 @@
                       <img :src="product.imgUrl || '/img/product/default.jpg'" class="pcard-img" />
                   </div>
                   <button class="wish-btn"
-                    :class="{ wished: wishedIds.has(product.productId) }">
+                    :class="{ on: wishedIds.has(product.productId) }"
+                    :data-pid="product.productId"
+                    @click.stop="fnWishVue($event, product.productId)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                     </svg>
@@ -267,6 +269,40 @@
       </div><!-- /#app -->
       <%@ include file="/WEB-INF/common/footer.jsp" %>
         <script>
+          // ── 토스트 ──
+          function showToast(msg) {
+              var t = document.getElementById('toast');
+              if (!t) {
+                  t = document.createElement('div');
+                  t.id = 'toast';
+                  t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;display:none;';
+                  document.body.appendChild(t);
+              }
+              t.textContent = msg;
+              t.style.display = 'block';
+              setTimeout(function(){ t.style.display = 'none'; }, 2200);
+          }
+
+          // ── 위시 토글 ──
+          function fnWish(e, btn, no) {
+              e.stopPropagation();
+              $.ajax({
+                  url     : '/user/wishlist/toggle.dox',
+                  type    : 'POST',
+                  data    : { productId: no },
+                  dataType: 'json',
+                  success : function(res) {
+                      if (res.result === 'success') {
+                          btn.classList.toggle('on');
+                          var isOn = btn.classList.contains('on');
+                          showToast(isOn ? '❤️ 위시리스트에 추가됐어요' : '위시리스트에서 제거됐어요');
+                      } else {
+                          showToast('로그인이 필요합니다');
+                          setTimeout(function(){ location.href = '/user/login.do'; }, 1200);
+                      }
+                  }
+              });
+          }
           const { createApp } = Vue;
 
           createApp({
@@ -373,6 +409,24 @@
                     self.products = Array.isArray(data.list) ? data.list : [];
                     self.loading = false;
                     console.log(self.products);
+
+                    // 위시
+                    self.$nextTick(function() {
+                        // 위시 목록 가져와서 하트 초기화
+                        $.ajax({
+                            url     : '/user/wishlist/list.dox',
+                            type    : 'POST',
+                            dataType: 'json',
+                            success : function(wRes) {
+                                if (wRes.result === 'success' && wRes.list && wRes.list.length) {
+                                    // ✅ Vue wishedIds Set 업데이트 → 자동 반영
+                                    self.wishedIds = new Set(
+                                        wRes.list.map(function(w){ return w.productId; })
+                                    );
+                                }
+                            }
+                        });
+                    });
                   },
                   error: function (xhr, status, err) {
                     console.error("상품 목록 조회 실패:", err);
@@ -502,7 +556,32 @@
                 this.filter.brandId = []; // 배열을 비워서 다른 체크를 모두 해제
                 this.fnSearch();
               },
-
+              fnWishVue: function(e, productId) {
+                e.stopPropagation();
+                var self = this;
+                var btn = e.currentTarget;
+                $.ajax({
+                    url     : '/user/wishlist/toggle.dox',
+                    type    : 'POST',
+                    data    : { productId: productId },
+                    dataType: 'json',
+                    success : function(res) {
+                        if (res.result === 'success') {
+                            btn.classList.toggle('on');
+                            var isOn = btn.classList.contains('on');
+                            // Vue wishedIds도 업데이트
+                            var newSet = new Set(self.wishedIds);
+                            if (isOn) newSet.add(productId);
+                            else newSet.delete(productId);
+                            self.wishedIds = newSet;
+                            showToast(isOn ? '❤️ 위시리스트에 추가됐어요' : '위시리스트에서 제거됐어요');
+                        } else {
+                            showToast('로그인이 필요합니다');
+                            setTimeout(function(){ location.href = '/user/login.do'; }, 1200);
+                        }
+                    }
+                });
+            },
 
             }, // methods
 

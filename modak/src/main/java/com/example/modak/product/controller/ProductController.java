@@ -77,20 +77,24 @@ public class ProductController {
 		return new Gson().toJson(resultMap);
 	}
 	
-	@RequestMapping(value = "/product/mainCategoryList.dox",
-	        produces = "application/json;charset=UTF-8")
+	@RequestMapping(value = "/product/mainCategoryList.dox", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String mainCategoryList() throws Exception {
 	    HashMap<String, Object> resultMap = productService.getMainCategoryList();
 	    return new Gson().toJson(resultMap);
 	}
 	
-	@RequestMapping(value = "/product/popularList.dox",
-	        produces = "application/json;charset=UTF-8")
+	@RequestMapping(value = "/product/popularList.dox", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String popularList() throws Exception {
 	    HashMap<String, Object> resultMap = productService.getPopularProducts();
 	    return new Gson().toJson(resultMap);
+	}
+	
+	@RequestMapping(value = "/product/related.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getRelated(@RequestParam HashMap<String, Object> map) throws Exception {
+	return new Gson().toJson(productService.getRelatedProducts(map));
 	}
 
 }

@@ -90,7 +90,7 @@
   .mtog { display: flex; background: var(--bg); border-radius: 10px; padding: 4px; gap: 4px; margin-bottom: 14px; border: 1px solid var(--border); }
   .mbtn { flex: 1; padding: 9px; border-radius: 7px; border: none; background: none; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--muted); transition: all .2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
   .mbtn.on { background: var(--surface); color: var(--orange); box-shadow: 0 1px 4px rgba(0,0,0,.1); }
-
+  
   /* price */
   .pbox-buy { background: var(--orange-light); border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; }
   .prow { display: flex; align-items: baseline; gap: 10px; }
@@ -123,35 +123,82 @@
   .qinp { width: 48px; height: 34px; border: 1px solid var(--border); border-left: none; border-right: none; text-align: center; font-size: 14px; background: var(--surface); }
   .qinp:focus { outline: none; }
 
-  /* ─── CALENDAR ─── */
-  .calsec { margin-bottom: 12px; }
-  .calwrap { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-  .calhead { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px 9px; border-bottom: 1px solid var(--border); }
-  .cnav { background: none; border: none; cursor: pointer; font-size: 18px; color: var(--muted); padding: 2px 8px; border-radius: 5px; }
-  .cnav:hover { background: var(--bg); }
-  .cmonth { font-size: 15px; font-weight: 700; }
-  .calgrid { padding: 10px 12px 12px; }
-  .calwds { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 3px; }
-  .cwd { text-align: center; font-size: 11px; font-weight: 500; color: var(--muted); padding: 4px 0; }
-  .caldays { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
-  .cday {
-    aspect-ratio: 1/1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    border-radius: 8px; cursor: pointer; font-size: 13px; position: relative;
-    transition: all .12s; user-select: none;
+  /* 캘린더 */
+  .rent-only .cal-wrap {
+    max-width: 220px;  /* 원하는 크기로 조절 */
   }
-  .cday:hover:not(.emp):not(.past):not(.nos) { background: var(--orange-light); color: var(--orange); }
-  .cday.emp { cursor: default; }
-  .cday.past { color: var(--light); cursor: not-allowed; }
-  .cday.sun { color: var(--red); }
-  .cday.sat { color: var(--blue); }
-  .cday.past.sun, .cday.past.sat { color: var(--light); }
-  .cday.td { font-weight: 700; }
-  .cday.td::after { content:''; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: var(--orange); }
-  .cday.nos { color: var(--light); cursor: not-allowed; }
-  .sdot { width: 5px; height: 5px; border-radius: 50%; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); }
-  .cday.low .sdot { background: var(--yellow); }
-  .cday.mid .sdot, .cday.ful .sdot { background: var(--green); }
-  .cday.nos .sdot { background: #ddd; }
+  .cal-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px; padding: 10px 0;
+  }
+  .cal-nav h2 {
+      font-size: 15px; font-weight: 700; color: var(--text); margin: 0;
+  }
+  .cal-nav button {
+      border: 1px solid var(--border); background: var(--surface);
+      border-radius: 6px; width: 30px; height: 30px;
+      font-size: 16px; color: var(--orange); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+  }
+  .cal-nav button:hover { background: var(--orange-light); border-color: var(--orange); }
+
+  .cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; /* 5px → 3px */
+    margin-bottom: 12px;
+  }
+  .day-name {
+      text-align: center; font-size: 11px; font-weight: 600;
+      color: var(--muted); padding-bottom: 6px;
+  }
+  .day-name:first-child { color: var(--red); }
+  .day-name:last-child  { color: var(--blue); }
+
+  .cal-day {
+    aspect-ratio: 1; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; background: var(--surface);
+    border: 1px solid var(--border);
+    font-size: 11px; font-weight: 500; /* 12px → 11px */
+    transition: all .15s; color: var(--text);
+  }
+  .cal-day:hover:not(.past):not(.rented) {
+      border-color: var(--orange); color: var(--orange); background: var(--orange-light);
+  }
+  .cal-day.empty { background: none; border: none; cursor: default; }
+  .cal-day.past  { background: #faf7f4; color: #ccc; cursor: not-allowed; border-color: transparent; }
+  .cal-day.rented {
+      background: var(--red-light); color: var(--red);
+      cursor: not-allowed; border-color: #f5c4bf;
+      text-decoration: line-through; font-weight: 500;
+  }
+  .cal-day.selected {
+      background: var(--orange); color: #fff;
+      font-weight: 700; border-color: var(--orange);
+      box-shadow: 0 2px 8px rgba(224,122,59,.35);
+  }
+  .cal-day.in-range {
+      background: var(--orange-light); color: var(--orange);
+      border-color: #f5d4b8;
+  }
+
+  /* 대여 요약 */
+  .booking-summary {
+      background: var(--orange-light); border: 1px solid #f0c8a0;
+      border-radius: 8px; padding: 14px 16px; margin-top: 10px;
+  }
+  .booking-summary p { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .booking-summary > div:first-child > div {
+      font-size: 22px; font-weight: 700; color: var(--orange);
+  }
+  .btn-rent {
+      width: 100%; height: 44px; margin-top: 12px;
+      border: none; background: var(--orange); border-radius: 8px;
+      font-size: 14px; font-weight: 700; color: #fff; cursor: pointer;
+      transition: background .15s;
+  }
+  .btn-rent:hover { background: var(--orange-dark); }
+  
   /* range */
   .cday.rs { background: var(--orange) !important; color: #fff !important; border-radius: 8px 0 0 8px; }
   .cday.re { background: var(--orange) !important; color: #fff !important; border-radius: 0 8px 8px 0; }
@@ -185,6 +232,10 @@
   .rsval { font-weight: 500; }
   .rstotal { font-size: 18px; font-weight: 700; color: var(--blue) !important; }
 
+  .bwish.on {
+    border-color: #e04b6a;
+    color: #e04b6a;
+  }
   /* action */
   .selbox { background: #faf7f4; border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; margin: 12px 0; display: flex; align-items: center; justify-content: space-between; }
   .trow { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; }
@@ -245,7 +296,7 @@
   .hbtn { background: none; border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 12px; color: var(--muted); }
   .hbtn:hover { border-color: var(--orange); color: var(--orange); }
 
-  .rel { margin-top: 44px; }
+  .rel { max-width: 1100px; margin: 30px auto; padding: 10px 24px 60px; }
   .sectl { font-size: 17px; font-weight: 700; margin-bottom: 16px; }
   .rgrid { display: grid; grid-template-columns: repeat(4,1fr); gap: 13px; }
   .pcard { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; cursor: pointer; transition: transform .15s, box-shadow .15s; }
@@ -261,3 +312,5 @@
   .pcacts { display: flex; gap: 5px; margin-top: 7px; }
   .pca1 { flex: 1; padding: 6px; border: 1px solid var(--orange); background: none; border-radius: 5px; font-size: 11px; color: var(--orange); cursor: pointer; font-weight: 500; }
   .pca2 { flex: 1; padding: 6px; background: var(--orange); border: none; border-radius: 5px; font-size: 11px; color: #fff; cursor: pointer; font-weight: 500; }
+
+ 

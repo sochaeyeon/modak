@@ -168,4 +168,27 @@
 		WHERE OI.PRODUCT_ID = #{productId}
 		AND O.ORDER_STATUS != 'CANCELLED'
 	</select>
+	
+	<!--product detail 하단에 추천상품-->
+	<select id="selectRelatedProducts" parameterType="hashmap"
+        resultType="com.example.modak.product.model.Product">
+	    SELECT
+	        p.PRODUCT_ID    AS productId,
+	        p.PRODUCT_NAME  AS productName,
+	        p.PRODUCT_TYPE  AS productType,
+	        p.PRICE         AS price,
+	        p.IS_AVAILABLE  AS isAvailable,
+	        p.VIEW_COUNT    AS viewCount,
+	        p.CATEGORY_ID   AS categoryId,
+	        b.BRAND_NAME    AS brandName,
+	        i.IMG_URL       AS imgUrl
+	    FROM PRODUCT p
+	    LEFT JOIN BRAND b       ON p.BRAND_ID   = b.BRAND_ID
+	    LEFT JOIN PRODUCT_IMG i ON p.PRODUCT_ID = i.PRODUCT_ID AND i.IS_MAIN = 'Y'
+	    WHERE p.CATEGORY_ID  = #{categoryId}
+	      AND p.PRODUCT_ID  != #{productId}
+	      AND p.IS_AVAILABLE = 'Y'
+	    ORDER BY p.VIEW_COUNT DESC
+	    LIMIT 4
+	</select>
 </mapper>

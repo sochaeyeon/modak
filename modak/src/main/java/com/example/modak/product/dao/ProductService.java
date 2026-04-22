@@ -108,4 +108,19 @@ public class ProductService {
 	    }
 	    return resultMap;
 	}
+	
+//	product detail 하단 추천 제품
+	public HashMap<String, Object> getRelatedProducts(HashMap<String, Object> map) {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    try {
+	        List<Product> list = productMapper.selectRelatedProducts(map);
+	        resultMap.put("list",   list);
+	        resultMap.put("result", "success");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result",  "fail");
+	        resultMap.put("message", e.getMessage());
+	    }
+	    return resultMap;
+	}
 }

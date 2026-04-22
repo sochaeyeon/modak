@@ -35,4 +35,7 @@ public interface ProductMapper {
   
 	// product detail -> 오더 카운트
 	int selectOrderCount(HashMap<String, Object> map);
+	
+	/** product detail 같은 카테고리 상품 (현재 상품 제외, 최대 4개) */
+	List<Product> selectRelatedProducts(HashMap<String, Object> map);
 }

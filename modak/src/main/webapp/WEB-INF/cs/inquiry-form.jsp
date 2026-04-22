@@ -1,226 +1,402 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-	<!DOCTYPE html>
-	<html lang="ko">
+	<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+		<!DOCTYPE html>
+		<html lang="ko">
 
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>온라인 문의 접수 - 모닥모닥</title>
-		<link rel="stylesheet" href="${pageContext.request.contextPath}/css/cs/inquiry-form.css">
-	</head>
+		<head>
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>온라인 문의 접수 - 모닥모닥</title>
+			<style>
+				* {
+					margin: 0;
+					padding: 0;
+					box-sizing: border-box;
+				}
 
-	<body>
+				body {
+					font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+					background-color: #f5f0eb;
+					color: #3d3330;
+					min-height: 100vh;
+					display: flex;
+					flex-direction: column;
+				}
 
+				/* ───── HERO BANNER ───── */
+				.inquiry-hero {
+					background: linear-gradient(135deg, #f0e8e0 0%, #ede0d4 100%);
+					padding: 36px 20px;
+					text-align: center;
+					border-bottom: 1px solid #e2d5c8;
+				}
 
-		<div class="form-card">
-			<div class="form-title">온라인 문의 접수</div>
+				.inquiry-hero h1 {
+					font-size: 20px;
+					font-weight: 700;
+					color: #3d3330;
+					margin-bottom: 6px;
+				}
 
-			<!-- SUCCESS -->
-			<div class="success-msg" id="successMsg">
-				<div class="s-icon">✅</div>
-				<p>문의가 접수되었습니다!</p>
-				<small>영업일 기준 1~2일 내에 답변드리겠습니다.</small>
-			</div>
+				.inquiry-hero p {
+					font-size: 13px;
+					color: #888;
+				}
 
-			<form id="contactForm" novalidate>
+				/* ───── MAIN CONTENT ───── */
+				.inquiry-main {
+					flex: 1;
+					max-width: 900px;
+					margin: 0 auto;
+					width: 100%;
+					padding: 40px 20px 60px;
+				}
 
-				<!-- 이름 + 이메일 -->
-				<div class="field-row">
-					<div class="field-group" id="g-name">
-						<label class="field-label" for="name">이름</label>
-						<input class="field-input" type="text" id="name" name="name" placeholder="홍길동"
-							autocomplete="name">
-						<span class="field-error">이름을 입력해주세요.</span>
-					</div>
-					<div class="field-group" id="g-email">
-						<label class="field-label" for="email">이메일</label>
-						<input class="field-input" type="email" id="email" name="email" placeholder="example@mail.com"
-							autocomplete="email">
-						<span class="field-error">올바른 이메일을 입력해주세요.</span>
-					</div>
-				</div>
+				.section-title {
+					font-size: 15px;
+					font-weight: 700;
+					color: #3d3330;
+					margin-bottom: 20px;
+					padding-bottom: 10px;
+					border-bottom: 2px solid #c8614a;
+					display: flex;
+					align-items: center;
+					gap: 8px;
+				}
 
-				<!-- 연락처 -->
-				<div class="field-group" id="g-phone">
-					<label class="field-label" for="phone">연락처</label>
-					<input class="field-input" type="tel" id="phone" name="phone" placeholder="010-0000-0000"
-						autocomplete="tel" maxlength="13">
-					<span class="field-error">연락처를 입력해주세요.</span>
-				</div>
+				.section-title::before {
+					content: '';
+					display: inline-block;
+					width: 4px;
+					height: 16px;
+					background: #c8614a;
+					border-radius: 2px;
+				}
 
-				<!-- 문의 유형 -->
-				<div class="field-group" id="g-type">
-					<label class="field-label" for="type">문의 유형</label>
-					<div class="select-wrap">
-						<select class="field-select" id="type" name="type">
-							<option value="">선택해주세요</option>
-							<option value="service">서비스 이용</option>
-							<option value="payment">결제 / 환불</option>
-							<option value="account">계정 / 회원</option>
-							<option value="coupon">쿠폰 / 포인트</option>
-							<option value="etc">기타</option>
-						</select>
-					</div>
-					<span class="field-error">문의 유형을 선택해주세요.</span>
-				</div>
+				/* ───── INQUIRY FORM CARD ───── */
+				.form-card {
+					background: white;
+					border-radius: 12px;
+					padding: 36px 40px;
+					box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+				}
 
-				<!-- 문의 내용 -->
-				<div class="field-group" id="g-message">
-					<label class="field-label" for="message">문의 내용</label>
-					<textarea class="field-textarea" id="message" name="message"
-						placeholder="문의하실 내용을 상세히 입력해주세요."></textarea>
-					<span class="field-error">문의 내용을 입력해주세요.</span>
-				</div>
+				.form-row {
+					display: flex;
+					gap: 16px;
+					margin-bottom: 20px;
+				}
 
-				<!-- 안내 문구 -->
-				<p class="form-note">
-					접수된 문의는 평일 영업시간 내에 순차적으로 답변드립니다. 문의가 많을 경우 다소 지연될 수 있습니다.
-				</p>
+				.form-group {
+					flex: 1;
+					display: flex;
+					flex-direction: column;
+					gap: 6px;
+				}
 
-				<!-- 제출 버튼 -->
-				<button class="submit-btn" type="submit" id="submitBtn">문의 접수하기</button>
+				.form-group label {
+					font-size: 13px;
+					font-weight: 600;
+					color: #4a3f3a;
+				}
 
-			</form>
+				.form-group label .required {
+					color: #c8614a;
+					margin-left: 2px;
+				}
 
+				.form-group input[type="text"],
+				.form-group input[type="email"],
+				.form-group input[type="tel"],
+				.form-group select,
+				.form-group textarea {
+					border: 1px solid #ddd;
+					border-radius: 8px;
+					padding: 10px 14px;
+					font-size: 13px;
+					color: #3d3330;
+					background: white;
+					outline: none;
+					transition: border-color 0.2s, box-shadow 0.2s;
+					font-family: inherit;
+					width: 100%;
+				}
 
+				.form-group input::placeholder,
+				.form-group textarea::placeholder {
+					color: #bbb;
+				}
 
-		</div>
+				.form-group input:focus,
+				.form-group select:focus,
+				.form-group textarea:focus {
+					border-color: #c8614a;
+					box-shadow: 0 0 0 3px rgba(200, 97, 74, 0.1);
+				}
 
+				.form-group select {
+					cursor: pointer;
+					appearance: none;
+					background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+					background-repeat: no-repeat;
+					background-position: right 12px center;
+					padding-right: 36px;
+				}
 
+				.form-group textarea {
+					resize: vertical;
+					min-height: 120px;
+					line-height: 1.6;
+				}
 
-		<script>
-			// ── 전화번호 자동 하이픈 ──
-			document.getElementById('phone').addEventListener('input', function (e) {
-				let v = e.target.value.replace(/\D/g, '');
-				if (v.length <= 3) v = v;
-				else if (v.length <= 7) v = v.slice(0, 3) + '-' + v.slice(3);
-				else v = v.slice(0, 3) + '-' + v.slice(3, 7) + '-' + v.slice(7, 11);
-				e.target.value = v;
-			});
+				.form-note {
+					font-size: 11.5px;
+					color: #999;
+					line-height: 1.6;
+					margin: 8px 0 24px;
+					padding: 12px 14px;
+					background: #faf7f4;
+					border-radius: 6px;
+					border-left: 3px solid #ddd;
+				}
 
-			// ── 유효성 검사 ──
-			function validate() {
-				let valid = true;
+				.btn-inquiry-submit {
+					width: 100%;
+					padding: 14px;
+					background: #c8614a;
+					color: white;
+					border: none;
+					border-radius: 8px;
+					font-size: 15px;
+					font-weight: 600;
+					cursor: pointer;
+					transition: background 0.2s, transform 0.1s;
+					font-family: inherit;
+				}
 
-				const fields = [
-					{
-						id: 'name', group: 'g-name',
-						check: v => v.trim().length > 0
-					},
-					{
-						id: 'email', group: 'g-email',
-						check: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
-					},
-					{
-						id: 'phone', group: 'g-phone',
-						check: v => v.trim().length >= 9
-					},
-					{
-						id: 'type', group: 'g-type',
-						check: v => v !== ''
-					},
-					{
-						id: 'message', group: 'g-message',
-						check: v => v.trim().length > 0
-					},
-				];
+				.btn-inquiry-submit:hover {
+					background: #b5503b;
+				}
 
-				fields.forEach(f => {
-					const el = document.getElementById(f.id);
-					const g = document.getElementById(f.group);
-					if (!f.check(el.value)) {
-						g.classList.add('has-error');
-						valid = false;
-					} else {
-						g.classList.remove('has-error');
+				.btn-inquiry-submit:active {
+					transform: scale(0.99);
+				}
+
+				/* ───── ALERT MESSAGES ───── */
+				.inquiry-alert {
+					padding: 14px 18px;
+					border-radius: 8px;
+					font-size: 13px;
+					margin-bottom: 20px;
+					display: flex;
+					align-items: center;
+					gap: 10px;
+				}
+
+				.inquiry-alert.success {
+					background: #f0faf4;
+					border: 1px solid #b8dfc9;
+					color: #2d6a4f;
+				}
+
+				.inquiry-alert.error {
+					background: #fdf3f1;
+					border: 1px solid #f0c4bb;
+					color: #7d2e22;
+				}
+
+				/* ───── HOW IT WORKS ───── */
+				.inquiry-steps {
+					display: grid;
+					grid-template-columns: repeat(3, 1fr);
+					gap: 16px;
+					margin-top: 36px;
+				}
+
+				.step-card {
+					background: white;
+					border-radius: 10px;
+					padding: 20px;
+					text-align: center;
+					box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+				}
+
+				.step-num {
+					width: 32px;
+					height: 32px;
+					background: #c8614a;
+					color: white;
+					border-radius: 50%;
+					font-size: 13px;
+					font-weight: 700;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					margin: 0 auto 10px;
+				}
+
+				.step-card h4 {
+					font-size: 13px;
+					font-weight: 600;
+					color: #3d3330;
+					margin-bottom: 6px;
+				}
+
+				.step-card p {
+					font-size: 12px;
+					color: #999;
+					line-height: 1.5;
+				}
+
+				/* ───── RESPONSIVE ───── */
+				@media (max-width: 640px) {
+					.form-row {
+						flex-direction: column;
 					}
-				});
 
-				return valid;
-			}
+					.form-card {
+						padding: 24px 20px;
+					}
 
-			// ── 실시간 에러 해제 ──
-			['name', 'email', 'phone', 'type', 'message'].forEach(id => {
-				const el = document.getElementById(id);
-				el.addEventListener('input', () => {
-					document.getElementById('g-' + id)?.classList.remove('has-error');
-				});
-				el.addEventListener('change', () => {
-					document.getElementById('g-' + id)?.classList.remove('has-error');
-				});
-			});
-
-			// ── 폼 제출 ──
-			document.getElementById('contactForm').addEventListener('submit', async function (e) {
-				e.preventDefault();
-				if (!validate()) return;
-
-				const btn = document.getElementById('submitBtn');
-				btn.disabled = true;
-				btn.textContent = '접수 중...';
-
-				const payload = {
-					name: document.getElementById('name').value.trim(),
-					email: document.getElementById('email').value.trim(),
-					phone: document.getElementById('phone').value.trim(),
-					type: document.getElementById('type').value,
-					message: document.getElementById('message').value.trim(),
-				};
-
-				try {
-					// ── 실제 API 연동 시 아래 주석 해제 ──
-					// const res = await fetch('http://localhost:8080/api/inquiries', {
-					//   method: 'POST',
-					//   headers: { 'Content-Type': 'application/json' },
-					//   body: JSON.stringify(payload),
-					// });
-					// if (!res.ok) throw new Error('서버 오류');
-
-					// 데모: 1초 딜레이 후 성공 처리
-					await new Promise(r => setTimeout(r, 900));
-
-					document.getElementById('contactForm').style.display = 'none';
-					document.getElementById('successMsg').style.display = 'block';
-
-				} catch (err) {
-					alert('접수 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
-					btn.disabled = false;
-					btn.textContent = '문의 접수하기';
+					.inquiry-steps {
+						grid-template-columns: 1fr;
+					}
 				}
-			});
-		</script>
-	</body>
+			</style>
+		</head>
 
-	</html>
+		<body>
 
-	<script>
-		const app = Vue.createApp({
-			data() {
-				return {
-					// 변수 - (key : value)
-				};
-			},
-			methods: {
-				// 함수(메소드) - (key : function())
-				fnList: function () {
-					let self = this;
-					let param = {};
-					$.ajax({
-						url: "http://localhost:8080/inquiry.dox",
-						dataType: "json",
-						type: "POST",
-						data: param,
-						success: function (data) {
+			<%@ include file="/WEB-INF/common/header.jsp" %>
 
-						}
-					});
-				}
-			}, // methods
-			mounted() {
-				// 처음 시작할 때 실행되는 부분
-				let self = this;
-			}
-		});
+				<div class="inquiry-hero">
+					<h1>온라인 문의 접수</h1>
+					<p>궁금하신 사항을 남겨주시면 빠르게 답변드리겠습니다.</p>
+				</div>
 
-		app.mount('#app');
-	</script>
+				<main class="inquiry-main">
+
+					<%-- Flash 메시지 --%>
+						<c:if test="${not empty successMsg}">
+							<div class="inquiry-alert success">✅ ${successMsg}</div>
+						</c:if>
+						<c:if test="${not empty errorMsg}">
+							<div class="inquiry-alert error">⚠️ ${errorMsg}</div>
+						</c:if>
+
+						<div class="section-title">문의 접수</div>
+
+						<div class="form-card">
+							<form id="inquirySubmitForm" action="/inquiry/submit.do" method="post">
+								<%-- Spring Security CSRF 토큰 (비활성화 시 제거) --%>
+									<c:if test="${not empty _csrf}">
+										<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+									</c:if>
+
+									<%-- 로그인 사용자 ID (세션에서 전달, 없으면 null) --%>
+										<input type="hidden" name="userId" value="${sessionScope.loginUser.userId}" />
+
+										<div class="form-row">
+											<div class="form-group">
+												<label for="title">제목 <span class="required">*</span></label>
+												<input type="text" id="title" name="title" placeholder="문의 제목을 입력해주세요"
+													value="${param.title}" maxlength="100" required>
+											</div>
+											<div class="form-group">
+												<label for="inquiryType">문의 유형 <span class="required">*</span></label>
+												<select id="inquiryType" name="inquiryType" required>
+													<option value="" disabled selected>선택해주세요</option>
+													<option value="ORDER" ${param.inquiryType eq 'ORDER' ? 'selected'
+														: '' }>주문/결제</option>
+													<option value="DELIVERY" ${param.inquiryType eq 'DELIVERY'
+														? 'selected' : '' }>배송 문의</option>
+													<option value="RETURN" ${param.inquiryType eq 'RETURN' ? 'selected'
+														: '' }>교환/반품</option>
+													<option value="PRODUCT" ${param.inquiryType eq 'PRODUCT'
+														? 'selected' : '' }>상품 문의</option>
+													<option value="ACCOUNT" ${param.inquiryType eq 'ACCOUNT'
+														? 'selected' : '' }>회원/계정</option>
+													<option value="OTHER" ${param.inquiryType eq 'OTHER' ? 'selected'
+														: '' }>기타</option>
+												</select>
+											</div>
+										</div>
+
+										<div class="form-row">
+											<div class="form-group">
+												<label for="content">문의 내용 <span class="required">*</span></label>
+												<textarea id="content" name="content" placeholder="문의하실 내용을 상세히 입력해주세요."
+													maxlength="2000" required>${param.content}</textarea>
+											</div>
+										</div>
+
+										<div class="form-note">
+											접수된 문의는 영업시간 내에 순차적으로 답변드립니다. 문의가 많을 경우 다소 지연될 수 있습니다.<br>
+											개인정보는 문의 답변 목적으로만 사용되며, 답변 완료 후 즉시 파기됩니다.
+										</div>
+
+										<button type="submit" class="btn-inquiry-submit">문의 접수하기</button>
+							</form>
+						</div>
+
+						<div class="inquiry-steps">
+							<div class="step-card">
+								<div class="step-num">1</div>
+								<h4>문의 접수</h4>
+								<p>양식을 작성하여<br>문의를 접수합니다.</p>
+							</div>
+							<div class="step-card">
+								<div class="step-num">2</div>
+								<h4>검토 및 처리</h4>
+								<p>담당자가 내용을 확인하고<br>처리합니다.</p>
+							</div>
+							<div class="step-card">
+								<div class="step-num">3</div>
+								<h4>이메일 답변</h4>
+								<p>등록하신 이메일로<br>답변을 드립니다.</p>
+							</div>
+						</div>
+
+				</main>
+
+				<%@ include file="/WEB-INF/common/footer.jsp" %>
+
+					<script>
+						/* ──────────────────────────────────────────────────────────
+						   jQuery $(document).ready 로 감싸서
+						   header.jsp 의 jQuery 로드 완료 후 실행되도록 보장
+						────────────────────────────────────────────────────────── */
+						$(document).ready(function () {
+
+							/* 문의 폼 유효성 검사 */
+							$('#inquirySubmitForm').on('submit', function (e) {
+								var title = $.trim($('#title').val());
+								var type = $('#inquiryType').val();
+								var content = $.trim($('#content').val());
+
+								if (!title) {
+									e.preventDefault();
+									alert('제목을 입력해주세요.');
+									$('#title').focus();
+									return false;
+								}
+								if (!type) {
+									e.preventDefault();
+									alert('문의 유형을 선택해주세요.');
+									$('#inquiryType').focus();
+									return false;
+								}
+								if (content.length < 10) {
+									e.preventDefault();
+									alert('문의 내용을 10자 이상 입력해주세요.');
+									$('#content').focus();
+									return false;
+								}
+							});
+
+						}); // end document.ready
+					</script>
+
+		</body>
+
+		</html>

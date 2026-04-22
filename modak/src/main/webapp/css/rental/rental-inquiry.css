@@ -23,7 +23,7 @@
 }
 
 body {
-	font-family: 'GgiBatang', sans-serif;
+	
 	background: var(--bg);
 	min-height: 100vh;
 	display: flex;
@@ -84,7 +84,7 @@ body {
 }
 
 .card-title {
-	font-family: 'GgiBatang', serif;
+	
 	font-size: 24px;
 	font-weight: 800;
 	color: var(--brown);
@@ -130,7 +130,7 @@ body {
 	border: 1.5px solid var(--border);
 	border-radius: 12px;
 	background: var(--white);
-	font-family: 'GgiBatang', sans-serif;
+	
 	font-size: 14px;
 	color: var(--brown);
 	outline: none;
@@ -184,7 +184,7 @@ body {
 	padding: 15px;
 	background: var(--orange);
 	color: #fff;
-	font-family: 'GgiBatang', sans-serif;
+	
 	font-size: 15px;
 	font-weight: 600;
 	border: none;

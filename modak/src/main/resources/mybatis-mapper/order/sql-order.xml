@@ -33,25 +33,63 @@
             <result property="endDate" column="END_DATE" />
         </collection>
     </resultMap>
+    
+    <resultMap id="orderListMap" type="com.example.modak.order.model.Order">
+    <id property="orderId" column="ORDER_ID" />
+    <result property="orderType" column="ORDER_TYPE" />
+    <result property="orderStatus" column="ORDER_STATUS" />
+    <result property="totalPrice" column="TOTAL_PRICE" />
+    <result property="discountAmt" column="DISCOUNT_AMT" />
+    <result property="createdAt" column="CREATED_AT" />
+    <result property="userId" column="USER_ID" />
 
-    <select id="selectOrderList" resultType="com.example.modak.order.model.Order">
-        SELECT
-            O.ORDER_ID,
-            O.ORDER_TYPE,
-            O.ORDER_STATUS,
-            O.CREATED_AT,
-            O.USER_ID,
-            O.DISCOUNT_AMT,
-            (SELECT SUM(UNIT_PRICE * QUANTITY) FROM ORDER_ITEM WHERE ORDER_ID = O.ORDER_ID) AS totalPrice,
-            MIN(P.PRODUCT_NAME) AS productName,
-            COUNT(OI.ITEM_ID) AS itemCount
-        FROM ORDERS O
-        LEFT JOIN ORDER_ITEM OI ON O.ORDER_ID = OI.ORDER_ID
-        LEFT JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
-        WHERE O.USER_ID = #{userId}
-        GROUP BY O.ORDER_ID, O.ORDER_TYPE, O.ORDER_STATUS, O.CREATED_AT, O.USER_ID, O.DISCOUNT_AMT
-        ORDER BY O.CREATED_AT DESC
-    </select>
+    <collection property="itemList"
+                javaType="java.util.ArrayList"
+                ofType="com.example.modak.order.model.OrderItem">
+        <id property="itemId" column="ITEM_ID" />
+        <result property="productId" column="PRODUCT_ID" />
+        <result property="productName" column="PRODUCT_NAME" />
+        <result property="price" column="ITEM_PRICE" />
+        <result property="count" column="ITEM_COUNT" />
+        <result property="startDate" column="START_DATE" />
+        <result property="endDate" column="END_DATE" />
+        <result property="imgUrl" column="IMG_URL" />
+    </collection>
+</resultMap>
+
+  <select id="selectOrderList" resultMap="orderListMap">
+    SELECT
+        O.ORDER_ID,
+        O.ORDER_TYPE,
+        O.ORDER_STATUS,
+        O.TOTAL_PRICE,
+        O.DISCOUNT_AMT,
+        O.CREATED_AT,
+        O.USER_ID,
+
+        OI.ITEM_ID,
+        OI.PRODUCT_ID,
+        P.PRODUCT_NAME,
+        OI.UNIT_PRICE AS ITEM_PRICE,
+        OI.QUANTITY AS ITEM_COUNT,
+        OI.START_DATE,
+        OI.END_DATE,
+
+        (
+            SELECT PI.IMG_URL
+            FROM PRODUCT_IMG PI
+            WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
+            LIMIT 1
+        ) AS IMG_URL
+
+    FROM ORDERS O
+    LEFT JOIN ORDER_ITEM OI
+        ON O.ORDER_ID = OI.ORDER_ID
+    LEFT JOIN PRODUCT P
+        ON OI.PRODUCT_ID = P.PRODUCT_ID
+    WHERE O.USER_ID = #{userId}
+    ORDER BY O.CREATED_AT DESC, OI.ITEM_ID ASC
+</select>
 
     <select id="selectOrderDetail" resultMap="orderDetailMap">
         SELECT
@@ -98,8 +136,7 @@
         <if test="userId != null and userId != ''">
             AND O.USER_ID = #{userId}
         </if>
-        -- 중복 데이터 방지를 위해 하나만 선택
-        LIMIT 1
+      
     </select>
 
 </mapper>

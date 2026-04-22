@@ -8,36 +8,91 @@
 /* ── 기본 레이아웃 ── */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 [v-cloak] { display: none; }
-body { font-family: 'GgiBatang', sans-serif; background: var(--bg); color: var(--brown); overflow: hidden; }
-#app { display: flex; height: 100vh; width: 100vw; }
+body {
+    font-family: 'Noto Sans KR', 'GgiBatang', sans-serif;
+    background: var(--bg);
+    color: var(--brown);
+    overflow: hidden;        /* 전체 페이지 스크롤 막기 — 유지 */
+    height: 100vh;
+}
+#app { display: flex; height: 100vh; width: 100vw; overflow: hidden; }
 
 /* ── 사이드바 ── */
 .sidebar { 
-    width: 280px; background: var(--sidebar); backdrop-filter: blur(12px); border-right: 1px solid rgba(255,255,255,0.3);
-    display: flex; flex-direction: column; padding: 25px 20px; flex-shrink: 0; 
+    width: 280px;
+    min-width: 280px;        /* ★ flex 줄어듦 방지 */
+    background: var(--sidebar);
+    backdrop-filter: blur(12px);
+    border-right: 1px solid rgba(255,255,255,0.3);
+    display: flex;
+    flex-direction: column;
+    padding: 25px 20px;
+    flex-shrink: 0;
+    overflow-y: auto;        /* ★ 히스토리 많아도 사이드바 스크롤 */
+    height: 100vh;
 }
-.sidebar-logo { display: flex; align-items: center; gap: 10px; font-size: 20px; color: var(--brown); margin-bottom: 30px; cursor: pointer; font-family: 'GgiBatang'; }
-.new-chat-btn { background: var(--brown); color: #fff; border: none; padding: 13px; border-radius: 15px; font-weight: 600; cursor: pointer; margin-bottom: 30px; transition: 0.3s; }
+
+/* 사이드바 히스토리 스크롤바 */
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(184,154,122,.3); border-radius: 10px; }
+
+.sidebar-logo { display: flex; align-items: center; gap: 10px; font-size: 20px; color: var(--brown); margin-bottom: 30px; cursor: pointer; font-weight: 700; }
+.new-chat-btn { background: var(--brown); color: #fff; border: none; padding: 13px; border-radius: 15px; font-weight: 600; cursor: pointer; margin-bottom: 30px; transition: 0.3s; font-family: inherit; }
 .new-chat-btn:hover { background: #35281d; transform: translateY(-2px); }
 
 .history-item { 
     padding: 13px 15px; border-radius: 12px; font-size: 13.5px; cursor: pointer; margin-bottom: 8px; 
-    color: var(--gray); display: flex; justify-content: space-between; align-items: center; transition: 0.2s; 
+    color: var(--gray); display: flex; justify-content: space-between; align-items: center; transition: 0.2s;
+    flex-shrink: 0;          /* ★ 히스토리 아이템 찌그러짐 방지 */
 }
 .history-item.active { background: #fff; color: var(--brown); font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-.history-title { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
-.del-btn { color: #ccc; font-size: 18px; background: none; border: none; cursor: pointer; opacity: 0; }
+.history-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.del-btn { color: #ccc; font-size: 18px; background: none; border: none; cursor: pointer; opacity: 0; flex-shrink: 0; }
 .history-item:hover .del-btn { opacity: 1; }
 
 /* ── 채팅 메인 ── */
-.chat-main { flex: 1; display: flex; flex-direction: column; background: #fff; position: relative; }
-.chat-header { padding: 18px 30px; border-bottom: 1px solid var(--cream3); display: flex; align-items: center; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(5px); z-index: 10; }
+.chat-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    position: relative;
+    min-width: 0;            /* ★ flex 자식 overflow 허용 */
+    min-height: 0;           /* ★ 핵심: flex 자식이 부모 넘침 방지 */
+    overflow: hidden;
+}
+
+.chat-header {
+    padding: 18px 30px;
+    border-bottom: 1px solid var(--cream3);
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(5px);
+    z-index: 10;
+    flex-shrink: 0;          /* ★ 헤더 고정 */
+}
 .bot-avatar { width: 42px; height: 42px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-right: 15px; border: 2px solid var(--orange); animation: glow 2s infinite alternate; }
-@keyframes glow { from { box-shadow: 0 0 5px rgba(232, 115, 42, 0.2); } to { box-shadow: 0 0 15px rgba(232, 115, 42, 0.5); } }
+@keyframes glow { from { box-shadow: 0 0 5px rgba(232,115,42,0.2); } to { box-shadow: 0 0 15px rgba(232,115,42,0.5); } }
 
-.message-area { flex: 1; padding: 30px 50px; overflow-y: auto; display: flex; flex-direction: column; gap: 28px; background-color: var(--bg); }
+/* ★ 핵심: message-area 에 min-height:0 + flex:1 로 남은 공간 채우고 스크롤 */
+.message-area {
+    flex: 1;
+    min-height: 0;           /* ★ flex 자식 overflow 핵심 */
+    padding: 30px 50px;
+    overflow-y: auto;        /* ★ 스크롤 생성 */
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    background-color: var(--bg);
+}
 
-/* ── 말풍선 & 이동 버튼 ── */
+/* 스크롤바 스타일 */
+.message-area::-webkit-scrollbar { width: 6px; }
+.message-area::-webkit-scrollbar-thumb { background: rgba(184,154,122,0.35); border-radius: 10px; }
+.message-area::-webkit-scrollbar-track { background: transparent; }
+
+/* ── 말풍선 ── */
 .msg { display: flex; gap: 12px; max-width: 85%; animation: slideUp 0.4s ease-out; }
 .msg.bot { align-self: flex-start; }
 .msg.user { align-self: flex-end; flex-direction: row-reverse; }
@@ -52,18 +107,48 @@ body { font-family: 'GgiBatang', sans-serif; background: var(--bg); color: var(-
 }
 .move-btn:hover { background: var(--orange-grad); color: #fff; border-color: transparent; transform: translateY(-2px); }
 
+/* 타이핑 점 애니메이션 */
+.typing-dots { display: flex; gap: 5px; align-items: center; padding: 4px 0; }
+.dot { width: 8px; height: 8px; background: var(--orange); border-radius: 50%; animation: bounce 1.2s infinite; }
+.dot:nth-child(2) { animation-delay: 0.2s; }
+.dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,80%,100%{transform:scale(0.8);opacity:0.5} 40%{transform:scale(1.2);opacity:1} }
+
 /* ── 추천 질문 칩 ── */
-.faq-section { padding: 10px 50px 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; animation: slideUp 0.5s ease; }
-.faq-chip { padding: 10px 18px; border-radius: 25px; border: 1.5px solid var(--cream3); background: #fff; font-size: 14px; cursor: pointer; transition: 0.3s; color: var(--brown); font-weight: 600; }
+.faq-section {
+    padding: 10px 50px 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: slideUp 0.5s ease;
+    flex-shrink: 0;          /* ★ 찌그러짐 방지 */
+}
+.faq-chip { padding: 10px 18px; border-radius: 25px; border: 1.5px solid var(--cream3); background: #fff; font-size: 14px; cursor: pointer; transition: 0.3s; color: var(--brown); font-weight: 600; font-family: inherit; }
 .faq-chip:hover { border-color: var(--orange); color: #fff; background: var(--orange-grad); transform: translateY(-5px); }
 .home-btn { background: var(--brown) !important; color: #fff !important; }
 
 /* ── 입력창 ── */
-.input-area { padding: 10px 50px 40px; background: transparent; }
+.input-area {
+    padding: 10px 50px 40px;
+    background: transparent;
+    flex-shrink: 0;          /* ★ 입력창 고정 */
+}
 .input-wrap { display: flex; gap: 12px; align-items: center; background: #fff; padding: 10px 10px 10px 25px; border-radius: 35px; box-shadow: var(--shadow); }
-.input-box { flex: 1; border: none; outline: none; font-size: 15px; }
-.send-btn { background: var(--brown); color: #fff; border: none; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; font-size: 20px; transition: 0.3s; }
+.input-box { flex: 1; border: none; outline: none; font-size: 15px; font-family: inherit; background: transparent; }
+.send-btn { background: var(--brown); color: #fff; border: none; width: 48px; height: 48px; border-radius: 50%; cursor: pointer; font-size: 20px; transition: 0.3s; flex-shrink: 0; }
+.send-btn:hover { background: #35281d; }
+.send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── 메시지 시간 ── */
+.msg-time { font-size: 11px; color: var(--gray-light); align-self: flex-end; white-space: nowrap; }
 
 @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.message-area::-webkit-scrollbar { width: 6px; }
-.message-area::-webkit-scrollbar-thumb { background: rgba(184, 154, 122, 0.2); border-radius: 10px; }
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .sidebar { display: none; }
+    .message-area { padding: 20px 16px; }
+    .faq-section { padding: 8px 16px 16px; }
+    .input-area { padding: 8px 16px 24px; }
+}

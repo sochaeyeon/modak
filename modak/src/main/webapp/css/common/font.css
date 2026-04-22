@@ -23,7 +23,7 @@ html, body {
 /* ── 전체 본문 ── */
 * {
     font-family: var(--font-body);
-    font-weight: 300;
+    font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     letter-spacing: -0.5px;

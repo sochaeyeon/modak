@@ -53,14 +53,18 @@ public class LoginService {
 					session.setMaxInactiveInterval(30 * 60);
 
 					String returnUrl = (String) session.getAttribute("returnUrl");
+					session.removeAttribute("returnUrl");
 
-					if (returnUrl != null && !returnUrl.equals("")) {
-						resultMap.put("moveUrl", returnUrl);
-						session.removeAttribute("returnUrl");
+					if (returnUrl != null
+					        && !returnUrl.trim().isEmpty()
+					        && !returnUrl.endsWith(".dox")
+					        && !returnUrl.contains("/user/login.do")
+					        && !returnUrl.contains("/user/login.dox")
+					        && returnUrl.startsWith("/")) {
+					    resultMap.put("moveUrl", returnUrl);
 					} else {
-						resultMap.put("moveUrl", "/main.do");
+					    resultMap.put("moveUrl", "/main.do");
 					}
-
 				} else {
 					resultMap.put("message", Message.USER_LOGIN_FAIL_PWD);
 					resultMap.put("loginResult", false);

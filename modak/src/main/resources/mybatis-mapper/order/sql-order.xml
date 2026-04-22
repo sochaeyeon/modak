@@ -34,7 +34,7 @@
         </collection>
     </resultMap>
     
-    <resultMap id="orderListMap" type="com.example.modak.order.model.Order">
+   <resultMap id="orderListMap" type="com.example.modak.order.model.Order">
     <id property="orderId" column="ORDER_ID" />
     <result property="orderType" column="ORDER_TYPE" />
     <result property="orderStatus" column="ORDER_STATUS" />
@@ -42,6 +42,11 @@
     <result property="discountAmt" column="DISCOUNT_AMT" />
     <result property="createdAt" column="CREATED_AT" />
     <result property="userId" column="USER_ID" />
+
+    <!-- 배송 정보 추가 -->
+    <result property="deliveryId" column="DELIVERY_ID" />
+    <result property="deliveryStatus" column="DELIVERY_STATUS" />
+    <result property="trackingNo" column="TRACKING_NO" />
 
     <collection property="itemList"
                 javaType="java.util.ArrayList"
@@ -57,7 +62,7 @@
     </collection>
 </resultMap>
 
-  <select id="selectOrderList" resultMap="orderListMap">
+<select id="selectOrderList" resultMap="orderListMap">
     SELECT
         O.ORDER_ID,
         O.ORDER_TYPE,
@@ -66,6 +71,10 @@
         O.DISCOUNT_AMT,
         O.CREATED_AT,
         O.USER_ID,
+
+        D.DELIVERY_ID,
+        D.DELIVERY_STATUS,
+        D.TRACKING_NO,
 
         OI.ITEM_ID,
         OI.PRODUCT_ID,
@@ -83,6 +92,8 @@
         ) AS IMG_URL
 
     FROM ORDERS O
+    LEFT JOIN DELIVERY D
+        ON O.ORDER_ID = D.ORDER_ID
     LEFT JOIN ORDER_ITEM OI
         ON O.ORDER_ID = OI.ORDER_ID
     LEFT JOIN PRODUCT P

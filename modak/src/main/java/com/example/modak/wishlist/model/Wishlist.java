@@ -14,4 +14,7 @@ public class Wishlist {
     // PRODUCT 조인
     private String productName;
     private int price;
+
+    // PRODUCT_IMG 조인
+    private String imgUrl;
 }

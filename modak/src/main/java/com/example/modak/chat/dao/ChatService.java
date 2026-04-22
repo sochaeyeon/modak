@@ -49,9 +49,10 @@ public class ChatService {
 		param.put("userId", userId);
 		param.put("roomId", roomId);
 		List<HashMap<String, Object>> history = chatMapper.selectChatMessagesByRoom(param);
+//
+//		// 1순위 추천: 최신이면서 빠른 2.0 모델
+		String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey;
 
-		String url = "https://generativelanguage.googleapis.com/v1beta/models/"
-				+ "gemini-2.5-flash:generateContent?key=" + apiKey;
 
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);

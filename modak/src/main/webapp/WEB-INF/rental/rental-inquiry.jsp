@@ -6,9 +6,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>비회원 대여 연장 조회 - 모닥모닥</title>
-        <link
-            href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;600&display=swap"
-            rel="stylesheet">
+       <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/rental/rental-inquiry.css">
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">

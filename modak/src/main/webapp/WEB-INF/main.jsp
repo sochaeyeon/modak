@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="/css/common/header.css">
   <link rel="stylesheet" href="/css/main/main.css">
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="/js/wish.js"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoKey}&autoload=false"></script>
 </head>
@@ -435,7 +436,7 @@ function fnGoDetail(productId, productName, imgUrl) {
             html += '<div class="product-card fade-up pop-card"'
                   + ' data-pid="' + pid + '" data-name="' + name + '" data-img="' + img + '">'
                   + '<div class="product-img">' + imgHtml
-                  + '<button class="product-wish pop-wish" data-pid="' + pid + '">'
+                  + '<button class="wish-btn" data-pid="' + pid + '">'
                   + '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>'
                   + '</button></div>'
                   + '<div class="product-info">'
@@ -449,7 +450,7 @@ function fnGoDetail(productId, productName, imgUrl) {
 
         /* 이벤트 위임 */
         grid.addEventListener('click', function(e) {
-            var wish = e.target.closest('.pop-wish');
+            var wish = e.target.closest('.wish-btn');
             var rent = e.target.closest('.pop-rent');
             var buy  = e.target.closest('.pop-buy');
             var card = e.target.closest('.pop-card');
@@ -462,11 +463,29 @@ function fnGoDetail(productId, productName, imgUrl) {
         grid.querySelectorAll('.fade-up').forEach(function(el){ revealObs.observe(el); });
     }
 
+    /* 인기상품 로드 후 찜 상태 초기화 */
     $.ajax({
         url: '/product/popularList.dox', type: 'POST', dataType: 'json',
         success: function(data) {
             if (data.result === 'success' && data.list && data.list.length) {
                 renderPopular(data.list);
+
+                /* ★ 찜 목록 가져와서 하트 초기화 */
+                $.ajax({
+                    url     : '/user/wishlist/list.dox',
+                    type    : 'POST',
+                    dataType: 'json',
+                    success : function(wRes) {
+                        if (wRes.result === 'success' && wRes.list && wRes.list.length) {
+                            var wishedIds = wRes.list.map(function(w){ return w.productId; });
+                            document.querySelectorAll('.wish-btn').forEach(function(btn) {
+                                if (wishedIds.indexOf(parseInt(btn.dataset.pid)) !== -1) {
+                                    btn.classList.add('on');
+                                }
+                            });
+                        }
+                    }
+                });
             }
         }
     });
@@ -500,7 +519,26 @@ function closeRecent(){ document.getElementById('recentBar').classList.remove('v
 
 
 /* ── 7. 위시 / 장바구니 ── */
-function fnWish(e,btn,no){ e.stopPropagation(); $.ajax({url:'/product/toggleWish.dox',type:'POST',data:{productNo:no},success:function(res){ var r=JSON.parse(res); if(r.result==='success'){ btn.classList.toggle('on'); showToast(btn.classList.contains('on')?'♥ 위시리스트에 추가됐어요':'위시리스트에서 제거됐어요'); } else { showToast('로그인이 필요합니다'); setTimeout(function(){ location.href='/user/login.do'; },1200); } }}); }
+/* ── 위시 토글 — /user/wishlist/toggle.dox ── */
+function fnWish(e, btn, no) {
+    e.stopPropagation();
+    $.ajax({
+        url     : '/user/wishlist/toggle.dox',
+        type    : 'POST',
+        data    : { productId: no },
+        dataType: 'json',
+        success : function(res) {
+            if (res.result === 'success') {
+                btn.classList.toggle('on');
+                var isOn = btn.classList.contains('on');
+                showToast(isOn ? '❤️ 위시리스트에 추가됐어요' : '위시리스트에서 제거됐어요');
+            } else {
+                showToast('로그인이 필요합니다');
+                setTimeout(function(){ location.href = '/user/login.do'; }, 1200);
+            }
+        }
+    });
+}
 function fnAddRental(e,no){ e.stopPropagation(); $.ajax({url:'/cart/addCart.dox',type:'POST',data:{productNo:no,cartType:'rental'},success:function(res){ var r=JSON.parse(res); if(r.result==='success') showToast('🏕️ 대여 장바구니에 담겼어요!'); else { showToast('로그인이 필요합니다'); setTimeout(function(){ location.href='/user/login.do'; },1200); } }}); }
 function fnAddCart(e,no){ e.stopPropagation(); $.ajax({url:'/cart/addCart.dox',type:'POST',data:{productNo:no,cartType:'buy'},success:function(res){ var r=JSON.parse(res); if(r.result==='success') showToast('🛒 장바구니에 담겼어요!'); else { showToast('로그인이 필요합니다'); setTimeout(function(){ location.href='/user/login.do'; },1200); } }}); }
 

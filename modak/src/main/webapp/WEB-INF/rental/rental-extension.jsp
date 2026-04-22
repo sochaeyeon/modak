@@ -5,13 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>대여 연장 - 모닥모닥</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/rental/rental-extension.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/rental/rental-extension.css">
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
-   
-    
+
 </head>
 <body>
 
@@ -48,7 +46,14 @@
                          class="rental-card"
                          :class="{ active: selectedRental && selectedRental.rentalId === rental.rentalId }"
                          @click="fnSelectRental(rental)">
-                        <div class="rental-icon">⛺</div>
+                        <div class="rental-icon">
+                            <img v-if="rental.imgUrl"
+                                 :src="rental.imgUrl"
+                                 style="width:100%;height:100%;object-fit:cover;border-radius:12px;"
+                                 @error="$event.target.style.display='none'; $event.target.nextElementSibling.style.display='flex'">
+                            <span :style="rental.imgUrl ? 'display:none' : 'display:flex'"
+                                  style="width:100%;height:100%;align-items:center;justify-content:center;font-size:22px;">⛺</span>
+                        </div>
                         <div class="rental-info">
                             <p class="rental-name">{{ rental.productName || '상품명 없음' }}</p>
                             <p class="rental-dates">{{ rental.startDate || '-' }} ~ {{ rental.returnDate || '-' }}</p>
@@ -76,17 +81,22 @@
             <!-- 연장 신청 폼 -->
             <div class="ext-form">
                 <!-- RESERVED 상태만 연장 가능 -->
-                <div v-if="selectedRental.rentalStatus === 'RESERVED'">
+                <div v-if="['RESERVED','IN_USE'].includes(selectedRental.rentalStatus)">
                     <div class="ext-form-row">
                         <div class="form-group">
                             <label class="form-label">연장 일수</label>
-                            <input type="number" class="form-input"
-                                   v-model.number="extensionDays"
-                                   min="1" max="30" placeholder="1~30">
+                            <div class="days-stepper">
+                                <button class="stepper-btn" @click="extensionDays = Math.max(1, extensionDays - 1)" type="button">−</button>
+                                <input type="number" class="stepper-input"
+                                       v-model.number="extensionDays"
+                                       min="1" max="30"
+                                       @input="extensionDays = Math.min(30, Math.max(1, extensionDays || 1))">
+                                <button class="stepper-btn" @click="extensionDays = Math.min(30, extensionDays + 1)" type="button">+</button>
+                            </div>
                         </div>
                         <div class="price-preview">
                             <span class="price-preview-label">예상 금액</span>
-                            <span class="price-preview-val">{{ fnPrice(extensionDays * 5000) }}</span>
+                            <span class="price-preview-val">{{ fnPrice(extensionDays * (selectedRental.pricePerDay || 5000)) }}</span>
                         </div>
                         <button class="btn-apply"
                                 :disabled="!extensionDays || extensionDays < 1 || extensionDays > 30 || isApplying"
@@ -95,14 +105,14 @@
                         </button>
                     </div>
                     <p class="ext-notice">
-                        · 1일 연장 기준 5,000원이 부과됩니다.<br>
+                        · 1일 연장 기준 {{ fnPrice(selectedRental.pricePerDay || 5000) }}이 부과됩니다.<br>
                         · 최대 30일까지 연장 가능합니다.<br>
-                        · RESERVED(예약완료) 상태의 대여만 연장 가능합니다.
+                        · 예약완료(RESERVED) 또는 대여중(IN_USE) 상태의 대여만 연장 가능합니다.
                     </p>
                 </div>
                 <!-- RESERVED 아닌 경우 안내 -->
                 <div v-else style="padding:8px 0;font-size:13px;color:var(--brown4)">
-                    ⚠ 예약완료(RESERVED) 상태의 대여만 연장 신청이 가능합니다.
+                    ⚠ 대여중(IN_USE) 또는 예약완료(RESERVED) 상태의 대여만 연장 신청이 가능합니다.
                 </div>
             </div>
 
@@ -269,7 +279,8 @@
                     self.showToast('1일 이상 30일 이하로 입력해주세요.');
                     return;
                 }
-                if (!confirm(self.extensionDays + '일 연장하시겠습니까?\n예상 금액: ' + self.fnPrice(self.extensionDays * 5000))) return;
+                var expectedPrice = self.fnPrice(self.extensionDays * (self.selectedRental.pricePerDay || 5000));
+                if (!confirm(self.extensionDays + '일 연장하시겠습니까?\n예상 금액: ' + expectedPrice)) return;
 
                 self.isApplying = true;
                 var data = {

@@ -91,6 +91,7 @@
                 <c:choose>
                     <c:when test="${not empty sessionScope.sessionId}">
                         <li><a href="/order/history.do"><i class="fa-solid fa-receipt"></i> 주문내역</a></li>
+                        <li><a href="/rental/extension/main.do"><i class="fa-solid fa-rotate"></i> 대여연장</a></li>
                     </c:when>
                     <c:otherwise>
                         <li><a href="/rental/extension/inquiry.do"><i class="fa-solid fa-rotate"></i> 대여연장 조회</a></li>

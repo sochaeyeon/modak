@@ -23,4 +23,6 @@ public class Product {
     
 	private int brandId; // 브랜드 아이디 1,2,3
 	private String brandName; // 브랜드명 - 브랜드없으면 1번 자체제작
+	
+	private int viewCount;
 }

@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.modak.common.Message;
 import com.example.modak.product.mapper.ProductMapper;
@@ -62,6 +64,7 @@ public class ProductService {
 	    try {
 	        // 단건 조회이므로 Mapper에서 객체 하나(Product)를 가져옵니다.
 	        Product info = productMapper.selectProduct(map);
+	        productMapper.increaseViewCount(map); 
 	        List<Product> img = productMapper.selectProductImages(map);
 	        int orderCount = productMapper.selectOrderCount(map);
 	        
@@ -78,4 +81,31 @@ public class ProductService {
 	    return resultMap;
 	}
 	
+	public HashMap<String, Object> getMainCategoryList() {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    try {
+	        List<HashMap<String, Object>> list = productMapper.selectMainCategoryList();
+	        resultMap.put("list",    list);
+	        resultMap.put("result",  "success");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result",  "fail");
+	        resultMap.put("message", e.getMessage());
+	    }
+	    return resultMap;
+	}
+	
+	public HashMap<String, Object> getPopularProducts() {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    try {
+	        List<Product> list = productMapper.selectPopularProducts();
+	        resultMap.put("list",   list);
+	        resultMap.put("result", "success");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result",  "fail");
+	        resultMap.put("message", e.getMessage());
+	    }
+	    return resultMap;
+	}
 }

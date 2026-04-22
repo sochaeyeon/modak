@@ -9,7 +9,7 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/rental/rental-extension.css">
-
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
    
     
 </head>

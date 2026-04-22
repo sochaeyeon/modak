@@ -501,11 +501,48 @@
 
             },
 
-            mounted() {
-              this.fetchCategory();  // 부모 카테고리 로드
-              this.fnList(); // 상품 목록 로드 (fetchProducts 제거, fnList로 통일)
-              this.fetchBrandList();
+           mounted() {
+    this.fetchCategory();   /* 부모 카테고리 pill 로드 */
+    this.fetchBrandList();  /* 브랜드 목록 로드 */
+ 
+    var self   = this;
+    var params = new URLSearchParams(window.location.search);
+    var catId  = params.get('categoryId');   /* 자식 카테고리 ID */
+    var parId  = params.get('parentId');     /* 부모 카테고리 ID */
+ 
+    if (catId && parId) {
+        /* ── 메인에서 카테고리 아이콘 클릭해서 들어온 경우 ── */
+        catId = parseInt(catId);
+        parId = parseInt(parId);
+ 
+        /* 부모 pill 선택 */
+        self.currentCat = parId;
+ 
+        /* 자식 카테고리 목록 로드 후 해당 자식 자동 선택 */
+        $.ajax({
+            url     : '/category/childList.dox',
+            type    : 'POST',
+            dataType: 'json',
+            data    : { parentId: parId },
+            success : function(data) {
+                if (data.result === 'success') {
+                    self.childCategory = data.list;
+                    self.currentChild  = catId;   /* 세부 카테고리 자동 선택 */
+                }
+                self.fnList();
             },
+            error: function() { self.fnList(); }
+        });
+ 
+    } else if (catId) {
+        /* categoryId 만 있는 경우 — 부모 카테고리로 처리 */
+        self.selectCategory(parseInt(catId));
+ 
+    } else {
+        /* 파라미터 없으면 전체 목록 */
+        this.fnList();
+    }
+},
 
           }).mount('#app');
         </script>

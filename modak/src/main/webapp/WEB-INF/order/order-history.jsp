@@ -83,29 +83,103 @@
                                         <span class="group-count">총 <strong>{{ group.items.length }}</strong>건</span>
                                     </div>
 
-                                    <div v-for="item in group.items" :key="item.orderId" class="order-card">
-                                        <div class="card-left">
-                                            <div class="thumb">{{ item.orderType === 'PURCHASE' ? '🛒' : '⛺' }}</div>
-                                            <div class="info">
-                                                <div class="name-row">
-                                                    <strong>{{ item.productName }}</strong>
-                                                    <span v-if="item.itemCount > 1" class="extra">외 {{ item.itemCount -
-                                                        1 }}건</span>
-                                                    <span class="badge" :class="item.orderType.toLowerCase()">{{
-                                                        item.orderType === 'PURCHASE' ? '구매' : '대여' }}</span>
+                                    <div v-for="item in group.items" :key="item.orderId" class="order-card-wrap">
+                                        <div class="order-card" :class="{ open: expandedOrderId === item.orderId }"
+                                            @click="fnToggleOrder(item.orderId)">
+
+                                            <div class="card-left">
+                                                <div class="thumb">
+                                                    <img v-if="item.itemList && item.itemList.length > 0 && item.itemList[0].imgUrl"
+                                                        :src="item.itemList[0].imgUrl"
+                                                        :alt="item.itemList[0].productName">
+                                                    <div v-else class="thumb-fallback">
+                                                        {{ item.orderType === 'PURCHASE' ? '🛒' : '⛺' }}
+                                                    </div>
                                                 </div>
-                                                <div class="sub-row">주문번호 {{ item.orderId }} · {{
-                                                    fnFormatDateTime(item.createdAt) }}</div>
+
+                                                <div class="info">
+                                                    <div class="name-row">
+                                                        <strong>
+                                                            {{ item.itemList && item.itemList.length > 0 ?
+                                                            item.itemList[0].productName : '상품명 없음' }}
+                                                        </strong>
+
+                                                        <span v-if="item.itemList && item.itemList.length > 1"
+                                                            class="extra">
+                                                            외 {{ item.itemList.length - 1 }}건
+                                                        </span>
+
+                                                        <span class="badge" :class="item.orderType.toLowerCase()">
+                                                            {{ item.orderType === 'PURCHASE' ? '구매' : '대여' }}
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="sub-row">
+                                                        주문번호 {{ item.orderId }} · {{ fnFormatDateTime(item.createdAt) }}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="card-right">
+                                                <div class="status-badge" :class="item.orderStatus.toLowerCase()">
+                                                    {{ fnGetStatusText(item.orderStatus) }}
+                                                </div>
+
+                                                <div class="price">
+                                                    {{ fnFormatPrice((item.totalPrice || 0) - (item.discountAmt || 0))
+                                                    }}
+                                                </div>
+
+                                                <div class="order-btn-group" @click.stop>
+                                                    <button class="detail-btn detail-main-btn"
+                                                        @click="fnGoOrderDetail(item.orderId)">
+                                                        주문상세
+                                                    </button>
+
+                                                    <button class="detail-btn sub-action-btn"
+                                                        :class="fnGetActionClass(action)"
+                                                        v-for="action in fnGetOrderActions(item)" :key="action"
+                                                        @click="fnHandleOrderAction(item, action)">
+                                                        {{ action }}
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="order-open-indicator">
+                                                <i class="fa-solid"
+                                                    :class="expandedOrderId === item.orderId ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
                                             </div>
                                         </div>
-                                        <div class="card-right">
-                                            <div class="status-badge" :class="item.orderStatus.toLowerCase()">{{
-                                                fnGetStatusText(item.orderStatus) }}</div>
-                                            <div class="price">{{ fnFormatPrice(item.totalPrice - (item.discountAmt ||
-                                                0)) }}</div>
-                                            <button class="detail-btn"
-                                                @click="fnGoOrderDetail(item.orderId)">주문상세</button>
-                                        </div>
+
+                                        <transition name="expand-fade">
+                                            <div v-if="expandedOrderId === item.orderId" class="order-expand-box">
+                                                <div class="expand-title">주문 상품 정보</div>
+
+                                                <div v-for="orderItem in item.itemList" :key="orderItem.itemId"
+                                                    class="expand-item-row">
+
+                                                    <div class="expand-thumb">
+                                                        <img v-if="orderItem.imgUrl" :src="orderItem.imgUrl"
+                                                            :alt="orderItem.productName">
+                                                        <div v-else class="expand-thumb-fallback">📦</div>
+                                                    </div>
+
+                                                    <div class="expand-info">
+                                                        <div class="expand-name">{{ orderItem.productName }}</div>
+
+                                                        <div class="expand-meta">
+                                                            수량 {{ orderItem.count }}개 · {{
+                                                            fnFormatPrice(orderItem.price) }}
+                                                        </div>
+
+                                                        <div class="expand-meta"
+                                                            v-if="item.orderType === 'RENTAL' && orderItem.startDate && orderItem.endDate">
+                                                            대여기간 {{ orderItem.startDate }} ~ {{ orderItem.endDate }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </transition>
                                     </div>
                                 </div>
                             </div>
@@ -127,7 +201,8 @@
                                         paid: { name: '결제완료', icon: '💳' }, ready: { name: '배송준비', icon: '📦' },
                                         shipping: { name: '배송중', icon: '🚚' }, done: { name: '배송완료', icon: '✔' },
                                         cancelled: { name: '취소/반품', icon: '✖' }
-                                    }
+                                    },
+                                    expandedOrderId: null,
                                 };
                             },
                             watch: {
@@ -161,23 +236,25 @@
                                     return Object.keys(groupMap).sort((a, b) => b.localeCompare(a)).map(date => ({ date, items: groupMap[date] }));
                                 },
                                 statusSummary() {
-                                    // 1. 카운트를 담을 그릇 (키값을 소문자로 통일)
                                     const s = { paid: 0, ready: 0, shipping: 0, done: 0, cancelled: 0 };
 
-                                    this.filteredOrderList.forEach(item => {
-                                        // 2. DB에서 넘어오는 상태값 
-                                        const status = item.orderStatus.toUpperCase();
+                                    this.orderList.forEach(item => {
+                                        const status = (item.orderStatus || "").toUpperCase();
 
-                                        // 3. 상태값 매핑 로직 
-                                        if (status === 'PAID' || status === 'PAY_COMPLETED') {
+                                        if (status === "PAID" || status === "RESERVED") {
                                             s.paid++;
-                                        } else if (status === 'READY') {
+                                        } else if (status === "READY") {
                                             s.ready++;
-                                        } else if (status === 'SHIPPING') {
+                                        } else if (status === "SHIPPING") {
                                             s.shipping++;
-                                        } else if (status === 'DONE' || status === 'DELIVERED') {
+                                        } else if (
+                                            status === "DONE" ||
+                                            status === "IN_USE" ||
+                                            status === "RETURNED" ||
+                                            status === "COMPLETED"
+                                        ) {
                                             s.done++;
-                                        } else if (status === 'CANCELLED' || status === 'REFUND') {
+                                        } else if (status === "CANCELLED") {
                                             s.cancelled++;
                                         }
                                     });
@@ -201,11 +278,92 @@
                                 fnRunFilterAnimation() { this.listAnimateKey++; },
                                 fnFormatPrice(p) { return Number(p).toLocaleString() + '원'; },
                                 fnGetStatusText(s) {
-                                    const m = { PAID: '결제완료', READY: '배송준비', SHIPPING: '배송중', DONE: '배송완료', CANCELLED: '취소/반품' };
+                                    const m = {
+                                        PAID: '결제완료',
+                                        READY: '배송준비',
+                                        SHIPPING: '배송중',
+                                        DONE: '배송완료',
+                                        CANCELLED: '취소/반품',
+                                        RESERVED: '예약완료',
+                                        IN_USE: '이용중',
+                                        RETURNED: '반납완료',
+                                        COMPLETED: '대여완료'
+                                    };
                                     return m[s] || s;
                                 },
                                 fnFormatDateTime(v) { return v.substring(0, 16).replaceAll('-', '.'); },
-                                fnGoOrderDetail(id) { location.href = "/order/detail.do?orderId=" + id; }
+                                fnGoOrderDetail(id) { location.href = "/order/detail.do?orderId=" + id; },
+                                fnGetOrderActions(item) {
+                                    const actions = [];
+                                    const status = (item.orderStatus || "").toUpperCase();
+                                    const orderType = (item.orderType || "").toUpperCase();
+
+                                    if (orderType === "PURCHASE") {
+                                        if (status === "PAID" || status === "READY") {
+                                            actions.push("취소 신청");
+                                        }
+                                        if (status === "DONE") {
+                                            actions.push("환불 신청");
+                                            actions.push("리뷰 작성");
+                                        }
+                                    }
+
+                                    if (orderType === "RENTAL") {
+                                        if (status === "PAID" || status === "RESERVED" || status === "READY") {
+                                            actions.push("취소 신청");
+                                        }
+                                        if (status === "DONE") {
+                                            actions.push("환불 신청");
+                                            actions.push("반납 신청");
+                                            actions.push("연장 신청");
+                                        }
+                                        if (status === "IN_USE") {
+                                            actions.push("반납 신청");
+                                            actions.push("연장 신청");
+                                        }
+                                        if (status === "COMPLETED") {
+                                            actions.push("리뷰 작성");
+                                        }
+                                    }
+
+                                    return actions;
+                                },
+
+                                fnHandleOrderAction(item, action) {
+                                    if (action === "취소 신청") {
+                                        location.href = "/order/cancel/request.do?orderId=" + item.orderId;
+                                        return;
+                                    }
+                                    if (action === "환불 신청") {
+                                        location.href = "/order/refund/request.do?orderId=" + item.orderId;
+                                        return;
+                                    }
+                                    if (action === "반납 신청") {
+                                        location.href = "/rental/return/request.do?orderId=" + item.orderId;
+                                        return;
+                                    }
+                                    if (action === "연장 신청") {
+                                        location.href = "/rental/extend/request.do?orderId=" + item.orderId;
+                                        return;
+                                    }
+                                    if (action === "리뷰 작성") {
+                                        location.href = "/user/review/write.do?orderId=" + item.orderId;
+                                        return;
+                                    }
+                                },
+
+                                fnToggleOrder(orderId) {
+                                    this.expandedOrderId = this.expandedOrderId === orderId ? null : orderId;
+                                },
+                                fnGetActionClass(action) {
+                                    if (action === "취소 신청") return "cancel-btn";
+                                    if (action === "환불 신청") return "refund-btn";
+                                    if (action === "리뷰 작성") return "review-btn";
+                                    if (action === "반납 신청") return "return-btn";
+                                    if (action === "연장 신청") return "extend-btn";
+                                    return "";
+                                },
+
                             },
                             mounted() { this.fnGetOrderList(); }
                         }).mount("#app");

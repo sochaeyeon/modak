@@ -25,4 +25,7 @@ public class Product {
 	private String brandName; // 브랜드명 - 브랜드없으면 1번 자체제작
 	
 	private int viewCount;
+	
+	private int availableQty; // 가용 재고
+	private int totalQty;     // 총 재고
 }

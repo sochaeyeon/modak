@@ -14,7 +14,7 @@
            --cream3:  #E2D8C3;
        }
        body {
-           font-family: 'GgiBatang', sans-serif;
+          
            background: var(--bg);
            min-height: 100vh;
            display: flex; flex-direction: column;
@@ -35,7 +35,7 @@
 
        /* ── 헤더 ── */
        .page-eyebrow { font-size: 11px; letter-spacing: 2px; color: var(--brown4); margin-bottom: 6px; }
-       .page-title   { font-family: 'GgiBatang', serif; font-size: 26px; font-weight: 800; color: var(--brown); margin-bottom: 4px; }
+       .page-title   { font-size: 26px; font-weight: 800; color: var(--brown); margin-bottom: 4px; }
        .page-desc    { font-size: 13px; color: var(--brown3); font-weight: 300; line-height: 1.7; }
 
        /* ── 섹션 카드 ── */
@@ -44,7 +44,7 @@
            padding: 18px 24px 16px; border-bottom: 1px solid var(--border2);
            display: flex; align-items: center; justify-content: space-between;
        }
-       .section-head h3 { font-family: 'GgiBatang', serif; font-size: 16px; font-weight: 700; color: var(--brown); }
+       .section-head h3 {  font-size: 16px; font-weight: 700; color: var(--brown); }
        .section-body { padding: 24px; }
 
        /* ── 대여 목록 (회원) ── */
@@ -86,7 +86,7 @@
            display: flex; align-items: center; justify-content: space-between;
            background: rgba(232,115,42,.04);
        }
-       .ext-panel-title    { font-family: 'GgiBatang', serif; font-size: 16px; font-weight: 700; color: var(--brown); }
+       .ext-panel-title    {  font-size: 16px; font-weight: 700; color: var(--brown); }
        .ext-panel-subtitle { font-size: 12px; color: var(--brown4); margin-top: 2px; }
        .btn-close-panel {
            width: 32px; height: 32px; border-radius: 50%;
@@ -104,7 +104,7 @@
        .form-input {
            padding: 11px 14px; border: 1.5px solid var(--border);
            border-radius: 10px; background: var(--white);
-           font-family: 'GgiBatang', sans-serif;
+          
            font-size: 14px; color: var(--brown); outline: none;
            transition: border-color .2s, box-shadow .2s; width: 120px;
        }
@@ -112,12 +112,12 @@
 
        .price-preview       { display: flex; flex-direction: column; gap: 3px; }
        .price-preview-label { font-size: 11px; color: var(--brown4); }
-       .price-preview-val   { font-family: 'GgiBatang', serif; font-size: 18px; font-weight: 700; color: var(--orange); }
+       .price-preview-val   {  font-size: 18px; font-weight: 700; color: var(--orange); }
 
        .btn-apply {
            padding: 11px 28px; background: var(--orange); color: #fff;
            border: none; border-radius: 10px; font-size: 14px; font-weight: 600;
-           font-family: 'GgiBatang', sans-serif; cursor: pointer;
+           cursor: pointer;
            transition: background .2s, transform .15s;
            box-shadow: 0 4px 14px rgba(232,115,42,.3); white-space: nowrap;
        }
@@ -149,7 +149,7 @@
            padding: 6px 14px; background: transparent;
            border: 1.5px solid rgba(201,79,30,.3); border-radius: 8px;
            color: var(--orange2); font-size: 12px; font-weight: 500;
-           font-family: 'GgiBatang', sans-serif; cursor: pointer;
+            cursor: pointer;
            transition: all .2s; flex-shrink: 0;
        }
        .btn-ext-cancel:hover { background: rgba(201,79,30,.06); border-color: var(--orange); }

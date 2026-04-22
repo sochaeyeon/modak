@@ -6,14 +6,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>404 - 불씨를 찾을 수 없어요</title>
-		<style>
-			@font-face {
-				font-family: 'SeoulHangang';
-				src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/SeoulHangangM.woff') format('woff');
-				font-weight: normal;
-				font-display: swap;
-			}
-		</style>
+		<link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
 		<link rel="stylesheet" href="${pageContext.request.contextPath}/css/error/error.css">
 	</head>
 

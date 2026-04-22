@@ -33,7 +33,7 @@
         </collection>
     </resultMap>
     
-   <resultMap id="orderListMap" type="com.example.modak.order.model.Order">
+<resultMap id="orderListMap" type="com.example.modak.order.model.Order">
     <id property="orderId" column="ORDER_ID" />
     <result property="orderType" column="ORDER_TYPE" />
     <result property="orderStatus" column="ORDER_STATUS" />
@@ -42,25 +42,23 @@
     <result property="createdAt" column="CREATED_AT" />
     <result property="userId" column="USER_ID" />
 
-    <!-- 배송 정보 추가 -->
     <result property="deliveryId" column="DELIVERY_ID" />
     <result property="deliveryStatus" column="DELIVERY_STATUS" />
     <result property="trackingNo" column="TRACKING_NO" />
 
-    <collection property="itemList"
-                javaType="java.util.ArrayList"
-                ofType="com.example.modak.order.model.OrderItem">
-        <id property="itemId" column="ITEM_ID" />
-        <result property="productId" column="PRODUCT_ID" />
-        <result property="productName" column="PRODUCT_NAME" />
-        <result property="price" column="ITEM_PRICE" />
-        <result property="count" column="ITEM_COUNT" />
-        <result property="startDate" column="START_DATE" />
-        <result property="endDate" column="END_DATE" />
-        <result property="imgUrl" column="IMG_URL" />
-    </collection>
-</resultMap>
-
+        <collection property="itemList"
+                    javaType="java.util.ArrayList"
+                    ofType="com.example.modak.order.model.OrderItem">
+            <id     property="itemId"      column="ITEM_ID" />
+            <result property="productId"   column="PRODUCT_ID" />
+            <result property="productName" column="PRODUCT_NAME" />
+            <result property="price"       column="ITEM_PRICE" />
+            <result property="count"       column="ITEM_COUNT" />
+            <result property="startDate"   column="START_DATE" />
+            <result property="endDate"     column="END_DATE" />
+            <result property="imgUrl"      column="IMG_URL" />
+        </collection>
+    </resultMap>
 <select id="selectOrderList" resultMap="orderListMap">
     SELECT
         O.ORDER_ID,
@@ -83,34 +81,13 @@
         OI.START_DATE,
         OI.END_DATE,
 
-        <collection property="itemList"
-                    javaType="java.util.ArrayList"
-                    ofType="com.example.modak.order.model.OrderItem">
-            <id     property="itemId"      column="ITEM_ID" />
-            <result property="productId"   column="PRODUCT_ID" />
-            <result property="productName" column="PRODUCT_NAME" />
-            <result property="price"       column="ITEM_PRICE" />
-            <result property="count"       column="ITEM_COUNT" />
-            <result property="startDate"   column="START_DATE" />
-            <result property="endDate"     column="END_DATE" />
-            <result property="imgUrl"      column="IMG_URL" />
-        </collection>
-    </resultMap>
+        (SELECT PI.IMG_URL
+         FROM PRODUCT_IMG PI
+         WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
+         ORDER BY PI.IS_MAIN DESC
+         LIMIT 1) AS IMG_URL
 
-    <!-- 주문 목록 -->
-    <select id="selectOrderList" resultMap="orderListMap">
-        SELECT
-            O.ORDER_ID, O.ORDER_TYPE, O.ORDER_STATUS,
-            O.TOTAL_PRICE, O.DISCOUNT_AMT, O.CREATED_AT, O.USER_ID,
-            OI.ITEM_ID, OI.PRODUCT_ID,
-            P.PRODUCT_NAME,
-            OI.UNIT_PRICE  AS ITEM_PRICE,
-            OI.QUANTITY    AS ITEM_COUNT,
-            OI.START_DATE, OI.END_DATE,
-            (SELECT PI.IMG_URL FROM PRODUCT_IMG PI
-             WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
-             ORDER BY PI.IS_MAIN DESC LIMIT 1) AS IMG_URL
-        FROM ORDERS O
+    FROM ORDERS O
     LEFT JOIN DELIVERY D
         ON O.ORDER_ID = D.ORDER_ID
     LEFT JOIN ORDER_ITEM OI

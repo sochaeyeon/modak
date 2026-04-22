@@ -13,11 +13,20 @@ import com.example.modak.csCenter.model.Notification;
 @Mapper
 public interface NotificationMapper {
 
-	// 여러 개 리턴
+	// 고정 공지 목록 (IS_PINNED=1, 항상 최상단)
+	public List<Notification> selectPinnedNotificationList(HashMap<String, Object> map);
+
+	// 일반 공지 목록 (IS_PINNED=0, 페이징)
 	public List<Notification> selectNotificationList(HashMap<String, Object> map);
 
-	// 한 개 리턴
+	// 전체 건수 (IS_PINNED=0 기준, 페이징용)
+	public int selectNotificationCount(HashMap<String, Object> map);
+
+	// 단건 조회
 	public Notification selectNotification(HashMap<String, Object> map);
+
+	// 조회수 +1 (상세 진입 시 호출)
+	public int incrementViewCount(HashMap<String, Object> map);
 
 	// 삭제
 	public int deleteNotification(HashMap<String, Object> map);
@@ -27,4 +36,10 @@ public interface NotificationMapper {
 
 	// 수정
 	public int updateNotification(HashMap<String, Object> map);
+
+	// 고정 설정
+	public int pinNotification(HashMap<String, Object> map);
+
+	// 고정 해제
+	public int unpinNotification(HashMap<String, Object> map);
 }

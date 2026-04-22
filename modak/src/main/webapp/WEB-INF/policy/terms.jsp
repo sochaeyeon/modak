@@ -409,7 +409,7 @@
 
 					const options = {
 						margin: 10,
-						filename: `모닥모닥_${docTitle}.pdf`,
+						filename: '모닥모닥_이용약관.pdf',
 						image: {type: 'jpeg', quality: 0.98},
 						html2canvas: {
 							scale: 2,

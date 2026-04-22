@@ -12,11 +12,9 @@
 <body>
 <%@ include file="/WEB-INF/common/header.jsp" %>
     <div id="app">
-    <div class="cat-bar">
-        <div class="cat-bar-inner">
+        <!-- ── 카테고리 pill 바 ── -->
+        
             
-        </div>
-    </div>
 <div class="wrap">
     <div class="ptop">
         <div class="gallery">
@@ -58,25 +56,35 @@
             </span>
         </div>
 
-        <!-- MODE TOGGLE -->
+        <!-- MODE TOGGLE 상품타입이 대여 / 구매에 따라서 둘중하나 비활성 -->
         <div class="mtog">
-            <button class="mbtn on" id="mb-buy" onclick="setMode('buy')">🛒 구매하기</button>
-            <button class="mbtn" id="mb-rent" onclick="setMode('rent')">📅 대여하기</button>
+            <button class="mbtn on" id="mb-buy" 
+                onclick="setMode('buy')"
+                :disabled="productType === 'RENTAL'"
+                :style="productType === 'RENTAL' ? 'opacity:0.3; cursor:not-allowed;' : ''">
+                🛒 구매하기
+            </button>
+            <button class="mbtn" id="mb-rent" 
+                onclick="setMode('rent')"
+                :disabled="productType === 'PURCHASE'"
+                :style="productType === 'PURCHASE' ? 'opacity:0.3; cursor:not-allowed;' : ''">
+                📅 대여하기
+            </button>
         </div>
 
         <!-- BUY PRICE -->
         <div class="buy-only">
             <div class="pbox-buy">
-            <div class="prow"><span class="pct">10%</span><span class="pnow">{{ formatPrice(productInfo.price) }}</span></div>
-            <!-- <div class="porig">50,000원</div>
-            <div class="pnote">쿠폰 적용시 최대 10% 할인</div> -->
+            <div class="prow"><!--<span class="pct">10%</span>--><span class="pnow">{{ formatPrice(productInfo.price) }}</span></div>
+            <div class="porig">23,150,000원</div>
+            <div class="pnote">쿠폰 적용시 최대 10% 할인</div>
             </div>
         </div>
 
         <!-- RENT PRICE -->
         <div class="rent-only">
             <div class="pbox-rent">
-            <div class="prow"><span class="rent-per">1박당</span><span class="rent-num">8,000원</span><span class="rent-unit"> / 박</span></div>
+            <div class="prow"><span class="rent-per">1박당</span><span class="rent-num">{{ formatPrice(productInfo.price) }}</span><span class="rent-unit"> / 박</span></div>
             <div style="font-size:12px;color:var(--muted);margin-top:4px">3박 이상 <strong style="color:var(--blue)">10% 할인</strong> · 7박 이상 <strong style="color:var(--blue)">20% 할인</strong></div>
             <div style="font-size:12px;color:var(--muted);margin-top:3px">⏱ 반납일 오전 10시까지 · 연체 시 1일 12,000원</div>
             </div>
@@ -105,26 +113,34 @@
                 <div class="chip" onclick="pickChip(this,'opt')">텐트 + 스노우 스커트</div>
             </div>
             </div>
-            <div class="osec">
-            <div class="olabel">수량</div>
+        <div class="osec">
+            <div class="olabel">
+                수량
+                <span v-if="remainQty > 0" style="color:var(--green);font-weight:600;">
+                    {{ remainQty }}개 남음
+                </span>
+                <span v-else style="color:var(--red);font-weight:600;">
+                    {{ productType === 'RENTAL' ? '재고 없음' : '품절' }}
+                </span>
+            </div>
             <div class="qrow">
-                <button class="qbtn" onclick="chgQ(-1)">−</button>
-                <input class="qinp" id="qinp" type="number" value="1" min="1" max="99" readonly>
-                <button class="qbtn" onclick="chgQ(1)">+</button>
+                <button class="qbtn" @click="chgQty(-1)">−</button>
+                <input class="qinp" id="qinp" type="number" v-model="qty" min="1" :max="displayQty" readonly>
+                <button class="qbtn" @click="chgQty(1)">+</button>
             </div>
-            </div>
+        </div>
             <div class="selbox">
-            <span style="font-size:13px">블랙 / 텐트 단품 / <span id="qdsp">1</span>개</span>
-            <span style="font-size:15px;font-weight:700" id="bprice">42,000원</span>
+                <span style="font-size:13px">블랙 / 텐트 단품 / <span id="qdsp">1</span>개</span>
+                <span style="font-size:15px;font-weight:700" id="bprice">{{ totalPriceFormatted }}</span>
             </div>
             <div class="trow">
-            <span style="font-size:13px;color:var(--muted)">총 상품금액</span>
-            <span class="tprice" id="btotal">42,000원</span>
+                <span style="font-size:13px;color:var(--muted)">총 상품금액</span>
+                <span class="tprice" id="btotal">{{ totalPriceFormatted }}</span>
             </div>
             <div class="arow">
-            <button class="bwish" id="wb1" onclick="togWish()">🤍</button>
-            <button class="bcart">장바구니 담기</button>
-            <button class="bbuy">바로 구매하기</button>
+                <button class="bwish" id="wb1" onclick="togWish()">🤍</button>
+                <button class="bcart">장바구니 담기</button>
+                <button class="bbuy">바로 구매하기</button>
             </div>
         </div>
 
@@ -356,25 +372,11 @@
 
     // mode
     function setMode(m){
-    const r=m==='rent';
-    document.getElementById('mb-buy').classList.toggle('on',!r);
-    document.getElementById('mb-rent').classList.toggle('on',r);
-    document.body.classList.toggle('rent',r);
+        const r=m==='rent';
+        document.getElementById('mb-buy').classList.toggle('on',!r);
+        document.getElementById('mb-rent').classList.toggle('on',r);
+        document.body.classList.toggle('rent',r);
     }
-
-    // chips
-    function pickChip(el,g){el.closest('.ochips').querySelectorAll('.chip:not(.off)').forEach(c=>c.classList.remove('on'));el.classList.add('on');updBuy();}
-
-    // buy qty
-    let qty=1;const BP=42000;
-    function chgQ(d){qty=Math.max(1,Math.min(99,qty+d));document.getElementById('qinp').value=qty;document.getElementById('qdsp').textContent=qty;updBuy();}
-    function updBuy(){const t=(BP*qty).toLocaleString('ko-KR')+'원';document.getElementById('bprice').textContent=t;document.getElementById('btotal').textContent=t;}
-
-    
-    // tabs
-    //function stab(n,el){document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.tpane').forEach(p=>p.classList.remove('on'));el.classList.add('on');document.getElementById('tp-'+n).classList.add('on');}
-
-    
 
     const app = Vue.createApp({
         data() {
@@ -385,8 +387,30 @@
                 productImages: [],         // DB에서 가져온 전체 이미지 리스트
                 mainImgUrl: '',            // 메인이미지
                 reviewList: [],
-                orderCount: 0 // 주문 카운트
+                orderCount: 0, // 주문 카운트
+
+                productType: '', // 대여/구매 타입
+                availableQty: 0, // 대여용 AVAILABLE_QTY 
+                totalQty: 0, // 구매용 TOTAL_QTY
+                qty: 1,  // 수량 ← 추가
             };
+        },
+        computed: {
+            // 현재 타입에 따라 표시할 재고
+            displayQty() {
+                if (this.productType === 'PURCHASE') return this.totalQty;
+                return this.availableQty;
+            },
+            // 재고에서 선택 수량 뺀 남은 재고
+            remainQty() {
+                return this.displayQty - this.qty;
+            },
+            totalPrice() {
+                return (this.productInfo.price || 0) * this.qty;
+            },
+            totalPriceFormatted() {
+                return this.totalPrice.toLocaleString('ko-KR') + '원';
+            }
         },
         methods: {
             // 함수(메소드) - (key : function())
@@ -402,6 +426,16 @@
                         console.log(data);
                         self.productInfo = data.info;
                         self.orderCount = data.orderCount || 0; // 오더 카운트
+                        self.availableQty = data.info.availableQty || 0;  // 대여용
+                        self.totalQty     = data.info.totalQty     || 0;  // 구매용 
+
+                        // ✅ productType 저장 후 자동 탭 전환
+                        self.productType = data.info.productType || '';
+                        if (self.productType === 'RENTAL') {
+                            setMode('rent');
+                        } else if (self.productType === 'PURCHASE') {
+                            setMode('buy');
+                        }
                     }
                 });
             },
@@ -488,6 +522,20 @@
                 if (!price) return '0원';
                 return Number(price).toLocaleString('ko-KR') + '원';
             },
+            chgQty: function(d) {
+                const max = this.displayQty;   // 원본 재고
+                const next = this.qty + d;
+
+                if (next < 1) return;          // 최소 1개
+                if (next > max) {              // 재고 초과 방지
+                    alert('재고가 부족합니다. (최대 ' + max + '개)');
+                    return;
+                }
+
+                this.qty = next;               // qty만 변경, 재고는 건드리지 않음
+                // remainQty = displayQty - qty 가 자동으로 반영됨 ✅
+            }
+            
 
         }, // methods
         mounted() {

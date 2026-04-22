@@ -39,10 +39,9 @@
         WHERE USER_ID = #{userId} AND PRODUCT_ID = #{productId}
     </delete>
 
-    <!-- 찜 삭제 (wishId 기준 — 위시리스트 페이지용) -->
     <delete id="deleteWishlist" parameterType="hashmap">
         DELETE FROM WISHLIST
-        WHERE WISH_ID = #{wishId} AND USER_ID = #{userId}
+        WHERE WISH_ID = #{wishId}
+        AND USER_ID = #{userId}
     </delete>
-
 </mapper>

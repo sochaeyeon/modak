@@ -7,262 +7,7 @@
 			<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<title>온라인 문의 접수 - 모닥모닥</title>
-			<style>
-				* {
-					margin: 0;
-					padding: 0;
-					box-sizing: border-box;
-				}
-
-				body {
-					font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-					background-color: #f5f0eb;
-					color: #3d3330;
-					min-height: 100vh;
-					display: flex;
-					flex-direction: column;
-				}
-
-				/* ───── HERO BANNER ───── */
-				.inquiry-hero {
-					background: linear-gradient(135deg, #f0e8e0 0%, #ede0d4 100%);
-					padding: 36px 20px;
-					text-align: center;
-					border-bottom: 1px solid #e2d5c8;
-				}
-
-				.inquiry-hero h1 {
-					font-size: 20px;
-					font-weight: 700;
-					color: #3d3330;
-					margin-bottom: 6px;
-				}
-
-				.inquiry-hero p {
-					font-size: 13px;
-					color: #888;
-				}
-
-				/* ───── MAIN CONTENT ───── */
-				.inquiry-main {
-					flex: 1;
-					max-width: 900px;
-					margin: 0 auto;
-					width: 100%;
-					padding: 40px 20px 60px;
-				}
-
-				.section-title {
-					font-size: 15px;
-					font-weight: 700;
-					color: #3d3330;
-					margin-bottom: 20px;
-					padding-bottom: 10px;
-					border-bottom: 2px solid #c8614a;
-					display: flex;
-					align-items: center;
-					gap: 8px;
-				}
-
-				.section-title::before {
-					content: '';
-					display: inline-block;
-					width: 4px;
-					height: 16px;
-					background: #c8614a;
-					border-radius: 2px;
-				}
-
-				/* ───── INQUIRY FORM CARD ───── */
-				.form-card {
-					background: white;
-					border-radius: 12px;
-					padding: 36px 40px;
-					box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-				}
-
-				.form-row {
-					display: flex;
-					gap: 16px;
-					margin-bottom: 20px;
-				}
-
-				.form-group {
-					flex: 1;
-					display: flex;
-					flex-direction: column;
-					gap: 6px;
-				}
-
-				.form-group label {
-					font-size: 13px;
-					font-weight: 600;
-					color: #4a3f3a;
-				}
-
-				.form-group label .required {
-					color: #c8614a;
-					margin-left: 2px;
-				}
-
-				.form-group input[type="text"],
-				.form-group input[type="email"],
-				.form-group input[type="tel"],
-				.form-group select,
-				.form-group textarea {
-					border: 1px solid #ddd;
-					border-radius: 8px;
-					padding: 10px 14px;
-					font-size: 13px;
-					color: #3d3330;
-					background: white;
-					outline: none;
-					transition: border-color 0.2s, box-shadow 0.2s;
-					font-family: inherit;
-					width: 100%;
-				}
-
-				.form-group input::placeholder,
-				.form-group textarea::placeholder {
-					color: #bbb;
-				}
-
-				.form-group input:focus,
-				.form-group select:focus,
-				.form-group textarea:focus {
-					border-color: #c8614a;
-					box-shadow: 0 0 0 3px rgba(200, 97, 74, 0.1);
-				}
-
-				.form-group select {
-					cursor: pointer;
-					appearance: none;
-					background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-					background-repeat: no-repeat;
-					background-position: right 12px center;
-					padding-right: 36px;
-				}
-
-				.form-group textarea {
-					resize: vertical;
-					min-height: 120px;
-					line-height: 1.6;
-				}
-
-				.form-note {
-					font-size: 11.5px;
-					color: #999;
-					line-height: 1.6;
-					margin: 8px 0 24px;
-					padding: 12px 14px;
-					background: #faf7f4;
-					border-radius: 6px;
-					border-left: 3px solid #ddd;
-				}
-
-				.btn-inquiry-submit {
-					width: 100%;
-					padding: 14px;
-					background: #c8614a;
-					color: white;
-					border: none;
-					border-radius: 8px;
-					font-size: 15px;
-					font-weight: 600;
-					cursor: pointer;
-					transition: background 0.2s, transform 0.1s;
-					font-family: inherit;
-				}
-
-				.btn-inquiry-submit:hover {
-					background: #b5503b;
-				}
-
-				.btn-inquiry-submit:active {
-					transform: scale(0.99);
-				}
-
-				/* ───── ALERT MESSAGES ───── */
-				.inquiry-alert {
-					padding: 14px 18px;
-					border-radius: 8px;
-					font-size: 13px;
-					margin-bottom: 20px;
-					display: flex;
-					align-items: center;
-					gap: 10px;
-				}
-
-				.inquiry-alert.success {
-					background: #f0faf4;
-					border: 1px solid #b8dfc9;
-					color: #2d6a4f;
-				}
-
-				.inquiry-alert.error {
-					background: #fdf3f1;
-					border: 1px solid #f0c4bb;
-					color: #7d2e22;
-				}
-
-				/* ───── HOW IT WORKS ───── */
-				.inquiry-steps {
-					display: grid;
-					grid-template-columns: repeat(3, 1fr);
-					gap: 16px;
-					margin-top: 36px;
-				}
-
-				.step-card {
-					background: white;
-					border-radius: 10px;
-					padding: 20px;
-					text-align: center;
-					box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
-				}
-
-				.step-num {
-					width: 32px;
-					height: 32px;
-					background: #c8614a;
-					color: white;
-					border-radius: 50%;
-					font-size: 13px;
-					font-weight: 700;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					margin: 0 auto 10px;
-				}
-
-				.step-card h4 {
-					font-size: 13px;
-					font-weight: 600;
-					color: #3d3330;
-					margin-bottom: 6px;
-				}
-
-				.step-card p {
-					font-size: 12px;
-					color: #999;
-					line-height: 1.5;
-				}
-
-				/* ───── RESPONSIVE ───── */
-				@media (max-width: 640px) {
-					.form-row {
-						flex-direction: column;
-					}
-
-					.form-card {
-						padding: 24px 20px;
-					}
-
-					.inquiry-steps {
-						grid-template-columns: 1fr;
-					}
-				}
-			</style>
+			<link rel="stylesheet" href="${pageContext.request.contextPath}/css/cs/inquiry-form.css">
 		</head>
 
 		<body>
@@ -293,49 +38,88 @@
 										<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 									</c:if>
 
-									<%-- 로그인 사용자 ID (세션에서 전달, 없으면 null) --%>
+									<%-- 로그인 사용자 ID (세션에서 전달) --%>
 										<input type="hidden" name="userId" value="${sessionScope.loginUser.userId}" />
 
-										<div class="form-row">
-											<div class="form-group">
-												<label for="title">제목 <span class="required">*</span></label>
-												<input type="text" id="title" name="title" placeholder="문의 제목을 입력해주세요"
-													value="${param.title}" maxlength="100" required>
+										<%-- ── 이름 / 이메일 ─────────────────────────────────────── 로그인 상태: 세션값으로 자동 채워지고
+											readonly 처리 비로그인 : 직접 입력
+											─────────────────────────────────────────────────────────── --%>
+											<div class="form-row">
+												<div class="form-group">
+													<label for="userName">이름 <span class="required">*</span></label>
+													<c:choose>
+														<c:when test="${not empty sessionScope.loginUser}">
+															<input type="text" id="userName" name="userName"
+																value="${sessionScope.loginUser.userName}"
+																class="input-readonly" readonly>
+														</c:when>
+														<c:otherwise>
+															<input type="text" id="userName" name="userName"
+																placeholder="홍길동" value="${param.userName}"
+																maxlength="50" required>
+														</c:otherwise>
+													</c:choose>
+												</div>
+												<div class="form-group">
+													<label for="userEmail">이메일 <span class="required">*</span></label>
+													<c:choose>
+														<c:when test="${not empty sessionScope.loginUser}">
+															<input type="email" id="userEmail" name="userEmail"
+																value="${sessionScope.loginUser.userEmail}"
+																class="input-readonly" readonly>
+														</c:when>
+														<c:otherwise>
+															<input type="email" id="userEmail" name="userEmail"
+																placeholder="example@mail.com"
+																value="${param.userEmail}" maxlength="100" required>
+														</c:otherwise>
+													</c:choose>
+												</div>
 											</div>
-											<div class="form-group">
-												<label for="inquiryType">문의 유형 <span class="required">*</span></label>
-												<select id="inquiryType" name="inquiryType" required>
-													<option value="" disabled selected>선택해주세요</option>
-													<option value="ORDER" ${param.inquiryType eq 'ORDER' ? 'selected'
-														: '' }>주문/결제</option>
-													<option value="DELIVERY" ${param.inquiryType eq 'DELIVERY'
-														? 'selected' : '' }>배송 문의</option>
-													<option value="RETURN" ${param.inquiryType eq 'RETURN' ? 'selected'
-														: '' }>교환/반품</option>
-													<option value="PRODUCT" ${param.inquiryType eq 'PRODUCT'
-														? 'selected' : '' }>상품 문의</option>
-													<option value="ACCOUNT" ${param.inquiryType eq 'ACCOUNT'
-														? 'selected' : '' }>회원/계정</option>
-													<option value="OTHER" ${param.inquiryType eq 'OTHER' ? 'selected'
-														: '' }>기타</option>
-												</select>
+
+											<div class="form-row">
+												<div class="form-group">
+													<label for="title">제목 <span class="required">*</span></label>
+													<input type="text" id="title" name="title"
+														placeholder="문의 제목을 입력해주세요" value="${param.title}"
+														maxlength="100" required>
+												</div>
+												<div class="form-group">
+													<label for="inquiryType">문의 유형 <span
+															class="required">*</span></label>
+													<select id="inquiryType" name="inquiryType" required>
+														<option value="" disabled selected>선택해주세요</option>
+														<option value="ORDER" ${param.inquiryType eq 'ORDER'
+															? 'selected' : '' }>주문/결제</option>
+														<option value="DELIVERY" ${param.inquiryType eq 'DELIVERY'
+															? 'selected' : '' }>배송 문의</option>
+														<option value="RETURN" ${param.inquiryType eq 'RETURN'
+															? 'selected' : '' }>교환/반품</option>
+														<option value="PRODUCT" ${param.inquiryType eq 'PRODUCT'
+															? 'selected' : '' }>상품 문의</option>
+														<option value="ACCOUNT" ${param.inquiryType eq 'ACCOUNT'
+															? 'selected' : '' }>회원/계정</option>
+														<option value="OTHER" ${param.inquiryType eq 'OTHER'
+															? 'selected' : '' }>기타</option>
+													</select>
+												</div>
 											</div>
-										</div>
 
-										<div class="form-row">
-											<div class="form-group">
-												<label for="content">문의 내용 <span class="required">*</span></label>
-												<textarea id="content" name="content" placeholder="문의하실 내용을 상세히 입력해주세요."
-													maxlength="2000" required>${param.content}</textarea>
+											<div class="form-row">
+												<div class="form-group">
+													<label for="content">문의 내용 <span class="required">*</span></label>
+													<textarea id="content" name="content"
+														placeholder="문의하실 내용을 상세히 입력해주세요." maxlength="2000"
+														required>${param.content}</textarea>
+												</div>
 											</div>
-										</div>
 
-										<div class="form-note">
-											접수된 문의는 영업시간 내에 순차적으로 답변드립니다. 문의가 많을 경우 다소 지연될 수 있습니다.<br>
-											개인정보는 문의 답변 목적으로만 사용되며, 답변 완료 후 즉시 파기됩니다.
-										</div>
+											<div class="form-note">
+												접수된 문의는 영업시간 내에 순차적으로 답변드립니다. 문의가 많을 경우 다소 지연될 수 있습니다.<br>
+												개인정보는 문의 답변 목적으로만 사용되며, 답변 완료 후 즉시 파기됩니다.
+											</div>
 
-										<button type="submit" class="btn-inquiry-submit">문의 접수하기</button>
+											<button type="submit" class="btn-inquiry-submit">문의 접수하기</button>
 							</form>
 						</div>
 
@@ -370,10 +154,24 @@
 
 							/* 문의 폼 유효성 검사 */
 							$('#inquirySubmitForm').on('submit', function (e) {
+								var userName = $.trim($('#userName').val());
+								var userEmail = $.trim($('#userEmail').val());
 								var title = $.trim($('#title').val());
 								var type = $('#inquiryType').val();
 								var content = $.trim($('#content').val());
 
+								if (!userName) {
+									e.preventDefault();
+									alert('이름을 입력해주세요.');
+									$('#userName').focus();
+									return false;
+								}
+								if (!userEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userEmail)) {
+									e.preventDefault();
+									alert('올바른 이메일 주소를 입력해주세요.');
+									$('#userEmail').focus();
+									return false;
+								}
 								if (!title) {
 									e.preventDefault();
 									alert('제목을 입력해주세요.');

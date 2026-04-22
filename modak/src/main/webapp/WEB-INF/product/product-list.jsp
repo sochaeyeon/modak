@@ -190,7 +190,12 @@
                   <div class="pcard-img">
                       <img :src="product.imgUrl || '/img/product/default.jpg'" class="pcard-img" />
                   </div>
-
+                  <button class="wish-btn"
+                    :class="{ wished: wishedIds.has(product.productId) }">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                </button>
                   <div class="pcard-body">
                     <template v-if="currentView === 'list'">
                       <div class="pcard-main">
@@ -202,10 +207,9 @@
                       </div>
                       <div class="pcard-price-wrap">
                         <div class="price-row" style="justify-content:flex-end">
-                          <span class="price-orig" v-if="product.origRent">{{ product.origRent.toLocaleString()
-                            }}원</span>
+                          <span class="price-orig" v-if="product.origRent">{{ product.origRent.toLocaleString() }}원</span>
                           <span class="price-main">{{ product.price.toLocaleString() }}원</span>
-                          <span class="price-unit">/ 1박</span>
+                          <span class="price-unit" v-if="product.productType !== 'PURCHASE'">/ 1박</span>
                         </div>
                         <div v-if="product.buyPrice"
                           style="font-size:11px;color:var(--stone);text-align:right;margin-bottom:10px">
@@ -225,7 +229,7 @@
                       <div class="price-row">
                         <span class="price-orig" v-if="product.origRent">{{ product.origRent.toLocaleString() }}원</span>
                         <span class="price-main">{{ (product.price || 0).toLocaleString() }}원</span>
-                        <span class="price-unit">/ 1박</span>
+                        <span class="price-unit" v-if="product.productType !== 'PURCHASE'">/ 1박</span>
                       </div>
                     </template>
 
@@ -497,52 +501,56 @@
               clearBrands() {
                 this.filter.brandId = []; // 배열을 비워서 다른 체크를 모두 해제
                 this.fnSearch();
-              }
+              },
 
-            },
 
-           mounted() {
-    this.fetchCategory();   /* 부모 카테고리 pill 로드 */
-    this.fetchBrandList();  /* 브랜드 목록 로드 */
- 
-    var self   = this;
-    var params = new URLSearchParams(window.location.search);
-    var catId  = params.get('categoryId');   /* 자식 카테고리 ID */
-    var parId  = params.get('parentId');     /* 부모 카테고리 ID */
- 
-    if (catId && parId) {
-        /* ── 메인에서 카테고리 아이콘 클릭해서 들어온 경우 ── */
-        catId = parseInt(catId);
-        parId = parseInt(parId);
- 
-        /* 부모 pill 선택 */
-        self.currentCat = parId;
- 
-        /* 자식 카테고리 목록 로드 후 해당 자식 자동 선택 */
-        $.ajax({
-            url     : '/category/childList.dox',
-            type    : 'POST',
-            dataType: 'json',
-            data    : { parentId: parId },
-            success : function(data) {
-                if (data.result === 'success') {
-                    self.childCategory = data.list;
-                    self.currentChild  = catId;   /* 세부 카테고리 자동 선택 */
-                }
-                self.fnList();
-            },
-            error: function() { self.fnList(); }
-        });
- 
-    } else if (catId) {
-        /* categoryId 만 있는 경우 — 부모 카테고리로 처리 */
-        self.selectCategory(parseInt(catId));
- 
-    } else {
-        /* 파라미터 없으면 전체 목록 */
-        this.fnList();
-    }
-},
+            }, // methods
+
+          mounted() {
+            this.fetchCategory();   /* 부모 카테고리 pill 로드 */
+            this.fetchBrandList();  /* 브랜드 목록 로드 */
+        
+            var self   = this;
+            var params = new URLSearchParams(window.location.search);
+            var catId  = params.get('categoryId');   /* 자식 카테고리 ID */
+            var parId  = params.get('parentId');     /* 부모 카테고리 ID */
+        
+            if (catId && parId) {
+                /* ── 메인에서 카테고리 아이콘 클릭해서 들어온 경우 ── */
+                catId = parseInt(catId);
+                parId = parseInt(parId);
+        
+                /* 부모 pill 선택 */
+                self.currentCat = parId;
+        
+                /* 자식 카테고리 목록 로드 후 해당 자식 자동 선택 */
+                $.ajax({
+                    url     : '/category/childList.dox',
+                    type    : 'POST',
+                    dataType: 'json',
+                    data    : { parentId: parId },
+                    success : function(data) {
+                        if (data.result === 'success') {
+                            self.childCategory = data.list;
+                            self.currentChild  = catId;   /* 세부 카테고리 자동 선택 */
+                        }
+                        self.fnList();
+                    },
+                    error: function() { self.fnList(); }
+                });
+        
+            } else if (catId) {
+                /* categoryId 만 있는 경우 — 부모 카테고리로 처리 */
+                self.selectCategory(parseInt(catId));
+        
+            } else {
+                /* 파라미터 없으면 전체 목록 */
+                this.fnList();
+            }
+
+            
+
+          },
 
           }).mount('#app');
         </script>

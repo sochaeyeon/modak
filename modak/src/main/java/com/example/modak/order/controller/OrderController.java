@@ -35,6 +35,7 @@ public class OrderController {
         model.addAttribute("orderId", orderId);
         return "order/order-detail"; 
     }
+    
 
     // 3. 주문 목록 데이터 조회 (AJAX용 .dox)
     @RequestMapping("/order/list.dox")

@@ -75,81 +75,7 @@ nav {
 .cat-pill.active { background: var(--ember); border-color: var(--ember); color: #fff; font-weight: 400; }
 .cat-pill.active .pill-emoji { filter: brightness(10); }
 
-/* 검색창 컨테이너 */
-.search-product {
-  flex: 1;
-  max-width: 510px; /* 너무 넓어지지 않게 제한 */
-  margin: 0 20px;
-}
 
-.search-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.search-wrapper input {
-  width: 100%;
-  padding: 10px 40px 10px 45px; /* 양옆 아이콘 공간 확보 */
-  border: 2px solid #eef0f2;
-  border-radius: 30px;
-  background-color: #f8f9fa;
-  font-size: 14px;
-  transition: all 0.3s ease;
-  outline: none;
-}
-
-/* 포커스 되었을 때 포인트 컬러 */
-.search-wrapper input:focus {
-  border-color: #ffa04b; 
-  background-color: #fff;
-  box-shadow: 0 4px 12px rgba(255, 138, 61, 0.1);
-}
-
-/* 돋보기 아이콘 */
-.search-icon {
-  position: absolute;
-  left: 15px;
-  width: 18px;
-  height: 18px;
-  fill: none;
-  stroke: #adb5bd;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  pointer-events: none;
-}
-
-/* 입력 내용 지우기 버튼 */
-.search-clear {
-  position: absolute;
-  right: 12px;
-  background: #dee2e6;
-  border: none;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  color: white;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  line-height: 1;
-}
-
-.search-clear:hover {
-  background: #adb5bd86;
-}
-
-/* 반응형 대응 */
-@media (max-width: 768px) {
-  .search-product {
-    order: 3; /* 모바일에서 순서 조정 필요시 */
-    max-width: 100%;
-    margin: 10px 0;
-  }
-}
 
 /* 5. 메인 레이아웃 (페이지 감싸기) */
 .page-wrap { max-width: 1200px; margin: 0 auto; padding: 32px 32px 80px; }
@@ -198,6 +124,12 @@ nav {
   background: var(--ember); color: #fff; font-size: 10px;
   width: 16px; height: 16px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center; font-weight: 500;
+}
+
+.filter-toggle.active {
+    border-color: #C8602A;
+    color: #C8602A;
+    background: var(--smoke);
 }
 
 /* 6. 사이드바 (필터 패널) */

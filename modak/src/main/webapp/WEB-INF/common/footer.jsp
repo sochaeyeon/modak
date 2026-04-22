@@ -1,156 +1,113 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/footer.css">
 
-	<style>
-		.main-footer {
-			background-color: #fdfaf7;
-			/* 디자인의 미색 배경 반영 */
-			padding: 60px 0 30px;
-			color: #555;
-			font-size: 13px;
-		}
+<footer class="main-footer">
+    <div class="footer-inner">
 
-		.footer-container {
-			max-width: 1200px;
-			margin: 0 auto;
-			padding: 0 20px;
-		}
+        <div class="footer-top">
+            <div class="footer-brand">
+                <a href="/main.do" class="footer-brand-link">모닥모닥</a>
 
-		.footer-top {
-			display: flex;
-			justify-content: space-between;
-			margin-bottom: 40px;
-		}
+                <p class="footer-brand-desc">
+                    캠핑의 시작부터 끝까지,<br>
+                    모닥모닥이 더 따뜻한 아웃도어 라이프를 제안합니다.
+                </p>
 
-		.footer-col {
-			flex: 1;
-		}
+                <p class="footer-brand-line">
+                    오늘의 캠핑도, 모닥모닥하게.
+                </p>
 
-		.footer-col h4 {
-			font-size: 15px;
-			font-weight: 700;
-			color: #333;
-			margin-bottom: 20px;
-		}
+                <div class="footer-sns-box">
+                    <a href="#" class="sns-link" title="인스타그램">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+                    <a href="#" class="sns-link" title="유튜브">
+                        <i class="fa-brands fa-youtube"></i>
+                    </a>
+                    <a href="#" class="sns-link" title="카카오톡">
+                        <i class="fa-solid fa-comment"></i>
+                    </a>
+                </div>
+            </div>
 
-		.footer-logo {
-			font-size: 18px !important;
-			color: #e67e22 !important;
-		}
+            <div class="footer-nav-group">
+                <div class="footer-nav">
+                    <h5>쇼핑</h5>
+                    <ul>
+                        <li><a href="/rent.do">대여하기</a></li>
+                        <li><a href="/buy.do">구매하기</a></li>
+                        <li><a href="/product/list.do">카테고리</a></li>
+                        <li><a href="/new-items.do">신상품</a></li>
+                        <li><a href="/best.do">베스트</a></li>
+                    </ul>
+                </div>
 
-		.footer-col ul {
-			list-style: none;
-			padding: 0;
-			margin: 0;
-		}
+                <div class="footer-nav">
+                    <h5>고객지원</h5>
+                    <ul>
+                        <li><a href="/notice.do">공지사항</a></li>
+                        <li><a href="/faq.do">자주 묻는 질문</a></li>
+                        <li><a href="/qna.do">1:1 문의</a></li>
+                        <li><a href="/deliveryTracking.do">배송조회</a></li>
+                        <li><a href="/return.do">반품/교환</a></li>
+                    </ul>
+                </div>
 
-		.footer-col ul li {
-			margin-bottom: 10px;
-		}
+                <div class="footer-nav">
+                    <h5>서비스</h5>
+                    <ul>
+                        <li><a href="/camp/map.do">캠핑장 찾기</a></li>
+                        <li><a href="/event/list.do">이벤트</a></li>
+                        <li><a href="/guide/guide.do">캠핑 가이드</a></li>
+                        <li><a href="/review/list.do">리뷰</a></li>
+                        <li><a href="/cs/center.do">고객센터</a></li>
+                    </ul>
+                </div>
+            </div>
 
-		.footer-col a {
-			color: #777;
-			text-decoration: none;
-			transition: color 0.2s;
-		}
+            <div class="footer-cs">
+                <h5>고객센터</h5>
+                <p class="cs-phone">1588-0000</p>
+                <p class="cs-time">평일 09:00 - 18:00</p>
+                <p class="cs-time">점심 12:00 - 13:00</p>
+                <p class="cs-text">주말 및 공휴일 휴무</p>
+                <a href="mailto:hello@modakmodak.kr" class="cs-email">hello@modakmodak.kr</a>
 
-		.footer-col a:hover {
-			color: #e67e22;
-		}
+                <div class="cs-mini-box">
+                    <span>실시간 문의 응답</span>
+                    <strong>평균 10분 이내</strong>
+                </div>
+            </div>
+        </div>
 
-		.slogan {
-			line-height: 1.6;
-			color: #888;
-		}
+        <div class="footer-mid">
+            <div class="footer-company">
+                <p>
+                    <span>상호명 : 모닥모닥</span>
+                    <span>대표 : 홍길동</span>
+                    <span>사업자등록번호 : 123-45-67890</span>
+                    <span>통신판매업신고 : 2026-서울강남-0000</span>
+                </p>
+                <p>
+                    <span>주소 : 서울특별시 강남구 테헤란로 123, 모닥빌딩 5층</span>
+                    <span>개인정보보호책임자 : 홍길동</span>
+                </p>
+            </div>
 
-		.cs-number {
-			font-size: 20px;
-			font-weight: 700;
-			color: #333;
-			margin-bottom: 10px;
-		}
+            <div class="footer-policy">
+                <a href="/terms.do">이용약관</a>
+                <a href="/privacyPolicy.do" class="strong">개인정보처리방침</a>
+                <a href="/refundPolicy.do">환불정책</a>
+                <a href="/notice.do">공지사항</a>
+            </div>
+        </div>
 
-		.info-col p {
-			line-height: 1.6;
-			margin-bottom: 15px;
-		}
-
-		.footer-divider {
-			border: 0;
-			border-top: 1px solid #eee;
-			margin-bottom: 20px;
-		}
-
-		.footer-bottom {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			color: #999;
-			font-size: 12px;
-		}
-
-		.legal-links a {
-			margin-left: 20px;
-			color: #999;
-			text-decoration: none;
-		}
-
-		.legal-links a.bold {
-			font-weight: 700;
-			color: #666;
-			/* 개인정보처리방침 강조 */
-		}
-	</style>
-	<footer class="main-footer">
-		<div class="footer-container">
-			<div class="footer-top">
-				<div class="footer-col">
-					<a href="/main.do">
-						<h4 class="footer-logo">🔥 모닥모닥</h4>
-					</a>
-					<p class="slogan">자연과 함께하는 특별한 순간을<br>모닥모닥이 함께합니다.</p>
-				</div>
-
-				<div class="footer-col">
-					<h4>서비스</h4>
-					<ul>
-						<li><a href="/rent.do">대여하기</a></li>
-						<li><a href="/buy.do">구매하기</a></li>
-						<li><a href="/camp/map.do">캠핑장 찾기</a></li>
-						<li><a href="/new-items.do">신상품</a></li>
-						<li><a href="/best.do">베스트</a></li>
-					</ul>
-				</div>
-
-				<div class="footer-col">
-					<h4>고객지원</h4>
-					<ul>
-						<li><a href="/notice.do">공지사항</a></li>
-						<li><a href="/faq.do">자주 묻는 질문</a></li>
-						<li><a href="/qna.do">1:1 문의</a></li>
-						<li><a href="/deliveryTracking.do">배송 조회</a></li>
-						<li><a href="/return.do">반품/교환</a></li>
-					</ul>
-				</div>
-
-				<div class="footer-col info-col">
-					<h4>문의</h4>
-					<p class="cs-number">1588-0000</p>
-					<p>운영시간<br>평일 09:00 - 18:00</p>
-					<p>이메일<br><a href="mailto:hello@modakmodak.kr">hello@modakmodak.kr</a></p>
-				</div>
-			</div>
-
-			<hr class="footer-divider">
-
-			<div class="footer-bottom">
-				<div class="copyright">
-					© 2026 MODAK MODAK. All rights reserved.
-				</div>
-				<div class="legal-links">
-					<a href="/terms.do">이용약관</a>
-					<a href="/privacyPolicy.do" class="bold">개인정보처리방침</a>
-					<a href="/terms.do">환불정책</a>
-				</div>
-			</div>
-		</div>
-	</footer>
+        <div class="footer-bottom">
+            <p class="footer-copy">© 2026 모닥모닥. All rights reserved.</p>
+            <p class="footer-note">
+                모닥모닥은 통신판매중개자이며, 개별 판매자가 등록한 상품 정보 및 거래에 대한 책임은 판매자에게 있습니다.
+            </p>
+        </div>
+    </div>
+</footer>

@@ -218,8 +218,7 @@
                     const app = Vue.createApp({
                         data() {
                             return {
-                                //inputKeyword: "${param.keyword != null ? param.keyword : ''}",
-                                inputKeyword: "텐트",
+                                inputKeyword: "${param.keyword != null ? param.keyword : ''}",
                                 searchedKeyword: "",
                                 emptyKeyword: false,
                                 result: {

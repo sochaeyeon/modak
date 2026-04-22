@@ -25,12 +25,13 @@
           <div class="cat-bar-inner">
             <!-- 전체 pill (고정) -->
             <button class="cat-pill" :class="{ active: currentCat === null }" @click="selectCategory(null)">
-              <span class="pill-emoji">⛺</span>
+              <span class="pill-emoji">⭐</span>
               전체
             </button>
             <!-- DB에서 가져온 부모 카테고리 순회 -->
             <button v-for="cat in category" :key="cat.categoryId" class="cat-pill"
               :class="{ active: currentCat === cat.categoryId }" @click="selectCategory(cat.categoryId)">
+              <span class="pill-emoji">⛺</span>
               {{ cat.categoryName }}
             </button>
           </div>
@@ -38,7 +39,7 @@
 
         <!-- ── 메인 컨텐츠 영역 ── -->
         <div class="page-wrap">
-          <div class="top-row">
+          <div class="top-row" style="display: grid; grid-template-columns: 1fr 400px 1fr;">
             <div class="result-info">
               <div class="result-label">인기 장비</div>
               <div>
@@ -52,7 +53,7 @@
               <button type="button" @click="fnSearch">검색</button>
             </div>
             <div class="controls">
-              <button class="filter-toggle" @click="sidebarVisible = !sidebarVisible">
+              <button class="filter-toggle" :class="{ active: sidebarVisible }" @click="sidebarVisible = !sidebarVisible">
                 <svg viewBox="0 0 24 24">
                   <line x1="4" y1="6" x2="20" y2="6" />
                   <line x1="8" y1="12" x2="16" y2="12" />
@@ -184,17 +185,16 @@
 
               <div v-else :class="['product-grid', currentView === 'list' ? 'view-list' : '']">
                 <div v-for="(product, idx) in pagedProducts" :key="product.productId" class="pcard"
-                  :class="{ 'list-card': currentView === 'list' }" :style="{ animationDelay: (idx * 0.05) + 's' }">
+                  :class="{ 'list-card': currentView === 'list' }" :style="{ animationDelay: (idx * 0.05) + 's' }"
+                  @click="fnView(product.productId)">
                   <div class="pcard-img">
-                    <a href="javascript:;" @click="fnView(product.productId)">
                       <img :src="product.imgUrl || '/img/product/default.jpg'" class="pcard-img" />
-                    </a>
                   </div>
 
                   <div class="pcard-body">
                     <template v-if="currentView === 'list'">
                       <div class="pcard-main">
-                        <div class="pcard-name">{{ product.productName }}</div>
+                        <div class="pcard-name" style="cursor:pointer;">{{ product.productName }}</div>
                         <div class="stars">
                           <span v-html="starsHTML(product.rating)"></span>
                           <span class="star-count">{{ product.rating }} ({{ product.rCount }})</span>
@@ -230,8 +230,10 @@
                     </template>
 
                     <div class="btn-row">
-                      <button v-if="product.productType !== 'PURCHASE'" class="btn-rent">대여하기</button>
-                      <button v-if="product.productType !== 'RENTAL'" class="btn-buy">구매하기</button>
+                      <button v-if="product.productType !== 'PURCHASE'" class="btn-rent" 
+                        @click.stop="fnView(product.productId)">대여하기</button>
+                      <button v-if="product.productType !== 'RENTAL'" class="btn-buy"
+                        @click.stop="fnView(product.productId)">구매하기</button>
                     </div>
                   </div>
                 </div>
@@ -303,7 +305,7 @@
                 return [...list].sort((a, b) => {
                   if (this.sortKey === 'price-low') return a.price - b.price;
                   if (this.sortKey === 'price-high') return b.price - a.price;
-                  if (this.sortKey === 'newest') return b.productId - a.productId;
+                  if (this.sortKey === 'newest') return b.createdAt - a.createdAt;
                   return b.productId - a.productId;
                 });
               },

@@ -22,7 +22,7 @@ public class MembershipController {
 	MembershipService membershipService;
 	
 	// 멤버십 디테일
-	@RequestMapping("user/membership/info.do")
+	@RequestMapping("/user/membership/info.do")
 	public String boardView(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
 			throws Exception {
 		request.setAttribute("map", map); // jsp에서 꺼낼 때 "${map.~}" 으로 꺼내기

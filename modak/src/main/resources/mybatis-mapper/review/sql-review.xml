@@ -161,10 +161,18 @@
 	        R.USER_ID AS userId,
 	        R.PRODUCT_ID AS productId,
 	        R.TITLE AS title,
-	        P.PRODUCT_NAME AS productName
+	        P.PRODUCT_NAME AS productName,
+	        (
+				SELECT RI.IMG_URL
+	            FROM REVIEW_IMG RI
+	            WHERE RI.REVIEW_ID = R.REVIEW_ID
+	            ORDER BY RI.IMG_ID ASC
+	            LIMIT 1
+			) AS imageUrl
 	    FROM REVIEW R
 	    LEFT JOIN PRODUCT P ON R.PRODUCT_ID = P.PRODUCT_ID
-	    WHERE R.PRODUCT_ID = #{productId}       ← userId 대신 productId
+	    WHERE R.PRODUCT_ID = #{productId}       
+	    <!-- userId 대신 productId-->
 	    AND R.REVIEW_STATUS = 'ACTIVE'
 	    ORDER BY R.CREATED_AT DESC
 	    LIMIT ${pageSize} OFFSET ${offset}

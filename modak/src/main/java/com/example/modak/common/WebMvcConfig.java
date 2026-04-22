@@ -33,7 +33,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                     "/images/**",
                     "/order/guest/**",
                     "/rental/extension/inquiry.do",      // ← 추가
-                    "/rental/extension/guest/**" 
+                    "/rental/extension/guest/**",
+                    "/review/list.dox"
                 );
     }
 }

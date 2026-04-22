@@ -35,20 +35,20 @@
                 <div class="footer-nav">
                     <h5>쇼핑</h5>
                     <ul>
-                        <li><a href="/rent.do">대여하기</a></li>
-                        <li><a href="/buy.do">구매하기</a></li>
+                        <li><a href="/product/list.do">대여하기</a></li>
+                        <li><a href="/product/list.do">구매하기</a></li>
                         <li><a href="/product/list.do">카테고리</a></li>
-                        <li><a href="/new-items.do">신상품</a></li>
-                        <li><a href="/best.do">베스트</a></li>
+                        <li><a href="/product/list.do">신상품</a></li>
+                        <li><a href="/product/list.do">베스트</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-nav">
                     <h5>고객지원</h5>
                     <ul>
-                        <li><a href="/notice.do">공지사항</a></li>
+                        <li><a href="/notification/list.do">공지사항</a></li>
                         <li><a href="/faq.do">자주 묻는 질문</a></li>
-                        <li><a href="/qna.do">1:1 문의</a></li>
+                        <li><a href="/inquiry.do">1:1 문의</a></li>
                         <li><a href="/deliveryTracking.do">배송조회</a></li>
                         <li><a href="/return.do">반품/교환</a></li>
                     </ul>
@@ -60,7 +60,7 @@
                         <li><a href="/camp/map.do">캠핑장 찾기</a></li>
                         <li><a href="/event/list.do">이벤트</a></li>
                         <li><a href="/guide/guide.do">캠핑 가이드</a></li>
-                        <li><a href="/review/list.do">리뷰</a></li>
+                        <li><a href="/chat/bot.do">챗봇</a></li>
                         <li><a href="/cs/center.do">고객센터</a></li>
                     </ul>
                 </div>
@@ -98,8 +98,8 @@
             <div class="footer-policy">
                 <a href="/terms.do">이용약관</a>
                 <a href="/privacyPolicy.do" class="strong">개인정보처리방침</a>
-                <a href="/refundPolicy.do">환불정책</a>
-                <a href="/notice.do">공지사항</a>
+                <a href="/marketingConsent.do">마케팅정보수신</a>
+                <a href="/notification/list.do">공지사항</a>
             </div>
         </div>
 

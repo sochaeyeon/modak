@@ -192,8 +192,10 @@ public class ReviewService {
 	public HashMap<String, Object> getProductReviewList(HashMap<String, Object> map) {
 	    HashMap<String, Object> resultMap = new HashMap<>();
 	    try {
-	        int page = Integer.parseInt(String.valueOf(map.get("page")));
-	        int pageSize = Integer.parseInt(String.valueOf(map.get("pageSize")));
+//	        int page = Integer.parseInt(String.valueOf(map.get("page")));
+//	        int pageSize = Integer.parseInt(String.valueOf(map.get("pageSize")));
+	    	int page = map.get("page") != null ? Integer.parseInt(String.valueOf(map.get("page"))) : 1;
+	        int pageSize = map.get("pageSize") != null ? Integer.parseInt(String.valueOf(map.get("pageSize"))) : 10;
 	        int offset = (page - 1) * pageSize;
 	        map.put("offset", offset);
 

@@ -58,6 +58,7 @@ public class ProductService {
 	    return resultMap;
 	}
 	
+	// product detail
 	public HashMap<String, Object> getProduct(HashMap<String, Object> map) {
 	    HashMap<String, Object> resultMap = new HashMap<String, Object>();
 	    try {
@@ -65,9 +66,11 @@ public class ProductService {
 	        Product info = productMapper.selectProduct(map);
 	        productMapper.increaseViewCount(map); 
 	        List<Product> img = productMapper.selectProductImages(map);
+	        int orderCount = productMapper.selectOrderCount(map);
 	        
 	        resultMap.put("info", info);
 	        resultMap.put("img", img);
+	        resultMap.put("orderCount", orderCount);
 	        resultMap.put("result", "success");
 	        resultMap.put("message", Message.SUCCESS_SELECT); 
 	    } catch (Exception e) {

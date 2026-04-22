@@ -30,7 +30,7 @@ a { text-decoration:none; color:inherit; }
 .section     { padding:80px 48px; }
 .section-alt { background:var(--white);padding:80px 48px; }
 .section-label { font-size:11px;color:var(--brown4);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px; }
-.section-title { font-family:var(--font-title);font-size:30px;font-weight:700;color:var(--brown);margin-bottom:8px;letter-spacing:-.5px; }
+.section-title { font-family:var(--font-body);font-size:30px;font-weight:700;color:var(--brown);margin-bottom:8px;letter-spacing:-.5px; }
 .section-sub   { font-size:14px;color:var(--brown3);font-weight:300;margin-bottom:40px;line-height:1.7; }
 
 /* ══════════════════════════════
@@ -167,7 +167,7 @@ a { text-decoration:none; color:inherit; }
     border-radius:20px;margin-bottom:clamp(10px,1.5vw,20px);border:1px solid var(--cream3);
 }
 .hero-title {
-    font-family:var(--font-title);
+    font-family:var(--font-body);
     font-size:clamp(28px, 4vw, 52px);
     font-weight:800;line-height:1.2;color:var(--brown);
     margin-bottom:clamp(12px,1.5vw,20px);letter-spacing:-1px;
@@ -230,7 +230,7 @@ a { text-decoration:none; color:inherit; }
 .heb-card-body { flex:1;text-align:left;min-width:0; }
 .heb-eyebrow { display:inline-block;font-size:10px;font-weight:700;letter-spacing:1.4px;color:var(--orange);background:rgba(232,115,42,.12);border:1px solid rgba(232,115,42,.3);border-radius:12px;padding:3px 12px;margin-bottom:8px; }
 .heb-card--invite .heb-eyebrow { background:rgba(232,115,42,.2);border-color:rgba(232,115,42,.4); }
-.heb-headline { font-family:var(--font-title);font-size:clamp(16px,2vw,24px);font-weight:800;line-height:1.25;color:var(--brown);margin-bottom:6px;letter-spacing:-.3px; }
+.heb-headline { font-family:var(--font-body);font-size:clamp(16px,2vw,24px);font-weight:800;line-height:1.25;color:var(--brown);margin-bottom:6px;letter-spacing:-.3px; }
 .heb-card--invite .heb-headline { color:var(--cream); }
 .heb-headline em { font-style:normal;color:var(--orange);font-size:clamp(18px,2.5vw,28px); }
 .heb-desc { font-size:clamp(11px,1vw,12px);font-weight:300;color:var(--brown3);line-height:1.7; }
@@ -244,7 +244,7 @@ a { text-decoration:none; color:inherit; }
 .heb-card--join   .heb-coupon-badge { background:var(--orange);box-shadow:0 8px 24px rgba(232,115,42,.35); }
 .heb-card--invite .heb-coupon-badge { background:rgba(232,115,42,.9);box-shadow:0 8px 24px rgba(232,115,42,.4); }
 .heb-coupon-badge::before { content:'쿠폰';display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,.8);letter-spacing:1px;margin-bottom:4px; }
-.heb-coupon-amt  { font-family:var(--font-title);font-size:clamp(18px,2.5vw,28px);font-weight:800;color:#fff;line-height:1; }
+.heb-coupon-amt  { font-family:var(--font-body);font-size:clamp(18px,2.5vw,28px);font-weight:800;color:#fff;line-height:1; }
 .heb-coupon-unit { font-size:11px;font-weight:500;color:rgba(255,255,255,.8);margin-top:3px; }
 
 .heb-btn {
@@ -298,10 +298,14 @@ a { text-decoration:none; color:inherit; }
 .product-card:hover { transform:translateY(-6px);box-shadow:0 20px 48px rgba(44,30,15,.12); }
 .product-img { width:100%;aspect-ratio:1;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:56px;position:relative; }
 .product-badge { position:absolute;top:12px;left:12px;background:var(--orange);color:#fff;font-size:10px;padding:4px 10px;border-radius:12px;font-weight:500; }
-.product-wish { position:absolute;top:12px;right:12px;width:32px;height:32px;background:rgba(255,253,248,.9);border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s; }
-.product-wish:hover { background:#fff;transform:scale(1.1); }
-.product-wish svg { width:16px;height:16px;stroke:var(--brown3);fill:none;stroke-width:1.5; }
-.product-wish.on svg { stroke:var(--orange);fill:var(--orange); }
+/* wish-btn 스타일은 /js/wish.js 에서 주입 — 여기서는 보완만 */
+.wish-btn { position:absolute;top:12px;right:12px;width:34px;height:34px;
+    background:rgba(255,253,248,.92);border-radius:50%;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;transition:all .2s;z-index:10; }
+.wish-btn:hover { background:#fff;transform:scale(1.12); }
+.wish-btn svg { width:17px;height:17px;stroke:#bbb;fill:none;stroke-width:1.8;transition:stroke .2s,fill .2s; }
+.wish-btn.on svg { stroke:#ee0033;fill:#ee0033; }
+.wish-btn.on { background:#fff8f8; }
 .product-info  { padding:16px; }
 .product-tag   { font-size:10px;color:var(--orange);letter-spacing:1px;font-weight:500;margin-bottom:6px; }
 .product-name  { font-size:14px;font-weight:500;color:var(--brown);margin-bottom:8px;line-height:1.4; }
@@ -358,7 +362,7 @@ a { text-decoration:none; color:inherit; }
 .guide-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1200px;margin:40px auto 0; }
 .guide-card { background:var(--white);border-radius:16px;padding:28px;border:1px solid var(--cream3);cursor:pointer;transition:all .25s;display:flex;flex-direction:column;gap:14px; }
 .guide-card:hover { transform:translateY(-4px);border-color:var(--orange); }
-.guide-num      { font-family:var(--font-title);font-size:42px;font-weight:800;color:var(--cream3);line-height:1; }
+.guide-num      { font-family:var(--font-body);font-size:42px;font-weight:800;color:var(--cream3);line-height:1; }
 .guide-icon-row { display:flex;align-items:center;gap:12px; }
 .guide-emoji    { font-size:28px; }
 .guide-card-title { font-size:15px;font-weight:500;color:var(--brown); }
@@ -371,7 +375,7 @@ a { text-decoration:none; color:inherit; }
 .member-banner { padding:80px 48px;background:var(--white); }
 .member-inner { max-width:900px;margin:0 auto;background:var(--brown);border-radius:24px;padding:56px;display:grid;grid-template-columns:1fr auto;gap:48px;align-items:center;position:relative;overflow:hidden; }
 .member-inner::before { content:'';position:absolute;right:-40px;bottom:-60px;width:280px;height:280px;border-radius:50%;border:60px solid rgba(232,115,42,.12); }
-.member-title   { font-family:var(--font-title);font-size:28px;font-weight:800;color:var(--cream);margin-bottom:12px;line-height:1.3; }
+.member-title   { font-family:var(--font-body);font-size:28px;font-weight:800;color:var(--cream);margin-bottom:12px;line-height:1.3; }
 .member-sub     { font-size:14px;color:var(--brown4);line-height:1.8;font-weight:300;margin-bottom:24px; }
 .grade-list     { display:flex;gap:24px; }
 .grade-badge    { display:inline-block;font-size:11px;padding:4px 12px;border-radius:12px;font-weight:500; }

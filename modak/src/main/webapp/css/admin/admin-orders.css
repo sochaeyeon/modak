@@ -1,0 +1,122 @@
+@charset "UTF-8";
+
+/* ════ 주문 관리 전용 프리미엄 다크 테마 (이미지 분위기 반영) ════ */
+.order-page-container {
+    --o-bg: #11131a;
+    --o-card: #1c1f2b;
+    --o-accent: #E8732A;
+    --o-accent-glow: rgba(232, 115, 42, 0.25);
+    --o-border: rgba(255, 255, 255, 0.08);
+    --o-text: #e2e4e9;
+    --o-text-muted: #8a8f9d;
+    
+    background: var(--o-bg);
+    min-height: 100vh;
+    padding: 28px 32px;
+}
+
+/* 헤더 섹션 */
+.order-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 28px; 
+}
+.order-title { 
+    font-size: 22px; 
+    font-weight: 700; 
+    color: #fff; 
+    letter-spacing: -0.5px; 
+}
+
+/* 대시보드 복귀 버튼 */
+.o-btn-back {
+    background: rgba(255, 255, 255, 0.05); 
+    color: #fff; 
+    border: 1px solid var(--o-border);
+    padding: 10px 18px; 
+    border-radius: 12px; 
+    font-weight: 600; 
+    font-size: 13px;
+    cursor: pointer; 
+    transition: 0.3s; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+}
+.o-btn-back:hover { 
+    background: rgba(255, 255, 255, 0.1); 
+    border-color: var(--o-text-muted); 
+}
+
+/* 주문 리스트 카드 & 테이블 */
+.order-card {
+    background: var(--o-card);
+    border: 1px solid var(--o-border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+
+.order-table { width: 100%; border-collapse: collapse; }
+.order-table th {
+    background: rgba(255,255,255,0.03);
+    padding: 16px; 
+    font-size: 11px; 
+    color: var(--o-text-muted);
+    text-transform: uppercase; 
+    letter-spacing: 1.5px;
+    border-bottom: 1px solid var(--o-border);
+}
+.order-table td { 
+    padding: 18px 16px; 
+    border-bottom: 1px solid var(--o-border); 
+    font-size: 14px; 
+    color: var(--o-text); 
+    text-align: center;
+}
+.order-table tr:hover { background: rgba(255,255,255,0.02); }
+
+/* 상품 정보 셀 (이미지 + 텍스트) */
+.prod-info-td {
+    display: flex;
+    align-items: center;
+    text-align: left !important;
+    gap: 15px;
+}
+.order-img-box {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    background: #2a2f3e;
+    overflow: hidden;
+    border: 1px solid var(--o-border);
+    flex-shrink: 0;
+}
+.order-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 주문 데이터 강조 */
+.order-id { font-family: 'Courier New', monospace; color: var(--o-accent); font-weight: 700; }
+.order-price { font-weight: 700; color: #fff; font-size: 15px; }
+.order-date { color: var(--o-text-muted); font-size: 12px; }
+
+/* 상태 선택 셀렉트 박스 */
+.o-select {
+    background: #262a3a; 
+    color: #fff; 
+    border: 1px solid var(--o-border);
+    padding: 8px 12px; 
+    border-radius: 10px; 
+    outline: none; 
+    font-size: 13px;
+    cursor: pointer; 
+    transition: 0.3s;
+}
+.o-select:focus { 
+    border-color: var(--o-accent); 
+    box-shadow: 0 0 0 2px var(--o-accent-glow); 
+}

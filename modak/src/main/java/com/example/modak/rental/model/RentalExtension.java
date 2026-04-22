@@ -1,29 +1,28 @@
 package com.example.modak.rental.model;
 
 import lombok.Data;
-import java.sql.Timestamp;
 
 @Data
 public class RentalExtension {
 
-    // RENTAL_EXTENSION 테이블
-    private Long      extensionId;
-    private Integer   extensionDays;
-    private int       price;
-    private Timestamp createdAt;
-    private Long      rentalId;
+    /* ── RENTALS ── */
+    private Long   rentalId;
+    private Long   itemId;
+    private String userId;
+    private String startDate;
+    private String returnDate;
+    private String rentalStatus;
+    private String guestName;
+    private String guestPhone;
 
-    // RENTALS 테이블
-    private Long      itemId;
-    private String    userId;
-    private String    startDate;
-    private String    returnDate;
-    private String    rentalStatus;
+    /* ── PRODUCT 조인 ── */
+    private String productName;
+    private int    pricePerDay;
+    private String imgUrl;         // ★ 상품 대표 이미지   // ★ 상품 1일 대여가격
 
-    // 비회원 식별 (ALTER로 추가한 컬럼)
-    private String    guestName;
-    private String    guestPhone;
-
-    // PRODUCT 조인
-    private String    productName;
+    /* ── RENTAL_EXTENSION ── */
+    private Long   extensionId;
+    private int    extensionDays;
+    private int    price;         // 연장 결제 금액
+    private String createdAt;
 }

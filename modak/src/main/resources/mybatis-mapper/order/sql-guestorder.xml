@@ -4,9 +4,6 @@
 
 <mapper namespace="com.example.modak.order.mapper.GuestOrderMapper">
 
-    <!-- ════════════════════════════════════════
-         ResultMap — DELIVERY 중첩 매핑
-    ════════════════════════════════════════ -->
     <resultMap id="guestOrderResultMap"
                type="com.example.modak.order.model.GuestOrder">
         <id     property="orderId"      column="ORDER_ID"/>
@@ -19,7 +16,6 @@
         <result property="guestName"    column="GUEST_NAME"/>
         <result property="guestPhone"   column="GUEST_PHONE"/>
 
-        <!-- DELIVERY 테이블 중첩 객체 -->
         <association property="delivery"
                      javaType="com.example.modak.order.model.Delivery">
             <id     property="deliveryId"     column="DELIVERY_ID"/>
@@ -34,31 +30,15 @@
         </association>
     </resultMap>
 
-    <!-- ════════════════════════════════════════
-         비회원 주문 조회 (조회폼 — 3중 검증)
-         USER_ID = 'GUEST' 로 비회원만 대상
-    ════════════════════════════════════════ -->
-    <select id="selectGuestOrder"
-            resultMap="guestOrderResultMap">
+    <!-- 비회원 주문 조회 (3중 검증) -->
+    <select id="selectGuestOrder" resultMap="guestOrderResultMap">
         SELECT
-            O.ORDER_ID,
-            O.ORDER_TYPE,
-            O.ORDER_STATUS,
-            O.TOTAL_PRICE,
-            O.DISCOUNT_AMT,
-            O.CREATED_AT,
-            O.USER_COUPON_ID,
-            O.GUEST_NAME,
-            O.GUEST_PHONE,
-            D.DELIVERY_ID,
-            D.DELIVERY_STATUS,
-            D.TRACKING_NO,
-            D.SHIPPED_AT,
-            D.DELIVERED_AT,
-            D.PICKED_UP_AT,
-            D.RECEIVER_NAME,
-            D.ADDRESS,
-            D.ORDER_ID AS D_ORDER_ID
+            O.ORDER_ID, O.ORDER_TYPE, O.ORDER_STATUS,
+            O.TOTAL_PRICE, O.DISCOUNT_AMT, O.CREATED_AT,
+            O.USER_COUPON_ID, O.GUEST_NAME, O.GUEST_PHONE,
+            D.DELIVERY_ID, D.DELIVERY_STATUS, D.TRACKING_NO,
+            D.SHIPPED_AT, D.DELIVERED_AT, D.PICKED_UP_AT,
+            D.RECEIVER_NAME, D.ADDRESS, D.ORDER_ID AS D_ORDER_ID
         FROM ORDERS O
         LEFT JOIN DELIVERY D ON O.ORDER_ID = D.ORDER_ID
         WHERE O.ORDER_ID    = #{orderId}
@@ -67,41 +47,22 @@
           AND O.USER_ID     = 'GUEST'
     </select>
 
-    <!-- ════════════════════════════════════════
-         주문번호만으로 조회 (토큰 검증 통과 후)
-    ════════════════════════════════════════ -->
-    <select id="selectGuestOrderById"
-            resultMap="guestOrderResultMap">
+    <!-- 주문번호만으로 조회 (토큰 검증 통과 후) -->
+    <select id="selectGuestOrderById" resultMap="guestOrderResultMap">
         SELECT
-            O.ORDER_ID,
-            O.ORDER_TYPE,
-            O.ORDER_STATUS,
-            O.TOTAL_PRICE,
-            O.DISCOUNT_AMT,
-            O.CREATED_AT,
-            O.USER_COUPON_ID,
-            O.GUEST_NAME,
-            O.GUEST_PHONE,
-            D.DELIVERY_ID,
-            D.DELIVERY_STATUS,
-            D.TRACKING_NO,
-            D.SHIPPED_AT,
-            D.DELIVERED_AT,
-            D.PICKED_UP_AT,
-            D.RECEIVER_NAME,
-            D.ADDRESS,
-            D.ORDER_ID AS D_ORDER_ID
+            O.ORDER_ID, O.ORDER_TYPE, O.ORDER_STATUS,
+            O.TOTAL_PRICE, O.DISCOUNT_AMT, O.CREATED_AT,
+            O.USER_COUPON_ID, O.GUEST_NAME, O.GUEST_PHONE,
+            D.DELIVERY_ID, D.DELIVERY_STATUS, D.TRACKING_NO,
+            D.SHIPPED_AT, D.DELIVERED_AT, D.PICKED_UP_AT,
+            D.RECEIVER_NAME, D.ADDRESS, D.ORDER_ID AS D_ORDER_ID
         FROM ORDERS O
         LEFT JOIN DELIVERY D ON O.ORDER_ID = D.ORDER_ID
         WHERE O.ORDER_ID = #{orderId}
           AND O.USER_ID  = 'GUEST'
     </select>
 
-    <!-- ════════════════════════════════════════
-         주문 상품 목록
-         실제 컬럼명: UNIT_PRICE, START_DATE, END_DATE
-         PRODUCT 테이블에 IMAGE_URL 없으므로 제외
-    ════════════════════════════════════════ -->
+    <!-- ★ 주문 상품 목록 — PRODUCT_IMG 조인으로 이미지 추가 -->
     <select id="selectGuestOrderItems"
             resultType="com.example.modak.order.model.GuestOrderItem">
         SELECT
@@ -112,16 +73,19 @@
             OI.UNIT_PRICE,
             OI.QUANTITY,
             OI.START_DATE,
-            OI.END_DATE
+            OI.END_DATE,
+            (SELECT PI.IMG_URL
+             FROM PRODUCT_IMG PI
+             WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
+               AND PI.IS_MAIN = 'Y'
+             LIMIT 1) AS imgUrl
         FROM ORDER_ITEM OI
         LEFT JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
         WHERE OI.ORDER_ID = #{orderId}
         ORDER BY OI.ITEM_ID ASC
     </select>
 
-    <!-- ════════════════════════════════════════
-         주문 상태 업데이트 (취소 / 반품)
-    ════════════════════════════════════════ -->
+    <!-- 주문 상태 업데이트 -->
     <update id="updateOrderStatus">
         UPDATE ORDERS
         SET    ORDER_STATUS = #{orderStatus}

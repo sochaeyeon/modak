@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.modak.admin.mapper.AdminMapper">
+
+	<select id="selectAdminById" parameterType="string" resultType="map">
+		SELECT ADMIN_ID AS adminId, PASSWORD AS password, ADMIN_NAME AS
+		adminName, ROLE AS role
+		FROM admin WHERE ADMIN_ID = #{adminId}
+	</select>
+
+	<update id="updateAdminLoginDate" parameterType="string">
+		UPDATE admin SET LAST_LOGIN = NOW() WHERE ADMIN_ID = #{adminId}
+	</update>
+
+	<select id="selectMonthSales" resultType="long">
+		SELECT COALESCE(SUM(TOTAL_PRICE), 0) FROM ORDERS
+		WHERE ORDER_STATUS NOT IN ('CANCELLED','REFUND') AND
+		DATE_FORMAT(CREATED_AT, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
+	</select>
+
+	<select id="selectLastMonthSales" resultType="long">
+		SELECT COALESCE(SUM(TOTAL_PRICE), 0) FROM ORDERS
+		WHERE ORDER_STATUS NOT IN ('CANCELLED','REFUND') AND
+		DATE_FORMAT(CREATED_AT, '%Y-%m') = DATE_FORMAT(DATE_SUB(NOW(), INTERVAL
+		1 MONTH), '%Y-%m')
+	</select>
+
+	<select id="selectTotalUsers" resultType="int">
+		SELECT COUNT(*) FROM USER WHERE USER_STATUS != 'WITHDRAWN'
+	</select>
+
+	<select id="selectNewUsers" resultType="int">
+		SELECT COUNT(*) FROM USER WHERE DATE_FORMAT(CREATED_AT, '%Y-%m') =
+		DATE_FORMAT(NOW(), '%Y-%m')
+	</select>
+
+	<select id="selectActiveOrders" resultType="map">
+		SELECT COUNT(*) AS total, SUM(CASE WHEN ORDER_STATUS = 'SHIPPING' THEN 1
+		ELSE 0 END) AS shipping
+		FROM ORDERS WHERE ORDER_STATUS IN ('PAID','READY','SHIPPING')
+	</select>
+
+	<select id="selectRentingCount" resultType="int">
+		SELECT COUNT(*) FROM RENTALS WHERE RENTAL_STATUS = 'IN_USE'
+	</select>
+
+	<select id="selectMonthlySales" resultType="map">
+		SELECT DATE_FORMAT(m.month_date, '%m월') AS month,
+		COALESCE(SUM(o.TOTAL_PRICE), 0) AS amount
+		FROM (
+		SELECT DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 5 MONTH), '%Y-%m-01') AS
+		month_date UNION
+		SELECT DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 4 MONTH), '%Y-%m-01') UNION
+		SELECT DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 3 MONTH), '%Y-%m-01') UNION
+		SELECT DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 2 MONTH), '%Y-%m-01') UNION
+		SELECT DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 MONTH), '%Y-%m-01') UNION
+		SELECT DATE_FORMAT(NOW(), '%Y-%m-01')
+		) m
+		LEFT JOIN ORDERS o ON DATE_FORMAT(o.CREATED_AT, '%Y-%m') =
+		DATE_FORMAT(m.month_date, '%Y-%m')
+		AND o.ORDER_STATUS NOT IN ('CANCELLED','REFUND')
+		GROUP BY m.month_date ORDER BY m.month_date ASC
+	</select>
+
+	<select id="selectRecentOrders" resultType="map">
+		SELECT O.ORDER_ID AS orderId, O.ORDER_STATUS AS orderStatus,
+		O.TOTAL_PRICE AS totalPrice, MIN(P.PRODUCT_NAME) AS productName
+		FROM ORDERS O LEFT JOIN ORDER_ITEM OI ON O.ORDER_ID = OI.ORDER_ID LEFT
+		JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+		GROUP BY O.ORDER_ID, O.ORDER_STATUS, O.TOTAL_PRICE, O.CREATED_AT
+		ORDER BY O.CREATED_AT DESC LIMIT 5
+	</select>
+
+	<select id="selectWaitingInquiries" resultType="map">
+		SELECT INQUIRY_ID AS inquiryId, TITLE AS title, USER_ID AS userId,
+		DATE_FORMAT(CREATED_AT, '%m/%d %H:%i') AS createdAt
+		FROM INQUIRY WHERE INQUIRY_STATUS = 'WAITING' ORDER BY CREATED_AT DESC
+		LIMIT 5
+	</select>
+
+	<select id="selectTopProducts" resultType="map">
+		SELECT PRODUCT_ID AS productId, PRODUCT_NAME AS productName, PRICE AS
+		price, VIEW_COUNT AS viewCount
+		FROM PRODUCT WHERE IS_AVAILABLE = 'Y' ORDER BY VIEW_COUNT DESC LIMIT 5
+	</select>
+
+	<select id="selectGradeStats" resultType="map">
+		SELECT U.GRADE_ID AS gradeId, G.GRADE_NAME AS gradeName, COUNT(*) AS
+		count
+		FROM USER U LEFT JOIN USER_GRADE G ON U.GRADE_ID = G.GRADE_ID WHERE
+		U.USER_STATUS != 'WITHDRAWN'
+		GROUP BY U.GRADE_ID, G.GRADE_NAME ORDER BY U.GRADE_ID ASC
+	</select>
+
+	<select id="selectAdminOrderList" parameterType="hashmap" resultType="map">
+		SELECT O.ORDER_ID AS ORDER_ID, O.USER_ID AS USER_ID,
+		DATE_FORMAT(O.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT, O.TOTAL_PRICE
+		AS TOTAL_PRICE, O.ORDER_STATUS AS ORDER_STATUS, (SELECT
+		GROUP_CONCAT(P.PRODUCT_NAME SEPARATOR ', ') FROM ORDER_ITEM OI JOIN
+		PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID WHERE OI.ORDER_ID =
+		O.ORDER_ID) AS PRODUCT_NAME, (SELECT PI.IMG_URL FROM ORDER_ITEM OI JOIN
+		product_img PI ON OI.PRODUCT_ID = PI.PRODUCT_ID WHERE OI.ORDER_ID =
+		O.ORDER_ID ORDER BY PI.IS_MAIN DESC LIMIT 1) AS IMG_URL FROM ORDERS O <where>
+			<if test="keyword != null and keyword != ''">
+				AND (O.ORDER_ID LIKE CONCAT('%', #{keyword}, '%') OR O.USER_ID
+		LIKE CONCAT('%', #{keyword}, '%'))
+			</if>
+		</where>
+		ORDER BY O.CREATED_AT DESC LIMIT #{offset}, #{pageSize} </select>
+
+	<select id="selectAdminOrderCount" parameterType="hashmap" resultType="int">
+		SELECT COUNT(*) FROM ORDERS <where>
+			<if test="keyword != null and keyword != ''">
+				AND (ORDER_ID LIKE CONCAT('%', #{keyword}, '%') OR USER_ID LIKE
+		CONCAT('%', #{keyword}, '%'))
+			</if>
+		</where>
+	</select>
+
+	<update id="updateOrderStatus" parameterType="hashmap">
+		UPDATE ORDERS SET ORDER_STATUS = #{status} WHERE ORDER_ID = #{orderId}
+	</update>
+
+	<select id="selectAdminProductList" parameterType="hashmap" resultType="map">
+		SELECT p.PRODUCT_ID, p.PRODUCT_NAME, p.PRODUCT_TYPE, p.PRICE, p.DEPOSIT,
+		p.DESCRIPTION, p.IS_AVAILABLE, p.VIEW_COUNT, (SELECT IMG_URL FROM
+		product_img pi WHERE pi.PRODUCT_ID = p.PRODUCT_ID ORDER BY pi.IS_MAIN
+		DESC, pi.SORT_ORDER ASC LIMIT 1) AS IMG_URL, DATE_FORMAT(p.CREATED_AT,
+		'%Y-%m-%d') AS CREATED_AT FROM product p <where>
+			<if test="keyword != null and keyword != ''">
+				AND p.PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
+			</if>
+			<if test="productType != null and productType != ''">
+				AND p.PRODUCT_TYPE = #{productType}
+			</if>
+			<if test="isAvailable != null and isAvailable != ''">
+				AND p.IS_AVAILABLE = #{isAvailable}
+			</if>
+		</where>
+		ORDER BY p.CREATED_AT DESC LIMIT #{offset}, #{pageSize} </select>
+
+	<select id="selectAdminProductCount" parameterType="hashmap"
+		resultType="int"> SELECT COUNT(*) FROM product <where>
+			<if test="keyword != null and keyword != ''">
+				AND PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
+			</if>
+		</where>
+	</select>
+
+	<update id="updateProductAvail" parameterType="hashmap">
+		UPDATE product SET IS_AVAILABLE = #{isAvailable} WHERE PRODUCT_ID =
+		#{productId}
+	</update>
+
+	<insert id="insertProduct" parameterType="hashmap">
+		INSERT INTO product (PRODUCT_NAME, PRODUCT_TYPE, PRICE, DEPOSIT,
+		DESCRIPTION, IS_AVAILABLE, CREATED_AT)
+		VALUES (#{productName}, #{productType}, #{price}, #{deposit},
+		#{description}, 'Y', NOW())
+	</insert>
+
+	<update id="updateProduct" parameterType="hashmap">
+		UPDATE product
+		SET PRODUCT_NAME = #{productName}, PRODUCT_TYPE = #{productType}, PRICE
+		= #{price},
+		DEPOSIT = #{deposit}, DESCRIPTION = #{description}
+		WHERE PRODUCT_ID = #{productId}
+	</update>
+
+	<select id="selectSalesByPeriod" parameterType="hashmap" resultType="map">
+		SELECT DATE_FORMAT(CREATED_AT, '%Y-%m-%d') AS SALES_DATE,
+		COUNT(ORDER_ID) AS ORDER_COUNT, SUM(TOTAL_PRICE) AS TOTAL_AMOUNT
+		FROM ORDERS WHERE ORDER_STATUS NOT IN ('CANCELLED', 'REFUND')
+		GROUP BY SALES_DATE ORDER BY SALES_DATE DESC LIMIT 10
+	</select>
+
+	<select id="selectAdminRentalList" parameterType="hashmap" resultType="map">
+		SELECT
+		R.RENTAL_ID AS RENTAL_ID,
+		R.USER_ID AS USER_ID,
+		P.PRODUCT_NAME AS PRODUCT_NAME,
+		
+		(SELECT IMG_URL FROM product_img PI WHERE PI.PRODUCT_ID = P.PRODUCT_ID
+		LIMIT 1) AS IMG_URL,
+		DATE_FORMAT(R.START_DATE, '%Y-%m-%d') AS START_DATE,
+		DATE_FORMAT(R.RETURN_DATE, '%Y-%m-%d') AS END_DATE,
+		R.RENTAL_STATUS AS RENTAL_STATUS,
+		CASE
+		WHEN R.RENTAL_STATUS = 'IN_USE' THEN '대여중'
+		WHEN R.RENTAL_STATUS = 'RETURN_COMPLETED' THEN '반납완료'
+		ELSE R.RENTAL_STATUS
+		END AS RENTAL_STATUS_KOR
+		FROM rentals R
+		JOIN product P ON R.ITEM_ID = P.PRODUCT_ID
+		ORDER BY R.START_DATE DESC
+		LIMIT #{offset}, #{pageSize}
+</select>
+
+	<update id="updateRentalStatus" parameterType="hashmap">
+		UPDATE rentals SET RENTAL_STATUS = #{status} WHERE RENTAL_ID =
+		#{rentalId}
+	</update>
+
+	<update id="updateRentalDate" parameterType="hashmap">
+		UPDATE rentals SET RETURN_DATE = #{returnDate} WHERE RENTAL_ID =
+		#{rentalId}
+	</update>
+
+	<select id="selectWaitingInquiryCount" resultType="int">
+		SELECT COUNT(*) FROM INQUIRY WHERE INQUIRY_STATUS = 'WAITING'
+	</select>
+
+	<select id="selectTotalInquiryCount" resultType="int">
+		SELECT COUNT(*) FROM INQUIRY
+	</select>
+
+	<update id="updateInquiryStatus" parameterType="hashmap">
+		UPDATE INQUIRY SET INQUIRY_STATUS = #{status}, UPDATED_AT = NOW() WHERE
+		INQUIRY_ID = #{inquiryId}
+	</update>
+
+	<update id="updateMemberStatus" parameterType="hashmap">
+		UPDATE USER SET USER_STATUS = #{userStatus}, UPDATED_AT = NOW() WHERE
+		USER_ID = #{userId}
+	</update>
+
+</mapper>

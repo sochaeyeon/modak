@@ -68,4 +68,38 @@ public class WishlistService {
 
         return resultMap;
     }
+    
+    // ★ 찜 토글 — 없으면 추가, 있으면 삭제
+    public HashMap<String, Object> toggleWishlist(HashMap<String, Object> map) {
+        HashMap<String, Object> resultMap = new HashMap<>();
+        try {
+            String userId = (String) session.getAttribute("sessionId");
+            if (userId == null || userId.isEmpty()) {
+                resultMap.put("result",  "fail");
+                resultMap.put("message", "로그인이 필요합니다.");
+                return resultMap;
+            }
+            map.put("userId", userId);
+ 
+            int count = wishlistMapper.selectWishlistCount(map);
+            if (count > 0) {
+                // 이미 찜 → 삭제
+                wishlistMapper.deleteWishlistByProductId(map);
+                resultMap.put("action", "removed");
+            } else {
+                // 찜 없음 → 추가
+                wishlistMapper.insertWishlist(map);
+                resultMap.put("action", "added");
+            }
+            resultMap.put("result",  "success");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            resultMap.put("result",  "fail");
+            resultMap.put("message", "오류가 발생했습니다.");
+        }
+        return resultMap;
+    }
+
+
+ 
 }

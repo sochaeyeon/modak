@@ -16,7 +16,7 @@
 
 <div id="app" v-cloak>
     <div v-if="order" class="order-detail-container">
-        
+
         <header class="detail-header">
             <h2 class="page-title">주문 상세 내역</h2>
             <div class="order-meta-info">
@@ -29,11 +29,22 @@
         <section class="glass-card">
             <h3 class="section-title"><i class="fa-solid fa-box"></i> 주문 상품 정보</h3>
             <div class="product-list">
-                <div v-for="(item, index) in order.itemList" :key="index" 
+                <div v-for="(item, index) in order.itemList" :key="index"
                      class="product-item" @click="fnGoProductDetail(item.productId)">
+
+                    <!-- ★ 실제 상품 이미지 / 없으면 이모지 fallback -->
                     <div class="product-thumb-box">
-                        <span class="thumb-emoji">{{ item.orderType === 'RENTAL' ? '⛺' : '🛒' }}</span>
+                        <img v-if="item.imgUrl"
+                             :src="item.imgUrl"
+                             :alt="item.productName"
+                             class="thumb-img"
+                             @error="$event.target.style.display='none'; $event.target.nextElementSibling.style.display='flex'">
+                        <span class="thumb-emoji"
+                              :style="item.imgUrl ? 'display:none' : 'display:flex'">
+                            {{ item.orderType === 'RENTAL' ? '⛺' : '🛒' }}
+                        </span>
                     </div>
+
                     <div class="product-info-box">
                         <span class="badge" :class="item.orderType === 'RENTAL' ? 'rental' : 'buy'">
                             {{ item.orderType === 'RENTAL' ? '대여' : '구매' }}
@@ -72,7 +83,8 @@
                     </div>
                     <div class="price-row">
                         <span class="label">결제 시각</span>
-                        <span class="val-sub">{{ order.payDate || '-' }}</span>
+                        <!-- ★ payDate 가 있으면 표시, 없으면 createdAt fallback -->
+                        <span class="val-sub">{{ order.payDate || order.createdAt || '-' }}</span>
                     </div>
                     <div class="info-divider"></div>
                     <div class="price-row">
@@ -93,7 +105,7 @@
 
         <div class="btn-group">
             <button class="btn-back-list" @click="fnGoList">목록으로 돌아가기</button>
-            <button v-if="['PAID', 'READY', 'PAY_COMPLETED'].includes((order.orderStatus || '').toUpperCase())" 
+            <button v-if="['PAID','READY','PAY_COMPLETED'].includes((order.orderStatus || '').toUpperCase())"
                     class="btn-cancel" @click="fnCancelOrder">
                 주문취소
             </button>
@@ -103,44 +115,77 @@
 
 <%@ include file="/WEB-INF/common/footer.jsp" %>
 
+<style>
+/* ★ 썸네일 이미지 */
+.product-thumb-box {
+    width: 80px; height: 80px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #F6F0E6;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+}
+.thumb-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+    display: block;
+}
+.thumb-emoji {
+    font-size: 32px;
+    align-items: center;
+    justify-content: center;
+    width: 100%; height: 100%;
+}
+</style>
+
 <script>
-    const { createApp } = Vue;
-    createApp({
-        data() { return { orderId: '${orderId}', order: null } },
-        computed: {
-            calcSubTotal() {
-                if (!this.order || !this.order.itemList) return 0;
-                return this.order.itemList.reduce((acc, item) => acc + (item.price * item.count), 0);
-            },
-            calcFinalTotal() {
-                if (!this.order) return 0;
-                return this.calcSubTotal - (this.order.discountAmt || 0);
-            }
+const { createApp } = Vue;
+createApp({
+    data() { return { orderId: '${orderId}', order: null }; },
+    computed: {
+        calcSubTotal() {
+            if (!this.order || !this.order.itemList) return 0;
+            return this.order.itemList.reduce(function(acc, item) {
+                return acc + (item.price * item.count);
+            }, 0);
         },
-        methods: {
-            fnGetDetail() {
-                $.ajax({
-                    url: "/order/detail.dox", type: "POST", dataType: "json",
-                    data: { orderId: this.orderId },
-                    success: (res) => { if (res.result === "success") this.order = res.order; }
-                });
-            },
-            fnGoProductDetail(id) { 
-                if(!id) return;
-                location.href = "/product/detail.do?productId=" + id; 
-            },
-            fnGoList() { location.href = "/order/history.do"; },
-            fnCancelOrder() {
-                if(!confirm("정말로 주문을 취소하시겠습니까?")) return;
-                $.ajax({
-                    url: "/order/cancel.dox", type: "POST", dataType: "json",
-                    data: { orderId: this.orderId },
-                    success: (res) => { if (res.result === "success") { alert("취소되었습니다닥!"); this.fnGetDetail(); } }
-                });
-            }
+        calcFinalTotal() {
+            if (!this.order) return 0;
+            return this.calcSubTotal - (this.order.discountAmt || 0);
+        }
+    },
+    methods: {
+        fnGetDetail() {
+            $.ajax({
+                url: "/order/detail.dox", type: "POST", dataType: "json",
+                data: { orderId: this.orderId },
+                success: (res) => {
+                    if (res.result === "success") this.order = res.order;
+                }
+            });
         },
-        mounted() { this.fnGetDetail(); }
-    }).mount('#app');
+        fnGoProductDetail(id) {
+            if (!id) return;
+            location.href = "/product/detail.do?productId=" + id;
+        },
+        fnGoList() { location.href = "/order/history.do"; },
+        fnCancelOrder() {
+            if (!confirm("정말로 주문을 취소하시겠습니까?")) return;
+            $.ajax({
+                url: "/order/cancel.dox", type: "POST", dataType: "json",
+                data: { orderId: this.orderId },
+                success: (res) => {
+                    if (res.result === "success") {
+                        alert("취소되었습니다!");
+                        this.fnGetDetail();
+                    }
+                }
+            });
+        }
+    },
+    mounted() { this.fnGetDetail(); }
+}).mount('#app');
 </script>
 </body>
 </html>

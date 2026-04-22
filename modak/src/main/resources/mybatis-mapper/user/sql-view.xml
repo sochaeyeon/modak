@@ -5,25 +5,29 @@
 
 	<!-- 최근 본 상품 목록 조회 : 중복 제거 + 최신순 + 최대 50개만 -->
 	<select id="selectRecentList" parameterType="hashmap"
-		resultType="com.example.modak.user.model.RecentView">
-		SELECT
-		P.PRODUCT_ID,
-		P.PRODUCT_NAME,
-		P.PRICE,
-		V.LATEST_VIEW_DT AS viewDt
-		FROM (
-		SELECT TARGET_ID, MAX(VIEW_DT) AS LATEST_VIEW_DT
-		FROM VIEW_HISTORY
-		WHERE USER_ID = #{userId}
-		GROUP BY TARGET_ID
-		ORDER BY LATEST_VIEW_DT DESC
-		LIMIT 50
-		) V
-		INNER JOIN PRODUCT P
-		ON V.TARGET_ID = P.PRODUCT_ID
-		ORDER BY V.LATEST_VIEW_DT DESC
-		LIMIT ${pageSize} OFFSET ${offset}
-	</select>
+    resultType="com.example.modak.user.model.RecentView">
+    SELECT
+        P.PRODUCT_ID AS productId,
+        P.PRODUCT_NAME AS productName,
+        P.PRICE AS price,
+        I.IMG_URL AS imgUrl,
+        V.LATEST_VIEW_DT AS viewDt
+    FROM (
+        SELECT TARGET_ID, MAX(VIEW_DT) AS LATEST_VIEW_DT
+        FROM VIEW_HISTORY
+        WHERE USER_ID = #{userId}
+        GROUP BY TARGET_ID
+        ORDER BY LATEST_VIEW_DT DESC
+        LIMIT 50
+    ) V
+    INNER JOIN PRODUCT P
+        ON V.TARGET_ID = P.PRODUCT_ID
+    LEFT JOIN PRODUCT_IMG I
+        ON P.PRODUCT_ID = I.PRODUCT_ID
+        AND I.IS_MAIN = 'Y'
+    ORDER BY V.LATEST_VIEW_DT DESC
+    LIMIT ${pageSize} OFFSET ${offset}
+</select>
 
 	<!-- 최근 본 상품 전체 개수 : 중복 제거 기준, 최대 50 -->
 	<select id="selectRecentCount" parameterType="hashmap" resultType="int">

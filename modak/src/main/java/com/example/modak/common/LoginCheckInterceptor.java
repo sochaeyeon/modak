@@ -20,19 +20,30 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
 
         if (session == null || session.getAttribute("sessionId") == null) {
 
-            // 세션이 없으면 새로 생성해서 returnUrl 저장
+            // 세션이 없으면 새로 생성
             session = request.getSession();
 
             String requestURI = request.getRequestURI();
             String queryString = request.getQueryString();
+            String method = request.getMethod();
+            String requestedWith = request.getHeader("X-Requested-With");
+
+            boolean isAjax = "XMLHttpRequest".equals(requestedWith);
+            boolean isGet = "GET".equalsIgnoreCase(method);
 
             String returnUrl = requestURI;
             if (queryString != null && !queryString.isEmpty()) {
                 returnUrl += "?" + queryString;
             }
 
-            // 로그인 후 돌아갈 주소 저장
-            session.setAttribute("returnUrl", returnUrl);
+            // ✅ 실제 페이지 이동 요청만 저장
+            if (isGet
+                    && !isAjax
+                    && !requestURI.endsWith(".dox")
+                    && !requestURI.contains("/user/login.do")
+                    && !requestURI.contains("/user/login.dox")) {
+                session.setAttribute("returnUrl", returnUrl);
+            }
 
             response.setContentType("text/html; charset=UTF-8");
             PrintWriter out = response.getWriter();

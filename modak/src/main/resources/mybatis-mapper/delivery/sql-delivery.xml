@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.modak.delivery.mapper.DeliveryMapper">
+
+	<resultMap id="deliveryDetailResultMap"
+		type="com.example.modak.delivery.model.DeliveryDetail">
+		<id property="deliveryId" column="DELIVERY_ID" />
+		<result property="deliveryStatus" column="DELIVERY_STATUS" />
+		<result property="trackingNo" column="TRACKING_NO" />
+		<result property="carrierId" column="CARRIER_ID" />
+		<result property="shippedAt" column="SHIPPED_AT" />
+		<result property="deliveredAt" column="DELIVERED_AT" />
+		<result property="pickedUpAt" column="PICKED_UP_AT" />
+		<result property="receiverName" column="RECEIVER_NAME" />
+		<result property="zipcode" column="ZIPCODE" />
+		<result property="address" column="ADDRESS" />
+		<result property="detailedAddress" column="DETAILED_ADDRESS" />
+		<result property="orderId" column="ORDER_ID" />
+
+		<result property="orderType" column="ORDER_TYPE" />
+		<result property="orderStatus" column="ORDER_STATUS" />
+		<result property="createdAt" column="CREATED_AT" />
+		<result property="userId" column="USER_ID" />
+		<result property="guestName" column="GUEST_NAME" />
+		<result property="guestPhone" column="GUEST_PHONE" />
+	</resultMap>
+
+	<select id="selectDeliveryDetail" resultMap="deliveryDetailResultMap">
+    SELECT
+        d.DELIVERY_ID,
+        d.DELIVERY_STATUS,
+        d.TRACKING_NO,
+        d.CARRIER_ID,
+        DATE_FORMAT(d.SHIPPED_AT, '%Y-%m-%d %H:%i') AS SHIPPED_AT,
+        DATE_FORMAT(d.DELIVERED_AT, '%Y-%m-%d %H:%i') AS DELIVERED_AT,
+        DATE_FORMAT(d.PICKED_UP_AT, '%Y-%m-%d %H:%i') AS PICKED_UP_AT,
+        d.RECEIVER_NAME,
+        d.ADDRESS,
+        d.ORDER_ID,
+
+        o.ORDER_TYPE,
+        o.ORDER_STATUS,
+        DATE_FORMAT(o.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT,
+        o.USER_ID,
+        o.GUEST_NAME,
+        o.GUEST_PHONE
+    FROM delivery d
+    INNER JOIN orders o
+        ON d.ORDER_ID = o.ORDER_ID
+    WHERE d.DELIVERY_ID = #{deliveryId}
+      AND o.USER_ID = #{userId}
+</select>
+
+	<select id="selectDeliveryItemList"
+		resultType="com.example.modak.delivery.model.DeliveryItem">
+		SELECT
+		oi.ITEM_ID AS itemId,
+		oi.PRODUCT_ID AS productId,
+		p.PRODUCT_NAME AS productName,
+		oi.QUANTITY AS quantity,
+		oi.UNIT_PRICE AS unitPrice,
+		DATE_FORMAT(oi.START_DATE, '%Y-%m-%d') AS startDate,
+		DATE_FORMAT(oi.END_DATE, '%Y-%m-%d') AS endDate
+		FROM order_item oi
+		INNER JOIN product p
+		ON oi.PRODUCT_ID = p.PRODUCT_ID
+		WHERE oi.ORDER_ID = #{orderId}
+		ORDER BY oi.ITEM_ID ASC
+	</select>
+	
+	<update id="updateDeliveryTrackingSync" parameterType="com.example.modak.delivery.model.DeliveryDetail">
+    UPDATE delivery
+    SET
+        DELIVERY_STATUS = #{deliveryStatus},
+        DELIVERED_AT = 
+            <choose>
+                <when test="deliveredAt != null and deliveredAt != ''">
+                    STR_TO_DATE(#{deliveredAt}, '%Y-%m-%d %H:%i')
+                </when>
+                <otherwise>
+                    NULL
+                </otherwise>
+            </choose>
+    WHERE DELIVERY_ID = #{deliveryId}
+</update>
+
+</mapper>

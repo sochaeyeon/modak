@@ -381,10 +381,11 @@
                                                 <div class="wish-item" v-for="item in limitedWishlist"
                                                     :key="item.productId" @click="fnGoProductDetail(item.productId)">
                                                     <div class="wish-thumb">
-                                                        <img :src="item.imgUrl" v-if="item.imgUrl"
-                                                            style="width:100%; height:100%; object-fit:cover;">
-                                                        <span v-else>🛒</span>
-                                                    </div>
+    <img v-if="item.imgUrl"
+         :src="item.imgUrl"
+         style="width:100%; height:100%; object-fit:cover;">
+    <span v-else>🛒</span>
+</div>
                                                     <div class="wish-body">
                                                         <div class="wish-name">{{ item.productName }}</div>
                                                         <div class="wish-price">{{ Number(item.price ||
@@ -408,17 +409,22 @@
                                                 </div>
 
                                                 <div class="wish-item" v-for="item in recentList" :key="item.productId"
-                                                    @click="fnGoProductDetail(item.productId)">
+    @click="fnGoProductDetail(item.productId)">
 
-                                                    <div class="wish-thumb">🛒</div>
+    <div class="wish-thumb">
+        <img v-if="item.imgUrl"
+             :src="item.imgUrl"
+             style="width:100%; height:100%; object-fit:cover;">
+        <span v-else>🛒</span>
+    </div>
 
-                                                    <div class="wish-body">
-                                                        <div class="wish-name">{{ item.productName }}</div>
-                                                        <div class="wish-price">
-                                                            {{ Number(item.price || 0).toLocaleString() }}원
-                                                        </div>
-                                                    </div>
-                                                </div>
+    <div class="wish-body">
+        <div class="wish-name">{{ item.productName }}</div>
+        <div class="wish-price">
+            {{ Number(item.price || 0).toLocaleString() }}원
+        </div>
+    </div>
+</div>
                                             </div>
                                         </div>
                                     </div>
@@ -1328,6 +1334,15 @@
                                     success: function (data) {
                                         if (data.result === "success") {
                                             self.orderList = data.list;
+                                            console.log(self.orderList);
+                                            data.list.forEach(function(item) {
+            if (item.orderStatus === "SHIPPING" || item.orderStatus === "READY" || item.orderStatus === "DONE") {
+                console.log("주문번호:", item.orderId);
+                console.log("전체 item:", item);
+                console.log("deliveryId:", item.deliveryId);
+                console.log("deliveryStatus:", item.deliveryStatus);
+            }
+        });
                                         } else {
                                             self.orderList = [];
                                         }
@@ -2164,14 +2179,20 @@ self.displayUser.profileImgUrl = profileImgUrl;
         }
     });
 },
-                                   fnGetOrderActions: function (item) {
+                                 fnGetOrderActions: function (item) {
     const actions = [];
     const status = (item.orderStatus || "").toUpperCase();
     const orderType = (item.orderType || "").toUpperCase();
+    const deliveryStatus = (item.deliveryStatus || "").toUpperCase();
+    const deliveryId = item.deliveryId;
 
     if (orderType === "PURCHASE") {
         if (status === "PAID" || status === "READY") {
             actions.push("취소 신청");
+        }
+
+        if (status === "SHIPPING" && deliveryStatus === "SHIPPING" && deliveryId) {
+            actions.push("배송조회");
         }
 
         if (status === "DONE") {
@@ -2183,6 +2204,10 @@ self.displayUser.profileImgUrl = profileImgUrl;
     if (orderType === "RENTAL") {
         if (status === "PAID" || status === "RESERVED" || status === "READY") {
             actions.push("취소 신청");
+        }
+
+        if (status === "SHIPPING" && deliveryStatus === "SHIPPING" && deliveryId) {
+            actions.push("배송조회");
         }
 
         if (status === "DONE") {
@@ -2203,7 +2228,6 @@ self.displayUser.profileImgUrl = profileImgUrl;
 
     return actions;
 },
-
 fnHandleOrderAction: function (item, action) {
     if (action === "취소 신청") {
         pageChange("/order/cancel/request.do", {
@@ -2215,6 +2239,18 @@ fnHandleOrderAction: function (item, action) {
     if (action === "환불 신청") {
         pageChange("/order/refund/request.do", {
             orderId: item.orderId
+        });
+        return;
+    }
+
+    if (action === "배송조회") {
+        if (!item.deliveryId) {
+            alert("배송 정보가 없습니다.");
+            return;
+        }
+
+        pageChange("/user/delivery/detail.do", {
+            deliveryId: item.deliveryId
         });
         return;
     }
@@ -2279,12 +2315,13 @@ fnHandleOrderAction: function (item, action) {
                                     fnGoMembershipInfo: function () {
                                         pageChange("/user/membership/info.do", {});
                                     },
-                                    fnGetActionClass: function (action) {
-    if (action === "취소 신청") return "cancel-btn";
-    if (action === "환불 신청") return "refund-btn";
-    if (action === "리뷰 작성") return "review-btn";
-    if (action === "반납 신청") return "return-btn";
-    if (action === "연장 신청") return "extend-btn";
+                                   fnGetActionClass: function (action) {
+    if (action === "취소 신청") return "cancel";
+    if (action === "환불 신청") return "refund";
+    if (action === "배송조회") return "tracking";
+    if (action === "반납 신청") return "return";
+    if (action === "연장 신청") return "extend";
+    if (action === "리뷰 작성") return "review";
     return "";
 },
                                 }, // methods

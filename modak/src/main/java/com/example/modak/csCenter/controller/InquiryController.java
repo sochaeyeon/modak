@@ -111,30 +111,30 @@ public class InquiryController {
 	public String submitInquiry(HttpServletRequest request, @RequestParam HashMap<String, Object> map,
 			RedirectAttributes ra) throws Exception {
 		try {
-			// 세션에서 userId 추출 (HttpServletRequest 통해 안전하게 접근)
 			HttpSession session = request.getSession(false);
-			if (session != null && map.get("userId") == null) {
-				Object loginUser = session.getAttribute("loginUser");
-				if (loginUser != null) {
-					// 프로젝트 User 모델의 getter에 맞게 수정
-					map.put("userId", ((com.example.modak.user.model.User) loginUser).getUserId());
+			if (session != null) {
+				// 기존 프로젝트 세션 키인 "sessionId" 사용
+				String sessionUserId = (String) session.getAttribute("sessionId");
+				if (sessionUserId != null && !sessionUserId.isEmpty()) {
+					map.put("userId", sessionUserId);
 				}
 			}
 
-			// 초기 상태 세팅
 			map.put("inquiryStatus", "WAIT");
 
 			int result = inquiryService.insertInquiry(map);
 			if (result > 0) {
-				ra.addFlashAttribute("successMsg", "문의가 정상적으로 접수되었습니다. 답변은 마이페이지에서 확인하실 수 있습니다.");
+				ra.addFlashAttribute("successMsg", "문의가 정상적으로 접수되었습니다.");
 			} else {
-				ra.addFlashAttribute("errorMsg", "접수 중 오류가 발생했습니다. 다시 시도해주세요.");
+				ra.addFlashAttribute("errorMsg", "접수 중 오류가 발생했습니다.");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			ra.addFlashAttribute("errorMsg", "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+			ra.addFlashAttribute("errorMsg", "서버 오류가 발생했습니다.");
 		}
-		return "redirect:/inquiry.do";
+
+		// 접수 완료 후 마이페이지 문의 내역으로 이동
+		return "redirect:/user/inquiry/history.do";
 	}
 
 }

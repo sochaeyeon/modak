@@ -80,9 +80,11 @@
 	<!--  ─── 문의 등록  -->
 	<insert id="insertInquiry" parameterType="hashmap" useGeneratedKeys="true"
 		keyProperty="inquiryId" keyColumn="inquiry_id">
-		INSERT INTO INQUIRY ( user_id, title, content, inquiry_status,
-		created_at, updated_at ) VALUES ( #{userId}, #{title}, #{content},
-		#{inquiryStatus}, NOW(), NOW() )
+		INSERT INTO INQUIRY ( user_id, title, content, inquiry_type,
+		inquiry_status,
+		created_at, updated_at )
+		VALUES ( #{userId}, #{title}, #{content},
+		#{inquiryType}, #{inquiryStatus}, NOW(), NOW() )
 	</insert>
 
 </mapper>

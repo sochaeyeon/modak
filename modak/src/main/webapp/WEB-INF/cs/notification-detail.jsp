@@ -181,35 +181,3 @@
 	</body>
 
 	</html>
-
-	<script>
-		const app = Vue.createApp({
-			data() {
-				return {
-					// 변수 - (key : value)
-				};
-			},
-			methods: {
-				// 함수(메소드) - (key : function())
-				fnList: function () {
-					let self = this;
-					let param = {};
-					$.ajax({
-						url: "http://localhost:8080/notification/detail.dox",
-						dataType: "json",
-						type: "POST",
-						data: param,
-						success: function (data) {
-
-						}
-					});
-				}
-			}, // methods
-			mounted() {
-				// 처음 시작할 때 실행되는 부분
-				let self = this;
-			}
-		});
-
-		app.mount('#app');
-	</script>

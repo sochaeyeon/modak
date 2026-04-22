@@ -2,7 +2,6 @@ package com.example.modak.csCenter.controller;
 
 import java.util.HashMap;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,7 +18,8 @@ public class CsCenterController {
 	public String test(Model model) throws Exception {
 		return "/cs/cs-center";
 	}
-
+	
+	
 	@RequestMapping(value = "/cs/center.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String csCenter(Model model, @RequestParam HashMap<String, Object> map) throws Exception {

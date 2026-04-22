@@ -73,7 +73,17 @@
 		ORDER BY BRAND_NAME ASC
 	</select>
 
-	<!-- 제품상세보기에 들어갈 제품 productId로 검색 -->
+	<select id="selectProductImages" parameterType="hashmap"
+		resultType="com.example.modak.product.model.Product">
+		SELECT
+		IMG_URL as imgUrl, IS_MAIN as mainImg,
+		SORT_ORDER as sortOrder
+		FROM PRODUCT_IMG
+		WHERE PRODUCT_ID = #{productId}
+		ORDER BY IS_MAIN DESC, SORT_ORDER ASC
+	</select>
+	
+	<!-- product detail 에 들어갈 제품 productId로 검색 -->
 	<select id="selectProduct" parameterType="hashmap"
 		resultType="com.example.modak.product.model.Product"> SELECT
 		p.PRODUCT_ID as productId, p.PRODUCT_NAME as productName, p.PRODUCT_TYPE
@@ -83,38 +93,6 @@
 		brandName, i.IMG_URL as imgUrl FROM PRODUCT p LEFT JOIN BRAND b ON
 		p.BRAND_ID = b.BRAND_ID LEFT JOIN PRODUCT_IMG i ON p.PRODUCT_ID =
 		i.PRODUCT_ID AND i.IS_MAIN = 'Y' <!-- 대표 이미지만 가져오기--> WHERE p.PRODUCT_ID = #{productId} </select>
-
-	<select id="selectProductImages" parameterType="hashmap"
-		resultType="com.example.modak.product.model.Product">
-		SELECT
-		IMG_URL as imgUrl, IS_MAIN as mainImg,
-		SORT_ORDER as sortOrder
-		FROM PRODUCT_IMG
-		WHERE PRODUCT_ID = #{productId}
-		ORDER BY IS_MAIN DESC, SORT_ORDER ASC
-	<!-- product detail 에 들어갈 제품 productId로 검색 -->
-   <select id="selectProduct" parameterType="hashmap" resultType="com.example.modak.product.model.Product">
-	    SELECT 
-	        p.PRODUCT_ID as productId,
-	        p.PRODUCT_NAME as productName,
-	        p.PRODUCT_TYPE as productType,
-	        p.PRICE as price,
-	        p.DEPOSIT as deposit,
-	        p.DESCRIPTION as description,
-	        p.IS_AVAILABLE as isAvailable,
-	        p.CREATED_AT as createdAt,
-	        p.CATEGORY_ID as categoryId,
-	        p.BRAND_ID as brandId,
-	        b.BRAND_NAME as brandName,
-	        i.IMG_URL as imgUrl
-	    FROM PRODUCT p
-	    LEFT JOIN BRAND b
-	        ON p.BRAND_ID = b.BRAND_ID
-	    LEFT JOIN PRODUCT_IMG i
-	        ON p.PRODUCT_ID = i.PRODUCT_ID
-	        AND i.IS_MAIN = 'Y' <!-- 대표 이미지만 가져오기-->
-	    WHERE p.PRODUCT_ID = #{productId}
-	</select>
 
 	<select id="selectMainCategoryList" resultType="hashmap">
 		SELECT
@@ -158,13 +136,13 @@
 		SET VIEW_COUNT = VIEW_COUNT + 1
 		WHERE PRODUCT_ID = #{productId}
 	</update>
-	
+
 	<!-- product detail에 리뷰및대여 카운트를 위한 -->
 	<select id="selectOrderCount" parameterType="hashmap" resultType="int">
-	    SELECT COUNT(*)
-	    FROM ORDERS O
-	    JOIN ORDER_ITEM OI ON O.ORDER_ID = OI.ORDER_ID
-	    WHERE OI.PRODUCT_ID = #{productId}
-	    AND O.ORDER_STATUS != 'CANCELLED'
+		SELECT COUNT(*)
+		FROM ORDERS O
+		JOIN ORDER_ITEM OI ON O.ORDER_ID = OI.ORDER_ID
+		WHERE OI.PRODUCT_ID = #{productId}
+		AND O.ORDER_STATUS != 'CANCELLED'
 	</select>
 </mapper>

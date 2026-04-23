@@ -42,4 +42,11 @@ public interface NotificationMapper {
 
 	// 고정 해제
 	public int unpinNotification(HashMap<String, Object> map);
+
+	// 이전글
+	public Notification selectPrevNotification(HashMap<String, Object> map) throws Exception;
+
+	// 다음글
+	public Notification selectNextNotification(HashMap<String, Object> map) throws Exception;
+
 }

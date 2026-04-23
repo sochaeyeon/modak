@@ -191,4 +191,64 @@
 	    ORDER BY p.VIEW_COUNT DESC
 	    LIMIT 4
 	</select>
+	
+	<!-- 상품 스펙 단건 조회 -->
+	<select id="selectProductSpec" parameterType="hashmap"
+	        resultType="com.example.modak.product.model.ProductSpec">
+	    SELECT
+	        SPEC_ID,
+	        PRODUCT_ID,
+	        CAPACITY,
+	        SIZE,
+	        WEIGHT,
+	        MATERIAL,
+	        ORIGIN
+	    FROM PRODUCT_SPEC
+	    WHERE PRODUCT_ID = #{productId}
+	</select>
+	
+	<!-- 상품 특징 목록 조회 -->
+	<select id="selectProductFeatures" parameterType="hashmap"
+	        resultType="com.example.modak.product.model.ProductFeature">
+	    SELECT
+	        FEATURE_ID,
+	        PRODUCT_ID,
+	        TITLE,
+	        CONTENT,
+	        SORT_ORDER
+	    FROM PRODUCT_FEATURE
+	    WHERE PRODUCT_ID = #{productId}
+	    ORDER BY SORT_ORDER ASC
+	</select>
+	
+	<select id="selectFaqList" parameterType="hashmap"
+        resultType="com.example.modak.csCenter.model.Faq">
+	    SELECT
+	        FAQ_ID     AS faqId,
+	        QUESTION   AS question,
+	        ANSWER     AS answer,
+	        CREATED_AT AS createdAt,
+	        CATEGORY   AS category
+	    FROM FAQ
+	    WHERE CATEGORY IN
+	    <foreach item="cat" collection="categories" open="(" separator="," close=")">
+	        #{cat}
+	    </foreach>
+	    ORDER BY FAQ_ID ASC
+	    LIMIT 5
+	</select>
+	
+	<!-- 상품 옵션 목록 -->
+	<select id="selectProductOptions" parameterType="hashmap"
+	        resultType="com.example.modak.product.model.ProductOption">
+	    SELECT
+	        OPTION_ID,
+	        OPTION_NAME,
+	        OPTION_VALUE,
+	        ADD_PRICE,
+	        PRODUCT_ID
+	    FROM PRODUCT_OPTION
+	    WHERE PRODUCT_ID = #{productId}
+	    ORDER BY OPTION_ID ASC
+	</select>
 </mapper>

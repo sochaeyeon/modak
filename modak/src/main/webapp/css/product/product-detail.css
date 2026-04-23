@@ -20,7 +20,7 @@
     --yellow: #f0b429;
   }
   body { background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
-
+  [v-cloak] { display: none; }
   header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; }
   .logo { font-size: 17px; font-weight: 700; }
   .h-right { display: flex; align-items: center; gap: 14px; }

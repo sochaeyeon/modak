@@ -20,7 +20,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                     "/order/**",
                     "/coupon/**",
                     "/review/**",
-                    "/cart/**"
+                    "/cart/**",
+                    "/inquiry.do"
                 )
                 .excludePathPatterns(
                     "/user/login.do",

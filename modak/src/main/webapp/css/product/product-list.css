@@ -277,12 +277,11 @@ input:checked + .fopt::before {
 }
 
 .wish-btn:hover svg,
-.wish-btn.wished svg {
+.wish-btn.on svg {
     color: #e04b6a;
     fill: #e04b6a;
     stroke: #e04b6a;
 }
-
 /* 카드 텍스트 영역 */
 .pcard-body { padding: 14px 16px 16px; }
 .pcard-cat  { font-size: 10px; color: var(--stone); letter-spacing: .06em; margin-bottom: 4px; }

@@ -1,0 +1,53 @@
+@charset "UTF-8";
+
+.camp-page-container {
+    --c-bg: #11131a;
+    --c-card: #1c1f2b;
+    --c-accent: #E8732A;
+    --c-border: rgba(255, 255, 255, 0.08);
+    --c-text: #e2e4e9;
+    --c-text-muted: #8a8f9d;
+    background: var(--c-bg); min-height: 100vh; padding: 28px 32px;
+}
+
+/* 이미지 썸네일 */
+.camp-thumb {
+    width: 65px; height: 65px; border-radius: 12px;
+    object-fit: cover; border: 1px solid var(--c-border); background: #262a3a;
+}
+.no-img { display: flex; align-items: center; justify-content: center; font-size: 10px; color: #555; }
+
+/* 테이블 카드 */
+.camp-table-card {
+    background: var(--c-card); border: 1px solid var(--c-border);
+    border-radius: 24px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+}
+.c-table { width: 100%; border-collapse: collapse; }
+.c-table th {
+    background: rgba(255,255,255,0.03); padding: 18px;
+    color: var(--c-text-muted); font-size: 11px; border-bottom: 1px solid var(--c-border);
+}
+.c-table td { padding: 15px 18px; border-bottom: 1px solid var(--c-border); color: var(--c-text); text-align: center; }
+
+/* 버튼 디자인 수정 (그라데이션 적용) */
+.p-btn {
+    background: linear-gradient(135deg, #E8732A 0%, #D45D12 100%);
+    color: white; border: none; padding: 10px 22px; border-radius: 10px;
+    font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(232, 115, 42, 0.3);
+}
+.p-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+.p-btn-secondary {
+    background: rgba(255, 255, 255, 0.05); color: #e2e4e9;
+    border: 1px solid var(--c-border); padding: 8px 16px; border-radius: 8px;
+    cursor: pointer; transition: 0.2s;
+}
+.btn-delete { color: #ff5f5f; border-color: rgba(255, 95, 95, 0.3); }
+.btn-delete:hover { background: rgba(255, 95, 95, 0.1); border-color: #ff5f5f; }
+
+/* 업종 뱃지 */
+.badge-induty {
+    background: rgba(232, 115, 42, 0.1); color: #E8732A;
+    padding: 4px 10px; border-radius: 6px; font-size: 12px;
+}

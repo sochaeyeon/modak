@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.example.modak.csCenter.model.Inquiry;
 import com.example.modak.csCenter.model.InquiryHistory;
 import com.example.modak.csCenter.model.InquiryImg;
 
@@ -30,5 +31,14 @@ public interface InquiryMapper {
 
 	// ─── 문의 등록
 	int insertInquiry(HashMap<String, Object> map);
+	
+	Inquiry selectInquiryForEdit(HashMap<String, Object> map);
+
+    int updateInquiry(HashMap<String, Object> map);
+    
+    int insertInquiryImage(HashMap<String, Object> map);
+    InquiryImg selectInquiryImgById(int inquiryImgId);
+
+    int deleteInquiryImgById(int inquiryImgId);
 
 }

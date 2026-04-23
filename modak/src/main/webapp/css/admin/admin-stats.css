@@ -1,59 +1,53 @@
-@charset "UTF-8";
-
-/* ════ 조회수 통계 전용 다크 프리미엄 테마 ════ */
-.stats-page-container {
-    --st-bg: #11131a;
-    --st-card: #1c1f2b;
+/* admin-stats.css */
+:root {
     --st-accent: #E8732A;
-    --st-border: rgba(255, 255, 255, 0.08);
-    --st-text: #e2e4e9;
+    --st-bg-card: rgba(255, 255, 255, 0.02);
+    --st-border: rgba(255, 255, 255, 0.05);
     --st-text-muted: #8a8f9d;
-    
-    background: var(--st-bg);
-    min-height: 100vh;
-    padding: 28px 32px;
 }
 
-.stats-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
-.stats-title { font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
+.stats-page-container { padding: 30px; }
+.stats-header { margin-bottom: 30px; }
+.stats-title { color: #fff; font-size: 24px; font-weight: 800; letter-spacing: -1px; }
 
-/* 차트 카드 */
+/* 차트 카드 - 높이가 반드시 고정되어야 차트가 보입니다 */
 .chart-card {
-    background: var(--st-card);
-    border: 1px solid var(--st-border);
-    border-radius: 24px;
+    background: var(--st-bg-card);
+    border-radius: 20px;
     padding: 30px;
-    margin-bottom: 24px;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    margin-bottom: 30px;
     height: 450px;
-}
-
-/* 통계 테이블 카드 */
-.stats-table-card {
-    background: var(--st-card);
     border: 1px solid var(--st-border);
+    position: relative;
+}
+
+/* 테이블 카드 */
+.stats-table-card {
+    background: var(--st-bg-card);
     border-radius: 24px;
-    overflow: hidden;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    padding: 25px;
+    border: 1px solid var(--st-border);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
 }
 
-.st-table { width: 100%; border-collapse: collapse; }
-.st-table th {
-    background: rgba(255,255,255,0.03);
-    padding: 16px; font-size: 11px; color: var(--st-text-muted);
-    text-transform: uppercase; letter-spacing: 1.5px;
-    border-bottom: 1px solid var(--st-border);
-}
-.st-table td { padding: 16px; border-bottom: 1px solid var(--st-border); color: var(--st-text); font-size: 14px; text-align: center; }
-.st-table tr:hover { background: rgba(255,255,255,0.02); }
+.st-table { width: 100%; border-collapse: collapse; color: #fff; }
+.st-table th { padding: 15px; color: var(--st-text-muted); border-bottom: 2px solid var(--st-border); font-size: 14px; }
+.st-table td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.03); text-align: center; vertical-align: middle; }
 
-/* 순위 강조 */
+/* 상품 이미지 썸네일 */
+.product-img-box {
+    width: 60px; height: 60px; border-radius: 12px; overflow: hidden;
+    background: #2a2f3e; margin: 0 auto; border: 1px solid var(--st-border);
+}
+.product-img-box img { width: 100%; height: 100%; object-fit: cover; }
+
+/* 순위 배지 */
 .rank-badge {
-    width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center;
-    border-radius: 6px; font-weight: 800; font-size: 12px;
+    display: inline-block; width: 26px; height: 26px; line-height: 26px;
+    border-radius: 8px; font-size: 13px; font-weight: 800; background: #333;
 }
-.rank-1 { background: var(--st-accent); color: #fff; }
-.rank-2 { background: #5a5a6a; color: #fff; }
-.rank-3 { background: #3a3a4a; color: #fff; }
+.rank-1 { background: linear-gradient(135deg, #FFD700, #FDB931); color: #000; }
+.rank-2 { background: linear-gradient(135deg, #C0C0C0, #A0A0A0); color: #000; }
+.rank-3 { background: linear-gradient(135deg, #CD7F32, #B87333); color: #000; }
 
 .view-count { font-weight: 700; color: var(--st-accent); }

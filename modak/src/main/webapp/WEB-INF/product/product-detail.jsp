@@ -335,7 +335,7 @@
                         @click="fnWish($event)">
                         {{ isWished ? '❤️' : '🤍' }}
                     </button>
-                    <button class="bcart">장바구니 담기</button>
+                    <button class="bcart" @click="fnAddToCart">장바구니 담기</button>
                     <button class="bbuy">바로 구매하기</button>
                 </div>
             </div>
@@ -484,7 +484,7 @@
                             @click="fnWish($event)">
                             {{ isWished ? '❤️' : '🤍' }}
                         </button>
-                        <button class="bcart">장바구니 담기</button>
+                        <button class="bcart" @click="fnAddToCart">장바구니 담기</button>
                         <button class="bbuy"
                             :disabled="!startDate || !endDate"
                             :style="(!startDate || !endDate) ? 'opacity:0.4;cursor:not-allowed;' : ''"
@@ -618,6 +618,7 @@
                         <div class="rhelprow">
                             <span>도움이 됐나요?</span>
                             <button class="hbtn">👍 도움돼요</button>
+                            <button class="report-btn" @click="reportReview(review.reviewId)">🚨 신고</button>
                         </div>
                     </div>
                 </div>
@@ -741,11 +742,16 @@
     function setGem(e,el){document.getElementById('gem').textContent=e;document.querySelectorAll('.gth').forEach(t=>t.classList.remove('on'));el.classList.add('on');}
 
     // mode
-    function setMode(m){
-        const r=m==='rent';
-        document.getElementById('mb-buy').classList.toggle('on',!r);
-        document.getElementById('mb-rent').classList.toggle('on',r);
-        document.body.classList.toggle('rent',r);
+    function setMode(m) {
+        const r = m === 'rent';
+        document.getElementById('mb-buy').classList.toggle('on', !r);
+        document.getElementById('mb-rent').classList.toggle('on', r);
+        document.body.classList.toggle('rent', r);
+
+        // ✅ Vue 인스턴스에 모드 반영
+        if (window.__vueApp) {
+            window.__vueApp.cartMode = r ? 'RENT' : 'BUY';
+        }
     }
 
     const app = Vue.createApp({
@@ -780,6 +786,7 @@
                 selectedOptions: {},   // { "색상": {optionId:1, optionValue:"샌드베이지", addPrice:0}, ... }
                 optionOpen: false,
                 qtyOpen: false,
+                cartMode: 'RENT', // 현재 모드 추적용 (setMode 연동)
             };
         },
         computed: {
@@ -888,8 +895,10 @@
                         self.productType = data.info.productType || '';
                         if (self.productType === 'RENTAL') {
                             setMode('rent');
+                            self.cartMode = 'RENT';
                         } else if (self.productType === 'PURCHASE') {
                             setMode('buy');
+                            self.cartMode = 'BUY';
                         }
                         // ✅ 위시 상태 초기화
                         $.ajax({
@@ -1112,19 +1121,77 @@
                 location.href = '/inquiry.do';
             },
             selectOption(optionName, opt) {
-            // 같은 옵션명 클릭 시 토글
-            if (this.selectedOptions[optionName]?.optionId === opt.optionId) {
-                const copy = { ...this.selectedOptions };
-                delete copy[optionName];
-                this.selectedOptions = copy;
-            } else {
-                this.selectedOptions = { ...this.selectedOptions, [optionName]: opt };
+                // 같은 옵션명 클릭 시 토글
+                if (this.selectedOptions[optionName]?.optionId === opt.optionId) {
+                    const copy = { ...this.selectedOptions };
+                    delete copy[optionName];
+                    this.selectedOptions = copy;
+                } else {
+                    this.selectedOptions = { ...this.selectedOptions, [optionName]: opt };
+                }
+            },
+            // ── 장바구니 담기 ──
+            fnAddToCart: function() {
+                let self = this;
+
+                // 대여 모드일 때 날짜 필수 체크
+                if (self.cartMode === 'RENT' && (!self.startDate || !self.endDate)) {
+                    showToast('대여 날짜를 먼저 선택해 주세요.');
+                    return;
+                }
+
+                // 옵션이 있는데 아무것도 선택 안 했으면 막기
+                if (self.productOptions.length > 0 && Object.keys(self.selectedOptions).length === 0) {
+                    showToast('옵션을 선택해 주세요.');
+                    return;
+                }
+
+                // 선택된 옵션값 문자열로 변환 (예: "블랙 / L")
+                const selectedOptionStr = Object.values(self.selectedOptions)
+                    .map(o => o.optionValue)
+                    .join(' / ');
+
+                $.ajax({
+                    url: '/cart/insert.dox',
+                    dataType: 'json',
+                    type: 'POST',
+                    data: {
+                        productId:      self.productId,
+                        cartType:       self.cartMode,           // 'RENT' | 'BUY'
+                        qty:            self.qty,
+                        selectedOption: selectedOptionStr,
+                        rentalStart:    self.cartMode === 'RENT' ? self.startDate : '',
+                        rentalEnd:      self.cartMode === 'RENT' ? self.endDate   : '',
+                    },
+                    success: function(data) {
+                        // 서버가 { result: 'success', cartId: 123 } 형태로 응답하면 → 그대로 사용
+                        // 서버가 { cartId: 123 } 만 응답하면 → data.cartId 체크만 유지
+                        // 서버가 단순 {} 응답이면 → success 콜백 진입 자체가 성공으로 간주
+                        if (data.result === 'success' || data.cartId) {
+                            showToast('🛒 장바구니에 담았습니다!');
+                        } else if (data.result === 'login') {
+                            showToast('로그인이 필요합니다.');
+                            setTimeout(function() { location.href = '/user/login.do'; }, 1200);
+                        } else {
+                            showToast('장바구니 담기에 실패했습니다.');
+                        }
+                    },
+                    error: function() {
+                        showToast('오류가 발생했습니다. 다시 시도해 주세요.');
+                    }
+                });
+            },
+            reportReview(reviewId) {
+                if (confirm('이 리뷰를 신고하시겠습니까?')) {
+                    // 신고 API 호출
+                    console.log('신고된 리뷰 ID:', reviewId);
+                }
             }
-        },
 
         }, // methods
         mounted() {
             // 처음 시작할 때 실행되는 부분
+            window.__vueApp = this; // ✅ setMode에서 접근할 수 있도록
             let self = this;
             self.fnDetail();
             self.fetchProductImages();

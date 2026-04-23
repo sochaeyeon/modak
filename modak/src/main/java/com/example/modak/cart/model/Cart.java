@@ -10,12 +10,19 @@ public class Cart {
 	private String cartType; // 타입구분 구매,대여
 	private String createdAt; // 등록일시
 	
+	private String rentalStart;      
+    private String rentalEnd;        
+    private String selectedOption;   
+	
 	private String userId; // 회원 id
 	private int productId; // 상품 id
 	private int optionId; // 옵션 id
 	
 	private String productName;
     private int price;
-    private String imageId;
+    private String imgUrl;
+    private String brandName;    
+    private String categoryName;  
+    private int    stock;           
 
 }

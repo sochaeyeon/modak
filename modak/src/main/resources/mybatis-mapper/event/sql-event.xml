@@ -4,19 +4,29 @@
 <mapper namespace="com.example.modak.event.mapper.EventMapper">
 
 	<!-- 이벤트 목록 조회 (탭 필터 + 페이징) -->
-	<select id="selectEventList" parameterType="hashmap"
-		resultType="com.example.modak.event.model.Event"> SELECT event_id AS
-		eventId, title, content, start_date AS startDate, end_date AS endDate
-		FROM event <where>
-			<if test="tabType != null and tabType == 'ongoing'">
-                <![CDATA[ AND start_date <= NOW() AND end_date >= NOW() ]]>
-            </if>
-			<if test="tabType != null and tabType == 'ended'">
-                <![CDATA[ AND end_date < NOW() ]]>
-            </if>
-		</where>
-		ORDER BY event_id DESC LIMIT #{pageSize} OFFSET #{offset} </select>
-
+	<select id="selectEventList" parameterType="hashmap" resultType="hashmap">
+    SELECT 
+        E.EVENT_ID as eventId, 
+        E.TITLE as title, 
+        E.CONTENT as content, 
+        DATE_FORMAT(E.START_DATE, '%Y-%m-%d') as startDate, 
+        DATE_FORMAT(E.END_DATE, '%Y-%m-%d') as endDate,
+        EI.IMG_URL as img_path 
+    FROM event E
+    LEFT JOIN event_img EI ON E.EVENT_ID = EI.EVENT_ID AND EI.IS_MAIN = 'Y'
+    WHERE 1=1
+    ORDER BY E.START_DATE DESC </select>
+	<select id="selectEventDetail" parameterType="hashmap" resultType="hashmap">
+    SELECT 
+        E.EVENT_ID as eventId, 
+        E.TITLE as title, 
+        E.CONTENT as content, 
+        DATE_FORMAT(E.START_DATE, '%Y-%m-%d') as startDate, 
+        DATE_FORMAT(E.END_DATE, '%Y-%m-%d') as endDate,
+        EI.IMG_URL as imgPath FROM event E
+    LEFT JOIN event_img EI ON E.EVENT_ID = EI.EVENT_ID AND EI.IS_MAIN = 'Y'
+    WHERE E.EVENT_ID = #{eventId}
+</select>
 	<!-- 전체 건수 (페이징용) -->
 	<select id="selectEventCount" parameterType="hashmap" resultType="int">
 		SELECT COUNT(*) FROM event <where>
@@ -41,6 +51,8 @@
 		FROM event
 		WHERE event_id = #{eventId}
 	</select>
+	
+	
 
 	<!-- ════════════════════════════════════════
          ★ 메인 배너 — 오늘 날짜 기준 진행 중인 이벤트 최대 5개

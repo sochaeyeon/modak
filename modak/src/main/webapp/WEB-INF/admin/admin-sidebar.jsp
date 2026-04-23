@@ -47,6 +47,10 @@
             <span class="nav-icon">⭐</span> 리뷰 관리
         </a>
 
+        <a href="/admin/membership.do" class="nav-item ${pageTitle == '등급관리' ? 'active' : ''}">
+            <span class="nav-icon">'💰</span> 등급 관리
+        </a>
+
         <div class="nav-section-label">설정</div>
         <a href="/admin/coupons.do" class="nav-item ${pageTitle == '쿠폰관리' ? 'active' : ''}">
             <span class="nav-icon">🎫</span> 쿠폰 관리

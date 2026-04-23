@@ -19,6 +19,18 @@
 		WHERE ORDER_STATUS NOT IN ('CANCELLED','REFUND')
 		AND DATE_FORMAT(CREATED_AT, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m')
 	</select>
+	<select id="selectTopProducts" resultType="map">
+    SELECT 
+        p.PRODUCT_NAME, 
+        COUNT(oi.PRODUCT_ID) as sales_count
+    FROM ORDERS o
+    JOIN ORDER_ITEM oi ON o.ORDER_ID = oi.ORDER_ID
+    JOIN PRODUCT p ON oi.PRODUCT_ID = p.PRODUCT_ID
+    WHERE o.ORDER_STATUS NOT IN ('CANCELLED', 'REFUND')
+    GROUP BY p.PRODUCT_ID, p.PRODUCT_NAME
+    ORDER BY sales_count DESC
+    LIMIT 5
+</select>
 
 	<select id="selectLastMonthSales" resultType="long">
 		SELECT COALESCE(SUM(TOTAL_PRICE), 0) FROM ORDERS
@@ -245,6 +257,7 @@
 </select>
 
 
+
 	<select id="selectSalesByPeriod" parameterType="hashmap" resultType="map">
 		SELECT DATE_FORMAT(CREATED_AT, '%Y-%m-%d') AS SALES_DATE,
 		COUNT(ORDER_ID) AS ORDER_COUNT, SUM(TOTAL_PRICE) AS TOTAL_AMOUNT
@@ -374,66 +387,76 @@
 
 
 	<select id="selectEventList" parameterType="hashmap" resultType="map">
-    SELECT 
-        e.EVENT_ID, 
-        e.TITLE, 
-        e.CONTENT,
-        DATE_FORMAT(e.START_DATE, '%Y-%m-%d') AS START_DATE, 
-        DATE_FORMAT(e.END_DATE, '%Y-%m-%d') AS END_DATE, 
-        ei.IMG_URL AS THUMBNAIL,
-        CASE 
-            WHEN NOW() &lt; e.START_DATE THEN 'READY' 
-            WHEN NOW() BETWEEN e.START_DATE AND e.END_DATE THEN 'ING' 
-            ELSE 'END' 
-        END AS STATUS_CODE
-    FROM event e 
-    LEFT JOIN event_img ei ON e.EVENT_ID = ei.EVENT_ID AND ei.IS_MAIN = 'Y'
-    WHERE e.EVENT_ID IS NOT NULL
-    /* 🚨 e.CREATED_AT 대신 실제로 존재하는 e.EVENT_ID로 정렬을 변경합니다 */
-    ORDER BY e.EVENT_ID DESC 
-</select>
+	    SELECT 
+	        e.EVENT_ID, 
+	        e.TITLE, 
+	        e.CONTENT,
+	        DATE_FORMAT(e.START_DATE, '%Y-%m-%d') AS START_DATE, 
+	        DATE_FORMAT(e.END_DATE, '%Y-%m-%d') AS END_DATE, 
+	        ei.IMG_URL AS THUMBNAIL,
+	        CASE 
+	            WHEN NOW() &lt; e.START_DATE THEN 'READY' 
+	            WHEN NOW() BETWEEN e.START_DATE AND e.END_DATE THEN 'ING' 
+	            ELSE 'END' 
+	        END AS STATUS_CODE
+	    FROM event e 
+	    LEFT JOIN event_img ei ON e.EVENT_ID = ei.EVENT_ID AND ei.IS_MAIN = 'Y'
+	    WHERE e.EVENT_ID IS NOT NULL
+	    ORDER BY e.EVENT_ID DESC 
+	</select>
 
 	<select id="selectEventCount" resultType="int">
 		SELECT COUNT(*) FROM event
 	</select>
 
+	<insert id="insertEvent" parameterType="hashmap" useGeneratedKeys="true" keyProperty="eventId" keyColumn="EVENT_ID">
+    INSERT INTO event (
+        TITLE, 
+        CONTENT, 
+        START_DATE, 
+        END_DATE
+    ) VALUES (
+        #{title}, 
+        #{content}, 
+        #{start_date}, 
+        #{end_date}
+    )
+</insert>
+
 	<update id="updateEvent" parameterType="hashmap">
 		UPDATE event
-		SET TITLE = #{title}, CONTENT = #{content}, START_DATE = #{start_date},
-		END_DATE = #{end_date}
+		SET TITLE = #{title}, 
+		    CONTENT = #{content}, 
+		    START_DATE = #{start_date},
+		    END_DATE = #{end_date}
 		WHERE EVENT_ID = #{eventId}
 	</update>
 
 	<update id="updateEventImage" parameterType="hashmap">
-    INSERT INTO event_img (EVENT_ID, IMG_URL, IS_MAIN, SORT_ORDER, CREATED_AT)
-    VALUES (#{eventId}, #{img_path}, 'Y', 1, NOW())
-    ON DUPLICATE KEY UPDATE 
-        IMG_URL = #{img_path}, 
-        CREATED_AT = NOW()
-</update>
+	    INSERT INTO event_img (EVENT_ID, IMG_URL, IS_MAIN, SORT_ORDER, CREATED_AT)
+	    VALUES (#{eventId}, #{img_path}, 'Y', 1, NOW())
+	    ON DUPLICATE KEY UPDATE 
+	        IMG_URL = #{img_path}, 
+	        CREATED_AT = NOW()
+	</update>
 
 	<delete id="deleteEventImages" parameterType="hashmap">
-    DELETE FROM event_img WHERE EVENT_ID = #{eventId}
-</delete>
+	    DELETE FROM event_img WHERE EVENT_ID = #{eventId}
+	</delete>
 
-<delete id="deleteEvent" parameterType="hashmap">
-    DELETE FROM event WHERE EVENT_ID = #{eventId}
-</delete>
+	<delete id="deleteEvent" parameterType="hashmap">
+	    DELETE FROM event WHERE EVENT_ID = #{eventId}
+	</delete>
 
-<select id="selectEventDetail" parameterType="hashmap" resultType="hashmap">
-    SELECT E.EVENT_ID, E.TITLE, E.CONTENT, 
-           DATE_FORMAT(E.START_DATE, '%Y-%m-%d') AS START_DATE,
-           DATE_FORMAT(E.END_DATE, '%Y-%m-%d') AS END_DATE, 
-           EI.IMG_URL AS IMG_PATH
-    FROM event E 
-    LEFT JOIN event_img EI ON E.EVENT_ID = EI.EVENT_ID AND EI.IS_MAIN = 'Y'
-    WHERE E.EVENT_ID = #{eventId}
-</select>
-<insert id="insertEvent" parameterType="hashmap" useGeneratedKeys="true" keyProperty="eventId" keyColumn="EVENT_ID">
-    INSERT INTO event (TITLE, CONTENT, START_DATE, END_DATE, CREATED_AT)
-    VALUES (#{title}, #{content}, #{start_date}, #{end_date}, NOW())
-</insert>
-
+	<select id="selectEventDetail" parameterType="hashmap" resultType="hashmap">
+	    SELECT E.EVENT_ID, E.TITLE, E.CONTENT, 
+	           DATE_FORMAT(E.START_DATE, '%Y-%m-%d') AS START_DATE,
+	           DATE_FORMAT(E.END_DATE, '%Y-%m-%d') AS END_DATE, 
+	           EI.IMG_URL AS IMG_PATH
+	    FROM event E 
+	    LEFT JOIN event_img EI ON E.EVENT_ID = EI.EVENT_ID AND EI.IS_MAIN = 'Y'
+	    WHERE E.EVENT_ID = #{eventId}
+	</select>
 
 	<select id="selectCouponList" parameterType="hashmap" resultType="map">
 		SELECT COUPON_ID, COUPON_NAME, COUPON_TYPE, DISCOUNT_AMT, DISCOUNT_RATE,
@@ -447,9 +470,64 @@
 		</where>
 		ORDER BY COUPON_ID DESC </select>
 
-	<update id="updateCouponStatus" parameterType="hashmap">
-		UPDATE coupon SET IS_ACTIVE = #{isActive} WHERE COUPON_ID = #{couponId}
-	</update>
+	<insert id="insertCouponToAllUsers" parameterType="hashmap">
+    INSERT INTO user_coupon (
+        USER_ID, COUPON_ID, ISSUED_AT, EXPIRED_AT, USED_YN, STATUS, CREATED_AT
+    )
+    SELECT 
+        USER_ID, #{couponId}, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 
+        'N', 'AVAILABLE', NOW() FROM user
+    WHERE USER_STATUS = 'ACTIVE'
+</insert>
+
+<insert id="insertUserCoupon" parameterType="hashmap">
+    INSERT INTO user_coupon (
+        USER_ID, COUPON_ID, ISSUED_AT, EXPIRED_AT, USED_YN, STATUS, CREATED_AT
+    ) VALUES (
+        #{userId}, #{couponId}, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 
+        'N', 'AVAILABLE', NOW() )
+</insert>
+
+<update id="updateUserCouponStatus" parameterType="hashmap">
+    UPDATE user_coupon 
+    SET USED_YN = #{usedYn},
+        STATUS = CASE WHEN #{usedYn} = 'Y' THEN 'USED' ELSE 'AVAILABLE' END WHERE USER_COUPON_ID = #{userCouponId}
+</update>
+<delete id="deleteCoupon" parameterType="hashmap">
+    DELETE FROM coupon WHERE COUPON_ID = #{couponId}
+</delete>
+
+<delete id="deleteUserCoupon" parameterType="hashmap">
+    DELETE FROM user_coupon WHERE USER_COUPON_ID = #{userCouponId}
+</delete>
+
+<delete id="deleteUserCouponsByMaster" parameterType="hashmap">
+    DELETE FROM user_coupon WHERE COUPON_ID = #{couponId}
+</delete>
+
+<select id="selectUserCouponList" parameterType="hashmap" resultType="map">
+    SELECT 
+        uc.USER_COUPON_ID,
+        uc.USER_ID,
+        u.USER_NAME,
+        c.COUPON_NAME,
+        uc.USED_YN,
+        DATE_FORMAT(uc.ISSUED_AT, '%Y-%m-%d %H:%i') AS ISSUED_AT,
+        DATE_FORMAT(uc.EXPIRED_AT, '%Y-%m-%d') AS EXPIRED_AT,
+        uc.STATUS
+    FROM user_coupon uc
+    JOIN coupon c ON uc.COUPON_ID = c.COUPON_ID
+    JOIN user u ON uc.USER_ID = u.USER_ID
+    <where>
+        <if test="userId != null and userId != ''">
+            AND uc.USER_ID = #{userId}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (u.USER_NAME LIKE CONCAT('%', #{keyword}, '%') OR c.COUPON_NAME LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+    </where>
+    ORDER BY uc.CREATED_AT DESC
+</select>
 
 	<select id="selectAdminReviewList" parameterType="hashmap" resultType="map">
 		SELECT R.REVIEW_ID, R.USER_ID, R.PRODUCT_ID, R.TITLE, R.CONTENT,

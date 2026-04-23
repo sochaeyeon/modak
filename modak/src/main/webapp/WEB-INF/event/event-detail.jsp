@@ -55,7 +55,7 @@
 							url: '${pageContext.request.contextPath}/event/info.dox',
 							type: 'POST',
 							dataType: 'json',
-							data: {eventId: eventId},
+							data: { eventId: eventId },
 							success: function (data) {
 								if (data.result === 'success' && data.info) {
 									renderDetail(data.info);
@@ -71,7 +71,13 @@
 					}
 
 					/* ── 상세 HTML 렌더링 ─────────────────────────────── */
+					/* ── 상세 HTML 렌더링 ─────────────────────────────── */
+					/* ── 상세 HTML 렌더링 ─────────────────────────────── */
+					/* ── 상세 HTML 렌더링 ─────────────────────────────── */
 					function renderDetail(ev) {
+						// 1. 콘솔에서 ev.imgPath가 출력되는지 꼭 확인하세요!
+						console.log("DB에서 넘어온 실제 데이터:", ev);
+
 						var now = new Date();
 						var endDate = new Date(ev.endDate);
 						var isEnded = endDate < now;
@@ -79,28 +85,42 @@
 						var badgeClass = isEnded ? 'badge-ended' : 'badge-ongoing';
 						var badgeText = isEnded ? '종료된 이벤트' : '진행중인 이벤트';
 
-						/* 브레드크럼 타이틀 업데이트 */
-						$('#bcTitle').text(ev.title);
-						document.title = ev.title + ' - 모닥모닥';
+						$('#bcTitle').text(ev.title || ev.TITLE);
+
+						// 2. DB 경로 매핑 (대소문자 완벽 대응)
+						var dbPath = ev.imgPath || ev.IMGPATH || ev.img_path;
+						var contextPath = '${pageContext.request.contextPath}';
+
+						var finalImgSrc = "";
+						if (dbPath) {
+							// DB에 데이터가 있으면 해당 경로 사용
+							finalImgSrc = contextPath + dbPath;
+						} else {
+							// DB에 정말 없을 때만 대체 이미지 (이미지 폴더에 실제 있는 파일명으로!)
+							finalImgSrc = contextPath + '/img/event/fireEvent.png';
+						}
 
 						var html = '<div class="detail-card">'
 							+ '<div class="detail-image">'
 							+ '<span class="detail-badge ' + badgeClass + '">' + badgeText + '</span>'
-							+ '<div style="text-align:center">이벤트 대표 이미지 영역</div>'
+							// 🖼️ DB에서 가져온 주소 적용
+							+ '<img src="' + finalImgSrc + '" '
+							+ '     onerror="this.src=\'' + contextPath + '/img/event/fireEvent.png\'" '
+							+ '     style="width:100%; max-height:500px; object-fit:cover; border-radius:12px 12px 0 0;">'
 							+ '</div>'
 							+ '<div class="detail-body">'
 							+ '<div class="detail-meta">'
-							+ '<span class="meta-date">' + esc(ev.startDate) + ' ~ ' + esc(ev.endDate) + '</span>'
+							+ '<span class="meta-date">📅 ' + (ev.startDate || ev.START_DATE) + ' ~ ' + (ev.endDate || ev.END_DATE) + '</span>'
 							+ '</div>'
-							+ '<h1 class="detail-title">' + esc(ev.title) + '</h1>'
+							+ '<h1 class="detail-title">' + esc(ev.title || ev.TITLE) + '</h1>'
 							+ '<div class="detail-divider"></div>'
-							+ '<div class="detail-content">' + esc(ev.content) + '</div>'
+							// white-space: pre-wrap으로 본문 줄바꿈 유지
+							+ '<div class="detail-content" style="white-space:pre-wrap; line-height:1.8; color:#333;">' + (ev.content || ev.CONTENT) + '</div>'
 							+ '</div>'
 							+ '</div>';
 
 						$('#detailWrap').html(html);
 					}
-
 					/* ── 유틸 ── */
 					function esc(str) {
 						if (!str) return '';

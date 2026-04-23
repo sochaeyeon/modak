@@ -9,6 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.modak.admin.mapper.AdminMapper;
+import com.google.gson.JsonElement;
 
 @Service
 public class AdminService {
@@ -390,12 +391,21 @@ public class AdminService {
 	public HashMap<String, Object> saveEvent(HashMap<String, Object> map) {
 	    HashMap<String, Object> r = new HashMap<>();
 	    try {
-	        // 1. 이벤트 텍스트 정보 업데이트 (event 테이블)
-	        mapper.updateEvent(map);
+	        // 1. 등록인가 수정인가 판단 (eventId가 없거나 빈 문자열이면 등록)
+	        if (map.get("eventId") == null || String.valueOf(map.get("eventId")).equals("")) {
+	            // [등록 로직]
+	            mapper.insertEvent(map); 
+	            // 🚨 MyBatis의 useGeneratedKeys 덕분에 map에 eventId가 자동으로 채워집니다.
+	            System.out.println("신규 등록된 ID: " + map.get("eventId"));
+	        } else {
+	            // [수정 로직]
+	            mapper.updateEvent(map);
+	            System.out.println("기존 데이터 수정 ID: " + map.get("eventId"));
+	        }
 	        
-	        // 2. 이미지 파일명이 넘어왔을 때만 실행 (event_img 테이블)
+	        // 2. 이미지 처리 (등록/수정 공통)
+	        // 위에서 등록된 혹은 넘어온 eventId가 map에 있으므로 그대로 사용합니다.
 	        if (map.get("img_path") != null && !map.get("img_path").toString().equals("")) {
-	            // map의 eventId를 사용하여 이미지 경로 저장/수정
 	            mapper.updateEventImage(map);
 	        }
 	        
@@ -403,7 +413,7 @@ public class AdminService {
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        r.put("result", "fail");
-	        r.put("message", "DB 저장 오류: " + e.getMessage());
+	        r.put("message", "저장 중 오류 발생: " + e.getMessage());
 	    }
 	    return r;
 	}
@@ -419,30 +429,7 @@ public class AdminService {
 		}
 		return r;
 	}
-	@Transactional
-	public HashMap<String, Object> addEvent(HashMap<String, Object> map) {
-	    HashMap<String, Object> r = new HashMap<>();
-	    try {
-	        // 1. 이벤트 본문 테이블(event)에 먼저 인서트
-	        // 🚨 이 코드가 실행되어야 DB에 본문이 생깁니다!
-	        mapper.insertEvent(map); 
-	        
-	        // 2. MyBatis가 방금 만든 번호를 'eventId'라는 키로 map에 넣어줍니다.
-	        // 로그를 찍어서 null이 아닌지 확인해 보세요.
-	        System.out.println("방금 등록된 이벤트 번호: " + map.get("eventId"));
 
-	        // 3. 본문 등록이 성공하고 이미지가 있을 때 이미지 테이블 등록
-	        if (map.get("eventId") != null && map.get("img_path") != null) {
-	            mapper.updateEventImage(map);
-	        }
-	        
-	        r.put("result", "success");
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        r.put("result", "fail");
-	    }
-	    return r;
-	}
 	/* ==========================================================
        8. 대여 현황 및 캠핑장 관리 로직
        ========================================================== */
@@ -606,30 +593,136 @@ public class AdminService {
 		return resultMap;
 	}
 	
-	// 관리자 쿠폰 목록 조회
-	public HashMap<String, Object> getCouponList(HashMap<String, Object> map) {
-		HashMap<String, Object> resultMap = new HashMap<>();
-		try {
-			List<Map<String, Object>> list = mapper.selectCouponList(map);
-			resultMap.put("list", list);
-			resultMap.put("result", "success");
-		} catch (Exception e) {
-			resultMap.put("result", "error");
-			resultMap.put("message", e.getMessage());
-		}
-		return resultMap;
-	}
+	// --- [1] 쿠폰 마스터 관리 ---
 
-	// 쿠폰 활성화/비활성화 상태 수정
-	public HashMap<String, Object> modifyCouponStatus(HashMap<String, Object> map) {
-		HashMap<String, Object> resultMap = new HashMap<>();
-		try {
-			mapper.updateCouponStatus(map);
-			resultMap.put("result", "success");
-		} catch (Exception e) {
-			resultMap.put("result", "error");
-			resultMap.put("message", e.getMessage());
-		}
-		return resultMap;
-	}
+	/* ==========================================================
+    9. 쿠폰 마스터 및 유저 쿠폰 통합 관리 서비스
+    ========================================================== */
+
+ // --- [1] 쿠폰 마스터 관리 (Master) ---
+
+ // 쿠폰 마스터 목록 조회
+ public HashMap<String, Object> getCouponList(HashMap<String, Object> map) {
+     HashMap<String, Object> resultMap = new HashMap<>();
+     try {
+         resultMap.put("list", mapper.selectCouponList(map));
+         resultMap.put("result", "success");
+     } catch (Exception e) {
+         resultMap.put("result", "error");
+     }
+     return resultMap;
+ }
+
+ // 쿠폰 마스터 저장 (신규 등록 / 기존 수정)
+ @Transactional
+ public HashMap<String, Object> saveCoupon(HashMap<String, Object> map) {
+     HashMap<String, Object> resultMap = new HashMap<>();
+     try {
+         // couponId가 없으면 insert, 있으면 update
+         if (map.get("couponId") == null || String.valueOf(map.get("couponId")).equals("")) {
+             mapper.insertCoupon(map);
+         } else {
+             mapper.updateCoupon(map);
+         }
+         resultMap.put("result", "success");
+     } catch (Exception e) {
+         resultMap.put("result", "error");
+         resultMap.put("message", e.getMessage());
+     }
+     return resultMap;
+ }
+
+ // 쿠폰 마스터 상태 변경 (활성/비활성)
+ public HashMap<String, Object> modifyCouponStatus(HashMap<String, Object> map) {
+     HashMap<String, Object> resultMap = new HashMap<>();
+     try {
+         mapper.updateCouponStatus(map);
+         resultMap.put("result", "success");
+     } catch (Exception e) {
+         resultMap.put("result", "error");
+     }
+     return resultMap;
+ }
+
+ // 쿠폰 마스터 삭제
+ public HashMap<String, Object> removeCoupon(HashMap<String, Object> map) {
+     HashMap<String, Object> resultMap = new HashMap<>();
+     try {
+         mapper.deleteCoupon(map);
+         resultMap.put("result", "success");
+     } catch (Exception e) {
+         resultMap.put("result", "error");
+     }
+     return resultMap;
+ }
+
+
+ // --- [2] 유저 보유 쿠폰 관리 (User Coupon) ---
+
+ // ✨ 모든 유저에게 쿠폰 일괄 발송 (전체 지급)
+ public HashMap<String, Object> giveCouponToAll(HashMap<String, Object> map) {
+     HashMap<String, Object> resultMap = new HashMap<>();
+     try {
+         mapper.insertCouponToAllUsers(map);
+         resultMap.put("result", "success");
+     } catch (Exception e) {
+         e.printStackTrace();
+         resultMap.put("result", "error");
+     }
+     return resultMap;
+ }
+
+ // ✨ 특정 유저에게 쿠폰 개별 발송 (개별 지급)
+ public HashMap<String, Object> giveCouponToUser(HashMap<String, Object> map) {
+     HashMap<String, Object> resultMap = new HashMap<>();
+     try {
+         mapper.insertUserCoupon(map);
+         resultMap.put("result", "success");
+     } catch (Exception e) {
+         e.printStackTrace();
+         resultMap.put("result", "error");
+     }
+     return resultMap;
+ }
+
+ // 유저별 쿠폰 보유 현황 조회 (조인 리스트)
+ public HashMap<String, Object> getUserCouponList(HashMap<String, Object> map) {
+     HashMap<String, Object> resultMap = new HashMap<>();
+     try {
+         resultMap.put("list", mapper.selectUserCouponList(map));
+         resultMap.put("result", "success");
+     } catch (Exception e) {
+         resultMap.put("result", "error");
+     }
+     return resultMap;
+ }
+
+ // 유저 쿠폰 사용 상태 강제 변경 (사용완료/미사용)
+ public HashMap<String, Object> modifyUserCouponStatus(HashMap<String, Object> map) {
+     HashMap<String, Object> resultMap = new HashMap<>();
+     try {
+         mapper.updateUserCouponStatus(map);
+         resultMap.put("result", "success");
+     } catch (Exception e) {
+         resultMap.put("result", "error");
+     }
+     return resultMap;
+ }
+
+ // 발급된 유저 쿠폰 회수 (삭제)
+ @Transactional
+
+
+ // [유저 보유 쿠폰 삭제/회수]
+ public HashMap<String, Object> removeUserCoupon(HashMap<String, Object> map) {
+     HashMap<String, Object> resultMap = new HashMap<>();
+     try {
+         mapper.deleteUserCoupon(map);
+         resultMap.put("result", "success");
+     } catch (Exception e) {
+         resultMap.put("result", "error");
+     }
+     return resultMap;
+ }
+	
 }

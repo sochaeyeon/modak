@@ -206,10 +206,38 @@ public interface AdminMapper {
     // 상품별 실시간 조회수 순위 통계
     List<Map<String, Object>> selectProductViewStats();
 
-    // 생성된 쿠폰 목록 및 발급 현황 조회
-    List<Map<String, Object>> selectCouponList(HashMap<String, Object> map);
+    /* --- [1] 쿠폰 마스터 관리 (Master) --- */
+ // 쿠폰 리스트 조회
+ List<Map<String, Object>> selectCouponList(HashMap<String, Object> map);
 
-    // 쿠폰 사용 가능 여부 활성화/비활성화 전환
-    void updateCouponStatus(HashMap<String, Object> map);
+ // 쿠폰 신규 등록
+ void insertCoupon(HashMap<String, Object> map);
 
+ // 쿠폰 정보 수정
+ void updateCoupon(HashMap<String, Object> map);
+
+ // 쿠폰 상태 수정 (활성/비활성)
+ void updateCouponStatus(HashMap<String, Object> map);
+
+ // 쿠폰 삭제
+ void deleteCoupon(HashMap<String, Object> map);
+
+
+ /* --- [2] 유저 보유 쿠폰 관리 (User Coupon) --- */
+ // [Create] 특정 유저 한 명에게 쿠폰 발급 (ID 입력 방식)
+ void insertUserCoupon(HashMap<String, Object> map);
+
+ // ✨ [추가] 모든 유저에게 쿠폰 일괄 발급 (전체 지급 버튼용)
+ // 쿼리에서 INSERT INTO ... SELECT FROM user 문법을 쓰면 됩니다닥!
+ void insertCouponToAllUsers(HashMap<String, Object> map);
+
+ // [Read] 유저별 쿠폰 보유 현황 조회 (조인 포함)
+ List<Map<String, Object>> selectUserCouponList(HashMap<String, Object> map);
+
+ // [Update] 쿠폰 사용 상태 강제 변경 (사용완료/미사용)
+ void updateUserCouponStatus(HashMap<String, Object> map);
+
+ // [Delete] 쿠폰 회수 (삭제)
+ void deleteUserCoupon(HashMap<String, Object> map);
+    
 }

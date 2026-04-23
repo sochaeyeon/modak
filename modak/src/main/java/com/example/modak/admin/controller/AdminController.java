@@ -17,7 +17,7 @@ import com.google.gson.Gson;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/admin") // 👈 클래스 레벨에서 /admin이 선언됨
 public class AdminController {
 
 	@Autowired
@@ -29,13 +29,10 @@ public class AdminController {
 	/* ==========================================================
        1. 관리자 권한 및 공통 유틸리티
        ========================================================== */
-
-	// 세션을 확인하여 현재 사용자가 관리자인지 여부 판단
 	private boolean isAdmin() {
 		return Boolean.TRUE.equals(session.getAttribute("isAdmin"));
 	}
 
-	// 권한이 없는 접근에 대해 표준화된 실패 메시지 반환 (JSON)
 	private String noAuth() {
 		return new Gson().toJson(Map.of("result", "fail", "message", "관리자 권한이 필요합니다."));
 	}
@@ -43,29 +40,24 @@ public class AdminController {
 	/* ==========================================================
        2. 관리자 인증 (Login / Logout)
        ========================================================== */
-
-	// 관리자 로그인 페이지 호출
 	@GetMapping("/login.do")
 	public String loginPage() {
 		return "admin/admin-login";
 	}
 
-	// 관리자 로그인 처리 (비동기 API)
 	@PostMapping(value = "/login.dox", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String login(@RequestParam HashMap<String, Object> map) {
 		HashMap<String, Object> loginResult = adminService.adminLogin(map);
-
 		if ("success".equals(loginResult.get("result"))) {
 			session.setAttribute("sessionId", map.get("id"));
 			session.setAttribute("adminName", loginResult.get("adminName"));
 			session.setAttribute("isAdmin", true);
-			session.setMaxInactiveInterval(60 * 60 * 2); // 세션 유지 시간 2시간
+			session.setMaxInactiveInterval(60 * 60 * 2);
 		}
 		return new Gson().toJson(loginResult);
 	}
 
-	// 관리자 로그아웃 처리 및 세션 무효화
 	@GetMapping("/logout.do")
 	public String logout() {
 		session.invalidate();
@@ -73,87 +65,74 @@ public class AdminController {
 	}
 
 	/* ==========================================================
-       3. 페이지 라우팅 (View Mapping)
+       3. 페이지 라우팅 (View Mapping - 100% 유지)
        ========================================================== */
-
-	// 대시보드 메인 페이지
 	@GetMapping("/dashboard.do")
 	public String dashboard() {
 		if (!isAdmin()) return "redirect:/admin/login.do";
 		return "admin/admin-dashboard";
 	}
 
-	// 회원 관리 페이지
 	@GetMapping("/members.do")
 	public String members() {
 		if (!isAdmin()) return "redirect:/admin/login.do";
 		return "admin/admin-members";
 	}
 
-	// 상품 관리 페이지
 	@GetMapping("/products.do")
 	public String products() {
 		if (!isAdmin()) return "redirect:/admin/login.do";
 		return "admin/admin-products";
 	}
 
-	// 1:1 문의 관리 페이지
 	@GetMapping("/inquiry.do")
 	public String inquiry() {
 		if (!isAdmin()) return "redirect:/admin/login.do";
 		return "admin/admin-inquiry";
 	}
 
-	// 리뷰 관리 페이지
 	@GetMapping("/reviews.do")
 	public String reviews() {
 		if (!isAdmin()) return "redirect:/admin/login.do";
 		return "admin/admin-reviews";
 	}
 
-	// 매출 현황 페이지
 	@GetMapping("/sales.do")
 	public String sales() {
 		if (!isAdmin()) return "redirect:/admin/login.do";
 		return "admin/admin-sales";
 	}
 
-	// 이벤트 및 배너 관리 페이지
 	@GetMapping("/events.do")
 	public String events() {
 		if (!isAdmin()) return "redirect:/admin/login.do";
 		return "admin/admin-events";
 	}
 
-	// 통합 통계 페이지
 	@GetMapping("/stats.do")
 	public String stats() {
 		if (!isAdmin()) return "redirect:/admin/login.do";
 		return "admin/admin-stats";
 	}
 
-	// 주문 관리 페이지
 	@GetMapping("/orders.do")
 	public String orders() {
 		if (!isAdmin()) return "redirect:/admin/login.do";
 		return "admin/admin-orders";
 	}
 
-	// 쿠폰 발행 및 관리 페이지
 	@GetMapping("/coupons.do")
 	public String coupons() {
 		if (!isAdmin()) return "redirect:/admin/login.do";
 		return "admin/admin-coupons";
 	}
 
-	// 대여 현황 관리 페이지
 	@GetMapping("/rentals.do")
 	public String rentalsPage() {
 		if (!isAdmin()) return "redirect:/admin/login.do";
 		return "admin/admin-rentals";
 	}
 
-	// 캠핑장 정보 관리 페이지
 	@GetMapping("/camps.do")
 	public String campManagement() {
 		if (!isAdmin()) return "redirect:/admin/login.do";
@@ -161,7 +140,7 @@ public class AdminController {
 	}
 
 	/* ==========================================================
-       4. 데이터 관리 API (RESTful API / JSON 반환)
+       4. 데이터 관리 API (기능 및 주소 최적화)
        ========================================================== */
 
 	/* --- 대시보드 & 통계 API --- */
@@ -182,14 +161,14 @@ public class AdminController {
 	/* --- 1:1 문의 관리 API --- */
 	@PostMapping(value = "/inquiry/list.dox", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String getInquiryList(@RequestParam HashMap<String, Object> map) throws Exception {
+	public String getInquiryList(@RequestParam HashMap<String, Object> map) {
 		if (!isAdmin()) return noAuth();
 		return new Gson().toJson(adminService.getInquiryList(map));
 	}
 
 	@PostMapping(value = "/inquiry/answer.dox", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String saveInquiryAnswer(@RequestParam HashMap<String, Object> map) throws Exception {
+	public String saveInquiryAnswer(@RequestParam HashMap<String, Object> map) {
 		if (!isAdmin()) return noAuth();
 		return new Gson().toJson(adminService.saveInquiryAnswer(map));
 	}
@@ -217,9 +196,6 @@ public class AdminController {
 	}
 
 	/* --- 상품 관리 API --- */
-/* ─── 상품 관리 API ─── */
-	
-	// 상품 리스트 조회
 	@PostMapping(value = "/product/list.dox", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String getProductList(@RequestParam HashMap<String, Object> map) {
@@ -227,12 +203,10 @@ public class AdminController {
 		return new Gson().toJson(adminService.getAdminProductList(map));
 	}
 
-	// 신규 상품 등록 (이미지 + 사양 + 특징 포함)
 	@PostMapping(value = "/product/insertFull.dox")
 	@ResponseBody
 	public String insertFullProduct(@RequestParam HashMap<String, Object> map) {
 	    if (!isAdmin()) return noAuth();
-	    // 서비스의 insertFullProduct 메서드 호출
 	    return new Gson().toJson(adminService.insertFullProduct(map));
 	}
 
@@ -240,9 +214,9 @@ public class AdminController {
 	@ResponseBody
 	public String updateProduct(@RequestParam HashMap<String, Object> map) {
 	    if (!isAdmin()) return noAuth();
-	    // 서비스의 updateFullProduct 메서드 호출
 	    return new Gson().toJson(adminService.updateFullProduct(map));
 	}
+
 	@PostMapping(value = "/product/remove.dox", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String removeProduct(@RequestParam HashMap<String, Object> map) {
@@ -250,7 +224,6 @@ public class AdminController {
 	    return new Gson().toJson(adminService.removeProduct(map));
 	}
 
-	// 상품 판매 상태 변경 (중지/복구)
 	@PostMapping(value = "/product/avail.dox", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String toggleProductAvail(@RequestParam HashMap<String, Object> map) {
@@ -353,17 +326,86 @@ public class AdminController {
 		return new Gson().toJson(adminService.updateCampStatus(map));
 	}
 
-	@PostMapping("/coupon/list.dox")
+	/* ==========================================================
+    9. 쿠폰 마스터 및 유저 쿠폰 통합 관리 API
+    ========================================================== */
+
+	/* --- [1] 쿠폰 마스터 관리 API (Master) --- */
+
+	// 쿠폰 목록 조회
+	@PostMapping(value = "/coupon/list.dox", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String getCouponList(@RequestParam HashMap<String, Object> map) {
 		if (!isAdmin()) return noAuth();
-		return new Gson().toJson(adminService.getCouponList(map));
+	    return new Gson().toJson(adminService.getCouponList(map));
 	}
 
-	@PostMapping("/coupon/updateStatus.dox")
+	// 쿠폰 저장 (신규 등록 및 수정)
+	@PostMapping(value = "/coupon/save.dox", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String updateCouponStatus(@RequestParam HashMap<String, Object> map) {
+	public String saveCoupon(@RequestParam HashMap<String, Object> map) {
 		if (!isAdmin()) return noAuth();
-		return new Gson().toJson(adminService.modifyCouponStatus(map));
+	    return new Gson().toJson(adminService.saveCoupon(map));
+	}
+
+	// 쿠폰 상태 변경 (활성/비활성)
+	@PostMapping(value = "/coupon/status.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String modifyCouponStatus(@RequestParam HashMap<String, Object> map) {
+		if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.modifyCouponStatus(map));
+	}
+
+	// 쿠폰 마스터 삭제
+	@PostMapping(value = "/coupon/delete.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String removeCoupon(@RequestParam HashMap<String, Object> map) {
+		if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.removeCoupon(map));
+	}
+	
+
+	/* --- [2] 유저 보유 쿠폰(User Coupon) 관리 API --- */
+
+	// 유저별 쿠폰 보유 현황 조회
+	@PostMapping(value = "/userCoupon/list.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getUserCouponList(@RequestParam HashMap<String, Object> map) {
+		if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.getUserCouponList(map));
+	}
+
+	// 특정 개인에게 쿠폰 지급
+	@PostMapping(value = "/userCoupon/give.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String giveCouponToUser(@RequestParam HashMap<String, Object> map) {
+		if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.giveCouponToUser(map));
+	}
+
+	// ✨ 모든 유저에게 쿠폰 일괄 발송 (전체 지급)
+	@PostMapping(value = "/userCoupon/giveAll.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String giveCouponToAll(@RequestParam HashMap<String, Object> map) {
+		if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.giveCouponToAll(map));
+	}
+
+	
+
+    // 유저 보유 쿠폰 삭제 (회수)
+    @PostMapping("/userCoupon/delete.dox")
+    @ResponseBody
+    public String removeUserCoupon(@RequestParam HashMap<String, Object> map) {
+        if (!isAdmin()) return noAuth();
+        return new Gson().toJson(adminService.removeUserCoupon(map));
+    }
+
+	// 유저 쿠폰 사용 상태 강제 변경 (사용완료/미사용)
+	@PostMapping(value = "/userCoupon/updateStatus.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String modifyUserCouponStatus(@RequestParam HashMap<String, Object> map) {
+		if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.modifyUserCouponStatus(map));
 	}
 }

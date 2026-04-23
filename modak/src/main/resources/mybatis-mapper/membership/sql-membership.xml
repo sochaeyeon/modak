@@ -8,23 +8,21 @@
 		resultType="com.example.modak.membership.model.MembershipInfo">
 
 		SELECT
-		U.USER_ID,
-		U.USER_NAME,
-		U.NICKNAME,
-		U.TOTAL_AMOUNT,
-		U.POINT,
+			U.USER_ID,
+			U.USER_NAME,
+			U.NICKNAME,
+			U.TOTAL_AMOUNT,
+			U.POINT,
 
-		G.GRADE_ID,
-		G.GRADE_NAME,
-		G.MIN_AMOUNT,
-		G.DISCOUNT_RATE,
-		G.DESCRIPTION
-
-		FROM USER U
+			G.GRADE_ID,
+			G.GRADE_NAME,
+			G.MIN_AMOUNT,
+			G.DISCOUNT_RATE,
+			G.DESCRIPTION,
+			G.BENEFIT_TEXT  FROM USER U
 		LEFT JOIN USER_GRADE G
 		ON U.GRADE_ID = G.GRADE_ID
 		WHERE U.USER_ID = #{userId}
-
 	</select>
 
 	<update id="updateUserGrade" parameterType="hashmap">
@@ -35,12 +33,12 @@
 
 	<select id="selectAllGrades" resultType="hashmap">
 		SELECT
-		GRADE_ID AS gradeId,
-		GRADE_NAME AS gradeName,
-		MIN_AMOUNT AS minAmount,
-		DISCOUNT_RATE AS discountRate,
-		DESCRIPTION AS description
-		FROM USER_GRADE
+			GRADE_ID AS GRADE_ID,
+			GRADE_NAME AS GRADE_NAME,
+			MIN_AMOUNT AS MIN_AMOUNT,
+			DISCOUNT_RATE AS DISCOUNT_RATE,
+			DESCRIPTION AS DESCRIPTION,
+			BENEFIT_TEXT AS BENEFIT_TEXT  FROM USER_GRADE
 		ORDER BY GRADE_ID ASC
 	</select>
 </mapper>

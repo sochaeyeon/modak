@@ -28,18 +28,18 @@
                 <button v-for="st in ['ALL', 'READY', 'ING', 'END']" :key="st" 
                         class="filter-btn" :class="{active: filterStatus === st}" 
                         @click="fnChangeFilter(st)">
-                    {{ st === 'ALL' ? '전체' : st === 'READY' ? '대기 중 ⏳' : st === 'ING' ? '진행 중 🔥' : '종료됨' }}
+                    {{ st === 'ALL' ? '전체' : st === 'READY' ? '대기 중' : st === 'ING' ? '진행 중' : '종료됨' }}
                 </button>
             </div>
 
             <div class="event-card-wrap">
                 <div class="event-item" v-for="item in pagedList" :key="item.EVENT_ID">
                     <div class="event-img-box">
-                        <img :src="item.THUMBNAIL || '${pageContext.request.contextPath}/img/no-image.png'" @error="imgError">
+                        <img :src="fnGetImgPath(item.THUMBNAIL)" @error="imgError">
                     </div>
                     <div class="event-info">
                         <span class="ev-badge" :class="'ev-' + (item.STATUS_CODE ? item.STATUS_CODE.toLowerCase() : 'ready')">
-                            {{ item.STATUS_CODE === 'READY' ? '대기 중' : item.STATUS_CODE === 'ING' ? '진행 중' : '종료됨' }}
+                            {{ item.STATUS_CODE === 'READY' ? '대기 중 ⏳' : item.STATUS_CODE === 'ING' ? '진행 중 🔥' : '종료됨' }}
                         </span>
                         <div class="event-name">{{ item.TITLE }}</div>
                         <div class="event-date">📅 {{ item.START_DATE }} ~ {{ item.END_DATE }}</div>
@@ -79,14 +79,16 @@
 
                 <label class="modal-label">이미지 파일명</label>
                 <div style="display:flex; gap:10px; align-items:center;">
-                    <div class="event-img-box" style="width:50px; height:50px; margin:0;"><img :src="previewPath" @error="imgError"></div>
+                    <div class="event-img-box" style="width:50px; height:50px; margin:0;">
+                        <img :src="fnGetImgPath(form.img_path)" @error="imgError">
+                    </div>
                     <input class="ev-input" v-model="form.img_path" placeholder="banner.png" style="margin:0;">
                 </div>
 
                 <div class="modal-footer">
                     <button class="modal-close-btn" @click="modalOpen=false">취소</button>
                     <button class="p-btn" @click="fnSave" :disabled="isSubmitting">
-                        {{ isSubmitting ? '처리 중...' : (isEdit ? '수정 완료' : '등록하기') }}
+                        {{ isSubmitting ? '처리 중...' : '정보 저장하기' }}
                     </button>
                 </div>
             </div>
@@ -113,11 +115,7 @@
                     const start = (this.currentPage - 1) * this.pageSize;
                     return this.filteredList.slice(start, start + this.pageSize);
                 },
-                totalPages() { return Math.ceil(this.filteredList.length / this.pageSize) || 1; },
-                previewPath() {
-                    if(!this.form.img_path) return '${pageContext.request.contextPath}/img/no-image.png';
-                    return this.form.img_path.includes('/') ? this.form.img_path : '/img/event/' + this.form.img_path;
-                }
+                totalPages() { return Math.ceil(this.filteredList.length / this.pageSize) || 1; }
             },
             methods: {
                 fnLoad() {
@@ -126,12 +124,15 @@
                         type: "POST",
                         success: (res) => {
                             const data = typeof res === 'string' ? JSON.parse(res) : res;
-                            if(data.result === "success") {
-                                this.eventList = data.list || [];
-                            }
-                        },
-                        error: () => { console.error("데이터 로드 실패"); }
+                            if(data.result === "success") this.eventList = data.list || [];
+                        }
                     });
+                },
+                fnGetImgPath(path) {
+                    if(!path) return '${pageContext.request.contextPath}/img/no-image.png';
+                    // 경로가 이미 포함된 경우와 파일명만 있는 경우를 구분해서 컨텍스트 패스 적용
+                    if(path.startsWith('/') || path.startsWith('http')) return path.startsWith('/') ? '${pageContext.request.contextPath}' + path : path;
+                    return '${pageContext.request.contextPath}/img/event/' + path;
                 },
                 fnSave() {
                     if(!this.form.title) return alert("제목을 입력하세요.");
@@ -142,30 +143,35 @@
                         eventId: this.form.eventId,
                         title: this.form.title,
                         content: this.form.content,
-                        start_date: this.form.startDate,
+                        start_date: this.form.startDate, 
                         end_date: this.form.endDate,
+                        // DB 저장 시 경로 규격화
                         img_path: this.form.img_path.includes('/') ? this.form.img_path : '/img/event/' + this.form.img_path
                     };
 
-                    const url = this.isEdit ? "/admin/event/update.dox" : "/admin/event/insert.dox";
-
                     $.ajax({
-                        url: "${pageContext.request.contextPath}" + url,
+                        url: "${pageContext.request.contextPath}/admin/event/save.dox",
                         type: "POST",
                         data: saveData,
                         success: (res) => {
                             const data = typeof res === 'string' ? JSON.parse(res) : res;
                             if(data.result === "success") {
-                                alert("저장되었습니다.");
+                                alert("성공적으로 저장되었습니다.");
                                 this.modalOpen = false;
                                 this.fnLoad();
+                            } else {
+                                alert("저장 실패: " + (data.message || "서버 오류"));
                             }
+                        },
+                        error: (xhr) => {
+                            alert("통신 에러가 발생했습니다. (404/500 확인 필요)");
+                            console.log(xhr.responseText);
                         },
                         complete: () => { this.isSubmitting = false; }
                     });
                 },
                 fnDelete(id) {
-                    if(!confirm("삭제하시겠습니까?")) return;
+                    if(!confirm("정말 삭제하시겠습니까?")) return;
                     $.ajax({
                         url: "${pageContext.request.contextPath}/admin/event/delete.dox",
                         type: "POST",
@@ -186,10 +192,19 @@
                 },
                 fnOpenEdit(item) {
                     this.isEdit = true;
+                    // 파일명만 추출해서 인풋에 보여주기
+                    let fileName = item.THUMBNAIL || '';
+                    if(fileName.includes('/')) {
+                        const parts = fileName.split('/');
+                        fileName = parts[parts.length - 1];
+                    }
                     this.form = { 
-                        eventId: item.EVENT_ID, title: item.TITLE, content: item.CONTENT, 
-                        startDate: item.START_DATE, endDate: item.END_DATE,
-                        img_path: item.THUMBNAIL ? item.THUMBNAIL.replace('/img/event/', '') : ''
+                        eventId: item.EVENT_ID, 
+                        title: item.TITLE, 
+                        content: item.CONTENT, 
+                        startDate: item.START_DATE, 
+                        endDate: item.END_DATE,
+                        img_path: fileName
                     };
                     this.modalOpen = true;
                 },

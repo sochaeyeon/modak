@@ -221,7 +221,7 @@
           <li><span class="safety-num">3</span>취침 전 화롯대 완전 소화 확인</li>
           <li><span class="safety-num">4</span>쓰레기 분리수거 및 흔적 남기지 않기</li>
         </ul>
-        <div class="co-banner" onclick="location.href='/product/product-detail.do?no=10'">
+        <div class="co-banner" onclick="location.href='/product/detail.do?productId=12'">
           <span style="font-size:28px">🚨</span>
           <div class="co-text">
             <p class="co-title">일산화탄소 경보기 대여</p>
@@ -749,11 +749,10 @@ function toggleMenu(){ showToast('전체 메뉴 준비 중입니다'); }
 })();
 
 /* ════════════════════════════════════════
-   ★ 10. 멤버십 섹션 — /membership/info.dox 기반 동적 렌더링
-   등급 뱃지/이름/설명을 DB에서 가져와 하드코딩 없이 표시
+    ★ 메인 멤버십 섹션 — DB 기반 동적 렌더링
 ════════════════════════════════════════ */
 (function(){
-    /* 등급 ID → 스타일 매핑 */
+    /* 등급별 아이콘 및 클래스 매핑 (디자인 요소만 관리) */
     var gradeStyle = {
         1: { cls: 'grade-bronze', emoji: '🥉' },
         2: { cls: 'grade-silver', emoji: '🥈' },
@@ -761,84 +760,67 @@ function toggleMenu(){ showToast('전체 메뉴 준비 중입니다'); }
         4: { cls: 'grade-vvip',   emoji: '👑' }
     };
 
-    /* DB allGrades 배열로 렌더링 */
+    /* [핵심] DB의 쉼표 데이터를 <ul><li> 리스트로 변환 */
+    function makeBenefitList(text) {
+        if (!text || text.trim() === '') return '<li>기본 혜택 제공</li>';
+        var arr = text.split(',');
+        var listHtml = '';
+        arr.forEach(function(item) {
+            listHtml += '<li>' + item.trim() + '</li>';
+        });
+        return listHtml;
+    }
+
+    /* DB 데이터를 기반으로 화면 렌더링 */
     function renderGrades(currentGradeId, allGrades) {
         var wrap = document.getElementById('gradeListWrap');
-        if (!wrap || !allGrades || !allGrades.length) return;
+        if (!wrap || !allGrades) return;
+        
         var html = '';
         allGrades.forEach(function(g) {
-            var gid    = parseInt(g.gradeId);
+            // 대소문자 방어 코드 (MyBatis 매핑 대응)
+            var gid   = parseInt(g.GRADE_ID || g.gradeId);
+            var gName = g.GRADE_NAME || g.gradeName;
+            var gDesc = g.DESCRIPTION || g.description;
+            var gBene = g.BENEFIT_TEXT || g.benefitText; // 새로 추가한 혜택 컬럼
+
             var st     = gradeStyle[gid] || { cls:'grade-bronze', emoji:'🏅' };
             var isCurr = (currentGradeId === gid);
-            html += '<div>'
+
+            html += '<div class="grade-item' + (isCurr ? ' active' : '') + '">'
                 + '<span class="grade-badge ' + st.cls + (isCurr ? ' grade-current' : '') + '">'
-                + st.emoji + ' ' + g.gradeName + (isCurr ? ' ✓' : '')
+                + st.emoji + ' ' + gName + (isCurr ? ' ✓' : '')
                 + '</span>'
-                + '<div class="grade-name">' + g.description + '</div>'  /* ← DB description 직접 사용 */
+                + '<div class="grade-cond">' + gDesc + '</div>'
+                + '<ul class="grade-benefit-summary">' + makeBenefitList(gBene) + '</ul>'
                 + '</div>';
         });
         wrap.innerHTML = html;
     }
 
-    /* 비로그인 / API 실패: 전체 등급만 따로 요청 */
-    function loadDefaultGrades() {
-        $.ajax({
-            url     : '/membership/info.dox',
-            type    : 'POST',
-            dataType: 'json',
-            success : function(data) {
-                /* 비로그인도 allGrades 는 내려올 수 있음 */
-                if (data.allGrades && data.allGrades.length) {
-                    renderGrades(-1, data.allGrades);
-                } else {
-                    renderFallback();
-                }
-            },
-            error: function() { renderFallback(); }
-        });
-    }
-
-    /* 최후 fallback: 서버 오류 시에만 사용 */
-    function renderFallback() {
-        var wrap = document.getElementById('gradeListWrap');
-        if (!wrap) return;
-        var items = [
-            { cls:'grade-bronze', emoji:'🥉', name:'브론즈', desc:'가입 즉시' },
-            { cls:'grade-silver', emoji:'🥈', name:'실버',   desc:'누적 3만원 이상' },
-            { cls:'grade-gold',   emoji:'🥇', name:'골드',   desc:'누적 10만원 이상' },
-            { cls:'grade-vvip',   emoji:'👑', name:'VVIP',   desc:'누적 30만원 이상' }
-        ];
-        var html = '';
-        items.forEach(function(g) {
-            html += '<div>'
-                + '<span class="grade-badge ' + g.cls + '">' + g.emoji + ' ' + g.name + '</span>'
-                + '<div class="grade-name">' + g.desc + '</div>'
-                + '</div>';
-        });
-        wrap.innerHTML = html;
-    }
-
-    /* API 호출 */
+    /* API 호출 로직 */
     $.ajax({
         url     : '/membership/info.dox',
         type    : 'POST',
         dataType: 'json',
         success : function(data) {
-            if (data.result === 'success' && data.info && data.allGrades) {
-                /* 로그인 + allGrades 모두 있을 때 */
-                renderGrades(data.info.gradeId, data.allGrades);
-            } else if (data.allGrades) {
-                /* 비로그인이지만 allGrades 는 있을 때 */
-                renderGrades(-1, data.allGrades);
-            } else if (data.result === 'success' && data.info) {
-                /* allGrades 없으면 비로그인 기본 로드 */
-                loadDefaultGrades();
+            if (data.allGrades && data.allGrades.length > 0) {
+                // 로그인 상태면 gradeId 전달, 아니면 -1 전달
+                var currentId = (data.result === 'success' && data.info) ? parseInt(data.info.gradeId) : -1;
+                renderGrades(currentId, data.allGrades);
             } else {
                 renderFallback();
             }
         },
         error: function() { renderFallback(); }
     });
+
+    /* 최후의 수단: 서버 통신 실패 시에만 하드코딩 데이터 표시 */
+    function renderFallback() {
+        var wrap = document.getElementById('gradeListWrap');
+        if (!wrap) return;
+        wrap.innerHTML = '<p style="color:#eee; font-size:13px;">멤버십 정보를 불러올 수 없습니다.</p>';
+    }
 })();
 </script>
 </body>

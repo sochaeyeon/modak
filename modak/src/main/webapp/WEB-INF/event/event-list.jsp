@@ -109,10 +109,15 @@
 								badgeClass = 'badge-ongoing'; badgeText = '진행중';
 							}
 
+							// 🖼️ 이미지 처리 로직 추가
+							// DB에서 가져온 이미지 경로가 없으면 기본 '이미지 준비중' 사진이 나오게 방어 코드를 넣었습니다.
+							var imgSrc = ev.img_path ? ev.img_path : '${pageContext.request.contextPath}/img/common/no-image.png';
+
 							html += '<div class="card" onclick="goDetail(' + ev.eventId + ')">'
 								+ '<div class="card-image">'
 								+ '<span class="card-badge ' + badgeClass + '">' + badgeText + '</span>'
-								+ '<div style="text-align:center;line-height:1.6">이미지<br>(16:9)</div>'
+								// 👇 글자 대신 진짜 <img> 태그를 넣었습니다. 
+								+ '<img src="' + imgSrc + '" alt="' + esc(ev.title) + '" style="width:100%; height:100%; object-fit:cover;">'
 								+ '</div>'
 								+ '<div class="card-body">'
 								+ '<h3 class="card-title">' + esc(ev.title) + '</h3>'
@@ -166,7 +171,7 @@
 						if (page < 1 || page > totalPages) return;
 						currentPage = page;
 						fnGetList();
-						window.scrollTo({top: 0, behavior: 'smooth'});
+						window.scrollTo({ top: 0, behavior: 'smooth' });
 					}
 
 					/* ════════════════════════════════════════════════════

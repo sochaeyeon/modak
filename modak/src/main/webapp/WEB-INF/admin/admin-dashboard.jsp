@@ -1,5 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- 💡 JSP 엔진이 # { } 문법을 오해하지 않도록 방어하는 핵심 설정이다닥! --%>
 <%@ page deferredSyntaxAllowedAsLiteral="true" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
@@ -38,28 +37,28 @@
                 <div class="stat-label">이번달 매출</div>
                 <div class="stat-value">{{ fnPrice(stats.monthSales) }}</div>
                 <div class="stat-change" :class="stats.salesChange >= 0 ? 'up' : 'down'">
-                    {{ stats.salesChange >= 0 ? '▲' : '▼' }} 전월 대비 {{ Math.abs(stats.salesChange) }}%
+                    {{ stats.salesChange >= 0 ? '▲' : '▼' }} 전월 대비 {{ Math.abs(stats.salesChange || 0) }}%
                 </div>
             </div>
             <div class="stat-card" style="--accent:var(--blue)">
                 <span class="stat-icon">👥</span>
                 <div class="stat-label">전체 회원</div>
-                <div class="stat-value">{{ stats.totalUsers.toLocaleString() }}</div>
-                <div class="stat-change up">▲ 이번달 {{ stats.newUsers }}명 신규</div>
+                <div class="stat-value">{{ (stats.totalUsers || 0).toLocaleString() }}</div>
+                <div class="stat-change up">▲ 이번달 {{ stats.newUsers || 0 }}명 신규</div>
             </div>
             <div class="stat-card" style="--accent:var(--green)">
                 <span class="stat-icon">📦</span>
                 <div class="stat-label">진행중 주문</div>
-                <div class="stat-value">{{ stats.activeOrders }}</div>
-                <div class="stat-change neutral">대여중 {{ stats.rentingCount }} / 배송중 {{ stats.shippingCount }}</div>
+                <div class="stat-value">{{ stats.activeOrders || 0 }}</div>
+                <div class="stat-change neutral">대여중 {{ stats.rentingCount || 0 }} / 배송중 {{ stats.shippingCount || 0 }}</div>
             </div>
             <div class="stat-card" style="--accent:var(--amber)">
                 <span class="stat-icon">💬</span>
                 <div class="stat-label">미답변 문의</div>
                 <div class="stat-value" :style="stats.waitingInquiry > 0 ? 'color:var(--amber)' : ''">
-                    {{ stats.waitingInquiry }}
+                    {{ stats.waitingInquiry || 0 }}
                 </div>
-                <div class="stat-change neutral">전체 문의 {{ stats.totalInquiry }}건</div>
+                <div class="stat-change neutral">전체 문의 {{ stats.totalInquiry || 0 }}건</div>
             </div>
         </div>
 
@@ -143,9 +142,12 @@
                     </div>
                     <div style="flex:1;min-width:0">
                         <div style="font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ p.productName }}</div>
-                        <div style="font-size:11px;color:var(--text3)">조회 {{ p.viewCount.toLocaleString() }}회</div>
+                        <div style="font-size:11px;color:var(--text3)">조회 {{ (p.viewCount || 0).toLocaleString() }}회</div>
                     </div>
                     <div style="font-size:12px;color:var(--orange)">{{ fnPrice(p.price) }}</div>
+                </div>
+                <div v-if="!topProducts.length" style="text-align:center;padding:20px;color:var(--text3);font-size:13px">
+                    인기 상품 데이터 없음
                 </div>
             </div>
 
@@ -158,7 +160,7 @@
                      style="margin-bottom:14px">
                     <div style="display:flex;justify-content:space-between;margin-bottom:4px">
                         <span style="font-size:12px">{{ grade.gradeName }}</span>
-                        <span style="font-size:12px;color:var(--text2)">{{ grade.count }}명</span>
+                        <span style="font-size:12px;color:var(--text2)">{{ grade.count || 0 }}명</span>
                     </div>
                     <div style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden">
                         <div :style="'width:' + (grade.count / (stats.totalUsers || 1) * 100) + '%; height:100%; background:var(--orange); border-radius:3px; transition:width .8s'"></div>
@@ -167,11 +169,15 @@
             </div>
         </div>
 
-    </div></div><script>
+    </div>
+</div>
+
+<script>
 const { createApp } = Vue;
 createApp({
     data() {
         return {
+            // 초기값 설정으로 렌더링 시 undefined 에러 2차 방어
             stats: { monthSales:0, salesChange:0, totalUsers:0, newUsers:0, activeOrders:0, rentingCount:0, shippingCount:0, waitingInquiry:0, totalInquiry:0 },
             salesChart: [],
             recentOrders: [],
@@ -182,13 +188,16 @@ createApp({
     },
     computed: {
         maxSales() {
+            if(!this.salesChart.length) return 1;
             return Math.max(...this.salesChart.map(s => s.amount), 1);
         }
     },
     methods: {
         fnLoad() {
             $.ajax({
-                url: '/admin/dashboard.dox', type: 'POST', dataType: 'json',
+                url: '/admin/dashboard.dox', 
+                type: 'POST', 
+                dataType: 'json',
                 success: (res) => {
                     if (res.result === 'success') {
                         this.stats           = res.stats           || this.stats;
@@ -198,10 +207,16 @@ createApp({
                         this.topProducts     = res.topProducts     || [];
                         this.gradeStats      = res.gradeStats      || [];
                     }
+                },
+                error: (err) => {
+                    console.error("Dashboard Load Error:", err);
                 }
             });
         },
-        fnPrice(v) { return Number(v||0).toLocaleString() + '원'; },
+        // 💰 가격 포맷팅 및 null 방어 함수
+        fnPrice(v) { 
+            return Number(v || 0).toLocaleString() + '원'; 
+        },
         fnOrderBadge(s) {
             const m = { PAID:'badge-active', READY:'badge-wait', SHIPPING:'badge-active', DONE:'badge-done', CANCELLED:'badge-cancel' };
             return m[s] || 'badge-wait';
@@ -211,7 +226,9 @@ createApp({
             return m[s] || s;
         }
     },
-    mounted() { this.fnLoad(); }
+    mounted() { 
+        this.fnLoad(); 
+    }
 }).mount('#app');
 </script>
 </body>

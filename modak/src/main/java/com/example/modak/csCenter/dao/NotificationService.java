@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.modak.common.Message;
 import com.example.modak.csCenter.mapper.NotificationMapper;
@@ -13,10 +14,54 @@ import com.example.modak.csCenter.model.Notification;
 // 규칙
 // 검색 - get, 삭제 - remove, 수정 - edit, 추가 - add
 @Service
+@Transactional()
 public class NotificationService {
 
 	@Autowired
 	NotificationMapper notificationMapper;
+
+	public NotificationService(NotificationMapper notificationMapper) {
+		this.notificationMapper = notificationMapper;
+	}
+
+	public List<Notification> selectPinnedList(HashMap<String, Object> map) throws Exception {
+		return notificationMapper.selectPinnedNotificationList(map);
+	}
+
+	public List<Notification> selectList(HashMap<String, Object> map) throws Exception {
+		return notificationMapper.selectNotificationList(map);
+	}
+
+	public int selectCount(HashMap<String, Object> map) throws Exception {
+		return notificationMapper.selectNotificationCount(map);
+	}
+
+	public Notification selectOne(HashMap<String, Object> map) throws Exception {
+		return notificationMapper.selectNotification(map);
+	}
+
+	public Notification selectPrev(HashMap<String, Object> map) throws Exception {
+		return notificationMapper.selectPrevNotification(map);
+	}
+
+	public Notification selectNext(HashMap<String, Object> map) throws Exception {
+		return notificationMapper.selectNextNotification(map);
+	}
+
+	@Transactional // 쓰기 작업이 포함된 메서드에만 Transactional 추가
+	public void incrementViewCount(HashMap<String, Object> map) throws Exception {
+		notificationMapper.incrementViewCount(map);
+	}
+
+	@Transactional
+	public void pin(HashMap<String, Object> map) throws Exception {
+		notificationMapper.pinNotification(map);
+	}
+
+	@Transactional
+	public void unpin(HashMap<String, Object> map) throws Exception {
+		notificationMapper.unpinNotification(map);
+	}
 
 	/**
 	 * 공지사항 목록 조회 (페이징 + 필터 + 검색 + 정렬) 파라미터: type, keyword, sort, startRow, pageSize
@@ -96,4 +141,5 @@ public class NotificationService {
 		}
 		return resultMap;
 	}
+
 }

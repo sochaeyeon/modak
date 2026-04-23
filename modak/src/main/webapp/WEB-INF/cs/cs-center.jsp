@@ -10,7 +10,6 @@
 			<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
 				rel="stylesheet">
 			<link rel="stylesheet" href="${pageContext.request.contextPath}/css/cs/cs-center.css">
-			<!-- jQuery ($ is not defined 에러 해결) -->
 			<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 		</head>
 
@@ -119,29 +118,7 @@
 								</div>
 								<!-- FAQ 목록 -->
 								<div id="faqListWrap">
-									<c:choose>
-										<c:when test="${not empty faqList}">
-											<c:forEach var="faq" items="${faqList}">
-												<div class="faq-item" data-cat="${faq.category}"
-													data-subcat="${faq.subCategory}">
-													<div class="faq-question">
-														<span class="q-text">
-															<c:out value="${faq.question}" />
-														</span>
-														<span class="q-arrow">›</span>
-													</div>
-													<div class="faq-answer">
-														<div class="faq-answer-inner">
-															<c:out value="${faq.answer}" />
-														</div>
-													</div>
-												</div>
-											</c:forEach>
-										</c:when>
-										<c:otherwise>
-											<div class="faq-empty">등록된 FAQ가 없습니다.</div>
-										</c:otherwise>
-									</c:choose>
+									<div class="faq-loading"><span class="spin"></span>불러오는 중...</div>
 								</div>
 							</div>
 						</div>
@@ -149,19 +126,14 @@
 
 					<div class="section-divider"></div>
 
-
-
 					<!-- CONSULT -->
 					<div class="consult-section">
 						<div class="sec-eyebrow">CONTACT</div>
 						<div class="sec-title">직접 문의하기</div>
-						<div style="font-size:10px;color:var(--text-light);margin-bottom:14px;">평일 09:00 ~ 18:00
-							(주말/공휴일
+						<div style="font-size:10px;color:var(--text-light);margin-bottom:14px;">평일 09:00 ~ 18:00 (주말/공휴일
 							제외)</div>
 						<div class="consult-layout">
 							<div class="consult-left">
-
-								<!-- 1) 전화 상담 -->
 								<div class="consult-card">
 									<div class="c-avatar">전</div>
 									<div class="c-info">
@@ -170,40 +142,30 @@
 										<button class="c-btn" onclick="callPhone()">전화 연결</button>
 									</div>
 								</div>
-
-								<!-- 2) 채팅 상담 (챗봇) -->
 								<div class="consult-card">
 									<div class="c-avatar blue">채</div>
 									<div class="c-info">
 										<div class="c-name">채팅 상담</div>
-										<div class="c-desc">AI 챗봇을 통해 24시간 상담이 가능합니다.<br>빠른 답변을 받아보실 수 있습니다.
-										</div>
+										<div class="c-desc">AI 챗봇을 통해 24시간 상담이 가능합니다.<br>빠른 답변을 받아보실 수 있습니다.</div>
 										<button class="c-btn blue" onclick="openChatbot()">챗봇 시작</button>
 									</div>
 								</div>
-
-								<!-- 3) 이메일 문의 -->
 								<div class="consult-card">
 									<div class="c-avatar gray">이</div>
 									<div class="c-info">
 										<div class="c-name">이메일 문의</div>
-										<div class="c-desc">help@modakmodak.com으로 문의해주세요.<br>1~2 영업일 내 답변드립니다.
-										</div>
+										<div class="c-desc">help@modakmodak.com으로 문의해주세요.<br>1~2 영업일 내 답변드립니다.</div>
 										<button class="c-btn gray" onclick="sendEmail()">이메일 보내기</button>
 									</div>
 								</div>
-
-								<!-- 4) 온라인 문의접수 - 초록색 계열 -->
 								<div class="consult-card">
 									<div class="c-avatar green">온</div>
 									<div class="c-info">
 										<div class="c-name">온라인 문의 접수</div>
-										<div class="c-desc">궁금하신 사항을 남겨주시면 빠르게 답변드리겠습니다.<br>1:1 문의를 통해 접수해주세요.
-										</div>
+										<div class="c-desc">궁금하신 사항을 남겨주시면 빠르게 답변드리겠습니다.<br>1:1 문의를 통해 접수해주세요.</div>
 										<button class="c-btn green" onclick="location.href='/inquiry.do'">바로가기</button>
 									</div>
 								</div>
-
 							</div>
 						</div>
 					</div>
@@ -240,7 +202,7 @@
 
 					<div class="section-divider"></div>
 
-					<!-- NOTICE LIST -->
+					<!-- NOTICE LIST (DB 연동) -->
 					<div class="notice-section">
 						<div class="notice-header">
 							<div>
@@ -249,25 +211,8 @@
 							</div>
 							<a href="/notification/list.do" class="notice-more">더보기 →</a>
 						</div>
-						<div class="n-row">
-							<span class="n-badge">공지</span>
-							<span class="n-text">2024년 상반기 서비스 업데이트 안내 및 새로운 기능 추가 예정에 대해 안내드립니다</span>
-							<span class="n-date">2024.03.15</span>
-						</div>
-						<div class="n-row">
-							<span class="n-badge blue">이벤트</span>
-							<span class="n-text">서비스 3주년 기념 특별 이벤트 - 요금제 50% 할인 프로모션 안내</span>
-							<span class="n-date">2024.03.10</span>
-						</div>
-						<div class="n-row">
-							<span class="n-badge gray">일반</span>
-							<span class="n-text">정기 서버 점검 안내 (3월 20일 새벽 2시 ~ 4시)</span>
-							<span class="n-date">2024.03.08</span>
-						</div>
-						<div class="n-row">
-							<span class="n-badge gray">일반</span>
-							<span class="n-text">개인정보처리방침 변경 안내 - 시행일: 2024년 4월 1일부터 적용</span>
-							<span class="n-date">2024.03.05</span>
+						<div id="notificationListWrap">
+							<div class="faq-loading"><span class="spin"></span>불러오는 중...</div>
 						</div>
 					</div>
 
@@ -293,7 +238,6 @@
 						</div>
 					</div>
 
-
 					<script>
 						var CTX = '<%=request.getContextPath()%>';
 
@@ -308,8 +252,130 @@
 
 						var currentCat = '전체';
 						var currentSubTab = '전체';
+						var currentKeyword = '';
+						var heroSearchResults = []; // hero 검색 결과 캐시
 
-						/* ── 소분류 탭 렌더링 ── */
+						/* ════════════════════════════
+						   FAQ Ajax 조회
+						════════════════════════════ */
+						function fnGetFaqList() {
+							$('#faqListWrap').html('<div class="faq-loading"><span class="spin"></span>불러오는 중...</div>');
+
+							// 대분류/소분류 전송값 결정
+							var sendCategory = '';
+							if (currentCat !== '전체') {
+								sendCategory = (currentSubTab !== '전체') ? currentSubTab : currentCat;
+							}
+
+							$.ajax({
+								url: CTX + '/cs/center.dox',
+								type: 'POST',
+								dataType: 'json',
+								data: {
+									action: 'faqList',
+									category: sendCategory,
+									searchKeyword: currentKeyword
+								},
+								success: function (data) {
+									if (data.result === 'success') {
+										renderFaqList(data.list);
+									} else {
+										$('#faqListWrap').html('<div class="faq-empty">데이터를 불러오지 못했습니다.</div>');
+									}
+								},
+								error: function (xhr) {
+									$('#faqListWrap').html('<div class="faq-empty">서버 연결 오류 (' + xhr.status + ')</div>');
+								}
+							});
+						}
+
+						/* ── FAQ 렌더링 ── */
+						function renderFaqList(list) {
+							var $wrap = $('#faqListWrap');
+							if (!list || list.length === 0) {
+								$wrap.html('<div class="faq-empty">등록된 FAQ가 없습니다.</div>');
+								return;
+							}
+							var html = '';
+							$.each(list, function (i, f) {
+								html += '<div class="faq-item">'
+									+ '<div class="faq-question">'
+									+ '<span class="q-text">' + escHtml(f.question) + '</span>'
+									+ '<span class="q-arrow">›</span>'
+									+ '</div>'
+									+ '<div class="faq-answer" style="display:none;">'
+									+ '<div class="faq-answer-inner">' + escHtml(f.answer) + '</div>'
+									+ '</div>'
+									+ '</div>';
+							});
+							$wrap.html(html);
+
+							// 아코디언 이벤트 재바인딩
+							$wrap.find('.faq-question').off('click').on('click', function () {
+								var $item = $(this).closest('.faq-item');
+								var wasOpen = $item.hasClass('open');
+								$wrap.find('.faq-item').removeClass('open').find('.faq-answer').slideUp(180);
+								if (!wasOpen) $item.addClass('open').find('.faq-answer').slideDown(180);
+							});
+						}
+
+						/* ════════════════════════════
+						   공지사항 Ajax 조회
+						════════════════════════════ */
+						function fnGetNotificationList() {
+							$('#notificationListWrap').html('<div class="faq-loading"><span class="spin"></span>불러오는 중...</div>');
+
+							$.ajax({
+								url: CTX + '/cs/center.dox',
+								type: 'POST',
+								dataType: 'json',
+								data: {action: 'notificationList', limit: 4},
+								success: function (data) {
+									if (data.result === 'success') {
+										renderNotificationList(data.list);
+									} else {
+										$('#notificationListWrap').html('<div class="faq-empty">공지사항을 불러오지 못했습니다.</div>');
+									}
+								},
+								error: function (xhr) {
+									$('#notificationListWrap').html('<div class="faq-empty">서버 연결 오류 (' + xhr.status + ')</div>');
+								}
+							});
+						}
+
+						/* ── 공지사항 렌더링 ── */
+						function renderNotificationList(list) {
+							var $wrap = $('#notificationListWrap');
+							if (!list || list.length === 0) {
+								$wrap.html('<div class="faq-empty">등록된 공지사항이 없습니다.</div>');
+								return;
+							}
+							var html = '';
+							$.each(list, function (i, item) {
+								var badgeClass = getBadgeClass(item.type);
+								var badgeLabel = getBadgeLabel(item.type);
+								var dateStr = item.createdAt ? item.createdAt.substring(0, 10).replace(/-/g, '.') : '';
+								html += '<div class="n-row" style="cursor:pointer;" onclick="location.href=\'' + CTX + '/notification/detail.do?notificationId=' + item.notificationId + '\'">'
+									+ '<span class="n-badge ' + badgeClass + '">' + badgeLabel + '</span>'
+									+ '<span class="n-text">' + escHtml(item.title) + '</span>'
+									+ '<span class="n-date">' + dateStr + '</span>'
+									+ '</div>';
+							});
+							$wrap.html(html);
+						}
+
+						function getBadgeClass(type) {
+							var map = {ORDER: '', SYSTEM: 'blue', EVENT: 'blue', POLICY: 'gray', RENTAL: '', INQUIRY: 'gray'};
+							return map[type] !== undefined ? map[type] : 'gray';
+						}
+						function getBadgeLabel(type) {
+							var map = {ORDER: '공지', SYSTEM: '업데이트', EVENT: '이벤트', POLICY: '안내', RENTAL: '공지', INQUIRY: '일반'};
+							return map[type] || '공지';
+						}
+
+						/* ════════════════════════════
+						   소분류 탭 렌더링
+						════════════════════════════ */
 						function renderSubTabs(mainCat) {
 							var tabs = SUB_TABS[mainCat] || ['전체'];
 							var html = '';
@@ -320,107 +386,123 @@
 							currentSubTab = '전체';
 						}
 
-						/* ── FAQ 필터링 ── */
-						function filterFaq() {
-							$('#faqListWrap .faq-item').each(function () {
-								var itemCat = $(this).data('cat') || '';
-								var itemSubcat = $(this).data('subcat') || '';
-								var catMatch = (currentCat === '전체') || (itemCat === currentCat);
-								var subMatch = (currentSubTab === '전체') || (itemSubcat === currentSubTab);
-								$(this).toggle(catMatch && subMatch);
-							});
-							$('#faqListWrap .faq-empty-dynamic').remove();
-							if ($('#faqListWrap .faq-item:visible').length === 0) {
-								$('#faqListWrap').append('<div class="faq-empty faq-empty-dynamic">등록된 FAQ가 없습니다.</div>');
-							}
-						}
-
-						/* ── 사이드바 (대분류) 클릭 ── */
+						/* ════════════════════════════
+						   사이드바 (대분류) 클릭
+						════════════════════════════ */
 						$('#faqSidebarList').on('click', 'li', function () {
 							$('#faqSidebarList li').removeClass('active');
 							$(this).addClass('active');
 							currentCat = $(this).data('cat');
+							currentKeyword = '';
 							renderSubTabs(currentCat);
-							filterFaq();
+							fnGetFaqList();
 						});
 
-						/* ── 소분류 탭 클릭 ── */
+						/* ════════════════════════════
+						   소분류 탭 클릭
+						════════════════════════════ */
 						$('#faqTabList').on('click', '.faq-tab', function () {
 							$('#faqTabList .faq-tab').removeClass('active');
 							$(this).addClass('active');
 							currentSubTab = $(this).data('tab');
-							filterFaq();
+							currentKeyword = '';
+							fnGetFaqList();
 						});
 
-						/* ── 카테고리 카드 클릭 → FAQ로 이동 ── */
+						/* ════════════════════════════
+						   카테고리 카드 클릭 → FAQ 탭 이동
+						════════════════════════════ */
 						function moveFaqTab(cat) {
 							$('#faqSidebarList li').removeClass('active');
 							$('#faqSidebarList li[data-cat="' + cat + '"]').addClass('active');
 							currentCat = cat;
+							currentKeyword = '';
 							renderSubTabs(cat);
-							filterFaq();
+							fnGetFaqList();
 							$('html, body').animate({scrollTop: $('.faq-section').offset().top - 80}, 400);
 						}
 
-						/* ── FAQ 아이템 토글 ── */
-						$('#faqListWrap').on('click', '.faq-question', function () {
-							var $item = $(this).closest('.faq-item');
-							var wasOpen = $item.hasClass('open');
-							$('#faqListWrap .faq-item').removeClass('open').find('.faq-answer').slideUp(180);
-							if (!wasOpen) $item.addClass('open').find('.faq-answer').slideDown(180);
-						});
-
-						/* ── Hero 검색 ── */
+						/* ════════════════════════════
+						   Hero 검색 (Ajax)
+						════════════════════════════ */
 						function doHeroSearch() {
 							var keyword = $('#heroSearchInput').val().trim();
 							if (!keyword) {$('#searchResultBox').hide(); return;}
 
-							var results = [];
-							$('#faqListWrap .faq-item').each(function () {
-								var q = $(this).find('.q-text').text().trim();
-								var a = $(this).find('.faq-answer-inner').text().trim();
-								if (q.indexOf(keyword) >= 0 || a.indexOf(keyword) >= 0) results.push({question: q, el: this});
+							$.ajax({
+								url: CTX + '/cs/center.dox',
+								type: 'POST',
+								dataType: 'json',
+								data: {action: 'faqList', category: '', searchKeyword: keyword},
+								success: function (data) {
+									heroSearchResults = (data.result === 'success' && data.list) ? data.list : [];
+									renderHeroSearchResult(keyword);
+								},
+								error: function () {
+									heroSearchResults = [];
+									renderHeroSearchResult(keyword);
+								}
 							});
+						}
 
+						function renderHeroSearchResult(keyword) {
 							var html = '';
-							if (results.length === 0) {
+							if (heroSearchResults.length === 0) {
 								html = '<div class="search-no-result">검색 결과가 없습니다.</div>';
 							} else {
-								$.each(results, function (i, r) {
-									var hl = r.question.replace(new RegExp('(' + escapeRegex(keyword) + ')', 'gi'), '<mark>$1</mark>');
-									html += '<div class="search-result-item" data-idx="' + i + '"><span class="search-result-q">' + hl + '</span></div>';
+								$.each(heroSearchResults, function (i, f) {
+									var hl = escHtml(f.question).replace(
+										new RegExp('(' + escapeRegex(keyword) + ')', 'gi'),
+										'<mark>$1</mark>'
+									);
+									html += '<div class="search-result-item" data-idx="' + i + '">'
+										+ '<span class="search-result-q">' + hl + '</span>'
+										+ '</div>';
 								});
 							}
 							$('#searchResultInner').html(html);
 							$('#searchResultBox').show();
 
 							$('#searchResultInner').off('click', '.search-result-item').on('click', '.search-result-item', function () {
-								var target = results[$(this).data('idx')].el;
-								$('html, body').animate({scrollTop: $(target).offset().top - 100}, 400);
-								$('#faqListWrap .faq-item').removeClass('open').find('.faq-answer').slideUp(180);
-								$(target).addClass('open').find('.faq-answer').slideDown(180);
+								var idx = $(this).data('idx');
+								var item = heroSearchResults[idx];
 								$('#searchResultBox').hide();
 								$('#heroSearchInput').val('');
-								currentCat = '전체'; currentSubTab = '전체';
+
+								// FAQ 섹션으로 이동 후 키워드로 재검색
+								currentCat = '전체';
+								currentSubTab = '전체';
+								currentKeyword = item.question; // 질문 전체로 검색
 								$('#faqSidebarList li').removeClass('active').filter('[data-cat="전체"]').addClass('active');
 								renderSubTabs('전체');
-								$('#faqListWrap .faq-item').show();
-								$('#faqListWrap .faq-empty-dynamic').remove();
+								fnGetFaqList();
+								$('html, body').animate({scrollTop: $('.faq-section').offset().top - 80}, 400);
 							});
 						}
 
-						$('#heroSearchInput').on('input', doHeroSearch);
-						$('#heroSearchInput').on('keydown', function (e) {if (e.key === 'Escape') $('#searchResultBox').hide();});
+						$('#heroSearchInput').on('input', function () {
+							var v = $(this).val().trim();
+							if (!v) {$('#searchResultBox').hide(); return;}
+							doHeroSearch();
+						});
+						$('#heroSearchInput').on('keydown', function (e) {
+							if (e.key === 'Escape') $('#searchResultBox').hide();
+						});
 						$(document).on('click', function (e) {
 							if (!$(e.target).closest('.hero-search-wrap, .search-result-box').length) $('#searchResultBox').hide();
 						});
 
-						// ✅ 수정: $& 대신 함수 방식 사용
+						/* ════════════════════════════
+						   유틸
+						════════════════════════════ */
 						function escapeRegex(str) {
-							var SPECIAL = /[.*+?^$()|[\]\\]/g;  // { } 제거
-							return str.replace(SPECIAL, function (match) {
-								return '\\' + match;
-							});
+							return str.replace(/[.*+?^$()|[\]\\]/g, function (m) {return '\\' + m;});
+						}
+						function escHtml(str) {
+							if (!str) return '';
+							return String(str)
+								.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+								.replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 						}
 
 						/* ── 전화 상담 ── */
@@ -442,21 +524,17 @@
 							'예약': '예약 관련 문의는 예약 내역에서 확인하실 수 있습니다.',
 							'대여': '대여 관련 문의는 예약 내역 > 대여 현황에서 확인하실 수 있습니다.'
 						};
-
 						function openChatbot() {$('#chatbotModal').fadeIn(200); $('#chatbotInput').focus();}
 						function closeChatbot() {$('#chatbotModal').fadeOut(200);}
-
 						function sendChat() {
 							var msg = $('#chatbotInput').val().trim();
 							if (!msg) return;
 							$('#chatbotInput').val('');
 							$('#chatbotBody').append('<div class="chat-msg user">' + escHtml(msg) + '</div>');
-
 							var reply = '죄송합니다. 해당 내용은 1:1 문의나 전화 상담을 이용해주세요.';
 							$.each(chatBotAnswers, function (keyword, answer) {
 								if (msg.indexOf(keyword) >= 0) {reply = answer; return false;}
 							});
-
 							setTimeout(function () {
 								$('#chatbotBody').append('<div class="chat-msg bot">' + reply + '</div>');
 								var $body = $('#chatbotBody');
@@ -465,14 +543,11 @@
 							$('#chatbotBody').scrollTop($('#chatbotBody')[0].scrollHeight);
 						}
 
-						function escHtml(str) {
-							return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-						}
-
 						/* ── 초기화 ── */
 						$(document).ready(function () {
 							renderSubTabs('전체');
-							filterFaq();
+							fnGetFaqList();
+							fnGetNotificationList();
 						});
 					</script>
 

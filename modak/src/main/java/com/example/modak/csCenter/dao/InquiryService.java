@@ -1,15 +1,20 @@
 package com.example.modak.csCenter.dao;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.modak.csCenter.mapper.InquiryMapper;
+import com.example.modak.csCenter.model.Inquiry;
 import com.example.modak.csCenter.model.InquiryHistory;
 import com.example.modak.csCenter.model.InquiryImg;
+
+import jakarta.servlet.http.HttpSession;
 
 @Service
 public class InquiryService {
@@ -98,21 +103,104 @@ public class InquiryService {
 		return resultMap;
 	}
 
-	// ─── 문의 등록 ────────────────────────────────────────────────
-	public int insertInquiry(HashMap<String, Object> map) {
+	public int addInquiry(HashMap<String, Object> map) {
 		return inquiryMapper.insertInquiry(map);
+	}
+
+	public Inquiry getInquiryForEdit(HashMap<String, Object> map) {
+		Inquiry inquiry = inquiryMapper.selectInquiryForEdit(map);
+
+		if (inquiry != null) {
+			List<InquiryImg> imageList = inquiryMapper.selectInquiryImgList(map);
+			inquiry.setImageList(imageList);
+		}
+
+		return inquiry;
+	}
+
+	public int editInquiry(HashMap<String, Object> map) {
+		return inquiryMapper.updateInquiry(map);
+	}
+
+	public void saveInquiryEditFiles(HashMap<String, Object> map, List<MultipartFile> files, HttpSession session)
+			throws Exception {
+		saveInquiryFiles(map, files, session);
+	}
+
+	public void deleteInquiryEditImages(List<Integer> deletedImageIdList, HttpSession session) {
+		for (Integer inquiryImgId : deletedImageIdList) {
+			if (inquiryImgId == null) {
+				continue;
+			}
+
+			InquiryImg img = inquiryMapper.selectInquiryImgById(inquiryImgId);
+
+			if (img != null && img.getImgUrl() != null && !img.getImgUrl().equals("")) {
+				String realPath = session.getServletContext().getRealPath(img.getImgUrl());
+				File file = new File(realPath);
+
+				if (file.exists()) {
+					file.delete();
+				}
+			}
+
+			inquiryMapper.deleteInquiryImgById(inquiryImgId);
+		}
 	}
 
 	// ─── 문의 삭제 (이미지 → 답변 → 문의 순서) ───────────────────
 	public int deleteInquiry(HashMap<String, Object> map) {
-		// 이미지가 있는 경우 먼저 삭제
-		int imgCount = inquiryMapper.selectInquiryReplyCount(map);
-		if (imgCount > 0) {
-			inquiryMapper.deleteInquiryImg(map);
+	    inquiryMapper.deleteInquiryImg(map);
+	    inquiryMapper.deleteInquiryReply(map);
+	    return inquiryMapper.deleteInquiry(map);
+	}
+
+	// 🔥 방금 생성된 문의 PK
+	public void saveInquiryFiles(HashMap<String, Object> map, List<MultipartFile> files, HttpSession session)
+			throws Exception {
+
+		Object inquiryIdObj = map.get("inquiryId");
+
+		if (inquiryIdObj == null) {
+			throw new RuntimeException("문의 등록 후 inquiryId를 가져오지 못했습니다.");
 		}
-		// 답변 삭제
-		inquiryMapper.deleteInquiryReply(map);
-		// 문의 본문 삭제
-		return inquiryMapper.deleteInquiry(map);
+
+		int inquiryId = Integer.parseInt(String.valueOf(inquiryIdObj));
+
+		// 프로필 이미지 방식처럼 실제 저장 경로 잡기
+		String uploadDirPath = session.getServletContext().getRealPath("/img/inquiry/");
+		File uploadDir = new File(uploadDirPath);
+
+		if (!uploadDir.exists()) {
+			uploadDir.mkdirs();
+		}
+
+		for (MultipartFile file : files) {
+			if (file == null || file.isEmpty()) {
+				continue;
+			}
+
+			String originalFileName = file.getOriginalFilename();
+			String ext = "";
+
+			if (originalFileName != null && originalFileName.contains(".")) {
+				ext = originalFileName.substring(originalFileName.lastIndexOf(".")).toLowerCase();
+			}
+
+			// 파일명 중복 방지
+			String saveFileName = UUID.randomUUID().toString() + ext;
+
+			File dest = new File(uploadDir, saveFileName);
+			file.transferTo(dest);
+
+			// DB 저장용 웹 경로
+			String imgUrl = "/img/inquiry/" + saveFileName;
+
+			HashMap<String, Object> fileMap = new HashMap<>();
+			fileMap.put("inquiryId", inquiryId);
+			fileMap.put("imgUrl", imgUrl);
+
+			inquiryMapper.insertInquiryImage(fileMap);
+		}
 	}
 }

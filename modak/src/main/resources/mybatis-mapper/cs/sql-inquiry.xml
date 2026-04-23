@@ -77,14 +77,106 @@
 		AND USER_ID = #{userId}
 	</delete>
 
-	<!--  ─── 문의 등록  -->
-	<insert id="insertInquiry" parameterType="hashmap" useGeneratedKeys="true"
-		keyProperty="inquiryId" keyColumn="inquiry_id">
-		INSERT INTO INQUIRY ( user_id, title, content, inquiry_type,
-		inquiry_status,
-		created_at, updated_at )
-		VALUES ( #{userId}, #{title}, #{content},
-		#{inquiryType}, #{inquiryStatus}, NOW(), NOW() )
+	<insert id="insertInquiry"
+		parameterType="hashmap"
+		useGeneratedKeys="true"
+		keyProperty="inquiryId"
+		keyColumn="INQUIRY_ID">
+
+		INSERT INTO inquiry
+		(
+		TITLE,
+		CONTENT,
+		INQUIRY_TYPE,
+		INQUIRY_STATUS,
+		CREATED_AT,
+		UPDATED_AT,
+		USER_ID
+		)
+		VALUES
+		(
+		#{title},
+		#{content},
+		#{inquiryType},
+		#{inquiryStatus},
+		NOW(),
+		NOW(),
+		#{userId}
+		)
+
 	</insert>
 
+	<!-- 수정용 문의 상세 조회 -->
+	<select id="selectInquiryForEdit" parameterType="hashmap"
+		resultType="com.example.modak.csCenter.model.Inquiry">
+		SELECT
+		I.INQUIRY_ID AS inquiryId,
+		I.TITLE AS title,
+		I.CONTENT AS content,
+		I.INQUIRY_STATUS AS inquiryStatus,
+		I.INQUIRY_TYPE AS inquiryType,
+		I.CREATED_AT AS createdAt,
+		I.UPDATED_AT AS updatedAt,
+		I.USER_ID AS userId,
+		U.USER_NAME AS userName,
+		U.EMAIL AS userEmail,
+		IFNULL(R.REPLY_ID, 0) AS replyId
+		FROM INQUIRY I
+		LEFT JOIN USER U
+		ON I.USER_ID = U.USER_ID
+		LEFT JOIN INQUIRY_REPLY R
+		ON I.INQUIRY_ID = R.INQUIRY_ID
+		WHERE I.INQUIRY_ID = #{inquiryId}
+		AND I.USER_ID = #{userId}
+		LIMIT 1
+	</select>
+
+	<!-- 문의 수정 -->
+	<update id="updateInquiry" parameterType="hashmap">
+		UPDATE INQUIRY
+		SET
+		TITLE = #{title},
+		INQUIRY_TYPE = #{inquiryType},
+		CONTENT = #{content},
+		UPDATED_AT = NOW()
+		WHERE INQUIRY_ID = #{inquiryId}
+		AND USER_ID = #{userId}
+		AND NOT EXISTS (
+		SELECT 1
+		FROM INQUIRY_REPLY R
+		WHERE R.INQUIRY_ID = INQUIRY.INQUIRY_ID
+		)
+	</update>
+
+	<insert id="insertInquiryImage" parameterType="hashmap">
+		INSERT INTO inquiry_img
+		(
+		IMG_URL,
+		CREATED_AT,
+		INQUIRY_ID
+		)
+		VALUES
+		(
+		#{imgUrl},
+		NOW(),
+		#{inquiryId}
+		)
+	</insert>
+
+	<select id="selectInquiryImgById"
+		parameterType="int"
+		resultType="com.example.modak.csCenter.model.InquiryImg">
+		SELECT
+		INQUIRY_IMG_ID AS inquiryImgId,
+		IMG_URL AS imgUrl,
+		DATE_FORMAT(CREATED_AT, '%Y-%m-%d %H:%i') AS createdAt,
+		INQUIRY_ID AS inquiryId
+		FROM INQUIRY_IMG
+		WHERE INQUIRY_IMG_ID = #{inquiryImgId}
+	</select>
+
+	<delete id="deleteInquiryImgById" parameterType="int">
+		DELETE FROM INQUIRY_IMG
+		WHERE INQUIRY_IMG_ID = #{inquiryImgId}
+	</delete>
 </mapper>

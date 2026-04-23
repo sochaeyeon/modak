@@ -19,7 +19,8 @@ public class Inquiry {
 	private int replyId;
 	private String answer;
 	private String replyCreatedAt;
-
+	private String userName;
+	private String userEmail;
 	// 이미지
 	private List<InquiryImg> imageList;
 }

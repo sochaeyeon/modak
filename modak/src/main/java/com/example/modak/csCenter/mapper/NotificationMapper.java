@@ -7,9 +7,6 @@ import org.apache.ibatis.annotations.Mapper;
 
 import com.example.modak.csCenter.model.Notification;
 
-// 규칙
-// 검색 - select, 삭제 - delete, 추가 - insert, 수정 - update
-
 @Mapper
 public interface NotificationMapper {
 

@@ -59,7 +59,7 @@
         TITLE, 
         DATE_FORMAT(CREATED_AT, '%Y-%m-%d') AS createdAt 
     FROM notification 
-    WHERE NOTIFICATION_ID < #{notificationId}  -- 여기서 < 기호 때문에 에러가 날 수 있음
+    WHERE NOTIFICATION_ID < #{notificationId}  
       AND is_deleted = 0 
     ORDER BY NOTIFICATION_ID DESC 
     LIMIT 1

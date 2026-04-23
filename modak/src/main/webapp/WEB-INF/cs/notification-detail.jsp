@@ -28,7 +28,7 @@
 
 								<!-- BREADCRUMB -->
 								<div class="breadcrumb">
-									<a href="${pageContext.request.contextPath}/">홈</a>
+									<a href="${pageContext.request.contextPath}/main.do">홈</a>
 									<span>›</span>
 									<a href="${pageContext.request.contextPath}/cs/center.do">고객센터</a>
 									<span>›</span>

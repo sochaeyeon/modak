@@ -11,22 +11,17 @@
 
 	<body>
 
-		<!-- Header -->
 		<%@ include file="/WEB-INF/common/header.jsp" %>
 
 			<div class="browser-wrap">
 				<div class="page" id="app">
 
-					<!-- BREADCRUMB -->
 					<div class="breadcrumb-bar">
-						<a href="#">홈</a>
-						<span>›</span>
-						<a href="#">고객센터</a>
-						<span>›</span>
+						<a href="${pageContext.request.contextPath}/main.do">홈</a><span>›</span>
+						<a href="${pageContext.request.contextPath}/cs/center.do">고객센터</a><span>›</span>
 						<span class="current">공지사항</span>
 					</div>
 
-					<!-- CONTENT -->
 					<div class="content">
 						<div class="page-title">공지사항</div>
 						<div class="page-desc">서비스 관련 안내 및 업데이트 소식을 확인하세요.</div>
@@ -45,15 +40,18 @@
 								@click="selectType('POLICY')">환경설정</div>
 						</div>
 
-						<!-- SEARCH -->
+						<!-- SEARCH + 정렬 셀렉트박스 -->
 						<div class="search-bar">
 							<div class="search-input-wrap">
 								<input type="text" v-model="keyword" placeholder="검색어를 입력하세요" @keyup.enter="fnSearch">
 								<button class="search-btn" @click="fnSearch">🔍</button>
 							</div>
-							<button class="search-type-btn" @click="toggleSort">
-								{{ sort === 'newest' ? '최신순' : '오래된순' }}
-							</button>
+							<!-- ★ 정렬 셀렉트박스 (버튼 토글 → select로 변경) -->
+							<select class="sort-select" v-model="sort" @change="onSortChange">
+								<option value="newest">최신순</option>
+								<option value="oldest">오래된순</option>
+								<option value="viewCount">조회수순</option>
+							</select>
 						</div>
 
 						<div class="total-count">총 <strong>{{ totalCount }}</strong>건</div>
@@ -67,19 +65,17 @@
 									<th style="width:70px;">분류</th>
 									<th style="width:80px;">등록일자</th>
 									<th style="width:50px;">조회수</th>
-									<!-- 관리자 고정버튼 열 (isAdmin=true 일 때만 표시) -->
 									<th v-if="isAdmin" style="width:60px;">고정</th>
 								</tr>
 							</thead>
 							<tbody>
-								<!-- 로딩 중 -->
 								<tr v-if="loading">
 									<td :colspan="isAdmin ? 6 : 5" style="text-align:center;padding:40px;color:#999;">
 										불러오는 중...</td>
 								</tr>
 
-								<!-- ① 고정 공지 (IS_PINNED=1) - 항상 최상단, 페이지 무관 -->
 								<template v-if="!loading">
+									<!-- 고정 공지 -->
 									<tr v-for="item in pinnedList" :key="'pin-' + item.notificationId" class="pinned"
 										style="cursor:pointer;">
 										<td @click="fnDetail(item.notificationId)">
@@ -87,9 +83,8 @@
 										</td>
 										<td class="title-cell" @click="fnDetail(item.notificationId)">
 											<div class="badge-wrap">
-												<span class="n-badge" :class="getBadgeClass(item.type)">
-													{{ getBadgeLabel(item.type) }}
-												</span>
+												<span class="n-badge" :class="getBadgeClass(item.type)">{{
+													getBadgeLabel(item.type) }}</span>
 												<span class="title-text pinned">{{ item.title }}</span>
 												<span class="new-dot" v-if="isNew(item.createdAt)"></span>
 											</div>
@@ -98,29 +93,28 @@
 										<td @click="fnDetail(item.notificationId)">{{ formatDate(item.createdAt) }}</td>
 										<td @click="fnDetail(item.notificationId)">{{ item.viewCount ?
 											item.viewCount.toLocaleString() : 0 }}</td>
-										<!-- 관리자: 고정 해제 버튼 -->
 										<td v-if="isAdmin">
 											<button class="pin-btn unpin" @click.stop="fnUnpin(item.notificationId)"
-												title="고정 해제">
-												📌 해제
-											</button>
+												title="고정 해제">📌 해제</button>
 										</td>
 									</tr>
 
-									<!-- ② 고정 공지와 일반 목록 사이 구분선 (고정 공지가 1개 이상일 때) -->
+									<!-- 구분선 -->
 									<tr v-if="pinnedList.length > 0 && list.length > 0" class="divider-row">
 										<td :colspan="isAdmin ? 6 : 5">
 											<div class="pin-divider"></div>
 										</td>
 									</tr>
 
-									<!-- ③ 일반 목록 (IS_PINNED=0, 페이징 적용) -->
+									<!-- 데이터 없음 -->
 									<tr v-if="list.length === 0 && pinnedList.length === 0">
 										<td :colspan="isAdmin ? 6 : 5"
 											style="text-align:center;padding:40px;color:#999;">
 											등록된 공지사항이 없습니다.
 										</td>
 									</tr>
+
+									<!-- 일반 목록 -->
 									<tr v-for="(item, index) in list" :key="'normal-' + item.notificationId"
 										style="cursor:pointer;">
 										<td @click="fnDetail(item.notificationId)">
@@ -128,9 +122,8 @@
 										</td>
 										<td class="title-cell" @click="fnDetail(item.notificationId)">
 											<div class="badge-wrap">
-												<span class="n-badge" :class="getBadgeClass(item.type)">
-													{{ getBadgeLabel(item.type) }}
-												</span>
+												<span class="n-badge" :class="getBadgeClass(item.type)">{{
+													getBadgeLabel(item.type) }}</span>
 												<span class="title-text">{{ item.title }}</span>
 												<span class="new-dot" v-if="isNew(item.createdAt)"></span>
 											</div>
@@ -139,19 +132,16 @@
 										<td @click="fnDetail(item.notificationId)">{{ formatDate(item.createdAt) }}</td>
 										<td @click="fnDetail(item.notificationId)">{{ item.viewCount ?
 											item.viewCount.toLocaleString() : 0 }}</td>
-										<!-- 관리자: 고정 설정 버튼 -->
 										<td v-if="isAdmin">
 											<button class="pin-btn pin" @click.stop="fnPin(item.notificationId)"
-												title="공지 고정">
-												📌 고정
-											</button>
+												title="공지 고정">📌 고정</button>
 										</td>
 									</tr>
 								</template>
 							</tbody>
 						</table>
 
-						<!-- PAGINATION (일반 목록 기준) -->
+						<!-- PAGINATION -->
 						<div class="pagination" v-if="totalPage > 0">
 							<div class="page-btn arrow" @click="goPage(1)" :class="{ disabled: currentPage === 1 }">«
 							</div>
@@ -166,10 +156,9 @@
 						</div>
 					</div>
 
-				</div><!-- /page -->
-			</div><!-- /browser-wrap -->
+				</div>
+			</div>
 
-			<!-- Footer -->
 			<%@ include file="/WEB-INF/common/footer.jsp" %>
 
 				<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
@@ -179,18 +168,18 @@
 					const app = Vue.createApp({
 						data() {
 							return {
-								pinnedList: [],       // 고정 공지 목록 (IS_PINNED=1)
-								list: [],       // 일반 공지 목록 (IS_PINNED=0, 페이징)
-								totalCount: 0,        // 일반 공지 전체 건수
-								totalPage: 0,        // 전체 페이지 수
-								currentPage: 1,        // 현재 페이지
-								pageSize: 10,       // 페이지당 항목 수
-								pageGroupSize: 5,       // 페이지 번호 그룹 크기
-								keyword: '',       // 검색어
-								selectedType: '',       // 선택된 분류
-								sort: 'newest', // 정렬 (newest / oldest)
+								pinnedList: [],
+								list: [],
+								totalCount: 0,
+								totalPage: 0,
+								currentPage: 1,
+								pageSize: 10,
+								pageGroupSize: 5,
+								keyword: '',
+								selectedType: '',
+								sort: 'newest',   // ★ 셀렉트박스와 v-model 연결
 								loading: false,
-								isAdmin: false,    // 관리자 여부 (true 시 고정 버튼 노출)
+								isAdmin: false,
 							};
 						},
 
@@ -205,11 +194,9 @@
 						},
 
 						methods: {
-							// ── 목록 조회 ───────────────────────────────────────
 							fnList() {
 								const self = this;
 								self.loading = true;
-
 								const param = {
 									type: self.selectedType,
 									keyword: self.keyword,
@@ -217,7 +204,6 @@
 									startRow: (self.currentPage - 1) * self.pageSize,
 									pageSize: self.pageSize
 								};
-
 								$.ajax({
 									url: "${pageContext.request.contextPath}/notification/list.dox",
 									dataType: "json",
@@ -241,88 +227,61 @@
 								});
 							},
 
-							// ── 상세 이동 (조회수 +1 후 페이지 이동) ──────────────
-							fnDetail(notificationId) {
-								$.ajax({
-									url: "${pageContext.request.contextPath}/notification/info.dox",
-									dataType: "json",
-									type: "POST",
-									data: {notificationId: notificationId},
-									complete() {
-										// 성공/실패 관계없이 반드시 상세 페이지로 이동
-										location.href = "${pageContext.request.contextPath}/notification/detail.do?notificationId=" + notificationId;
-									}
-								});
+							// ★ 셀렉트박스 변경 이벤트
+							onSortChange() {
+								this.currentPage = 1;
+								this.fnList();
 							},
 
-							// ── 검색 ────────────────────────────────────────────
+							fnDetail(notificationId) {
+								location.href = "${pageContext.request.contextPath}/notification/detail.do?notificationId=" + notificationId;
+							},
+
 							fnSearch() {
 								this.currentPage = 1;
 								this.fnList();
 							},
 
-							// ── 탭 선택 ─────────────────────────────────────────
 							selectType(type) {
 								this.selectedType = type;
 								this.currentPage = 1;
 								this.fnList();
 							},
 
-							// ── 정렬 토글 ────────────────────────────────────────
-							toggleSort() {
-								this.sort = (this.sort === 'newest') ? 'oldest' : 'newest';
-								this.currentPage = 1;
-								this.fnList();
-							},
-
-							// ── 페이지 이동 ──────────────────────────────────────
 							goPage(page) {
 								if (page < 1 || page > this.totalPage) return;
 								this.currentPage = page;
 								this.fnList();
 							},
 
-							// ── 고정 설정 (IS_PINNED = 1) ────────────────────────
 							fnPin(notificationId) {
 								if (!confirm('이 공지를 최상단에 고정하시겠습니까?')) return;
 								const self = this;
 								$.ajax({
 									url: "${pageContext.request.contextPath}/notification/pin.dox",
-									dataType: "json",
-									type: "POST",
-									data: {notificationId: notificationId},
+									dataType: "json", type: "POST",
+									data: {notificationId},
 									success(data) {
-										if (data.result === 'success') {
-											self.fnList(); // 목록 새로고침
-										} else {
-											alert(data.message || '고정 설정에 실패했습니다.');
-										}
+										data.result === 'success' ? self.fnList() : alert(data.message || '고정 설정에 실패했습니다.');
 									},
 									error() {alert('서버 오류가 발생했습니다.');}
 								});
 							},
 
-							// ── 고정 해제 (IS_PINNED = 0) ────────────────────────
 							fnUnpin(notificationId) {
 								if (!confirm('이 공지의 고정을 해제하시겠습니까?')) return;
 								const self = this;
 								$.ajax({
 									url: "${pageContext.request.contextPath}/notification/unpin.dox",
-									dataType: "json",
-									type: "POST",
-									data: {notificationId: notificationId},
+									dataType: "json", type: "POST",
+									data: {notificationId},
 									success(data) {
-										if (data.result === 'success') {
-											self.fnList(); // 목록 새로고침
-										} else {
-											alert(data.message || '고정 해제에 실패했습니다.');
-										}
+										data.result === 'success' ? self.fnList() : alert(data.message || '고정 해제에 실패했습니다.');
 									},
 									error() {alert('서버 오류가 발생했습니다.');}
 								});
 							},
 
-							// ── 헬퍼 메서드 ──────────────────────────────────────
 							getBadgeClass(type) {
 								return {ORDER: 'notice', SYSTEM: 'update', EVENT: 'event', POLICY: 'notice2', RENTAL: 'update', INQUIRY: 'gray'}[type] || 'gray';
 							},
@@ -342,13 +301,12 @@
 							}
 						},
 
-						mounted() {
-							this.fnList();
-						}
+						mounted() {this.fnList();}
 					});
 
 					app.mount('#app');
 				</script>
+
 	</body>
 
 	</html>

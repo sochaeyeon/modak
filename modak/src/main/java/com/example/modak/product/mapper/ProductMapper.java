@@ -6,8 +6,12 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.example.modak.csCenter.model.Faq;
 import com.example.modak.product.model.Brand;
 import com.example.modak.product.model.Product;
+import com.example.modak.product.model.ProductFeature;
+import com.example.modak.product.model.ProductOption;
+import com.example.modak.product.model.ProductSpec;
 
 @Mapper
 public interface ProductMapper {
@@ -37,5 +41,17 @@ public interface ProductMapper {
 	int selectOrderCount(HashMap<String, Object> map);
 	
 	/** product detail 같은 카테고리 상품 (현재 상품 제외, 최대 4개) */
-	List<Product> selectRelatedProducts(HashMap<String, Object> map);
+	public List<Product> selectRelatedProducts(HashMap<String, Object> map);
+	
+	/** 상품 스펙 단건 조회 */
+	public ProductSpec selectProductSpec(HashMap<String, Object> map);
+
+	/** 상품 특징 목록 조회 */
+	public List<ProductFeature> selectProductFeatures(HashMap<String, Object> map);
+	
+	// faq 
+	public List<Faq> selectFaqList(HashMap<String, Object> map);
+	
+	// 상품옵션
+	public List<ProductOption> selectProductOptions(HashMap<String, Object> map);
 }

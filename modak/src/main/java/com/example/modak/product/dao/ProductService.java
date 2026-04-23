@@ -5,13 +5,15 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.modak.common.Message;
+import com.example.modak.csCenter.model.Faq;
 import com.example.modak.product.mapper.ProductMapper;
 import com.example.modak.product.model.Brand;
 import com.example.modak.product.model.Product;
+import com.example.modak.product.model.ProductFeature;
+import com.example.modak.product.model.ProductOption;
+import com.example.modak.product.model.ProductSpec;
 
 @Service
 public class ProductService {
@@ -58,25 +60,55 @@ public class ProductService {
 	    return resultMap;
 	}
 	
-	// product detail
+	// getProduct() 전체 교체
 	public HashMap<String, Object> getProduct(HashMap<String, Object> map) {
 	    HashMap<String, Object> resultMap = new HashMap<String, Object>();
 	    try {
-	        // 단건 조회이므로 Mapper에서 객체 하나(Product)를 가져옵니다.
+	        // ① 상품 기본 정보
 	        Product info = productMapper.selectProduct(map);
-	        productMapper.increaseViewCount(map); 
+	        
+	        // ② 조회수 +1
+	        productMapper.increaseViewCount(map);
+	        
+	        // ③ 상품 이미지
 	        List<Product> img = productMapper.selectProductImages(map);
+	        
+	        // ④ 주문 카운트
 	        int orderCount = productMapper.selectOrderCount(map);
 	        
-	        resultMap.put("info", info);
-	        resultMap.put("img", img);
+	        // ⑤ 상품 스펙
+	        ProductSpec spec = productMapper.selectProductSpec(map);
+	        
+	        // ⑥ 상품 특징
+	        List<ProductFeature> features = productMapper.selectProductFeatures(map);
+	        
+	        // ⑦ FAQ - 상품 타입에 따라 카테고리 분기
+	        List<String> faqCategories;
+	        if ("RENTAL".equals(info.getProductType())) {
+	            faqCategories = java.util.Arrays.asList("대여", "반납", "연장", "배송", "취소");
+	        } else {
+	            faqCategories = java.util.Arrays.asList("주문", "배송", "환불", "결제", "취소");
+	        }
+	        map.put("categories", faqCategories);
+	        List<Faq> faqList = productMapper.selectFaqList(map);
+	        // 8 상품별 옵션
+	        List<ProductOption> options = productMapper.selectProductOptions(map);
+
+	        // ⑧ resultMap에 담기
+	        resultMap.put("info",       info);
+	        resultMap.put("img",        img);
 	        resultMap.put("orderCount", orderCount);
-	        resultMap.put("result", "success");
-	        resultMap.put("message", Message.SUCCESS_SELECT); 
+	        resultMap.put("spec",       spec);
+	        resultMap.put("features",   features);
+	        resultMap.put("faqList",    faqList);
+	        resultMap.put("options", options);
+	        resultMap.put("result",     "success");
+	        resultMap.put("message",    Message.SUCCESS_SELECT);
+
 	    } catch (Exception e) {
 	        System.out.println(e.getMessage());
-	        resultMap.put("result", "fail");
-	        resultMap.put("message", Message.FAIL_SELECT); 
+	        resultMap.put("result",  "fail");
+	        resultMap.put("message", Message.FAIL_SELECT);
 	    }
 	    return resultMap;
 	}

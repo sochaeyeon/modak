@@ -11,7 +11,7 @@
 </head>
 <body>
 <%@ include file="/WEB-INF/common/header.jsp" %>
-    <div id="app">
+    <div id="app" v-cloak>
         <!-- ── 카테고리 pill 바 ── -->
         
             
@@ -56,20 +56,16 @@
                 </span>
             </div>
 
-            <!-- MODE TOGGLE 상품타입이 대여 / 구매에 따라서 둘중하나 비활성 -->
-            <div class="mtog">
+            <!-- MODE TOGGLE - 숨김 처리 (내부 로직은 유지) -->
+            <div class="mtog" style="display:none;">
                 <button class="mbtn on" id="mb-buy" 
                     onclick="setMode('buy')"
-                    :disabled="productType === 'RENTAL'"
-                    :style="productType === 'RENTAL' ? 'opacity:0.3; cursor:not-allowed;' : ''"
-                    :title="productType === 'RENTAL' ? '이 상품은 대여만 가능한 상품입니다' : ''">
+                    :disabled="productType === 'RENTAL'">
                     🛒 구매하기
                 </button>
                 <button class="mbtn" id="mb-rent" 
                     onclick="setMode('rent')"
-                    :disabled="productType === 'PURCHASE'"
-                    :style="productType === 'PURCHASE' ? 'opacity:0.3; cursor:not-allowed;' : ''"
-                    :title="productType === 'PURCHASE' ? '이 상품은 구매만 가능한 상품입니다' : ''">
+                    :disabled="productType === 'PURCHASE'">
                     📅 대여하기
                 </button>
             </div>
@@ -87,59 +83,253 @@
             <div class="rent-only">
                 <div class="pbox-rent">
                 <div class="prow"><span class="rent-per">1박당</span><span class="rent-num">{{ formatPrice(productInfo.price) }}</span><span class="rent-unit"> / 박</span></div>
-                <div style="font-size:12px;color:var(--muted);margin-top:4px">3박 이상 <strong style="color:var(--blue)">10% 할인</strong> · 7박 이상 <strong style="color:var(--blue)">20% 할인</strong></div>
-                <div style="font-size:12px;color:var(--muted);margin-top:3px">⏱ 반납일 오전 10시까지 · 연체 시 1일 12,000원</div>
+                <div style="font-size:13px;color:var(--muted);margin-top:4px;">
+                    보증금 <strong style="color:#333;">{{ formatPrice(productInfo.deposit) }}</strong>
+                    <span style="font-size:11px;">(반납 후 환불)</span>
+                </div>
+                <!-- <div style="font-size:12px;color:var(--muted);margin-top:4px">3박 이상 <strong style="color:var(--blue)">10% 할인</strong> · 7박 이상 <strong style="color:var(--blue)">20% 할인</strong></div>
+                <div style="font-size:12px;color:var(--muted);margin-top:3px">⏱ 반납일 오전 10시까지 · 연체 시 1일 12,000원</div> -->
                 </div>
             </div>
 
             <hr class="div">
 
-            <!-- 색상 (공통) -->
-            <div class="osec">
-                <div class="olabel">색상</div>
-                <div class="ochips">
-                <div class="chip on" onclick="pickChip(this,'col')">블랙</div>
-                <div class="chip" onclick="pickChip(this,'col')">오렌지</div>
-                <div class="chip" onclick="pickChip(this,'col')">그린</div>
-                <div class="chip off">화이트 (품절)</div>
+            <!-- 공통 옵션 (PRODUCT_OPTION DB 기반) -->
+            <!-- 옵션 선택 팝업 트리거 버튼 -->
+            <div v-if="productOptions.length > 0">
+                <button @click="optionOpen = true"
+                    style="width:100%;display:flex;justify-content:space-between;align-items:center;
+                        padding:12px 16px;background:#f9f9f9;border:1px solid #eee;
+                        border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;
+                        font-family:inherit;margin-bottom:8px;">
+                    <span>🎛️ 옵션 선택
+                        <span v-if="Object.keys(selectedOptions).length > 0"
+                            style="color:var(--orange);margin-left:8px;font-size:13px;">
+                            {{ Object.values(selectedOptions).map(o => o.optionValue).join(' / ') }}
+                        </span>
+                        <span v-else style="color:var(--muted);margin-left:8px;font-size:13px;">
+                            옵션을 선택해주세요
+                        </span>
+                    </span>
+                    <span style="color:var(--orange);">▼</span>
+                </button>
+
+                <!-- ✅ 옵션 선택 팝업 모달 -->
+                <div v-if="optionOpen"
+                    style="position:fixed;top:0;left:0;width:100%;height:100%;
+                        background:rgba(0,0,0,0.5);z-index:9000;
+                        display:flex;align-items:center;justify-content:center;"
+                    @click.self="optionOpen = false">
+
+                    <div style="background:#fff;border-radius:16px;padding:24px;
+                                width:360px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+
+                        <!-- 모달 헤더 -->
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                            <span style="font-size:16px;font-weight:700;">옵션 선택</span>
+                            <button @click="optionOpen = false"
+                                style="background:none;border:none;font-size:20px;cursor:pointer;color:#999;line-height:1;">
+                                ✕
+                            </button>
+                        </div>
+
+                        <!-- 옵션 그룹별 칩 -->
+                        <div v-for="(opts, optionName) in groupedOptions" :key="optionName"
+                            style="margin-bottom:20px;">
+                            <div style="font-size:13px;font-weight:600;color:#555;margin-bottom:10px;">
+                                {{ optionName }}
+                            </div>
+                            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                                <div v-for="opt in opts" :key="opt.optionId"
+                                    @click="selectOption(optionName, opt)"
+                                    :style="selectedOptions[optionName]?.optionId === opt.optionId
+                                        ? 'padding:8px 14px;border-radius:20px;border:2px solid var(--orange);background:#fff7f0;color:var(--orange);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;'
+                                        : 'padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:#fafafa;color:#333;font-size:13px;cursor:pointer;transition:all .15s;'">
+                                    {{ opt.optionValue }}
+                                    <span v-if="opt.addPrice > 0"
+                                        style="font-size:11px;color:var(--orange);margin-left:4px;">
+                                        +{{ opt.addPrice.toLocaleString() }}원
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 선택 요약 -->
+                        <div style="padding:12px;background:#fafafa;border-radius:8px;font-size:13px;min-height:44px;margin-bottom:14px;">
+                            <div v-if="Object.keys(selectedOptions).length > 0" style="color:#333;">
+                                <span v-for="(opt, name) in selectedOptions" :key="name"
+                                    style="display:inline-block;margin-right:8px;">
+                                    <span style="color:var(--muted);">{{ name }}:</span>
+                                    <strong style="color:var(--orange);margin-left:4px;">{{ opt.optionValue }}</strong>
+                                </span>
+                                <span v-if="totalAddPrice > 0"
+                                    style="float:right;color:var(--orange);font-weight:700;">
+                                    +{{ totalAddPrice.toLocaleString() }}원
+                                </span>
+                            </div>
+                            <div v-else style="color:#bbb;">옵션을 선택해주세요.</div>
+                        </div>
+
+                        <!-- 초기화 / 확인 버튼 -->
+                        <div style="display:flex;gap:8px;">
+                            <button @click="selectedOptions = {}"
+                                style="flex:1;padding:10px;border:1px solid #eee;border-radius:8px;
+                                    background:#fff;cursor:pointer;font-size:13px;font-family:inherit;">
+                                초기화
+                            </button>
+                            <button @click="optionOpen = false"
+                                style="flex:2;padding:10px;border:none;border-radius:8px;
+                                    background:var(--orange);color:#fff;cursor:pointer;
+                                    font-size:14px;font-weight:600;font-family:inherit;">
+                                확인
+                            </button>
+                        </div>
+                    </div>
                 </div>
+            </div>
+
+            <!-- 옵션 없을 때 -->
+            <div v-if="productOptions.length === 0" class="osec">
+                <div class="olabel" style="color:var(--muted);font-size:13px;">옵션 없음</div>
             </div>
 
             <!-- BUY OPTIONS -->
             <div class="buy-only">
-                <div class="osec">
-                <div class="olabel">사이즈</div>
-                <div class="ochips">
-                    <div class="chip on" onclick="pickChip(this,'opt')">텐트 단품</div>
-                    <div class="chip" onclick="pickChip(this,'opt')">텐트 + 풋프린트</div>
-                    <div class="chip" onclick="pickChip(this,'opt')">텐트 + 스노우 스커트</div>
-                </div>
-                </div>
-            <div class="osec">
-                <div class="olabel">
-                    수량
-                    <span v-if="remainQty > 0" style="color:var(--green);font-weight:600;">
-                        {{ remainQty }}개 남음
+            <!-- 수량 선택 팝업 트리거 버튼 -->
+            <button @click="qtyOpen = true"
+                style="width:100%;display:flex;justify-content:space-between;align-items:center;
+                    padding:12px 16px;background:#f9f9f9;border:1px solid #eee;
+                    border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;
+                    font-family:inherit;margin-bottom:8px;">
+                <span>🔢 수량 선택
+                    <span style="color:var(--orange);margin-left:8px;font-size:13px;">
+                        {{ qty }}개
                     </span>
-                    <span v-else style="color:var(--red);font-weight:600;">
-                        {{ productType === 'RENTAL' ? '재고 없음' : '품절' }}
+                    <span v-if="remainQty > 0" style="color:var(--green);font-size:12px;margin-left:6px;">
+                        ({{ remainQty }}개 남음)
                     </span>
-                </div>
-                <div class="qrow">
-                    <button class="qbtn" @click="chgQty(-1)">−</button>
-                    <input class="qinp" id="qinp" type="number" v-model="qty" min="1" :max="displayQty" readonly>
-                    <button class="qbtn" @click="chgQty(1)">+</button>
+                    <span v-else-if="remainQty === 0 && qty > 0" style="color:var(--orange);font-size:12px;margin-left:6px;">
+                        (잔여 재고 없음)
+                    </span>
+                    <span v-else style="color:var(--red);font-size:12px;margin-left:6px;">
+                        (품절)
+                    </span>
+                </span>
+                <span style="color:var(--orange);">▼</span>
+            </button>
+
+            <!-- 수량 선택 팝업 모달 -->
+            <div v-if="qtyOpen"
+                style="position:fixed;top:0;left:0;width:100%;height:100%;
+                    background:rgba(0,0,0,0.5);z-index:9000;
+                    display:flex;align-items:center;justify-content:center;"
+                @click.self="qtyOpen = false">
+
+                <div style="background:#fff;border-radius:16px;padding:24px;
+                            width:320px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+
+                    <!-- 모달 헤더 -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                        <span style="font-size:16px;font-weight:700;">수량 선택</span>
+                        <button @click="qtyOpen = false"
+                            style="background:none;border:none;font-size:20px;cursor:pointer;color:#999;line-height:1;">
+                            ✕
+                        </button>
+                    </div>
+
+                    <!-- 재고 안내 -->
+                    <div style="text-align:center;font-size:13px;color:var(--muted);margin-bottom:20px;">
+                        <span v-if="displayQty > 0">
+                            현재 재고
+                            <strong style="color:var(--green);">{{ displayQty }}개</strong>
+                            남아있습니다
+                        </span>
+                        <span v-else style="color:var(--red);font-weight:600;">품절된 상품입니다</span>
+                    </div>
+
+                    <!-- 수량 조절 UI -->
+                    <div style="display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:24px;">
+                        <button @click="chgQty(-1)"
+                            style="width:48px;height:48px;border:1.5px solid var(--border);
+                                border-radius:8px 0 0 8px;background:#fafafa;
+                                font-size:22px;cursor:pointer;color:var(--text);
+                                display:flex;align-items:center;justify-content:center;">
+                            −
+                        </button>
+                        <div style="width:80px;height:48px;border-top:1.5px solid var(--border);
+                                    border-bottom:1.5px solid var(--border);
+                                    display:flex;align-items:center;justify-content:center;
+                                    font-size:20px;font-weight:700;color:var(--orange);
+                                    background:#fff;">
+                            {{ qty }}
+                        </div>
+                        <button @click="chgQty(1)"
+                            style="width:48px;height:48px;border:1.5px solid var(--border);
+                                border-radius:0 8px 8px 0;background:#fafafa;
+                                font-size:22px;cursor:pointer;color:var(--text);
+                                display:flex;align-items:center;justify-content:center;">
+                            +
+                        </button>
+                    </div>
+
+                    <!-- 단가 × 수량 미니 요약 -->
+                    <div style="padding:12px 16px;background:#fafafa;border-radius:8px;
+                                display:flex;justify-content:space-between;
+                                font-size:13px;margin-bottom:16px;">
+                        <span style="color:var(--muted);">
+                            {{ formatPrice(unitPrice) }} × {{ qty }}개
+                        </span>
+                        <strong style="color:var(--orange);">{{ totalPriceFormatted }}</strong>
+                    </div>
+
+                    <!-- 확인 버튼 -->
+                    <button @click="qtyOpen = false"
+                        style="width:100%;padding:12px;border:none;border-radius:8px;
+                            background:var(--orange);color:#fff;cursor:pointer;
+                            font-size:15px;font-weight:700;font-family:inherit;">
+                        확인
+                    </button>
                 </div>
             </div>
-                <div class="selbox">
-                    <span style="font-size:13px">블랙 / 텐트 단품 / <span id="qdsp">1</span>개</span>
-                    <span style="font-size:15px;font-weight:700" id="bprice">{{ totalPriceFormatted }}</span>
+
+                <!-- booking-summary 구매 -->
+                <div class="booking-summary">
+                    <div v-if="Object.keys(selectedOptions).length > 0 || qty > 0">
+
+                        <!-- 선택 옵션 항목별 표시 -->
+                        <div v-for="(opt, name) in selectedOptions" :key="name"
+                            style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;color:var(--muted);">
+                            <span>{{ name }}</span>
+                            <span style="color:#333;font-weight:500;">{{ opt.optionValue }}</span>
+                        </div>
+
+                        <!-- 옵션 추가금 -->
+                        <div v-if="totalAddPrice > 0"
+                            style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;color:var(--orange);">
+                            <span>옵션 추가금</span>
+                            <span>+{{ formatPrice(totalAddPrice) }}</span>
+                        </div>
+
+                        <!-- 수량 -->
+                        <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px;">
+                            <span style="color:var(--muted)">수량</span>
+                            <span>{{ formatPrice(unitPrice) }} × {{ qty }}개</span>
+                        </div>
+
+                        <hr style="border:none;border-top:1px solid #f0c8a0;margin:8px 0;">
+
+                        <!-- 총 금액 -->
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:14px;color:var(--muted)">총 상품금액</span>
+                            <span style="font-size:1.8rem;font-weight:bold;color:var(--orange);">
+                                {{ totalPriceFormatted }}
+                            </span>
+                        </div>
+                    </div>
+                    <div v-else style="color:#bbb;">옵션과 수량을 선택해주세요.</div>
                 </div>
-                <div class="trow">
-                    <span style="font-size:13px;color:var(--muted)">총 상품금액</span>
-                    <span class="tprice" id="btotal">{{ totalPriceFormatted }}</span>
-                </div>
-                <div class="arow">
+
+                <div class="arow" style="margin-top:12px;">
                     <button class="bwish" id="wb1"
                         :class="{ on: isWished }"
                         @click="fnWish($event)">
@@ -152,40 +342,156 @@
 
             <!-- RENT CALENDAR -->
             <div class="rent-only" style="max-width: 700px;">
-                <div class="cal-nav">
-                    <button @click="changeMonth(-1)">‹</button>
-                    <h2 style="font-weight: bold;">{{ currentYear }}년 {{ currentMonth + 1 }}월</h2>
-                    <button @click="changeMonth(1)">›</button>
-                </div>
 
-                <div class="cal-grid">
-                    <div v-for="w in ['일','월','화','수','목','금','토']" :key="w" class="day-name">{{w}}</div>
-                    <div v-for="(day, idx) in calendarDays" :key="idx" :class="getDayClass(day)"
-                        @click="onDayClick(day)">
-                        <span v-if="day">{{ day.date }}</span>
-                    </div>
-                </div>
+                <!-- 토글 버튼 -->
+                <button @click="calOpen = true"
+                    style="width:100%;display:flex;justify-content:space-between;align-items:center;
+                        padding:12px 16px;background:#f9f9f9;border:1px solid #eee;
+                        border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;
+                        font-family:inherit;margin-bottom:8px;">
+                    <span>📅 날짜 선택
+                        <span v-if="startDate && endDate" style="color:var(--orange);margin-left:8px;font-size:13px;">
+                            {{ startDate }} ~ {{ endDate }} ({{ rentDays }}박)
+                        </span>
+                        <span v-else-if="startDate" style="color:var(--orange);margin-left:8px;font-size:13px;">
+                            {{ startDate }} 선택됨
+                        </span>
+                        <span v-else style="color:var(--muted);margin-left:8px;font-size:13px;">
+                            날짜를 선택해주세요
+                        </span>
+                    </span>
+                    <span style="color:var(--orange);">▼</span>
+                </button>
 
-                <div class="booking-summary">
-                    <div v-if="startDate && endDate">
-                        <p style="font-size:0.9rem; color:#888; margin-bottom:5px;">{{ startDate }} ~ {{ endDate }} ({{ rentDays }}박)</p>
-                        <div style="font-size:1.8rem; font-weight:bold; color:var(--orange);">
-                            {{ (productInfo.price * rentDays).toLocaleString() }}원
+                <!-- ✅ 캘린더 팝업 모달 -->
+                <div v-if="calOpen"
+                    style="position:fixed;top:0;left:0;width:100%;height:100%;
+                        background:rgba(0,0,0,0.5);z-index:9000;
+                        display:flex;align-items:center;justify-content:center;"
+                    @click.self="calOpen = false">
+
+                    <div style="background:#fff;border-radius:16px;padding:24px;
+                                width:360px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+
+                        <!-- 모달 헤더 -->
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                            <span style="font-size:16px;font-weight:700;">날짜 선택</span>
+                            <button @click="calOpen = false"
+                                style="background:none;border:none;font-size:20px;cursor:pointer;color:#999;line-height:1;">
+                                ✕
+                            </button>
+                        </div>
+
+                        <!-- 월 이동 -->
+                        <div class="cal-nav" style="margin-bottom:8px;">
+                            <button @click="changeMonth(-1)">‹</button>
+                            <h2 style="font-weight:bold;font-size:15px;">{{ currentYear }}년 {{ currentMonth + 1 }}월</h2>
+                            <button @click="changeMonth(1)">›</button>
+                        </div>
+
+                        <!-- 캘린더 그리드 -->
+                        <div class="cal-grid">
+                            <div v-for="w in ['일','월','화','수','목','금','토']" :key="w" class="day-name">{{w}}</div>
+                            <div v-for="(day, idx) in calendarDays" :key="idx"
+                                :class="getDayClass(day)"
+                                @click="onDayClick(day)">
+                                <span v-if="day">{{ day.date }}</span>
+                            </div>
+                        </div>
+
+                        <!-- 선택 결과 -->
+                        <div style="margin-top:16px;padding:12px;background:#fafafa;border-radius:8px;font-size:13px;min-height:44px;">
+                            <div v-if="startDate && endDate" style="color:#333;">
+                                {{ startDate }} ~ {{ endDate }}
+                                <strong style="color:var(--orange);margin-left:6px;">{{ rentDays }}박</strong>
+                            </div>
+                            <div v-else-if="startDate" style="color:var(--orange);font-weight:600;">
+                                종료일을 선택해주세요.
+                            </div>
+                            <div v-else style="color:#bbb;">
+                                시작일을 선택해주세요.
+                            </div>
+                        </div>
+
+                        <!-- 확인/초기화 버튼 -->
+                        <div style="display:flex;gap:8px;margin-top:12px;">
+                            <button @click="startDate=null; endDate=null;"
+                                style="flex:1;padding:10px;border:1px solid #eee;border-radius:8px;
+                                    background:#fff;cursor:pointer;font-size:13px;font-family:inherit;">
+                                초기화
+                            </button>
+                            <button @click="calOpen = false"
+                                :disabled="!startDate || !endDate"
+                                :style="(startDate && endDate)
+                                    ? 'flex:2;padding:10px;border:none;border-radius:8px;background:var(--orange);color:#fff;cursor:pointer;font-size:14px;font-weight:600;font-family:inherit;'
+                                    : 'flex:2;padding:10px;border:none;border-radius:8px;background:#ddd;color:#999;cursor:not-allowed;font-size:14px;font-weight:600;font-family:inherit;'">
+                                확인
+                            </button>
                         </div>
                     </div>
-                    <div v-else-if="startDate" style="color:var(--orange); font-weight:bold;">종료일을 선택해주세요.</div>
-                    <div v-else style="color:#bbb;">캘린더에서 예약 날짜를 선택해주세요.</div>
+                </div>
 
-                    <button v-if="startDate && endDate" class="btn-rent" @click="fnRent">대여 신청하기</button>
+                <!-- booking-summary (항상 표시) -->
+                <div class="booking-summary">
+                <div v-if="startDate && endDate">
+                    <p style="font-size:0.9rem;color:#888;margin-bottom:8px;">
+                        {{ startDate }} ~ {{ endDate }} ({{ rentDays }}박)
+                    </p>
+
+                    <!-- 옵션 추가금 있을 때만 표시 -->
+                    <div v-if="totalAddPrice > 0"
+                        style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;color:var(--muted);">
+                        <span>기본가</span>
+                        <span>{{ formatPrice(productInfo.price) }} / 박</span>
+                    </div>
+                    <div v-if="totalAddPrice > 0"
+                        style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;color:var(--orange);">
+                        <span>옵션 추가금</span>
+                        <span>+{{ formatPrice(totalAddPrice) }} / 박</span>
+                    </div>
+
+                    <!-- 대여료 (unitPrice 기반) -->
+                    <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px;">
+                        <span style="color:var(--muted)">대여료 ({{ rentDays }}박)</span>
+                        <span>{{ formatPrice(unitPrice * rentDays) }}</span>  <!-- ✅ unitPrice 사용 -->
+                    </div>
+
+                    <!-- 보증금 -->
+                    <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px;">
+                        <span style="color:var(--muted)">보증금 <span style="font-size:11px;">(반납 후 환불)</span></span>
+                        <span>{{ formatPrice(productInfo.deposit) }}</span>
+                    </div>
+
+                    <hr style="border:none;border-top:1px solid #eee;margin:8px 0;">
+
+                    <!-- 합산 (unitPrice 기반) -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-size:14px;color:var(--muted)">결제 예정금액</span>
+                        <span style="font-size:1.8rem;font-weight:bold;color:var(--orange);">
+                            {{ formatPrice(unitPrice * rentDays + productInfo.deposit) }}  <!-- ✅ unitPrice 사용 -->
+                        </span>
+                    </div>
                 </div>
-                <!-- ✅ 대여 위시 버튼 -->
-                <div class="arow" style="margin-top:10px;">
-                    <button class="bwish" id="wb2"
-                        :class="{ on: isWished }"
-                        @click="fnWish($event)">
-                        {{ isWished ? '❤️' : '🤍' }}
-                    </button>
-                </div>
+                <div v-else style="color:#bbb;">캘린더에서 예약 날짜를 선택해주세요.</div>
+
+            </div>
+
+                <!-- 위시 버튼 -->
+                    <!-- 대여 액션 버튼 (구매와 동일한 레이아웃) -->
+                    <div class="arow" style="margin-top:12px;">
+                        <button class="bwish" id="wb2"
+                            :class="{ on: isWished }"
+                            @click="fnWish($event)">
+                            {{ isWished ? '❤️' : '🤍' }}
+                        </button>
+                        <button class="bcart">장바구니 담기</button>
+                        <button class="bbuy"
+                            :disabled="!startDate || !endDate"
+                            :style="(!startDate || !endDate) ? 'opacity:0.4;cursor:not-allowed;' : ''"
+                            @click="fnRent">
+                            {{ (startDate && endDate) ? '대여 신청하기' : '날짜를 선택하세요' }}
+                        </button>
+                    </div>
             </div>
             
 
@@ -208,25 +514,46 @@
                 <button class="tbtn" @click="stab('shp', $event)">배송/대여 안내</button>
             </div>
             <div class="tcont">
+            <!-- tp-det pane 교체 -->
             <div class="tpane on" id="tp-det">
+
+                <!-- 제품 특징 (PRODUCT_FEATURE) -->
                 <h3 style="font-size:15px;font-weight:700;margin-bottom:12px">🏕️ 제품 특징</h3>
                 <div class="flist">
-                <div class="fi"><div class="fic">⚡</div><div class="fit"><h4>초경량 설계</h4><p>총 중량 1.38kg, 장거리 백패킹 최적화.</p></div></div>
-                <div class="fi"><div class="fic">💧</div><div class="fit"><h4>방수 성능</h4><p>내수압 3,000mm 이상 고성능 방수 코팅.</p></div></div>
-                <div class="fi"><div class="fic">🌬️</div><div class="fit"><h4>통기성 이중 구조</h4><p>결로 최소화, 쾌적한 내부 유지.</p></div></div>
-                <div class="fi"><div class="fic">🛠️</div><div class="fit"><h4>간편 설치</h4><p>색상 구분 폴+클립 시스템, 10분 내 설치.</p></div></div>
+                    <div class="fi" v-for="f in productFeatures" :key="f.featureId">
+                        <div class="fic">{{ f.icon }}</div>
+                        <div class="fit">
+                            <h4>{{ f.title }}</h4>
+                            <p>{{ f.content }}</p>
+                        </div>
+                    </div>
                 </div>
 
                 <hr class="div" style="margin:18px 0">
+
+                <!-- 상품 스펙 (PRODUCT_SPEC) -->
                 <h3 style="font-size:15px;font-weight:700;margin-bottom:12px">📋 상품 스펙</h3>
                 <table class="spec">
-                    <tr><th>브랜드</th><td>헬리녹스 (Helinox)</td></tr>
-                    <tr><th>수용 인원</th><td>1인용</td></tr>
-                    <tr><th>전개 사이즈</th><td>220 × 90 × 105 cm</td></tr>
-                    <tr><th>총 중량</th><td>1,380g</td></tr>
-                    <tr><th>소재 (외피)</th><td>20D 나일론 립스탑 (내수압 3,000mm)</td></tr>
-                    <tr><th>폴 소재</th><td>DAC 알루미늄 합금</td></tr>
-                    <tr><th>원산지</th><td>대한민국</td></tr>
+                    <tr v-if="productSpec.capacity">
+                        <th>수용 인원</th><td>{{ productSpec.capacity }}</td>
+                    </tr>
+                    <tr v-if="productSpec.size">
+                        <th>전개 사이즈</th><td>{{ productSpec.size }}</td>
+                    </tr>
+                    <tr v-if="productSpec.weight">
+                        <th>총 중량</th><td>{{ productSpec.weight }}</td>
+                    </tr>
+                    <tr v-if="productSpec.material">
+                        <th>소재 (외피)</th><td>{{ productSpec.material }}</td>
+                    </tr>
+                    <tr v-if="productSpec.origin">
+                        <th>원산지</th><td>{{ productSpec.origin }}</td>
+                    </tr>
+                    <tr v-if="!productSpec.capacity && !productSpec.size">
+                        <td colspan="2" style="text-align:center;color:var(--muted);padding:20px">
+                            등록된 스펙 정보가 없습니다.
+                        </td>
+                    </tr>
                 </table>
             </div>
 
@@ -234,19 +561,29 @@
                 <!-- 별점 요약 (기존 유지) -->
                 <div class="rsum2">
                     <div class="rbig">
-                        <div class="rn">4.3</div>
+                        <!-- ① 평균 별점 -->
+                        <div class="rn">{{ avgRating }}</div>
+
+                        <!-- ② 별점 표시 (avgStars 기반) -->
                         <div class="stars" style="justify-content:center;display:flex;margin:5px 0">
-                            <span class="st">★</span><span class="st">★</span><span class="st">★</span>
-                            <span class="st">★</span><span class="st" style="color:#ddd">★</span>
+                            <span v-for="(star, i) in avgStars" :key="i"
+                                class="st"
+                                :style="{ color: star === '★' ? '' : '#ddd' }">
+                                {{ star }}
+                            </span>
                         </div>
                         <div class="ro">{{ reviewList.length }}개 리뷰</div>
                     </div>
+
+                    <!-- ③ 점수별 분포 바 (ratingDist 기반) -->
                     <div class="rbars">
-                        <div class="bbar"><span class="blbl">5점</span><div class="btrk"><div class="bfil" style="width:55%"></div></div><span class="bcnt">65</span></div>
-                        <div class="bbar"><span class="blbl">4점</span><div class="btrk"><div class="bfil" style="width:25%"></div></div><span class="bcnt">30</span></div>
-                        <div class="bbar"><span class="blbl">3점</span><div class="btrk"><div class="bfil" style="width:12%"></div></div><span class="bcnt">14</span></div>
-                        <div class="bbar"><span class="blbl">2점</span><div class="btrk"><div class="bfil" style="width:5%"></div></div><span class="bcnt">6</span></div>
-                        <div class="bbar"><span class="blbl">1점</span><div class="btrk"><div class="bfil" style="width:3%"></div></div><span class="bcnt">4</span></div>
+                        <div class="bbar" v-for="d in ratingDist" :key="d.score">
+                            <span class="blbl">{{ d.score }}점</span>
+                            <div class="btrk">
+                                <div class="bfil" :style="{ width: d.pct + '%' }"></div>
+                            </div>
+                            <span class="bcnt">{{ d.count }}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -284,25 +621,66 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="tpane" id="tp-qna">
-                <div style="text-align:center;padding:36px 0;color:var(--muted)">
-                <div style="font-size:36px;margin-bottom:10px">💬</div>
-                <p style="font-size:15px;font-weight:500;margin-bottom:4px">Q&A가 12개 있습니다</p>
-                <p style="font-size:13px">궁금한 점을 남겨주세요. 평균 24시간 내 답변합니다.</p>
-                <button style="margin-top:14px;background:var(--orange);color:#fff;border:none;border-radius:8px;padding:10px 24px;font-size:14px;cursor:pointer;font-family:inherit;font-weight:500">문의하기</button>
+                    <div class="tpane" id="tp-qna">
+                    <!-- FAQ 아코디언 -->
+                    <div v-if="faqList.length > 0" style="margin-bottom:20px;">
+                        <div v-for="f in faqList" :key="f.faqId"
+                            style="border-bottom:1px solid #eee;">
+
+                            <!-- 질문 -->
+                            <div @click="openFaqId = openFaqId === f.faqId ? null : f.faqId"
+                                style="display:flex;justify-content:space-between;align-items:center;
+                                    padding:14px 4px;cursor:pointer;">
+                                <span style="font-size:14px;font-weight:600;">
+                                    <span style="color:var(--orange);margin-right:6px;">Q.</span>
+                                    {{ f.question }}
+                                </span>
+                                <span style="color:var(--orange);font-size:20px;line-height:1;">
+                                    {{ openFaqId === f.faqId ? '−' : '+' }}
+                                </span>
+                            </div>
+
+                            <!-- 답변 -->
+                            <div v-if="openFaqId === f.faqId"
+                                style="padding:12px 8px 16px 24px;font-size:13px;
+                                    color:#555;background:#fafafa;border-radius:6px;
+                                    line-height:1.8;margin-bottom:4px;">
+                                <span style="color:var(--muted);margin-right:6px;">A.</span>
+                                {{ f.answer }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-else style="text-align:center;padding:20px 0;
+                                    color:var(--muted);font-size:14px;">
+                        등록된 FAQ가 없습니다.
+                    </div>
+
+                    <!-- 1:1 문의 버튼 -->
+                    <div style="text-align:center;padding:20px 0 8px;">
+                        <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">
+                            원하는 답변을 찾지 못하셨나요?<br>평균 24시간 내 답변드립니다.
+                        </p>
+                        <button @click="fnInquiry"
+                            style="background:var(--orange);color:#fff;border:none;
+                                border-radius:8px;padding:10px 24px;font-size:14px;
+                                cursor:pointer;font-family:inherit;font-weight:500;">
+                            1:1 문의하기
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <div class="tpane" id="tp-shp">
-                <table class="spec">
-                <tr><th>배송 방법</th><td>택배 (CJ 대한통운) 또는 매장 직수령</td></tr>
-                <tr><th>배송비</th><td>무료배송 (제주·도서산간 +3,000원)</td></tr>
-                <tr><th>대여 반납</th><td>반납일 오전 10시까지 · 택배 반납 가능</td></tr>
-                <tr><th>연체 요금</th><td>1일당 12,000원 (대여가의 150%)</td></tr>
-                <tr><th>파손/분실</th><td>수리 비용 또는 정가의 80% 배상</td></tr>
-                <tr><th>반품/교환</th><td>수령 후 30일 이내 (구매 상품)</td></tr>
-                </table>
-            </div>
+                    <div class="tpane" id="tp-shp">
+                        <table class="spec">
+                        <tr><th>배송 방법</th><td>택배 (CJ 대한통운) 또는 매장 직수령</td></tr>
+                        <tr><th>배송비</th><td>무료배송 (제주·도서산간 +3,000원)</td></tr>
+                        <tr><th>대여 반납</th><td>반납일 오전 10시까지 · 택배 반납 가능</td></tr>
+                        <tr><th>연체 요금</th><td>1일당 12,000원 (대여가의 150%)</td></tr>
+                        <tr><th>파손/분실</th><td>수리 비용 또는 정가의 80% 배상</td></tr>
+                        <tr><th>반품/교환</th><td>수령 후 30일 이내 (구매 상품)</td></tr>
+                        </table>
+                    </div>
+                </div>
+            
             </div>
         </div>
 
@@ -393,6 +771,15 @@
                 endDate: null,
                 isWished: false, // 위시 여부
                 relatedList: [], // 하단 같은 카테고리 상품 추천
+                productSpec: {},       // PRODUCT_SPEC 단건
+                productFeatures: [],   // PRODUCT_FEATURE 목록
+                faqList: [],
+                openFaqId: null,
+                calOpen: false, // 캘린더 기본 접힘
+                productOptions: [],    // 전체 옵션 목록
+                selectedOptions: {},   // { "색상": {optionId:1, optionValue:"샌드베이지", addPrice:0}, ... }
+                optionOpen: false,
+                qtyOpen: false,
             };
         },
         computed: {
@@ -404,12 +791,6 @@
             // 재고에서 선택 수량 뺀 남은 재고
             remainQty() {
                 return this.displayQty - this.qty;
-            },
-            totalPrice() {
-                return (this.productInfo.price || 0) * this.qty;
-            },
-            totalPriceFormatted() {
-                return this.totalPrice.toLocaleString('ko-KR') + '원';
             },
             calendarDays() {
                 const firstDay = new Date(this.currentYear, this.currentMonth, 1).getDay();
@@ -431,8 +812,57 @@
             rentDays() {
                 if (!this.startDate || !this.endDate) return 0;
                 return Math.ceil((new Date(this.endDate) - new Date(this.startDate)) / (1000 * 60 * 60 * 24));
-            }
-        },
+            },
+            // 평균 별점 (소수점 1자리)
+            avgRating() {
+                if (!this.reviewList.length) return '0.0';
+                const sum = this.reviewList.reduce((acc, r) => acc + (r.rating || 0), 0);
+                return (sum / this.reviewList.length).toFixed(1);
+            },
+            // 평균 별점 기준 ★/☆ 배열 (반올림 처리)
+            avgStars() {
+                const rounded = Math.round(parseFloat(this.avgRating));
+                return Array.from({ length: 5 }, (_, i) => i < rounded ? '★' : '☆');
+            },
+            // 점수별 분포 (5점~1점, 비율 % 포함)
+            ratingDist() {
+                const dist = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+                this.reviewList.forEach(r => {
+                    const s = Math.round(r.rating);
+                    if (dist[s] !== undefined) dist[s]++;
+                });
+                const total = this.reviewList.length || 1;
+                return [5, 4, 3, 2, 1].map(score => ({
+                    score,
+                    count: dist[score],
+                    pct: Math.round((dist[score] / total) * 100)
+                }));
+            },
+            // 옵션을 OPTION_NAME 기준으로 그룹핑
+            groupedOptions() {
+                const groups = {};
+                this.productOptions.forEach(opt => {
+                    if (!groups[opt.optionName]) groups[opt.optionName] = [];
+                    groups[opt.optionName].push(opt);
+                });
+                return groups; // { "색상": [...], "사이즈": [...] }
+            },
+            // 선택된 옵션 추가금액 합산
+            totalAddPrice() {
+                return Object.values(this.selectedOptions)
+                    .reduce((sum, opt) => sum + (opt.addPrice || 0), 0);
+            },
+            // 최종 단가 (기본가 + 옵션추가금)
+            unitPrice() {
+                return (this.productInfo.price || 0) + this.totalAddPrice;
+            },
+            totalPrice() {
+                return this.unitPrice * this.qty;
+            },
+            totalPriceFormatted() {
+                return this.totalPrice.toLocaleString('ko-KR') + '원';
+            },
+        }, // computed
         methods: {
             // 함수(메소드) - (key : function())
             fnDetail: function () {
@@ -450,6 +880,10 @@
                         self.availableQty = data.info.availableQty || 0;  // 대여용
                         self.totalQty     = data.info.totalQty     || 0;  // 구매용 
                         self.fetchRelatedProducts(data.info.categoryId); // 하단 카테고리 상품 추가
+                        self.productSpec     = data.spec     || {};
+                        self.productFeatures = data.features || [];
+                        self.faqList = data.faqList || [];
+                        self.productOptions = data.options || [];
                         // ✅ productType 저장 후 자동 탭 전환
                         self.productType = data.info.productType || '';
                         if (self.productType === 'RENTAL') {
@@ -469,6 +903,7 @@
                                 }
                             }
                         });
+
                     }
                 });
             },
@@ -556,17 +991,14 @@
                 return Number(price).toLocaleString('ko-KR') + '원';
             },
             chgQty: function(d) {
-                const max = this.displayQty;   // 원본 재고
+                const max = this.displayQty;
                 const next = this.qty + d;
-
-                if (next < 1) return;          // 최소 1개
-                if (next > max) {              // 재고 초과 방지
-                    alert('재고가 부족합니다. (최대 ' + max + '개)');
+                if (next < 1) return;
+                if (next > max) {
+                    showToast('재고가 부족합니다. (최대 ' + max + '개)');  // alert → toast
                     return;
                 }
-
-                this.qty = next;               // qty만 변경, 재고는 건드리지 않음
-                // remainQty = displayQty - qty 가 자동으로 반영됨 ✅
+                this.qty = next;
             },
             //캘린더
             formatDateCal(dateVal) {
@@ -619,6 +1051,10 @@
                 });
             },
             fnRent() {
+                if (!this.startDate || !this.endDate) {
+                    alert('날짜를 선택해주세요.');
+                    return;
+                }
                 if (!confirm("대여 신청하시겠습니까?")) return;
                 let self = this;
                 $.ajax({
@@ -672,6 +1108,19 @@
                 if (mode) url += '&mode=' + mode;
                 location.href = url;
             },
+            fnInquiry: function() {
+                location.href = '/inquiry.do';
+            },
+            selectOption(optionName, opt) {
+            // 같은 옵션명 클릭 시 토글
+            if (this.selectedOptions[optionName]?.optionId === opt.optionId) {
+                const copy = { ...this.selectedOptions };
+                delete copy[optionName];
+                this.selectedOptions = copy;
+            } else {
+                this.selectedOptions = { ...this.selectedOptions, [optionName]: opt };
+            }
+        },
 
         }, // methods
         mounted() {
@@ -679,7 +1128,8 @@
             let self = this;
             self.fnDetail();
             self.fetchProductImages();
-            self.fetchRentedDates();
+            //self.fetchRentedDates();
+            
         }
     });
 

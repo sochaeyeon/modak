@@ -14,7 +14,7 @@ import com.example.modak.csCenter.model.Notification;
 // 규칙
 // 검색 - get, 삭제 - remove, 수정 - edit, 추가 - add
 @Service
-@Transactional()
+@Transactional
 public class NotificationService {
 
 	@Autowired

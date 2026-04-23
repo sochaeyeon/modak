@@ -50,7 +50,7 @@ public interface AdminMapper {
 	List<Map<String, Object>> selectInquiryList(HashMap<String, Object> map);
 	void insertInquiryAnswer(HashMap<String, Object> map);
 	void updateInquiryStatus(HashMap<String, Object> map);
-
+	
 	// 문의 답변 업데이트
 	void updateInquiryAnswer(HashMap<String, Object> map);
 

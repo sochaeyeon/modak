@@ -78,6 +78,10 @@
 		FROM INQUIRY WHERE INQUIRY_STATUS = 'WAITING' ORDER BY CREATED_AT DESC
 		LIMIT 5
 	</select>
+	<select id="selectTotalInquiryCount" resultType="int">
+    SELECT COUNT(*) 
+    FROM inquiry
+</select>
 
 	<select id="selectTopProducts" resultType="map">
 		SELECT PRODUCT_ID AS productId, PRODUCT_NAME AS productName, PRICE AS
@@ -247,6 +251,7 @@
         VALUES (#{inquiryId}, #{answer}, NOW())
         ON DUPLICATE KEY UPDATE CONTENT = #{answer}
     </insert>
+    
 
     <update id="updateInquiryStatus" parameterType="hashmap">
         UPDATE inquiry SET INQUIRY_STATUS = 'ANSWERED' WHERE INQUIRY_ID = #{inquiryId}

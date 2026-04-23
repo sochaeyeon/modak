@@ -2043,40 +2043,36 @@ self.displayUser.profileImgUrl = profileImgUrl;
                                     }
                                 });
                             },
-                            fnToggleInquiry: function (item) {
-                                let self = this;
+                           fnToggleInquiry: function (item) {
+    let self = this;
 
-                                if (self.openInquiryId === item.inquiryId) {
-                                    self.openInquiryId = null;
-                                    return;
-                                }
+    if (self.openInquiryId === item.inquiryId) {
+        self.openInquiryId = null;
+        return;
+    }
 
-                                self.openInquiryId = item.inquiryId;
+    self.openInquiryId = item.inquiryId;
 
-                                // 이미 불러온 이미지가 있으면 다시 요청 안 함
-                                if (item.imageList && item.imageList.length > 0) {
-                                    return;
-                                }
+    // 🔥 조건 수정 (핵심)
+    if (item.imageList && item.imageList.length > 0 && item._loaded) {
+        return;
+    }
 
-                                $.ajax({
-                                    url: "/user/inquiry/img/list.dox",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: {
-                                        inquiryId: item.inquiryId
-                                    },
-                                    success: function (data) {
-                                        if (data.result === "success") {
-                                            item.imageList = data.list || [];
-                                        } else {
-                                            item.imageList = [];
-                                        }
-                                    },
-                                    error: function () {
-                                        item.imageList = [];
-                                    }
-                                });
-                            },
+    $.ajax({
+        url: "/user/inquiry/img/list.dox",
+        type: "POST",
+        dataType: "json",
+        data: {
+            inquiryId: item.inquiryId
+        },
+        success: function (data) {
+            if (data.result === "success") {
+                item.imageList = data.list || [];
+                item._loaded = true; // 🔥 추가
+            }
+        }
+    });
+},
                             fnInquiryStatusText: function (item) {
                                 return item.replyId ? "답변완료" : "답변대기";
                             },
@@ -2084,7 +2080,7 @@ self.displayUser.profileImgUrl = profileImgUrl;
                                 return item.replyId ? "answered" : "waiting";
                             },
                             fnEditInquiry: function (inquiryId) {
-                                pageChange("/user/review/edit.do", { inquiryId: inquiryId });
+                                pageChange("/user/inquiry/edit.do", { inquiryId: inquiryId });
                             },
 
                             fnDeleteInquiry: function (inquiryId) {
@@ -2095,7 +2091,7 @@ self.displayUser.profileImgUrl = profileImgUrl;
                                 }
 
                                 $.ajax({
-                                    url: "/user/inquiry/delete.dox",
+                                    url: "/user/inquiry/remove.dox",
                                     type: "POST",
                                     dataType: "json",
                                     data: { inquiryId: inquiryId },

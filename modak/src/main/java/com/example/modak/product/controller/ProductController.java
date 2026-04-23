@@ -96,5 +96,6 @@ public class ProductController {
 	public String getRelated(@RequestParam HashMap<String, Object> map) throws Exception {
 	return new Gson().toJson(productService.getRelatedProducts(map));
 	}
+	
 
 }

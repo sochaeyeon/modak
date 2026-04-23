@@ -16,7 +16,6 @@
 
     <div id="app" class="admin-main">
         <div class="event-page-container">
-            
             <div class="event-header">
                 <div class="event-title">🎁 프로모션 및 이벤트 관리</div>
                 <div class="header-buttons">
@@ -26,73 +25,69 @@
             </div>
 
             <div class="ev-filter-bar">
-                <button class="filter-btn" :class="{active: filterStatus === 'ALL'}" @click="fnChangeFilter('ALL')">전체</button>
-                <button class="filter-btn" :class="{active: filterStatus === 'READY'}" @click="fnChangeFilter('READY')">대기 중 ⏳</button>
-                <button class="filter-btn" :class="{active: filterStatus === 'ING'}" @click="fnChangeFilter('ING')">진행 중 🔥</button>
-                <button class="filter-btn" :class="{active: filterStatus === 'END'}" @click="fnChangeFilter('END')">종료됨</button>
+                <button v-for="st in ['ALL', 'READY', 'ING', 'END']" :key="st" 
+                        class="filter-btn" :class="{active: filterStatus === st}" 
+                        @click="fnChangeFilter(st)">
+                    {{ st === 'ALL' ? '전체' : st === 'READY' ? '대기 중 ⏳' : st === 'ING' ? '진행 중 🔥' : '종료됨' }}
+                </button>
             </div>
 
             <div class="event-card-wrap">
                 <div class="event-item" v-for="item in pagedList" :key="item.EVENT_ID">
                     <div class="event-img-box">
-                        <img :src="item.THUMBNAIL || '/img/no-image.png'">
+                        <img :src="item.THUMBNAIL || '${pageContext.request.contextPath}/img/no-image.png'" @error="imgError">
                     </div>
                     <div class="event-info">
-                        <span class="ev-badge" :class="{
-                            'ev-ready': item.STATUS_CODE === 'READY',
-                            'ev-ing': item.STATUS_CODE === 'ING',
-                            'ev-end': item.STATUS_CODE === 'END'
-                        }">
-                            {{ item.STATUS_CODE === 'READY' ? '대기 중 ⏳' : 
-                               item.STATUS_CODE === 'ING' ? '진행 중 🔥' : '종료됨' }}
+                        <span class="ev-badge" :class="'ev-' + (item.STATUS_CODE ? item.STATUS_CODE.toLowerCase() : 'ready')">
+                            {{ item.STATUS_CODE === 'READY' ? '대기 중' : item.STATUS_CODE === 'ING' ? '진행 중' : '종료됨' }}
                         </span>
                         <div class="event-name">{{ item.TITLE }}</div>
                         <div class="event-date">📅 {{ item.START_DATE }} ~ {{ item.END_DATE }}</div>
-                        <div style="display:flex; gap:10px; margin-top:10px;">
-                            <button class="p-btn-secondary" style="flex:1; padding:8px;" @click="fnOpenEdit(item)">수정</button>
-                            <button class="p-btn-secondary" style="flex:1; padding:8px; color:#ec7063;" @click="fnDelete(item.EVENT_ID)">삭제</button>
+                        <div class="ev-btn-group">
+                            <button class="p-btn-secondary" @click="fnOpenEdit(item)">수정</button>
+                            <button class="p-btn-secondary" style="color:#ec7063;" @click="fnDelete(item.EVENT_ID)">삭제</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="ev-pagination" v-if="totalPages > 1">
-                <button class="page-btn" :disabled="currentPage === 1" @click="currentPage--">&lt;</button>
-                <button v-for="p in totalPages" :key="p" 
-                        class="page-btn" :class="{active: currentPage === p}"
-                        @click="currentPage = p">{{ p }}</button>
-                <button class="page-btn" :disabled="currentPage === totalPages" @click="currentPage++">&gt;</button>
+            <div v-if="filteredList.length === 0" style="text-align:center; padding:100px 0; color:#8a8f9d;">
+                등록된 이벤트가 없거나 데이터를 불러오는 중입니다.
             </div>
 
-            <div v-if="filteredList.length === 0" style="text-align:center; padding:120px 0; color:var(--ev-text-muted);">
-                조건에 맞는 이벤트가 없습니다.
+            <div class="ev-pagination" v-if="totalPages > 1">
+                <button class="page-btn" :disabled="currentPage === 1" @click="currentPage--">&lt;</button>
+                <button v-for="p in totalPages" :key="p" class="page-btn" :class="{active: currentPage === p}" @click="currentPage = p">{{ p }}</button>
+                <button class="page-btn" :disabled="currentPage === totalPages" @click="currentPage++">&gt;</button>
             </div>
         </div>
 
         <div class="ev-modal-overlay" :class="{open: modalOpen}" @click.self="modalOpen=false">
             <div class="ev-modal">
-                <div style="font-size:22px; font-weight:700; margin-bottom:30px; color:#fff">
-                    {{ isEdit ? '🛠️ 이벤트 정보 수정' : '🆕 신규 프로모션 등록' }}
-                </div>
-                <label style="font-size:11px; color:var(--ev-text-muted); margin-bottom:5px; display:block;">제목</label>
-                <input class="ev-input" v-model="form.title">
+                <div class="modal-header">{{ isEdit ? '🛠️ 이벤트 정보 수정' : '🆕 신규 프로모션 등록' }}</div>
                 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
-                    <div>
-                        <label style="font-size:11px; color:var(--ev-text-muted); margin-bottom:5px; display:block;">시작일</label>
-                        <input type="date" class="ev-input" v-model="form.startDate">
-                    </div>
-                    <div>
-                        <label style="font-size:11px; color:var(--ev-text-muted); margin-bottom:5px; display:block;">종료일</label>
-                        <input type="date" class="ev-input" v-model="form.endDate">
-                    </div>
-                </div>
-                <label style="font-size:11px; color:var(--ev-text-muted); margin-bottom:5px; display:block;">이미지 경로</label>
-                <input class="ev-input" v-model="form.thumbnail">
+                <label class="modal-label">제목</label>
+                <input class="ev-input" v-model="form.title" placeholder="이벤트 제목">
+                
+                <label class="modal-label">내용</label>
+                <textarea class="ev-input" v-model="form.content" style="height:100px; resize:none;"></textarea>
 
-                <div style="display:flex; justify-content:flex-end; gap:15px; margin-top:30px">
-                    <button @click="modalOpen=false" style="background:transparent; color:var(--ev-text-muted); border:none; cursor:pointer;">닫기</button>
-                    <button class="p-btn" @click="fnSave">저장하기</button>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px">
+                    <div><label class="modal-label">시작일</label><input type="date" class="ev-input" v-model="form.startDate"></div>
+                    <div><label class="modal-label">종료일</label><input type="date" class="ev-input" v-model="form.endDate"></div>
+                </div>
+
+                <label class="modal-label">이미지 파일명</label>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <div class="event-img-box" style="width:50px; height:50px; margin:0;"><img :src="previewPath" @error="imgError"></div>
+                    <input class="ev-input" v-model="form.img_path" placeholder="banner.png" style="margin:0;">
+                </div>
+
+                <div class="modal-footer">
+                    <button class="modal-close-btn" @click="modalOpen=false">취소</button>
+                    <button class="p-btn" @click="fnSave" :disabled="isSubmitting">
+                        {{ isSubmitting ? '처리 중...' : (isEdit ? '수정 완료' : '등록하기') }}
+                    </button>
                 </div>
             </div>
         </div>
@@ -103,79 +98,106 @@
         createApp({
             data() {
                 return {
-                    eventList: [],
-                    filterStatus: 'ALL',
-                    currentPage: 1,
-                    pageSize: 12,
-                    modalOpen: false, isEdit: false,
-                    form: { eventId: '', title: '', startDate: '', endDate: '', thumbnail: '' }
+                    eventList: [], filterStatus: 'ALL', currentPage: 1, pageSize: 8,
+                    modalOpen: false, isEdit: false, isSubmitting: false,
+                    form: { eventId: '', title: '', content: '', startDate: '', endDate: '', img_path: '' }
                 };
             },
             computed: {
                 filteredList() {
-                    let list = [...this.eventList];
-                    
-                    // 1. 상태 필터링
-                    if (this.filterStatus !== 'ALL') {
-                        list = list.filter(i => i.STATUS_CODE === this.filterStatus);
-                    }
-                    
-                    // 2. 정렬 로직 (진행중 1순위 -> 대기중 2순위 -> 종료됨 3순위)
-                    const order = { 'ING': 1, 'READY': 2, 'END': 3 };
-                    return list.sort((a, b) => {
-                        if (a.STATUS_CODE !== b.STATUS_CODE) {
-                            return order[a.STATUS_CODE] - order[b.STATUS_CODE];
-                        }
-                        return new Date(a.START_DATE) - new Date(b.START_DATE);
-                    });
+                    const list = this.eventList || [];
+                    if (this.filterStatus === 'ALL') return list;
+                    return list.filter(i => i.STATUS_CODE === this.filterStatus);
                 },
                 pagedList() {
                     const start = (this.currentPage - 1) * this.pageSize;
                     return this.filteredList.slice(start, start + this.pageSize);
                 },
-                totalPages() {
-                    return Math.ceil(this.filteredList.length / this.pageSize);
+                totalPages() { return Math.ceil(this.filteredList.length / this.pageSize) || 1; },
+                previewPath() {
+                    if(!this.form.img_path) return '${pageContext.request.contextPath}/img/no-image.png';
+                    return this.form.img_path.includes('/') ? this.form.img_path : '/img/event/' + this.form.img_path;
                 }
             },
             methods: {
                 fnLoad() {
                     $.ajax({
-                        url: "/admin/event/list.dox",
+                        url: "${pageContext.request.contextPath}/admin/event/list.dox",
                         type: "POST",
-                        data: { page: 1, pageSize: 100 },
-                        success: (res) => { if(res.result === "success") this.eventList = res.list; }
+                        success: (res) => {
+                            const data = typeof res === 'string' ? JSON.parse(res) : res;
+                            if(data.result === "success") {
+                                this.eventList = data.list || [];
+                            }
+                        },
+                        error: () => { console.error("데이터 로드 실패"); }
                     });
                 },
-                fnChangeFilter(status) {
-                    this.filterStatus = status;
-                    this.currentPage = 1;
-                },
-                fnOpenAdd() {
-                    this.isEdit = false;
-                    this.form = { title: '', startDate: '', endDate: '', thumbnail: '' };
-                    this.modalOpen = true;
-                },
-                fnOpenEdit(item) {
-                    this.isEdit = true;
-                    this.form = { eventId: item.EVENT_ID, title: item.TITLE, startDate: item.START_DATE, endDate: item.END_DATE, thumbnail: item.THUMBNAIL };
-                    this.modalOpen = true;
-                },
                 fnSave() {
+                    if(!this.form.title) return alert("제목을 입력하세요.");
+                    if(this.isSubmitting) return;
+                    this.isSubmitting = true;
+                    
+                    const saveData = {
+                        eventId: this.form.eventId,
+                        title: this.form.title,
+                        content: this.form.content,
+                        start_date: this.form.startDate,
+                        end_date: this.form.endDate,
+                        img_path: this.form.img_path.includes('/') ? this.form.img_path : '/img/event/' + this.form.img_path
+                    };
+
+                    const url = this.isEdit ? "/admin/event/update.dox" : "/admin/event/insert.dox";
+
                     $.ajax({
-                        url: "/admin/event/save.dox",
+                        url: "${pageContext.request.contextPath}" + url,
                         type: "POST",
-                        data: this.form,
-                        success: (res) => { if(res.result === "success") { this.modalOpen = false; this.fnLoad(); } }
+                        data: saveData,
+                        success: (res) => {
+                            const data = typeof res === 'string' ? JSON.parse(res) : res;
+                            if(data.result === "success") {
+                                alert("저장되었습니다.");
+                                this.modalOpen = false;
+                                this.fnLoad();
+                            }
+                        },
+                        complete: () => { this.isSubmitting = false; }
                     });
                 },
                 fnDelete(id) {
                     if(!confirm("삭제하시겠습니까?")) return;
                     $.ajax({
-                        url: "/admin/event/delete.dox",
+                        url: "${pageContext.request.contextPath}/admin/event/delete.dox",
                         type: "POST",
                         data: { eventId: id },
-                        success: (res) => { if(res.result === "success") this.fnLoad(); }
+                        success: (res) => {
+                            const data = typeof res === 'string' ? JSON.parse(res) : res;
+                            if(data.result === "success") {
+                                alert("삭제 완료");
+                                this.fnLoad();
+                            }
+                        }
                     });
+                },
+                fnOpenAdd() {
+                    this.isEdit = false;
+                    this.form = { eventId: '', title: '', content: '', startDate: '', endDate: '', img_path: '' };
+                    this.modalOpen = true;
+                },
+                fnOpenEdit(item) {
+                    this.isEdit = true;
+                    this.form = { 
+                        eventId: item.EVENT_ID, title: item.TITLE, content: item.CONTENT, 
+                        startDate: item.START_DATE, endDate: item.END_DATE,
+                        img_path: item.THUMBNAIL ? item.THUMBNAIL.replace('/img/event/', '') : ''
+                    };
+                    this.modalOpen = true;
+                },
+                fnChangeFilter(s) { this.filterStatus = s; this.currentPage = 1; },
+                imgError(e) {
+                    if (e.target.dataset.error) return;
+                    e.target.dataset.error = true;
+                    e.target.src = '${pageContext.request.contextPath}/img/no-image.png';
                 }
             },
             mounted() { this.fnLoad(); }

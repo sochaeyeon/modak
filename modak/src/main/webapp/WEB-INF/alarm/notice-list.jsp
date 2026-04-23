@@ -70,7 +70,7 @@
                 fnGoDetail(id) { location.href = "/alarm/notice-detail.do?alarmId=" + id; },
                 // 단건 삭제
                 fnRemove(id) {
-                    if(!confirm("이 알림을 삭제하시겠닥? ⛺")) return;
+                   
                     $.ajax({
                         url: "/alarm/removeAlarm.dox",
                         type: "POST",

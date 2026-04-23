@@ -296,6 +296,28 @@
   .hbtn { background: none; border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 12px; color: var(--muted); }
   .hbtn:hover { border-color: var(--orange); color: var(--orange); }
 
+  .rhelprow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* 신고 버튼을 오른쪽 끝으로 */
+  .report-btn {
+      margin-left: auto;
+      background: none;
+      border: 1px solid #ffcccc;
+      color: #ff4444;
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+  }
+
+  .report-btn:hover {
+      background: #fff0f0;
+  }
   .rel { max-width: 1100px; margin: 30px auto; padding: 10px 24px 60px; }
   .sectl { font-size: 17px; font-weight: 700; margin-bottom: 16px; }
   .rgrid { display: grid; grid-template-columns: repeat(4,1fr); gap: 13px; }

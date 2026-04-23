@@ -4,29 +4,94 @@
    
 <mapper namespace="com.example.modak.cart.mapper.CartMapper">
 
-   <!-- 카트목록 조회 / cart product productImg -->
-   <select id="selectCartList" parameterType="hashmap" resultType="com.example.modak.cart.model.Cart">
-	      SELECT 
-	        c.cart_id AS cartId,
-	        c.quantity AS quantity,
-	        c.user_id AS userId,
-	        c.product_id AS productId,
-	        c.option_id AS optionId, 
-	        p.product_name AS productName,
-	        p.price,
-	        i.image_id AS imageId  
-	        FROM CART c
-	    INNER JOIN 
-	        PRODUCT p ON c.product_id = p.product_id
-	    LEFT OUTER JOIN 
-	        PRODUCT_IMG i ON p.product_id = i.product_id 
-	                      AND i.is_main = 'Y'  
-	    WHERE 
-	        c.user_id = #{userId}
-	    AND 
-	        c.cart_type = #{cartType}
-	    ORDER BY 
-	        c.created_at DESC
-   </select>
-	   
+<!-- 카트 목록 조회 -->
+<!--    <select id="selectCartList" parameterType="hashmap" resultType="com.example.modak.cart.model.Cart">
+		SELECT
+		    c.cart_id AS cartId,
+		    c.user_id AS userId,
+		    c.product_id AS productId,
+		    c.option_id AS optionId,
+		    c.quantity,
+		    CASE c.cart_type
+		        WHEN 'RENTAL'   THEN 'RENT'
+		        WHEN 'PURCHASE' THEN 'BUY'
+		        ELSE c.cart_type
+		    END AS cartType,
+		    c.created_at AS createdAt,
+		
+		    p.product_name AS productName,
+		    p.price,
+		
+		    b.brand_name AS brandName,
+		    cat.category_name AS categoryName,
+		    pi.img_url AS imgUrl,
+		
+		    CASE c.cart_type
+		        WHEN 'PURCHASE' THEN p.total_qty
+		        WHEN 'RENTAL'   THEN p.available_qty
+		        ELSE 0
+		    END AS stock
+
+        FROM CART c
+        INNER JOIN PRODUCT p
+            ON c.product_id = p.product_id
+        LEFT JOIN BRAND b
+            ON p.brand_id = b.brand_id
+        LEFT JOIN CATEGORY cat
+            ON p.category_id = cat.category_id
+        LEFT JOIN PRODUCT_IMG pi
+            ON p.product_id = pi.product_id
+            AND pi.is_main = 'Y'
+        WHERE
+            c.user_id = #{userId}
+        ORDER BY
+            c.created_at DESC
+    </select>
+
+     카트 삽입 
+    <insert id="insertCart" parameterType="hashmap">
+        INSERT INTO CART (
+	        user_id, product_id, cart_type,
+	        quantity, option_id,
+	        created_atemd
+	    ) VALUES (
+	        #{userId}, #{productId},
+	        CASE #{cartType}
+	            WHEN 'RENT' THEN 'RENTAL'
+	            WHEN 'BUY'  THEN 'PURCHASE'
+	            ELSE #{cartType}
+	        END,
+	        #{qty}, #{selectedOption},
+	        NOW()
+	    )
+    </insert>
+
+     수량/옵션 업데이트 
+    <update id="updateCart" parameterType="hashmap">
+        UPDATE CART
+        SET quantity        = #{qty},
+            selected_option = #{selectedOption}
+        WHERE cart_id = #{cartId}
+          AND user_id = #{userId}
+    </update>
+
+
+
+     단건 삭제 
+    <delete id="deleteCart" parameterType="hashmap">
+        DELETE FROM CART
+        WHERE cart_id = #{cartId}
+          AND user_id = #{userId}
+    </delete>
+
+     선택 삭제 
+    <delete id="deleteCartList" parameterType="hashmap">
+        DELETE FROM CART
+        WHERE user_id = #{userId}
+          AND cart_id IN
+        <foreach collection="cartIdList" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>-->
+
 </mapper>

@@ -9,6 +9,8 @@
             <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
             <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
             <link rel="stylesheet" href="/css/order/order-history.css">
+            <script src="/js/page-change.js"></script>
+
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         </head>
 
@@ -329,25 +331,40 @@
                                     return actions;
                                 },
 
-                                fnHandleOrderAction(item, action) {
+                                fnHandleOrderAction: function (item, action) {
+
                                     if (action === "취소 신청") {
-                                        location.href = "/order/cancel/request.do?orderId=" + item.orderId;
+                                        pageChange("/order/cancel/request.do", {
+                                            orderId: item.orderId
+                                        });
                                         return;
                                     }
+
                                     if (action === "환불 신청") {
-                                        location.href = "/order/refund/request.do?orderId=" + item.orderId;
+                                        pageChange("/order/refund/request.do", {
+                                            orderId: item.orderId
+                                        });
                                         return;
                                     }
+
                                     if (action === "반납 신청") {
-                                        location.href = "/rental/return/request.do?orderId=" + item.orderId;
+                                        pageChange("/rental/return/request.do", {
+                                            orderId: item.orderId
+                                        });
                                         return;
                                     }
+
                                     if (action === "연장 신청") {
-                                        location.href = "/rental/extend/request.do?orderId=" + item.orderId;
+                                        pageChange("/rental/extend/request.do", {
+                                            orderId: item.orderId
+                                        });
                                         return;
                                     }
+
                                     if (action === "리뷰 작성") {
-                                        location.href = "/user/review/write.do?orderId=" + item.orderId;
+                                        pageChange("/user/review/add.do", {
+                                            orderId: item.orderId
+                                        });
                                         return;
                                     }
                                 },

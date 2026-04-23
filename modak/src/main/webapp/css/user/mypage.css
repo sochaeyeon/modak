@@ -2529,3 +2529,29 @@ inquiry-detail-box .detail-value {
     color: #c94f1e;
     border: 1px solid #f0c9b2;
 }
+
+.status-RETURNED {
+    background: rgba(111, 66, 193, 0.12);
+    color: #6f42c1;
+}
+
+.order-item-clickable {
+    cursor: pointer;
+    transition: transform .18s ease, background .18s ease, box-shadow .18s ease;
+}
+
+.order-item-clickable:hover {
+    background: rgba(255, 252, 248, 0.72);
+    transform: translateY(-1px);
+}
+
+.order-item-clickable:active {
+    transform: translateY(0);
+}
+
+.order-thumb,
+.order-info,
+.order-side {
+    position: relative;
+    z-index: 1;
+}

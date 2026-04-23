@@ -267,19 +267,18 @@
                                                 <div class="flow-arrow">›</div>
 
                                                 <div class="flow-step"
-                                                    :class="{ 'has-count': statusSummary.done > 0, 'is-selected': selectedOrderStatus === 'DONE' }"
-                                                    @click="fnFilterByStatus('DONE')">
-                                                    <div class="flow-circle">
-                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                                                            <path d="M5 10l3.5 3.5L15 7" stroke="#b09070"
-                                                                stroke-width="1.6" stroke-linecap="round"
-                                                                stroke-linejoin="round" />
-                                                        </svg>
-                                                    </div>
-                                                    <div class="flow-count">{{ statusSummary.done }}</div>
-                                                    <div class="flow-name">배송완료</div>
-                                                </div>
-
+    :class="{ 'has-count': statusSummary.done > 0, 'is-selected': selectedOrderStatus === 'DONE' }"
+    @click="fnFilterByStatus('DONE')">
+    <div class="flow-circle">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M5 10l3.5 3.5L15 7" stroke="#b09070"
+                stroke-width="1.6" stroke-linecap="round"
+                stroke-linejoin="round" />
+        </svg>
+    </div>
+    <div class="flow-count">{{ statusSummary.done }}</div>
+    <div class="flow-name">배송/반납 완료</div>
+</div>
                                                 <div class="flow-arrow">›</div>
 
                                                 <div class="flow-step"
@@ -309,7 +308,10 @@
         <p>해당 상태의 주문내역이 없습니다.</p>
     </div>
 
-    <div v-for="item in limitedOrderList" :key="item.orderId" class="order-item">
+    <div v-for="item in limitedOrderList"
+     :key="item.orderId"
+     class="order-item order-item-clickable"
+     @click="fnGoOrderDetail(item.orderId)">
         <div class="order-thumb">
             <img
                 v-if="item.itemList && item.itemList.length > 0 && item.itemList[0].imgUrl"
@@ -350,15 +352,15 @@
             </div>
 
             <div class="order-action-wrap" v-if="fnGetOrderActions(item).length > 0">
-                <button
-                    type="button"
-                    class="btn-order-action"
-                    :class="fnGetActionClass(action)"
-                    v-for="action in fnGetOrderActions(item)"
-                    :key="action"
-                    @click="fnHandleOrderAction(item, action)">
-                    {{ action }}
-                </button>
+               <button
+    type="button"
+    class="btn-order-action"
+    :class="fnGetActionClass(action)"
+    v-for="action in fnGetOrderActions(item)"
+    :key="action"
+    @click.stop="fnHandleOrderAction(item, action)">
+    {{ action }}
+</button>
             </div>
         </div>
     </div>
@@ -1115,522 +1117,1198 @@
 
                 </html>
 
-<script>
-    // 1. 페이지 이탈(새로고침 시작) 시 중복 요청 방지 플래그
-    let isPageExiting = false;
-    window.addEventListener('beforeunload', () => {
-        isPageExiting = true;
-    });
+                <script>
+                    function switchTab(tabName, el) {
+        // 모든 탭 숨김
+        document.querySelectorAll('.tab-panel').forEach(function (panel) {
+            panel.classList.remove('active');
+        });
 
-    // 2. 전역 Ajax 설정: 페이지 이동 중이면 모든 Ajax 중단
-    $.ajaxSetup({
-        beforeSend: function(xhr) {
-            if (isPageExiting) {
-                xhr.abort();
-                return false;
+        // 선택 탭 표시
+        const target = document.getElementById('tab-' + tabName);
+        if (target) {
+            target.classList.add('active');
+        }
+
+        // 사이드바 active 처리
+        document.querySelectorAll('.nav-card .nav-item').forEach(function (item) {
+            item.classList.remove('active');
+        });
+
+        if (el) {
+            el.classList.add('active');
+        } else {
+            const navItems = document.querySelectorAll('.nav-card .nav-item');
+            navItems.forEach(function (item) {
+                const onclickText = item.getAttribute('onclick') || '';
+                if (onclickText.indexOf("'" + tabName + "'") > -1 || onclickText.indexOf('"' + tabName + '"') > -1) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // 현재 탭 저장
+        sessionStorage.setItem('activeTab', tabName);
+    }
+
+                    const app = Vue.createApp({
+                        data() {
+                            return {
+                                // 변수 - (key : value)
+                                orderList: [],
+                                selectedOrderStatus: 'ALL',
+
+                                addressList: [],
+                                showAddressForm: false,
+
+                                addressForm: {
+                                    addressAlias: "",
+                                    zipCode: "",
+                                    address: "",
+                                    detailedAddress: "",
+                                    defaultYn: false
+                                },
+
+                                addressMsg: "",
+                                addressMsgType: "",
+
+                                isEditMode: false,
+                                editAddressId: "",
+
+                                wishlist: [],
+                                recentList: [],
+                                chatbotList: [],
+
+                                settingsForm: {
+                                    userName: "",
+                                    nickName: "",
+                                    email: "",
+                                    userPhone: "",
+                                    phoneVerifyYn: "N",
+                                    phoneVerifiedAt: "",
+                                    socialType: ""
+                                },
+                                originalPhone: "",
+                                verifiedPhone: "",
+                                smsAuthCode: "",
+                                settingsMsg: "",
+                                settingsMsgType: "",
+
+                                passwordForm: {
+                                    currentPwd: "",
+                                    newPwd: "",
+                                    newPwdConfirm: ""
+                                },
+                                smsTimer: null,
+                                smsTimeLeft: 0,
+                                smsExpired: false,
+
+                                smsInputVisible: false,
+                                passwordMsg: "",
+                                passwordMsgType: "",
+                                inquiryList: [],
+                                openInquiryId: null,
+
+                                displayUser: {
+                                    userName: "${user.userName}",
+                                    nickName: "${user.nickName}",
+                                    profileImgUrl: "${empty user.profileImgUrl ? '' : user.profileImgUrl}"
+                                },
+                                 profileImageVersion: Date.now(),
+                            };
+                        },
+                        computed: {
+                            limitedOrderList() {
+    return this.filteredOrderList.slice(0, 5);
+},
+                            passwordStrengthScore() {
+                                let pwd = this.passwordForm.newPwd || "";
+                                let score = 0;
+
+                                if (pwd.length >= 8) score++;
+                                if (/[A-Za-z]/.test(pwd)) score++;
+                                if (/[0-9]/.test(pwd)) score++;
+                                if (/[^A-Za-z0-9]/.test(pwd)) score++;
+
+                                return score;
+                            },
+                            profileImageSrc() {
+        let url = this.displayUser.profileImgUrl;
+
+        if (!url || url === "null" || url === "undefined") {
+            return "/img/profile/default-profile.png";
+        }
+
+        url = String(url).trim();
+
+        if (
+            !url.startsWith("/img/profile/") &&
+            !url.startsWith("/upload/profile/")
+        ) {
+            return "/img/profile/default-profile.png";
+        }
+
+        return url + "?v=" + this.profileImageVersion;
+    },
+                            passwordStrengthText() {
+                                let pwd = this.passwordForm.newPwd || "";
+
+                                if (!pwd) {
+                                    return "영문, 숫자를 조합해 8자 이상 입력해주세요.";
+                                }
+
+                                if (this.passwordStrengthScore <= 1) {
+                                    return "비밀번호 강도: 약함";
+                                } else if (this.passwordStrengthScore <= 3) {
+                                    return "비밀번호 강도: 보통";
+                                } else {
+                                    return "비밀번호 강도: 강함";
+                                }
+                            },
+                            passwordStrengthClass() {
+                                if (!this.passwordForm.newPwd) {
+                                    return "";
+                                }
+
+                                if (this.passwordStrengthScore <= 1) {
+                                    return "strength-weak";
+                                } else if (this.passwordStrengthScore <= 3) {
+                                    return "strength-medium";
+                                } else {
+                                    return "strength-strong";
+                                }
+                            },
+                            passwordMatch() {
+                                return this.passwordForm.newPwd &&
+                                    this.passwordForm.newPwdConfirm &&
+                                    this.passwordForm.newPwd === this.passwordForm.newPwdConfirm;
+                            },
+                            statusSummary() {
+    const summary = {
+        paid: 0,
+        ready: 0,
+        shipping: 0,
+        done: 0,
+        cancelled: 0
+    };
+
+    this.orderList.forEach(function (item) {
+        const status = (item.orderStatus || "").toUpperCase();
+        const orderType = (item.orderType || "").toUpperCase();
+
+        if (status === "PAID") {
+            summary.paid++;
+        } else if (status === "READY") {
+            if (orderType === "PURCHASE") {
+                summary.ready++;
             }
+        } else if (status === "SHIPPING") {
+            summary.shipping++;
+        } else if (status === "DONE" || status === "RETURNED") {
+            summary.done++;
+        } else if (status === "CANCELLED") {
+            summary.cancelled++;
         }
     });
 
-    function switchTab(tabId, clickedEl) {
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-        document.getElementById('tab-' + tabId).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    return summary;
+},
+                            formattedSmsTime() {
+                                const minutes = Math.floor(this.smsTimeLeft / 60);
+                                const seconds = this.smsTimeLeft % 60;
+                                return minutes + ":" + String(seconds).padStart(2, "0");
+                            },
+                            limitedChatbotList() {
+                                return this.chatbotList.slice(0, 6);
+                            },
 
-        if (clickedEl) {
-            clickedEl.classList.add('active');
-        } else {
-            const map = {
-                orders: 0, address: 1, wishlist: 2, recent: 3, benefits: 4,
-                reviews: 5, chatbot: 6, inquiries: 7, settings: 8
-            };
-            const items = document.querySelectorAll('.nav-item');
-            if (items[map[tabId]]) {
-                items[map[tabId]].classList.add('active');
+
+                            limitedWishlist() {
+                                return this.wishlist.slice(0, 9);
+                            },
+                           filteredOrderList() {
+    if (this.selectedOrderStatus === "ALL") {
+        return this.orderList;
+    }
+
+    return this.orderList.filter(item => {
+        const status = (item.orderStatus || "").toUpperCase();
+        const orderType = (item.orderType || "").toUpperCase();
+
+        if (this.selectedOrderStatus === "DONE") {
+            return status === "DONE" || status === "RETURNED";
+        }
+
+        if (this.selectedOrderStatus === "READY") {
+            return orderType === "PURCHASE" && status === "READY";
+        }
+
+        return status === this.selectedOrderStatus;
+    });
+},
+                        },
+                        methods: {
+                            // 함수(메소드) - (key : function())
+                            fnGetOrderList: function () {
+                                let self = this;
+                                let param = {};
+                                $.ajax({
+                                    url: "http://localhost:8080/order/list.dox",
+                                    dataType: "json",
+                                    type: "POST",
+                                    data: param,
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.orderList = data.list;
+                                            console.log(self.orderList);
+                                            data.list.forEach(function(item) {
+            if (item.orderStatus === "SHIPPING" || item.orderStatus === "READY" || item.orderStatus === "DONE") {
+                console.log("주문번호:", item.orderId);
+                console.log("전체 item:", item);
+                console.log("deliveryId:", item.deliveryId);
+                console.log("deliveryStatus:", item.deliveryStatus);
+            }
+        });
+                                        } else {
+                                            self.orderList = [];
+                                        }
+                                        console.log(data);
+                                    }
+                                });
+                            },
+                        fnGetStatusText: function (status) {
+    if (status === "PAID") return "결제완료";
+    if (status === "READY") return "배송준비";
+    if (status === "SHIPPING") return "배송중";
+    if (status === "DONE") return "배송완료";
+    if (status === "RETURNED") return "반납완료";
+    if (status === "CANCELLED") return "취소됨";
+    return "-";
+},
+                            fnFilterByStatus: function (status) {
+                                if (this.selectedOrderStatus === status) {
+                                    // 같은 거 다시 누르면 전체로
+                                    this.selectedOrderStatus = "ALL";
+                                } else {
+                                    this.selectedOrderStatus = status;
+                                }
+                            },
+
+                            fnShowAddressForm: function () {
+                                this.addressMsg = "";
+                                this.addressMsgType = "";
+
+                                if (this.addressList.length >= 7) {
+                                    this.showAddressForm = false;
+                                    this.addressMsg = "배송지는 최대 7개까지 등록할 수 있습니다.";
+                                    this.addressMsgType = "error";
+                                    return;
+                                }
+
+                                this.isEditMode = false;
+                                this.editAddressId = "";
+                                this.showAddressForm = true;
+
+                                this.addressForm = {
+                                    addressAlias: "",
+                                    zipCode: "",
+                                    address: "",
+                                    detailedAddress: "",
+                                    defaultYn: false
+                                };
+                            },
+                            fnCancelAddressForm: function () {
+                                this.showAddressForm = false;
+                                this.isEditMode = false;
+                                this.editAddressId = "";
+                                this.addressMsg = "";
+
+                                this.addressForm = {
+                                    addressAlias: "",
+                                    zipCode: "",
+                                    address: "",
+                                    detailedAddress: "",
+                                    defaultYn: false
+                                };
+                            },
+
+                            // 배송지 관련 함수
+                            fnSaveAddress: function () {
+                                let self = this;
+
+                                self.addressMsg = "";
+
+                                if (!self.addressForm.addressAlias.trim()) {
+                                    self.addressMsg = "배송지 별칭을 입력해주세요.";
+                                    self.addressMsgType = "error";
+                                    return;
+                                }
+
+                                if (!self.addressForm.zipCode.trim()) {
+                                    self.addressMsg = "주소 검색을 통해 우편번호를 입력해주세요.";
+                                    self.addressMsgType = "error";
+                                    return;
+                                }
+
+                                if (!self.addressForm.address.trim()) {
+                                    self.addressMsg = "주소를 입력해주세요.";
+                                    self.addressMsgType = "error";
+                                    return;
+                                }
+
+                                if (!self.addressForm.detailedAddress.trim()) {
+                                    self.addressMsg = "상세주소를 입력해주세요.";
+                                    self.addressMsgType = "error";
+                                    return;
+                                }
+
+                                let param = {
+                                    addressId: self.editAddressId,
+                                    addressAlias: self.addressForm.addressAlias,
+                                    zipCode: self.addressForm.zipCode,
+                                    address: self.addressForm.address,
+                                    detailedAddress: self.addressForm.detailedAddress,
+                                    defaultYn: self.addressForm.defaultYn ? "Y" : "N"
+                                };
+
+                                let url = self.isEditMode ? "/user/address/edit.dox" : "/user/address/add.dox";
+
+                                $.ajax({
+                                    url: url,
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: param,
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.fnCancelAddressForm();
+                                            self.fnGetAddressList();
+                                        } else {
+                                            self.addressMsg = data.message || "처리에 실패했습니다.";
+                                            self.addressMsgType = "error";
+                                        }
+                                    },
+                                    error: function () {
+                                        self.addressMsg = "서버 오류가 발생했습니다.";
+                                        self.addressMsgType = "error";
+                                    }
+                                });
+                            },
+
+                            fnGetAddressList: function () {
+                                let self = this;
+
+                                $.ajax({
+                                    url: "http://localhost:8080/user/address/list.dox",
+                                    dataType: "json",
+                                    type: "POST",
+                                    data: {},
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.addressList = data.list;
+                                        } else {
+                                            self.addressList = [];
+                                        }
+                                    }
+                                });
+                            },
+                            fnSearchAddress: function () {
+                                let self = this;
+
+                                new kakao.Postcode({
+                                    oncomplete: function (data) {
+                                        let addr = "";
+
+                                        if (data.userSelectedType === "R") {
+                                            addr = data.roadAddress;   // 도로명 주소
+                                        } else {
+                                            addr = data.jibunAddress;  // 지번 주소
+                                        }
+
+                                        self.addressForm.zipCode = data.zonecode;
+                                        self.addressForm.address = addr;
+
+                                        self.$nextTick(function () {
+                                            if (self.$refs.detailAddressInput) {
+                                                self.$refs.detailAddressInput.focus();
+                                            }
+                                        });
+                                    }
+                                }).open();
+                            },
+                            fnEditAddress: function (addr) {
+                                this.showAddressForm = true;
+                                this.isEditMode = true;
+                                this.editAddressId = addr.addressId;
+                                this.addressMsg = "";
+
+                                this.addressForm = {
+                                    addressAlias: addr.addressAlias || "",
+                                    zipCode: addr.zipCode || "",
+                                    address: addr.address || "",
+                                    detailedAddress: addr.detailedAddress || "",
+                                    defaultYn: addr.defaultYn === "Y"
+                                };
+                            },
+
+                            fnDeleteAddress: function (addressId) {
+                                let self = this;
+
+                                $.ajax({
+                                    url: "/user/address/remove.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: { addressId: addressId },
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.fnGetAddressList();
+                                            if (self.editAddressId == addressId) {
+                                                self.fnCancelAddressForm();
+                                            }
+                                        } else {
+                                            self.addressMsg = data.message || "삭제에 실패했습니다.";
+                                            self.addressMsgType = "error";
+                                        }
+                                    },
+                                    error: function () {
+                                        self.addressMsg = "서버 오류가 발생했습니다.";
+                                        self.addressMsgType = "error";
+                                    }
+                                });
+                            },
+                            fnGetWishlist: function () {
+                                let self = this;
+
+                                $.ajax({
+                                    url: "http://localhost:8080/user/wishlist/list.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {},
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.wishlist = data.list;
+                                        } else {
+                                            self.wishlist = [];
+                                        }
+                                    }
+                                });
+                            },
+                            fnGoProductDetail: function (productId) {
+                                pageChange("/product/detail.do", {
+                                    productId: productId
+                                });
+                            },
+                            fnGoWishlistHistory: function () {
+                                pageChange("/user/wishlist/history.do", {});
+                            },
+                            fnGetRecentList: function () {
+                                let self = this;
+
+                                $.ajax({
+                                    url: "/user/recent/list.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {
+                                        page: 1,
+                                        pageSize: 9
+                                    },
+                                    success: function (data) {
+                                        console.log("마이페이지 최근 본 상품 응답:", data);
+
+                                        if (data.result === "success") {
+                                            self.recentList = data.list || [];
+                                        } else {
+                                            self.recentList = [];
+                                        }
+                                    },
+                                    error: function () {
+                                        self.recentList = [];
+                                    }
+                                });
+                            },
+                            fnGoRecentHistory: function () {
+                                pageChange("/user/recent/history.do", {});
+                            },
+
+                            fnEditReview: function (reviewId) {
+                                pageChange("/user/review/edit.do", { reviewId: reviewId });
+                            },
+
+                            fnChangePassword: function () {
+                                let self = this;
+                                self.passwordMsg = "";
+                                self.passwordMsgType = "";
+
+                                if (!(self.passwordForm.currentPwd || "").trim()) {
+                                    self.passwordMsg = "현재 비밀번호를 입력해주세요.";
+                                    self.passwordMsgType = "error";
+                                    return;
+                                }
+
+                                if (!(self.passwordForm.newPwd || "").trim()) {
+                                    self.passwordMsg = "새 비밀번호를 입력해주세요.";
+                                    self.passwordMsgType = "error";
+                                    return;
+                                }
+
+                                if ((self.passwordForm.newPwd || "").length < 8) {
+                                    self.passwordMsg = "새 비밀번호는 8자 이상이어야 합니다.";
+                                    self.passwordMsgType = "error";
+                                    return;
+                                }
+
+                                if (!(self.passwordForm.newPwdConfirm || "").trim()) {
+                                    self.passwordMsg = "비밀번호 확인을 입력해주세요.";
+                                    self.passwordMsgType = "error";
+                                    return;
+                                }
+
+                                if (self.passwordForm.newPwd !== self.passwordForm.newPwdConfirm) {
+                                    self.passwordMsg = "새 비밀번호와 비밀번호 확인이 일치하지 않습니다.";
+                                    self.passwordMsgType = "error";
+                                    return;
+                                }
+
+                                $.ajax({
+                                    url: "/user/settings/password/update.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {
+                                        currentPwd: self.passwordForm.currentPwd,
+                                        newPwd: self.passwordForm.newPwd
+                                    },
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.passwordMsg = data.message || "비밀번호가 변경되었습니다.";
+                                            self.passwordMsgType = "success";
+
+                                            self.passwordForm.currentPwd = "";
+                                            self.passwordForm.newPwd = "";
+                                            self.passwordForm.newPwdConfirm = "";
+                                        } else {
+                                            self.passwordMsg = data.message || "비밀번호 변경에 실패했습니다.";
+                                            self.passwordMsgType = "error";
+                                        }
+                                    },
+                                    error: function () {
+                                        self.passwordMsg = "서버 오류가 발생했습니다.";
+                                        self.passwordMsgType = "error";
+                                    }
+                                });
+                            },
+                            fnDeleteUser: function () {
+                                let self = this;
+
+                                // ✅ 1차 확인
+                                if (!confirm("정말 회원탈퇴 하시겠습니까?\n탈퇴 시 모든 정보가 삭제됩니다.")) {
+                                    return;
+                                }
+
+                                // (선택) 2차 확인까지 하고 싶으면
+                                if (!confirm("진짜로 탈퇴하시겠습니까? 되돌릴 수 없습니다.")) {
+                                    return;
+                                }
+
+                                $.ajax({
+                                    url: "/user/settings/delete.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {},
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            alert("회원탈퇴가 완료되었습니다.");
+                                            location.href = "/user/login.do"; // 
+                                        } else {
+                                            alert(data.message || "탈퇴에 실패했습니다.");
+                                        }
+                                    },
+                                    error: function () {
+                                        alert("서버 오류가 발생했습니다.");
+                                    }
+                                });
+                            },
+
+                            fnRemoveReview: function (reviewId) {
+                                if (!confirm("리뷰를 삭제하시겠습니까?")) {
+                                    return;
+                                }
+
+                                $.ajax({
+                                    url: "/user/review/remove.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: { reviewId: reviewId },
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            alert("리뷰가 삭제되었습니다.");
+                                            // 리뷰 탭 유지용 저장
+                                            sessionStorage.setItem("activeTab", "reviews");
+                                            location.reload();
+                                        } else {
+                                            alert(data.message || "삭제에 실패했습니다.");
+                                        }
+                                    },
+                                    error: function () {
+                                        alert("서버 오류가 발생했습니다.");
+                                    }
+                                });
+                            },
+                            fnGetChatbotList: function () {
+                                let self = this;
+
+                                $.ajax({
+                                    url: "/user/chatbot/list.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {},
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.chatbotList = data.list || [];
+                                        } else {
+                                            self.chatbotList = [];
+                                        }
+                                    },
+                                    error: function () {
+                                        self.chatbotList = [];
+                                    }
+                                });
+                            },
+                            fnGoChatbotRoom: function (roomId) {
+                                pageChange("/chat/bot.do", { roomId: roomId });
+                            },
+                            fnGoChatbotHistory: function () {
+                                pageChange("/user/chatbot/history.do", {});
+                            },
+
+                            fnGetUserSettings: function () {
+                                let self = this;
+
+                                $.ajax({
+                                    url: "/user/settings/info.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {},
+                                    success: function (data) {
+                                        if (data.result === "success") {
+
+                                            let info = data.info || {};
+
+                                            self.settingsForm.userName = info.userName || "";
+                                            self.settingsForm.nickName = info.nickName || "";
+                                            let profileImgUrl = info.profileImgUrl || "";
+profileImgUrl = String(profileImgUrl).trim();
+
+if (
+    !profileImgUrl.startsWith("/img/profile/") &&
+    !profileImgUrl.startsWith("/upload/profile/")
+) {
+    profileImgUrl = "";
+}
+
+self.displayUser.profileImgUrl = profileImgUrl;
+                                            self.settingsForm.email = info.email || "";
+                                            self.settingsForm.userPhone = info.userPhone || "";
+                                            self.settingsForm.phoneVerifyYn = info.phoneVerifyYn || "N";
+                                            self.settingsForm.phoneVerifiedAt = info.phoneVerifiedAt || "";
+                                            self.settingsForm.socialType = info.socialType || "";
+
+                                            self.displayUser.userName = info.userName || "";
+                                            self.displayUser.nickName = info.nickName || "";
+
+                                            self.originalPhone = info.userPhone || "";
+                                            self.verifiedPhone = (info.phoneVerifyYn === "Y") ? (info.userPhone || "") : "";
+                                            self.smsAuthCode = "";
+
+                                            self.fnStopSmsTimer();
+                                            self.smsExpired = false;
+                                            self.smsTimeLeft = 0;
+                                            self.smsInputVisible = false;
+                                        } else {
+                                            self.settingsMsg = data.message || "계정정보 조회에 실패했습니다.";
+                                            self.settingsMsgType = "error";
+                                        }
+                                    },
+                                    error: function () {
+                                        self.settingsMsg = "서버 오류가 발생했습니다.";
+                                        self.settingsMsgType = "error";
+                                    }
+                                });
+                            },
+
+                            fnSendSmsCode: function () {
+                                let self = this;
+                                self.settingsMsg = "";
+
+                                let phone = (self.settingsForm.userPhone || "").replace(/[^0-9]/g, "");
+
+                                if (!phone) {
+                                    self.settingsMsg = "휴대폰 번호를 입력해주세요.";
+                                    self.settingsMsgType = "error";
+                                    return;
+                                }
+
+                                if (self.settingsForm.phoneVerifyYn === "Y" && phone === self.verifiedPhone) {
+                                    self.settingsMsg = "이미 인증이 완료된 번호입니다.";
+                                    self.settingsMsgType = "error";
+                                    self.smsInputVisible = false;
+                                    self.fnStopSmsTimer();
+                                    self.smsTimeLeft = 0;
+                                    self.smsExpired = false;
+                                    return;
+                                }
+
+                                $.ajax({
+                                    url: "/user/sms/send-code.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {
+                                        userName: self.settingsForm.userName,
+                                        userPhone: phone,
+                                        authPurpose: "USER_SETTINGS"
+                                    },
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.settingsMsg = data.message || "인증번호가 발송되었습니다.";
+                                            self.settingsMsgType = "success";
+                                            self.smsAuthCode = "";
+                                            self.smsInputVisible = true;
+                                            self.fnStartSmsTimer();
+                                        } else {
+                                            self.settingsMsg = data.message || "인증번호 발송에 실패했습니다.";
+                                            self.settingsMsgType = "error";
+                                        }
+                                    },
+                                    error: function () {
+                                        self.settingsMsg = "서버 오류가 발생했습니다.";
+                                        self.settingsMsgType = "error";
+                                    }
+                                });
+                            },
+                            fnStartSmsTimer: function () {
+                                let self = this;
+
+                                self.fnStopSmsTimer();
+                                self.smsTimeLeft = 180; // 3분
+                                self.smsExpired = false;
+
+                                self.smsTimer = setInterval(function () {
+                                    if (self.smsTimeLeft > 0) {
+                                        self.smsTimeLeft--;
+                                    } else {
+                                        self.fnStopSmsTimer();
+                                        self.smsExpired = true;
+                                        self.settingsMsg = "인증번호가 만료되었습니다. 다시 발급해주세요.";
+                                        self.settingsMsgType = "error";
+                                    }
+                                }, 1000);
+                            },
+                            beforeUnmount() {
+                                this.fnStopSmsTimer();
+                            },
+
+                            fnStopSmsTimer: function () {
+                                if (this.smsTimer) {
+                                    clearInterval(this.smsTimer);
+                                    this.smsTimer = null;
+                                }
+                            },
+
+                            fnHandlePhoneChanged: function () {
+                                let phone = (this.settingsForm.userPhone || "").replace(/[^0-9]/g, "");
+                                this.settingsForm.userPhone = phone;
+
+                                // 이미 인증된 번호와 같으면 인증 유지
+                                if (phone && phone === this.verifiedPhone) {
+                                    this.settingsForm.phoneVerifyYn = "Y";
+                                    this.smsAuthCode = "";
+                                    this.smsExpired = false;
+                                    this.fnStopSmsTimer();
+                                    this.smsTimeLeft = 0;
+                                    this.smsInputVisible = false;
+                                } else {
+                                    // 인증된 번호와 다르면 미인증 처리
+                                    this.settingsForm.phoneVerifyYn = "N";
+                                    this.settingsForm.phoneVerifiedAt = "";
+                                    this.smsAuthCode = "";
+                                    this.smsExpired = false;
+                                    this.fnStopSmsTimer();
+                                    this.smsTimeLeft = 0;
+                                    this.smsInputVisible = false;
+                                }
+
+                                this.fnClearSettingsMsg();
+                            },
+
+                            fnVerifySmsCode: function () {
+                                let self = this;
+                                self.settingsMsg = "";
+
+                                let phone = (self.settingsForm.userPhone || "").replace(/[^0-9]/g, "");
+                                let authCode = (self.smsAuthCode || "").trim();
+
+                                if (!phone) {
+                                    self.settingsMsg = "휴대폰 번호를 입력해주세요.";
+                                    self.settingsMsgType = "error";
+                                    return;
+                                }
+
+                                if (!authCode) {
+                                    self.settingsMsg = "인증번호를 입력해주세요.";
+                                    self.settingsMsgType = "error";
+                                    return;
+                                }
+
+                                if (self.smsExpired || self.smsTimeLeft <= 0) {
+                                    self.settingsMsg = "인증번호가 만료되었습니다. 다시 발급해주세요.";
+                                    self.settingsMsgType = "error";
+                                    return;
+                                }
+
+                                $.ajax({
+                                    url: "/user/sms/verify-code.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {
+                                        userPhone: phone,
+                                        authCode: authCode,
+                                        authPurpose: "USER_SETTINGS"
+                                    },
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.settingsMsg = data.message || "휴대폰 인증이 완료되었습니다.";
+                                            self.settingsMsgType = "success";
+
+                                            self.settingsForm.phoneVerifyYn = "Y";
+                                            self.settingsForm.phoneVerifiedAt = data.phoneVerifiedAt || "";
+                                            self.originalPhone = phone;
+                                            self.verifiedPhone = phone;
+
+                                            self.fnStopSmsTimer();
+                                            self.smsExpired = false;
+                                            self.smsTimeLeft = 0;
+                                            self.smsInputVisible = false;
+                                            self.smsAuthCode = "";
+                                        } else {
+                                            self.settingsMsg = data.message || "인증번호가 올바르지 않거나 만료되었습니다.";
+                                            self.settingsMsgType = "error";
+                                        }
+                                    },
+                                    error: function () {
+                                        self.settingsMsg = "서버 오류가 발생했습니다.";
+                                        self.settingsMsgType = "error";
+                                    }
+                                });
+                            },
+                            fnSaveSettings: function () {
+                                let self = this;
+                                self.settingsMsg = "";
+
+                                if (!(self.settingsForm.userName || "").trim()) {
+                                    self.settingsMsg = "이름을 입력해주세요.";
+                                    self.settingsMsgType = "error";
+                                    return;
+                                }
+
+                                if (!(self.settingsForm.nickName || "").trim()) {
+                                    self.settingsMsg = "닉네임을 입력해주세요.";
+                                    self.settingsMsgType = "error";
+                                    return;
+                                }
+
+                                $.ajax({
+                                    url: "/user/settings/update.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {
+                                        userName: self.settingsForm.userName,
+                                        nickName: self.settingsForm.nickName,
+                                        userPhone: self.settingsForm.userPhone,
+                                        originalPhone: self.originalPhone
+                                    },
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.settingsMsg = data.message || "회원정보가 저장되었습니다.";
+                                            self.settingsMsgType = "success";
+                                            self.fnGetUserSettings();
+                                        } else {
+                                            self.settingsMsg = data.message || "저장에 실패했습니다.";
+                                            self.settingsMsgType = "error";
+                                        }
+                                    },
+                                    error: function () {
+                                        self.settingsMsg = "서버 오류가 발생했습니다.";
+                                        self.settingsMsgType = "error";
+                                    }
+                                });
+                            },
+                            fnResetSettingsForm: function () {
+                                this.fnGetUserSettings();
+                            },
+                            fnClearSettingsMsg: function () {
+                                this.settingsMsg = "";
+                                this.settingsMsgType = "";
+                            },
+                            fnGetInquiryList: function () {
+                                let self = this;
+
+                                $.ajax({
+                                    url: "/user/inquiry/list.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {},
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.inquiryList = (data.list || []).map(function (item) {
+                                                item.imageList = item.imageList || [];
+                                                return item;
+                                            });
+                                        } else {
+                                            self.inquiryList = [];
+                                        }
+                                    },
+                                    error: function () {
+                                        self.inquiryList = [];
+                                    }
+                                });
+                            },
+                           fnToggleInquiry: function (item) {
+    let self = this;
+
+    if (self.openInquiryId === item.inquiryId) {
+        self.openInquiryId = null;
+        return;
+    }
+
+    self.openInquiryId = item.inquiryId;
+
+    // 🔥 조건 수정 (핵심)
+    if (item.imageList && item.imageList.length > 0 && item._loaded) {
+        return;
+    }
+
+    $.ajax({
+        url: "/user/inquiry/img/list.dox",
+        type: "POST",
+        dataType: "json",
+        data: {
+            inquiryId: item.inquiryId
+        },
+        success: function (data) {
+            if (data.result === "success") {
+                item.imageList = data.list || [];
+                item._loaded = true; // 🔥 추가
             }
         }
     }
 
-    const app = Vue.createApp({
-        data() {
-            return {
-                // 중복 요청 방지용 변수 추가
-                isLoading: false,
-
-                // 기존 변수 유지
-                orderList: [],
-                selectedOrderStatus: 'ALL',
-                addressList: [],
-                showAddressForm: false,
-                addressForm: {
-                    addressAlias: "", zipCode: "", address: "",
-                    detailedAddress: "", defaultYn: false
-                },
-                addressMsg: "",
-                addressMsgType: "",
-                isEditMode: false,
-                editAddressId: "",
-                wishlist: [],
-                recentList: [],
-                chatbotList: [],
-                settingsForm: {
-                    userName: "", nickName: "", email: "",
-                    userPhone: "", phoneVerifyYn: "N", phoneVerifiedAt: "", socialType: ""
-                },
-                originalPhone: "",
-                verifiedPhone: "",
-                smsAuthCode: "",
-                settingsMsg: "",
-                settingsMsgType: "",
-                passwordForm: { currentPwd: "", newPwd: "", newPwdConfirm: "" },
-                smsTimer: null,
-                smsTimeLeft: 0,
-                smsExpired: false,
-                smsInputVisible: false,
-                passwordMsg: "",
-                passwordMsgType: "",
-                inquiryList: [],
-                openInquiryId: null,
-                displayUser: {
-                    userName: "${user.userName}",
-                    nickName: "${user.nickName}",
-                    profileImgUrl: "${empty user.profileImgUrl ? '' : user.profileImgUrl}"
-                },
-                profileImageVersion: Date.now(),
-            };
-        },
-        computed: {
-            limitedOrderList() { return this.filteredOrderList.slice(0, 5); },
-            passwordStrengthScore() {
-                let pwd = this.passwordForm.newPwd || "";
-                let score = 0;
-                if (pwd.length >= 8) score++;
-                if (/[A-Za-z]/.test(pwd)) score++;
-                if (/[0-9]/.test(pwd)) score++;
-                if (/[^A-Za-z0-9]/.test(pwd)) score++;
-                return score;
-            },
-            profileImageSrc() {
-                let url = this.displayUser.profileImgUrl;
-                if (!url || url === "null" || url === "undefined") return "/img/profile/default-profile.png";
-                url = String(url).trim();
-                if (!url.startsWith("/img/profile/") && !url.startsWith("/upload/profile/")) return "/img/profile/default-profile.png";
-                return url + "?v=" + this.profileImageVersion;
-            },
-            passwordStrengthText() {
-                let pwd = this.passwordForm.newPwd || "";
-                if (!pwd) return "영문, 숫자를 조합해 8자 이상 입력해주세요.";
-                if (this.passwordStrengthScore <= 1) return "비밀번호 강도: 약함";
-                if (this.passwordStrengthScore <= 3) return "비밀번호 강도: 보통";
-                return "비밀번호 강도: 강함";
-            },
-            passwordStrengthClass() {
-                if (!this.passwordForm.newPwd) return "";
-                if (this.passwordStrengthScore <= 1) return "strength-weak";
-                if (this.passwordStrengthScore <= 3) return "strength-medium";
-                return "strength-strong";
-            },
-            passwordMatch() {
-                return this.passwordForm.newPwd && this.passwordForm.newPwdConfirm &&
-                    this.passwordForm.newPwd === this.passwordForm.newPwdConfirm;
-            },
-            statusSummary() {
-                const summary = { paid: 0, ready: 0, shipping: 0, done: 0, cancelled: 0 };
-                this.orderList.forEach(item => {
-                    if (item.orderStatus === "PAID") summary.paid++;
-                    else if (item.orderStatus === "READY") summary.ready++;
-                    else if (item.orderStatus === "SHIPPING") summary.shipping++;
-                    else if (item.orderStatus === "DONE") summary.done++;
-                    else if (item.orderStatus === "CANCELLED") summary.cancelled++;
-                });
-                return summary;
-            },
-            formattedSmsTime() {
-                const minutes = Math.floor(this.smsTimeLeft / 60);
-                const seconds = this.smsTimeLeft % 60;
-                return minutes + ":" + String(seconds).padStart(2, "0");
-            },
-            limitedChatbotList() { return this.chatbotList.slice(0, 6); },
-            limitedWishlist() { return this.wishlist.slice(0, 9); },
-            filteredOrderList() {
-                if (this.selectedOrderStatus === "ALL") return this.orderList;
-                return this.orderList.filter(item => item.orderStatus === this.selectedOrderStatus);
-            },
-        },
-        methods: {
-            // 주문 목록 조회
-            fnGetOrderList: function () {
-                let self = this;
-                $.ajax({
-                    url: "/order/list.dox", // 로컬 호스트 주소 제거 (유연성 확보)
-                    dataType: "json",
-                    type: "POST",
-                    data: {},
-                    success: function (data) {
-                        if (data.result === "success") {
-                            self.orderList = data.list;
-                        } else {
-                            self.orderList = [];
-                        }
-                    }
-                });
-            },
-            fnGetStatusText: function (status) {
-                const texts = { "PAID": "결제완료", "READY": "배송준비", "SHIPPING": "배송중", "DONE": "배송완료", "CANCELLED": "취소됨" };
-                return texts[status] || "-";
-            },
-            fnFilterByStatus: function (status) {
-                this.selectedOrderStatus = (this.selectedOrderStatus === status) ? "ALL" : status;
-            },
-            fnShowAddressForm: function () {
-                this.addressMsg = "";
-                this.addressMsgType = "";
-                if (this.addressList.length >= 7) {
-                    this.addressMsg = "배송지는 최대 7개까지 등록할 수 있습니다.";
-                    this.addressMsgType = "error";
-                    return;
-                }
-                this.isEditMode = false;
-                this.showAddressForm = true;
-                this.addressForm = { addressAlias: "", zipCode: "", address: "", detailedAddress: "", defaultYn: false };
-            },
-            fnCancelAddressForm: function () {
-                this.showAddressForm = false;
-                this.isEditMode = false;
-                this.editAddressId = "";
-                this.addressMsg = "";
-                this.addressForm = { addressAlias: "", zipCode: "", address: "", detailedAddress: "", defaultYn: false };
-            },
-            fnSaveAddress: function () {
-                if (this.isLoading) return;
-                let self = this;
-                if (!self.addressForm.addressAlias.trim() || !self.addressForm.zipCode.trim() || !self.addressForm.address.trim() || !self.addressForm.detailedAddress.trim()) {
-                    self.addressMsg = "모든 항목을 입력해주세요.";
-                    self.addressMsgType = "error";
-                    return;
-                }
-                this.isLoading = true;
-                let url = self.isEditMode ? "/user/address/edit.dox" : "/user/address/add.dox";
-                $.ajax({
-                    url: url,
-                    type: "POST",
-                    data: {
-                        addressId: self.editAddressId,
-                        addressAlias: self.addressForm.addressAlias,
-                        zipCode: self.addressForm.zipCode,
-                        address: self.addressForm.address,
-                        detailedAddress: self.addressForm.detailedAddress,
-                        defaultYn: self.addressForm.defaultYn ? "Y" : "N"
-                    },
-                    success: function (data) {
-                        if (data.result === "success") {
-                            self.fnCancelAddressForm();
-                            self.fnGetAddressList();
-                        } else {
-                            self.addressMsg = data.message || "실패했습니다.";
-                            self.addressMsgType = "error";
-                        }
-                    },
-                    complete: () => { this.isLoading = false; }
-                });
-            },
-            fnGetAddressList: function () {
-                let self = this;
-                $.ajax({
-                    url: "/user/address/list.dox",
-                    type: "POST",
-                    success: (data) => { if (data.result === "success") self.addressList = data.list; }
-                });
-            },
-            fnSearchAddress: function () {
-                let self = this;
-                new kakao.Postcode({
-                    oncomplete: function (data) {
-                        let addr = (data.userSelectedType === "R") ? data.roadAddress : data.jibunAddress;
-                        self.addressForm.zipCode = data.zonecode;
-                        self.addressForm.address = addr;
-                        self.$nextTick(() => { if (self.$refs.detailAddressInput) self.$refs.detailAddressInput.focus(); });
-                    }
-                }).open();
-            },
-            fnEditAddress: function (addr) {
-                this.showAddressForm = true;
-                this.isEditMode = true;
-                this.editAddressId = addr.addressId;
-                this.addressForm = {
-                    addressAlias: addr.addressAlias || "",
-                    zipCode: addr.zipCode || "",
-                    address: addr.address || "",
-                    detailedAddress: addr.detailedAddress || "",
-                    defaultYn: addr.defaultYn === "Y"
-                };
-            },
-            fnDeleteAddress: function (addressId) {
-                if (!confirm("삭제하시겠습니까?")) return;
-                let self = this;
-                $.ajax({
-                    url: "/user/address/remove.dox",
-                    type: "POST",
-                    data: { addressId: addressId },
-                    success: (data) => { if (data.result === "success") self.fnGetAddressList(); }
-                });
-            },
-            fnGetWishlist: function () {
-                let self = this;
-                $.ajax({
-                    url: "/user/wishlist/list.dox",
-                    type: "POST",
-                    success: (data) => { if (data.result === "success") self.wishlist = data.list; }
-                });
-            },
-            fnGoProductDetail: (productId) => pageChange("/product/detail.do", { productId }),
-            fnGoWishlistHistory: () => pageChange("/user/wishlist/history.do", {}),
-            fnGetRecentList: function () {
-                let self = this;
-                $.ajax({
-                    url: "/user/recent/list.dox",
-                    type: "POST",
-                    data: { page: 1, pageSize: 9 },
-                    success: (data) => { if (data.result === "success") self.recentList = data.list || []; }
-                });
-            },
-            fnGoRecentHistory: () => pageChange("/user/recent/history.do", {}),
-            fnEditReview: (reviewId) => pageChange("/user/review/edit.do", { reviewId }),
-            fnChangePassword: function () {
-                if (this.isLoading) return;
-                let self = this;
-                if (!self.passwordForm.currentPwd || !self.passwordForm.newPwd || self.passwordForm.newPwd !== self.passwordForm.newPwdConfirm) {
-                    self.passwordMsg = "입력 정보를 확인해주세요.";
-                    self.passwordMsgType = "error";
-                    return;
-                }
-                this.isLoading = true;
-                $.ajax({
-                    url: "/user/settings/password/update.dox",
-                    type: "POST",
-                    data: { currentPwd: self.passwordForm.currentPwd, newPwd: self.passwordForm.newPwd },
-                    success: function (data) {
-                        if (data.result === "success") {
-                            alert("비밀번호가 변경되었습니다.");
-                            self.passwordForm = { currentPwd: "", newPwd: "", newPwdConfirm: "" };
-                        } else {
-                            self.passwordMsg = data.message;
-                            self.passwordMsgType = "error";
-                        }
-                    },
-                    complete: () => { this.isLoading = false; }
-                });
-            },
-            fnDeleteUser: function () {
-                if (!confirm("정말 회원탈퇴 하시겠습니까?") || !confirm("되돌릴 수 없습니다. 진행하시겠습니까?")) return;
-                $.ajax({
-                    url: "/user/settings/delete.dox",
-                    type: "POST",
-                    success: (data) => {
-                        if (data.result === "success") { alert("탈퇴되었습니다."); location.href = "/user/login.do"; }
-                    }
-                });
-            },
-            fnRemoveReview: function (reviewId) {
-                if (!confirm("리뷰를 삭제하시겠습니까?")) return;
-                $.ajax({
-                    url: "/user/review/remove.dox",
-                    type: "POST",
-                    data: { reviewId },
-                    success: (data) => {
-                        if (data.result === "success") {
-                            sessionStorage.setItem("activeTab", "reviews");
-                            location.reload();
-                        }
-                    }
-                });
-            },
-            fnGetChatbotList: function () {
-                let self = this;
-                $.ajax({
-                    url: "/user/chatbot/list.dox",
-                    type: "POST",
-                    success: (data) => { if (data.result === "success") self.chatbotList = data.list || []; }
-                });
-            },
-            fnGoChatbotRoom: (roomId) => pageChange("/chat/bot.do", { roomId }),
-            fnGoChatbotHistory: () => pageChange("/user/chatbot/history.do", {}),
-            fnGetUserSettings: function () {
-                let self = this;
-                $.ajax({
-                    url: "/user/settings/info.dox",
-                    type: "POST",
-                    success: (data) => {
-                        if (data.result === "success") {
-                            let info = data.info || {};
-                            self.settingsForm = { ...info };
-                            self.displayUser.userName = info.userName;
-                            self.displayUser.nickName = info.nickName;
-                            self.originalPhone = info.userPhone;
-                            self.verifiedPhone = (info.phoneVerifyYn === "Y") ? info.userPhone : "";
-                        }
-                    }
-                });
-            },
-            fnSendSmsCode: function () {
-                let self = this;
-                let phone = (self.settingsForm.userPhone || "").replace(/[^0-9]/g, "");
-                if (!phone) return;
-                $.ajax({
-                    url: "/user/sms/send-code.dox",
-                    type: "POST",
-                    data: { userName: self.settingsForm.userName, userPhone: phone, authPurpose: "USER_SETTINGS" },
-                    success: (data) => {
-                        if (data.result === "success") {
-                            self.smsInputVisible = true;
-                            self.fnStartSmsTimer();
-                        }
-                    }
-                });
-            },
-            fnStartSmsTimer: function () {
-                this.fnStopSmsTimer();
-                this.smsTimeLeft = 180;
-                this.smsTimer = setInterval(() => {
-                    if (this.smsTimeLeft > 0) this.smsTimeLeft--;
-                    else { this.fnStopSmsTimer(); this.smsExpired = true; }
-                }, 1000);
-            },
-            fnStopSmsTimer: function () { if (this.smsTimer) { clearInterval(this.smsTimer); this.smsTimer = null; } },
-            fnHandlePhoneChanged: function () {
-                let phone = (this.settingsForm.userPhone || "").replace(/[^0-9]/g, "");
-                this.settingsForm.userPhone = phone;
-                if (phone === this.verifiedPhone) {
-                    this.settingsForm.phoneVerifyYn = "Y";
-                    this.smsInputVisible = false;
-                } else {
-                    this.settingsForm.phoneVerifyYn = "N";
-                }
-            },
-            fnVerifySmsCode: function () {
-                let self = this;
-                $.ajax({
-                    url: "/user/sms/verify-code.dox",
-                    type: "POST",
-                    data: { userPhone: self.settingsForm.userPhone, authCode: self.smsAuthCode, authPurpose: "USER_SETTINGS" },
-                    success: (data) => {
-                        if (data.result === "success") {
-                            self.settingsForm.phoneVerifyYn = "Y";
-                            self.verifiedPhone = self.settingsForm.userPhone;
-                            self.fnStopSmsTimer();
-                            self.smsInputVisible = false;
-                        }
-                    }
-                });
-            },
-            fnSaveSettings: function () {
-                if (this.isLoading) return;
-                let self = this;
-                this.isLoading = true;
-                $.ajax({
-                    url: "/user/settings/update.dox",
-                    type: "POST",
-                    data: { userName: self.settingsForm.userName, nickName: self.settingsForm.nickName, userPhone: self.settingsForm.userPhone, originalPhone: self.originalPhone },
-                    success: (data) => { if (data.result === "success") { alert("저장되었습니다."); self.fnGetUserSettings(); } },
-                    complete: () => { this.isLoading = false; }
-                });
-            },
-            fnGetInquiryList: function () {
-                let self = this;
-                $.ajax({
-                    url: "/user/inquiry/list.dox",
-                    type: "POST",
-                    success: (data) => {
-                        if (data.result === "success") {
-                            self.inquiryList = (data.list || []).map(item => ({ ...item, imageList: item.imageList || [] }));
-                        }
-                    }
-                });
-            },
-            fnToggleInquiry: function (item) {
-                if (this.openInquiryId === item.inquiryId) { this.openInquiryId = null; return; }
-                this.openInquiryId = item.inquiryId;
-                if (item.imageList && item.imageList.length > 0) return;
-                $.ajax({
-                    url: "/user/inquiry/img/list.dox",
-                    type: "POST",
-                    data: { inquiryId: item.inquiryId },
-                    success: (data) => { if (data.result === "success") item.imageList = data.list || []; }
-                });
-            },
-            fnInquiryStatusText: (item) => item.replyId ? "답변완료" : "답변대기",
-            fnInquiryStatusClass: (item) => item.replyId ? "answered" : "waiting",
-            fnDeleteInquiry: function (inquiryId) {
-                if (!confirm("문의를 삭제하시겠습니까?")) return;
-                $.ajax({
-                    url: "/user/inquiry/delete.dox",
-                    type: "POST",
-                    data: { inquiryId },
-                    success: (data) => { if (data.result === "success") this.fnGetInquiryList(); }
-                });
-            },
-            fnTriggerProfileFile: function () { this.$refs.profileFileInput.click(); },
-            fnDeleteProfile: function () {
-                if (!confirm("삭제하시겠습니까?")) return;
-                $.ajax({
-                    url: "/user/profile/delete.dox",
-                    type: "POST",
-                    success: (data) => { if (data.result === "success") location.reload(); }
-                });
-            },
-            fnProfileImageChange: function (event) {
-                let file = event.target.files[0];
-                if (!file) return;
-                let formData = new FormData();
-                formData.append("profileImage", file);
-                $.ajax({
-                    url: "/user/profile/upload.dox",
-                    type: "POST",
-                    data: formData,
-                    processData: false, contentType: false,
-                    success: (data) => { if (data.result === "success") location.reload(); }
-                });
-            },
-            fnGetOrderActions: function (item) {
-                const actions = [];
-                const status = (item.orderStatus || "").toUpperCase();
-                const type = (item.orderType || "").toUpperCase();
-                if (type === "PURCHASE") {
-                    if (status === "PAID" || status === "READY") actions.push("취소 신청");
-                    if (status === "DONE") { actions.push("환불 신청"); actions.push("리뷰 작성"); }
-                } else {
-                    if (status === "PAID" || status === "RESERVED") actions.push("취소 신청");
-                    if (status === "DONE" || status === "IN_USE") actions.push("반납 신청");
-                }
-                return actions;
-            },
-            fnHandleOrderAction: function (item, action) {
-                const routes = { "취소 신청": "/order/cancel/request.do", "리뷰 작성": "/user/review/write.do", "반납 신청": "/rental/return/request.do" };
-                if (routes[action]) pageChange(routes[action], { orderId: item.orderId });
-            },
-            fnGetActionClass: (action) => {
-                const classes = { "취소 신청": "cancel", "리뷰 작성": "review", "반납 신청": "return" };
-                return classes[action] || "";
+    $.ajax({
+        url: "/user/profile/delete.dox",
+        type: "POST",
+        dataType: "json",
+        data: {},
+        success: function (data) {
+            if (data.result === "success") {
+                self.displayUser.profileImgUrl = "";
+                self.$refs.profileFileInput.value = "";
+                alert("프로필 사진이 삭제되었습니다.");
+            } else {
+                alert(data.message || "프로필 사진 삭제에 실패했습니다.");
             }
         },
-        mounted() {
-            // 초기 데이터 로드
-            this.fnGetOrderList();
-            this.fnGetAddressList();
-            this.fnGetWishlist();
-            this.fnGetRecentList();
-            this.fnGetChatbotList();
-            this.fnGetUserSettings();
-            this.fnGetInquiryList();
-
-            const savedTab = sessionStorage.getItem("activeTab");
-            if (savedTab) {
-                switchTab(savedTab, null);
-                sessionStorage.removeItem("activeTab");
-            }
-        },
-        beforeUnmount() { this.fnStopSmsTimer(); }
+        error: function () {
+            alert("서버 오류가 발생했습니다.");
+        }
     });
+},
 
-    app.mount('#app');
-</script>
+                          fnProfileImageChange: function (event) {
+    let self = this;
+    let file = event.target.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("profileImage", file);
+
+    $.ajax({
+        url: "/user/profile/upload.dox",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: "json",
+        success: function (data) {
+    self.$refs.profileFileInput.value = "";
+
+    if (data.result === "success") {
+        location.href = location.pathname + "?profileRefresh=" + new Date().getTime();
+    } else {
+        alert(data.message || "프로필 사진 변경에 실패했습니다.");
+    }
+},
+        error: function () {
+            self.$refs.profileFileInput.value = "";
+            alert("서버 오류가 발생했습니다.");
+        }
+    });
+},
+                             fnGetOrderActions: function (item) {
+    const actions = [];
+    const status = (item.orderStatus || "").toUpperCase();
+    const type = (item.orderType || "").toUpperCase();
+
+    if (type === "PURCHASE") {
+        if (status === "DONE") {
+            actions.push("환불 신청");
+            actions.push("리뷰 작성");
+        }
+    } else if (type === "RENTAL") {
+        if (status === "DONE") {
+            actions.push("환불 신청");
+            actions.push("반납 신청");
+            actions.push("연장 신청");
+        }
+
+        if (status === "IN_USE") {
+            actions.push("반납 신청");
+            actions.push("연장 신청");
+        }
+
+        if (status === "COMPLETED") {
+            actions.push("리뷰 작성");
+        }
+    }
+
+    return actions;
+},
+fnHandleOrderAction: function (item, action) {
+    if (action === "취소 신청") {
+        pageChange("/order/cancel/request.do", {
+            orderId: item.orderId
+        });
+        return;
+    }
+
+    if (action === "환불 신청") {
+        pageChange("/order/refund/request.do", {
+            orderId: item.orderId
+        });
+        return;
+    }
+
+    if (action === "배송조회") {
+        if (!item.deliveryId) {
+            alert("배송 정보가 없습니다.");
+            return;
+        }
+
+        pageChange("/user/delivery/detail.do", {
+            deliveryId: item.deliveryId
+        });
+        return;
+    }
+
+    if (action === "반납 신청") {
+        pageChange("/rental/return/request.do", {
+            orderId: item.orderId
+        });
+        return;
+    }
+
+    if (action === "연장 신청") {
+        pageChange("/rental/extend/request.do", {
+            orderId: item.orderId
+        });
+        return;
+    }
+
+    if (action === "리뷰 작성") {
+        pageChange("/user/review/add.do", {
+            orderId: item.orderId
+        });
+        return;
+    }
+},
+                                    fnGoTracking: function (item) {
+                                        // trackingNo, carrierCode가 있다고 가정
+                                        pageChange("/order/tracking.do", {
+                                            orderId: item.orderId,
+                                            trackingNo: item.trackingNo,
+                                            carrierCode: item.carrierCode
+                                        });
+                                    },
+
+                                    fnGoRefund: function (item) {
+                                        pageChange("/refund/request.do", {
+                                            orderId: item.orderId
+                                        });
+                                    },
+
+                                    fnGoWriteReview: function (item) {
+                                        pageChange("/user/review/edit.do", {
+                                            orderId: item.orderId,
+                                            productId: item.productId,
+                                            itemId: item.itemId
+                                        });
+                                    },
+
+                                    fnGoMyReview: function (item) {
+                                        pageChange("/user/review/history.do", {
+                                            orderId: item.orderId,
+                                            reviewId: item.reviewId
+                                        });
+                                    },
+
+                                    fnGoReturnRequest: function (item) {
+                                        pageChange("/rental/return/request.do", {
+                                            orderId: item.orderId,
+                                            rentalId: item.rentalId
+                                        });
+                                    },
+                                    fnGoMembershipInfo: function () {
+                                        pageChange("/user/membership/info.do", {});
+                                    },
+                                   fnGetActionClass: function (action) {
+    if (action === "취소 신청") return "cancel";
+    if (action === "환불 신청") return "refund";
+    if (action === "배송조회") return "tracking";
+    if (action === "반납 신청") return "return";
+    if (action === "연장 신청") return "extend";
+    if (action === "리뷰 작성") return "review";
+    return "";
+},
+fnGoOrderDetail: function (orderId) {
+    pageChange("/order/detail.do", { orderId: orderId });
+},
+                                }, // methods
+                                    mounted() {
+                                    let profileUrl = String(this.displayUser.profileImgUrl || "").trim();
+
+if (
+    !profileUrl ||
+    (
+        !profileUrl.startsWith("/img/profile/") &&
+        !profileUrl.startsWith("/upload/profile/")
+    )
+) {
+    this.displayUser.profileImgUrl = "";
+}
+                                let self = this;
+                                 this.fnGetOrderList();
+    this.fnGetAddressList();
+    this.fnGetWishlist();
+    this.fnGetRecentList();
+    this.fnGetChatbotList();
+    this.fnGetUserSettings();
+    this.fnGetInquiryList();
+
+    const savedTab = sessionStorage.getItem("activeTab") || "orders";
+    this.$nextTick(function () {
+        switchTab(savedTab, null);
+    });
+                            }
+                        });
+
+                    app.mount('#app');
+                </script>

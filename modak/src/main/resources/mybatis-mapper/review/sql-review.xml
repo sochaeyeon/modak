@@ -46,17 +46,17 @@
    <select id="selectReviewList" parameterType="hashmap"
       resultType="com.example.modak.review.model.Review">
       SELECT
-      R.REVIEW_ID AS reviewId,
-      R.RATING AS rating,
-      R.CONTENT AS content,
-      R.REVIEW_STATUS AS reviewStatus,
+      R.REVIEW_ID,
+      R.RATING,
+      R.CONTENT,
+      R.REVIEW_STATUS,
       DATE_FORMAT(R.CREATED_AT, '%Y.%m.%d') AS createdAt,
       DATE_FORMAT(R.UPDATED_AT, '%Y.%m.%d') AS updatedAt,
-      R.USER_ID AS userId,
-      R.PRODUCT_ID AS productId,
-      R.ITEM_ID AS itemId,
-      R.TITLE AS title,
-      P.PRODUCT_NAME AS productName,
+      R.USER_ID,
+      R.PRODUCT_ID,
+      R.ITEM_ID,
+      R.TITLE,
+      P.PRODUCT_NAME,
       (
       SELECT RI.IMG_URL
       FROM REVIEW_IMG RI
@@ -82,33 +82,33 @@
    </select>
 
    <!-- 리뷰 상세 조회 -->
-   <select id="selectReviewInfo" parameterType="hashmap"
-      resultType="com.example.modak.review.model.Review">
-      SELECT
-      R.REVIEW_ID AS reviewId,
-      R.RATING AS rating,
-      R.CONTENT AS content,
-      R.REVIEW_STATUS AS reviewStatus,
+  <select id="selectReviewInfo" parameterType="hashmap"
+   resultType="com.example.modak.review.model.Review">
+   SELECT
+      R.REVIEW_ID,
+      R.RATING,
+      R.CONTENT,
+      R.REVIEW_STATUS,
       DATE_FORMAT(R.CREATED_AT, '%Y.%m.%d') AS createdAt,
       DATE_FORMAT(R.UPDATED_AT, '%Y.%m.%d') AS updatedAt,
-      R.USER_ID AS userId,
-      R.PRODUCT_ID AS productId,
-      R.ITEM_ID AS itemId,
-      R.TITLE AS title,
-      P.PRODUCT_NAME AS productName,
+      R.USER_ID,
+      R.PRODUCT_ID,
+      R.ITEM_ID,
+      R.TITLE,
+      P.PRODUCT_NAME,
       (
-      SELECT RI.IMG_URL
-      FROM REVIEW_IMG RI
-      WHERE RI.REVIEW_ID = R.REVIEW_ID
-      ORDER BY RI.IMG_ID ASC
-      LIMIT 1
+         SELECT PI.IMG_URL
+         FROM PRODUCT_IMG PI
+         WHERE PI.PRODUCT_ID = P.PRODUCT_ID
+           AND PI.IS_MAIN = 'Y'
+         LIMIT 1
       ) AS imageUrl
-      FROM REVIEW R
-      LEFT JOIN PRODUCT P
+   FROM REVIEW R
+   LEFT JOIN PRODUCT P
       ON R.PRODUCT_ID = P.PRODUCT_ID
-      WHERE R.REVIEW_ID = #{reviewId}
-      AND R.USER_ID = #{userId}
-   </select>
+   WHERE R.REVIEW_ID = #{reviewId}
+     AND R.USER_ID = #{userId}
+</select>
 
    <!-- 리뷰 수정 -->
    <update id="updateReview" parameterType="hashmap">
@@ -143,7 +143,7 @@
       SELECT
       IMG_ID,
       REVIEW_ID,
-      IMG_URL AS imgUrl
+      IMG_URL
       FROM REVIEW_IMG
       WHERE REVIEW_ID = #{reviewId}
       ORDER BY IMG_ID ASC
@@ -153,15 +153,15 @@
 	<select id="selectProductReviewList" parameterType="hashmap"
 	    resultType="com.example.modak.review.model.Review">
 	    SELECT
-	        R.REVIEW_ID AS reviewId,
-	        R.RATING AS rating,
-	        R.CONTENT AS content,
-	        R.REVIEW_STATUS AS reviewStatus,
+	        R.REVIEW_ID,
+	        R.RATING,
+	        R.CONTENT,
+	        R.REVIEW_STATUS,
 	        DATE_FORMAT(R.CREATED_AT, '%Y.%m.%d') AS createdAt,
-	        R.USER_ID AS userId,
-	        R.PRODUCT_ID AS productId,
-	        R.TITLE AS title,
-	        P.PRODUCT_NAME AS productName,
+	        R.USER_ID,
+	        R.PRODUCT_ID,
+	        R.TITLE,
+	        P.PRODUCT_NAME,
 	        (
 				SELECT RI.IMG_URL
 	            FROM REVIEW_IMG RI
@@ -178,5 +178,111 @@
 	    LIMIT ${pageSize} OFFSET ${offset}
 	</select>
    
+<!-- 리뷰 작성 페이지 진입용 주문 정보 조회 -->
+<select id="selectReviewWriteInfo" parameterType="hashmap" resultType="hashmap">
+    SELECT
+        O.ORDER_ID,
+        O.USER_ID,
+        O.ORDER_STATUS,
+        OI.ITEM_ID,
+        OI.PRODUCT_ID,
+        P.PRODUCT_NAME,
+        (
+            SELECT PI.IMG_URL
+            FROM PRODUCT_IMG PI
+            WHERE PI.PRODUCT_ID = P.PRODUCT_ID
+              AND PI.IS_MAIN = 'Y'
+            LIMIT 1
+        ) AS imageUrl
+    FROM ORDERS O
+    INNER JOIN ORDER_ITEM OI
+        ON O.ORDER_ID = OI.ORDER_ID
+    INNER JOIN PRODUCT P
+        ON OI.PRODUCT_ID = P.PRODUCT_ID
+    WHERE O.ORDER_ID = #{orderId}
+      AND O.USER_ID = #{userId}
+      AND O.ORDER_STATUS IN ('DELIVERED', 'RETURN_COMPLETED')
+    LIMIT 1
+</select>
 
+<!-- 이미 작성한 리뷰 여부 확인 -->
+<select id="selectReviewExists" parameterType="hashmap" resultType="int">
+    SELECT COUNT(*)
+    FROM REVIEW
+    WHERE USER_ID = #{userId}
+      AND ITEM_ID = #{itemId}
+      AND REVIEW_STATUS = 'ACTIVE'
+</select>
+
+<select id="selectReviewOrderInfo" parameterType="hashmap" resultType="hashmap">
+    SELECT
+        O.ORDER_ID AS orderId,
+        O.ORDER_STATUS AS orderStatus,
+        DATE_FORMAT(O.CREATED_AT, '%Y-%m-%d') AS createdAt
+    FROM ORDERS O
+    WHERE O.ORDER_ID = #{orderId}
+      AND O.USER_ID = #{userId}
+</select>
+
+<select id="selectReviewOrderItemList" parameterType="hashmap" resultType="hashmap">
+		SELECT
+		OI.ITEM_ID AS itemId,
+		OI.PRODUCT_ID AS productId,
+		P.PRODUCT_NAME AS productName,
+		P.PRICE AS price,
+		C.CATEGORY_NAME AS categoryName,
+		O.ORDER_TYPE AS orderType,
+		O.ORDER_STATUS AS orderStatus,
+		(
+		SELECT PI.IMG_URL
+		FROM PRODUCT_IMG PI
+		WHERE PI.PRODUCT_ID = P.PRODUCT_ID
+		AND PI.IS_MAIN = 'Y'
+		LIMIT 1
+		) AS imageUrl,
+
+		CASE
+		WHEN O.ORDER_TYPE = 'PURCHASE' AND O.ORDER_STATUS = 'DONE' THEN '배송완료'
+		WHEN O.ORDER_TYPE = 'RENTAL' AND O.ORDER_STATUS = 'RETURNED' THEN '반납완료'
+		ELSE ''
+		END AS reviewStatusText,
+
+		CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM REVIEW R
+        WHERE R.ITEM_ID = OI.ITEM_ID
+          AND R.USER_ID = O.USER_ID
+          AND R.REVIEW_STATUS = 'ACTIVE'
+    ) THEN 'Y'
+    ELSE 'N'
+END AS reviewWrittenYn
+		FROM ORDER_ITEM OI
+		INNER JOIN PRODUCT P
+		ON OI.PRODUCT_ID = P.PRODUCT_ID
+		LEFT JOIN PRODUCT_CATEGORY C
+		ON P.CATEGORY_ID = C.CATEGORY_ID
+		INNER JOIN ORDERS O
+		ON OI.ORDER_ID = O.ORDER_ID
+		WHERE OI.ORDER_ID = #{orderId}
+		AND O.USER_ID = #{userId}
+		ORDER BY OI.ITEM_ID ASC
+</select>
+
+<update id="updateUserPoint" parameterType="hashmap">
+    UPDATE USER
+    SET POINT = POINT + #{point}
+    WHERE USER_ID = #{userId}
+</update>
+
+<delete id="deleteReviewImagesNotIn" parameterType="hashmap">
+    DELETE FROM REVIEW_IMG
+    WHERE REVIEW_ID = #{reviewId}
+    <if test="keepImgIds != null and keepImgIds.size() > 0">
+        AND IMG_ID NOT IN
+        <foreach collection="keepImgIds" item="imgId" open="(" separator="," close=")">
+            #{imgId}
+        </foreach>
+    </if>
+</delete>
 </mapper>

@@ -39,4 +39,15 @@ public interface ReviewMapper {
 	
 	// 상품 상세 리뷰 목록!!
 	List<Review> selectProductReviewList(HashMap<String, Object> map);
+	
+	 // 리뷰 작성 대상 주문 정보 조회
+    HashMap<String, Object> selectReviewWriteInfo(HashMap<String, Object> map);
+    int deleteReviewImagesNotIn(HashMap<String, Object> map);
+
+    // 이미 작성한 리뷰 여부 확인
+    int selectReviewExists(HashMap<String, Object> map);
+    
+    HashMap<String, Object> selectReviewOrderInfo(HashMap<String, Object> map);
+    List<HashMap<String, Object>> selectReviewOrderItemList(HashMap<String, Object> map);
+    int updateUserPoint(HashMap<String, Object> map);
 }

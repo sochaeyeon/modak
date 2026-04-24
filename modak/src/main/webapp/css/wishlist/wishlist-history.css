@@ -322,3 +322,47 @@ body {
     transform: translateY(0);
     box-shadow: 0 2px 6px rgba(201, 79, 30, 0.12);
 }
+
+.wish-item {
+    position: relative;
+}
+
+.wish-remove-icon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.88);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all .2s ease;
+    box-shadow: 0 2px 8px rgba(46, 26, 14, .12);
+    z-index: 3;
+}
+
+.wish-remove-icon svg {
+    width: 16px;
+    height: 16px;
+    color: #e04b6a;
+    fill: #e04b6a;
+    stroke: #e04b6a;
+    transition: all .2s ease;
+}
+
+.wish-remove-icon:hover {
+    background: #fff;
+    transform: scale(1.08);
+    box-shadow: 0 6px 16px rgba(224, 75, 106, .18);
+}
+
+.wish-remove-icon:hover svg {
+    transform: scale(.92);
+    color: #c83d5c;
+    fill: #c83d5c;
+    stroke: #c83d5c;
+}

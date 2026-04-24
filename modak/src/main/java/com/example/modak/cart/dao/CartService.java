@@ -129,4 +129,19 @@ public class CartService {
 
 	    return resultMap;
 	}
+	
+	// 헤더 장바구니 개수 아이콘
+	public HashMap<String, Object> getCartCount(HashMap<String, Object> map) {
+	    HashMap<String, Object> result = new HashMap<>();
+	    try {
+	        int count = cartMapper.selectCartCount(map);
+	        result.put("count", count);
+	        result.put("result", "success");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("count", 0);
+	        result.put("result", "fail");
+	    }
+	    return result;
+	}
 }

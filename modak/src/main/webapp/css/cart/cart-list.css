@@ -450,3 +450,128 @@
             color: var(--orange);
             font-weight: 600;
         }
+
+        .page-leaving {
+            display: none !important;
+        }
+
+        /* 모달 */
+        .confirm-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .confirm-box {
+            width: 340px;
+            max-width: 90vw;
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.18);
+            text-align: center;
+        }
+
+        .confirm-title {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .confirm-message {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 22px;
+        }
+
+        .confirm-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .confirm-cancel,
+        .confirm-ok {
+            flex: 1;
+            padding: 11px 0;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 600;
+        }
+
+        .confirm-cancel {
+            background: #f3f3f3;
+            color: #555;
+        }
+
+        .confirm-ok {
+            background: var(--orange);
+            color: #fff;
+        }
+
+        /* 쿠폰 선택 */
+        .coupon-box {
+            padding: 14px 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+            margin: 10px 0;
+        }
+
+        .coupon-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .coupon-select {
+            width: 100%;
+            height: 42px;
+            padding: 0 36px 0 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #fff;
+            color: var(--text);
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+
+            background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+                            linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+            background-position: calc(100% - 18px) 18px,
+                                calc(100% - 13px) 18px;
+            background-size: 5px 5px;
+            background-repeat: no-repeat;
+        }
+
+        .coupon-select:hover {
+            border-color: var(--orange);
+        }
+
+        .coupon-select:focus {
+            border-color: var(--orange);
+            box-shadow: 0 0 0 3px rgba(200, 96, 42, 0.12);
+        }
+
+        .coupon-select option {
+            font-size: 13px;
+            color: #333;
+        }
+
+        .coupon-select option:disabled {
+            color: #aaa;
+        }
+        .aside-row .val.red {
+            color: var(--orange);
+            font-weight: 700;
+        }

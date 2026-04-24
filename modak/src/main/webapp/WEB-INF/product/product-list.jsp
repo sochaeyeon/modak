@@ -1,7 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-  <!DOCTYPE html>
-  <html lang="ko">
-
+<!DOCTYPE html>
+<html lang="ko">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,11 +13,10 @@
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="/js/page-change.js"></script>
   </head>
-
   <body>
     <%@ include file="/WEB-INF/common/header.jsp" %>
 
-      <div id="app">
+    <div id="app" v-cloak>
 
         <!-- ── 카테고리 pill 바 ── -->
         <div class="cat-bar">
@@ -263,10 +261,24 @@
             </div><!-- /grid-wrap -->
           </div><!-- /content-wrap -->
         </div><!-- /page-wrap -->
+        <div v-if="confirmModal.open" class="confirm-overlay" @click.self="confirmCancel">
+            <div class="confirm-box">
+                <div class="confirm-title">알림</div>
+                  <div class="confirm-message">{{ confirmModal.message }}</div>
 
+                  <div class="confirm-btns">
+                    <button class="confirm-cancel" @click="confirmCancel">
+                        {{ confirmModal.cancelText }}
+                    </button>
+                    <button class="confirm-ok" @click="confirmOk">
+                        {{ confirmModal.okText }}
+                    </button>
+                </div>
+            </div>
+        </div>
       </div><!-- /#app -->
       <%@ include file="/WEB-INF/common/footer.jsp" %>
-        <script>
+    <script>
           // ── 토스트 ──
           function showToast(msg) {
               var t = document.getElementById('toast');
@@ -295,8 +307,7 @@
                           var isOn = btn.classList.contains('on');
                           showToast(isOn ? '❤️ 위시리스트에 추가됐어요' : '위시리스트에서 제거됐어요');
                       } else {
-                          showToast('로그인이 필요합니다');
-                          setTimeout(function(){ location.href = '/user/login.do'; }, 1200);
+                          showToast('로그인이 필요합니다.');
                       }
                   }
               });
@@ -332,6 +343,13 @@
                   priceRange: 50,
                   minRating: null,
                 },
+                confirmModal: {
+                  open: false,
+                  message: '',
+                  okText: '확인',
+                  cancelText: '취소',
+                  onOk: null
+                }
               };
             },
 
@@ -431,7 +449,8 @@
                     self.loading = false;
                   }
                 });
-              },
+              }, // fnList 
+              
               fnSearch() {
                 this.currentPage = 1;
                 this.fnList();
@@ -574,14 +593,34 @@
                             self.wishedIds = newSet;
                             showToast(isOn ? '❤️ 위시리스트에 추가됐어요' : '위시리스트에서 제거됐어요');
                         } else {
-                            showToast('로그인이 필요합니다');
-                            setTimeout(function(){ location.href = '/user/login.do'; }, 1200);
+                            self.openConfirm('로그인이 필요합니다. 로그인하시겠습니까?', function() {
+                                location.href = '/user/login.do';
+                            }, '로그인하기');
                         }
                     }
                 });
-            },
+              },
+              openConfirm(message, onOk, okText = '확인', cancelText = '취소') {
+                  this.confirmModal.message = message;
+                  this.confirmModal.onOk = onOk;
+                  this.confirmModal.okText = okText;
+                  this.confirmModal.cancelText = cancelText;
+                  this.confirmModal.open = true;
+              },
 
-            }, // methods
+              confirmOk() {
+                  if (typeof this.confirmModal.onOk === 'function') {
+                      this.confirmModal.onOk();
+                  }
+                  this.confirmModal.open = false;
+              },
+
+              confirmCancel() {
+                  this.confirmModal.open = false;
+              },
+              
+
+          }, // methods
 
           mounted() {
             this.fetchCategory();   /* 부모 카테고리 pill 로드 */
@@ -629,8 +668,8 @@
 
           },
 
-          }).mount('#app');
-        </script>
+        }).mount('#app');
+      </script>
   </body>
 
   </html>

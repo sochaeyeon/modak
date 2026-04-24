@@ -586,7 +586,6 @@
                     });
                 }, '삭제하기');
             },
-
             // ── 주문하기 ──
             fnOrder() {
                 if (this.checkedIds.length === 0) { showToast('상품을 선택해주세요.'); return; }

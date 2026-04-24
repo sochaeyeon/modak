@@ -1,5 +1,6 @@
 package com.example.modak.csCenter.controller;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,20 +26,31 @@ public class FaqController {
 	@RequestMapping("/faq.do")
 	public String faq(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
 			throws Exception {
-		request.setAttribute("map", map); // jsp에서 꺼낼 때 "${map.~}" 으로 꺼내기
+		request.setAttribute("map", map);
 		return "/cs/faq";
 	}
 
 	// Ajax 호출 주소
-
 	@RequestMapping(value = "/faq.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String faqList(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
-		HashMap<String, Object> resultMap = new HashMap<String, Object>();
 
-		resultMap = faqService.getFaqList(map);
+		// category 처리
+		String category = (String) map.get("category");
+		if (category != null && category.contains(",")) {
+			map.put("categoryList", Arrays.asList(category.split(",")));
+			map.put("category", "");
+		} else if (category != null && !category.isEmpty()) {
+			map.put("categoryList", Arrays.asList(category));
+		}
 
+		// excludeCategory 처리 (기타용)
+		String excludeCategory = (String) map.get("excludeCategory");
+		if (excludeCategory != null && !excludeCategory.isEmpty()) {
+			map.put("excludeList", Arrays.asList(excludeCategory.split(",")));
+		}
+
+		HashMap<String, Object> resultMap = faqService.getFaqList(map);
 		return new Gson().toJson(resultMap);
 	}
-
 }

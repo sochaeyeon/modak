@@ -5,17 +5,28 @@
 <mapper namespace="com.example.modak.csCenter.mapper.FaqMapper">
 
 	<select id="selectFaqList" parameterType="hashmap"
-		resultType="com.example.modak.csCenter.model.Faq"> SELECT FAQ_ID AS
+		resultType="com.example.modak.csCenter.model.Faq"> 
+		SELECT FAQ_ID AS
 		faqId, CATEGORY AS category, QUESTION AS question, ANSWER AS answer,
-		CREATED_AT AS createdAt FROM faq <where>
-			<if test="category != null and category != ''">
-				AND CATEGORY = #{category}
+		CREATED_AT AS createdAt FROM faq 
+		<where>
+			<if test="categoryList != null and categoryList.size() > 0"> AND
+		CATEGORY IN <foreach collection="categoryList" item="cat" open="("
+					separator="," close=")">
+					#{cat}
+				</foreach>
+			</if>
+			<if test="excludeList != null and excludeList.size() > 0"> AND
+		CATEGORY NOT IN <foreach collection="excludeList" item="cat" open="("
+					separator="," close=")">
+					#{cat}
+				</foreach>
 			</if>
 			<if test="searchKeyword != null and searchKeyword != ''">
 				AND (QUESTION LIKE CONCAT('%', #{searchKeyword}, '%')
 				OR ANSWER LIKE CONCAT('%', #{searchKeyword}, '%'))
 			</if>
 		</where>
-		ORDER BY FAQ_ID DESC </select>
-
+		ORDER BY FAQ_ID DESC 
+	</select>
 </mapper>

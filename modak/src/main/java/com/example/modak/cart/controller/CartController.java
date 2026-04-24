@@ -103,5 +103,21 @@ public class CartController {
 	    HashMap<String, Object> resultMap = cartService.deleteSelectedCart(map);
 	    return new Gson().toJson(resultMap);
 	}
+	
+	// 옵션 변경
+	@RequestMapping(value = "/cart/updateOption.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String updateCartOption(@RequestParam HashMap<String, Object> map) throws Exception {
+	    String userId = (String) session.getAttribute("userId");
+
+	    if (userId != null) {
+	        map.put("userId", userId);
+	    } else {
+	        map.put("userId", "user01");
+	    }
+
+	    HashMap<String, Object> resultMap = cartService.updateCartOption(map);
+	    return new Gson().toJson(resultMap);
+	}
 	   
 }

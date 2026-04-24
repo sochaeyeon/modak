@@ -1,4 +1,5 @@
-    :root {
+    [v-cloak] {display: none !important;}
+        :root {
             --orange: #FF6B35;
             --orange-light: #fff7f0;
             --orange-hover: #e85f2a;
@@ -136,6 +137,9 @@
             font-size: 14px; color: #333; margin-bottom: 6px;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
+        .cart-item-option {
+            font-size: 12px;color: var(--muted);margin-left: 6px;
+        }
         .cart-item-orig { font-size: 12px; color: var(--muted); text-decoration: line-through; }
         .cart-item-price {
             font-size: 16px; font-weight: 700; color: var(--text);
@@ -198,6 +202,33 @@
         }
         .opt-change-btn:hover { border-color: var(--orange); color: var(--orange); background: var(--orange-light); }
 
+        /* 옵션 리스트 */
+        .opt-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .opt-item {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            background: #fff;
+            transition: all 0.2s;
+        }
+
+        .opt-item:hover {
+            border-color: var(--orange);
+        }
+
+        .opt-item.active {
+            border-color: var(--orange);
+            background: var(--orange-light);
+            color: var(--orange);
+            font-weight: 600;
+        }
         /* ── 배송비 / 소계 ── */
         .cart-subtotal {
             display: flex; flex-direction: column; gap: 6px;
@@ -392,4 +423,30 @@
                 width: 100%;
                 position: static;
             }
+        }
+        .opt-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .opt-item {
+            padding: 8px 14px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: #fafafa;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all .15s;
+        }
+
+        .opt-item:hover {
+            border-color: var(--orange);
+        }
+
+        .opt-item.active {
+            border: 2px solid var(--orange);
+            background: #fff7f0;
+            color: var(--orange);
+            font-weight: 600;
         }

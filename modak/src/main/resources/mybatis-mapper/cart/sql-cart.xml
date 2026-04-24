@@ -68,12 +68,14 @@
 	        p.product_name  AS productName,
 	        p.price         AS price,
 	        b.brand_name    AS brandName,   
-	        i.img_url       AS imgUrl     
+	        i.img_url       AS imgUrl,
+	        o.option_value  AS optionName     
 	    FROM CART c
 	    INNER JOIN PRODUCT p ON c.product_id = p.product_id
 	    LEFT JOIN BRAND b ON p.brand_id = b.brand_id    
 	    LEFT JOIN PRODUCT_IMG i ON p.product_id = i.product_id
 	                            AND i.is_main = 'Y'
+	    LEFT JOIN PRODUCT_OPTION o ON c.option_id = o.option_id
 	    WHERE c.user_id = #{userId}
 	    ORDER BY c.created_at DESC
 	</select>
@@ -94,5 +96,59 @@
 	          #{cartId}
 	      </foreach>
 	</delete>
-	   
+	
+	<update id="updateCartOption" parameterType="hashmap">
+	    UPDATE CART
+	    SET
+	        quantity = #{quantity},
+	        option_id = NULLIF(#{optionId}, ''),
+	        rental_start = NULLIF(#{rentalStart}, ''),
+	        rental_end = NULLIF(#{rentalEnd}, '')
+	    WHERE cart_id = #{cartId}
+	      AND user_id = #{userId}
+	</update>
+	
+	<select id="selectCartById" parameterType="hashmap" resultType="com.example.modak.cart.model.Cart">
+	    SELECT
+	        cart_id AS cartId,
+	        quantity,
+	        cart_type AS cartType,
+	        product_id AS productId,
+	        option_id AS optionId,
+	        rental_start AS rentalStart,
+	        rental_end AS rentalEnd
+	    FROM CART
+	    WHERE cart_id = #{cartId}
+	      AND user_id = #{userId}
+	</select>
+	
+	<select id="selectSameCartForUpdate" parameterType="hashmap" resultType="com.example.modak.cart.model.Cart">
+	    SELECT
+	        cart_id AS cartId,
+	        quantity
+	    FROM CART
+	    WHERE user_id = #{userId}
+	      AND product_id = #{productId}
+	      AND cart_type = #{cartType}
+	      AND cart_id != #{cartId}
+	      AND (
+	            option_id = NULLIF(#{optionId}, '')
+	            OR (option_id IS NULL AND NULLIF(#{optionId}, '') IS NULL)
+	          )
+	
+	    <if test="cartType == 'RENTAL'">
+	        AND rental_start = NULLIF(#{rentalStart}, '')
+	        AND rental_end = NULLIF(#{rentalEnd}, '')
+	    </if>
+	
+	    LIMIT 1
+	</select>
+	
+	<update id="mergeCartQty" parameterType="hashmap">
+	    UPDATE CART
+	    SET quantity = quantity + #{addQuantity}
+	    WHERE cart_id = #{targetCartId}
+	      AND user_id = #{userId}
+	</update>
+		   
 </mapper>

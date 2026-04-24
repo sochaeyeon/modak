@@ -97,5 +97,10 @@ public class ProductController {
 	return new Gson().toJson(productService.getRelatedProducts(map));
 	}
 	
+	@RequestMapping(value = "/product/option/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getOptionList(@RequestParam HashMap<String, Object> map) throws Exception {
+	    return new Gson().toJson(productService.getProductOptions(map));
+	}
 
 }

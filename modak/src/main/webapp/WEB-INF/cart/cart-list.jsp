@@ -13,7 +13,7 @@
 </head>
 <body>
 <%@ include file="/WEB-INF/common/header.jsp" %>
-    <div id="app">
+    <div id="app" v-cloak>
             <!-- 브레드크럼 -->
         <div class="breadcrumb">
             <a href="#">장바구니</a>
@@ -84,8 +84,13 @@
 
                                 <!-- 상품 정보 -->
                                 <div class="cart-item-info">
-                                    <div class="cart-item-badge">Npay+</div>
-                                    <div class="cart-item-name">{{ item.productName }}</div>
+                                    <div class="cart-item-badge">배송무료</div>
+                                    <div class="cart-item-name">
+                                        {{ item.productName }}
+                                        <span v-if="item.optionName" class="cart-item-option">
+                                            | 옵션 : {{ item.optionName }}
+                                        </span>
+                                    </div>
                                     <div class="cart-item-orig">{{ formatPrice(item.price * 1.5) }}</div>
                                     <div class="cart-item-price">
                                         <span class="disc">{{ getDiscRate(item) }}%</span>
@@ -223,6 +228,22 @@
                                 <span v-if="day">{{ day.date }}</span>
                             </div>
                         </div>
+                        <!-- 옵션 -->
+                        <div v-if="optModal.optionList && optModal.optionList.length > 0" style="margin-top:10px;">
+                            <div style="font-size:13px;color:var(--muted);margin-bottom:6px;">옵션 선택</div>
+
+                            <div class="opt-list">
+                                <div 
+                                    v-for="opt in optModal.optionList"
+                                    :key="opt.optionId"
+                                    class="opt-item"
+                                    :class="{ active: String(optModal.selectedOption) === String(opt.optionId) }"
+                                    @click="optModal.selectedOption = opt.optionId"
+                                >
+                                    {{ opt.optionValue }}
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- 선택 결과 -->
                         <div class="date-result">
@@ -242,12 +263,34 @@
 
                 <!-- 구매: 수량 변경 -->
                 <div v-else style="margin:16px 0;">
-                    <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">수량</div>
-                    <div style="display:flex;align-items:center;gap:0;">
-                        <button class="qty-btn" style="border-radius:8px 0 0 8px;" @click="optModal.qty = Math.max(1, optModal.qty - 1)">−</button>
-                        <div class="qty-num" style="width:60px;">{{ optModal.qty }}</div>
-                        <button class="qty-btn" style="border-radius:0 8px 8px 0;" @click="optModal.qty++">+</button>
+
+                    <!-- 옵션 있는 경우 -->
+                    <div v-if="optModal.optionList && optModal.optionList.length > 0">
+                        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">옵션 선택</div>
+
+                        <div class="opt-list">
+                            <div 
+                                v-for="opt in optModal.optionList"
+                                :key="opt.optionId"
+                                class="opt-item"
+                                :class="{ active: String(optModal.selectedOption) === String(opt.optionId) }"
+                                @click="optModal.selectedOption = opt.optionId"
+                            >
+                                {{ opt.optionValue }}
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- 옵션 없는 경우만 수량 -->
+                    <div v-else>
+                        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">수량</div>
+                        <div style="display:flex;align-items:center;">
+                            <button class="qty-btn" @click="optModal.qty = Math.max(1, optModal.qty - 1)">−</button>
+                            <div class="qty-num">{{ optModal.qty }}</div>
+                            <button class="qty-btn" @click="optModal.qty++">+</button>
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- 금액 표시 -->
@@ -475,7 +518,10 @@
 
             // ── 옵션 변경 모달 ──
             openOptModal(item) {
-                this.optModal = {
+                let self = this;
+
+                // 1. 모달 기본 세팅
+                self.optModal = {
                     open: true,
                     item: { ...item },
                     qty: item.quantity,
@@ -483,7 +529,24 @@
                     endDate: item.rentalEnd || null,
                     year: new Date().getFullYear(),
                     month: new Date().getMonth(),
+                    selectedOption: Number(item.optionId) || null,
+                    optionList: []
                 };
+
+                // 2. 여기 ↓↓↓ 추가하는거
+                $.ajax({
+                    url: '/product/option/list.dox',
+                    type: 'POST',
+                    data: {
+                        productId: item.productId   // 🔥 여기 넣는거
+                    },
+                    dataType: 'json',
+                    success(res) {
+                        if (res.result === 'success') {
+                            self.optModal.optionList = res.list;
+                        }
+                    }
+                });
             },
             changeModalMonth(diff) {
                 const d = new Date(this.optModal.year, this.optModal.month + diff, 1);
@@ -531,21 +594,24 @@
                     data: {
                         cartId: m.item.cartId,
                         quantity: m.qty,
+                        optionId: m.selectedOption || '',
                         rentalStart: m.startDate || '',
                         rentalEnd: m.endDate || '',
                     },
                     dataType: 'json',
                     success(res) {
                         if (res.result === 'success') {
-                            // 로컬 반영
-                            const target = self.cartList.find(c => c.cartId === m.item.cartId);
-                            if (target) {
-                                target.quantity = m.qty;
-                                target.rentalStart = m.startDate;
-                                target.rentalEnd = m.endDate;
-                            }
                             self.optModal.open = false;
-                            showToast('✅ 변경됐어요.');
+
+                            // 🔥 핵심: 서버 기준으로 다시 그리기
+                            self.fetchCartList();
+
+                            showToast(
+                                res.merged === 'Y'
+                                ? '✅ 같은 옵션 상품과 합쳐졌어요.'
+                                : '✅ 변경됐어요.'
+                            );
+
                         } else {
                             showToast('변경에 실패했습니다.');
                         }

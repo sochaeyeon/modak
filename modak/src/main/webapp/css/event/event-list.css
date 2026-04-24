@@ -31,7 +31,7 @@
 }
 
 body {
-	font-family: 'Noto Sans KR', sans-serif;
+
 	background: var(--bg);
 	color: var(--text-primary);
 	min-height: 100vh;
@@ -77,7 +77,7 @@ main {
 	background: #fff;
 	color: #5a4a38;
 	transition: all .2s;
-	font-family: 'Noto Sans KR', sans-serif;
+	
 }
 
 .tab.active {
@@ -233,7 +233,7 @@ main {
 	align-items: center;
 	justify-content: center;
 	transition: all .15s;
-	font-family: 'Noto Sans KR', sans-serif;
+	
 }
 
 .page-btn.active {

@@ -13,8 +13,6 @@
 <%@ include file="/WEB-INF/common/header.jsp" %>
     <div id="app" v-cloak>
         <!-- ── 카테고리 pill 바 ── -->
-        
-            
     <div class="wrap">
         <div class="ptop">
             <div class="gallery">
@@ -23,7 +21,7 @@
                         <img v-if="mainImgUrl"
                             :src="mainImgUrl"
                             alt="상품 메인 이미지"
-                            style="width:100%; height:100%; object-fit:contain;">
+                            style="width:100%; height:100%; object-fit:cover;">
                         <img v-else
                             src="/img/product/default.jpg"
                             style="width:100%; height:100%; object-fit:cover;">
@@ -1134,53 +1132,75 @@
             fnAddToCart: function() {
                 let self = this;
 
-                // 대여 모드일 때 날짜 필수 체크
-                if (self.cartMode === 'RENT' && (!self.startDate || !self.endDate)) {
-                    showToast('대여 날짜를 먼저 선택해 주세요.');
-                    return;
+                if (self.productOptions.length > 0) {
+                    let optionGroupCount = Object.keys(self.groupedOptions).length;
+                    let selectedCount = Object.keys(self.selectedOptions).length;
+
+                    if (selectedCount < optionGroupCount) {
+                        showToast('옵션을 선택해주세요.');
+                        return;
+                    }
                 }
 
-                // 옵션이 있는데 아무것도 선택 안 했으면 막기
-                if (self.productOptions.length > 0 && Object.keys(self.selectedOptions).length === 0) {
-                    showToast('옵션을 선택해 주세요.');
-                    return;
+                if (self.productType === 'RENTAL') {
+                    if (!self.startDate || !self.endDate) {
+                        showToast('대여 날짜를 선택해주세요.');
+                        return;
+                    }
                 }
 
-                // 선택된 옵션값 문자열로 변환 (예: "블랙 / L")
-                const selectedOptionStr = Object.values(self.selectedOptions)
-                    .map(o => o.optionValue)
-                    .join(' / ');
+                if (self.productType === 'PURCHASE') {
+                    if (self.qty < 1) {
+                        showToast('수량을 선택해주세요.');
+                        return;
+                    }
+
+                    if (self.qty > self.totalQty) {
+                        showToast('재고가 부족합니다.');
+                        return;
+                    }
+                }
+
+                let optionId = null;
+                let selectedOptionArray = Object.values(self.selectedOptions);
+
+                if (selectedOptionArray.length > 0) {
+                    optionId = selectedOptionArray[0].optionId;
+                }
+
+                let param = {
+                    productId: self.productId,
+                    quantity: self.qty,
+                    cartType: self.productType,
+                    optionId: optionId == null ? '' : optionId,
+                    rentalStart: self.productType === 'RENTAL' ? self.startDate : '',
+                    rentalEnd: self.productType === 'RENTAL' ? self.endDate : ''
+                };
 
                 $.ajax({
-                    url: '/cart/insert.dox',
-                    dataType: 'json',
+                    url: '/cart/add.dox',
                     type: 'POST',
-                    data: {
-                        productId:      self.productId,
-                        cartType:       self.cartMode,           // 'RENT' | 'BUY'
-                        qty:            self.qty,
-                        selectedOption: selectedOptionStr,
-                        rentalStart:    self.cartMode === 'RENT' ? self.startDate : '',
-                        rentalEnd:      self.cartMode === 'RENT' ? self.endDate   : '',
-                    },
-                    success: function(data) {
-                        // 서버가 { result: 'success', cartId: 123 } 형태로 응답하면 → 그대로 사용
-                        // 서버가 { cartId: 123 } 만 응답하면 → data.cartId 체크만 유지
-                        // 서버가 단순 {} 응답이면 → success 콜백 진입 자체가 성공으로 간주
-                        if (data.result === 'success' || data.cartId) {
-                            showToast('🛒 장바구니에 담았습니다!');
-                        } else if (data.result === 'login') {
-                            showToast('로그인이 필요합니다.');
-                            setTimeout(function() { location.href = '/user/login.do'; }, 1200);
+                    data: param,
+                    dataType: 'json',
+                    success: function(res) {
+                        if (res.result === 'duplicate') {
+                            if (confirm('이미 같은 조건의 상품이 있습니다. 장바구니로 이동할까요?')) {
+                                location.href = '/cart/list.do';
+                            }
+                        } else if (res.result === 'success') {
+                            if (confirm('장바구니에 담았습니다. 장바구니로 이동할까요?')) {
+                                location.href = '/cart/list.do';
+                            }
                         } else {
-                            showToast('장바구니 담기에 실패했습니다.');
+                            showToast('장바구니 담기 실패');
                         }
                     },
                     error: function() {
-                        showToast('오류가 발생했습니다. 다시 시도해 주세요.');
+                        showToast('장바구니 담기 중 오류가 발생했습니다.');
                     }
                 });
             },
+
             reportReview(reviewId) {
                 if (confirm('이 리뷰를 신고하시겠습니까?')) {
                     // 신고 API 호출

@@ -115,18 +115,16 @@
                 <div class="fs-header">
                   <span class="fs-title">세부 카테고리</span>
                 </div>
-
+                <!-- 전체 선택 -->
+                  <label class="fopt">
+                    <input type="radio" name="childCategory" :value="null" v-model="currentChild" @change="fnList">
+                    전체
+                  </label>
                 <div class="filter-opts">
                   <label class="fopt" v-for="child in childCategory" :key="child.categoryId">
                     <input type="radio" name="childCategory" :value="child.categoryId" v-model="currentChild"
                       @change="fnList">
                     {{ child.categoryName }}
-                  </label>
-
-                  <!-- 전체 선택 -->
-                  <label class="fopt">
-                    <input type="radio" name="childCategory" :value="null" v-model="currentChild" @change="fnList">
-                    전체
                   </label>
                 </div>
               </div>

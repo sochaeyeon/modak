@@ -12,7 +12,6 @@ public class Cart {
 	
 	private String rentalStart;      
     private String rentalEnd;        
-    private String selectedOption;   
 	
 	private String userId; // 회원 id
 	private int productId; // 상품 id

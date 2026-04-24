@@ -136,7 +136,7 @@
 								<div class="back-wrap">
 									<button class="back-btn"
 										onclick="location.href='${pageContext.request.contextPath}/notification/list.do'">목록으로
-										↑</button>
+										</button>
 								</div>
 
 							</div><!-- /content -->

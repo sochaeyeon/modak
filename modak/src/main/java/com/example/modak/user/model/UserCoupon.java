@@ -20,6 +20,9 @@ public class UserCoupon {
 
     // COUPON 테이블 조인용
     private String couponName;
-    private String discountType;
-    private int discountValue;
+    private String couponType;
+    private int discountAmt;
+    private int discountRate;
+    private int minOrderAmt;
+    private int maxDiscountAmt;
 }

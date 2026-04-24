@@ -102,6 +102,37 @@
 		#{discountAppliedAmt}
 		)
 	</insert>
+	
+	<select id="selectMyCouponList" parameterType="hashmap" resultType="com.example.modak.user.model.UserCoupon">
+	    SELECT
+	        UC.USER_COUPON_ID AS userCouponId,
+	        UC.USER_ID AS userId,
+	        UC.COUPON_ID AS couponId,
+	        UC.ISSUED_AT AS issuedAt,
+	        UC.EXPIRED_AT AS expiredAt,
+	        UC.USED_YN AS usedYn,
+	        UC.USED_AT AS usedAt,
+	        UC.ORDER_ID AS orderId,
+	        UC.STATUS AS status,
+	        UC.CREATED_AT AS createdAt,
+	        UC.UPDATED_AT AS updatedAt,
+	
+	        C.COUPON_NAME AS couponName,
+	        C.COUPON_TYPE AS couponType,
+	        C.DISCOUNT_AMT AS discountAmt,
+	        C.DISCOUNT_RATE AS discountRate,
+	        C.MIN_ORDER_AMT AS minOrderAmt,
+	        C.MAX_DISCOUNT_AMT AS maxDiscountAmt
+	    FROM USER_COUPON UC
+	    JOIN COUPON C
+	        ON UC.COUPON_ID = C.COUPON_ID
+	    WHERE UC.USER_ID = #{userId}
+	      AND UC.USED_YN = 'N'
+	      AND UC.STATUS = 'AVAILABLE'
+	      AND C.IS_ACTIVE = 'Y'
+	      AND (UC.EXPIRED_AT IS NULL OR UC.EXPIRED_AT >= NOW())
+	    ORDER BY UC.EXPIRED_AT ASC
+	</select>
 
 
 </mapper>

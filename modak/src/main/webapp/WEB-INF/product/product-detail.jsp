@@ -1163,13 +1163,6 @@
             // ── 장바구니 담기 ──
             fnAddToCart: function() {
                 let self = this;
-                
-                if (!loginUserId || loginUserId === 'null' || loginUserId === '') {
-                        self.openConfirm('로그인이 필요한 서비스입니다. 로그인하시겠습니까?', function() {
-                            location.href = '/user/login.do';
-                        }, '로그인하기');
-                        return;
-                    }
 
                 if (self.productOptions.length > 0) {
                     let optionGroupCount = Object.keys(self.groupedOptions).length;

@@ -1,6 +1,7 @@
 package com.example.modak.user.mapper;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
@@ -26,4 +27,6 @@ public interface CouponMapper {
 
     // 쿠폰 사용 로그
     int insertCouponUseLog(HashMap<String, Object> map);
+    
+    public List<UserCoupon> selectMyCouponList(HashMap<String, Object> map);
 }

@@ -1,95 +1,61 @@
 @charset "UTF-8";
 
-
-/* ── [Image_9.png 디자인 적용] 전체 베이지 배경 ── */
-/* 1. 전체 레이아웃 */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-}
-body {
-    background-color: #faf6f0; /* 차분한 베이지색 배경 */
-}
-
-/* ── 전체 레이아웃 ── */
+/* [기존 코드 유지] 1. 전체 레이아웃 및 헤더 */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background-color: #faf6f0 !important; }
 .order-detail-container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; font-family: 'Pretendard', sans-serif; }
-
-/* ── 헤더 영역 ── */
 .detail-header { margin-bottom: 35px; border-bottom: 2px solid #2c1e0f; padding-bottom: 20px; }
 .page-title { font-size: 28px; font-weight: 800; color: #2c1e0f; margin-bottom: 12px; }
 .order-meta-info { font-size: 15px; color: #8b6b4a; }
 .order-meta-info strong { color: #e8732a; font-weight: 700; }
 .divider { margin: 0 12px; color: #e8e2d6; }
 
-/* ── 섹션 카드 (베이지 위 흰색 박스) ── */
-.glass-card { 
-    background: #fff; /* 카드는 하얀색으로 튀게 */
-    border: 1px solid #f2ede4; 
-    border-radius: 20px; 
-    padding: 30px; 
-    margin-bottom: 25px; 
-    box-shadow: 0 4px 15px rgba(44, 30, 15, 0.02); /* 은은한 그림자 */
-}
+/* [기존 코드 유지] 2. 섹션 카드 및 상품 리스트 */
+.glass-card { background: #fff; border: 1px solid #f2ede4; border-radius: 20px; padding: 30px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(44, 30, 15, 0.02); }
 .section-title { font-size: 18px; font-weight: 800; margin-bottom: 25px; color: #2c1e0f; border-left: 5px solid #e8732a; padding-left: 15px; display: flex; align-items: center; gap: 10px; }
-
-/* ── 상품 리스트 (클릭 유도 효과) ── */
 .product-list { display: flex; flex-direction: column; gap: 15px; }
-.product-item { 
-    display: flex; align-items: center; gap: 20px; 
-    padding: 18px; border-radius: 16px; 
-    background: #fafaf8; border: 1px solid #f2ede4; 
-    cursor: pointer; transition: 0.2s ease-in-out; 
-}
-.product-item:hover { 
-    background: #fff; 
-    transform: translateX(8px); /* 오른쪽 이동 효과 */
-    box-shadow: 0 6px 20px rgba(232, 115, 42, 0.1); 
-    border-color: #e8732a; 
-}
-.product-thumb-box { width: 64px; height: 64px; background: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 32px; border: 1px solid #eee; }
+.product-item { display: flex; align-items: center; gap: 20px; padding: 18px; border-radius: 16px; background: #fafaf8; border: 1px solid #f2ede4; cursor: pointer; transition: 0.2s ease-in-out; }
+.product-item:hover { background: #fff; transform: translateX(8px); box-shadow: 0 6px 20px rgba(232, 115, 42, 0.1); border-color: #e8732a; }
+
+/* 썸네일 박스 보정 */
+.product-thumb-box { width: 80px; height: 80px; background: #F6F0E6; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+.thumb-img { width: 100%; height: 100%; object-fit: cover; }
+.thumb-emoji { font-size: 32px; display: flex; align-items: center; justify-content: center; }
+
 .product-info-box { flex: 1; }
 .item-name { font-size: 17px; font-weight: 700; margin-bottom: 6px; color: #2c1e0f; }
 .badge { font-size: 11px; padding: 3px 10px; border-radius: 6px; font-weight: 700; margin-bottom: 6px; display: inline-block; }
 .badge.buy { background: #fff4ec; color: #e8732a; }
 .badge.rental { background: #eef6ff; color: #3a86ff; }
 .item-arrow { color: #ddd; font-size: 16px; transition: 0.2s; }
-.product-item:hover .item-arrow { color: #e8732a; }
 
-/* ── 그리드 시스템 ── */
+/* [기존 코드 유지] 3. 정보 그리드 및 결제 요약 */
 .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
-
-/* ── 배송지 정보 테이블 ── */
 .info-table { width: 100%; border-collapse: collapse; }
 .info-table th { text-align: left; font-size: 14px; color: #8b6b4a; padding: 12px 0; width: 90px; vertical-align: top; }
 .info-table td { font-size: 15px; font-weight: 600; color: #2c1e0f; padding: 12px 0; line-height: 1.5; }
-
-/* ── 결제 정보 요약 (가독성 클래스 매핑) ── */
 .price-summary { display: flex; flex-direction: column; gap: 14px; }
 .price-row { display: flex; justify-content: space-between; align-items: center; font-size: 15px; color: #5c4230; }
-
-/* 결제수단 오렌지색 강조 */
 .val-orange { color: #e8732a; font-weight: 800; font-size: 16px; }
-/* 결제시각 흐리게 */
 .val-sub { color: #b09070; font-size: 13px; font-weight: 400; }
-
 .info-divider { border-top: 1px dashed #e8e2d6; margin: 10px 0; }
 .minus-text { color: #cf1322; font-weight: 700; }
 .total-row { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 18px; border-top: 2px solid #f2ede4; }
 .total-price-text { font-size: 26px; font-weight: 900; color: #e8732a; }
 
-/* ── 하단 버튼 그룹 ── */
+/* [기존 코드 유지] 4. 버튼 그룹 */
 .btn-group { display: flex; justify-content: center; gap: 15px; margin-top: 40px; }
 .btn-back-list { padding: 12px 35px; border-radius: 12px; border: 1.5px solid #dcd0c0; background: #fff; cursor: pointer; font-weight: 700; color: #7a5c3e; transition: 0.2s; }
-.btn-back-list:hover { background: #fdfaf5; border-color: #b89a7a; }
 .btn-cancel { padding: 12px 35px; border-radius: 12px; border: 1.5px solid #ffccc7; background: #fff1f0; color: #cf1322; cursor: pointer; font-weight: 700; transition: 0.2s; }
-.btn-cancel:hover { background: #cf1322; color: #fff; border-color: #cf1322; }
+
+/* ★ 추가: 주문 취소 모달 시스템 ★ */
+.modal-overlay { position: fixed; inset: 0; background: rgba(44, 30, 15, 0.6); display: flex; align-items: center; justify-content: center; z-index: 2000; backdrop-filter: blur(4px); }
+.cancel-modal { width: 95%; max-width: 440px; padding: 35px; background: rgba(255, 253, 248, 0.98); border: 2px solid #e8732a; box-shadow: 0 20px 40px rgba(0,0,0,0.2); border-radius: 24px; }
+.cancel-info-box { background: #F6F0E6; padding: 18px; border-radius: 16px; margin: 15px 0 25px; font-size: 14px; color: #5c4230; line-height: 1.6; }
+.cancel-form .label { display: block; margin: 15px 0 8px; font-weight: 700; color: #2c1e0f; }
+.cancel-select { width: 100%; padding: 12px; border: 1.5px solid #e2d8c3; border-radius: 10px; font-family: inherit; margin-bottom: 10px; outline: none; background: #fff; }
+.cancel-textarea { width: 100%; height: 90px; padding: 12px; border: 1.5px solid #e2d8c3; border-radius: 10px; font-family: inherit; resize: none; outline: none; }
+.cancel-textarea:focus, .cancel-select:focus { border-color: #e8732a; }
 
 [v-cloak] { display: none; }
-
-/* 반응형 처리 */
 @media (max-width: 800px) { .info-grid { grid-template-columns: 1fr; } }

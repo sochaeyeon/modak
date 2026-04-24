@@ -1,9 +1,11 @@
 package com.example.modak.order.controller;
 
 import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model; 
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -68,6 +70,36 @@ public class OrderController {
         }
 
         resultMap = orderService.getOrderDetail(orderId, userId);
+        return new Gson().toJson(resultMap);
+    }
+    @RequestMapping("/order/cancel.dox")
+    @ResponseBody
+    public String cancelOrder(@RequestParam Map<String, Object> map, HttpSession session) {
+        HashMap<String, Object> resultMap = new HashMap<>();
+        
+        // 1. 세션에서 사용자 아이디 확인 (보안 체크)
+        String userId = (String) session.getAttribute("sessionId");
+
+        if (userId == null || "".equals(userId)) {
+            resultMap.put("result", "fail");
+            resultMap.put("message", "로그인이 필요하다닥! 다시 로그인해달라닥.");
+            return new Gson().toJson(resultMap);
+        }
+
+        // 2. 서비스 호출 전 유저 아이디 추가 (필요 시 서비스나 맵퍼에서 본인 확인용으로 사용)
+        map.put("userId", userId);
+
+        try {
+            // 3. 서비스 호출 
+            // (map 안에는 orderId, cancelReasonCode, cancelReasonText, cancelAmount 가 들어있음)
+            resultMap = orderService.cancelOrder(map);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultMap.put("result", "fail");
+            resultMap.put("message", "알 수 없는 오류가 발생했다닥! 관리자에게 문의해달라닥.");
+        }
+
         return new Gson().toJson(resultMap);
     }
 }

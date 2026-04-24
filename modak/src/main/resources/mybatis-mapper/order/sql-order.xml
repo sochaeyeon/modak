@@ -141,5 +141,30 @@
             AND O.USER_ID = #{userId}
         </if>
     </select>
+<update id="updateOrderStatus" parameterType="hashmap">
+    UPDATE ORDERS
+    SET 
+        ORDER_STATUS = 'CANCELLED'
+    WHERE ORDER_ID = #{orderId}
+    AND ORDER_STATUS IN ('PAID', 'READY', 'PAY_COMPLETED')
+</update>
+
+<insert id="insertOrderCancel" parameterType="hashmap">
+    INSERT INTO ORDER_CANCEL (
+        CANCEL_REASON_CODE, 
+        CANCEL_REASON_TEXT, 
+        CANCEL_AMOUNT, 
+        CANCEL_STATUS, 
+        REQUESTED_AT, 
+        ORDER_ID
+    ) VALUES (
+        #{cancelReasonCode}, 
+        #{cancelReasonText}, 
+        #{cancelAmount}, 
+        'COMPLETED', 
+        NOW(), 
+        #{orderId}
+    )
+</insert>
 
 </mapper>

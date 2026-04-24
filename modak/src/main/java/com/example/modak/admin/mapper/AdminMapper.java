@@ -239,5 +239,21 @@ public interface AdminMapper {
 
  // [Delete] 쿠폰 회수 (삭제)
  void deleteUserCoupon(HashMap<String, Object> map);
+ 
+ List<HashMap<String, Object>> selectGradeList();           // 등급 목록 + 회원수
+ int updateGrade(HashMap<String, Object> map);              // 등급 정보 수정
+ void updateMemberGrade(HashMap<String, Object> map);       // 회원 등급 변경
+ 
+//알람 단건 insert (개별/선택 발송)
+int insertAlarm(HashMap<String, Object> map);
+
+//알람 전체 insert (전체 발송 — INSERT INTO ... SELECT)
+int insertAlarmToAllUsers(HashMap<String, Object> map);
+
+//발송 내역 조회
+List<HashMap<String, Object>> selectAlarmLogs(HashMap<String, Object> map);
+
+//회원 단건 조회
+HashMap<String, Object> selectMemberById(HashMap<String, Object> map);
     
 }

@@ -408,4 +408,59 @@ public class AdminController {
 		if (!isAdmin()) return noAuth();
 	    return new Gson().toJson(adminService.modifyUserCouponStatus(map));
 	}
+	@GetMapping("/membership.do")
+	public String membership() {
+	    if (!isAdmin()) return "redirect:/admin/login.do";
+	    return "admin/admin-membership";
+	}
+	 
+	@PostMapping(value="/grade/list.dox", produces="application/json;charset=UTF-8")
+	@ResponseBody
+	public String getGradeList() {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.getGradeList());
+	}
+	 
+	@PostMapping(value="/grade/save.dox", produces="application/json;charset=UTF-8")
+	@ResponseBody
+	public String saveGrade(@RequestParam HashMap<String,Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.saveGrade(map));
+	}
+	 
+	@PostMapping(value="/member/grade.dox", produces="application/json;charset=UTF-8")
+	@ResponseBody
+	public String updateMemberGrade(@RequestParam HashMap<String,Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.updateMemberGrade(map));
+	}
+	@GetMapping("/alarm.do")
+	public String alarmPage() {
+	    if (!isAdmin()) return "redirect:/admin/login.do";
+	    return "admin/admin-alarm";
+	}
+	 
+	// 알람 발송 (전체/선택/개별)
+	@PostMapping(value="/alarm/send.dox", produces="application/json;charset=UTF-8")
+	@ResponseBody
+	public String sendAlarm(@RequestParam HashMap<String,Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.sendAlarm(map));
+	}
+	 
+	// 발송 내역 조회
+	@PostMapping(value="/alarm/logs.dox", produces="application/json;charset=UTF-8")
+	@ResponseBody
+	public String getAlarmLogs(@RequestParam HashMap<String,Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.getAlarmLogs(map));
+	}
+	 
+	// 회원 단건 조회 (개별 발송용 확인)
+	@PostMapping(value="/member/find.dox", produces="application/json;charset=UTF-8")
+	@ResponseBody
+	public String findMember(@RequestParam HashMap<String,Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.findMember(map));
+	}
 }

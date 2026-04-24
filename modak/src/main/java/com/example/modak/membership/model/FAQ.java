@@ -4,8 +4,10 @@ import lombok.Data;
 
 @Data
 public class FAQ {
-	private String questionId;
-	private String question;
-	private String answer;
-	private String category;
+
+    private int faqId;          // ← PK
+    private String question;
+    private String answer;
+    private String category;
+    private String createdAt;   // ← 추가
 }

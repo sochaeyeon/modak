@@ -1,25 +1,33 @@
+[v-cloak] {
+    display: none;
+}
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-    --bg:      #faf6f0;
-    --white:   #fffdf8;
-    --border:  rgba(200,165,130,.45);
-    --border2: rgba(200,165,130,.22);
+    --cream:   #F6F0E6;
+    --cream2:  #EDE5D4;
+    --cream3:  #E2D8C3;
     --orange:  #E8732A;
     --orange2: #C4621E;
+    --amber:   #D4932A;
     --brown:   #2C1E0F;
     --brown2:  #5C4230;
     --brown3:  #8B6B4A;
     --brown4:  #B89A7A;
-    --cream2:  #EDE5D4;
-    --cream3:  #E2D8C3;
+    --white:   #FFFDF8;
+
+    --border: rgba(92, 66, 48, .16);
+    --border2: rgba(92, 66, 48, .09);
+    --shadow: 0 18px 45px rgba(44, 30, 15, .10);
 }
+
 body {
     /* ★ font.css 의 CSS 변수 사용 — fallback 포함 */
     font-family: var(--font-body, 'Noto Sans KR', sans-serif);
-    background: var(--bg);
+    background: linear-gradient(180deg, var(--white) 0%, var(--cream) 100%);
+    color: var(--brown);
     min-height: 100vh;
     display: flex; flex-direction: column;
-    color: var(--brown);
 }
 #app { flex: 1; }
 
@@ -40,7 +48,7 @@ body {
 .page-desc    { font-size: 13px; color: var(--brown3); font-weight: 300; line-height: 1.7; }
 
 /* ── 섹션 카드 ── */
-.section-card { background: var(--white); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+.section-card { background: var(--white); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; margin-top: 15px; }
 .section-head {
     padding: 18px 24px 16px; border-bottom: 1px solid var(--border2);
     display: flex; align-items: center; justify-content: space-between;
@@ -84,7 +92,7 @@ body {
 .rental-card:hover  .rental-arrow { color: var(--orange); }
 
 /* ── 연장 패널 ── */
-.ext-panel { background: var(--white); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+.ext-panel { background: var(--white); border: 1px solid var(--border); border-radius: 20px; overflow: hidden;  margin-top: 15px;}
 .ext-panel-head {
     padding: 18px 24px; border-bottom: 1px solid var(--border2);
     display: flex; align-items: center; justify-content: space-between;
@@ -150,6 +158,7 @@ body {
     font-family: var(--font-body, sans-serif); cursor: pointer;
     transition: background .2s, transform .15s;
     box-shadow: 0 4px 14px rgba(232,115,42,.3); white-space: nowrap;
+    padding: 8px 15px;
 }
 .btn-apply:hover    { background: var(--orange2); transform: translateY(-1px); }
 .btn-apply:disabled { opacity: .6; cursor: not-allowed; transform: none; }
@@ -232,4 +241,357 @@ body {
     .ext-form-row { flex-direction: column; align-items: stretch; }
     .form-input   { width: 100%; }
     .btn-apply    { width: 100%; }
+}
+
+.section-card,
+.ext-panel {
+    background: rgba(255, 253, 248, .92);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.rental-flow-box {
+    margin-top: 22px;
+    padding: 22px;
+    border-radius: 22px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    box-shadow: 0 14px 34px rgba(44, 30, 15, .07);
+}
+
+.flow-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--brown);
+    margin-bottom: 16px;
+}
+
+.flow-group + .flow-group {
+    margin-top: 14px;
+}
+
+.flow-label {
+    display: inline-block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--brown2);
+}
+
+.flow-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: var(--cream);
+    border: 1px solid var(--border2);
+}
+
+.flow-line span {
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: var(--white);
+    border: 1px solid rgba(184, 154, 122, .38);
+    color: var(--brown2);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.flow-line em {
+    font-style: normal;
+    color: var(--orange);
+    font-weight: 900;
+}
+
+.rental-card {
+    background: var(--cream);
+    border: 1px solid var(--border2);
+}
+
+.rental-card:hover,
+.rental-card.active {
+    border-color: rgba(232, 115, 42, .55);
+    background: var(--white);
+    box-shadow: 0 12px 28px rgba(232, 115, 42, .12);
+}
+
+.status-badge {
+    border-radius: 999px;
+    font-weight: 800;
+}
+
+.st-PAID,
+.st-RESERVED {
+    background: rgba(212, 147, 42, .16);
+    color: var(--brown2);
+}
+
+.st-READY {
+    background: rgba(184, 154, 122, .18);
+    color: var(--brown2);
+}
+
+.st-SHIPPING {
+    background: rgba(232, 115, 42, .15);
+    color: var(--orange2);
+}
+
+.st-DONE,
+.st-RETURNED,
+.st-RETURN_COMPLETED {
+    background: rgba(92, 66, 48, .12);
+    color: var(--brown);
+}
+
+.st-RENTING,
+.st-IN_USE {
+    background: rgba(232, 115, 42, .18);
+    color: var(--orange2);
+}
+
+.st-CANCELLED {
+    background: rgba(44, 30, 15, .10);
+    color: var(--brown3);
+}
+
+
+
+.btn-ext-cancel {
+    border-color: rgba(196, 98, 30, .28);
+    color: var(--orange2);
+    border-radius: 999px;
+}
+
+.btn-ext-cancel:hover {
+    background: rgba(232, 115, 42, .09);
+    border-color: var(--orange);
+}
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(44, 30, 15, .42);
+    backdrop-filter: blur(7px);
+    animation: modalDim .18s ease both;
+}
+
+.confirm-modal {
+    width: min(420px, 100%);
+    padding: 28px;
+    border-radius: 24px;
+    background: var(--white);
+    border: 1px solid rgba(246, 240, 230, .8);
+    box-shadow: 0 30px 80px rgba(44, 30, 15, .28);
+    animation: modalFadeUp .28s ease both;
+}
+
+.modal-eyebrow {
+    margin-bottom: 8px;
+    font-size: 11px;
+    letter-spacing: 1.8px;
+    font-weight: 800;
+    color: var(--orange);
+}
+
+.modal-title {
+    margin-bottom: 10px;
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--brown);
+}
+
+.modal-message {
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--brown3);
+}
+
+.modal-message strong {
+    color: var(--orange2);
+    font-weight: 900;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.modal-btn {
+    min-width: 92px;
+    height: 42px;
+    border-radius: 999px;
+    border: none;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: .18s ease;
+}
+
+.modal-btn.cancel {
+    background: var(--cream2);
+    color: var(--brown2);
+}
+
+.modal-btn.cancel:hover {
+    background: var(--cream3);
+}
+
+.modal-btn.confirm {
+    background: var(--brown);
+    color: var(--white);
+    box-shadow: 0 10px 22px rgba(44, 30, 15, .18);
+}
+
+.modal-btn.confirm:hover {
+    background: var(--orange2);
+    transform: translateY(-1px);
+}
+
+@keyframes modalDim {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 640px) {
+    .flow-line {
+        align-items: flex-start;
+    }
+
+    .modal-actions {
+        flex-direction: column-reverse;
+    }
+
+    .modal-btn {
+        width: 100%;
+    }
+}
+
+.delete-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    background: rgba(35, 24, 15, 0.38);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: fadeIn .15s ease;
+}
+
+.delete-modal-box {
+    width: 100%;
+    max-width: 380px;
+    background: var(--white);
+    border: 1px solid rgba(184, 154, 122, 0.28);
+    border-radius: 16px;
+    padding: 24px 24px 20px;
+    box-shadow: 0 18px 46px rgba(35, 24, 15, 0.20);
+    text-align: center;
+    animation: modalFadeUp .18s ease;
+}
+
+.delete-modal-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--brown);
+    margin-bottom: 8px;
+}
+
+.delete-modal-desc {
+    font-size: 13px;
+    color: var(--brown3);
+    line-height: 1.7;
+    margin-bottom: 22px;
+}
+
+.delete-modal-desc strong {
+    color: var(--orange2);
+    font-weight: 900;
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+}
+
+.delete-modal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.delete-cancel-btn,
+.delete-confirm-btn {
+    flex: 1;
+    height: 42px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all .18s ease;
+}
+
+.delete-cancel-btn {
+    border: 1px solid rgba(184, 154, 122, 0.32);
+    background: var(--white);
+    color: var(--brown2);
+}
+
+.delete-cancel-btn:hover {
+    background: var(--cream);
+    border-color: rgba(232, 115, 42, 0.28);
+    color: var(--orange2);
+    transform: translateY(-1px);
+}
+
+.delete-confirm-btn {
+    border: none;
+    background: var(--orange2);
+    color: var(--white);
+}
+
+.delete-confirm-btn:hover {
+    background: var(--orange);
+    box-shadow: 0 8px 18px rgba(232, 115, 42, 0.25);
+    transform: translateY(-1px);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.rental-dates,
+.ext-panel-subtitle,
+.ext-item-date {
+    color: var(--brown3);
+    font-weight: 600;
+}
+
+.ext-notice {
+    color: var(--brown3);
+}
+
+.price-preview-val,
+.ext-item-price {
+    color: var(--orange2);
 }

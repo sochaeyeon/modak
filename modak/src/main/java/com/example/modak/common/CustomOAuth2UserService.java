@@ -26,14 +26,10 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     public OAuth2User loadUser(OAuth2UserRequest req) {
         OAuth2User oAuth2User = new DefaultOAuth2UserService().loadUser(req);
 
-        // 소셜 로그인 제공자 구분값
         String provider = req.getClientRegistration().getRegistrationId();
 
         SocialUserInfo info = new SocialUserInfo();
 
-        // =========================
-        // GOOGLE
-        // =========================
         if ("google".equals(provider)) {
             info.setSocialType("GOOGLE");
             info.setSocialId((String) oAuth2User.getAttributes().get("sub"));
@@ -42,9 +38,6 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             info.setNickName((String) oAuth2User.getAttributes().get("name"));
         }
 
-        // =========================
-        // KAKAO
-        // =========================
         else if ("kakao".equals(provider)) {
             Map<String, Object> attributes = oAuth2User.getAttributes();
 
@@ -78,9 +71,6 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             info.setNickName(nickName);
         }
 
-        // =========================
-        // NAVER
-        // =========================
         else if ("naver".equals(provider)) {
             Map<String, Object> attributes = oAuth2User.getAttributes();
             Map<String, Object> response = (Map<String, Object>) attributes.get("response");
@@ -101,14 +91,10 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             info.setNickName(nickName);
         }
 
-        // =========================
-        // 지원하지 않는 provider
-        // =========================
         else {
             throw new OAuth2AuthenticationException("지원하지 않는 소셜 로그인입니다. provider = " + provider);
         }
 
-        // 필수값 검증
         if (info.getSocialType() == null || info.getSocialType().trim().isEmpty()) {
             throw new OAuth2AuthenticationException("socialType 값이 비어 있습니다.");
         }
@@ -117,9 +103,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             throw new OAuth2AuthenticationException("socialId 값이 비어 있습니다.");
         }
 
-        // 🔥 핵심: DB 처리
         User user = loginService.getOrCreateSocialUser(info);
 
-        return oAuth2User; // 세션 유지용 (간단 버전)
+        return new CustomOAuth2User(oAuth2User, user);
     }
 }

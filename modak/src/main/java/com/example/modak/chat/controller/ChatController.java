@@ -44,20 +44,27 @@ public class ChatController {
 		return "chat/chatbot-history";
 	}
 
-	/* ── 메시지 전송 ── */
 	@PostMapping(value = "/api/chat/ask.dox", produces = "text/plain;charset=UTF-8")
 	@ResponseBody
 	public String ask(@RequestBody HashMap<String, Object> params, HttpSession session) {
-		String userId = (String) session.getAttribute("sessionId");
-		String message = (String) params.get("message");
-		String roomId = (String) params.get("roomId");
 
-		if (message == null || message.trim().isEmpty())
-			return "질문을 입력해 주세요! 🏕️";
-		if (userId == null || userId.trim().isEmpty())
-			return "로그인 후 이용해 주세요! 🔥";
+	    String userId = (String) session.getAttribute("sessionId");
+	    String message = (String) params.get("message");
+	    String roomId = (String) params.get("roomId");
 
-		return chatService.getGeminiResponse(userId, message, roomId);
+	    if (message == null || message.trim().isEmpty()) {
+	        return "질문을 입력해 주세요! 🏕️";
+	    }
+
+	    // 비회원 여부
+	    boolean guest = (userId == null || userId.trim().isEmpty());
+
+	    // 비회원이면 저장용 userId를 넘기지 않음
+	    if (guest) {
+	        userId = null;
+	    }
+
+	    return chatService.getGeminiResponse(userId, message, roomId);
 	}
 
 	/* ── 사이드바 히스토리 (방 목록) ── */

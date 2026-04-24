@@ -22,7 +22,7 @@
 
                 <body>
                     <%@ include file="/WEB-INF/common/header.jsp" %>
-                        <div id="app">
+                        <div id="app" v-cloak>
                             <!-- PAGE -->
                             <div class="page-wrap">
 
@@ -2098,6 +2098,55 @@ self.displayUser.profileImgUrl = profileImgUrl;
                 item._loaded = true; // 🔥 추가
             }
         }
+    });
+},
+                            fnInquiryStatusText: function (item) {
+                                return item.replyId ? "답변완료" : "답변대기";
+                            },
+                            fnInquiryStatusClass: function (item) {
+                                return item.replyId ? "answered" : "waiting";
+                            },
+                            fnEditInquiry: function (inquiryId) {
+                                pageChange("/user/inquiry/edit.do", { inquiryId: inquiryId });
+                            },
+
+                            fnDeleteInquiry: function (inquiryId) {
+                                let self = this;
+
+                                if (!confirm("문의글을 삭제하시겠습니까?")) {
+                                    return;
+                                }
+
+                                $.ajax({
+                                    url: "/user/inquiry/remove.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: { inquiryId: inquiryId },
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            alert("문의가 삭제되었습니다.");
+                                            self.fnGetInquiryList();
+                                            self.openInquiryId = null;
+                                        } else {
+                                            alert(data.message || "삭제 실패");
+                                        }
+                                    },
+                                    error: function () {
+                                        alert("서버 오류");
+                                    }
+                                });
+                            },
+                            fnGoBenefitHistory: function () {
+                                pageChange("/user/benefit/history.do", {});
+                            },
+                            fnTriggerProfileFile: function () {
+                                this.$refs.profileFileInput.click();
+                            },
+                            fnDeleteProfile: function () {
+    let self = this;
+
+    if (!confirm("프로필 사진을 삭제하시겠습니까?")) {
+        return;
     }
 
     $.ajax({

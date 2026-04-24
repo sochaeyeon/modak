@@ -6,131 +6,179 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>이벤트 상세 - 모닥모닥</title>
+
 		<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+		<!-- Vue 스크립트 -->
+		<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css" rel="stylesheet">
+
 		<link rel="stylesheet" href="${pageContext.request.contextPath}/css/event/event-detail.css">
 	</head>
 
 	<body>
-
-		<!-- ── Header ── -->
 		<%@ include file="/WEB-INF/common/header.jsp" %>
 
-			<!-- Breadcrumb -->
-			<div class="breadcrumb">
-				<a href="${pageContext.request.contextPath}">홈</a>
-				<span>›</span>
-				<a href="${pageContext.request.contextPath}/event/list.do">이벤트</a>
-				<span>›</span>
-				<span class="cur" id="bcTitle">상세보기</span>
+			<div id="app">
+				<div class="breadcrumb">
+					<a href="${pageContext.request.contextPath}/main.do">홈</a>
+					<span>›</span>
+					<a href="${pageContext.request.contextPath}/event/list.do">이벤트</a>
+					<span>›</span>
+					<span class="cur">{{ eventInfo.title || '상세보기' }}</span>
+				</div>
+
+				<main>
+					<div v-if="isLoading" class="loading-box">
+						<div class="spin"></div>
+						<span>불러오는 중...</span>
+					</div>
+
+					<div v-else-if="errorMsg" class="error-box">
+						⚠️ {{ errorMsg }}
+					</div>
+
+					<div v-else class="detail-card">
+						<div class="detail-image" v-if="eventInfo.imgPath">
+							<span class="detail-badge" :class="badgeClass">
+								{{ badgeText }}
+							</span>
+
+							<img :src="contextPath + eventInfo.imgPath" alt="이벤트 이미지" class="event-detail-img"
+								@load="fnMoveTop">
+						</div>
+
+						<div class="detail-body">
+							<div class="detail-meta">
+								<span class="meta-date">
+									📅 {{ eventInfo.startDate }} ~ {{ eventInfo.endDate }}
+								</span>
+							</div>
+
+							<h1 class="detail-title">
+								{{ eventInfo.title }}
+							</h1>
+
+							<div class="detail-divider"></div>
+
+							<img v-for="img in eventInfo.imgList" :key="img.eventImgId" :src="contextPath + img.imgUrl"
+								alt="이벤트 상세 이미지" class="event-content-img" @load="fnMoveTop">
+
+							<div class="detail-content">
+								{{ eventInfo.content }}
+							</div>
+
+						</div>
+					</div>
+
+					<a href="${pageContext.request.contextPath}/event/list.do" class="btn-back">
+						목록으로 돌아가기
+					</a>
+				</main>
+				<button class="floating-top-btn" :class="{ show: showTopBtn }" @click="fnMoveTop">
+					<i class="ri-arrow-up-line"></i>
+				</button>
 			</div>
 
-			<!-- Main -->
-			<main>
-				<div id="detailWrap">
-					<div class="loading-box">
-						<div class="spin"></div><span>불러오는 중...</span>
-					</div>
-				</div>
-				<a href="${pageContext.request.contextPath}/event/list.do" class="btn-back">목록으로 돌아가기</a>
-			</main>
-
-			<!-- Footer -->
 			<%@ include file="/WEB-INF/common/footer.jsp" %>
 
 				<script>
-					/* URL 파라미터에서 eventId 추출 */
-					var eventId = "${map.eventId}";
+					const app = Vue.createApp({
+						data() {
+							return {
+								contextPath: "${pageContext.request.contextPath}",
+								eventId: "${map.eventId}",
 
-					/* ── 상세 데이터 조회 ─────────────────────────────────
-					   POST /event/info.dox  { eventId: N }
-					   응답: { result, info: { eventId, title, content, startDate, endDate } }
-					─────────────────────────────────────────────────── */
-					function fnGetInfo() {
-						if (!eventId) {
-							$('#detailWrap').html('<div class="error-box">⚠️ 잘못된 접근입니다. eventId가 없습니다.</div>');
-							return;
-						}
+								eventInfo: {},
+								isLoading: true,
+								errorMsg: "",
+								showTopBtn: false,
+							};
+						},
 
-						$.ajax({
-							url: '${pageContext.request.contextPath}/event/info.dox',
-							type: 'POST',
-							dataType: 'json',
-							data: { eventId: eventId },
-							success: function (data) {
-								if (data.result === 'success' && data.info) {
-									renderDetail(data.info);
-								} else {
-									$('#detailWrap').html('<div class="error-box">⚠️ ' + (data.message || '데이터를 불러오지 못했습니다.') + '</div>');
+						computed: {
+							isEnded: function () {
+								if (!this.eventInfo.endDate) {
+									return false;
 								}
+
+								let today = new Date();
+								today.setHours(0, 0, 0, 0);
+
+								let endDate = new Date(this.eventInfo.endDate);
+								endDate.setHours(0, 0, 0, 0);
+
+								return endDate < today;
 							},
-							error: function (xhr, status, err) {
-								$('#detailWrap').html('<div class="error-box">⚠️ 서버 연결 오류(' + xhr.status + ')</div>');
-								console.error(err);
+
+							badgeClass: function () {
+								return this.isEnded ? "badge-ended" : "badge-ongoing";
+							},
+
+							badgeText: function () {
+								return this.isEnded ? "종료된 이벤트" : "진행중인 이벤트";
 							}
-						});
-					}
+						},
 
-					/* ── 상세 HTML 렌더링 ─────────────────────────────── */
-					/* ── 상세 HTML 렌더링 ─────────────────────────────── */
-					/* ── 상세 HTML 렌더링 ─────────────────────────────── */
-					/* ── 상세 HTML 렌더링 ─────────────────────────────── */
-					function renderDetail(ev) {
-						// 1. 콘솔에서 ev.imgPath가 출력되는지 꼭 확인하세요!
-						console.log("DB에서 넘어온 실제 데이터:", ev);
+						methods: {
+							fnGetEventInfo: function () {
+								let self = this;
 
-						var now = new Date();
-						var endDate = new Date(ev.endDate);
-						var isEnded = endDate < now;
+								if (!self.eventId) {
+									self.errorMsg = "잘못된 접근입니다. eventId가 없습니다.";
+									self.isLoading = false;
+									return;
+								}
 
-						var badgeClass = isEnded ? 'badge-ended' : 'badge-ongoing';
-						var badgeText = isEnded ? '종료된 이벤트' : '진행중인 이벤트';
+								$.ajax({
+									url: self.contextPath + "/event/info.dox",
+									type: "POST",
+									dataType: "json",
+									data: {
+										eventId: self.eventId
+									},
+									success: function (data) {
+										if (data.result === "success" && data.info) {
+											self.eventInfo = data.info;
 
-						$('#bcTitle').text(ev.title || ev.TITLE);
+											self.$nextTick(function () {
+												self.fnMoveTop();
+											});
+										} else {
+											self.errorMsg = data.message || "이벤트 정보를 불러오지 못했습니다.";
+										}
 
-						// 2. DB 경로 매핑 (대소문자 완벽 대응)
-						var dbPath = ev.imgPath || ev.IMGPATH || ev.img_path;
-						var contextPath = '${pageContext.request.contextPath}';
+										self.isLoading = false;
+									},
+									error: function (xhr) {
+										self.errorMsg = "서버 연결 오류(" + xhr.status + ")";
+										self.isLoading = false;
+									}
+								});
+							},
+							fnMoveTop: function () {
+								window.scrollTo({
+									top: 0,
+									behavior: "smooth"
+								});
+							},
 
-						var finalImgSrc = "";
-						if (dbPath) {
-							// DB에 데이터가 있으면 해당 경로 사용
-							finalImgSrc = contextPath + dbPath;
-						} else {
-							// DB에 정말 없을 때만 대체 이미지 (이미지 폴더에 실제 있는 파일명으로!)
-							finalImgSrc = contextPath + '/img/event/fireEvent.png';
+							fnHandleScroll: function () {
+								this.showTopBtn = window.scrollY > 300;
+							}
+						},
+
+						mounted() {
+							this.fnGetEventInfo();
+							window.addEventListener("scroll", this.fnHandleScroll);
+							this.fnGetEventInfo();
+						},
+						unmounted() {
+							window.removeEventListener("scroll", this.fnHandleScroll);
 						}
-
-						var html = '<div class="detail-card">'
-							+ '<div class="detail-image">'
-							+ '<span class="detail-badge ' + badgeClass + '">' + badgeText + '</span>'
-							// 🖼️ DB에서 가져온 주소 적용
-							+ '<img src="' + finalImgSrc + '" '
-							+ '     onerror="this.src=\'' + contextPath + '/img/event/fireEvent.png\'" '
-							+ '     style="width:100%; max-height:500px; object-fit:cover; border-radius:12px 12px 0 0;">'
-							+ '</div>'
-							+ '<div class="detail-body">'
-							+ '<div class="detail-meta">'
-							+ '<span class="meta-date">📅 ' + (ev.startDate || ev.START_DATE) + ' ~ ' + (ev.endDate || ev.END_DATE) + '</span>'
-							+ '</div>'
-							+ '<h1 class="detail-title">' + esc(ev.title || ev.TITLE) + '</h1>'
-							+ '<div class="detail-divider"></div>'
-							// white-space: pre-wrap으로 본문 줄바꿈 유지
-							+ '<div class="detail-content" style="white-space:pre-wrap; line-height:1.8; color:#333;">' + (ev.content || ev.CONTENT) + '</div>'
-							+ '</div>'
-							+ '</div>';
-
-						$('#detailWrap').html(html);
-					}
-					/* ── 유틸 ── */
-					function esc(str) {
-						if (!str) return '';
-						return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-					}
-
-					/* ── 초기 실행 ── */
-					$(document).ready(function () {
-						fnGetInfo();
 					});
+
+					app.mount("#app");
 				</script>
 	</body>
 

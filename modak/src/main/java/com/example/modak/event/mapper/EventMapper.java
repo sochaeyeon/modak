@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.example.modak.event.model.Event;
+import com.example.modak.event.model.EventImg;
 
 @Mapper
 public interface EventMapper {
@@ -21,4 +22,6 @@ public interface EventMapper {
 
     /** ★ 메인 배너용 최신 이벤트 5개 */
     List<Event> selectBannerList();
+    
+    List<EventImg> selectEventImgList(HashMap<String, Object> map);
 }

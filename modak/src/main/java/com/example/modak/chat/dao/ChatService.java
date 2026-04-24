@@ -41,15 +41,35 @@ public class ChatService {
 			roomId = "ROOM_" + userId + "_" + System.currentTimeMillis();
 		}
 
-		// 사용자 메시지 저장
-		saveChat(userId, "user", userMessage, roomId);
+		boolean isLogin = (userId != null && !userId.trim().isEmpty());
 
-		// 이전 대화 조회 (최근 10개)
-		HashMap<String, Object> param = new HashMap<>();
-		param.put("userId", userId);
-		param.put("roomId", roomId);
-		List<HashMap<String, Object>> history = chatMapper.selectChatMessagesByRoom(param);
-//
+		if (roomId == null || roomId.trim().isEmpty()) {
+		    if (isLogin) {
+		        roomId = "ROOM_" + userId + "_" + System.currentTimeMillis();
+		    } else {
+		        roomId = "GUEST_" + System.currentTimeMillis();
+		    }
+		}
+
+		// 회원일 때만 사용자 메시지 저장
+		if (isLogin) {
+		    saveChat(userId, "user", userMessage, roomId);
+		}
+
+		// 회원일 때만 이전 대화 조회
+		List<HashMap<String, Object>> history = new ArrayList<>();
+
+		if (isLogin) {
+		    HashMap<String, Object> param = new HashMap<>();
+		    param.put("userId", userId);
+		    param.put("roomId", roomId);
+		    history = chatMapper.selectChatMessagesByRoom(param);
+		} else {
+		    HashMap<String, Object> guestMsg = new HashMap<>();
+		    guestMsg.put("role", "user");
+		    guestMsg.put("message", userMessage);
+		    history.add(guestMsg);
+		}
 //		// 1순위 추천: 최신이면서 빠른 2.0 모델
 		String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey;
 
@@ -88,7 +108,11 @@ public class ChatService {
 		try {
 			ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
 			String botResponse = parseBotMessage(response);
-			saveChat(userId, "bot", botResponse, roomId);
+
+			if (isLogin) {
+			    saveChat(userId, "bot", botResponse, roomId);
+			}
+
 			return botResponse;
 
 		} catch (HttpClientErrorException.TooManyRequests e) {

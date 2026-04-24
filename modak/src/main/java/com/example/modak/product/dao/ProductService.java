@@ -156,5 +156,19 @@ public class ProductService {
 	    return resultMap;
 	}
 	
+	// 상품 옵션 리스트 조회
+	public HashMap<String, Object> getProductOptions(HashMap<String, Object> map) {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    try {
+	        List<ProductOption> list = productMapper.selectProductOptions(map);
+	        resultMap.put("list", list);
+	        resultMap.put("result", "success");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result", "fail");
+	        resultMap.put("message", e.getMessage());
+	    }
+	    return resultMap;
+	}
 	
 }

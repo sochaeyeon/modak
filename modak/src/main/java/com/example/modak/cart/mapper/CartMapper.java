@@ -25,5 +25,14 @@ public interface CartMapper {
 	// 중복 조회
 	public Cart selectCartOne(HashMap<String, Object> map);
 	public int updateCartQty(HashMap<String, Object> map);
+	
+	// 장바구니 옵션 업데이트 , 중복 옵션 합치기, 변경전 옵션 제거
+	public int updateCartOption(HashMap<String, Object> map);
+	
+	public Cart selectCartById(HashMap<String, Object> map);
+
+	public Cart selectSameCartForUpdate(HashMap<String, Object> map);
+
+	public int mergeCartQty(HashMap<String, Object> map);
 
 }

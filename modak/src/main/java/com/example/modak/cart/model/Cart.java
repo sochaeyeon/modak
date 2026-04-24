@@ -22,6 +22,7 @@ public class Cart {
     private String imgUrl;
     private String brandName;    
     private String categoryName;  
-    private int    stock;           
+    private int stock;           
+    private String optionName;
 
 }

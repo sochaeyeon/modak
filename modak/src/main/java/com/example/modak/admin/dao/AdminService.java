@@ -534,6 +534,24 @@ public class AdminService {
 		}
 		return resultMap;
 	}
+	// ★ 캠핑장 신규 등록
+	@Transactional
+	public HashMap<String, Object> addCamp(HashMap<String, Object> map) {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    try {
+	        mapper.insertCamp(map);  // camp 테이블 INSERT
+	        // imgUrl이 있으면 camp_img에도 등록
+	        if (map.get("imgUrl") != null && !map.get("imgUrl").toString().isEmpty()) {
+	            mapper.insertCampImg(map);
+	        }
+	        resultMap.put("result", "success");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result", "error");
+	        resultMap.put("message", e.getMessage());
+	    }
+	    return resultMap;
+	}
 
 	// 캠핑장 데이터 완전 삭제
 	public HashMap<String, Object> removeCamp(HashMap<String, Object> map) {

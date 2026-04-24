@@ -46,13 +46,19 @@ public class SignUpService {
 		}
 
 	// 회원가입
-	public HashMap<String, Object> addUser(HashMap<String, Object> map) {
-		HashMap<String, Object> resultMap = new HashMap<>();
-		try {
-			String hashPwd = passwordEncoder.encode((String) map.get("userPwd"));
-			map.put("userPwd", hashPwd);
-			
-			int result = signUpMapper.insertUser(map);
+		public HashMap<String, Object> addUser(HashMap<String, Object> map) {
+		    HashMap<String, Object> resultMap = new HashMap<>();
+		    try {
+		        String hashPwd = passwordEncoder.encode((String) map.get("userPwd"));
+		        map.put("userPwd", hashPwd);
+
+		        // ★ marketingYn이 null이면 'N' 기본값 설정
+		        if (map.get("marketingYn") == null || map.get("marketingYn").toString().isEmpty()) {
+		            map.put("marketingYn", "N");
+		        }
+
+		        int result = signUpMapper.insertUser(map);
+		        
 			
 			if (result > 0) {
 				couponService.issueWelcomeCoupon((String) map.get("userId"));

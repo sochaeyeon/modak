@@ -113,7 +113,7 @@ body {
   color: var(--orange);
 
   margin-bottom: 8px;
-  font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif;
+
 }
 
 .stat-card p {
@@ -154,7 +154,7 @@ body {
 }
 
 .brand-name {
-  font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif;
+
   font-size: 21px;
   color: var(--ember-deep);
 }
@@ -181,7 +181,7 @@ a {
 
 
 .hero-title {
-  font-family: 'Batang_Regular', sans-serif;
+ 
   font-size: 44px;
   line-height: 1.22;
   color: var(--text-dark);
@@ -253,7 +253,7 @@ a {
   color: var(--brown);
   letter-spacing: -1px;
   margin-bottom: 10px;
-  font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif;
+  
 }
 
 .signup-heading p {
@@ -379,7 +379,7 @@ a {
 }
 
 .terms-all span {
-  font-family: 'Batang_Regular', sans-serif;
+ 
   font-size: 13px;
   color: var(--text-dark);
 }
@@ -537,7 +537,7 @@ a {
   border-radius: 11px;
   background: rgba(255, 252, 248, .8);
   cursor: pointer;
-  font-family: 'Batang_Regular', sans-serif;
+
   font-size: 12.5px;
   color: var(--text-mid);
   display: flex;
@@ -725,7 +725,7 @@ a {
 
     background: var(--orange);
   color: #fff;
-  font-family: 'Batang_Regular', sans-serif;
+ 
   font-size: 12px;
   line-height: 32px;
   cursor: pointer;
@@ -767,7 +767,7 @@ a {
 }
 
 .signup-success-box h2 {
-  font-family: 'Batang_Regular', sans-serif;
+
   font-size: 28px;
   color: var(--text-dark);
   margin-bottom: 10px;

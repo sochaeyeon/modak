@@ -1,3 +1,4 @@
+/* ── 초기화 및 공통 설정 ── */
 * {
     margin: 0;
     padding: 0;
@@ -21,7 +22,7 @@
 }
 
 body {
-    font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif;
+    /* font-family 삭제됨 */
     background: var(--bg);
     min-height: 100vh;
     display: flex;
@@ -44,7 +45,7 @@ body {
     animation: fadeUp .6s ease both;
 }
 
-/* 상단 */
+/* ── 상단 히어로 ── */
 .page-hero {
     display: flex;
     justify-content: space-between;
@@ -60,7 +61,7 @@ body {
 }
 
 .page-title {
-    font-family: 'GgiBatang', sans-serif;
+    /* font-family 삭제됨 */
     font-size: 28px;
     color: var(--text-dark);
     margin-bottom: 8px;
@@ -70,13 +71,6 @@ body {
     font-size: 13px;
     color: var(--text-mid);
     line-height: 1.7;
-}
-
-.hero-summary-group {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
 }
 
 .hero-summary-card {
@@ -89,14 +83,8 @@ body {
     backdrop-filter: blur(8px);
 }
 
-.hero-summary-label {
-    font-size: 12px;
-    color: var(--text-light);
-    margin-bottom: 8px;
-}
-
 .hero-summary-value {
-    font-family: 'GgiBatang', sans-serif;
+    /* font-family 삭제됨 */
     font-size: 28px;
     color: var(--ember-deep);
     line-height: 1.2;
@@ -105,24 +93,13 @@ body {
 .hero-summary-value .result-count-number {
     display: inline-block;
     min-width: 1ch;
-    font-family: 'GgiBatang', sans-serif;
+    /* font-family 삭제됨 */
     font-size: 28px;
     color: var(--ember-deep);
     line-height: 1;
 }
 
-.hero-summary-value .result-count-unit {
-    font-family: 'GgiBatang', sans-serif;
-    font-size: 12px;
-    margin-left: 4px;
-    color: var(--text-light);
-}
-
-.amount-value {
-    color: var(--ember-deep);
-}
-
-/* 공통 카드 */
+/* ── 섹션 카드 ── */
 .section-card {
     background: var(--bg2);
     border: 1px solid var(--border);
@@ -131,65 +108,13 @@ body {
     backdrop-filter: blur(8px);
 }
 
-.section-head {
-    padding: 18px 22px 14px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.section-head-left {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
 .section-head h3 {
-    font-family: 'GgiBatang', sans-serif;
+    /* font-family 삭제됨 */
     font-size: 14.5px;
     color: var(--text-dark);
 }
 
-.recent-guide-text {
-    font-size: 12px;
-    color: var(--text-light);
-    line-height: 1.5;
-}
-
-/* 안내 */
-.guide-content {
-    padding: 18px 22px 22px;
-}
-
-.guide-chip-wrap {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.guide-chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 10px 14px;
-    border-radius: 999px;
-    background: rgba(201, 79, 30, .06);
-    border: 1px solid rgba(201, 79, 30, .14);
-    color: var(--ember-deep);
-    font-size: 12px;
-}
-
-/* 리스트 */
-.rental-content {
-    padding: 20px 22px 22px;
-}
-
-.rental-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
-}
-
+/* ── 렌탈 목록 아이템 ── */
 .rental-item {
     border: 1px solid #eadfce;
     border-radius: 18px;
@@ -200,222 +125,45 @@ body {
     min-height: 280px;
 }
 
-.rental-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(180, 100, 40, .08);
-}
-
 .rental-thumb {
-    width: 220px;
-    min-width: 220px;
+    width: 220px; min-width: 220px;
     background: rgba(210, 180, 150, .12);
     border-right: 1px solid var(--border);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 42px;
-    overflow: hidden;
-    cursor: pointer;
-}
-
-.rental-body {
-    flex: 1;
-    padding: 18px 18px 16px;
-    display: flex;
-    flex-direction: column;
-}
-
-.rental-top-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-}
-
-.status-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 7px 11px;
-    border-radius: 999px;
-    font-size: 11px;
-    letter-spacing: .2px;
-    font-weight: 600;
-}
-
-.status-badge.available {
-    background: rgba(120, 140, 80, .10);
-    color: #5c6b3b;
-    border: 1px solid rgba(120, 140, 80, .18);
-}
-
-.status-badge.disabled {
-    background: rgba(201, 79, 30, .08);
-    color: var(--ember-deep);
-    border: 1px solid rgba(201, 79, 30, .16);
-}
-
-.rental-order-no {
-    font-size: 11.5px;
-    color: var(--text-light);
+    display: flex; justify-content: center; align-items: center;
+    font-size: 42px; overflow: hidden; cursor: pointer;
 }
 
 .rental-name {
-    font-size: 17px;
-    line-height: 1.5;
-    color: var(--text-dark);
-    font-family: 'GgiBatang', sans-serif;
-    margin-bottom: 14px;
-    cursor: pointer;
-}
-
-.rental-name:hover {
-    color: var(--ember-deep);
-}
-
-.rental-info-box {
-    background: rgba(255, 252, 248, .68);
-    border: 1px solid rgba(200, 165, 130, .28);
-    border-radius: 14px;
-    padding: 13px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 9px;
-    margin-bottom: 14px;
-}
-
-.info-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
-}
-
-.info-label {
-    font-size: 12px;
-    color: var(--text-light);
-    min-width: 88px;
-}
-
-.info-value {
-    font-size: 12.5px;
-    color: var(--text-mid);
-    text-align: right;
-    line-height: 1.5;
+    font-size: 17px; line-height: 1.5; color: var(--text-dark);
+    margin-bottom: 14px; cursor: pointer;
 }
 
 .info-value.highlight {
     color: var(--ember-deep);
-    font-family: 'GgiBatang', sans-serif;
+    /* font-family 삭제됨 */
 }
 
-/* 연장 조절 */
-.extension-control {
-    margin-top: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.control-label {
-    font-size: 12px;
-    color: var(--text-light);
-}
-
-.day-selector {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.day-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: rgba(255, 252, 248, .92);
-    color: var(--text-mid);
-    font-size: 18px;
-    cursor: pointer;
-    transition: all .18s ease;
-}
-
-.day-btn:hover {
-    border-color: rgba(201, 79, 30, .35);
-    color: var(--ember-deep);
-    background: rgba(201, 79, 30, .06);
-}
-
+/* ── 연장 조절 및 버튼 ── */
 .day-value {
-    min-width: 80px;
-    height: 36px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
+    min-width: 80px; height: 36px;
+    border-radius: 10px; border: 1px solid var(--border);
     background: rgba(255, 252, 248, .70);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'GgiBatang', sans-serif;
-    color: var(--text-dark);
-    font-size: 15px;
-}
-
-.extension-preview {
-    background: rgba(240, 125, 58, .06);
-    border: 1px solid rgba(240, 125, 58, .16);
-    border-radius: 14px;
-    padding: 12px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.preview-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-    font-size: 12.5px;
-    color: var(--text-mid);
+    display: flex; justify-content: center; align-items: center;
+    /* font-family 삭제됨 */
+    color: var(--text-dark); font-size: 15px;
 }
 
 .preview-row strong {
     color: var(--text-dark);
-    font-family: 'GgiBatang', sans-serif;
+    /* font-family 삭제됨 */
 }
 
-.amount-text {
-    color: var(--ember-deep) !important;
-}
-
-/* 버튼 */
-.rental-action-row {
-    display: flex;
-    gap: 10px;
-    margin-top: 2px;
-}
-
-.outline-btn,
-.primary-btn {
-    flex: 1;
-    height: 42px;
+.outline-btn, .primary-btn {
+    flex: 1; height: 42px;
     border-radius: 12px;
-    font-family: 'GgiBatang', sans-serif;
-    font-size: 13px;
-    cursor: pointer;
+    /* font-family 삭제됨 */
+    font-size: 13px; cursor: pointer;
     transition: all .18s ease;
-}
-
-.outline-btn {
-    border: 1px solid var(--border);
-    background: rgba(255, 252, 248, .92);
-    color: var(--text-mid);
-}
-
-.outline-btn:hover {
-    border-color: rgba(201, 79, 30, .35);
-    color: var(--ember-deep);
-    background: rgba(201, 79, 30, .05);
 }
 
 .primary-btn {
@@ -424,166 +172,24 @@ body {
     color: #fff;
 }
 
-.primary-btn:hover {
-    background: var(--ember-deep);
-    border-color: var(--ember-deep);
-}
-
-.disabled-message {
-    margin-top: auto;
-    background: var(--danger-soft);
-    border: 1px solid rgba(201, 79, 30, .14);
-    border-radius: 14px;
-    padding: 13px 14px;
-    font-size: 12px;
-    color: var(--ember-deep);
-    line-height: 1.6;
-}
-
-/* empty */
-.empty-state {
-    min-height: 260px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-
-.empty-state p {
-    font-size: 13.5px;
-    color: var(--text-light);
-    line-height: 1.7;
-}
-
-/* pagination */
-.pagination-wrap {
-    margin-top: 28px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
 .page-btn {
-    min-width: 38px;
-    height: 38px;
-    padding: 0 12px;
+    min-width: 38px; height: 38px; padding: 0 12px;
     border: 1px solid var(--border);
     background: rgba(255, 252, 248, .92);
-    color: var(--text-mid);
-    border-radius: 10px;
-    font-family: 'GgiBatang', sans-serif;
-    font-size: 13px;
-    cursor: pointer;
+    color: var(--text-mid); border-radius: 10px;
+    /* font-family 삭제됨 */
+    font-size: 13px; cursor: pointer;
     transition: all .18s ease;
 }
 
-.page-btn:hover:not(:disabled) {
-    border-color: rgba(201, 79, 30, .35);
-    color: var(--ember-deep);
-    background: rgba(201, 79, 30, .06);
-}
-
-.page-btn.active {
-    background: var(--ember);
-    color: #fff;
-    border-color: var(--ember);
-}
-
-.page-btn:disabled {
-    opacity: .45;
-    cursor: default;
-}
-
-/* 애니메이션 */
-.list-rise-enter-active,
-.list-rise-leave-active {
-    transition: all .36s ease;
-}
-
-.list-rise-enter-from,
-.list-rise-leave-to {
-    opacity: 0;
-    transform: translateY(18px);
-}
-
-.count-rise-enter-active,
-.count-rise-leave-active {
-    display: inline-block;
-    transition: all .28s ease;
-}
-
-.count-rise-enter-from {
-    opacity: 0;
-    transform: translateY(10px);
-}
-
-.count-rise-leave-to {
-    opacity: 0;
-    transform: translateY(-10px);
-}
-
 @keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(14px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* 반응형 */
+/* ── 반응형 처리 ── */
 @media (max-width: 1024px) {
-    .rental-extension-wrap {
-        padding: 28px 20px 48px;
-    }
-
-    .page-hero {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .hero-summary-group {
-        width: 100%;
-    }
-
-    .hero-summary-card {
-        flex: 1;
-    }
-
-    .rental-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 768px) {
-    .rental-item {
-        flex-direction: column;
-    }
-
-    .rental-thumb {
-        width: 100%;
-        min-width: 100%;
-        height: 220px;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-    }
-
-    .rental-top-row,
-    .info-row,
-    .preview-row {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .info-value {
-        text-align: left;
-    }
-
-    .rental-action-row {
-        flex-direction: column;
-    }
+    .rental-extension-wrap { padding: 28px 20px 48px; }
+    .page-hero { flex-direction: column; align-items: flex-start; }
+    .rental-grid { grid-template-columns: 1fr; }
 }

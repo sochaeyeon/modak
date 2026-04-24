@@ -238,7 +238,7 @@
                     <li><span class="safety-num">3</span>취침 전 화롯대 완전 소화 확인</li>
                     <li><span class="safety-num">4</span>쓰레기 분리수거 및 흔적 남기지 않기</li>
                   </ul>
-                  <div class="co-banner" onclick="location.href='/product/detail.do?productId=12'">
+                  <div class="co-banner" onclick="location.href='/product/product-detail.do?no=10'">
                     <span style="font-size:28px">🚨</span>
                     <div class="co-text">
                       <p class="co-title">일산화탄소 경보기 대여</p>
@@ -319,30 +319,48 @@
 
         <!-- 토스트 -->
         <div class="toast" id="toast"></div>
-        <div id="loginRequiredModal" class="delete-modal-backdrop login-required-modal" style="display:none;"
-          onclick="closeLoginRequiredModal(event)" tabindex="0">
 
-          <div class="delete-modal-box" onclick="event.stopPropagation();">
-            <div class="delete-modal-title">로그인이 필요한 서비스입니다</div>
-            <div class="delete-modal-desc">
-              찜한 상품은 로그인 후 이용할 수 있어요.<br>
-              로그인 페이지로 이동하시겠습니까?
-            </div>
-
-            <div class="delete-modal-actions">
-              <button type="button" class="delete-confirm-btn" onclick="goLoginFromModal()">
-                확인
-              </button>
-              <button type="button" class="delete-cancel-btn" onclick="hideLoginRequiredModal()">
-                취소
-              </button>
+        <!-- ★ 로그인 유도 모달 -->
+        <div id="loginModal"
+          style="display:none;position:fixed;inset:0;z-index:99999;align-items:center;justify-content:center;background:rgba(44,30,15,.55);backdrop-filter:blur(4px);"
+          onclick="fnCloseLoginModal(event)">
+          <div
+            style="background:#fffdf8;border-radius:24px;padding:36px 32px 28px;width:320px;box-shadow:0 24px 64px rgba(44,30,15,.25);text-align:center;animation:modalPop .25s ease;font-family:var(--font-body,'Noto Sans KR',sans-serif);position:relative;z-index:100000;">
+            <div style="font-size:48px;margin-bottom:16px">🔐</div>
+            <p
+              style="font-size:18px;font-weight:800;color:#2C1E0F;margin-bottom:8px;font-family:var(--font-title,'GgiBatang',serif)">
+              로그인이 필요해요</p>
+            <p
+              style="font-size:13px;color:#8B6B4A;line-height:1.7;margin-bottom:24px;font-family:var(--font-body,'Noto Sans KR',sans-serif)">
+              찜 기능은 로그인 후 이용할 수 있어요.<br>로그인 페이지로 이동할까요?</p>
+            <div style="display:flex;gap:10px;">
+              <button onclick="fnCloseLoginModal()"
+                style="flex:1;padding:13px;background:#EDE5D4;border:none;border-radius:12px;font-size:14px;font-weight:600;color:#5C4230;cursor:pointer;transition:background .2s;"
+                onmouseover="this.style.background='#E2D8C3'" onmouseout="this.style.background='#EDE5D4'">취소</button>
+              <button onclick="location.href='/user/login.do'"
+                style="flex:1;padding:13px;background:#E8732A;border:none;border-radius:12px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;box-shadow:0 4px 14px rgba(232,115,42,.35);transition:background .2s;"
+                onmouseover="this.style.background='#C4621E'"
+                onmouseout="this.style.background='#E8732A'">로그인하기</button>
             </div>
           </div>
         </div>
+        <style>
+          @keyframes modalPop {
+            from {
+              opacity: 0;
+              transform: scale(.92) translateY(10px);
+            }
+
+            to {
+              opacity: 1;
+              transform: scale(1) translateY(0);
+            }
+          }
+        </style>
+
         <%@ include file="/WEB-INF/common/footer.jsp" %>
 
           <script>
-            
             /* ── 1. 불씨 + 낙엽 ── */
             (function () {
               var ec = document.getElementById('embers');
@@ -500,8 +518,14 @@
                   var buy = e.target.closest('.pop-buy');
                   var card = e.target.closest('.pop-card');
                   if (wish) { e.stopPropagation(); fnWish(e, wish, parseInt(wish.dataset.pid)); }
-                  else if (rent) { e.stopPropagation(); fnAddRental(e, parseInt(rent.dataset.pid)); }
-                  else if (buy) { e.stopPropagation(); fnAddCart(e, parseInt(buy.dataset.pid)); }
+                  else if (rent) {
+                    e.stopPropagation();
+                    location.href = '/product/detail.do?productId=' + rent.dataset.pid;
+                  }
+                  else if (buy) {
+                    e.stopPropagation();
+                    location.href = '/product/detail.do?productId=' + buy.dataset.pid;
+                  }
                   else if (card) { fnGoDetail(parseInt(card.dataset.pid), card.dataset.name, card.dataset.img); }
                 });
 
@@ -565,6 +589,22 @@
 
             /* ── 7. 위시 / 장바구니 ── */
             /* ── 위시 토글 — /user/wishlist/toggle.dox ── */
+            /* ★ 로그인 유도 모달 제어 */
+            function fnOpenLoginModal() {
+              var m = document.getElementById('loginModal');
+              if (m) { m.style.display = 'flex'; }
+            }
+            function fnCloseLoginModal(e) {
+              if (!e || e.target === document.getElementById('loginModal')) {
+                var m = document.getElementById('loginModal');
+                if (m) m.style.display = 'none';
+              }
+            }
+            /* ESC 키로도 닫기 */
+            document.addEventListener('keydown', function (e) {
+              if (e.key === 'Escape') fnCloseLoginModal({ target: document.getElementById('loginModal') });
+            });
+
             function fnWish(e, btn, no) {
               e.stopPropagation();
               $.ajax({
@@ -578,54 +618,15 @@
                     var isOn = btn.classList.contains('on');
                     showToast(isOn ? '❤️ 위시리스트에 추가됐어요' : '위시리스트에서 제거됐어요');
                   } else {
-                    showLoginRequiredModal();
+                    /* ★ confirm 대신 커스텀 모달 */
+                    fnOpenLoginModal();
                   }
+                },
+                error: function () {
+                  fnOpenLoginModal();
                 }
               });
             }
-            function showLoginRequiredModal() {
-              var modal = document.getElementById('loginRequiredModal');
-              if (!modal) return;
-
-              modal.style.display = 'flex';
-
-              setTimeout(function () {
-                modal.focus();
-              }, 0);
-            }
-
-            function hideLoginRequiredModal() {
-              var modal = document.getElementById('loginRequiredModal');
-              if (!modal) return;
-
-              modal.style.display = 'none';
-            }
-
-            function closeLoginRequiredModal(e) {
-              if (e.target.id === 'loginRequiredModal') {
-                hideLoginRequiredModal();
-              }
-            }
-
-            function goLoginFromModal() {
-              location.href = '/user/login.do';
-            }
-
-            document.addEventListener('keydown', function (e) {
-              var modal = document.getElementById('loginRequiredModal');
-
-              if (!modal || modal.style.display === 'none') {
-                return;
-              }
-
-              if (e.key === 'Enter') {
-                goLoginFromModal();
-              }
-
-              if (e.key === 'Escape') {
-                hideLoginRequiredModal();
-              }
-            });
             function fnAddRental(e, no) { e.stopPropagation(); $.ajax({ url: '/cart/addCart.dox', type: 'POST', data: { productNo: no, cartType: 'rental' }, success: function (res) { var r = JSON.parse(res); if (r.result === 'success') showToast('🏕️ 대여 장바구니에 담겼어요!'); else { showToast('로그인이 필요합니다'); setTimeout(function () { location.href = '/user/login.do'; }, 1200); } } }); }
             function fnAddCart(e, no) { e.stopPropagation(); $.ajax({ url: '/cart/addCart.dox', type: 'POST', data: { productNo: no, cartType: 'buy' }, success: function (res) { var r = JSON.parse(res); if (r.result === 'success') showToast('🛒 장바구니에 담겼어요!'); else { showToast('로그인이 필요합니다'); setTimeout(function () { location.href = '/user/login.do'; }, 1200); } } }); }
 
@@ -836,10 +837,9 @@
             })();
 
             /* ════════════════════════════════════════
-                ★ 메인 멤버십 섹션 — DB 기반 동적 렌더링
+               ★ 10. 멤버십 섹션 — DB 기반 동적 렌더링
             ════════════════════════════════════════ */
             (function () {
-              /* 등급별 아이콘 및 클래스 매핑 (디자인 요소만 관리) */
               var gradeStyle = {
                 1: { cls: 'grade-bronze', emoji: '🥉' },
                 2: { cls: 'grade-silver', emoji: '🥈' },
@@ -847,37 +847,28 @@
                 4: { cls: 'grade-vvip', emoji: '👑' }
               };
 
-              /* [핵심] DB의 쉼표 데이터를 <ul><li> 리스트로 변환 */
               function makeBenefitList(text) {
                 if (!text || text.trim() === '') return '<li>기본 혜택 제공</li>';
-                var arr = text.split(',');
-                var listHtml = '';
-                arr.forEach(function (item) {
-                  listHtml += '<li>' + item.trim() + '</li>';
-                });
-                return listHtml;
+                return text.split(',').map(function (v) {
+                  return '<li>' + v.trim() + '</li>';
+                }).join('');
               }
 
-              /* DB 데이터를 기반으로 화면 렌더링 */
               function renderGrades(currentGradeId, allGrades) {
                 var wrap = document.getElementById('gradeListWrap');
-                if (!wrap || !allGrades) return;
-
+                if (!wrap || !allGrades || !allGrades.length) return;
                 var html = '';
                 allGrades.forEach(function (g) {
-                  // 대소문자 방어 코드 (MyBatis 매핑 대응)
-                  var gid = parseInt(g.GRADE_ID || g.gradeId);
-                  var gName = g.GRADE_NAME || g.gradeName;
-                  var gDesc = g.DESCRIPTION || g.description;
-                  var gBene = g.BENEFIT_TEXT || g.benefitText; // 새로 추가한 혜택 컬럼
-
+                  /* MyBatis 대소문자 모두 방어 */
+                  var gid = parseInt(g.gradeId || g.GRADE_ID || 0);
+                  var gName = g.gradeName || g.GRADE_NAME || '';
+                  var gDesc = g.description || g.DESCRIPTION || '';
+                  var gBene = g.benefitText || g.BENEFIT_TEXT || '';
                   var st = gradeStyle[gid] || { cls: 'grade-bronze', emoji: '🏅' };
-                  var isCurr = (currentGradeId === gid);
-
+                  var isCurr = (currentGradeId > 0 && currentGradeId === gid);
                   html += '<div class="grade-item' + (isCurr ? ' active' : '') + '">'
                     + '<span class="grade-badge ' + st.cls + (isCurr ? ' grade-current' : '') + '">'
-                    + st.emoji + ' ' + gName + (isCurr ? ' ✓' : '')
-                    + '</span>'
+                    + st.emoji + ' ' + gName + (isCurr ? ' ✓' : '') + '</span>'
                     + '<div class="grade-cond">' + gDesc + '</div>'
                     + '<ul class="grade-benefit-summary">' + makeBenefitList(gBene) + '</ul>'
                     + '</div>';
@@ -885,29 +876,50 @@
                 wrap.innerHTML = html;
               }
 
-              /* API 호출 로직 */
-              $.ajax({
-                url: '/membership/info.dox',
-                type: 'POST',
-                dataType: 'json',
-                success: function (data) {
-                  if (data.allGrades && data.allGrades.length > 0) {
-                    // 로그인 상태면 gradeId 전달, 아니면 -1 전달
-                    var currentId = (data.result === 'success' && data.info) ? parseInt(data.info.gradeId) : -1;
-                    renderGrades(currentId, data.allGrades);
-                  } else {
-                    renderFallback();
-                  }
-                },
-                error: function () { renderFallback(); }
-              });
+              /* 비로그인 — grade/list.dox 단독 호출 */
+              function loadDefaultGrades() {
+                $.ajax({
+                  url: '/membership/grade/list.dox', type: 'POST', dataType: 'json',
+                  success: function (res) {
+                    if (res.result === 'success' && res.grades && res.grades.length) {
+                      renderGrades(-1, res.grades);
+                    } else {
+                      renderFallback();
+                    }
+                  },
+                  error: function () { renderFallback(); }
+                });
+              }
 
-              /* 최후의 수단: 서버 통신 실패 시에만 하드코딩 데이터 표시 */
               function renderFallback() {
                 var wrap = document.getElementById('gradeListWrap');
-                if (!wrap) return;
-                wrap.innerHTML = '<p style="color:#eee; font-size:13px;">멤버십 정보를 불러올 수 없습니다.</p>';
+                if (wrap) wrap.innerHTML = '<p style="color:rgba(255,253,248,.5);font-size:13px">멤버십 정보를 불러올 수 없습니다.</p>';
               }
+
+              /* 로그인 시 내 등급 포함, 비로그인 시 등급 목록만 */
+              $.ajax({
+                url: '/membership/info.dox', type: 'POST', dataType: 'json',
+                success: function (data) {
+                  if (data.result === 'success' && data.info && data.info.gradeId) {
+                    /* 로그인 — 내 gradeId 강조 */
+                    var grades = data.allGrades && data.allGrades.length
+                      ? data.allGrades : null;
+                    if (grades) {
+                      renderGrades(parseInt(data.info.gradeId), grades);
+                    } else {
+                      loadDefaultGrades();
+                    }
+                  } else {
+                    /* 비로그인 */
+                    if (data.allGrades && data.allGrades.length) {
+                      renderGrades(-1, data.allGrades);
+                    } else {
+                      loadDefaultGrades();
+                    }
+                  }
+                },
+                error: function () { loadDefaultGrades(); }
+              });
             })();
           </script>
     </body>

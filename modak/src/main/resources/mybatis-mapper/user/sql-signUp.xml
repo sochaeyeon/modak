@@ -5,10 +5,11 @@
 	
 	<!-- 회원가입 -->
 	<insert id="insertUser" parameterType="hashmap">
-		INSERT INTO USER(USER_ID, USER_PWD, USER_NAME, NICKNAME, USER_STATUS, EMAIL,
-		CREATED_AT) VALUES( #{userId}, #{userPwd}, #{userName}, #{nickName}, 'ACTIVE',
-		#{email}, NOW());
-	</insert>
+    INSERT INTO USER(USER_ID, USER_PWD, USER_NAME, NICKNAME, USER_STATUS, EMAIL,
+                     MARKETING_YN, CREATED_AT)
+    VALUES(#{userId}, #{userPwd}, #{userName}, #{nickName}, 'ACTIVE',
+           #{email}, COALESCE(#{marketingYn}, 'N'), NOW())
+</insert>
 	
 	<!-- 로그인 -->
 	<select id="selectUser" parameterType="hashmap"
@@ -17,6 +18,8 @@
 		FROM USER
 		WHERE USER_ID = #{userId}
 	</select>
+	
+	
 
 </mapper>
 

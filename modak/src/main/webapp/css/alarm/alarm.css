@@ -1,4 +1,14 @@
 /* 전체 레이아웃 */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
 .alarm-page {
     max-width: 800px;
     margin: 80px auto;

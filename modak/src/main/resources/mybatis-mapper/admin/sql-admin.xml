@@ -156,7 +156,8 @@
                USER_STATUS  AS userStatus,
                POINT        AS point,
                TOTAL_AMOUNT AS totalAmount,
-               DATE_FORMAT(CREATED_AT, '%Y-%m-%d') AS createdAt
+               DATE_FORMAT(CREATED_AT, '%Y-%m-%d') AS createdAt,
+               MARKETING_YN AS marketingYn,
         FROM USER
         <where>
             <if test="keyword != null and keyword != ''">
@@ -459,6 +460,18 @@
     <delete id="deleteCamp" parameterType="hashmap">
         DELETE FROM camp WHERE CAMP_ID = #{campId}
     </delete>
+    <!-- 캠핑장 신규 등록 -->
+<insert id="insertCamp" parameterType="hashmap" useGeneratedKeys="true"
+        keyProperty="campId" keyColumn="CAMP_ID">
+    INSERT INTO camp (CAMP_NAME, ADDRESS, LATITUDE, LONGITUDE, DESCRIPTION, INDUTY)
+    VALUES (#{campName}, #{address}, #{latitude}, #{longitude}, #{description}, #{induty})
+</insert>
+
+<!-- 캠핑장 이미지 등록 -->
+<insert id="insertCampImg" parameterType="hashmap">
+    INSERT INTO camp_img (CAMP_ID, IMG_URL, IS_MAIN)
+    VALUES (#{campId}, #{imgUrl}, 'Y')
+</insert>
 
     <!-- ════════════════════════════════════════
          이벤트 관리
@@ -673,18 +686,22 @@
 </insert>
 
 <!-- insertAlarmToAllUsers -->
+
 <insert id="insertAlarmToAllUsers" parameterType="hashmap">
     INSERT INTO alarm (USER_ID, TYPE, TITLE, CONTENT, LINK_ID, LINK_URL, IS_READ, CREATED_AT)
     SELECT USER_ID,
            #{type},
            #{title},
            #{content},
-           NULLIF(#{linkId}, ''),   <!-- ★ 빈 문자열 → NULL -->
-           NULLIF(#{linkUrl}, ''),  <!-- ★ 빈 문자열 → NULL -->
+           NULLIF(#{linkId},  ''),
+           NULLIF(#{linkUrl}, ''),
            'N',
            NOW()
     FROM USER
     WHERE USER_STATUS = 'ACTIVE'
+    <if test="type == 'MARKETING'">
+        AND MARKETING_YN = 'Y'
+    </if>
 </insert>
  
 <!-- 발송 내역 조회 (관리자용 — 최신순) -->
@@ -711,10 +728,11 @@
  
 <!-- 회원 단건 조회 -->
 <select id="selectMemberById" parameterType="hashmap" resultType="map">
-    SELECT USER_ID   AS userId,
-           USER_NAME AS userName,
-           GRADE_ID  AS gradeId,
-           USER_STATUS AS userStatus
+    SELECT USER_ID      AS userId,
+           USER_NAME    AS userName,
+           GRADE_ID     AS gradeId,
+           USER_STATUS  AS userStatus,
+           MARKETING_YN AS marketingYn
     FROM USER
     WHERE USER_ID = #{userId}
 </select>

@@ -121,3 +121,11 @@
     padding: 12px 14px; border-left: 3px solid var(--orange);
 }
 .a-toast { /* 토스트 스타일 유지 */ }
+
+
+/* 기존 css 맨 아래 추가 */
+.a-tab[class*="active"]:last-child {
+    /* 마케팅 탭은 보라색으로 구분 */
+}
+/* 마케팅 뱃지용 토글 */
+.user-info-id { font-size: 11px; color: var(--text3); }

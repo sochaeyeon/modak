@@ -297,3 +297,45 @@ body {
 	background: var(--border);
 	margin-top: 40px;
 }
+
+/* ── 페이지네이션 ── */
+#faqPaging {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 4px;
+	margin-top: 32px;
+	margin-bottom: 16px;
+}
+
+.page-btn {
+	width: 26px;
+	height: 26px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid var(--border);
+	border-radius: 4px;
+	font-size: 11px;
+	color: var(--text-mid);
+	cursor: pointer;
+	background: var(--white);
+	transition: all 0.15s;
+}
+
+.page-btn:hover:not(:disabled) {
+	border-color: #c0622f;
+	color: #c0622f;
+}
+
+.page-btn.active {
+	background: #c0622f;
+	color: #fff;
+	border-color: #c0622f;
+	font-weight: 700;
+}
+
+.page-btn:disabled {
+	opacity: 0.35;
+	cursor: default;
+}

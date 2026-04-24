@@ -545,3 +545,61 @@ body {
 .sort-select:focus {
 	border-color: var(--primary, #e87040);
 }
+
+/* ── PAGINATION ── */
+.pagination {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 4px;
+	margin-top: 28px;
+}
+
+.page-btn {
+	width: 26px;
+	height: 26px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid var(--border);
+	border-radius: 4px;
+	font-size: 11px;
+	color: var(--text-mid);
+	cursor: pointer;
+	background: var(--white);
+	transition: all 0.15s;
+}
+
+.page-btn:hover {
+	border-color: var(--orange);
+	color: var(--orange);
+}
+
+.page-btn.active {
+	background: var(--orange);
+	border-color: var(--orange);
+	color: #fff;
+	font-weight: 700;
+}
+
+.page-btn.arrow {
+	font-size: 12px;
+	color: var(--text-light);
+}
+
+.sort-select {
+	height: 38px;
+	padding: 0 12px;
+	border: 1px solid #ddd;
+	border-radius: 6px;
+	font-size: 13px;
+	color: #333;
+	background: #fff;
+	cursor: pointer;
+	outline: none;
+	min-width: 100px;
+}
+
+.sort-select:focus {
+	border-color: var(--primary, #e87040);
+}

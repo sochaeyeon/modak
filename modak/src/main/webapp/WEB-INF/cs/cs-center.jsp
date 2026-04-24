@@ -7,8 +7,6 @@
 			<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<title>모닥모닥 고객센터 - Frame</title>
-			<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
-				rel="stylesheet">
 			<link rel="stylesheet" href="${pageContext.request.contextPath}/css/cs/cs-center.css">
 			<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 		</head>
@@ -105,10 +103,12 @@
 							<div class="faq-sidebar">
 								<ul id="faqSidebarList">
 									<li class="active" data-cat="전체">전체</li>
-									<li data-cat="서비스">서비스 안내</li>
-									<li data-cat="요금">요금 / 결제</li>
-									<li data-cat="계정">회원 / 계정</li>
-									<li data-cat="기타">기타 문의</li>
+									<li data-cat="대여">대여</li>
+									<li data-cat="리뷰">리뷰</li>
+									<li data-cat="결제">결제</li>
+									<li data-cat="회원">회원</li>
+									<li data-cat="캠핑장">캠핑장</li>
+									<li data-cat="기타">기타</li>
 								</ul>
 							</div>
 							<div class="faq-main">
@@ -242,11 +242,15 @@
 						var CTX = '<%=request.getContextPath()%>';
 
 						/* ── 소분류 탭 매핑 ── */
+						// cs-center.jsp는 별도 카테고리 구조를 쓰고 있으므로
+						// faq.jsp와 동일하게 통일
 						var SUB_TABS = {
 							'전체': ['전체'],
-							'서비스': ['전체', '이용방법', '기능안내'],
-							'요금': ['전체', '결제수단', '환불', '영수증'],
-							'계정': ['전체', '가입', '탈퇴', '정보수정', '비밀번호'],
+							'대여': ['전체', '예약', '반납', '연장', '취소'],
+							'리뷰': ['전체', '작성', '수정', '삭제'],
+							'결제': ['전체', '결제수단', '환불', '영수증'],
+							'회원': ['전체', '가입', '탈퇴', '정보수정', '비밀번호'],
+							'캠핑장': ['전체', '시설', '예약', '이용안내'],
 							'기타': ['전체']
 						};
 
@@ -261,10 +265,31 @@
 						function fnGetFaqList() {
 							$('#faqListWrap').html('<div class="faq-loading"><span class="spin"></span>불러오는 중...</div>');
 
-							// 대분류/소분류 전송값 결정
 							var sendCategory = '';
-							if (currentCat !== '전체') {
-								sendCategory = (currentSubTab !== '전체') ? currentSubTab : currentCat;
+							var excludeCategory = '';
+
+							if (currentCat === '기타' && currentSubTab === '전체') {
+								// 기타 > 전체: 알려진 소분류 전부 제외
+								var knownSubs = [];
+								$.each(SUB_TABS, function (cat, tabs) {
+									if (cat !== '전체' && cat !== '기타') {
+										$.each(tabs, function (i, tab) {
+											if (tab !== '전체' && $.inArray(tab, knownSubs) === -1) {
+												knownSubs.push(tab);
+											}
+										});
+									}
+								});
+								excludeCategory = knownSubs.join(',');
+
+							} else if (currentCat !== '전체') {
+								if (currentSubTab !== '전체') {
+									sendCategory = currentSubTab;
+								} else {
+									var subTabs = SUB_TABS[currentCat] || [];
+									var subs = subTabs.filter(function (t) {return t !== '전체';});
+									sendCategory = subs.join(',');
+								}
 							}
 
 							$.ajax({
@@ -274,6 +299,7 @@
 								data: {
 									action: 'faqList',
 									category: sendCategory,
+									excludeCategory: excludeCategory,
 									searchKeyword: currentKeyword
 								},
 								success: function (data) {
@@ -314,7 +340,7 @@
 							$wrap.find('.faq-question').off('click').on('click', function () {
 								var $item = $(this).closest('.faq-item');
 								var wasOpen = $item.hasClass('open');
-								$wrap.find('.faq-item').removeClass('open').find('.faq-answer').slideUp(180);
+								$(this).closest('.faq-item').toggleClass('open').find('.faq-answer').slideUp(180);
 								if (!wasOpen) $item.addClass('open').find('.faq-answer').slideDown(180);
 							});
 						}
@@ -423,27 +449,30 @@
 						}
 
 						/* ════════════════════════════
-						   Hero 검색 (Ajax)
+						   Hero 검색 → 통합검색 페이지로 이동
 						════════════════════════════ */
 						function doHeroSearch() {
 							var keyword = $('#heroSearchInput').val().trim();
-							if (!keyword) {$('#searchResultBox').hide(); return;}
-
-							$.ajax({
-								url: CTX + '/cs/center.dox',
-								type: 'POST',
-								dataType: 'json',
-								data: {action: 'faqList', category: '', searchKeyword: keyword},
-								success: function (data) {
-									heroSearchResults = (data.result === 'success' && data.list) ? data.list : [];
-									renderHeroSearchResult(keyword);
-								},
-								error: function () {
-									heroSearchResults = [];
-									renderHeroSearchResult(keyword);
-								}
-							});
+							if (!keyword) {
+								$('#searchResultBox').hide();
+								return;
+							}
+							location.href = CTX + '/search/integrated.do?keyword=' + encodeURIComponent(keyword);
 						}
+
+						$('#heroSearchInput').on('input', function () {
+							$('#searchResultBox').hide();
+						});
+
+						$('#heroSearchInput').on('keydown', function (e) {
+							if (e.key === 'Escape') $('#searchResultBox').hide();
+						});
+
+						$(document).on('click', function (e) {
+							if (!$(e.target).closest('.hero-search-wrap, .search-result-box').length) {
+								$('#searchResultBox').hide();
+							}
+						});
 
 						function renderHeroSearchResult(keyword) {
 							var html = '';
@@ -480,17 +509,7 @@
 							});
 						}
 
-						$('#heroSearchInput').on('input', function () {
-							var v = $(this).val().trim();
-							if (!v) {$('#searchResultBox').hide(); return;}
-							doHeroSearch();
-						});
-						$('#heroSearchInput').on('keydown', function (e) {
-							if (e.key === 'Escape') $('#searchResultBox').hide();
-						});
-						$(document).on('click', function (e) {
-							if (!$(e.target).closest('.hero-search-wrap, .search-result-box').length) $('#searchResultBox').hide();
-						});
+
 
 						/* ════════════════════════════
 						   유틸

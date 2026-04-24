@@ -53,6 +53,7 @@
 								<div id="faqList">
 									<div class="faq-loading"><span class="spin"></span>불러오는 중...</div>
 								</div>
+								<div id="faqPaging" style="text-align:center; margin-top:20px;"></div>
 							</div>
 
 						</div>
@@ -63,6 +64,8 @@
 						<%@ include file="/WEB-INF/common/footer.jsp" %>
 
 							<script>
+
+
 								/* ════════════════════════════════════════════════════
 								   ★ 핵심: 환경 변수 설정
 								════════════════════════════════════════════════════ */
@@ -81,6 +84,7 @@
 									'기타': ['전체']
 								};
 
+
 								/* ════════════════════════════════════════════════════
 								   상태 변수
 								════════════════════════════════════════════════════ */
@@ -91,13 +95,79 @@
 								/* ════════════════════════════════════════════════════
 								   목록 불러오기 (Ajax)
 								════════════════════════════════════════════════════ */
+								/* 페이징 상태 */
+								var currentPage = 1;
+								var pageSize = 10;  // 한 페이지당 항목 수
+								var totalList = []; // 전체 FAQ 목록 캐시
+
+
+								/* 페이지 렌더링 */
+								function renderPage() {
+									var start = (currentPage - 1) * pageSize;
+									var pageList = totalList.slice(start, start + pageSize);
+									render(pageList);
+									renderPaging();
+								}
+
+								/* 페이지 버튼 렌더링 */
+								function renderPaging() {
+									var totalPage = Math.ceil(totalList.length / pageSize);
+									if (totalPage <= 1) {
+										$('#faqPaging').html('');
+										return;
+									}
+									var html = '';
+									// 맨 처음
+									html += '<button class="page-btn" onclick="fnChangePage(1)" ' + (currentPage === 1 ? 'disabled' : '') + '>«</button>';
+									// 이전
+									html += '<button class="page-btn" onclick="fnChangePage(' + (currentPage - 1) + ')" ' + (currentPage === 1 ? 'disabled' : '') + '>‹</button>';
+									// 페이지 번호
+									for (var i = 1; i <= totalPage; i++) {
+										html += '<button class="page-btn' + (i === currentPage ? ' active' : '') + '" onclick="fnChangePage(' + i + ')">' + i + '</button>';
+									}
+									// 다음
+									html += '<button class="page-btn" onclick="fnChangePage(' + (currentPage + 1) + ')" ' + (currentPage === totalPage ? 'disabled' : '') + '>›</button>';
+									// 맨 끝
+									html += '<button class="page-btn" onclick="fnChangePage(' + totalPage + ')" ' + (currentPage === totalPage ? 'disabled' : '') + '>»</button>';
+									$('#faqPaging').html(html);
+								}
+
+								function fnChangePage(page) {
+									var totalPage = Math.ceil(totalList.length / pageSize);
+									if (page < 1 || page > totalPage) return;
+									currentPage = page;
+									renderPage();
+									$('html, body').animate({scrollTop: $('.faq-layout').offset().top - 80}, 300);
+								}
+
 								function fnGetList() {
 									$('#faqList').html('<div class="faq-loading"><span class="spin"></span>불러오는 중...</div>');
 
 									var sendCategory = '';
-									if (currentCategory !== '전체') {
-										// 소분류가 선택됐으면 소분류, 아니면 대분류를 보냄
-										sendCategory = (currentSubTab !== '전체') ? currentSubTab : currentCategory;
+									var excludeCategory = '';
+
+									if (currentCategory === '기타' && currentSubTab === '전체') {
+										// 기타 > 전체: 알려진 소분류 전부 제외
+										var knownSubs = [];
+										$.each(SUB_TABS, function (cat, tabs) {
+											if (cat !== '전체' && cat !== '기타') {
+												$.each(tabs, function (i, tab) {
+													if (tab !== '전체' && $.inArray(tab, knownSubs) === -1) {
+														knownSubs.push(tab);
+													}
+												});
+											}
+										});
+										excludeCategory = knownSubs.join(',');  // 서버에 제외 목록 전송
+
+									} else if (currentCategory !== '전체') {
+										if (currentSubTab !== '전체') {
+											sendCategory = currentSubTab;
+										} else {
+											var subTabs = SUB_TABS[currentCategory] || [];
+											var subs = subTabs.filter(function (t) {return t !== '전체';});
+											sendCategory = subs.join(',');
+										}
 									}
 
 									$.ajax({
@@ -106,22 +176,23 @@
 										dataType: 'json',
 										data: {
 											category: sendCategory,
+											excludeCategory: excludeCategory,  // 추가
 											searchKeyword: currentKeyword
 										},
 										success: function (data) {
 											if (data.result === 'success') {
-												render(data.list);
+												totalList = data.list || [];
+												currentPage = 1;
+												renderPage();
 											} else {
 												showError(data.message || '데이터를 불러오지 못했습니다.');
 											}
 										},
 										error: function (xhr, status, err) {
 											showError('서버 연결 오류 (' + xhr.status + ')');
-											console.error('[FAQ Ajax]', status, err, xhr.responseText);
 										}
 									});
 								}
-
 								/* ════════════════════════════════════════════════════
 								   소분류 탭 렌더링
 								════════════════════════════════════════════════════ */
@@ -162,7 +233,7 @@
 									$wrap.find('.faq-question').on('click', function () {
 										var $item = $(this).closest('.faq-item');
 										var wasOpen = $item.hasClass('open');
-										$wrap.find('.faq-item').removeClass('open');
+										$(this).closest('.faq-item').toggleClass('open');
 										if (!wasOpen) $item.addClass('open');
 									});
 								}

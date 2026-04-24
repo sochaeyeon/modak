@@ -7,13 +7,13 @@
  }
 
  :root {
-   --cream: #fdf6ee;
+   --cream:   #F6F0E6;
    --beige: #f5e9d8;
    --sand: #e8d5bc;
-   --orange: #e8622a;
+     --orange:  #E8732A;
    --orange-light: #f07b45;
    --orange-dark: #c44e1e;
-   --brown: #5c3d2e;
+ --brown:   #2C1E0F;
    --brown-light: #8b6552;
    --text: #3a2820;
    --text-sub: #8b7060;
@@ -23,7 +23,7 @@
  }
 
  body {
-   font-family: 'GgiBatang', sans-serif;
+  
    background: var(--cream);
    min-height: 100vh;
    display: flex;
@@ -53,7 +53,7 @@
  }
 
  .logo-text {
-   font-family: 'Black Han Sans', sans-serif;
+  
    font-size: 20px;
    color: var(--orange);
    letter-spacing: -0.5px;
@@ -115,7 +115,7 @@
  }
 
  .panel-title {
-   font-family: 'Black Han Sans', sans-serif;
+  
    font-size: 30px;
    color: var(--brown);
    line-height: 1.25;
@@ -157,7 +157,7 @@
    border: none;
    background: var(--cream);
    color: var(--text-sub);
-   font-family: 'GgiBatang', sans-serif;
+
    font-size: 14px;
    font-weight: 500;
    cursor: pointer;
@@ -219,7 +219,7 @@
    background: var(--white);
    font-size: 12.5px;
    color: var(--text-sub);
-   font-family: 'GgiBatang', sans-serif;
+   
    cursor: pointer;
    transition: all 0.2s;
    font-weight: 500;
@@ -256,7 +256,7 @@
    border: 1.5px solid var(--border);
    border-radius: 10px;
    background: var(--cream);
-   font-family: 'GgiBatang', sans-serif;
+  
    font-size: 13.5px;
    color: var(--text);
    outline: none;
@@ -282,7 +282,7 @@
    border: none;
    background: var(--beige);
    color: var(--brown);
-   font-family: 'GgiBatang', sans-serif;
+   
    font-size: 12.5px;
    font-weight: 700;
    cursor: pointer;
@@ -318,7 +318,7 @@
    background: linear-gradient(135deg, #c44e1e, #f07b45);
    box-shadow: 0 6px 20px rgba(201, 79, 30, .35);
    color: var(--white);
-   font-family: 'GgiBatang', sans-serif;
+  
    font-size: 15px;
    font-weight: 700;
    cursor: pointer;

@@ -25,4 +25,6 @@ public class User {
 	private String phoneVerifiedAt;
 	// 프로필 이미지 URL
 	private String profileImgUrl;
+	
+	private String marketingYn;
 }

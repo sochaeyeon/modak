@@ -325,6 +325,35 @@ public class AdminController {
 		if (!isAdmin()) return noAuth();
 		return new Gson().toJson(adminService.updateCampStatus(map));
 	}
+	// ★ 기존 /camp/list.dox, /camp/status.dox 아래에 추가
+
+	@PostMapping(value = "/camp/detail.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getCampDetail(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.getCampDetail(map));
+	}
+
+	@PostMapping(value = "/camp/edit.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String editCamp(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.editCamp(map));
+	}
+
+	@PostMapping(value = "/camp/remove.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String removeCamp(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.removeCamp(map));
+	}
+
+	@PostMapping(value = "/camp/add.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String addCamp(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.addCamp(map));
+	}
 
 	/* ==========================================================
     9. 쿠폰 마스터 및 유저 쿠폰 통합 관리 API

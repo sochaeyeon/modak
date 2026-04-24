@@ -192,6 +192,9 @@ public interface AdminMapper {
 
     // 캠핑장 데이터 삭제
     void deleteCamp(HashMap<String, Object> map);
+ // ★ 캠핑장 신규 등록
+    void insertCamp(HashMap<String, Object> map);
+    void insertCampImg(HashMap<String, Object> map);
 
 
     /* ==========================================================

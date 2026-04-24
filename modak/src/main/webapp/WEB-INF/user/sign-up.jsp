@@ -186,27 +186,30 @@
 
                     <div class="terms-section">
                         <label class="terms-all">
-                            <input type="checkbox" class="cb all-cb" id="agreeAll" onchange="toggleAll()">
+                            <input type="checkbox" class="cb all-cb" id="agreeAll" :checked="agreeAll"
+                                @change="toggleAll">
                             <span>전체 동의하기</span>
                         </label>
 
                         <div class="terms-item">
                             <label class="terms-check">
-                                <input type="checkbox" class="cb term-cb required-term" onchange="updateAll()">
+                                <input type="checkbox" class="cb term-cb required-term" v-model="term1"
+                                    @change="updateAll">
                                 <span><em>[필수]</em>이용약관 동의</span>
                             </label>
                             <a href="http://localhost:8080/terms.do" class="terms-link">보기</a>
                         </div>
                         <div class="terms-item">
                             <label class="terms-check">
-                                <input type="checkbox" class="cb term-cb required-term" onchange="updateAll()">
+                                <input type="checkbox" class="cb term-cb required-term" v-model="term2"
+                                    @change="updateAll">
                                 <span><em>[필수]</em>개인정보처리방침 동의</span>
                             </label>
                             <a href="http://localhost:8080/privacyPolicy.do" class="terms-link">보기</a>
                         </div>
                         <div class="terms-item">
                             <label class="terms-check">
-                                <input type="checkbox" class="cb term-cb" onchange="updateAll()">
+                                <input type="checkbox" class="cb term-cb" v-model="marketingYn" @change="updateAll">
                                 <span><em>[선택]</em>마케팅 정보 수신 동의</span>
                             </label>
                             <a href="http://localhost:8080/marketingConsent.do" class="terms-link">보기</a>
@@ -305,10 +308,15 @@
         }
 
         /* 전체 동의 */
+        /* 전체 동의 — Vue 인스턴스의 marketingYn도 함께 갱신 */
         function toggleAll() {
             const all = document.getElementById('agreeAll').checked;
             document.querySelectorAll('.term-cb').forEach(cb => cb.checked = all);
+
+            // ★ Vue data도 직접 갱신
+            app._instance.proxy.marketingYn = all;
         }
+
         function updateAll() {
             const cbs = document.querySelectorAll('.term-cb');
             document.getElementById('agreeAll').checked = [...cbs].every(c => c.checked);
@@ -316,65 +324,62 @@
         const app = Vue.createApp({
             data() {
                 return {
-                    // 변수 - (키 : 값)
-                    // list : [] 
                     userId: '',
                     userName: '',
                     nickName: '',
                     email: '',
                     userPwd: '',
                     checked: false,
-                    signupSuccessed: false
+                    signupSuccessed: false,
+                    marketingYn: false,
+                    // ★ 추가
+                    agreeAll: false,
+                    term1: false,
+                    term2: false
                 };
             },
             methods: {
-                // 함수(메소드) - (key : function())
-                fnSignUp: function () {
+                // ★ 전체 동의 — Vue로 통합
+                toggleAll() {
+                    const all = !this.agreeAll;
+                    this.agreeAll = all;
+                    this.term1 = all;
+                    this.term2 = all;
+                    this.marketingYn = all;
+                },
+                updateAll() {
+                    this.agreeAll = this.term1 && this.term2 && this.marketingYn;
+                },
+
+                fnSignUp() {
                     let self = this;
-                    if (!self.checked) {
-                        const hint = document.getElementById("userIdHint");
+                    if (!self.checked) { /* 기존 동일 */ return; }
 
-                        hint.textContent = "아이디 중복 확인을 해주세요.";
-                        hint.className = "field-hint error";
-
-                        document.getElementById("userIdInput").focus();
-
-                        return;
-                    }
-
-                    const requiredTerms = document.querySelectorAll(".required-term");
-
-                    let allChecked = true;
-                    requiredTerms.forEach(cb => {
-                        if (!cb.checked) {
-                            allChecked = false;
-                        }
-                    });
-
-                    if (!allChecked) {
+                    // ★ 필수 약관 Vue data로 체크
+                    if (!self.term1 || !self.term2) {
                         alert("필수 약관에 동의해주세요.");
                         return;
                     }
+
                     let param = {
                         userId: self.userId,
                         userName: self.userName,
                         nickName: self.nickName,
                         email: self.email,
-                        userPwd: self.userPwd
+                        userPwd: self.userPwd,
+                        marketingYn: self.marketingYn ? 'Y' : 'N'
                     };
+
+                    console.log('marketingYn 전송값:', param.marketingYn); // 확인용
+
                     $.ajax({
                         url: "http://localhost:8080/user/sign-up.dox",
                         dataType: "json",
                         type: "POST",
                         data: param,
-                        success: function (data) {
-                            console.log(data);
-                            if (data.result === "success") {
-                                self.signupSuccessed = true;
-                            } else {
-                                alert(data.message);
-                            }
-
+                        success(data) {
+                            if (data.result === "success") self.signupSuccessed = true;
+                            else alert(data.message);
                         }
                     });
                 },

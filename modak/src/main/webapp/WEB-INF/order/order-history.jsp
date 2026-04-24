@@ -5,7 +5,7 @@
 
         <head>
             <meta charset="UTF-8">
-            <title>주문 전체보기 - 모닥모닥</title>
+            <title>내 주문 - 모닥모닥</title>
             <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
             <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
             <link rel="stylesheet" href="/css/order/order-history.css">
@@ -42,13 +42,15 @@
                                 <h3>주문 기간 선택</h3>
                             </div>
                             <div class="filter-body">
-                                <div class="period-chip-wrap">
-                                    <button v-for="p in ['ALL','1M','3M','6M','1Y','CUSTOM']" :key="p"
-                                        class="period-chip" :class="{ active: selectedPeriod === p }"
-                                        @click="fnSetPeriod(p)">
-                                        {{ p === 'ALL' ? '전체' : p === 'CUSTOM' ? '직접 선택' :
-                                        p.replace('M','개월').replace('Y','년') }}
+                                <div class="period-tab-wrap" ref="periodTabs">
+                                    <button v-for="p in periodList" :key="p.value" type="button" class="period-tab"
+                                        :class="{ active: selectedPeriod === p.value }" @click="fnSetPeriod(p.value)">
+                                        {{ p.label }}
                                     </button>
+
+                                    <span class="period-underline"
+                                        :style="{ left: periodUnderline.left + 'px', width: periodUnderline.width + 'px' }">
+                                    </span>
                                 </div>
                                 <div class="custom-date-row" v-if="selectedPeriod === 'CUSTOM'">
                                     <input type="date" v-model="startDate"> <span>~</span> <input type="date"
@@ -64,12 +66,14 @@
                                 <h3>선택 기간 내 주문 현황</h3>
                             </div>
                             <div class="order-flow">
-                                <div v-for="(val, key) in statusMap" :key="key" class="flow-step"
-                                    :class="{ 'has-count': statusSummary[key] > 0 }">
-                                    <div class="flow-circle">{{ val.icon }}</div>
+                                <button v-for="(val, key) in statusMap" :key="key" type="button" class="flow-step"
+                                    :class="{ 
+            'has-count': statusSummary[key] > 0,
+            'active': selectedStatus === key
+        }" @click="fnSetStatusFilter(key)">
                                     <div class="flow-count">{{ statusSummary[key] }}</div>
                                     <div class="flow-name">{{ val.name }}</div>
-                                </div>
+                                </button>
                             </div>
                         </div>
 
@@ -200,11 +204,28 @@
                                     appliedStartDate: "", appliedEndDate: "", dateErrorMsg: "",
                                     animatedCount: 0, listAnimateKey: 0,
                                     statusMap: {
-                                        paid: { name: '결제완료', icon: '💳' }, ready: { name: '배송준비', icon: '📦' },
-                                        shipping: { name: '배송중', icon: '🚚' }, done: { name: '배송완료', icon: '✔' },
-                                        cancelled: { name: '취소/반품', icon: '✖' }
+                                        all: { name: '전체' },
+                                        paid: { name: '결제완료' },
+                                        ready: { name: '배송준비' },
+                                        shipping: { name: '배송중' },
+                                        inUse: { name: '이용중' },
+                                        done: { name: '배송/반납 완료' },
+                                        cancelled: { name: '취소/반품' }
                                     },
+                                    selectedStatus: "all",
                                     expandedOrderId: null,
+                                    periodList: [
+                                        { value: "ALL", label: "전체" },
+                                        { value: "1M", label: "1개월" },
+                                        { value: "3M", label: "3개월" },
+                                        { value: "6M", label: "6개월" },
+                                        { value: "1Y", label: "1년" },
+                                        { value: "CUSTOM", label: "직접 선택" }
+                                    ],
+                                    periodUnderline: {
+                                        left: 0,
+                                        width: 0
+                                    },
                                 };
                             },
                             watch: {
@@ -212,19 +233,37 @@
                             },
                             computed: {
                                 filteredOrderList() {
-                                    const today = new Date();
-                                    let start = null, end = null;
-                                    if (this.selectedPeriod === "1M") start = new Date(today.setMonth(today.getMonth() - 1));
-                                    else if (this.selectedPeriod === "3M") start = new Date(today.setMonth(today.getMonth() - 3));
-                                    else if (this.selectedPeriod === "6M") start = new Date(today.setMonth(today.getMonth() - 6));
-                                    else if (this.selectedPeriod === "1Y") start = new Date(today.setFullYear(today.getFullYear() - 1));
-                                    else if (this.selectedPeriod === "CUSTOM" && this.appliedStartDate) {
+                                    const now = new Date();
+                                    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+                                    let start = null;
+                                    let end = null;
+
+                                    if (this.selectedPeriod === "1M") {
+                                        start = new Date(today);
+                                        start.setMonth(start.getMonth() - 1);
+                                    } else if (this.selectedPeriod === "3M") {
+                                        start = new Date(today);
+                                        start.setMonth(start.getMonth() - 3);
+                                    } else if (this.selectedPeriod === "6M") {
+                                        start = new Date(today);
+                                        start.setMonth(start.getMonth() - 6);
+                                    } else if (this.selectedPeriod === "1Y") {
+                                        start = new Date(today);
+                                        start.setFullYear(start.getFullYear() - 1);
+                                    } else if (this.selectedPeriod === "CUSTOM" && this.appliedStartDate && this.appliedEndDate) {
                                         start = new Date(this.appliedStartDate + "T00:00:00");
                                         end = new Date(this.appliedEndDate + "T23:59:59");
                                     }
+
                                     return this.orderList.filter(item => {
-                                        const d = new Date(item.createdAt.replace(" ", "T"));
-                                        return (!start || d >= start) && (!end || d <= end);
+                                        const d = new Date(String(item.createdAt).replace(" ", "T"));
+                                        const status = (item.orderStatus || "").toUpperCase();
+
+                                        const periodMatch = (!start || d >= start) && (!end || d <= end);
+                                        const statusMatch = this.fnMatchStatusFilter(status);
+
+                                        return periodMatch && statusMatch;
                                     });
                                 },
                                 groupedOrders() {
@@ -238,10 +277,20 @@
                                     return Object.keys(groupMap).sort((a, b) => b.localeCompare(a)).map(date => ({ date, items: groupMap[date] }));
                                 },
                                 statusSummary() {
-                                    const s = { paid: 0, ready: 0, shipping: 0, done: 0, cancelled: 0 };
+                                    const s = {
+                                        all: 0,
+                                        paid: 0,
+                                        ready: 0,
+                                        shipping: 0,
+                                        inUse: 0,
+                                        done: 0,
+                                        cancelled: 0
+                                    };
 
                                     this.orderList.forEach(item => {
                                         const status = (item.orderStatus || "").toUpperCase();
+
+                                        s.all++;
 
                                         if (status === "PAID" || status === "RESERVED") {
                                             s.paid++;
@@ -249,9 +298,10 @@
                                             s.ready++;
                                         } else if (status === "SHIPPING") {
                                             s.shipping++;
+                                        } else if (status === "IN_USE") {
+                                            s.inUse++;
                                         } else if (
                                             status === "DONE" ||
-                                            status === "IN_USE" ||
                                             status === "RETURNED" ||
                                             status === "COMPLETED"
                                         ) {
@@ -271,11 +321,49 @@
                                         success: (res) => { if (res.result === "success") this.orderList = res.list; }
                                     });
                                 },
-                                fnSetPeriod(p) { this.selectedPeriod = p; if (p !== 'CUSTOM') this.fnRunFilterAnimation(); },
+                                fnSetPeriod(p) {
+                                    this.selectedPeriod = p;
+                                    this.dateErrorMsg = "";
+
+                                    this.$nextTick(() => {
+                                        this.fnMovePeriodUnderline();
+                                    });
+
+                                    if (p !== "CUSTOM") {
+                                        this.startDate = "";
+                                        this.endDate = "";
+                                        this.appliedStartDate = "";
+                                        this.appliedEndDate = "";
+                                        this.fnRunFilterAnimation();
+                                    }
+                                },
                                 fnApplyCustomRange() {
-                                    if (!this.startDate || !this.endDate) { this.dateErrorMsg = "날짜를 선택하세요."; return; }
-                                    this.appliedStartDate = this.startDate; this.appliedEndDate = this.endDate;
+                                    this.dateErrorMsg = "";
+
+                                    if (!this.startDate || !this.endDate) {
+                                        this.dateErrorMsg = "조회할 시작일과 종료일을 모두 선택해주세요.";
+                                        return;
+                                    }
+
+                                    if (this.startDate > this.endDate) {
+                                        this.dateErrorMsg = "시작일은 종료일보다 늦을 수 없습니다.";
+                                        return;
+                                    }
+
+                                    this.appliedStartDate = this.startDate;
+                                    this.appliedEndDate = this.endDate;
                                     this.fnRunFilterAnimation();
+                                },
+
+                                fnMovePeriodUnderline() {
+                                    const wrap = this.$refs.periodTabs;
+                                    if (!wrap) return;
+
+                                    const active = wrap.querySelector(".period-tab.active");
+                                    if (!active) return;
+
+                                    this.periodUnderline.left = active.offsetLeft;
+                                    this.periodUnderline.width = active.offsetWidth;
                                 },
                                 fnRunFilterAnimation() { this.listAnimateKey++; },
                                 fnFormatPrice(p) { return Number(p).toLocaleString() + '원'; },
@@ -284,12 +372,13 @@
                                         PAID: '결제완료',
                                         READY: '배송준비',
                                         SHIPPING: '배송중',
-                                        DONE: '배송완료',
+                                        DONE: '배송/반납 완료',
+                                        RETURNED: '반납완료',
+                                        COMPLETED: '대여완료',
                                         CANCELLED: '취소/반품',
                                         RESERVED: '예약완료',
                                         IN_USE: '이용중',
                                         RETURNED: '반납완료',
-                                        COMPLETED: '대여완료'
                                     };
                                     return m[s] || s;
                                 },
@@ -380,9 +469,52 @@
                                     if (action === "연장 신청") return "extend-btn";
                                     return "";
                                 },
+                                fnSetStatusFilter(key) {
+                                    this.selectedStatus = key;
+                                    this.expandedOrderId = null;
+                                    this.fnRunFilterAnimation();
+                                },
+
+                                fnMatchStatusFilter(status) {
+                                    if (this.selectedStatus === "all") return true;
+
+                                    if (this.selectedStatus === "paid") {
+                                        return status === "PAID" || status === "RESERVED";
+                                    }
+
+                                    if (this.selectedStatus === "ready") {
+                                        return status === "READY";
+                                    }
+
+                                    if (this.selectedStatus === "shipping") {
+                                        return status === "SHIPPING";
+                                    }
+
+                                    if (this.selectedStatus === "inUse") {
+                                        return status === "IN_USE";
+                                    }
+
+                                    if (this.selectedStatus === "done") {
+                                        return status === "DONE" || status === "RETURNED" || status === "COMPLETED";
+                                    }
+
+                                    if (this.selectedStatus === "cancelled") {
+                                        return status === "CANCELLED";
+                                    }
+
+                                    return true;
+                                },
 
                             },
-                            mounted() { this.fnGetOrderList(); }
+                            mounted() {
+                                this.fnGetOrderList();
+
+                                this.$nextTick(() => {
+                                    this.fnMovePeriodUnderline();
+                                });
+
+                                window.addEventListener("resize", this.fnMovePeriodUnderline);
+                            }
                         }).mount("#app");
                     </script>
         </body>

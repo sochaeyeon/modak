@@ -22,7 +22,7 @@
 
                 <body>
                     <%@ include file="/WEB-INF/common/header.jsp" %>
-                        <div id="app">
+                        <div id="app" v-cloak>
                             <!-- PAGE -->
                             <div class="page-wrap">
 

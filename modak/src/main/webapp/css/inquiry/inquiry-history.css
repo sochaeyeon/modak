@@ -57,7 +57,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 24px;
-    animation: fadeUp .6s ease both;
+    animation: none;
 }
 
 /* 상단 헤더 */
@@ -135,13 +135,13 @@ body {
 
 /* 공통 섹션 */
 .section-card {
-    background: var(--bg-soft);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
+    background: rgba(255, 252, 248, 0.92);
+    border: 1px solid rgba(183, 146, 112, 0.16);
+    border-radius: 18px;
     overflow: hidden;
-    backdrop-filter: blur(10px);
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 10px 28px rgba(70, 43, 24, 0.06);
 }
+
 
 .section-head {
     padding: 22px 26px 18px;
@@ -193,18 +193,22 @@ body {
     gap: 16px;
 }
 
+
 .inquiry-item {
-    background: linear-gradient(180deg, #fffdf9 0%, #fff9f3 100%);
-    border: 1px solid rgba(234, 223, 206, 0.95);
-    border-radius: 20px;
-    padding: 22px 22px 18px;
-    box-shadow: 0 8px 22px rgba(84, 57, 35, 0.05);
-    transition: var(--transition);
+    background: #fffdf9;
+    border: 1px solid rgba(221, 205, 184, 0.75);
+    border-radius: 14px;
+    padding: 20px 22px;
+    box-shadow: none;
+    transition: border-color .18s ease, background .18s ease;
 }
 
+
 .inquiry-item:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+    transform: none;
+    background: #fffaf4;
+    border-color: rgba(217, 108, 47, 0.28);
+    box-shadow: none;
 }
 
 /* 문의 상단 */
@@ -306,9 +310,9 @@ body {
 
 .inquiry-detail-box {
     background: #fff;
-    border: 1px solid #eadfce;
-    border-radius: 14px;
-    padding: 16px;
+    border: 1px solid rgba(226, 212, 194, 0.8);
+    border-radius: 12px;
+    padding: 16px 18px;
 }
 
 .inquiry-detail-section {
@@ -342,17 +346,18 @@ body {
 
 /* 답변 박스 */
 .answer-box {
-    background: linear-gradient(180deg, #fffdfa 0%, #fff6ef 100%);
-    border: 1px solid rgba(217, 108, 47, 0.18);
-    border-radius: 16px;
+    background: #fffaf5;
+    border: 1px solid rgba(217, 108, 47, 0.14);
+    border-left: 3px solid var(--ember);
+    border-radius: 12px;
     padding: 16px 18px;
 }
 
-.answer-box .detail-label {
-    font-size: 13px;
-    font-weight: 700;
-    color: #c85a24;
-    margin-bottom: 8px;
+.answer-box .detail-content {
+    background: transparent;
+    border: none;
+    padding: 0;
+    border-radius: 0;
 }
 
 .answer-box .detail-content {
@@ -603,29 +608,29 @@ body {
 /* 애니메이션 */
 .list-rise-enter-active,
 .list-rise-leave-active {
-    transition: all .36s ease;
+    transition: opacity .12s ease;
 }
 
 .list-rise-enter-from,
 .list-rise-leave-to {
     opacity: 0;
-    transform: translateY(18px);
+    transform: none;
 }
 
 .count-rise-enter-active,
 .count-rise-leave-active {
     display: inline-block;
-    transition: all .28s ease;
+    transition: opacity .12s ease;
 }
 
 .count-rise-enter-from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: none;
 }
 
 .count-rise-leave-to {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: none;
 }
 
 @keyframes fadeUp {
@@ -633,6 +638,7 @@ body {
         opacity: 0;
         transform: translateY(14px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -722,5 +728,184 @@ body {
         min-width: 36px;
         height: 36px;
         padding: 0 10px;
+    }
+}
+
+.btn-outline.active {
+    background: linear-gradient(135deg, #d96c2f, #b85a2b);
+    color: #fff;
+    border-color: transparent;
+}
+
+.inquiry-filter-tabs {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.inquiry-filter-tab {
+    border: none;
+    background: transparent;
+    padding: 8px 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-light);
+    cursor: pointer;
+    position: relative;
+    transition: color .22s ease;
+}
+
+.inquiry-filter-tab::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    background: var(--ember-deep);
+    border-radius: 999px;
+    transition: width .22s ease;
+}
+
+.inquiry-filter-tab:hover,
+.inquiry-filter-tab.active {
+    color: var(--ember-deep);
+}
+
+.inquiry-filter-tab.active::after {
+    width: 100%;
+}
+
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2c1e0f;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity .25s ease;
+}
+
+.toast.show {
+    opacity: 1;
+}
+
+.delete-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    background: rgba(35, 24, 15, 0.38);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    outline: none;
+}
+
+.delete-modal-box {
+    width: 100%;
+    max-width: 360px;
+    background: #fffdf9;
+    border: 1px solid rgba(183, 146, 112, 0.22);
+    border-radius: 16px;
+    padding: 24px 24px 20px;
+    box-shadow: 0 18px 46px rgba(35, 24, 15, 0.18);
+    text-align: center;
+    animation: modalFadeUp .18s ease;
+
+}
+
+.delete-modal-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.delete-modal-desc {
+    font-size: 13px;
+    color: var(--text-sub);
+    line-height: 1.6;
+    margin-bottom: 22px;
+}
+
+.delete-modal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.delete-cancel-btn,
+.delete-confirm-btn {
+    flex: 1;
+    height: 42px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all .18s ease;
+}
+
+.delete-cancel-btn:hover {
+    background: #fffaf4;
+    border-color: rgba(217, 108, 47, 0.25);
+    color: var(--ember-deep);
+    transform: translateY(-1px);
+}
+
+.delete-cancel-btn:active {
+    transform: translateY(0);
+    background: #f6efe7;
+}
+
+.delete-confirm-btn:hover {
+    background: #a94f26;
+    box-shadow: 0 8px 18px rgba(217, 108, 47, 0.25);
+    transform: translateY(-1px);
+}
+
+.delete-confirm-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(217, 108, 47, 0.18);
+}
+
+@keyframes modalFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+.delete-cancel-btn {
+    border: 1px solid rgba(183, 146, 112, 0.24);
+    background: #fff;
+    color: var(--text-main);
+}
+
+.delete-confirm-btn {
+    border: none;
+    background: var(--ember-deep);
+    color: #fff;
+}
+.delete-modal-backdrop {
+    backdrop-filter: blur(4px);
+    animation: fadeIn .15s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
     }
 }

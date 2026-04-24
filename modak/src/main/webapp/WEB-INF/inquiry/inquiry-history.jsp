@@ -54,17 +54,35 @@
                                                 <h3>전체 문의</h3>
                                                 <p class="recent-guide-text">문의는 10개씩 확인할 수 있습니다.</p>
                                             </div>
-                                        </div>
+                                            <div class="inquiry-filter-tabs">
+                                                <button type="button" class="inquiry-filter-tab"
+                                                    :class="{ active: statusFilter === 'ALL' }"
+                                                    @click="fnChangeStatusFilter('ALL')">
+                                                    전체
+                                                </button>
 
+                                                <button type="button" class="inquiry-filter-tab"
+                                                    :class="{ active: statusFilter === 'WAITING' }"
+                                                    @click="fnChangeStatusFilter('WAITING')">
+                                                    답변대기
+                                                </button>
+
+                                                <button type="button" class="inquiry-filter-tab"
+                                                    :class="{ active: statusFilter === 'ANSWERED' }"
+                                                    @click="fnChangeStatusFilter('ANSWERED')">
+                                                    답변완료
+                                                </button>
+                                            </div>
+                                        </div>
                                         <transition name="list-rise" mode="out-in">
                                             <div class="wishlist-content" :key="'inquiry-' + listAnimateKey">
-                                                <div v-if="inquiryList.length === 0" class="empty-state">
+                                                <div v-if="filteredInquiryList.length === 0" class="empty-state">
                                                     <p>문의 내역이 없습니다.</p>
                                                 </div>
 
                                                 <div v-else class="review-list inquiry-list">
-                                                    <div class="review-item inquiry-item" v-for="item in inquiryList"
-                                                        :key="item.inquiryId">
+                                                    <div class="review-item inquiry-item"
+                                                        v-for="item in filteredInquiryList" :key="item.inquiryId">
 
                                                         <!-- 상단 -->
                                                         <div class="inquiry-title-row">
@@ -165,7 +183,7 @@
                                                                 </button>
 
                                                                 <button class="btn-outline btn-sm danger"
-                                                                    @click="fnDeleteInquiry(item.inquiryId)">
+                                                                    @click="fnOpenDeleteModal(item.inquiryId)">
                                                                     삭제
                                                                 </button>
                                                             </div>
@@ -215,6 +233,30 @@
                                     </button>
                                 </div>
                             </div>
+                            <div class="toast" :class="{ show: toastVisible }">
+                                {{ toastMsg }}
+                            </div>
+
+                            <div v-if="deleteModalOpen" class="delete-modal-backdrop" @click.self="fnCloseDeleteModal"
+                                @keydown.enter.prevent="fnConfirmDelete" @keydown.esc.prevent="fnCloseDeleteModal"
+                                tabindex="0" ref="deleteModal">
+
+                                <div class="delete-modal-box">
+                                    <div class="delete-modal-title">문의를 삭제하시겠습니까?</div>
+                                    <div class="delete-modal-desc">
+                                        삭제한 문의는 다시 복구할 수 없습니다.
+                                    </div>
+
+                                    <div class="delete-modal-actions">
+                                        <button type="button" class="delete-confirm-btn" @click="fnConfirmDelete">
+                                            삭제
+                                        </button>
+                                        <button type="button" class="delete-cancel-btn" @click="fnCloseDeleteModal">
+                                            취소
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <%@ include file="/WEB-INF/common/footer.jsp" %>
@@ -237,7 +279,15 @@
 
                                 isImageModalOpen: false,
                                 modalImageList: [],
-                                currentImageIndex: 0
+                                currentImageIndex: 0,
+                                filteredInquiryList: [],
+                                statusFilter: "ALL",
+
+                                toastVisible: false,
+                                toastMsg: '',
+                                deleteModalOpen: false,
+                                deleteInquiryId: null,
+
                             };
                         },
                         methods: {
@@ -250,7 +300,8 @@
                                     dataType: "json",
                                     data: {
                                         page: self.page,
-                                        pageSize: self.pageSize
+                                        pageSize: self.pageSize,
+                                        statusFilter: self.statusFilter
                                     },
                                     success: function (data) {
                                         if (data.result === "success") {
@@ -258,6 +309,8 @@
                                                 item.imageList = item.imageList || [];
                                                 return item;
                                             });
+
+                                            self.filteredInquiryList = self.inquiryList;
 
                                             self.totalCount = data.totalCount || 0;
                                             self.totalPages = Math.ceil(self.totalCount / self.pageSize) || 1;
@@ -340,10 +393,26 @@
                             fnEditInquiry: function (inquiryId) {
                                 pageChange("/user/inquiry/edit.do", { inquiryId: inquiryId });
                             },
-                            fnDeleteInquiry: function (inquiryId) {
+                            fnOpenDeleteModal: function (inquiryId) {
                                 let self = this;
 
-                                if (!confirm("문의글을 삭제하시겠습니까?")) {
+                                self.deleteInquiryId = inquiryId;
+                                self.deleteModalOpen = true;
+
+                                self.$nextTick(function () {
+                                    self.$refs.deleteModal.focus();
+                                });
+                            },
+
+                            fnCloseDeleteModal: function () {
+                                this.deleteModalOpen = false;
+                                this.deleteInquiryId = null;
+                            },
+
+                            fnConfirmDelete: function () {
+                                let self = this;
+
+                                if (!self.deleteInquiryId) {
                                     return;
                                 }
 
@@ -351,10 +420,13 @@
                                     url: "/user/inquiry/remove.dox",
                                     type: "POST",
                                     dataType: "json",
-                                    data: { inquiryId: inquiryId },
+                                    data: {
+                                        inquiryId: self.deleteInquiryId
+                                    },
                                     success: function (data) {
                                         if (data.result === "success") {
-                                            alert("문의가 삭제되었습니다.");
+                                            self.fnCloseDeleteModal();
+                                            self.showToast("문의가 삭제되었습니다.");
 
                                             if (self.inquiryList.length === 1 && self.page > 1) {
                                                 self.page--;
@@ -399,7 +471,24 @@
                                 } else {
                                     this.currentImageIndex = 0;
                                 }
-                            }
+                            },
+                            fnChangeStatusFilter: function (status) {
+                                this.statusFilter = status;
+                                this.page = 1;
+                                this.expandedInquiryId = null;
+                                this.fnGetInquiryList(true);
+                            },
+
+                            showToast: function (msg) {
+                                let self = this;
+                                self.toastMsg = msg;
+                                self.toastVisible = true;
+
+                                setTimeout(function () {
+                                    self.toastVisible = false;
+                                }, 2000);
+                            },
+
                         },
                         mounted() {
                             this.fnGetInquiryList();

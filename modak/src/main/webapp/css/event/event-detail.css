@@ -63,38 +63,53 @@ main {
 	margin-bottom: 24px;
 }
 
-/* 이미지 영역 */
 .detail-image {
-	width: 100%;
-	aspect-ratio: 16/7;
-	background: #f5f0e8;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 13px;
-	color: var(--text-muted);
-	position: relative;
+    width: 100%;
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+    display: block;
+    line-height: 0;
 }
 
+.event-detail-img {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    max-height: none;
+    object-fit: unset;
+    object-position: unset;
+    display: block;
+    margin: 0 auto;
+}
 .detail-badge {
-	position: absolute;
-	top: 16px;
-	left: 16px;
-	padding: 5px 12px;
-	border-radius: 6px;
-	font-size: 12px;
-	font-weight: 600;
-	color: #fff;
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    min-width: 92px;
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 12px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    z-index: 5;
+    white-space: nowrap;
 }
 
 .badge-ongoing {
-	background: var(--accent);
+    background: var(--accent);
 }
 
 .badge-ended {
-	background: #8a8a8a;
+    background: #8a8a8a;
 }
-
 .badge-winner {
 	background: #2e7d32;
 }
@@ -139,6 +154,7 @@ main {
 	color: var(--text-secondary);
 	line-height: 1.9;
 	white-space: pre-wrap;
+	margin-top: 20px;
 }
 
 /* 로딩 */
@@ -239,4 +255,87 @@ main {
 
 .btn-back:hover {
 	background: var(--accent-light);
+}
+
+
+.detail-content {
+    white-space: pre-wrap;
+    line-height: 1.8;
+    color: #333;
+}
+
+
+html,
+body,
+#app,
+main,
+.detail-card,
+.detail-body {
+    overflow-anchor: none;
+}
+
+.event-detail-image-list {
+    width: 100%;
+    margin-top: 32px;
+    display: block;
+    line-height: 0;
+}
+
+.event-content-img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border-radius: 0;
+}
+
+.floating-top-btn {
+    position: fixed;
+    right: 24px;
+    bottom: 32px;
+
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+
+    background: var(--accent);
+    color: #fff;
+
+    border: none;
+    cursor: pointer;
+
+    font-size: 18px;
+    font-weight: 700;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+
+    transition: all .25s ease;
+}
+
+/* 나타날 때 */
+.floating-top-btn.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+/* 호버 */
+.floating-top-btn:hover {
+    background: var(--accent-light);
+    transform: translateY(-3px);
+    box-shadow: 0 14px 28px rgba(0,0,0,0.2);
+}
+
+/* 클릭 */
+.floating-top-btn:active {
+    transform: translateY(0);
 }

@@ -32,15 +32,10 @@
                 <div v-for="(item, index) in order.itemList" :key="index"
                      class="product-item" @click="fnGoProductDetail(item.productId)">
 
-                    <!-- ★ 실제 상품 이미지 / 없으면 이모지 fallback -->
                     <div class="product-thumb-box">
-                        <img v-if="item.imgUrl"
-                             :src="item.imgUrl"
-                             :alt="item.productName"
-                             class="thumb-img"
+                        <img v-if="item.imgUrl" :src="item.imgUrl" :alt="item.productName" class="thumb-img"
                              @error="$event.target.style.display='none'; $event.target.nextElementSibling.style.display='flex'">
-                        <span class="thumb-emoji"
-                              :style="item.imgUrl ? 'display:none' : 'display:flex'">
+                        <span class="thumb-emoji" :style="item.imgUrl ? 'display:none' : 'display:flex'">
                             {{ item.orderType === 'RENTAL' ? '⛺' : '🛒' }}
                         </span>
                     </div>
@@ -83,7 +78,6 @@
                     </div>
                     <div class="price-row">
                         <span class="label">결제 시각</span>
-                        <!-- ★ payDate 가 있으면 표시, 없으면 createdAt fallback -->
                         <span class="val-sub">{{ order.payDate || order.createdAt || '-' }}</span>
                     </div>
                     <div class="info-divider"></div>
@@ -106,43 +100,58 @@
         <div class="btn-group">
             <button class="btn-back-list" @click="fnGoList">목록으로 돌아가기</button>
             <button v-if="['PAID','READY','PAY_COMPLETED'].includes((order.orderStatus || '').toUpperCase())"
-                    class="btn-cancel" @click="fnCancelOrder">
-                주문취소
-            </button>
+                    class="btn-cancel" @click="fnOpenCancelModal">주문취소</button>
         </div>
+
+        <div v-if="isCancelModalOpen" class="modal-overlay" @click.self="isCancelModalOpen = false">
+            <div class="cancel-modal">
+                <h3 class="section-title"><i class="fa-solid fa-circle-exclamation"></i> 주문 취소 신청</h3>
+                
+                <div class="cancel-info-box">
+                    <p v-if="order.itemList && order.itemList.length > 0">
+                        취소 상품: <strong>{{ order.itemList[0].productName }} <span v-if="order.itemList.length > 1">외 {{ order.itemList.length - 1 }}건</span></strong>
+                    </p>
+                    <p>환불 예정 금액: <strong class="val-orange">{{ calcFinalTotal.toLocaleString() }}원</strong></p>
+                </div>
+
+                <div class="cancel-form">
+                    <label class="label">취소 사유 선택</label>
+                    <select v-model="cancelReasonCode" class="cancel-select">
+                        <option value="">사유를 선택해주세요.</option>
+                        <option value="CHANGE_MIND">단순 변심</option>
+                        <option value="WRONG_OPTION">옵션 변경 </option>
+                        <option value="DELAYED">배송 지연 </option>
+                        <option value="ETC">기타 (직접 입력)</option>
+                    </select>
+
+                    <label class="label">상세 사유 (선택)</label>
+                    <textarea v-model="cancelReasonText" class="cancel-textarea" placeholder="상세한 내용을 적어주면 큰 도움이 됩니다! ⛺"></textarea>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn-back-list" @click="isCancelModalOpen = false" style="flex:1;">닫기</button>
+                    <button class="btn-cancel" @click="fnSubmitCancel" :disabled="!cancelReasonCode" style="flex:1.5;">취소 확정</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
 <%@ include file="/WEB-INF/common/footer.jsp" %>
 
-<style>
-/* ★ 썸네일 이미지 */
-.product-thumb-box {
-    width: 80px; height: 80px;
-    border-radius: 12px;
-    overflow: hidden;
-    background: #F6F0E6;
-    flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-}
-.thumb-img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    border-radius: 12px;
-    display: block;
-}
-.thumb-emoji {
-    font-size: 32px;
-    align-items: center;
-    justify-content: center;
-    width: 100%; height: 100%;
-}
-</style>
-
 <script>
 const { createApp } = Vue;
 createApp({
-    data() { return { orderId: '${orderId}', order: null }; },
+    data() { 
+        return { 
+            orderId: '${orderId}', 
+            order: null,
+            isCancelModalOpen: false,
+            cancelReasonCode: "",
+            cancelReasonText: ""
+        }; 
+    },
     computed: {
         calcSubTotal() {
             if (!this.order || !this.order.itemList) return 0;
@@ -165,24 +174,36 @@ createApp({
                 }
             });
         },
-        fnGoProductDetail(id) {
-            if (!id) return;
-            location.href = "/product/detail.do?productId=" + id;
-        },
-        fnGoList() { location.href = "/order/history.do"; },
-        fnCancelOrder() {
-            if (!confirm("정말로 주문을 취소하시겠습니까?")) return;
+        fnOpenCancelModal() { this.isCancelModalOpen = true; },
+        fnSubmitCancel() {
+            if (!this.cancelReasonCode) return;
+            if (!confirm("정말로 주문을 취소하시겠습니까? 사유가 접수되었습니다!")) return;
+
+            const params = {
+                orderId: this.orderId,
+                cancelReasonCode: this.cancelReasonCode,
+                cancelReasonText: this.cancelReasonText,
+                cancelAmount: this.calcFinalTotal
+            };
+
             $.ajax({
-                url: "/order/cancel.dox", type: "POST", dataType: "json",
-                data: { orderId: this.orderId },
+                url: "/order/cancel.dox", 
+                type: "POST", 
+                dataType: "json",
+                data: params,
                 success: (res) => {
                     if (res.result === "success") {
-                        alert("취소되었습니다!");
+                        alert("주문이 성공적으로 취소되었습니다! 🔥");
+                        this.isCancelModalOpen = false;
                         this.fnGetDetail();
+                    } else {
+                        alert(res.message || "취소 중 오류가 발생했습니다!");
                     }
                 }
             });
-        }
+        },
+        fnGoProductDetail(id) { if (id) location.href = "/product/detail.do?productId=" + id; },
+        fnGoList() { location.href = "/order/history.do"; }
     },
     mounted() { this.fnGetDetail(); }
 }).mount('#app');

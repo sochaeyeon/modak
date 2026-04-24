@@ -724,5 +724,116 @@ public class AdminService {
      }
      return resultMap;
  }
+ public HashMap<String, Object> getGradeList() {
+	    HashMap<String, Object> result = new HashMap<>();
+	    try {
+	        result.put("result", "success");
+	        result.put("grades", mapper.selectGradeList());
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	    }
+	    return result;
+	}
+	 
+	public HashMap<String, Object> saveGrade(HashMap<String, Object> map) {
+	    HashMap<String, Object> result = new HashMap<>();
+	    try {
+	        mapper.updateGrade(map);
+	        result.put("result", "success");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	        result.put("message", e.getMessage());
+	    }
+	    return result;
+	}
+	 
+	public HashMap<String, Object> updateMemberGrade(HashMap<String, Object> map) {
+	    HashMap<String, Object> result = new HashMap<>();
+	    try {
+	        mapper.updateMemberGrade(map);
+	        result.put("result", "success");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	        result.put("message", e.getMessage());
+	    }
+	    return result;
+	}
+	@Transactional
+	public HashMap<String, Object> sendAlarm(HashMap<String, Object> map) {
+	    HashMap<String, Object> result = new HashMap<>();
+	    try {
+	        String sendType = (String) map.get("sendType");
+	        int count = 0;
+	 
+	        if ("ALL".equals(sendType)) {
+	            // 전체 발송
+	            count = mapper.insertAlarmToAllUsers(map);
+	 
+	        } else if ("SELECT".equals(sendType)) {
+	            // 선택 발송 — userIds: "user01,user02,user03"
+	            String userIds = (String) map.get("userIds");
+	            if (userIds != null && !userIds.isEmpty()) {
+	                String[] ids = userIds.split(",");
+	                for (String uid : ids) {
+	                    map.put("userId", uid.trim());
+	                    mapper.insertAlarm(map);
+	                    count++;
+	                }
+	            }
+	 
+	        } else if ("INDIVIDUAL".equals(sendType)) {
+	            // 개별 발송
+	            mapper.insertAlarm(map);
+	            count = 1;
+	        }
+	 
+	        result.put("result", "success");
+	        result.put("count",  count);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	        result.put("message", e.getMessage());
+	    }
+	    return result;
+	}
+	 
+	// 발송 내역 조회
+	public HashMap<String, Object> getAlarmLogs(HashMap<String, Object> map) {
+	    HashMap<String, Object> result = new HashMap<>();
+	    try {
+	        int page     = Integer.parseInt(String.valueOf(map.getOrDefault("page", "1")));
+	        int pageSize = Integer.parseInt(String.valueOf(map.getOrDefault("pageSize", "15")));
+	        map.put("offset", (page - 1) * pageSize);
+	        map.put("pageSize", pageSize);
+	        result.put("result", "success");
+	        result.put("list",   mapper.selectAlarmLogs(map));
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	    }
+	    return result;
+	}
+	 
+	// 회원 단건 조회
+	public HashMap<String, Object> findMember(HashMap<String, Object> map) {
+	    HashMap<String, Object> result = new HashMap<>();
+	    try {
+	        HashMap<String, Object> user = mapper.selectMemberById(map);
+	        if (user != null) {
+	            result.put("result", "success");
+	            result.put("user",   user);
+	        } else {
+	            result.put("result",  "fail");
+	            result.put("message", "존재하지 않는 회원입니다.");
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	    }
+	    return result;
+	}
 	
 }

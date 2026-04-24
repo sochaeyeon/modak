@@ -35,7 +35,7 @@
     ════════════════════════════════════════  -->
 	<select id="selectReviewList" parameterType="hashmap" resultType="hashmap">
 		SELECT
-		USER_ID AS userId,
+		CAMP_REVIEW_ID AS CAMP_REVIEW_ID, USER_ID AS userId,
 		CONTENT AS content,
 		RATING AS rating,
 		DATE_FORMAT(CREATED_AT, '%Y-%m-%d') AS createdAt

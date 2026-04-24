@@ -58,6 +58,9 @@
         <a href="/admin/camps.do" class="nav-item ${pageTitle == '캠핑장관리' ? 'active' : ''}">
             <span class="nav-icon">🗺️</span> 캠핑장 관리
         </a>
+         <a href="/admin/alarm.do" class="nav-item ${pageTitle == '캠핑장관리' ? 'active' : ''}">
+            <span class="nav-icon">🔔</span> 알람 관리
+        </a>
     </div>
 
     <div class="sidebar-footer">

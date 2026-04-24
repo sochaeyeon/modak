@@ -1,0 +1,123 @@
+/* admin-alarm.css - 모닥모닥 알람 관리 통합 스타일 */
+
+/* ── STEP 1: 발송 타입 카드 ── */
+.send-type-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+}
+.send-type-card {
+    background: var(--bg2);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 20px;
+    cursor: pointer;
+    transition: all .25s ease;
+    text-align: center;
+}
+.send-type-card:hover { 
+    border-color: rgba(232,115,42,.4); 
+    transform: translateY(-3px); 
+}
+.send-type-card.selected { 
+    border-color: var(--orange); 
+    background: rgba(232,115,42,.07); 
+}
+.send-type-icon { font-size: 32px; display: block; margin-bottom: 12px; }
+.send-type-name { font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+.send-type-desc { font-size: 12px; color: var(--text3); line-height: 1.5; }
+
+/* ── STEP 2: 알람 유형 버튼 ── */
+.alarm-type-row {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;
+}
+.type-btn {
+    padding: 8px 16px; border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--bg3); color: var(--text2);
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: all .2s; display: flex; align-items: center; gap: 6px;
+}
+.type-btn.active { background: var(--orange); color: #fff; border-color: var(--orange); }
+
+/* ── 회원 선택 리스트 ── */
+.user-select-wrap {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+.user-select-header {
+    padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+}
+.user-select-list { max-height: 220px; overflow-y: auto; }
+.user-select-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 16px; cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.user-select-item.checked { background: rgba(232,115,42,.06); }
+.user-checkbox {
+    width: 18px; height: 18px; border-radius: 5px;
+    border: 2px solid var(--border); background: var(--bg2);
+}
+.user-select-item.checked .user-checkbox { background: var(--orange); border-color: var(--orange); }
+
+/* ── 발송 내역 필터 탭 (이미지 개선 포인트) ── */
+.a-tabs {
+    display: flex;
+    gap: 8px; /* 버튼 사이 간격 확보 */
+    margin-bottom: 15px;
+}
+.a-tab {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text3);
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.a-tab.active {
+    background: rgba(232, 115, 42, 0.1);
+    border-color: var(--orange);
+    color: var(--orange) !important;
+}
+
+/* ── 발송 내역 리스트 (이미지 개선 포인트) ── */
+.alarm-log-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    margin-bottom: 8px; /* 리스트 간 간격 추가 */
+    border: 1px solid transparent;
+}
+.alarm-log-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--border);
+}
+.alarm-log-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+}
+.alarm-log-body { flex: 1; min-width: 0; }
+.alarm-log-title { font-size: 14px; font-weight: 700; color: var(--white); margin-bottom: 2px; }
+.alarm-log-content { font-size: 12px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.alarm-log-meta { font-size: 11px; color: var(--text3); display: flex; gap: 8px; margin-top: 4px; }
+
+/* ── 미리보기 및 공통 ── */
+.preview-alarm {
+    background: var(--bg2); border-radius: 10px;
+    padding: 12px 14px; border-left: 3px solid var(--orange);
+}
+.a-toast { /* 토스트 스타일 유지 */ }

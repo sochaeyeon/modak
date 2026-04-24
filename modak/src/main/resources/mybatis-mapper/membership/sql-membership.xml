@@ -4,24 +4,24 @@
 <mapper namespace="com.example.modak.membership.mapper.MembershipMapper">
 
 	<select id="selectMembershipInfo"
-		parameterType="hashmap"
-		resultType="com.example.modak.membership.model.MembershipInfo">
-
+			parameterType="hashmap"
+			resultType="com.example.modak.membership.model.MembershipInfo">
 		SELECT
-			U.USER_ID,
-			U.USER_NAME,
-			U.NICKNAME,
-			U.TOTAL_AMOUNT,
-			U.POINT,
+			U.USER_ID      AS userId,
+			U.USER_NAME    AS userName,
+			U.NICKNAME     AS nickName,
+			U.TOTAL_AMOUNT AS totalAmount,
+			U.POINT        AS point,
 
-			G.GRADE_ID,
-			G.GRADE_NAME,
-			G.MIN_AMOUNT,
-			G.DISCOUNT_RATE,
-			G.DESCRIPTION,
-			G.BENEFIT_TEXT  FROM USER U
+			G.GRADE_ID      AS gradeId,
+			G.GRADE_NAME    AS gradeName,
+			G.MIN_AMOUNT    AS minAmount,
+			G.DISCOUNT_RATE AS discountRate,
+			G.DESCRIPTION   AS description,
+			G.BENEFIT_TEXT  AS benefitText
+		FROM `USER` U
 		LEFT JOIN USER_GRADE G
-		ON U.GRADE_ID = G.GRADE_ID
+			ON U.GRADE_ID = G.GRADE_ID
 		WHERE U.USER_ID = #{userId}
 	</select>
 
@@ -31,14 +31,29 @@
 		WHERE USER_ID = #{userId}
 	</update>
 
-	<select id="selectAllGrades" resultType="hashmap">
+	<select id="selectAllGrades"
+			resultType="com.example.modak.membership.model.MembershipInfo">
 		SELECT
-			GRADE_ID AS GRADE_ID,
-			GRADE_NAME AS GRADE_NAME,
-			MIN_AMOUNT AS MIN_AMOUNT,
-			DISCOUNT_RATE AS DISCOUNT_RATE,
-			DESCRIPTION AS DESCRIPTION,
-			BENEFIT_TEXT AS BENEFIT_TEXT  FROM USER_GRADE
+			GRADE_ID      AS gradeId,
+			GRADE_NAME    AS gradeName,
+			MIN_AMOUNT    AS minAmount,
+			DISCOUNT_RATE AS discountRate,
+			DESCRIPTION   AS description,
+			BENEFIT_TEXT  AS benefitText
+		FROM USER_GRADE
 		ORDER BY GRADE_ID ASC
 	</select>
+
+	<select id="selectFaqList" resultType="hashmap">
+    SELECT
+        FAQ_ID     AS faqId,
+        QUESTION   AS question,
+        ANSWER     AS answer,
+        CATEGORY   AS category,
+        DATE_FORMAT(CREATED_AT, '%Y-%m-%d %H:%i') AS createdAt
+    FROM FAQ
+    WHERE FAQ_ID IN (5, 6, 7, 8, 9)
+    ORDER BY FAQ_ID ASC
+</select>
+
 </mapper>

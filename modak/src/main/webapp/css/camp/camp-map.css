@@ -1,27 +1,36 @@
 /* =============================================
-   camp-map.css - 모닥모닥 캠핑장 지도
+   camp-map.css - 모닥모닥 캠핑장 지도 서비스
    경로: /css/camp/camp-map.css
+   UI 컨셉: 캠핑 감성, 베이지/브라운 톤, 둥근 카드형 UI
 ============================================= */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
 :root {
-    --cream:   #F6F0E6;
-    --cream2:  #EDE5D4;
-    --cream3:  #E2D8C3;
-    --orange:  #E8732A;
-    --orange2: #C4621E;
-    --brown:   #2C1E0F;
-    --brown2:  #5C4230;
-    --brown3:  #8B6B4A;
-    --brown4:  #B89A7A;
-    --white:   #FFFDF8;
-    --panel-w: 360px;
+    /* 컬러 팔레트 */
+    --cream:   #F6F0E6;   /* 메인 배경색 */
+    --cream2:  #EDE5D4;   /* 보조 배경색 */
+    --cream3:  #E2D8C3;   /* 경계선 색상 */
+    --orange:  #E8732A;   /* 포인트 컬러 (모닥불 주황) */
+    --orange2: #C4621E;   /* 포인트 호버 컬러 */
+    --brown:   #2C1E0F;   /* 메인 텍스트 (짙은 밤색) */
+    --brown2:  #5C4230;   /* 서브 텍스트 */
+    --brown3:  #8B6B4A;   /* 부가 설명 텍스트 */
+    --brown4:  #B89A7A;   /* 비활성/플레이스홀더 */
+    --white:   #FFFDF8;   /* 패널/카드 배경색 */
+    --panel-w: 360px;     /* 사이드바 너비 */
+    
+  
 }
 
 [v-cloak] { display: none; }
 
 html, body, #app { height: 100%; overflow: hidden; }
-body { font-family: var(--font-body), 'Apple SD Gothic Neo', sans-serif; background: var(--cream); color: var(--brown); }
+body { 
+    font-family: var(--font-body), sans-serif; 
+    background: var(--cream); 
+    color: var(--brown); 
+}
 
 /* ══════════════════════════════
    레이아웃
@@ -174,7 +183,7 @@ body { font-family: var(--font-body), 'Apple SD Gothic Neo', sans-serif; backgro
 .facility-btn-clear:hover { background: var(--brown2); }
 
 /* ══════════════════════════════
-   모달
+   모달 (공통 오버레이 및 콘텐츠)
 ══════════════════════════════ */
 .modal-overlay {
     position: fixed; inset: 0; z-index: 500;
@@ -295,7 +304,7 @@ body { font-family: var(--font-body), 'Apple SD Gothic Neo', sans-serif; backgro
 }
 .review-item-clickable { cursor: pointer; }
 .review-item-clickable:hover { border-color: var(--orange); background: rgba(232,115,42,.04); }
-.review-item-full { cursor: pointer; }
+.review-item-full { cursor: pointer; pointer-events: auto; }
 .review-item-full:hover { background: rgba(232,115,42,.06); }
 .review-item-selected { border-color: var(--orange) !important; background: rgba(232,115,42,.08) !important; }
 
@@ -324,15 +333,21 @@ body { font-family: var(--font-body), 'Apple SD Gothic Neo', sans-serif; backgro
 }
 .btn-more-review:hover { background: var(--cream3); color: var(--brown); }
 
-/* 리뷰 전체보기 모달 */
+/* ── 리뷰 전체보기 모달 ── */
 .review-modal-overlay { z-index: 600; }
+.review-modal-overlay .review-modal-content {
+    z-index: 601;
+    pointer-events: auto;
+}
 .review-modal-content {
     background: var(--white); border-radius: 20px;
     width: 100%; max-width: 520px;
-    max-height: 80vh; overflow: hidden;
+    max-height: 80vh;
+    overflow: hidden;
     display: flex; flex-direction: column;
     box-shadow: 0 20px 60px rgba(44,30,15,.2);
     animation: slideUp .25s ease;
+    pointer-events: auto;
 }
 .review-modal-header {
     display: flex; align-items: flex-start;
@@ -358,27 +373,73 @@ body { font-family: var(--font-body), 'Apple SD Gothic Neo', sans-serif; backgro
 
 .review-list-scroll {
     flex: 1; overflow-y: auto; padding: 12px 16px;
+    pointer-events: auto;
+    min-height: 0;
 }
 .review-list-scroll::-webkit-scrollbar { width: 4px; }
 .review-list-scroll::-webkit-scrollbar-thumb { background: var(--cream3); border-radius: 2px; }
 
-/* 리뷰 단건 상세 카드 */
+
+/* ══════════════════════════════
+   ★ 리뷰 단건 상세 카드 (이미지 보정 반영)
+══════════════════════════════ */
 .review-detail-card {
-    background: var(--white); border-radius: 20px;
-    width: 100%; max-width: 400px;
-    padding: 28px 28px 24px;
-    box-shadow: 0 20px 60px rgba(44,30,15,.2);
-    animation: slideUp .25s ease;
+    background: var(--white);
+    border-radius: 28px;      /* 이미지처럼 더 둥글게 */
+    width: 100%;
+    max-width: 340px;         /* 팝업에 적당한 너비 */
+    padding: 32px 24px;
+    box-shadow: 0 20px 50px rgba(44, 30, 15, 0.3); /* 그림자 더 깊게 */
+    animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 툭 튀어나오는 효과 */
     text-align: center;
+    position: relative;
+    z-index: 1000;            /* 최상단으로 */
 }
-.review-detail-stars   { font-size: 28px; color: #D4932A; letter-spacing: 3px; margin-bottom: 6px; }
-.review-detail-rating  { font-family: var(--font-title); font-size: 32px; font-weight: 700; color: var(--brown); margin-bottom: 12px; }
-.review-detail-user    { font-size: 14px; font-weight: 600; color: var(--brown2); margin-bottom: 4px; }
-.review-detail-date    { font-size: 12px; color: var(--brown4); margin-bottom: 20px; }
+
+/* 별점 아이콘 스타일 */
+.review-detail-stars {
+    font-size: 24px;
+    color: #D4932A;
+    letter-spacing: 4px;
+    margin-bottom: 8px;
+}
+
+/* 점수 텍스트 (예: 5 / 5) */
+.review-detail-rating {
+    font-family: var(--font-title);
+    font-size: 32px;          /* 이미지처럼 크게 */
+    font-weight: 800;
+    color: var(--brown);
+    margin-bottom: 14px;
+}
+
+/* 유저 아이디 */
+.review-detail-user {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--brown2);
+    margin-bottom: 4px;
+}
+
+/* 날짜 */
+.review-detail-date {
+    font-size: 12px;
+    color: var(--brown4);
+    margin-bottom: 22px;
+}
+
+/* 리뷰 본문 박스 */
 .review-detail-content {
-    font-size: 14px; color: var(--brown2); line-height: 1.9;
-    font-weight: 300; text-align: left;
-    background: var(--cream); border-radius: 12px; padding: 16px;
+    font-size: 14px;
+    color: var(--brown2);
+    line-height: 1.7;
+    font-weight: 400;
+    text-align: left;         /* 본문은 왼쪽 정렬 */
+    background: var(--cream);
+    border-radius: 16px;
+    padding: 18px;
+    max-height: 200px;        /* 내용이 너무 길면 스크롤 */
+    overflow-y: auto;
 }
 
 .no-data { font-size: 13px; color: var(--brown4); text-align: center; padding: 20px; font-weight: 300; }

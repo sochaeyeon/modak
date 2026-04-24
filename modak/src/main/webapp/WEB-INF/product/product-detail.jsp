@@ -724,6 +724,8 @@
 </html>
 
 <script>
+    const loginUserId = '${sessionScope.sessionId}';
+
     function showToast(msg) {
         var t = document.getElementById('toast');
         if (!t) {
@@ -1131,6 +1133,13 @@
             // ── 장바구니 담기 ──
             fnAddToCart: function() {
                 let self = this;
+                
+                if (!loginUserId || loginUserId === 'null' || loginUserId === '') {
+                        if (confirm('로그인이 필요한 서비스입니다. 로그인하시겠습니까?')) {
+                            location.href = '/user/login.do';
+                        }
+                        return;
+                    }
 
                 if (self.productOptions.length > 0) {
                     let optionGroupCount = Object.keys(self.groupedOptions).length;

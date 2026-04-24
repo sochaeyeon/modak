@@ -1,15 +1,16 @@
 :root {
-	--cream: #f7f3ee;
-	--cream-dark: #f0ebe3;
-	--orange: #d4714a;
+	--cream: #F6F0E6;
+	--cream-dark: #EDE5D4;
+	--orange: #E8732A;
 	--orange-light: #e8a07a;
 	--orange-pale: #faf0eb;
-	--text-dark: #3a3530;
+	--text-dark: #2C1E0F;
 	--text-mid: #7a7068;
-	--text-light: #b0a89e;
-	--border: #e8e0d8;
-	--white: #ffffff;
+	--text-light: #B89A7A;
+	--border: #EDE5D4;
+	--white: #FFFDF8;
 }
+
 
 * {
 	box-sizing: border-box;
@@ -247,6 +248,74 @@ body {
 }
 
 /* ── FAQ ── */
+/* FAQ 아이템 기본 - flex 해제 */
+.faq-item {
+    border-bottom: 1px solid #eee;
+    display: block;  /* ← flex가 있다면 block으로 변경 */
+}	/* 질문 행 */
+	.faq-question {
+	    display: flex;
+	    justify-content: space-between;
+	    align-items: center;
+	    padding: 6px 2px;
+	    cursor: pointer;
+	    gap: 8px;
+	}
+
+	.faq-question:hover {
+	    color: #c0622f;
+	}
+
+	.q-text {
+	    flex: 1;
+	    font-size: 13px;  /* 14px → 13px */
+	    line-height: 1.6;
+	}
+
+	/* 화살표 */
+	.q-arrow {
+	    display: inline-block;
+	    font-size: 18px;
+	    color: #999;
+	    transition: transform 0.2s;
+	    flex-shrink: 0;
+	}
+
+	.faq-item.open .q-arrow {
+	    transform: rotate(90deg);
+	    color: #c0622f;
+	}
+
+	/* 답변 - 반드시 block으로 */
+	.faq-answer {
+	    display: none;  /* JS slideDown으로 제어 */
+	    width: 100%;
+	}
+
+	.faq-answer-inner {
+	    padding: 12px 16px 16px;
+	    color: #666;
+	    font-size: 13px;  /* 14px → 13px */
+	    line-height: 1.7;
+	    background: #faf8f5;
+	    border-top: 1px solid #eee;
+	    width: 100%;
+	    box-sizing: border-box;
+	}
+
+	/* FAQ 섹션 헤더 */
+	.faq-section-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-end;
+		margin-bottom: 16px;
+	}
+
+	.faq-more-btn {
+		font-size: 13px;
+		color: var(--primary, #d4502a);
+		text-decoration: none;
+	}
 .faq-section {
 	margin-bottom: 48px;
 }
@@ -266,12 +335,12 @@ body {
 }
 
 .faq-sidebar li {
-	font-size: 11px;
-	color: var(--text-light);
-	padding: 5px 0;
-	cursor: pointer;
-	border-bottom: 1px solid transparent;
-	transition: color 0.15s;
+    font-size: 13px;  /* 11px → 13px */
+    color: var(--text-light);
+    padding: 5px 0;
+    cursor: pointer;
+    border-bottom: 1px solid transparent;
+    transition: color 0.15s;
 }
 
 .faq-sidebar li:hover {
@@ -287,23 +356,17 @@ body {
 	flex: 1;
 }
 
-.faq-tabs {
-	display: flex;
-	gap: 0;
-	border-bottom: 1.5px solid var(--border);
-	margin-bottom: 2px;
+.faq-tab {
+    padding: 6px 12px;
+    font-size: 13px;  /* 11px → 13px */
+    cursor: pointer;
+    color: var(--text-light);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1.5px;
+    transition: color 0.15s;
+    white-space: nowrap;
 }
 
-.faq-tab {
-	padding: 6px 12px;
-	font-size: 11px;
-	cursor: pointer;
-	color: var(--text-light);
-	border-bottom: 2px solid transparent;
-	margin-bottom: -1.5px;
-	transition: color 0.15s;
-	white-space: nowrap;
-}
 
 .faq-tab.active {
 	color: var(--orange);
@@ -311,26 +374,7 @@ body {
 	font-weight: 700;
 }
 
-.faq-item {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 9px 2px;
-	border-bottom: 1px solid #f0ebe3;
-	cursor: pointer;
-	font-size: 11px;
-	color: var(--text-mid);
-	transition: color 0.15s;
-}
 
-.faq-item:hover {
-	color: var(--orange);
-}
-
-.faq-item .arr {
-	color: var(--border);
-	font-size: 12px;
-}
 
 /* ── CONSULT ── */
 .consult-section {
@@ -741,46 +785,4 @@ body {
 
 .c-btn.green:hover {
 	background: #2e7d4b;
-}
-
-/* FAQ 답변 */
-.faq-answer {
-	display: none;
-	padding: 10px 14px;
-	background: #faf8f6;
-	border-top: 1px solid #eee;
-	font-size: 13px;
-	color: #555;
-	line-height: 1.7;
-}
-
-.faq-item.open .q-arrow {
-	transform: rotate(90deg);
-}
-
-.q-arrow {
-	display: inline-block;
-	transition: transform .2s;
-	margin-left: 6px;
-}
-
-.faq-question {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	cursor: pointer;
-}
-
-/* FAQ 섹션 헤더 */
-.faq-section-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-end;
-	margin-bottom: 16px;
-}
-
-.faq-more-btn {
-	font-size: 13px;
-	color: var(--primary, #d4502a);
-	text-decoration: none;
 }

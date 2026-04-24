@@ -95,5 +95,38 @@ public class CartService {
 
 	    return resultMap;
 	}
-	
+	// 장바구니 옵션변경 업데이트
+	public HashMap<String, Object> updateCartOption(HashMap<String, Object> map) {
+	    HashMap<String, Object> resultMap = new HashMap<String, Object>();
+
+	    try {
+	        Cart target = cartMapper.selectCartById(map);
+
+	        map.put("productId", target.getProductId());
+	        map.put("cartType", target.getCartType());
+
+	        Cart sameCart = cartMapper.selectSameCartForUpdate(map);
+
+	        if (sameCart != null && sameCart.getCartId() != target.getCartId()) {
+	            map.put("targetCartId", sameCart.getCartId());
+	            map.put("addQuantity", map.get("quantity"));
+
+	            cartMapper.mergeCartQty(map);
+	            cartMapper.deleteCart(map);
+
+	            resultMap.put("merged", "Y");
+	        } else {
+	            cartMapper.updateCartOption(map);
+	            resultMap.put("merged", "N");
+	        }
+
+	        resultMap.put("result", "success");
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result", "fail");
+	    }
+
+	    return resultMap;
+	}
 }

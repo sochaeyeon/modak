@@ -18,8 +18,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns(
                     "/alarm/**",
 
-                    "/cart/**",
-
                     "/user/chatbot/**",
 
                     "/inquiry.do",

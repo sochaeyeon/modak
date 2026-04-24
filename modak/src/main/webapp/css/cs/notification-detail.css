@@ -183,15 +183,14 @@ body {
 	display: flex;
 	align-items: center;
 	gap: 12px;
-	padding: 13px 0;
+	padding: 13px 0 13px 8px;
 	border-bottom: 1px solid #f5f5f5;
+	border-radius: 6px;
 	transition: background 0.15s;
 }
 
 .nav-row:hover:not(.nav-disabled) {
 	background: #fdf8f5;
-	border-radius: 6px;
-	padding-left: 8px;
 }
 
 .nav-disabled {

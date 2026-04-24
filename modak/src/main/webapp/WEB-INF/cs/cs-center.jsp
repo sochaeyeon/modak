@@ -329,22 +329,28 @@
 									+ '<span class="q-text">' + escHtml(f.question) + '</span>'
 									+ '<span class="q-arrow">›</span>'
 									+ '</div>'
-									+ '<div class="faq-answer" style="display:none;">'
+									+ '<div class="faq-answer" style="display:none;">'  // ← display:none 유지
 									+ '<div class="faq-answer-inner">' + escHtml(f.answer) + '</div>'
 									+ '</div>'
 									+ '</div>';
 							});
 							$wrap.html(html);
 
-							// 아코디언 이벤트 재바인딩
+							// 아코디언 이벤트
 							$wrap.find('.faq-question').off('click').on('click', function () {
 								var $item = $(this).closest('.faq-item');
+								var $answer = $item.find('.faq-answer');
 								var wasOpen = $item.hasClass('open');
-								$(this).closest('.faq-item').toggleClass('open').find('.faq-answer').slideUp(180);
-								if (!wasOpen) $item.addClass('open').find('.faq-answer').slideDown(180);
+
+								// 열려있는 항목 모두 닫기 (동시에 하나만 열리게)
+								$wrap.find('.faq-item.open').removeClass('open').find('.faq-answer').slideUp(180);
+
+								if (!wasOpen) {
+									$item.addClass('open');
+									$answer.slideDown(180);
+								}
 							});
 						}
-
 						/* ════════════════════════════
 						   공지사항 Ajax 조회
 						════════════════════════════ */

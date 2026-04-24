@@ -54,7 +54,7 @@
 
 			<%@ include file="/WEB-INF/common/header.jsp" %>
 
-				<div id="app">
+				<div id="app" v-cloak>
 					<div class="inquiry-hero">
 						<h1>문의 수정</h1>
 						<p>등록한 문의 내용을 수정할 수 있습니다.</p>
@@ -143,6 +143,25 @@
 							</div>
 						</div>
 					</main>
+					<div class="toast" :class="{ show: toastVisible }">
+						{{ toastMsg }}
+					</div>
+
+					<div v-if="confirmModalOpen" class="delete-modal-backdrop" @click.self="fnCloseConfirmModal"
+						@keydown.enter.prevent="fnConfirmModalOk" @keydown.esc.prevent="fnCloseConfirmModal"
+						tabindex="0" ref="confirmModal">
+
+						<div class="delete-modal-box">
+							<div class="delete-modal-title">{{ confirmTitle }}</div>
+							<div class="delete-modal-desc">{{ confirmDesc }}</div>
+
+							<div class="delete-modal-actions single">
+								<button type="button" class="delete-confirm-btn" @click="fnConfirmModalOk">
+									확인
+								</button>
+							</div>
+						</div>
+					</div>
 				</div>
 
 				<%@ include file="/WEB-INF/common/footer.jsp" %>
@@ -162,10 +181,52 @@
 									oldImageList: [],
 									deletedImageIdList: [],
 									newFiles: [],
-									newPreviewList: []
+									newPreviewList: [],
+									toastVisible: false,
+									toastMsg: "",
+
+									confirmModalOpen: false,
+									confirmTitle: "",
+									confirmDesc: "",
+									confirmAction: null
 								};
 							},
 							methods: {
+								showToast(msg) {
+									this.toastMsg = msg;
+									this.toastVisible = true;
+
+									setTimeout(() => {
+										this.toastVisible = false;
+									}, 2000);
+								},
+
+								fnOpenConfirmModal(title, desc, action) {
+									this.confirmTitle = title;
+									this.confirmDesc = desc;
+									this.confirmAction = action || null;
+									this.confirmModalOpen = true;
+
+									this.$nextTick(() => {
+										this.$refs.confirmModal.focus();
+									});
+								},
+
+								fnCloseConfirmModal() {
+									this.confirmModalOpen = false;
+									this.confirmTitle = "";
+									this.confirmDesc = "";
+									this.confirmAction = null;
+								},
+
+								fnConfirmModalOk() {
+									const action = this.confirmAction;
+									this.fnCloseConfirmModal();
+
+									if (typeof action === "function") {
+										action();
+									}
+								},
 								fnFileChange(e) {
 									const selectedFiles = Array.from(e.target.files);
 
@@ -263,17 +324,27 @@
 										contentType: false,
 										success: function (data) {
 											if (data.result === "success") {
-												alert("문의가 수정되었습니다.");
-												location.href = "/user/inquiry/history.do";
+												self.showToast("문의가 수정되었습니다.");
+
+												setTimeout(function () {
+													location.href = "/user/inquiry/history.do";
+												}, 900);
+
 											} else if (data.result === "loginRequired") {
-												alert("로그인이 필요합니다.");
-												location.href = "/user/login.do";
+												self.fnOpenConfirmModal(
+													"로그인이 필요한 서비스입니다",
+													"로그인 페이지로 이동하시겠습니까?",
+													function () {
+														location.href = "/user/login.do";
+													}
+												);
+
 											} else {
-												alert(data.message || "수정에 실패했습니다.");
+												self.showToast(data.message || "수정에 실패했습니다.");
 											}
 										},
 										error: function () {
-											alert("서버 오류가 발생했습니다.");
+											self.showToast("서버 오류가 발생했습니다.");
 										}
 									});
 								},
@@ -302,13 +373,23 @@
 												self.newFiles = [];
 												self.newPreviewList = [];
 											} else {
-												alert(data.message || "문의 정보를 불러올 수 없습니다.");
-												location.href = "/user/inquiry/history.do";
+												self.fnOpenConfirmModal(
+													"문의 정보를 불러올 수 없습니다",
+													data.message || "내 문의 내역으로 이동합니다.",
+													function () {
+														location.href = "/user/inquiry/history.do";
+													}
+												);
 											}
 										},
 										error: function () {
-											alert("서버 오류가 발생했습니다.");
-											location.href = "/user/inquiry/history.do";
+											self.fnOpenConfirmModal(
+												"서버 오류가 발생했습니다",
+												"내 문의 내역으로 이동합니다.",
+												function () {
+													location.href = "/user/inquiry/history.do";
+												}
+											);
 										}
 									});
 								},

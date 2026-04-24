@@ -580,7 +580,7 @@ a {
 }
 
 .signup-row a:hover {
-  color: var(--ember-deep);
+  color: var(--orange);
 }
 
 /* Animations */
@@ -987,22 +987,6 @@ a {
   width: 50%;
 }
 
-.feat-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 16px 18px;
-  background: rgba(255, 255, 255, .52);
-  border: 1px solid rgba(210, 180, 150, .28);
-  border-radius: 14px;
-  backdrop-filter: blur(6px);
-  transition: transform .18s, box-shadow .18s;
-}
-
-.feat-card:hover {
-  transform: translateX(6px) scale(1.02);
-  box-shadow: 0 8px 28px rgba(180, 100, 40, 0.15);
-}
 
 .feat-icon {
   width: 38px;
@@ -1016,18 +1000,6 @@ a {
   flex-shrink: 0;
 }
 
-.feat-text h4 {
-  font-family: 'GgiBatang', sans-serif;
-  font-size: 13.5px;
-  color: var(--text-dark);
-  margin-bottom: 3px;
-}
-
-.feat-text p {
-  font-size: 12px;
-  color: var(--text-light);
-  line-height: 1.6;
-}
 
 .login-msg {
   margin-top: 8px;
@@ -1366,4 +1338,26 @@ input[type="password"]::-ms-clear {
   position: absolute;
   right: 20px;
   animation: spin 0.7s linear infinite;
+}
+
+#app .right-panel .login-box .signup-row a,
+#app .right-panel .login-box .signup-row a:link,
+#app .right-panel .login-box .signup-row a:visited {
+  color: var(--orange) !important;
+  font-weight: 700;
+}
+
+#app .right-panel .login-box .signup-row a:hover,
+#app .right-panel .login-box .signup-row a:focus {
+  color: var(--orange2) !important;
+}
+.right-panel a.forgot {
+  color: var(--brown2) !important;
+}
+.right-panel a.forgot:hover {
+  color: var(--orange) !important;
+}
+
+.signup-row a:hover {
+  color: var(--orange2) !important;
 }

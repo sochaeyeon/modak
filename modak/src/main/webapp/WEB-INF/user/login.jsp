@@ -24,30 +24,6 @@
             <!-- ── 왼쪽 패널 ── -->
             <div class="left-panel">
                 <div class="brand">
-                    <!-- <div class="brand-icon">
-                        <svg width="28" height="34" viewBox="0 0 28 34" fill="none">
-                            <path
-                                d="M14 34C9 27 6.5 20 10 13 12 8.5 9.5 4.5 12 1 13 -0.5 14 0 14 0 14 0 15 -0.5 16 1 18.5 4.5 16 8.5 18 13 21.5 20 19 27 14 34Z"
-                                fill="url(#bFlame)" />
-                            <path
-                                d="M14 34C11.5 28.5 11 23 13 18 13.8 15 12.5 12 14 9.5 15.5 12 14.2 15 15 18 17 23 16.5 28.5 14 34Z"
-                                fill="url(#bInner)" />
-                            <defs>
-                                <linearGradient id="bFlame" x1="14" y1="34" x2="14" y2="0"
-                                    gradientUnits="userSpaceOnUse">
-                                    <stop offset="0%" stop-color="#c94f1e" />
-                                    <stop offset="55%" stop-color="#f07d3a" />
-                                    <stop offset="100%" stop-color="#fde090" stop-opacity="0.5" />
-                                </linearGradient>
-                                <linearGradient id="bInner" x1="14" y1="34" x2="14" y2="9.5"
-                                    gradientUnits="userSpaceOnUse">
-                                    <stop offset="0%" stop-color="#fff3c4" />
-                                    <stop offset="100%" stop-color="#fbbf7a" stop-opacity="0.4" />
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                    </div> -->
-
                     <a href="/main.do" class="brand-name">모닥모닥</a>
                 </div>
 

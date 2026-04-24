@@ -7,7 +7,7 @@
 		<head>
 			<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<title>온라인 문의 접수 - 모닥모닥</title>
+			<title>온라인 문의 - 모닥모닥</title>
 			<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 			<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 			<link rel="stylesheet" href="${pageContext.request.contextPath}/css/inquiry/inquiry-form.css">
@@ -20,7 +20,7 @@
 
 			<%@ include file="/WEB-INF/common/header.jsp" %>
 
-				<div id="app">
+				<div id="app" v-cloak>
 
 					<!-- 헤더 -->
 					<div class="inquiry-hero">
@@ -154,8 +154,8 @@
 							</div>
 							<div class="step-card">
 								<div class="step-num">3</div>
-								<h4>이메일 답변</h4>
-								<p>등록하신 이메일로<br>답변을 드립니다.</p>
+								<h4>빠른 답변</h4>
+								<p>적어도 24시간 이내에<br>답변을 드립니다.</p>
 							</div>
 						</div>
 

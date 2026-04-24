@@ -19,35 +19,31 @@ public class EventService {
 
 	/* ── 목록 조회 (탭 + 페이징) ── */
 	public HashMap<String, Object> getEventList(HashMap<String, Object> map) {
-		HashMap<String, Object> resultMap = new HashMap<>();
-		int page = 1;
-		try {
-			page = Integer.parseInt(String.valueOf(map.getOrDefault("page", "1")));
-		} catch (Exception ignored) {
-		}
-		if (page < 1)
-			page = 1;
+	    HashMap<String, Object> result = new HashMap<>();
+	    try {
+	        int page     = Integer.parseInt(String.valueOf(map.getOrDefault("page", "1")));
+	        int pageSize = 9; // 한 페이지에 9개
 
-		int offset = (page - 1) * PAGE_SIZE;
-		map.put("tabType", map.getOrDefault("tabType", ""));
-		map.put("pageSize", PAGE_SIZE);
-		map.put("offset", offset);
+	        map.put("offset",   (page - 1) * pageSize);
+	        map.put("pageSize", pageSize);
 
-		List<Event> list = eventMapper.selectEventList(map);
-		int total = eventMapper.selectEventCount(map);
-		int totalPages = (int) Math.ceil((double) total / PAGE_SIZE);
-		if (totalPages < 1)
-			totalPages = 1;
+	        List<?> list       = eventMapper.selectEventList(map);
+	        int     totalCount = eventMapper.selectEventCount(map);
+	        int     totalPages = (int) Math.ceil((double) totalCount / pageSize);
 
-		resultMap.put("list", list);
-		resultMap.put("totalCount", total);
-		resultMap.put("totalPages", totalPages);
-		resultMap.put("currentPage", page);
-		resultMap.put("result", "success");
-		resultMap.put("message", "데이터 조회 성공");
-		return resultMap;
+	        result.put("result",      "success");
+	        result.put("list",        list);
+	        result.put("totalCount",  totalCount);
+	        result.put("totalPages",  Math.max(totalPages, 1));
+	        result.put("currentPage", page);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result",  "fail");
+	        result.put("message", "이벤트 목록 조회 실패");
+	    }
+	    return result;
 	}
-
 	public HashMap<String, Object> getEventInfo(HashMap<String, Object> map) {
 		HashMap<String, Object> resultMap = new HashMap<>();
 

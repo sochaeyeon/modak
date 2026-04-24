@@ -21,7 +21,7 @@
 }
 
 body {
-    font-family: 'Noto Sans KR', sans-serif;
+    
     background: var(--bg);
     min-height: 100vh;
     display: flex; flex-direction: column;
@@ -49,7 +49,7 @@ body {
 }
 .page-eyebrow { font-size: 11px; letter-spacing: 2px; color: var(--brown4); margin-bottom: 6px; }
 .page-title {
-    font-family: 'Nanum Myeongjo', serif;
+    
     font-size: 26px; font-weight: 800; color: var(--brown); margin-bottom: 4px;
 }
 .page-order-id { font-size: 13px; color: var(--brown3); font-weight: 300; }
@@ -74,7 +74,7 @@ body {
     display: flex; align-items: center; justify-content: space-between;
 }
 .section-head h3 {
-    font-family: 'Nanum Myeongjo', serif;
+    
     font-size: 16px; font-weight: 700; color: var(--brown);
 }
 .section-body { padding: 24px; }
@@ -110,7 +110,7 @@ body {
 .info-label { font-size: 11px; letter-spacing: .8px; color: var(--brown4); margin-bottom: 5px; }
 .info-value { font-size: 14px; color: var(--brown); font-weight: 500; line-height: 1.5; }
 .info-value.price {
-    font-family: 'Nanum Myeongjo', serif;
+   
     font-size: 20px; color: var(--orange); font-weight: 700;
 }
 .info-divider { grid-column: 1 / -1; height: 1px; background: var(--border2); }
@@ -206,7 +206,7 @@ body {
     from { opacity: 0; transform: scale(.95) translateY(10px); }
     to   { opacity: 1; transform: scale(1) translateY(0); }
 }
-.modal-title { font-family: 'Nanum Myeongjo', serif; font-size: 20px; font-weight: 800; text-align: center; margin: 10px 0; }
+
 .modal-desc  { font-size: 13px; color: var(--brown3); text-align: center; line-height: 1.8; margin-bottom: 28px; white-space: pre-line; }
 .modal-btns  { display: flex; gap: 10px; }
 .modal-btn-no, .modal-btn-yes { flex: 1; padding: 13px; border: none; border-radius: 12px; font-size: 14px; cursor: pointer; font-family: inherit; }

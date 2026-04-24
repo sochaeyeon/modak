@@ -97,27 +97,39 @@
 						var html = '';
 						$.each(list, function (i, ev) {
 							var now = new Date();
-							var endDate = new Date(ev.endDate);
-							var isEnded = endDate < now;
+							now.setHours(0, 0, 0, 0); // 시간 제거, 날짜만 비교
+
+							var startDate = ev.startDate ? new Date(ev.startDate) : null;
+							var endDate = ev.endDate ? new Date(ev.endDate) : null;
+
 							var badgeClass, badgeText;
 
 							if (currentTab === 'winner') {
-								badgeClass = 'badge-winner'; badgeText = '당첨자 발표';
-							} else if (isEnded) {
-								badgeClass = 'badge-ended'; badgeText = '종료';
+								badgeClass = 'badge-winner';
+								badgeText = '🏆 당첨자 발표';
+							} else if (endDate && endDate < now) {
+								// 종료일이 오늘 이전 → 종료
+								badgeClass = 'badge-ended';
+								badgeText = '종료';
+							} else if (startDate && startDate > now) {
+								// 시작일이 오늘 이후 → 예정
+								badgeClass = 'badge-ready';
+								badgeText = '예정';
 							} else {
-								badgeClass = 'badge-ongoing'; badgeText = '진행중';
+								// 진행중
+								badgeClass = 'badge-ongoing';
+								badgeText = '🔥 진행중';
 							}
 
-							// 🖼️ 이미지 처리 로직 추가
-							// DB에서 가져온 이미지 경로가 없으면 기본 '이미지 준비중' 사진이 나오게 방어 코드를 넣었습니다.
-							var imgSrc = ev.img_path ? ev.img_path : '${pageContext.request.contextPath}/img/common/no-image.png';
+							var imgSrc = ev.img_path
+								? ev.img_path
+								: '${pageContext.request.contextPath}/img/common/no-image.png';
 
 							html += '<div class="card" onclick="goDetail(' + ev.eventId + ')">'
 								+ '<div class="card-image">'
 								+ '<span class="card-badge ' + badgeClass + '">' + badgeText + '</span>'
-								// 👇 글자 대신 진짜 <img> 태그를 넣었습니다. 
-								+ '<img src="' + imgSrc + '" alt="' + esc(ev.title) + '" style="width:100%; height:100%; object-fit:cover;">'
+								+ '<img src="' + imgSrc + '" alt="' + esc(ev.title) + '" '
+								+ 'style="width:100%; height:100%; object-fit:cover;">'
 								+ '</div>'
 								+ '<div class="card-body">'
 								+ '<h3 class="card-title">' + esc(ev.title) + '</h3>'

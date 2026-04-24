@@ -252,3 +252,6 @@ main {
 	opacity: .4;
 	cursor: default;
 }
+.badge-ready {
+    background: #1976d2; /* 파란색 — 예정 */
+}

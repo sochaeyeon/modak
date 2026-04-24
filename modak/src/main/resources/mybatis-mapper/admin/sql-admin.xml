@@ -157,7 +157,7 @@
                POINT        AS point,
                TOTAL_AMOUNT AS totalAmount,
                DATE_FORMAT(CREATED_AT, '%Y-%m-%d') AS createdAt,
-               MARKETING_YN AS marketingYn,
+               MARKETING_YN AS marketingYn
         FROM USER
         <where>
             <if test="keyword != null and keyword != ''">

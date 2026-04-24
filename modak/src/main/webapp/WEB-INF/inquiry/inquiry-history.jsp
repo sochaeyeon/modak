@@ -8,7 +8,7 @@
                 <head>
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>내 문의 전체보기</title>
+                    <title>내 문의</title>
 
                     <script src="https://code.jquery.com/jquery-3.7.1.js"
                         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
@@ -23,7 +23,7 @@
                 <body>
                     <%@ include file="/WEB-INF/common/header.jsp" %>
 
-                        <div id="app">
+                        <div id="app" v-cloak>
                             <div class="wishlist-history-page">
                                 <div class="wishlist-history-wrap">
 
@@ -37,11 +37,11 @@
                                         </div>
 
                                         <div class="hero-summary-card">
-                                            <div class="hero-summary-label">내 문의</div>
+                                            <div class="hero-summary-label">{{ fnSummaryLabel() }}</div>
                                             <div class="hero-summary-value">
                                                 <transition name="count-rise" mode="out-in">
-                                                    <span class="result-count-number" :key="totalCount">{{ totalCount
-                                                        }}</span>
+                                                    <span class="result-count-number" :key="summaryCount">{{
+                                                        summaryCount }}</span>
                                                 </transition>
                                                 <span class="result-count-unit">개</span>
                                             </div>
@@ -54,24 +54,26 @@
                                                 <h3>전체 문의</h3>
                                                 <p class="recent-guide-text">문의는 10개씩 확인할 수 있습니다.</p>
                                             </div>
-                                            <div class="inquiry-filter-tabs">
-                                                <button type="button" class="inquiry-filter-tab"
+                                            <div class="inquiry-filter-tabs" ref="filterTabs">
+                                                <button type="button" ref="tabAll" class="inquiry-filter-tab"
                                                     :class="{ active: statusFilter === 'ALL' }"
                                                     @click="fnChangeStatusFilter('ALL')">
                                                     전체
                                                 </button>
 
-                                                <button type="button" class="inquiry-filter-tab"
+                                                <button type="button" ref="tabWaiting" class="inquiry-filter-tab"
                                                     :class="{ active: statusFilter === 'WAITING' }"
                                                     @click="fnChangeStatusFilter('WAITING')">
                                                     답변대기
                                                 </button>
 
-                                                <button type="button" class="inquiry-filter-tab"
+                                                <button type="button" ref="tabAnswered" class="inquiry-filter-tab"
                                                     :class="{ active: statusFilter === 'ANSWERED' }"
                                                     @click="fnChangeStatusFilter('ANSWERED')">
                                                     답변완료
                                                 </button>
+
+                                                <div class="filter-underline" :style="filterUnderlineStyle"></div>
                                             </div>
                                         </div>
                                         <transition name="list-rise" mode="out-in">
@@ -82,7 +84,9 @@
 
                                                 <div v-else class="review-list inquiry-list">
                                                     <div class="review-item inquiry-item"
-                                                        v-for="item in filteredInquiryList" :key="item.inquiryId">
+                                                        v-for="item in filteredInquiryList" :key="item.inquiryId"
+                                                        @click="fnToggleInquiry(item)"
+                                                        :class="{ active: expandedInquiryId === item.inquiryId }">
 
                                                         <!-- 상단 -->
                                                         <div class="inquiry-title-row">
@@ -102,7 +106,7 @@
                                                                 </div>
 
                                                                 <button type="button" class="review-toggle-btn"
-                                                                    @click="fnToggleInquiry(item)">
+                                                                    @click.stop="fnToggleInquiry(item)">
                                                                     <span>{{ expandedInquiryId === item.inquiryId ? '접기'
                                                                         : '펼치기' }}</span>
                                                                     <span class="arrow"
@@ -135,7 +139,8 @@
                                                                             <div class="review-image-thumb"
                                                                                 v-for="(img, index) in item.imageList.slice(0, 6)"
                                                                                 :key="index"
-                                                                                @click="fnOpenImageModal(item.imageList, index)">
+                                                                                @click.stop="fnOpenImageModal(item.imageList, index)">
+
                                                                                 <img :src="img.imgUrl" alt="문의 이미지">
 
                                                                                 <div v-if="index === 5 && item.imageList.length > 6"
@@ -176,14 +181,14 @@
                                                         <div class="review-bottom">
                                                             <div></div>
 
-                                                            <div class="review-actions" v-if="!item.replyId">
+                                                            <div class="review-actions" v-if="!item.replyId" @click.stop>
                                                                 <button class="btn-outline btn-sm"
-                                                                    @click="fnEditInquiry(item.inquiryId)">
+                                                                    @click.stop="fnEditInquiry(item.inquiryId)">
                                                                     수정
                                                                 </button>
 
                                                                 <button class="btn-outline btn-sm danger"
-                                                                    @click="fnOpenDeleteModal(item.inquiryId)">
+                                                                    @click.stop="fnOpenDeleteModal(item.inquiryId)">
                                                                     삭제
                                                                 </button>
                                                             </div>
@@ -287,8 +292,18 @@
                                 toastMsg: '',
                                 deleteModalOpen: false,
                                 deleteInquiryId: null,
+                                filterUnderlineStyle: {
+                                    width: "0px",
+                                    transform: "translateX(0px)"
+                                }
 
                             };
+                        },
+                        computed: {
+                            summaryCount() {
+                                return this.filteredInquiryList.length;
+                            },
+
                         },
                         methods: {
                             fnGetInquiryList: function (moveTop = false) {
@@ -337,6 +352,27 @@
                                         self.expandedInquiryId = null;
                                     }
                                 });
+                            },
+                            fnMoveFilterUnderline: function () {
+                                let target = this.$refs.tabAll;
+
+                                if (this.statusFilter === "WAITING") {
+                                    target = this.$refs.tabWaiting;
+                                }
+
+                                if (this.statusFilter === "ANSWERED") {
+                                    target = this.$refs.tabAnswered;
+                                }
+
+                                if (!target || !this.$refs.filterTabs) return;
+
+                                const parentRect = this.$refs.filterTabs.getBoundingClientRect();
+                                const targetRect = target.getBoundingClientRect();
+
+                                this.filterUnderlineStyle = {
+                                    width: targetRect.width + "px",
+                                    transform: "translateX(" + (targetRect.left - parentRect.left) + "px)"
+                                };
                             },
 
                             fnChangePage: function (num) {
@@ -476,6 +512,11 @@
                                 this.statusFilter = status;
                                 this.page = 1;
                                 this.expandedInquiryId = null;
+
+                                this.$nextTick(() => {
+                                    this.fnMoveFilterUnderline();
+                                });
+
                                 this.fnGetInquiryList(true);
                             },
 
@@ -488,10 +529,25 @@
                                     self.toastVisible = false;
                                 }, 2000);
                             },
+                            fnSummaryLabel: function () {
+                                if (this.statusFilter === "WAITING") {
+                                    return "답변대기";
+                                }
+
+                                if (this.statusFilter === "ANSWERED") {
+                                    return "답변완료";
+                                }
+
+                                return "내 문의";
+                            }
 
                         },
                         mounted() {
                             this.fnGetInquiryList();
+
+                            this.$nextTick(() => {
+                                this.fnMoveFilterUnderline();
+                            });
                         }
                     });
 

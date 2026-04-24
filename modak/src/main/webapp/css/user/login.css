@@ -5,16 +5,31 @@
 }
 
 :root {
-  --bg: #faf6f0;
-  --ember-deep: #c94f1e;
-  --ember: #e0621a;
-  --ember-light: #f07d3a;
-  --ember-glow: #f4a460;
-  --text-dark: #2e1a0e;
-  --text-mid: #7a5c3e;
-  --text-light: #b09070;
-  --card-bg: rgba(255, 255, 255, 0.72);
-  --border: rgba(200, 165, 130, 0.3);
+  --cream: #F6F0E6;
+  --cream2: #EDE5D4;
+  --cream3: #E2D8C3;
+  --orange: #E8732A;
+  --orange2: #C4621E;
+  --amber: #D4932A;
+  --brown: #2C1E0F;
+  --brown2: #5C4230;
+  --brown3: #8B6B4A;
+  --brown4: #B89A7A;
+  --white: #FFFDF8;
+
+  /* 기존 변수 매핑 (핵심) */
+  --bg: var(--cream);
+  --ember-deep: var(--orange2);
+  --ember: var(--orange);
+  --ember-light: var(--amber);
+  --ember-glow: #f3b36a;
+
+  --text-dark: var(--brown);
+  --text-mid: var(--brown3);
+  --text-light: var(--brown4);
+
+  --card-bg: rgba(255, 253, 248, 0.7);
+  --border: rgba(184, 154, 122, 0.35);
 }
 
 #app {
@@ -148,8 +163,8 @@ a {
   min-height: 92px;
   padding: 16px 14px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.48);
-  border: 1px solid rgba(214, 180, 145, 0.28);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--cream3);
   backdrop-filter: blur(8px);
   box-shadow: 0 8px 24px rgba(120, 70, 30, 0.06);
 }
@@ -157,7 +172,8 @@ a {
 .stat-card strong {
   display: block;
   font-size: 18px;
-  color: #8d4c24;
+  color: var(--orange);
+
   margin-bottom: 8px;
   font-family: 'GgiBatang', sans-serif;
 }
@@ -211,8 +227,8 @@ a {
   align-items: center;
   justify-content: center;
   padding: 40px 40px;
-  background: #fcf8f3;
-  border-left: 1px solid rgba(210, 190, 170, 0.28);
+  background: var(--white);
+  border-left: 1px solid var(--cream3);
   overflow-y: auto;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -235,14 +251,15 @@ a {
 .login-heading h2 {
   font-weight: 700;
   font-size: 31px;
-  color: #25201c;
+  color: var(--brown);
+
   letter-spacing: -1px;
   margin-bottom: 10px;
 }
 
 .login-heading p {
   font-size: 14px;
-  color: #b3a08e;
+   color: var(--brown3);
   line-height: 1.7;
 }
 
@@ -267,12 +284,11 @@ a {
   width: 100%;
   height: 54px;
   padding: 0 18px;
-  border: 1px solid rgba(214, 197, 180, 0.85);
+  border: 1px solid var(--cream3);
+  background: var(--white);
+  color: var(--brown2);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.72);
-  font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif;
   font-size: 15px;
-  color: #5f4e42;
   outline: none;
   transition: border-color 0.2s ease, background 0.2s ease;
   box-shadow: none;
@@ -284,9 +300,12 @@ a {
 }
 
 .input-wrap input:focus {
-  border-color: rgba(202, 138, 92, 0.65);
-  background: #fffdfb;
-  box-shadow: none;
+  border-color: var(--orange);
+  box-shadow:
+    0 0 0 3px rgba(232, 115, 42, 0.12),
+    0 4px 14px rgba(232, 115, 42, 0.08);
+
+  background: #fffdf9;
 }
 
 .input-icon {
@@ -366,7 +385,7 @@ a {
   height: 56px;
   border: none;
   border-radius: 14px;
-  background: #de7a43;
+  background: var(--orange);
   color: #fff;
   font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif;
   font-size: 16px;
@@ -383,7 +402,7 @@ a {
 }
 
 .btn-login:hover {
-  background: #d46f38;
+  background: var(--orange2);
   transform: translateY(-1px);
 }
 
@@ -528,19 +547,19 @@ a {
 }
 
 .btn-social.kakao {
-  background: linear-gradient(180deg, #FFF4B8 0%, #FBE98A 100%);
+  background: #FFF4B8;
   border-color: #F0DB78;
   color: #4A3414;
 }
 
 .btn-social.naver {
-  background: linear-gradient(180deg, #DDF7E8 0%, #C8F0DA 100%);
+  background: #C8F0DA;
   border-color: #B1E4C7;
   color: #1E5A3C;
 }
 
 .btn-social.google {
-  background: linear-gradient(180deg, #FFF9F3 0%, #F8F1E8 100%);
+  background: #F8F1E8 100%;
   border-color: #E7DCCF;
   color: #5B5045;
 }
@@ -1349,4 +1368,3 @@ input[type="password"]::-ms-clear {
   right: 20px;
   animation: spin 0.7s linear infinite;
 }
-

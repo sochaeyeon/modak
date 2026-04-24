@@ -86,7 +86,7 @@
 								전문 상담사가 빠르게 도와드리겠습니다. 평일 09:00 ~ 18:00 운영중입니다.
 							</div>
 						</div>
-						<button class="ns-btn" onclick="openChatbot()">상담 신청하기 →</button>
+						<button class="ns-btn" onclick="location.href='/chat/bot.do'">상담 신청하기 </button>
 					</div>
 
 					<!-- FAQ -->
@@ -135,23 +135,24 @@
 						<div class="consult-layout">
 							<div class="consult-left">
 								<div class="consult-card">
-									<div class="c-avatar">전</div>
+									<div class="c-avatar">🧸</div>
 									<div class="c-info">
 										<div class="c-name">전화 상담</div>
 										<div class="c-desc">전화를 통해 빠르게 상담받으실 수 있습니다.<br>대기 시간이 발생할 수 있습니다.</div>
 										<button class="c-btn" onclick="callPhone()">전화 연결</button>
 									</div>
 								</div>
+								<!-- 채팅 상담 카드 버튼 -->
 								<div class="consult-card">
-									<div class="c-avatar blue">채</div>
+									<div class="c-avatar blue">💭</div>
 									<div class="c-info">
 										<div class="c-name">채팅 상담</div>
 										<div class="c-desc">AI 챗봇을 통해 24시간 상담이 가능합니다.<br>빠른 답변을 받아보실 수 있습니다.</div>
-										<button class="c-btn blue" onclick="openChatbot()">챗봇 시작</button>
+										<button class="c-btn blue" onclick="location.href='/chat/bot.do'">챗봇 시작</button>
 									</div>
 								</div>
 								<div class="consult-card">
-									<div class="c-avatar gray">이</div>
+									<div class="c-avatar gray"> 💌</div>
 									<div class="c-info">
 										<div class="c-name">이메일 문의</div>
 										<div class="c-desc">help@modakmodak.com으로 문의해주세요.<br>1~2 영업일 내 답변드립니다.</div>
@@ -159,7 +160,7 @@
 									</div>
 								</div>
 								<div class="consult-card">
-									<div class="c-avatar green">온</div>
+									<div class="c-avatar green">✏️</div>
 									<div class="c-info">
 										<div class="c-name">온라인 문의 접수</div>
 										<div class="c-desc">궁금하신 사항을 남겨주시면 빠르게 답변드리겠습니다.<br>1:1 문의를 통해 접수해주세요.</div>

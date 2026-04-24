@@ -150,5 +150,10 @@
 	    WHERE cart_id = #{targetCartId}
 	      AND user_id = #{userId}
 	</update>
+	
+	<select id="selectCartCount" parameterType="hashmap" resultType="int">
+	    SELECT COUNT(*) FROM cart
+	    WHERE USER_ID = #{userId}
+	</select>
 		   
 </mapper>

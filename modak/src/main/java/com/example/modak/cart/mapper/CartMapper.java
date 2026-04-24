@@ -34,5 +34,8 @@ public interface CartMapper {
 	public Cart selectSameCartForUpdate(HashMap<String, Object> map);
 
 	public int mergeCartQty(HashMap<String, Object> map);
+	
+	// 헤더에 장바구니 개수 아이콘
+	public int selectCartCount(HashMap<String, Object> map);
 
 }

@@ -717,9 +717,23 @@
                 </div>
             </div>
         </div>
-    </div>
+        <div v-if="confirmModal.open" class="confirm-overlay" @click.self="confirmCancel">
+            <div class="confirm-box">
+                <div class="confirm-title">알림</div>
+                <div class="confirm-message">{{ confirmModal.message }}</div>
+
+                <div class="confirm-btns">
+                    <button class="confirm-cancel" @click="confirmCancel">
+                        {{ confirmModal.cancelText }}
+                    </button>
+                    <button class="confirm-ok" @click="confirmOk">
+                        {{ confirmModal.okText }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div> <!-- app -->
 <%@ include file="/WEB-INF/common/footer.jsp" %>
-</div>
 </body>
 </html>
 
@@ -787,6 +801,14 @@
                 optionOpen: false,
                 qtyOpen: false,
                 cartMode: 'RENT', // 현재 모드 추적용 (setMode 연동)
+                // 공통 모달!!
+                confirmModal: {
+                    open: false,
+                    message: '',
+                    okText: '확인',
+                    cancelText: '취소',
+                    onOk: null
+                }
             };
         },
         computed: {
@@ -1061,23 +1083,30 @@
             },
             fnRent() {
                 if (!this.startDate || !this.endDate) {
-                    alert('날짜를 선택해주세요.');
+                    showToast('날짜를 선택해주세요.');
                     return;
                 }
-                if (!confirm("대여 신청하시겠습니까?")) return;
-                let self = this;
-                $.ajax({
-                    url: '/rental/apply.dox',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ itemId: self.productId, startDate: self.startDate, endDate: self.endDate }),
-                    success: function(res) {
-                        if (res.result === 'success') {
-                            alert('신청 완료!');
-                            location.reload();
+
+                this.openConfirm('대여 신청하시겠습니까?', function() {
+                    let self = window.__vueApp;
+
+                    $.ajax({
+                        url: '/rental/apply.dox',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            itemId: self.productId,
+                            startDate: self.startDate,
+                            endDate: self.endDate
+                        }),
+                        success: function(res) {
+                            if (res.result === 'success') {
+                                showToast('신청 완료!');
+                                location.reload();
+                            }
                         }
-                    }
-                });
+                    });
+                }, '신청하기');
             },
             fnWish: function(e) {
                 e.stopPropagation();
@@ -1092,8 +1121,9 @@
                             self.isWished = !self.isWished;
                             showToast(self.isWished ? '❤️ 위시리스트에 추가됐어요' : '위시리스트에서 제거됐어요');
                         } else {
-                            alert('로그인이 필요합니다');
-                            setTimeout(function(){ location.href = '/user/login.do'; }, 1200);
+                            self.openConfirm('로그인이 필요합니다. 로그인하시겠습니까?', function() {
+                                location.href = '/user/login.do';
+                            }, '로그인하기');
                         }
                     }
                 });
@@ -1135,9 +1165,9 @@
                 let self = this;
                 
                 if (!loginUserId || loginUserId === 'null' || loginUserId === '') {
-                        if (confirm('로그인이 필요한 서비스입니다. 로그인하시겠습니까?')) {
+                        self.openConfirm('로그인이 필요한 서비스입니다. 로그인하시겠습니까?', function() {
                             location.href = '/user/login.do';
-                        }
+                        }, '로그인하기');
                         return;
                     }
 
@@ -1193,13 +1223,13 @@
                     dataType: 'json',
                     success: function(res) {
                         if (res.result === 'duplicate') {
-                            if (confirm('이미 같은 조건의 상품이 있습니다. 장바구니로 이동할까요?')) {
+                            self.openConfirm('이미 같은 조건의 상품이 있습니다. 장바구니로 이동할까요?', function() {
                                 location.href = '/cart/list.do';
-                            }
+                            }, '이동하기');
                         } else if (res.result === 'success') {
-                            if (confirm('장바구니에 담았습니다. 장바구니로 이동할까요?')) {
+                            self.openConfirm('장바구니에 담았습니다. 장바구니로 이동할까요?', function() {
                                 location.href = '/cart/list.do';
-                            }
+                            }, '이동하기');
                         } else {
                             showToast('장바구니 담기 실패');
                         }
@@ -1211,10 +1241,27 @@
             },
 
             reportReview(reviewId) {
-                if (confirm('이 리뷰를 신고하시겠습니까?')) {
-                    // 신고 API 호출
+                this.openConfirm('이 리뷰를 신고하시겠습니까?', function() {
                     console.log('신고된 리뷰 ID:', reviewId);
+                }, '신고하기');
+            },
+            openConfirm(message, onOk, okText = '확인', cancelText = '취소') {
+                this.confirmModal.message = message;
+                this.confirmModal.onOk = onOk;
+                this.confirmModal.okText = okText;
+                this.confirmModal.cancelText = cancelText;
+                this.confirmModal.open = true;
+            },
+
+            confirmOk() {
+                if (typeof this.confirmModal.onOk === 'function') {
+                    this.confirmModal.onOk();
                 }
+                this.confirmModal.open = false;
+            },
+
+            confirmCancel() {
+                this.confirmModal.open = false;
             }
 
         }, // methods

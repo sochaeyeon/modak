@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -118,6 +119,21 @@ public class CartController {
 
 	    HashMap<String, Object> resultMap = cartService.updateCartOption(map);
 	    return new Gson().toJson(resultMap);
+	}
+	
+	// 장바구니 수량 조회
+	@PostMapping(value = "/cart/count.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getCartCount(HttpSession session) {
+	    HashMap<String, Object> result = new HashMap<>();
+	    String userId = (String) session.getAttribute("sessionId");
+	    if (userId == null) {
+	        result.put("count", 0);
+	        return new Gson().toJson(result);
+	    }
+	    HashMap<String, Object> map = new HashMap<>();
+	    map.put("userId", userId);
+	    return new Gson().toJson(cartService.getCartCount(map));
 	}
 	   
 }

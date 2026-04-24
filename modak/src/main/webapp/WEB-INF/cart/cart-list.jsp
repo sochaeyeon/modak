@@ -32,7 +32,7 @@
                 </button>
                 <span class="cart-tab-divider">|</span>
                 <button class="cart-tab" :class="{ on: activeTab === 'PURCHASE' }" @click="switchTab('PURCHASE')">
-                    구매
+                    구매 장바구니
                 </button>
             </div>
 
@@ -148,9 +148,27 @@
                                 <span>총 선택상품금액</span>
                                 <span class="val">{{ formatPrice(selectedTotal) }}</span>
                             </div>
+                            <div class="coupon-box">
+                                <div class="coupon-title">쿠폰 선택</div>
+
+                                <select class="coupon-select" v-model="selectedUserCouponId">
+                                    <option value="">쿠폰 사용 안함</option>
+                                    <option 
+                                        v-for="coupon in couponList"
+                                        :key="coupon.userCouponId"
+                                        :value="coupon.userCouponId"
+                                        :disabled="selectedTotal < coupon.minOrderAmt"
+                                    >
+                                        {{ coupon.couponName }}
+                                        / {{ couponText(coupon) }}
+                                        / {{ formatPrice(coupon.minOrderAmt) }} 이상
+                                    </option>
+                                </select>
+                            </div>
+
                             <div class="aside-row">
                                 <span>쿠폰할인예상금액</span>
-                                <span class="val red">0원</span>
+                                <span class="val red">-{{ formatPrice(couponDiscount) }}</span>
                             </div>
                             <div class="aside-row">
                                 <span>총 배송비</span>
@@ -158,7 +176,7 @@
                             </div>
                             <div class="aside-row total">
                                 <span>총 주문 예상 금액</span>
-                                <span class="val">{{ formatPrice(selectedTotal) }}</span>
+                                <span class="val">{{ formatPrice(finalTotal) }}</span>
                             </div>
                         </div>
                         <button class="order-btn"
@@ -318,6 +336,21 @@
 
             </div>
         </div>
+        <div v-if="confirmModal.open" class="confirm-overlay" @click.self="confirmCancel">
+            <div class="confirm-box">
+                <div class="confirm-title">알림</div>
+                <div class="confirm-message">{{ confirmModal.message }}</div>
+
+                <div class="confirm-btns">
+                    <button class="confirm-cancel" @click="confirmCancel">
+                        {{ confirmModal.cancelText }}
+                    </button>
+                    <button class="confirm-ok" @click="confirmOk">
+                        {{ confirmModal.okText }}
+                    </button>
+                </div>
+            </div>
+        </div>
     </div><!-- app -->
 <%@ include file="/WEB-INF/common/footer.jsp" %>
 </body>
@@ -354,6 +387,15 @@
                     year: new Date().getFullYear(),
                     month: new Date().getMonth(),
                 },
+                confirmModal: {
+                    open: false,
+                    message: '',
+                    okText: '확인',
+                    cancelText: '취소',
+                    onOk: null
+                },
+                couponList: [],
+                selectedUserCouponId: '',
             };
         },
         computed: {
@@ -399,6 +441,34 @@
                 }
                 return days;
             },
+            selectedCoupon() {
+                return this.couponList.find(c => String(c.userCouponId) === String(this.selectedUserCouponId)) || null;
+            },
+
+            couponDiscount() {
+                const coupon = this.selectedCoupon;
+
+                if (!coupon) return 0;
+                if (this.selectedTotal < coupon.minOrderAmt) return 0;
+
+                let discount = 0;
+
+                if (coupon.couponType === 'AMOUNT') {
+                    discount = coupon.discountAmt;
+                } else if (coupon.couponType === 'RATE') {
+                    discount = Math.floor(this.selectedTotal * coupon.discountRate / 100);
+
+                    if (coupon.maxDiscountAmt && coupon.maxDiscountAmt > 0) {
+                        discount = Math.min(discount, coupon.maxDiscountAmt);
+                    }
+                }
+
+                return Math.min(discount, this.selectedTotal);
+            },
+
+            finalTotal() {
+                return Math.max(0, this.selectedTotal - this.couponDiscount);
+            }
         },
         methods: {
             // ── 데이터 로드 ──
@@ -474,46 +544,55 @@
 
             // ── 삭제 ──
             deleteItem(cartId) {
-                if (!confirm('해당 상품을 삭제하시겠습니까?')) return;
                 let self = this;
-                $.ajax({
-                    url: '/cart/delete.dox',
-                    type: 'POST',
-                    data: { cartId },
-                    dataType: 'json',
-                    success(res) {
-                        if (res.result === 'success') {
-                            self.cartList = self.cartList.filter(c => c.cartId !== cartId);
-                            self.checkedIds = self.checkedIds.filter(id => id !== cartId);
-                            showToast('삭제됐어요.');
+
+                self.openConfirm('해당 상품을 삭제하시겠습니까?', function() {
+                    $.ajax({
+                        url: '/cart/delete.dox',
+                        type: 'POST',
+                        data: { cartId },
+                        dataType: 'json',
+                        success(res) {
+                            if (res.result === 'success') {
+                                self.cartList = self.cartList.filter(c => c.cartId !== cartId);
+                                self.checkedIds = self.checkedIds.filter(id => id !== cartId);
+                                showToast('삭제됐어요.');
+                            }
                         }
-                    }
-                });
+                    });
+                }, '삭제하기');
             },
             deleteSelected() {
-                if (this.checkedIds.length === 0) { showToast('선택된 상품이 없습니다.'); return; }
-                if (!confirm(this.checkedIds.length + '개 상품을 삭제하시겠습니까?')) return;
-                let self = this;
-                $.ajax({
-                    url: '/cart/deleteSelected.dox',
-                    type: 'POST',
-                    data: { cartIds: self.checkedIds.join(',') },
-                    dataType: 'json',
-                    success(res) {
-                        if (res.result === 'success') {
-                            self.cartList = self.cartList.filter(c => !self.checkedIds.includes(c.cartId));
-                            self.checkedIds = [];
-                            showToast('선택 상품이 삭제됐어요.');
-                        }
-                    }
-                });
-            },
+                if (this.checkedIds.length === 0) {
+                    showToast('선택된 상품이 없습니다.');
+                    return;
+                }
 
+                let self = this;
+
+                self.openConfirm(this.checkedIds.length + '개 상품을 삭제하시겠습니까?', function() {
+                    $.ajax({
+                        url: '/cart/deleteSelected.dox',
+                        type: 'POST',
+                        data: { cartIds: self.checkedIds.join(',') },
+                        dataType: 'json',
+                        success(res) {
+                            if (res.result === 'success') {
+                                self.cartList = self.cartList.filter(c => !self.checkedIds.includes(c.cartId));
+                                self.checkedIds = [];
+                                showToast('선택 상품이 삭제됐어요.');
+                            }
+                        }
+                    });
+                }, '삭제하기');
+            },
             // ── 주문하기 ──
             fnOrder() {
                 if (this.checkedIds.length === 0) { showToast('상품을 선택해주세요.'); return; }
                 const ids = this.checkedIds.join(',');
-                location.href = '/order/checkout.do?cartIds=' + ids + '&cartType=' + this.activeTab;
+                location.href = '/order/checkout.do?cartIds=' + ids
+                    + '&cartType=' + this.activeTab
+                    + '&userCouponId=' + (this.selectedUserCouponId || '');
             },
 
             // ── 옵션 변경 모달 ──
@@ -642,14 +721,67 @@
                 return group.items.reduce((sum, c) => sum + c.price * c.quantity, 0);
             },
             goProductList() {
+                document.getElementById('app').classList.add('page-leaving');
                 location.href = '/product/list.do';
             },
             goDetail(productId) {
+                document.getElementById('app').classList.add('page-leaving');
                 location.href = '/product/detail.do?productId=' + productId;
             },
-        },
+            openConfirm(message, onOk, okText = '확인', cancelText = '취소') {
+                this.confirmModal.message = message;
+                this.confirmModal.onOk = onOk;
+                this.confirmModal.okText = okText;
+                this.confirmModal.cancelText = cancelText;
+                this.confirmModal.open = true;
+            },
+
+            confirmOk() {
+                if (typeof this.confirmModal.onOk === 'function') {
+                    this.confirmModal.onOk();
+                }
+                this.confirmModal.open = false;
+            },
+
+            confirmCancel() {
+                this.confirmModal.open = false;
+            },
+            fetchCouponList() {
+                let self = this;
+
+                $.ajax({
+                    url: '/coupon/myCouponList.dox',
+                    type: 'POST',
+                    dataType: 'json',
+                    success(res) {
+                        if (res.result === 'success') {
+                            self.couponList = res.list || [];
+                        }
+                    }
+                });
+            },
+
+            couponText(coupon) {
+                if (coupon.couponType === 'AMOUNT') {
+                    return this.formatPrice(coupon.discountAmt) + ' 할인';
+                }
+
+                if (coupon.couponType === 'RATE') {
+                    let txt = coupon.discountRate + '% 할인';
+
+                    if (coupon.maxDiscountAmt && coupon.maxDiscountAmt > 0) {
+                        txt += ' / 최대 ' + this.formatPrice(coupon.maxDiscountAmt);
+                    }
+
+                    return txt;
+                }
+
+                return '';
+            },
+        }, // methods
         mounted() {
             this.fetchCartList();
+            this.fetchCouponList();
         }
     });
 

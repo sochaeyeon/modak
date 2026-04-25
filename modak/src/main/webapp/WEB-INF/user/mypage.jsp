@@ -8,7 +8,7 @@
                 <head>
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>마이페이지</title>
+                    <title>마이페이지 - 모닥모닥</title>
                     <script src="https://code.jquery.com/jquery-3.7.1.js"
                         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
                         crossorigin="anonymous"></script>
@@ -17,7 +17,11 @@
                     <script src="//t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
                     <link rel="stylesheet" href="/css/user/mypage.css">
                     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
-
+<style>
+    [v-cloak] {
+        display: none !important;
+    }
+</style>
                 </head>
 
                 <body>
@@ -300,7 +304,7 @@
                                             <div class="section-head">
                                                 <h3>최근 주문내역</h3>
                                                 <div class="order-head-actions">
-                                                    <a href="/order/history.do">더보기 →</a>
+                                                    <a href="/order/history.do">전체보기 →</a>
                                                 </div>
                                             </div>
                                            <div class="order-list">
@@ -372,7 +376,7 @@
                                     <div class="tab-panel" id="tab-wishlist">
                                         <div class="section-card">
                                             <div class="section-head">
-                                                <h3>찜한 상품</h3><a href="javascript:;" @click="fnGoWishlistHistory">더보기
+                                                <h3>찜한 상품</h3><a href="javascript:;" @click="fnGoWishlistHistory">전체보기
                                                     →</a>
                                             </div>
                                             <div class="wish-grid">
@@ -403,7 +407,7 @@
                                         <div class="section-card">
                                             <div class="section-head">
                                                 <h3>최근 본 상품</h3>
-                                                <a href="javascript:;" @click="fnGoRecentHistory">더보기 →</a>
+                                                <a href="javascript:;" @click="fnGoRecentHistory">전체보기 →</a>
                                             </div>
                                             <div class="wish-grid">
                                                 <div v-if="recentList.length === 0" class="empty-state">
@@ -578,7 +582,7 @@
                                         <div class="section-card">
                                             <div class="section-head benefits-history-head">
                                                 <h3>포인트 · 쿠폰 내역</h3>
-                                                <a href="javascript:;" @click="fnGoBenefitHistory">더보기 →</a>
+                                                <a href="javascript:;" @click="fnGoBenefitHistory">전체보기 →</a>
                                             </div>
 
                                             <div class="benefits-history-split">
@@ -694,7 +698,7 @@
                                         <div class="section-card">
                                             <div class="section-head">
                                                 <h3>내가 쓴 리뷰</h3>
-                                                <a href="/user/review/history.do">더보기 →</a>
+                                                <a href="/user/review/history.do">전체보기 →</a>
                                             </div>
 
                                             <div class="review-list">
@@ -791,7 +795,7 @@
                                         <div class="section-card">
                                             <div class="section-head">
                                                 <h3>내 문의 목록</h3>
-                                                <a href="/user/inquiry/history.do">더보기 →</a>
+                                                <a href="/user/inquiry/history.do">전체보기 →</a>
                                             </div>
 
                                             <div class="review-list inquiry-review-list">
@@ -889,7 +893,7 @@
                                         <div class="section-card">
                                             <div class="section-head">
                                                 <h3>챗봇 기록</h3>
-                                                <a href="javascript:;" @click="fnGoChatbotHistory">더보기 →</a>
+                                                <a href="javascript:;" @click="fnGoChatbotHistory">전체보기 →</a>
                                             </div>
 
                                             <div class="review-list chatbot-review-list">
@@ -1111,6 +1115,29 @@
                         </div>
                         </main>
                         </div>
+                        <div class="toast" id="toast"></div>
+
+<div v-cloak v-if="modal.show" class="delete-modal-backdrop" @click.self="fnCloseModal">
+    <div
+        class="delete-modal-box"
+        ref="confirmModal"
+        tabindex="0"
+        @keydown.enter.prevent="fnModalConfirm"
+        @keydown.esc.prevent="fnCloseModal"
+    >
+        <div class="delete-modal-title">{{ modal.title }}</div>
+        <div class="delete-modal-desc" v-html="modal.message"></div>
+
+        <div class="delete-modal-actions">
+            <button type="button" class="delete-confirm-btn" @click="fnModalConfirm">
+                {{ modal.confirmText }}
+            </button>
+            <button type="button" class="delete-cancel-btn" @click="fnCloseModal">
+                취소
+            </button>
+        </div>
+    </div>
+</div>
                         </div>
                         <%@ include file="/WEB-INF/common/footer.jsp" %>
                 </body>
@@ -1215,6 +1242,11 @@
                                     profileImgUrl: "${empty user.profileImgUrl ? '' : user.profileImgUrl}"
                                 },
                                  profileImageVersion: Date.now(),
+                                     show: false,
+    title: '',
+    message: '',
+    confirmText: '확인',
+    onConfirm: null
                             };
                         },
                         computed: {
@@ -1312,6 +1344,46 @@
     });
 
     return summary;
+},showToast: function (msg) {
+    var t = document.getElementById("toast");
+    if (!t) return;
+
+    t.textContent = msg;
+    t.classList.add("show");
+
+    setTimeout(function () {
+        t.classList.remove("show");
+    }, 2300);
+},
+
+fnOpenModal: function (option) {
+    var self = this;
+
+    self.modal.show = true;
+    self.modal.title = option.title || "확인";
+    self.modal.message = option.message || "";
+    self.modal.confirmText = option.confirmText || "확인";
+    self.modal.onConfirm = option.onConfirm || null;
+
+    self.$nextTick(function () {
+        if (self.$refs.confirmModal) {
+            self.$refs.confirmModal.focus();
+        }
+    });
+},
+
+fnCloseModal: function () {
+    this.modal.show = false;
+    this.modal.onConfirm = null;
+},
+
+fnModalConfirm: function () {
+    var callback = this.modal.onConfirm;
+    this.fnCloseModal();
+
+    if (typeof callback === "function") {
+        callback();
+    }
 },
                             formattedSmsTime() {
                                 const minutes = Math.floor(this.smsTimeLeft / 60);
@@ -2111,31 +2183,34 @@ self.displayUser.profileImgUrl = profileImgUrl;
                             },
 
                             fnDeleteInquiry: function (inquiryId) {
-                                let self = this;
+    let self = this;
 
-                                if (!confirm("문의글을 삭제하시겠습니까?")) {
-                                    return;
-                                }
-
-                                $.ajax({
-                                    url: "/user/inquiry/remove.dox",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: { inquiryId: inquiryId },
-                                    success: function (data) {
-                                        if (data.result === "success") {
-                                            alert("문의가 삭제되었습니다.");
-                                            self.fnGetInquiryList();
-                                            self.openInquiryId = null;
-                                        } else {
-                                            alert(data.message || "삭제 실패");
-                                        }
-                                    },
-                                    error: function () {
-                                        alert("서버 오류");
-                                    }
-                                });
-                            },
+    self.fnOpenModal({
+        title: "문의글을 삭제하시겠습니까?",
+        message: "삭제한 문의는 다시 복구할 수 없습니다.",
+        confirmText: "삭제",
+        onConfirm: function () {
+            $.ajax({
+                url: "/user/inquiry/remove.dox",
+                type: "POST",
+                dataType: "json",
+                data: { inquiryId: inquiryId },
+                success: function (data) {
+                    if (data.result === "success") {
+                        self.showToast("문의가 삭제되었습니다.");
+                        self.fnGetInquiryList();
+                        self.openInquiryId = null;
+                    } else {
+                        self.showToast(data.message || "삭제에 실패했습니다.");
+                    }
+                },
+                error: function () {
+                    self.showToast("서버 오류가 발생했습니다.");
+                }
+            });
+        }
+    });
+},
                             fnGoBenefitHistory: function () {
                                 pageChange("/user/benefit/history.do", {});
                             },
@@ -2202,7 +2277,7 @@ self.displayUser.profileImgUrl = profileImgUrl;
         }
     });
 },
-                             fnGetOrderActions: function (item) {
+                            fnGetOrderActions: function (item) {
     const actions = [];
     const status = (item.orderStatus || "").toUpperCase();
     const type = (item.orderType || "").toUpperCase();
@@ -2212,19 +2287,15 @@ self.displayUser.profileImgUrl = profileImgUrl;
             actions.push("환불 신청");
             actions.push("리뷰 작성");
         }
-    } else if (type === "RENTAL") {
-        if (status === "DONE") {
-            actions.push("환불 신청");
-            actions.push("반납 신청");
-            actions.push("연장 신청");
-        }
+    }
 
+    if (type === "RENTAL") {
         if (status === "IN_USE") {
             actions.push("반납 신청");
             actions.push("연장 신청");
         }
 
-        if (status === "COMPLETED") {
+        if (status === "DONE" || status === "RETURNED" || status === "RETURN_COMPLETED" || status === "COMPLETED") {
             actions.push("리뷰 작성");
         }
     }
@@ -2232,12 +2303,6 @@ self.displayUser.profileImgUrl = profileImgUrl;
     return actions;
 },
 fnHandleOrderAction: function (item, action) {
-    if (action === "취소 신청") {
-        pageChange("/order/cancel/request.do", {
-            orderId: item.orderId
-        });
-        return;
-    }
 
     if (action === "환불 신청") {
         pageChange("/order/refund/request.do", {
@@ -2319,7 +2384,6 @@ fnHandleOrderAction: function (item, action) {
                                         pageChange("/user/membership/info.do", {});
                                     },
                                    fnGetActionClass: function (action) {
-    if (action === "취소 신청") return "cancel";
     if (action === "환불 신청") return "refund";
     if (action === "배송조회") return "tracking";
     if (action === "반납 신청") return "return";

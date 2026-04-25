@@ -13,4 +13,8 @@ public class OrderItem {
     private String startDate;
     private String endDate;
     private String imgUrl;
+    
+    // 조인
+    private String brandName;
+    private String categoryName;
 }

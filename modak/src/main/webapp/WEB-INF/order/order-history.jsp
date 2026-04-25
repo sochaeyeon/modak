@@ -76,10 +76,21 @@
                                 </button>
                             </div>
                         </div>
+                        <div class="glass-card order-search-card">
+                            <div class="section-head search-section-head">
+                                <h3>주문 상품 검색</h3>
 
+                                <div class="search-box order-search-box">
+                                    <input type="text" v-model="keyword" placeholder="상품명 · 브랜드 · 카테고리 검색"
+                                        @keyup.enter="fnRunFilterAnimation">
+
+                                    <button type="button" @click="fnRunFilterAnimation">검색</button>
+                                </div>
+                            </div>
+                        </div>
                         <transition name="list-rise" mode="out-in">
                             <div class="list-container" :key="listAnimateKey">
-                                <div v-if="groupedOrders.length === 0" class="empty-state glass-card">
+                                <div v-if="isLoaded && groupedOrders.length === 0" class="empty-state glass-card">
                                     <p>선택한 기간에 주문내역이 없습니다.</p>
                                 </div>
 
@@ -104,20 +115,31 @@
                                                 </div>
 
                                                 <div class="info">
+                                                    <div class="order-type-top">
+                                                        <span class="badge" :class="item.orderType.toLowerCase()">
+                                                            {{ item.orderType === 'PURCHASE' ? '구매' : '대여' }}
+                                                        </span>
+                                                    </div>
                                                     <div class="name-row">
                                                         <strong>
                                                             {{ item.itemList && item.itemList.length > 0 ?
                                                             item.itemList[0].productName : '상품명 없음' }}
-                                                        </strong>
 
+                                                            <span
+                                                                v-if="item.itemList && item.itemList.length > 0 && item.itemList[0].brandName"
+                                                                class="order-brand-inline">
+                                                                · {{ item.itemList[0].brandName }}
+                                                            </span>
+                                                        </strong>
+                                                        <div v-if="item.itemList && item.itemList.length > 0 && item.itemList[0].categoryName"
+                                                            class="order-category-pill">
+                                                            {{ item.itemList[0].categoryName }}
+                                                        </div>
                                                         <span v-if="item.itemList && item.itemList.length > 1"
                                                             class="extra">
                                                             외 {{ item.itemList.length - 1 }}건
                                                         </span>
 
-                                                        <span class="badge" :class="item.orderType.toLowerCase()">
-                                                            {{ item.orderType === 'PURCHASE' ? '구매' : '대여' }}
-                                                        </span>
                                                     </div>
 
                                                     <div class="sub-row">
@@ -143,10 +165,13 @@
                                                     </button>
 
                                                     <button class="detail-btn sub-action-btn"
-                                                        :class="fnGetActionClass(action)"
+                                                        :class="[fnGetActionClass(action), { 'return-done-btn': action === '반납 신청' && fnIsReturnRequested(item) }]"
                                                         v-for="action in fnGetOrderActions(item)" :key="action"
+                                                        :disabled="action === '반납 신청' && fnIsReturnRequested(item)"
                                                         @click="fnHandleOrderAction(item, action)">
-                                                        {{ action }}
+
+                                                        {{ action === '반납 신청' && fnIsReturnRequested(item) ? '반납 신청 완료'
+                                                        : action }}
                                                     </button>
                                                 </div>
                                             </div>
@@ -171,7 +196,17 @@
                                                     </div>
 
                                                     <div class="expand-info">
-                                                        <div class="expand-name">{{ orderItem.productName }}</div>
+                                                        <div class="expand-name">
+                                                            {{ orderItem.productName }}
+                                                            <span v-if="orderItem.brandName" class="order-brand-inline">
+                                                                · {{ orderItem.brandName }}
+                                                            </span>
+                                                        </div>
+
+                                                        <div v-if="orderItem.categoryName"
+                                                            class="order-category-pill expand-category-pill">
+                                                            {{ orderItem.categoryName }}
+                                                        </div>
 
                                                         <div class="expand-meta">
                                                             수량 {{ orderItem.count }}개 · {{
@@ -191,6 +226,27 @@
                             </div>
                         </transition>
                     </div>
+                    <div v-if="modal.show" class="return-modal-backdrop" @click.self="fnCloseReturnModal">
+                        <div class="return-modal-box" ref="returnModal" tabindex="0"
+                            @keydown.enter.prevent="fnConfirmReturn" @keydown.esc.prevent="fnCloseReturnModal">
+
+                            <div class="return-modal-title">반납을 신청하시겠어요?</div>
+                            <div class="return-modal-desc">
+                                신청 후 관리자 확인을 거쳐 반납 절차가 진행됩니다.
+                            </div>
+
+                            <div class="return-modal-actions">
+                                <button type="button" class="return-confirm-btn" @click="fnConfirmReturn">
+                                    확인
+                                </button>
+                                <button type="button" class="return-cancel-btn" @click="fnCloseReturnModal">
+                                    취소
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="toast" class="toast"></div>
                 </div>
 
                 <%@ include file="/WEB-INF/common/footer.jsp" %>
@@ -203,8 +259,9 @@
                                     orderList: [], selectedPeriod: "ALL", startDate: "", endDate: "",
                                     appliedStartDate: "", appliedEndDate: "", dateErrorMsg: "",
                                     animatedCount: 0, listAnimateKey: 0,
+                                    keyword: "",
+                                    selectedStatus: "",
                                     statusMap: {
-                                        all: { name: '전체' },
                                         paid: { name: '결제완료' },
                                         ready: { name: '배송준비' },
                                         shipping: { name: '배송중' },
@@ -212,7 +269,6 @@
                                         done: { name: '배송/반납 완료' },
                                         cancelled: { name: '취소/반품' }
                                     },
-                                    selectedStatus: "all",
                                     expandedOrderId: null,
                                     periodList: [
                                         { value: "ALL", label: "전체" },
@@ -226,6 +282,12 @@
                                         left: 0,
                                         width: 0
                                     },
+                                    isLoaded: false,
+                                    returnRequestedMap: {},
+                                    modal: {
+                                        show: false,
+                                        order: null
+                                    }
                                 };
                             },
                             watch: {
@@ -256,6 +318,8 @@
                                         end = new Date(this.appliedEndDate + "T23:59:59");
                                     }
 
+                                    const keyword = (this.keyword || "").trim().toLowerCase();
+
                                     return this.orderList.filter(item => {
                                         const d = new Date(String(item.createdAt).replace(" ", "T"));
                                         const status = (item.orderStatus || "").toUpperCase();
@@ -263,7 +327,25 @@
                                         const periodMatch = (!start || d >= start) && (!end || d <= end);
                                         const statusMatch = this.fnMatchStatusFilter(status);
 
-                                        return periodMatch && statusMatch;
+                                        let keywordMatch = true;
+
+                                        if (keyword) {
+                                            keywordMatch = false;
+
+                                            if (item.itemList && item.itemList.length > 0) {
+                                                keywordMatch = item.itemList.some(orderItem => {
+                                                    const productName = (orderItem.productName || "").toLowerCase();
+                                                    const brandName = (orderItem.brandName || "").toLowerCase();
+                                                    const categoryName = (orderItem.categoryName || "").toLowerCase();
+
+                                                    return productName.includes(keyword)
+                                                        || brandName.includes(keyword)
+                                                        || categoryName.includes(keyword);
+                                                });
+                                            }
+                                        }
+
+                                        return periodMatch && statusMatch && keywordMatch;
                                     });
                                 },
                                 groupedOrders() {
@@ -278,7 +360,6 @@
                                 },
                                 statusSummary() {
                                     const s = {
-                                        all: 0,
                                         paid: 0,
                                         ready: 0,
                                         shipping: 0,
@@ -287,10 +368,36 @@
                                         cancelled: 0
                                     };
 
-                                    this.orderList.forEach(item => {
-                                        const status = (item.orderStatus || "").toUpperCase();
+                                    const now = new Date();
+                                    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-                                        s.all++;
+                                    let start = null;
+                                    let end = null;
+
+                                    if (this.selectedPeriod === "1M") {
+                                        start = new Date(today);
+                                        start.setMonth(start.getMonth() - 1);
+                                    } else if (this.selectedPeriod === "3M") {
+                                        start = new Date(today);
+                                        start.setMonth(start.getMonth() - 3);
+                                    } else if (this.selectedPeriod === "6M") {
+                                        start = new Date(today);
+                                        start.setMonth(start.getMonth() - 6);
+                                    } else if (this.selectedPeriod === "1Y") {
+                                        start = new Date(today);
+                                        start.setFullYear(start.getFullYear() - 1);
+                                    } else if (this.selectedPeriod === "CUSTOM" && this.appliedStartDate && this.appliedEndDate) {
+                                        start = new Date(this.appliedStartDate + "T00:00:00");
+                                        end = new Date(this.appliedEndDate + "T23:59:59");
+                                    }
+
+                                    this.orderList.forEach(item => {
+                                        const d = new Date(String(item.createdAt).replace(" ", "T"));
+                                        const periodMatch = (!start || d >= start) && (!end || d <= end);
+
+                                        if (!periodMatch) return;
+
+                                        const status = (item.orderStatus || "").toUpperCase();
 
                                         if (status === "PAID" || status === "RESERVED") {
                                             s.paid++;
@@ -300,11 +407,7 @@
                                             s.shipping++;
                                         } else if (status === "IN_USE") {
                                             s.inUse++;
-                                        } else if (
-                                            status === "DONE" ||
-                                            status === "RETURNED" ||
-                                            status === "COMPLETED"
-                                        ) {
+                                        } else if (status === "DONE" || status === "RETURNED" || status === "COMPLETED") {
                                             s.done++;
                                         } else if (status === "CANCELLED") {
                                             s.cancelled++;
@@ -312,13 +415,27 @@
                                     });
 
                                     return s;
-                                }
+                                },
                             },
                             methods: {
                                 fnGetOrderList() {
                                     $.ajax({
-                                        url: "/order/list.dox", type: "POST", dataType: "json",
-                                        success: (res) => { if (res.result === "success") this.orderList = res.list; }
+                                        url: "/order/list.dox",
+                                        type: "POST",
+                                        dataType: "json",
+                                        success: (res) => {
+                                            if (res.result === "success") {
+                                                this.orderList = res.list || [];
+                                            } else {
+                                                this.orderList = [];
+                                            }
+                                            this.isLoaded = true;
+                                            this.animatedCount = this.filteredOrderList.length;
+                                        },
+                                        error: () => {
+                                            this.orderList = [];
+                                            this.isLoaded = true;
+                                        }
                                     });
                                 },
                                 fnSetPeriod(p) {
@@ -372,13 +489,12 @@
                                         PAID: '결제완료',
                                         READY: '배송준비',
                                         SHIPPING: '배송중',
-                                        DONE: '배송/반납 완료',
+                                        DONE: '배송완료',
                                         RETURNED: '반납완료',
                                         COMPLETED: '대여완료',
                                         CANCELLED: '취소/반품',
                                         RESERVED: '예약완료',
-                                        IN_USE: '이용중',
-                                        RETURNED: '반납완료',
+                                        IN_USE: '이용중'
                                     };
                                     return m[s] || s;
                                 },
@@ -390,9 +506,6 @@
                                     const orderType = (item.orderType || "").toUpperCase();
 
                                     if (orderType === "PURCHASE") {
-                                        if (status === "PAID" || status === "READY") {
-                                            actions.push("취소 신청");
-                                        }
                                         if (status === "DONE") {
                                             actions.push("환불 신청");
                                             actions.push("리뷰 작성");
@@ -400,19 +513,18 @@
                                     }
 
                                     if (orderType === "RENTAL") {
-                                        if (status === "PAID" || status === "RESERVED" || status === "READY") {
-                                            actions.push("취소 신청");
-                                        }
                                         if (status === "DONE") {
                                             actions.push("환불 신청");
                                             actions.push("반납 신청");
                                             actions.push("연장 신청");
                                         }
+
                                         if (status === "IN_USE") {
                                             actions.push("반납 신청");
                                             actions.push("연장 신청");
                                         }
-                                        if (status === "COMPLETED") {
+
+                                        if (status === "COMPLETED" || status === "RETURNED") {
                                             actions.push("리뷰 작성");
                                         }
                                     }
@@ -437,14 +549,12 @@
                                     }
 
                                     if (action === "반납 신청") {
-                                        pageChange("/rental/return/request.do", {
-                                            orderId: item.orderId
-                                        });
+                                        this.fnOpenReturnModal(item);
                                         return;
                                     }
 
                                     if (action === "연장 신청") {
-                                        pageChange("/rental/extend/request.do", {
+                                        pageChange("/rental/extension/main.do", {
                                             orderId: item.orderId
                                         });
                                         return;
@@ -470,13 +580,18 @@
                                     return "";
                                 },
                                 fnSetStatusFilter(key) {
-                                    this.selectedStatus = key;
+                                    if (this.selectedStatus === key) {
+                                        this.selectedStatus = "";
+                                    } else {
+                                        this.selectedStatus = key;
+                                    }
+
                                     this.expandedOrderId = null;
                                     this.fnRunFilterAnimation();
                                 },
 
                                 fnMatchStatusFilter(status) {
-                                    if (this.selectedStatus === "all") return true;
+                                    if (!this.selectedStatus) return true;
 
                                     if (this.selectedStatus === "paid") {
                                         return status === "PAID" || status === "RESERVED";
@@ -503,6 +618,47 @@
                                     }
 
                                     return true;
+                                },
+                                fnOpenReturnModal(item) {
+                                    this.modal.show = true;
+                                    this.modal.order = item;
+
+                                    this.$nextTick(() => {
+                                        if (this.$refs.returnModal) {
+                                            this.$refs.returnModal.focus();
+                                        }
+                                    });
+                                },
+
+                                fnCloseReturnModal() {
+                                    this.modal.show = false;
+                                    this.modal.order = null;
+                                },
+
+                                fnConfirmReturn() {
+                                    if (!this.modal.order) return;
+
+                                    const orderId = this.modal.order.orderId;
+
+                                    this.returnRequestedMap[orderId] = true;
+                                    this.fnCloseReturnModal();
+                                    this.fnShowToast("반납이 신청되었어요!");
+                                },
+
+                                fnShowToast(msg) {
+                                    const toast = document.getElementById("toast");
+                                    if (!toast) return;
+
+                                    toast.textContent = msg;
+                                    toast.classList.add("show");
+
+                                    setTimeout(() => {
+                                        toast.classList.remove("show");
+                                    }, 2200);
+                                },
+
+                                fnIsReturnRequested(item) {
+                                    return this.returnRequestedMap[item.orderId] === true;
                                 },
 
                             },

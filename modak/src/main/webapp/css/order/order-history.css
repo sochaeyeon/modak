@@ -1,5 +1,3 @@
-@charset "UTF-8";
-
 * {
     margin: 0;
     padding: 0;
@@ -23,7 +21,7 @@
 
 body {
     background: var(--cream);
-    color: var(--brown);
+    color: var(--brown2);
     margin: 0;
     min-height: 100vh;
 }
@@ -33,7 +31,7 @@ body {
 }
 
 .filter-body {
-    padding: 22px 26px 26px;
+    padding: 0px 28px 17px;
 }
 
 /* ── 전체 래퍼 ── */
@@ -98,9 +96,9 @@ body {
     display: inline-block;
     min-width: 1ch;
     font-size: 34px;
-    color: var(--orange2);
+    color: var(--orange);
     line-height: 1;
-    font-weight: 700;
+    font-weight: 400;
 }
 
 .result-count-unit {
@@ -185,6 +183,7 @@ body {
     color: var(--orange2);
     font-weight: 700;
 }
+
 /* ── 주문 현황 플로우 ── */
 
 .order-flow {
@@ -215,7 +214,7 @@ body {
 
 .flow-step.active {
     background: #fff8f1;
-    border-color: rgba(232, 115, 42, 0.5);
+    border-color: var(--orange);
     box-shadow: none;
 }
 
@@ -253,10 +252,11 @@ body {
 
 .flow-step.active .flow-count,
 .flow-step.active .flow-name {
-    color: var(--orange2);
+    color: var(--orange);
 }
+
 .flow-step.active .flow-circle {
-    color: var(--orange2);
+    color: var(--orange);
 }
 
 /* ── 날짜 그룹 헤더 ── */
@@ -463,15 +463,6 @@ body {
     color: #cf1322;
     border-color: #ffd9d6;
 }
-
-.price {
-    font-family: 'GgiBatang', 'Pretendard', sans-serif;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--ember-deep);
-    margin-bottom: 12px;
-}
-
 
 .detail-btn {
     min-width: 68px;
@@ -748,7 +739,7 @@ body {
 
 .order-expand-box {
     background: #fffaf5;
-    border: 1px solid rgba(232,115,42,0.18);
+    border: 1px solid rgba(232, 115, 42, 0.18);
     margin-top: -1px;
     padding: 18px 20px 20px;
     border-top: none;
@@ -838,7 +829,7 @@ body {
     z-index: 1;
 }
 
-.order-card > * {
+.order-card>* {
     position: relative;
     z-index: 2;
 }
@@ -913,6 +904,7 @@ body {
     font-weight: 600;
     color: var(--brown4);
 }
+
 .order-card.open::before {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
@@ -930,12 +922,10 @@ body {
     border-bottom-right-radius: 18px;
 }
 
-.order-card.open + .order-expand-box {
+.order-card.open+.order-expand-box {
     border-color: var(--orange);
 }
-.filter-body {
-    padding: 26px 28px 28px;
-}
+
 
 .period-tab-wrap {
     position: relative;
@@ -960,7 +950,7 @@ body {
 
 .period-tab:hover,
 .period-tab.active {
-    color: var(--orange2);
+    color: var(--orange);
 }
 
 .period-underline {
@@ -971,7 +961,7 @@ body {
     background: var(--orange);
     border-radius: 999px;
     transition: left .28s cubic-bezier(.22, .61, .36, 1),
-                width .28s cubic-bezier(.22, .61, .36, 1);
+        width .28s cubic-bezier(.22, .61, .36, 1);
 }
 
 .custom-date-row {
@@ -1033,6 +1023,7 @@ input:focus,
 input:focus-visible {
     outline: none;
 }
+
 .order-card {
     border: 1px solid var(--cream3);
 }
@@ -1100,5 +1091,991 @@ input:focus-visible {
     color: var(--orange2);
     border-color: rgba(232, 115, 42, 0.36);
     transform: none;
+    box-shadow: none;
+}
+
+/* =========================================================
+   주문 전체보기 - 모닥모닥 최종 통일 스타일
+   ========================================================= */
+
+/* 전체 톤 */
+.order-history-wrap {
+    max-width: 1160px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 36px 32px 56px;
+}
+
+/* 상단 카드 */
+.hero-summary-card,
+.glass-card {
+    background: rgba(255, 253, 248, .72);
+    border: 1px solid rgba(184, 154, 122, .45);
+    border-radius: 16px;
+    box-shadow: none;
+    backdrop-filter: blur(8px);
+}
+
+/* 기간 선택 */
+.period-tab {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--brown4);
+}
+
+.period-tab:hover,
+.period-tab.active {
+    color: var(--orange);
+}
+
+.period-underline {
+    height: 2px;
+    background: var(--orange);
+}
+
+/* 주문 현황 버튼 */
+.flow-step {
+    border: 1px solid rgba(184, 154, 122, .45);
+    background: rgba(255, 253, 248, .72);
+    border-radius: 14px;
+    box-shadow: none;
+    transition:
+        background-color .22s ease,
+        border-color .22s ease,
+        box-shadow .22s ease;
+}
+
+.flow-step:hover {
+    border-color: rgba(232, 115, 42, .45);
+    background: rgba(255, 248, 241, .9);
+}
+
+.flow-step.active {
+    border-color: rgba(232, 115, 42, .65);
+    background: rgba(232, 115, 42, .06);
+    box-shadow: 0 0 0 4px rgba(232, 115, 42, .06);
+}
+
+.flow-count {
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--brown);
+}
+
+.flow-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--brown3);
+}
+
+.flow-step.active .flow-count,
+.flow-step.active .flow-name {
+    color: var(--orange);
+}
+
+/* 날짜 그룹 */
+.group-date-head {
+    border-bottom: 1px solid rgba(184, 154, 122, .35);
+}
+
+.group-date {
+    color: var(--brown);
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.group-count {
+    color: var(--brown4);
+}
+
+.group-count strong {
+    color: var(--orange2);
+}
+
+/* 주문 카드 */
+.order-card {
+    position: relative;
+    background: #fffaf5;
+    border: 1px solid #eadfce;
+    border-radius: 16px;
+    padding: 0px 22px;
+    margin-bottom: 0;
+    cursor: pointer;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 18px;
+
+    box-shadow: none;
+    transform: none;
+
+    transition:
+        border-color .22s ease,
+        box-shadow .22s ease,
+        background-color .22s ease,
+        transform .15s ease;
+}
+
+/* 기존 차오르는 테두리 제거 */
+.order-card::before {
+    display: none !important;
+}
+
+.order-card:hover {
+    border-color: rgba(232, 115, 42, .55);
+    background: #fffaf5;
+    box-shadow: 0 6px 14px rgba(180, 100, 40, .08);
+    transform: translateY(-1px);
+}
+
+.order-card.open {
+    border-color: rgba(232, 115, 42, .55);
+    background: #fffaf5;
+    box-shadow: 0 6px 14px rgba(180, 100, 40, .08);
+    transform: none;
+
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* 썸네일 */
+.thumb {
+    width: 78px;
+    height: 78px;
+    border-radius: 14px;
+    border: 1px solid rgba(184, 154, 122, .45);
+    background: rgba(210, 180, 150, .12);
+}
+
+/* 상품명 */
+.name-row strong {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--brown);
+    line-height: 1.5;
+    transition: color .2s ease;
+}
+
+.order-card:hover .name-row strong {
+    color: var(--orange2);
+}
+
+.extra {
+    color: var(--orange2);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* 구매/대여 태그 */
+.badge {
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.badge.purchase {
+    background: rgba(224, 98, 26, .08);
+    color: var(--orange2);
+    border: none;
+}
+
+.badge.rental {
+    background: rgba(46, 26, 14, .06);
+    color: var(--brown3);
+    border: none;
+}
+
+/* 주문번호/날짜 */
+.sub-row {
+    font-size: 12px;
+    color: var(--brown4);
+}
+
+/* 상태 태그 */
+.status-badge {
+    display: inline-block;
+    margin: 0 16px 10px 0;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    background: rgba(224, 98, 26, .08);
+    color: var(--orange2);
+    border: none;
+}
+
+/* 진행중 (조금 더 밝은 오렌지) */
+.status-badge.ready,
+.status-badge.shipping {
+    background: rgba(232, 115, 42, 0.10);
+    color: var(--orange2);
+}
+
+/* 이용중 (살짝 더 진하게) */
+.status-badge.in_use {
+    background: rgba(232, 115, 42, 0.14);
+    color: var(--orange);
+}
+
+/* 완료 (톤 다운) */
+.status-badge.done {
+    background: rgba(46, 26, 14, 0.06);
+    color: var(--brown2);
+}
+
+/* 반납완료 (조금 더 연하게) */
+.status-badge.returned {
+    background: rgba(46, 26, 14, 0.04);
+    color: var(--brown3);
+}
+
+/* 대여완료 */
+.status-badge.completed {
+    background: rgba(46, 26, 14, 0.08);
+    color: var(--brown2);
+}
+
+/* 취소 */
+.status-badge.cancelled {
+    background: rgba(200, 60, 40, 0.08);
+    color: #b84a1f;
+}
+
+/* 결제/예약 */
+.status-badge.paid,
+.status-badge.reserved {
+    background: rgba(224, 98, 26, 0.06);
+    color: var(--orange);
+}
+
+/* 가격 */
+.price {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--orange2);
+    margin-bottom: 12px;
+}
+
+/* 버튼 */
+.detail-btn,
+.sub-action-btn,
+.sub-action-btn.cancel-btn,
+.sub-action-btn.refund-btn,
+.sub-action-btn.review-btn,
+.sub-action-btn.return-btn,
+.sub-action-btn.extend-btn {
+    height: 34px;
+    min-width: 62px;
+    padding: 0 14px;
+
+    border-radius: 999px;
+    border: 1px solid rgba(184, 154, 122, .38);
+    background: rgba(255, 253, 248, .96);
+    color: var(--brown3);
+
+    font-size: 12px;
+    font-weight: 500;
+    box-shadow: none;
+
+    transition:
+        background-color .18s ease,
+        color .18s ease,
+        border-color .18s ease;
+}
+
+.detail-btn:hover,
+.sub-action-btn:hover,
+.sub-action-btn.cancel-btn:hover,
+.sub-action-btn.refund-btn:hover,
+.sub-action-btn.review-btn:hover,
+.sub-action-btn.return-btn:hover,
+.sub-action-btn.extend-btn:hover {
+    background: rgba(232, 115, 42, .06);
+    color: var(--orange2);
+    border-color: rgba(232, 115, 42, .38);
+    transform: none;
+    box-shadow: none;
+}
+
+/* 메인 버튼도 과하게 안 튀게 */
+.detail-main-btn {
+    background: rgba(224, 98, 26, .08);
+    color: var(--orange2);
+    border-color: rgba(224, 98, 26, .22);
+    font-weight: 600;
+}
+
+.detail-main-btn:hover {
+    background: rgba(224, 98, 26, .12);
+    color: var(--orange2);
+    border-color: rgba(224, 98, 26, .35);
+    transform: none;
+    box-shadow: none;
+}
+
+/* 펼친 영역 */
+.order-expand-box {
+    background: #fffaf5;
+    border: 1px solid rgba(232, 115, 42, .35);
+    border-top: none;
+    margin-top: -1px;
+    padding: 18px 20px 20px;
+
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+.expand-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--brown2);
+    margin-bottom: 14px;
+}
+
+.expand-item-row {
+    border-top: 1px dashed #eadfce;
+}
+
+.expand-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--brown);
+}
+
+.expand-meta {
+    font-size: 12px;
+    color: var(--brown4);
+}
+
+/* 화살표 */
+.order-open-indicator {
+    color: var(--brown4);
+    transition: color .18s ease;
+}
+
+.order-card:hover .order-open-indicator,
+.order-card.open .order-open-indicator {
+    color: var(--orange);
+}
+
+/* 빈 상태 */
+.empty-state {
+    min-height: 260px;
+    margin-top: 22px;
+    padding: 48px 24px;
+    background: rgba(255, 252, 248, .92);
+    border: 1px dashed rgba(184, 154, 122, .45);
+    border-radius: 18px;
+    box-shadow: none;
+}
+
+.empty-state p {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--brown4);
+}
+
+/* 애니메이션 과하지 않게 */
+.list-rise-enter-active,
+.list-rise-leave-active,
+.expand-fade-enter-active,
+.expand-fade-leave-active {
+    transition: opacity .16s ease;
+}
+
+.list-rise-enter-from,
+.list-rise-leave-to,
+.expand-fade-enter-from,
+.expand-fade-leave-to {
+    opacity: 0;
+    transform: none;
+}
+
+/* ===== 주문 전체보기 최종 정리 ===== */
+
+.order-history-wrap {
+    font-family: 'GgiBatang', 'Apple SD Gothic Neo', sans-serif;
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.page-desc {
+    font-size: 13px;
+}
+
+.result-count-number {
+    font-size: 28px;
+    font-weight: 400;
+}
+
+.section-head h3 {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.order-search-card {
+    margin-top: 20px;
+}
+
+.search-section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-search-box {
+    position: relative;
+    width: 340px;
+    margin-left: auto;
+}
+
+.order-search-box input[type="text"] {
+    width: 100%;
+    height: 45px;
+    padding: 0 79px 0 12px;
+    border: 1px solid #e6d7c7;
+    border-radius: 20px;
+    background: #ffffff;
+    font-size: 13px;
+    color: var(--brown);
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.order-search-box::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    border: 1.5px solid var(--orange);
+    clip-path: inset(0 100% 0 0);
+    pointer-events: none;
+    transition: clip-path .35s ease;
+    z-index: 2;
+}
+
+.order-search-box:focus-within::before {
+    clip-path: inset(0 0 0 0);
+}
+
+.order-search-box input[type="text"]::placeholder {
+    color: #a28b79;
+}
+
+.order-search-box button {
+    position: absolute;
+    right: 1px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 34px;
+    padding: 7px 15px;
+    border: none;
+    border-radius: 14px;
+    margin-right: 5px;
+    background: var(--orange);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    z-index: 3;
+    transition: background .18s ease;
+}
+
+.order-search-box button:hover {
+    background: var(--orange2);
+}
+
+/* 주문 현황 카드 */
+.order-flow {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.flow-step {
+    padding: 14px 10px 12px;
+    border: 1px solid rgba(184, 154, 122, .45);
+    background: rgba(255, 253, 248, .72);
+    border-radius: 14px;
+    transition:
+        background-color .22s ease,
+        border-color .22s ease,
+        box-shadow .22s ease;
+}
+
+.flow-step:hover {
+    border-color: rgba(232, 115, 42, .45);
+    background: rgba(255, 248, 241, .9);
+}
+
+.flow-step.active {
+    border-color: rgba(232, 115, 42, .65);
+    background: rgba(232, 115, 42, .06);
+    box-shadow: 0 0 0 4px rgba(232, 115, 42, .06);
+}
+
+.flow-count {
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.flow-name {
+    font-size: 11.5px;
+    font-weight: 500;
+}
+
+/* 주문 카드 */
+.order-card {
+    position: relative;
+    background: #fffaf5;
+    border: 1px solid #eadfce;
+    border-radius: 16px;
+    padding: 18px 46px 18px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    box-shadow: none;
+    transform: none;
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease,
+        background-color .2s ease,
+        transform .15s ease;
+}
+
+.order-card::before {
+    display: none !important;
+}
+
+.order-card:hover {
+    border-color: rgba(201, 79, 30, .55);
+    box-shadow: 0 6px 14px rgba(180, 100, 40, .08);
+    transform: translateY(-1px);
+}
+
+.order-card.open {
+    border-color: rgba(201, 79, 30, .55);
+    box-shadow: 0 6px 14px rgba(180, 100, 40, .08);
+    transform: none;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.order-open-indicator {
+    position: absolute;
+    right: 18px;
+    top: 20%;
+    transform: translateY(-50%);
+    color: var(--brown4);
+    font-size: 12px;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.order-card:hover .order-open-indicator,
+.order-card.open .order-open-indicator {
+    color: var(--orange2);
+}
+
+.thumb {
+    width: 74px;
+    height: 74px;
+    border-radius: 14px;
+}
+
+/* 폰트 축소 */
+.name-row {
+    gap: 6px;
+    margin-bottom: 5px;
+}
+
+.name-row strong {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--brown);
+    transition: color .2s ease;
+}
+
+.order-card:hover .name-row strong {
+    color: var(--orange2);
+}
+
+.order-brand-inline {
+    color: var(--brown4);
+    font-size: 12px;
+    margin-left: 4px;
+    font-weight: 400;
+}
+
+.order-category-pill {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(224, 98, 26, .08);
+    color: var(--orange2);
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.4;
+}
+
+.sub-row {
+    font-size: 11.5px;
+    color: var(--brown4);
+}
+
+.extra {
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.badge {
+    padding: 3px 8px;
+    font-size: 10.5px;
+    font-weight: 400;
+}
+
+.status-badge {
+    margin: 0 0 8px 0;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 999px;
+}
+
+.price {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+/* 버튼 작게 */
+.detail-btn,
+.sub-action-btn,
+.sub-action-btn.cancel-btn,
+.sub-action-btn.refund-btn,
+.sub-action-btn.review-btn,
+.sub-action-btn.return-btn,
+.sub-action-btn.extend-btn {
+    height: 32px;
+    min-width: 58px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 500;
+    background: rgba(255, 253, 248, .96);
+    color: var(--brown3);
+    border: 1px solid rgba(184, 154, 122, .38);
+    box-shadow: none;
+    transition:
+        background-color .18s ease,
+        color .18s ease,
+        border-color .18s ease;
+}
+
+.detail-btn:hover,
+.sub-action-btn:hover,
+.sub-action-btn.cancel-btn:hover,
+.sub-action-btn.refund-btn:hover,
+.sub-action-btn.review-btn:hover,
+.sub-action-btn.return-btn:hover,
+.sub-action-btn.extend-btn:hover {
+    background: rgba(232, 115, 42, .06);
+    color: var(--orange2);
+    border-color: rgba(232, 115, 42, .38);
+    transform: none;
+    box-shadow: none;
+}
+
+.detail-main-btn {
+    background: rgba(224, 98, 26, .08);
+    color: var(--orange2);
+    border-color: rgba(224, 98, 26, .22);
+    font-weight: 600;
+}
+
+.detail-main-btn:hover {
+    background: rgba(224, 98, 26, .12);
+    color: var(--orange2);
+    border-color: rgba(224, 98, 26, .35);
+}
+
+/* 펼침 영역 */
+.order-expand-box {
+    background: #fffaf5;
+    border: 1px solid rgba(232, 115, 42, .35);
+    border-top: none;
+    margin-top: -1px;
+    padding: 16px 18px 18px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+.expand-title {
+    font-size: 12.5px;
+    font-weight: 600;
+}
+
+.expand-name {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.expand-meta {
+    font-size: 11.5px;
+}
+
+@media (max-width: 1024px) {
+    .order-flow {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .search-section-head {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .order-search-box {
+        width: 100%;
+    }
+
+    .order-card {
+        padding-right: 42px;
+    }
+}
+
+/* ===== 주문 전체보기 추가 정리 ===== */
+
+/* 검정 느낌 줄이기 */
+.page-title,
+.name-row strong,
+.expand-name,
+.group-date {
+    color: var(--brown2);
+}
+
+.price,
+.result-count-number,
+.group-count strong {
+    color: var(--orange2);
+}
+
+/* 구매/대여 위로 */
+.order-type-top {
+    margin-bottom: 6px;
+}
+
+.order-type-top .badge {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+}
+
+/* 주문기간 적용 버튼: 밝게 + 호버 테두리 차오름 */
+.btn-apply {
+    position: relative;
+    overflow: hidden;
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid rgba(184, 154, 122, .38);
+    border-radius: 10px;
+    background: rgba(255, 253, 248, .96);
+    color: var(--brown3);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.btn-apply::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    border: 1.5px solid var(--orange);
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path .32s ease;
+    pointer-events: none;
+}
+
+.btn-apply:hover {
+    background: #fff8f1;
+    color: var(--orange2);
+}
+
+.btn-apply:hover::after {
+    clip-path: inset(0 0 0 0);
+}
+
+/* 주문상세 버튼: 진한 배경 제거 + 테두리 차오름 */
+.detail-main-btn {
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 253, 248, .96);
+    color: var(--brown3);
+    border: 1px solid rgba(184, 154, 122, .38);
+    box-shadow: none;
+}
+
+.detail-main-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    border: 1.5px solid var(--orange);
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path .32s ease;
+    pointer-events: none;
+}
+
+.detail-main-btn:hover {
+    background: #fff8f1;
+    color: var(--orange2);
+    border-color: rgba(232, 115, 42, .36);
+}
+
+.detail-main-btn:hover::after {
+    clip-path: inset(0 0 0 0);
+}
+
+/* 펼침 상품 정보 */
+.expand-name .order-brand-inline {
+    font-size: 12px;
+    color: var(--brown4);
+    font-weight: 400;
+}
+
+.expand-category-pill {
+    margin: 4px 0 6px;
+}
+
+/* 펼침 애니메이션 깜빡임 줄이기 */
+.list-rise-enter-active,
+.list-rise-leave-active {
+    transition: opacity .12s ease;
+}
+
+.list-rise-enter-from,
+.list-rise-leave-to {
+    opacity: 0;
+    transform: none;
+}
+
+.return-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(44, 30, 15, .38);
+    backdrop-filter: blur(7px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.return-modal-box {
+    width: 360px;
+    max-width: calc(100% - 32px);
+    background: var(--white);
+    border: 1px solid rgba(184, 154, 122, .55);
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 18px 45px rgba(44, 30, 15, .18);
+    animation: modalFadeUp .34s cubic-bezier(.22, 1, .36, 1) both;
+    outline: none;
+}
+
+@keyframes modalFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.return-modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--brown);
+    margin-bottom: 10px;
+}
+
+.return-modal-desc {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--brown2);
+}
+
+.return-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 22px;
+}
+
+.return-confirm-btn,
+.return-cancel-btn {
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.return-confirm-btn {
+    background: var(--orange);
+    color: #fff;
+}
+
+.return-confirm-btn:hover {
+    background: var(--orange2);
+}
+
+.return-cancel-btn {
+    background: var(--cream2);
+    color: var(--brown2);
+}
+
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 36px;
+    transform: translateX(-50%) translateY(20px);
+    padding: 11px 17px;
+    border-radius: 999px;
+    background: var(--brown);
+    color: var(--white);
+    font-size: 13px;
+    opacity: 0;
+    pointer-events: none;
+    transition: .25s ease;
+    z-index: 10000;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.return-done-btn,
+.return-done-btn:hover,
+.return-done-btn:disabled {
+    background: rgba(46, 26, 14, .06) !important;
+    color: var(--brown4) !important;
+    border-color: rgba(184, 154, 122, .32) !important;
+    cursor: not-allowed;
     box-shadow: none;
 }

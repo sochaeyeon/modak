@@ -2553,7 +2553,7 @@ inquiry-detail-box .detail-value {
 
 .more-link:hover,
 .section-head a:hover {
-    color: var(--orange2);
+    color: var(--orange);
 }
 
 .delete-modal-backdrop {
@@ -2705,4 +2705,139 @@ inquiry-detail-box .detail-value {
         inset 0 1px 0 rgba(232, 115, 42, .28),
         inset 0 -1px 0 rgba(232, 115, 42, .28);
     transform: none;
+}
+
+.section-head a,
+.section-head a:visited,
+.more-link,
+.more-link:visited {
+    color: var(--brown3);
+    transition: color .25s ease;
+}
+
+.section-head a:hover,
+.section-head a:focus,
+.more-link:hover,
+.more-link:focus {
+    color: var(--orange) !important;
+}
+
+.stat-card,
+.wish-item,
+.address-item {
+    transition:
+        background-color .28s ease,
+        border-color .28s ease,
+        box-shadow .32s cubic-bezier(.22, 1, .36, 1);
+}
+
+.stat-card:hover,
+.wish-item:hover,
+.address-item:hover {
+    border-color: rgba(232, 115, 42, .72);
+    box-shadow:
+        0 0 0 1px rgba(232, 115, 42, .28),
+        0 0 0 5px rgba(232, 115, 42, .07),
+        0 10px 24px rgba(44, 30, 15, .05);
+}
+.order-item-clickable,
+.chatbot-review-item,
+.inquiry-review-item {
+    transition:
+        background-color .28s ease,
+        border-top-color .28s ease,
+        border-bottom-color .28s ease,
+        box-shadow .32s ease;
+}
+
+.order-item-clickable:hover,
+.chatbot-review-item:hover,
+.inquiry-review-item:hover {
+    border-top-color: rgba(232, 115, 42, .9);
+    border-bottom-color: rgba(232, 115, 42, .9);
+    background: rgba(232, 115, 42, .045);
+    box-shadow:
+        inset 0 1px 0 rgba(232, 115, 42, .28),
+        inset 0 -1px 0 rgba(232, 115, 42, .28);
+}
+
+.wish-item {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--white);
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.wish-item:hover {
+    border-color: rgba(201, 79, 30, 0.6);
+    box-shadow: 0 6px 14px rgba(180, 100, 40, .08);
+    transform: translateY(-1px);
+}
+
+.wish-remove-icon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.88);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all .2s ease;
+    box-shadow: 0 2px 8px rgba(46, 26, 14, .12);
+    z-index: 3;
+}
+
+.wish-remove-icon svg {
+    width: 16px;
+    height: 16px;
+    color: #e04b6a;
+    fill: #e04b6a;
+    stroke: #e04b6a;
+    transition: all .2s ease;
+}
+
+.wish-remove-icon:hover {
+    background: #fff;
+    transform: scale(1.08);
+    box-shadow: 0 6px 16px rgba(224, 75, 106, .18);
+}
+
+.wish-name-wrap {
+    min-height: 25px;
+    margin-bottom: 3px;
+    line-height: 1.5;
+}
+
+.wish-name {
+    font-size: 12.5px;
+    color: var(--text-dark);
+    font-weight: 600;
+    transition: color .2s ease;
+}
+
+.wish-item:hover .wish-name {
+    color: var(--ember-deep);
+}
+
+
+.wish-category-pill {
+    display: inline-block;
+    margin-bottom: 8px;
+    padding: 3px 8px;
+    border-radius: 999px;
+
+    background: rgba(224, 98, 26, 0.08);
+    color: var(--ember-deep);
+
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.4;
 }

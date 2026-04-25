@@ -124,7 +124,8 @@
                                 page: 1,
                                 pageSize: 9,
                                 totalPages: 1,
-                                listAnimateKey: 0
+                                listAnimateKey: 0,
+                                
                             };
                         },
                         methods: {

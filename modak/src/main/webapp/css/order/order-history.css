@@ -30,7 +30,7 @@
 
 body {
     background: var(--bg);
-    font-family: 'GgiBatang', 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+   
     color: var(--text-dark);
     margin: 0;
     min-height: 100vh;
@@ -64,7 +64,7 @@ body {
 }
 
 .page-title {
-    font-family: 'GgiBatang', 'Pretendard', sans-serif;
+   
     font-size: 28px;
     color: var(--text-dark);
     margin-bottom: 8px;
@@ -96,7 +96,7 @@ body {
 .result-count-number {
     display: inline-block;
     min-width: 1ch;
-    font-family: 'GgiBatang', 'Pretendard', sans-serif;
+  
     font-size: 28px;
     color: var(--ember-deep);
     line-height: 1;
@@ -104,7 +104,7 @@ body {
 }
 
 .result-count-unit {
-    font-family: 'GgiBatang', 'Pretendard', sans-serif;
+  
     font-size: 12px;
     margin-left: 4px;
     color: var(--text-light);
@@ -128,7 +128,7 @@ body {
 }
 
 .section-head h3 {
-    font-family: 'GgiBatang', 'Pretendard', sans-serif;
+   
     font-size: 14.5px;
     color: var(--text-dark);
     font-weight: 700;
@@ -150,7 +150,7 @@ body {
     border: 1px solid var(--border);
     background: var(--bg-card-strong);
     color: var(--text-mid);
-    font-family: 'GgiBatang', 'Pretendard', sans-serif;
+   
     font-size: 13px;
     cursor: pointer;
     transition: all 0.18s ease;
@@ -207,7 +207,7 @@ body {
 }
 
 .flow-count {
-    font-family: 'GgiBatang', 'Pretendard', sans-serif;
+   
     font-size: 21px;
     font-weight: 700;
     color: var(--ember-deep);
@@ -231,7 +231,7 @@ body {
 }
 
 .group-date {
-    font-family: 'GgiBatang', 'Pretendard', sans-serif;
+    
     font-size: 17px;
     font-weight: 700;
     color: var(--text-dark);
@@ -316,7 +316,7 @@ body {
 }
 
 .name-row strong {
-    font-family: 'GgiBatang', 'Pretendard', sans-serif;
+
     font-size: 16px;
     color: var(--text-dark);
     line-height: 1.5;
@@ -409,7 +409,7 @@ body {
 }
 
 .price {
-    font-family: 'GgiBatang', 'Pretendard', sans-serif;
+  
     font-size: 20px;
     font-weight: 700;
     color: var(--ember-deep);
@@ -422,7 +422,7 @@ body {
     padding: 0 14px;
     border: none;
     border-radius: 999px;
-    font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+ 
     font-size: 12px;
     font-weight: 700;
     letter-spacing: -0.2px;

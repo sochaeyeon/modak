@@ -27,7 +27,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                     "/order/history.do",
                     "/order/detail.do",
 
-                    "/rental/extension/main.do",
+                   
 
                     "/user/review/**",
 
@@ -38,6 +38,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                     "/user/recent/**",
 
                     "/user/wishlist/**"
+                    
+                    
                 )
                 .excludePathPatterns(
                     "/css/**",

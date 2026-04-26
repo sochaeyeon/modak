@@ -8,6 +8,7 @@
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<title>모닥모닥 고객센터 - Frame</title>
 			<link rel="stylesheet" href="${pageContext.request.contextPath}/css/cs/cs-center.css">
+			<link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
 			<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 		</head>
 

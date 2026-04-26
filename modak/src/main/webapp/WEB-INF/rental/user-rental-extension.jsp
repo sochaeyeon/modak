@@ -14,7 +14,7 @@
         crossorigin="anonymous"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="/js/page-change.js"></script>
-
+	<link rel="stylesheet" href="/css/common/font.css">
     <link rel="stylesheet" href="/css/rental/user-rental-extension.css">
 </head>
 <body>

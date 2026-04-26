@@ -7,6 +7,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>공지사항 - 모닥모닥</title>
 		<link rel="stylesheet" href="${pageContext.request.contextPath}/css/cs/notification-list.css">
+		<link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
 	</head>
 
 	<body>

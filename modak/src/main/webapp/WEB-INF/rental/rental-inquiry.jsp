@@ -9,7 +9,7 @@
        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/rental/rental-inquiry.css">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
+       <link rel="stylesheet" href="/css/common/font.css">
 
 
     </head>

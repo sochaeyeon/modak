@@ -159,6 +159,9 @@
 	        R.REVIEW_STATUS,
 	        DATE_FORMAT(R.CREATED_AT, '%Y.%m.%d') AS createdAt,
 	        R.USER_ID,
+	        U.NICKNAME,
+			U.PROFILE_IMG_URL,
+			U.GRADE_ID,
 	        R.PRODUCT_ID,
 	        R.TITLE,
 	        P.PRODUCT_NAME,
@@ -171,6 +174,7 @@
 			) AS imageUrl
 	    FROM REVIEW R
 	    LEFT JOIN PRODUCT P ON R.PRODUCT_ID = P.PRODUCT_ID
+	    LEFT JOIN USER U ON R.USER_ID = U.USER_ID
 	    WHERE R.PRODUCT_ID = #{productId}       
 	    <!-- userId 대신 productId-->
 	    AND R.REVIEW_STATUS = 'ACTIVE'

@@ -39,10 +39,10 @@
         <div class="page-wrap">
           <div class="top-row" style="display: grid; grid-template-columns: 1fr 400px 1fr;">
             <div class="result-info">
-              <div class="result-label">인기 장비</div>
+              <div class="result-label">{{ getSortLabel() }}</div>
               <div>
                 <span class="result-title">{{ getCurrentCategoryName() }}</span>
-                <span class="result-count">총 {{ filteredProducts.length }}개</span>
+                <span class="result-count">총 {{ products.length }}개</span>
               </div>
             </div>
             <!-- 검색창 -->
@@ -59,7 +59,7 @@
                 </svg>
                 필터
               </button>
-              <select class="sort-select" v-model="sortKey" @change="currentPage = 1">
+              <select class="sort-select" v-model="sortKey" @change="fnSearch">
                 <option value="popular">인기순</option>
                 <option value="newest">최신순</option>
                 <option value="price-low">가격 낮은순</option>
@@ -98,11 +98,11 @@
                 </div>
                 <div class="filter-opts">
                   <label class="fopt">
-                    <input type="checkbox" v-model="filter.rentable" @change="fnList"> 대여 가능
+                    <input type="checkbox" v-model="filter.rentable" @change="fnSearch"> 대여 가능
                     <span class="fopt-count"></span>
                   </label>
                   <label class="fopt">
-                    <input type="checkbox" v-model="filter.buyable" @change="fnList"> 구매 가능
+                    <input type="checkbox" v-model="filter.buyable" @change="fnSearch"> 구매 가능
                     <span class="fopt-count"></span>
                   </label>
                 </div>
@@ -114,14 +114,14 @@
                   <span class="fs-title">세부 카테고리</span>
                 </div>
                 <!-- 전체 선택 -->
+                <div class="filter-opts">
                   <label class="fopt">
-                    <input type="radio" name="childCategory" :value="null" v-model="currentChild" @change="fnList">
+                    <input type="radio" name="childCategory" :value="null" v-model="currentChild" @change="fnSearch">
                     전체
                   </label>
-                <div class="filter-opts">
                   <label class="fopt" v-for="child in childCategory" :key="child.categoryId">
                     <input type="radio" name="childCategory" :value="child.categoryId" v-model="currentChild"
-                      @change="fnList">
+                      @change="fnSearch">
                     {{ child.categoryName }}
                   </label>
                 </div>
@@ -138,7 +138,7 @@
                   </label>
 
                   <label class="fopt" v-for="brand in brandList" :key="brand.brandId">
-                    <input type="checkbox" :value="brand.brandId" v-model="filter.brandId" @change="fnList"> {{
+                    <input type="checkbox" :value="brand.brandId" v-model="filter.brandId" @change="fnSearch"> {{
                     brand.brandName }}
                   </label>
                 </div>
@@ -220,10 +220,12 @@
                       <div class="pcard-cat">{{ product.categoryName }}</div>
 
                       <div class="pcard-name">{{ product.productName }}</div>
-                      <!-- <div class="stars">
+                      <div class="stars">
                         <span v-html="starsHTML(product.rating)"></span>
-                        <span class="star-count">{{ product.rating }} ({{ product.rCount }})</span> 리뷰 별점 평균
-                      </div> -->
+                        <span class="star-count">
+                            {{ formatRating(product.rating) }}점 ({{ product.rCount || 0 }})
+                        </span>
+                    </div>
                       <div class="price-row">
                         <span class="price-orig" v-if="product.origRent">{{ product.origRent.toLocaleString() }}원</span>
                         <span class="price-main">{{ (product.price || 0).toLocaleString() }}원</span>
@@ -355,24 +357,13 @@
 
             computed: {
 
-              filteredProducts() {
-                let list = this.products;
-
-                return [...list].sort((a, b) => {
-                  if (this.sortKey === 'price-low') return a.price - b.price;
-                  if (this.sortKey === 'price-high') return b.price - a.price;
-                  if (this.sortKey === 'newest') return b.createdAt - a.createdAt;
-                  return b.productId - a.productId;
-                });
-              },
-
               pagedProducts() {
-                const start = (this.currentPage - 1) * this.perPage;
-                return this.filteredProducts.slice(start, start + this.perPage);
+                  const start = (this.currentPage - 1) * this.perPage;
+                  return this.products.slice(start, start + this.perPage);
               },
 
               totalPages() {
-                return Math.ceil(this.filteredProducts.length / this.perPage);
+                return Math.ceil(this.products.length / this.perPage);
               },
 
               priceRangeLabel() {
@@ -382,6 +373,31 @@
             },
 
             methods: {
+
+              getSortLabel() {
+                if (this.sortKey === 'popular') return '인기 장비';
+                if (this.sortKey === 'newest') return '최신 장비';
+                if (this.sortKey === 'price-low') return '가격 낮은 순';
+                if (this.sortKey === 'price-high') return '가격 높은 순';
+                if (this.sortKey === 'rating') return '평점 높은 순';
+                return '장비 목록';
+              },
+
+              // 별점
+              starsHTML(rating) {
+                const score = Math.floor(Number(rating) || 0);
+                let html = '';
+
+                for (let i = 1; i <= 5; i++) {
+                  html += i <= score ? '★' : '☆';
+                }
+
+                return html;
+              },
+
+              formatRating(rating) {
+                return (Number(rating) || 0).toFixed(1);
+              },
 
               // ── 상품 목록 조회 ──
               fnList() {
@@ -449,7 +465,7 @@
                     self.loading = false;
                   }
                 });
-              }, // fnList 
+              }, // fnList
               
               fnSearch() {
                 this.currentPage = 1;
@@ -506,7 +522,7 @@
                 }
 
                 this.currentPage = 1;
-                this.fnList();
+                this.fnSearch();
               },
 
               // ── 현재 카테고리명 반환 ──
@@ -530,7 +546,7 @@
                 this.currentChild = null;
                 this.childCategory = [];
                 this.currentPage = 1;
-                this.fnList();
+                this.fnSearch();
               },
 
               updateRangeStyle(event) {

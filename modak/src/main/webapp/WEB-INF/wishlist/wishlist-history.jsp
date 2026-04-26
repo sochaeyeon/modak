@@ -38,7 +38,7 @@
 
                                         <div class="hero-summary-card">
                                             <div class="hero-summary-label">
-                                                {{ keyword ? '검색 결과' : '찜한 상품' }}
+                                                {{ searchedKeyword ? '검색 결과' : '찜한 상품' }}
                                             </div>
 
                                             <div class="hero-summary-value">
@@ -70,7 +70,7 @@
                                             <div class="wishlist-content">
                                                 <div class="wishlist-content" :key="'wishlist-' + listAnimateKey">
                                                     <div v-if="wishlist.length === 0" class="empty-state">
-                                                        <p>{{ keyword ? '검색 결과가 없습니다.' : '찜한 상품이 없습니다.' }}</p>
+                                                        <p>{{ searchedKeyword ? '검색 결과가 없습니다.' : '찜한 상품이 없습니다.' }}</p>
                                                     </div>
 
                                                     <div v-else class="wish-grid">
@@ -169,6 +169,7 @@
                                 toastMessage: "",
                                 toastShow: false,
                                 keyword: "",
+                                searchedKeyword: "",
                             };
                         },
                         methods: {
@@ -182,7 +183,7 @@
                                     data: {
                                         page: self.page,
                                         pageSize: self.pageSize,
-                                        keyword: self.keyword
+                                        keyword: self.searchedKeyword
                                     },
                                     success: function (data) {
                                         if (data.result === "success") {
@@ -280,11 +281,14 @@
                             },
                             fnSearchWishlist: function () {
                                 this.page = 1;
+                                this.searchedKeyword = this.keyword.trim();
                                 this.fnGetWishlist(true);
                             },
+
                             fnResetSearchIfEmpty: function () {
                                 if (!this.keyword.trim()) {
                                     this.page = 1;
+                                    this.searchedKeyword = "";
                                     this.fnGetWishlist();
                                 }
                             },

@@ -5,7 +5,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
+        <title>로그인 - 모닥모닥</title>
         <script src="https://code.jquery.com/jquery-3.7.1.js"
             integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -108,7 +108,7 @@
                     <div class="field">
                         <label>아이디</label>
                         <div class="input-wrap">
-                            <input v-model="userId" type="text" placeholder="아이디를 입력하세요">
+                            <input v-model="userId" type="text" placeholder="아이디를 입력하세요" @keyup.enter="fnLogin">
                             <span class="input-icon">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                                     <rect x="1" y="3" width="14" height="10" rx="2" stroke="#b09070"
@@ -123,7 +123,7 @@
                     <div class="field">
                         <label>비밀번호</label>
                         <div class="input-wrap">
-                            <input v-model="userPwd" type="password" placeholder="비밀번호를 입력하세요" id="pwInput">
+                            <input v-model="userPwd" type="password" placeholder="비밀번호를 입력하세요" id="pwInput" @keyup.enter="fnLogin">
                             <span class="input-icon" onclick="togglePw()" id="eyeBtn">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                                     <ellipse cx="8" cy="8" rx="6" ry="4" stroke="#b09070" stroke-width="1.4" />

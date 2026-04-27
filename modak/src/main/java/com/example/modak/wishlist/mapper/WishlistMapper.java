@@ -22,4 +22,6 @@ public interface WishlistMapper {
 
     // 찜 삭제 — wishId 기준 (위시리스트 페이지용)
     public int deleteWishlist(HashMap<String, Object> map);
+ // 찜 목록 전체 개수
+    public int selectWishlistCountAll(HashMap<String, Object> map);
 }

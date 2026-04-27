@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.modak.review.dao.ReviewService;
 import com.example.modak.user.dao.MypageService;
+import com.example.modak.user.mapper.CouponMapper;
 import com.example.modak.user.model.MypageSummary;
 import com.example.modak.user.model.PointHistory;
 import com.example.modak.user.model.User;
@@ -29,7 +30,10 @@ public class MypageController {
 
 	@Autowired
 	HttpSession session;
-
+	
+	@Autowired
+	CouponMapper couponMapper;
+	
 	@Autowired
 	ReviewService reviewService;
 
@@ -62,7 +66,7 @@ public class MypageController {
 
 		return "user/mypage";
 	}
-	
+
 	@RequestMapping(value = "/user/coupon/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String getCouponList(@RequestParam HashMap<String, Object> map) {
@@ -74,19 +78,18 @@ public class MypageController {
 
 	        int page = Integer.parseInt(String.valueOf(map.getOrDefault("page", "1")));
 	        int pageSize = Integer.parseInt(String.valueOf(map.getOrDefault("pageSize", "10")));
-	        int offset = (page - 1) * pageSize;
+	        int start = (page - 1) * pageSize;
 
 	        map.put("userId", sessionId);
-	        map.put("offset", offset);
+	        map.put("start", start);
 	        map.put("pageSize", pageSize);
 
-	        List<UserCoupon> list = mypageService.getCouponPagingList(map);
-	        int totalCount = mypageService.getCouponCount(sessionId);
+	        List<UserCoupon> list = couponMapper.selectUserCouponList(map);
 
 	        resultMap.put("result", "success");
 	        resultMap.put("list", list);
-	        resultMap.put("totalCount", totalCount);
-	        resultMap.put("availableCouponCount", mypageService.getAvailableCouponCount(sessionId));
+	        resultMap.put("totalCount", couponMapper.selectUserCouponCount(map));
+	        resultMap.put("availableCouponCount", couponMapper.selectAvailableCouponCount(map));
 
 	    } catch (Exception e) {
 	        e.printStackTrace();

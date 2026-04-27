@@ -58,7 +58,15 @@ public class UserSettingsService {
 
 	    try {
 	        String sessionId = (String) session.getAttribute("sessionId");
-	        map.put("sessionId", sessionId);
+
+	        if (sessionId == null || "".equals(sessionId)) {
+	            resultMap.put("result", "fail");
+	            resultMap.put("message", "로그인이 필요합니다.");
+	            return resultMap;
+	        }
+
+	        // 중요: XML이 #{userId}를 쓰고 있으니까 userId로 넣어야 함
+	        map.put("userId", sessionId);
 
 	        User user = userSettingsMapper.selectUserSettings(sessionId);
 
@@ -71,15 +79,21 @@ public class UserSettingsService {
 	        String currentPwd = map.get("currentPwd") == null ? "" : map.get("currentPwd").toString();
 	        String newPwd = map.get("newPwd") == null ? "" : map.get("newPwd").toString();
 
-	        if (user.getUserPwd() == null || !passwordEncoder.matches(currentPwd, user.getUserPwd())) {
-	            resultMap.put("result", "fail");
-	            resultMap.put("message", "현재 비밀번호가 일치하지 않습니다.");
-	            return resultMap;
+	        boolean passwordMatched = false;
+
+	        if (user.getUserPwd() != null) {
+	            String dbPwd = user.getUserPwd();
+
+	            if (dbPwd.startsWith("$2a$") || dbPwd.startsWith("$2b$") || dbPwd.startsWith("$2y$")) {
+	                passwordMatched = passwordEncoder.matches(currentPwd, dbPwd);
+	            } else {
+	                passwordMatched = currentPwd.equals(dbPwd);
+	            }
 	        }
 
-	        if (passwordEncoder.matches(newPwd, user.getUserPwd())) {
+	        if (!passwordMatched) {
 	            resultMap.put("result", "fail");
-	            resultMap.put("message", "새 비밀번호는 현재 비밀번호와 달라야 합니다.");
+	            resultMap.put("message", "현재 비밀번호가 일치하지 않습니다.");
 	            return resultMap;
 	        }
 

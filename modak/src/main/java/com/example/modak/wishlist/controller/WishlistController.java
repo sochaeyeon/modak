@@ -50,4 +50,6 @@ public class WishlistController {
     public String removeWishlist(@RequestParam HashMap<String, Object> map) {
         return new Gson().toJson(wishlistService.removeWishlist(map));
     }
+    
+    
 }

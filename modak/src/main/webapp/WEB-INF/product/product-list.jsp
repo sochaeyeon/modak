@@ -630,6 +630,19 @@
             var params = new URLSearchParams(window.location.search);
             var catId  = params.get('categoryId');   /* 자식 카테고리 ID */
             var parId  = params.get('parentId');     /* 부모 카테고리 ID */
+
+           var rentalParam = params.get('rental') || '${param.rental}';
+var purchaseParam = params.get('purchase') || '${param.purchase}';
+
+if (rentalParam === 'Y') {
+    self.filter.rentable = true;
+    self.filter.buyable = false;
+}
+
+if (purchaseParam === 'Y') {
+    self.filter.rentable = false;
+    self.filter.buyable = true;
+}
         
             if (catId && parId) {
                 /* ── 메인에서 카테고리 아이콘 클릭해서 들어온 경우 ── */
@@ -641,7 +654,7 @@
         
                 /* 자식 카테고리 목록 로드 후 해당 자식 자동 선택 */
                 $.ajax({
-                    url     : '/category/childList.dox',
+                    url      : '/category/childList.dox',
                     type    : 'POST',
                     dataType: 'json',
                     data    : { parentId: parId },

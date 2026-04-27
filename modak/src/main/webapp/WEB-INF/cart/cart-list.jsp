@@ -593,8 +593,9 @@
             fnOrder() {
                 if (this.checkedIds.length === 0) { showToast('상품을 선택해주세요.'); return; }
                 const ids = this.checkedIds.join(',');
-                let url = '/order/checkout.do?cartIds=' + ids
+                let url = '/payment/checkout.do?cartIds=' + ids
                     + '&cartType=' + this.activeTab;
+                    
 
                 if (this.isLogin && this.selectedUserCouponId) {
                     url += '&userCouponId=' + this.selectedUserCouponId;

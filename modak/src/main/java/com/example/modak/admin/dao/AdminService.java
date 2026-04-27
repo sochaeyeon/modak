@@ -137,6 +137,38 @@ public class AdminService {
 		}
 		return result;
 	}
+	// 반납 요청 목록 조회
+	public HashMap<String, Object> getReturnRequestList() {
+	    HashMap<String, Object> result = new HashMap<>();
+	    try {
+	        result.put("result", "success");
+	        result.put("list", mapper.selectReturnRequestList());
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	        result.put("message", "반납 요청 목록 조회 실패");
+	    }
+	    return result;
+	}
+	 
+	// 반납 상태 변경
+	public HashMap<String, Object> updateReturnRequestStatus(HashMap<String, Object> map) {
+	    HashMap<String, Object> result = new HashMap<>();
+	    try {
+	        int affected = mapper.updateReturnRequestStatus(map);
+	        if (affected > 0) {
+	            result.put("result", "success");
+	        } else {
+	            result.put("result", "fail");
+	            result.put("message", "변경 가능한 상태가 아닙니다.");
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	        result.put("message", e.getMessage());
+	    }
+	    return result;
+	}
 
 	/* ==========================================================
        4. 1:1 문의 및 고객 지원 로직
@@ -335,6 +367,29 @@ public class AdminService {
 			r.put("result", "fail");
 		}
 		return r;
+	}
+	
+	public HashMap<String, Object> getProductStockList(HashMap<String, Object> map) {
+	    HashMap<String, Object> r = new HashMap<>();
+	    try {
+	        r.put("result", "success");
+	        r.put("list", mapper.selectProductStockList(map));
+	    } catch (Exception e) { e.printStackTrace(); r.put("result", "fail"); }
+	    return r;
+	}
+
+	public HashMap<String, Object> updateProductStock(HashMap<String, Object> map) {
+	    HashMap<String, Object> r = new HashMap<>();
+	    try { mapper.updateProductStock(map); r.put("result", "success"); }
+	    catch (Exception e) { e.printStackTrace(); r.put("result", "fail"); }
+	    return r;
+	}
+
+	public HashMap<String, Object> addProductStock(HashMap<String, Object> map) {
+	    HashMap<String, Object> r = new HashMap<>();
+	    try { mapper.insertProductStock(map); r.put("result", "success"); }
+	    catch (Exception e) { e.printStackTrace(); r.put("result", "fail"); }
+	    return r;
 	}
 
 	/* ==========================================================

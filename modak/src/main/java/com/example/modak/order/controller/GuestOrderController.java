@@ -85,4 +85,20 @@ public class GuestOrderController {
         map.put("message", message);
         return map;
     }
+    
+    /** 비회원 교환 신청 페이지 */
+    @GetMapping("/exchange.do")
+    public String exchangePage() {
+        return "order/order-exchange";
+    }
+
+    /** 비회원 교환 신청 AJAX */
+    @PostMapping("/exchange.dox")
+    @ResponseBody
+    public Map<String, Object> exchangeAjax(@RequestParam HashMap<String, Object> map) {
+        String orderId = (String) map.get("orderId");
+        String token   = (String) map.get("token");
+        if (isBlank(orderId) || isBlank(token)) return fail("잘못된 요청입니다.");
+        return guestOrderService.exchangeGuestOrder(orderId.trim(), token.trim(), map);
+    }
 }

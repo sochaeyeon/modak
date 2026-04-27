@@ -230,6 +230,27 @@ public class AdminController {
 		if (!isAdmin()) return noAuth();
 		return new Gson().toJson(adminService.toggleProductAvail(map));
 	}
+	
+	@PostMapping(value = "/product/stock/list.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getProductStockList(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.getProductStockList(map));
+	}
+
+	@PostMapping(value = "/product/stock/update.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String updateProductStock(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.updateProductStock(map));
+	}
+
+	@PostMapping(value = "/product/stock/add.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String addProductStock(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.addProductStock(map));
+	}
 
 	/* --- 리뷰 관리 API --- */
 	@PostMapping("/review/list.dox")
@@ -288,6 +309,22 @@ public class AdminController {
 	public String updateOrderStatus(@RequestParam HashMap<String, Object> map) {
 		if (!isAdmin()) return noAuth();
 		return new Gson().toJson(adminService.updateOrderStatus(map));
+	}
+	
+	// 반납 요청 목록 조회
+	@PostMapping(value = "/rental/return/list.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getReturnRequestList() {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.getReturnRequestList());
+	}
+	 
+	// 반납 상태 변경 (수거시작 / 반납완료)
+	@PostMapping(value = "/rental/return/update-status.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String updateReturnRequestStatus(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.updateReturnRequestStatus(map));
 	}
 
 	@PostMapping(value = "/rental/list.dox", produces = "application/json;charset=UTF-8")

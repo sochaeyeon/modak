@@ -1,11 +1,13 @@
 package com.example.modak.order.mapper;
 
-import com.example.modak.order.model.GuestOrder;
-import com.example.modak.order.model.GuestOrderItem;
+import java.util.HashMap;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
+import com.example.modak.order.model.GuestOrder;
+import com.example.modak.order.model.GuestOrderItem;
 
 @Mapper
 public interface GuestOrderMapper {
@@ -24,4 +26,10 @@ public interface GuestOrderMapper {
     /** 주문 상태 업데이트 (취소 / 반품) */
     int updateOrderStatus(@Param("orderId")     String orderId,
                           @Param("orderStatus") String orderStatus);
+    
+    /** 교환 신청 INSERT */
+    int insertGuestExchange(HashMap<String, Object> map);
+
+    /** 교환 신청 후 주문 상태 변경 */
+    int updateOrderStatusToExchange(@Param("orderId") String orderId);
 }

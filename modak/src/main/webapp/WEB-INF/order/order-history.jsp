@@ -256,6 +256,7 @@
                         createApp({
                             data() {
                                 return {
+                                    orderId: new URLSearchParams(location.search).get('orderId') || '',
                                     orderList: [], selectedPeriod: "ALL", startDate: "", endDate: "",
                                     appliedStartDate: "", appliedEndDate: "", dateErrorMsg: "",
                                     animatedCount: 0, listAnimateKey: 0,
@@ -494,7 +495,8 @@
                                         COMPLETED: '대여완료',
                                         CANCELLED: '취소/반품',
                                         RESERVED: '예약완료',
-                                        IN_USE: '이용중'
+                                        IN_USE: '이용중',
+                                        EXCHANGE_REQUESTED : '교환신청'
                                     };
                                     return m[s] || s;
                                 },
@@ -509,6 +511,7 @@
                                         if (status === "DONE") {
                                             actions.push("환불 신청");
                                             actions.push("리뷰 작성");
+                                            actions.push("교환 신청");
                                         }
                                     }
 
@@ -547,16 +550,19 @@
                                         });
                                         return;
                                     }
+                                    if (action === "교환 신청") {
+                                        location.href = "/order/exchange/request.do?orderId=" + item.orderId;
+                                        return;
+                                    }
 
+                                    // 수정 후
                                     if (action === "반납 신청") {
-                                        this.fnOpenReturnModal(item);
+                                        location.href = "/rental/extension/main.do?tab=return";
                                         return;
                                     }
 
                                     if (action === "연장 신청") {
-                                        pageChange("/rental/extension/main.do", {
-                                            orderId: item.orderId
-                                        });
+                                        location.href = "/rental/extension/main.do?tab=extension";
                                         return;
                                     }
 

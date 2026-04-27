@@ -697,6 +697,7 @@ const app = Vue.createApp({
             }
 
             let url = '/payment/checkout.do?cartIds=' + this.checkedIds.join(',') + '&cartType=' + this.activeTab;
+            let url = '/order/checkout.do?cartIds=' + this.checkedIds.join(',') + '&cartType=' + this.activeTab;
 
             if (this.selectedUserCouponId) {
                 url += '&userCouponId=' + this.selectedUserCouponId;

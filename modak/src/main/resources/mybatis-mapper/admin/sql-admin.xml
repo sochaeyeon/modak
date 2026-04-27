@@ -324,6 +324,32 @@
         WHERE p.IS_AVAILABLE = 'Y'
         ORDER BY p.VIEW_COUNT DESC LIMIT 10
     </select>
+    <select id="selectProductStockList" parameterType="hashmap" resultType="hashmap">
+    SELECT STOCK_ID       AS stockId,
+           TOTAL_QTY      AS totalQty,
+           RESERVED_QTY   AS reservedQty,
+           AVAILABLE_QTY  AS availableQty,
+           OPTION_ID      AS optionId,
+           PRODUCT_ID     AS productId,
+           DATE_FORMAT(STOCK_DATE, '%Y-%m-%d') AS stockDate
+    FROM PRODUCT_STOCK
+    WHERE PRODUCT_ID = #{productId}
+    ORDER BY STOCK_ID ASC
+</select>
+
+<update id="updateProductStock" parameterType="hashmap">
+    UPDATE PRODUCT_STOCK
+    SET TOTAL_QTY     = #{totalQty},
+        RESERVED_QTY  = #{reservedQty},
+        AVAILABLE_QTY = #{availableQty},
+        STOCK_DATE    = NOW()
+    WHERE STOCK_ID = #{stockId}
+</update>
+
+<insert id="insertProductStock" parameterType="hashmap">
+    INSERT INTO PRODUCT_STOCK (PRODUCT_ID, OPTION_ID, TOTAL_QTY, RESERVED_QTY, AVAILABLE_QTY, STOCK_DATE)
+    VALUES (#{productId}, NULLIF(#{optionId},''), #{totalQty}, #{reservedQty}, #{availableQty}, NOW())
+</insert>
 
     <!-- ════════════════════════════════════════
          주문 관리
@@ -364,6 +390,37 @@
     <update id="updateOrderStatus" parameterType="hashmap">
         UPDATE ORDERS SET ORDER_STATUS = #{status} WHERE ORDER_ID = #{orderId}
     </update>
+    <!-- 반납 요청 목록 조회 (RETURN_REQUESTED, RETURN_PICKED, RETURN_COMPLETED) -->
+<select id="selectReturnRequestList" resultType="map">
+    SELECT
+        R.RENTAL_ID                                                      AS RENTAL_ID,
+        R.ITEM_ID                                                        AS ITEM_ID,
+        R.USER_ID                                                        AS USER_ID,
+        R.GUEST_NAME                                                     AS GUEST_NAME,
+        R.GUEST_PHONE                                                    AS GUEST_PHONE,
+        R.RENTAL_STATUS                                                  AS RENTAL_STATUS,
+        DATE_FORMAT(R.START_DATE,  '%Y-%m-%d')                          AS START_DATE,
+        DATE_FORMAT(R.RETURN_DATE, '%Y-%m-%d')                          AS RETURN_DATE,
+        R.RETURN_ZIPCODE                                                 AS RETURN_ZIPCODE,
+        R.RETURN_ADDRESS                                                 AS RETURN_ADDRESS,
+        R.RETURN_DETAILED_ADDRESS                                        AS RETURN_DETAILED_ADDRESS,
+        DATE_FORMAT(R.RETURN_REQUESTED_AT, '%Y-%m-%d %H:%i')            AS RETURN_REQUESTED_AT,
+        P.PRODUCT_NAME                                                   AS PRODUCT_NAME,
+        (SELECT PI.IMG_URL FROM PRODUCT_IMG PI
+         WHERE PI.PRODUCT_ID = P.PRODUCT_ID LIMIT 1)                    AS IMG_URL
+    FROM RENTALS R
+    LEFT JOIN ORDER_ITEM OI ON R.ITEM_ID     = OI.ITEM_ID
+    LEFT JOIN PRODUCT    P  ON OI.PRODUCT_ID = P.PRODUCT_ID
+    WHERE R.RENTAL_STATUS IN ('RETURN_REQUESTED', 'RETURN_PICKED', 'RETURN_COMPLETED')
+    ORDER BY R.RETURN_REQUESTED_AT DESC
+</select>
+
+<update id="updateReturnRequestStatus" parameterType="hashmap">
+    UPDATE RENTALS
+    SET RENTAL_STATUS = #{status}
+    WHERE RENTAL_ID = #{rentalId}
+      AND RENTAL_STATUS IN ('RETURN_REQUESTED', 'RETURN_PICKED', 'RETURN_COMPLETED', 'IN_USE')
+</update>
 
     <!-- ════════════════════════════════════════
          대여 관리

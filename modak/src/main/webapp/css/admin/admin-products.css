@@ -101,3 +101,38 @@
 .p-badge { padding: 5px 12px; border-radius: 8px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
 .p-badge.rental { background: rgba(52, 152, 219, 0.15); color: #3498db; }
 .p-badge.purchase { background: rgba(155, 89, 182, 0.15); color: #9b59b6; }
+
+.stock-section {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--p-border);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.stock-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--p-border);
+}
+
+.stock-row:last-child { border-bottom: none; }
+
+.stock-input {
+    width: 100px !important;
+    margin-bottom: 0 !important;
+    padding: 10px !important;
+    text-align: center;
+}
+
+.stock-add-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding-top: 8px;
+    border-top: 1px dashed var(--p-border);
+}

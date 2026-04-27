@@ -49,14 +49,8 @@ body {
 }
 
 @keyframes fadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(16px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── 헤더 ── */
@@ -235,51 +229,17 @@ body {
     font-weight: 800;
 }
 
-.st-PAID,
-.st-RESERVED {
-    background: rgba(212, 147, 42, .16);
-    color: var(--brown2);
-}
+.st-PAID, .st-RESERVED        { background: rgba(212,147,42,.16); color: var(--brown2); }
+.st-READY                      { background: rgba(184,154,122,.18); color: var(--brown2); }
+.st-SHIPPING                   { background: rgba(232,115,42,.15); color: var(--orange2); }
+.st-RENTING, .st-IN_USE        { background: rgba(232,115,42,.18); color: var(--orange2); }
+.st-RETURN_REQUESTED           { background: rgba(44,30,15,.12); color: var(--brown); }
+.st-RETURN_PICKED              { background: rgba(33,150,243,.12); color: #1565c0; }
+.st-DONE, .st-RETURNED,
+.st-RETURN_COMPLETED           { background: rgba(76,175,80,.12); color: #2e7d32; }
+.st-CANCELLED                  { background: rgba(44,30,15,.10); color: var(--brown3); }
 
-.st-READY {
-    background: rgba(184, 154, 122, .18);
-    color: var(--brown2);
-}
-
-.st-SHIPPING {
-    background: rgba(232, 115, 42, .15);
-    color: var(--orange2);
-}
-
-.st-RENTING,
-.st-IN_USE {
-    background: rgba(232, 115, 42, .18);
-    color: var(--orange2);
-}
-
-.st-RETURN_REQUESTED {
-    background: rgba(44, 30, 15, .12);
-    color: var(--brown);
-}
-
-.st-RETURN_PICKED {
-    background: rgba(33, 150, 243, .12);
-    color: #1565c0;
-}
-
-.st-DONE,
-.st-RETURNED,
-.st-RETURN_COMPLETED {
-    background: rgba(76, 175, 80, .12);
-    color: #2e7d32;
-}
-
-.st-CANCELLED {
-    background: rgba(44, 30, 15, .10);
-    color: var(--brown3);
-}
-
-/* ── 선택 패널 ── */
+/* ── 선택 패널 헤더 ── */
 .ext-panel-head {
     padding: 18px 24px;
     border-bottom: 1px solid var(--border2);
@@ -334,6 +294,39 @@ body {
 .btn-close-panel:hover {
     background: var(--cream3);
     color: var(--brown);
+}
+
+/* ════════════════════════════
+   ★ 탭 바 (연장 / 반납 전환)
+════════════════════════════ */
+.ext-tab-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--border2);
+    padding: 0 24px;
+    background: var(--white);
+}
+
+.ext-tab-btn {
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--brown4);
+    background: none;
+    border: none;
+    border-bottom: 2.5px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    transition: color 0.15s;
+    font-family: var(--font-body, sans-serif);
+    white-space: nowrap;
+}
+
+.ext-tab-btn:hover { color: var(--brown3); }
+
+.ext-tab-btn.active {
+    color: var(--orange);
+    border-bottom-color: var(--orange);
 }
 
 /* ── 폼 ── */
@@ -411,15 +404,8 @@ body {
     justify-content: center;
 }
 
-.stepper-btn:hover {
-    background: var(--cream3);
-    color: var(--orange);
-}
-
-.stepper-btn:active {
-    background: var(--orange);
-    color: #fff;
-}
+.stepper-btn:hover  { background: var(--cream3); color: var(--orange); }
+.stepper-btn:active { background: var(--orange);  color: #fff; }
 
 .stepper-input {
     flex: 1;
@@ -447,10 +433,7 @@ body {
     gap: 3px;
 }
 
-.price-preview-label {
-    font-size: 11px;
-    color: var(--brown4);
-}
+.price-preview-label { font-size: 11px; color: var(--brown4); }
 
 .price-preview-val {
     font-family: var(--font-title, serif);
@@ -475,9 +458,7 @@ body {
     white-space: nowrap;
 }
 
-.btn-return {
-    background: var(--brown);
-}
+.btn-return { background: var(--brown); }
 
 .btn-apply:hover,
 .btn-return:hover {
@@ -510,9 +491,7 @@ body {
 }
 
 /* ── 연장 내역 ── */
-.ext-history {
-    padding: 20px 24px;
-}
+.ext-history { padding: 20px 24px; }
 
 .ext-history-title {
     font-size: 13px;
@@ -550,22 +529,9 @@ body {
     flex-shrink: 0;
 }
 
-.ext-item-body {
-    flex: 1;
-}
-
-.ext-item-days {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--brown);
-    margin-bottom: 2px;
-}
-
-.ext-item-date {
-    font-size: 11px;
-    color: var(--brown3);
-    font-weight: 600;
-}
+.ext-item-body  { flex: 1; }
+.ext-item-days  { font-size: 14px; font-weight: 700; color: var(--brown); margin-bottom: 2px; }
+.ext-item-date  { font-size: 11px; color: var(--brown3); font-weight: 600; }
 
 .ext-item-price {
     font-family: var(--font-title, serif);
@@ -644,11 +610,7 @@ body {
     animation: spin .8s linear infinite;
 }
 
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .state-box p {
     font-size: 13px;
@@ -720,15 +682,9 @@ body {
     margin-bottom: 22px;
 }
 
-.delete-modal-desc strong {
-    color: var(--orange2);
-    font-weight: 900;
-}
+.delete-modal-desc strong { color: var(--orange2); font-weight: 900; }
 
-.delete-modal-actions {
-    display: flex;
-    gap: 10px;
-}
+.delete-modal-actions { display: flex; gap: 10px; }
 
 .delete-cancel-btn,
 .delete-confirm-btn {
@@ -766,40 +722,18 @@ body {
     transform: translateY(-1px);
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
+@keyframes fadeIn    { from { opacity: 0; } to { opacity: 1; } }
 @keyframes modalFadeUp {
-    from {
-        opacity: 0;
-        transform: translateY(18px) scale(.98);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
+    from { opacity: 0; transform: translateY(18px) scale(.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* ── 반응형 ── */
 @media (max-width: 720px) {
-    .ext-page {
-        padding: 24px 16px 56px;
-    }
+    .ext-page { padding: 24px 16px 56px; }
 
-    .rental-card {
-        align-items: flex-start;
-        flex-wrap: wrap;
-    }
-
-    .rental-info {
-        flex: 1;
-    }
+    .rental-card { align-items: flex-start; flex-wrap: wrap; }
+    .rental-info { flex: 1; }
 
     .rental-card-actions {
         width: 100%;
@@ -807,38 +741,21 @@ body {
         padding-left: 68px;
     }
 
-    .ext-form-row {
-        flex-direction: column;
-        align-items: stretch;
-    }
+    .ext-tab-bar { padding: 0 16px; }
+    .ext-tab-btn { padding: 10px 14px; font-size: 12px; }
 
-    .form-input {
-        width: 100%;
-    }
+    .ext-form-row { flex-direction: column; align-items: stretch; }
+    .form-input   { width: 100%; }
 
     .btn-apply,
-    .btn-return {
-        width: 100%;
-    }
+    .btn-return { width: 100%; }
 }
 
 @media (max-width: 480px) {
-    .rental-card-actions {
-        padding-left: 0;
-        justify-content: stretch;
-    }
+    .rental-card-actions { padding-left: 0; justify-content: stretch; }
+    .mini-action-btn     { flex: 1; padding: 0 8px; }
 
-    .mini-action-btn {
-        flex: 1;
-        padding: 0 8px;
-    }
-
-    .delete-modal-actions {
-        flex-direction: column-reverse;
-    }
-
+    .delete-modal-actions      { flex-direction: column-reverse; }
     .delete-cancel-btn,
-    .delete-confirm-btn {
-        width: 100%;
-    }
+    .delete-confirm-btn        { width: 100%; }
 }

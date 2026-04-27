@@ -148,7 +148,7 @@
                                 <span>총 선택상품금액</span>
                                 <span class="val">{{ formatPrice(selectedTotal) }}</span>
                             </div>
-                            <div class="coupon-box">
+                            <div class="coupon-box" v-if="isLogin">
                                 <div class="coupon-title">쿠폰 선택</div>
 
                                 <select class="coupon-select" v-model="selectedUserCouponId">
@@ -166,7 +166,7 @@
                                 </select>
                             </div>
 
-                            <div class="aside-row">
+                            <div class="aside-row" v-if="isLogin">
                                 <span>쿠폰할인예상금액</span>
                                 <span class="val red">-{{ formatPrice(couponDiscount) }}</span>
                             </div>
@@ -396,6 +396,7 @@
                 },
                 couponList: [],
                 selectedUserCouponId: '',
+                isLogin: false,
             };
         },
         computed: {
@@ -446,6 +447,8 @@
             },
 
             couponDiscount() {
+                if (!this.isLogin) return 0;
+
                 const coupon = this.selectedCoupon;
 
                 if (!coupon) return 0;
@@ -590,9 +593,13 @@
             fnOrder() {
                 if (this.checkedIds.length === 0) { showToast('상품을 선택해주세요.'); return; }
                 const ids = this.checkedIds.join(',');
-                location.href = '/order/checkout.do?cartIds=' + ids
-                    + '&cartType=' + this.activeTab
-                    + '&userCouponId=' + (this.selectedUserCouponId || '');
+                let url = '/order/checkout.do?cartIds=' + ids
+                    + '&cartType=' + this.activeTab;
+
+                if (this.isLogin && this.selectedUserCouponId) {
+                    url += '&userCouponId=' + this.selectedUserCouponId;
+                }
+                location.href = url;
             },
 
             // ── 옵션 변경 모달 ──
@@ -754,8 +761,11 @@
                     type: 'POST',
                     dataType: 'json',
                     success(res) {
+                        console.log("쿠폰 응답 전체:", res);
                         if (res.result === 'success') {
                             self.couponList = res.list || [];
+                        } else {
+                            showToast(res.message || '쿠폰 조회에 실패했습니다.');
                         }
                     }
                 });
@@ -778,10 +788,36 @@
 
                 return '';
             },
+            checkLogin() {
+                let self = this;
+
+                $.ajax({
+                    url: '/user/session-check.dox',
+                    type: 'POST',
+                    dataType: 'json',
+                    success(res) {
+                        console.log("로그인 체크 응답:", res);
+
+                        self.isLogin = res.isLogin === true;
+
+                        if (self.isLogin) {
+                            self.fetchCartList();
+                            self.fetchCouponList();
+                        } else {
+                            self.cartList = [];
+                            self.checkedIds = [];
+                            self.couponList = [];
+                            self.selectedUserCouponId = '';
+                        }
+                    },
+                    error(err) {
+                        console.log("로그인 체크 오류:", err);
+                    }
+                });
+            },
         }, // methods
         mounted() {
-            this.fetchCartList();
-            this.fetchCouponList();
+            this.checkLogin();
         }
     });
 

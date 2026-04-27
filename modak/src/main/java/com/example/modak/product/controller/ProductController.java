@@ -21,7 +21,10 @@ public class ProductController {
 
 	@Autowired
 	ProductService productService;
-//	ViewService viewService;
+
+	@Autowired
+	ViewService viewService; 
+	
 
 	// product-list 제품리스트
 	@RequestMapping("/product/list.do")
@@ -59,6 +62,15 @@ public class ProductController {
 	@RequestMapping("/product/detail.do")
 	public String view(HttpServletRequest request, @RequestParam HashMap<String, Object> map) throws Exception {
 		// System.out.println(map);
+		String userId = (String) request.getSession().getAttribute("sessionId");
+
+		if (userId != null && !userId.isBlank()) {
+		    HashMap<String, Object> viewMap = new HashMap<>();
+		    viewMap.put("userId", userId);
+		    viewMap.put("productId", map.get("productId"));
+
+		    viewService.addViewHistory(viewMap);
+		} 
 		// jsp에서 "${map.productId}"로 꺼내 쓸 수 있도록 전달
 		request.setAttribute("productId", map.get("productId"));
 		return "/product/product-detail";

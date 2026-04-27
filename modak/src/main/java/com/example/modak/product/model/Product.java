@@ -28,4 +28,7 @@ public class Product {
 	
 	private int availableQty; // 가용 재고
 	private int totalQty;     // 총 재고
+	
+	private double rating;
+	private int rCount;
 }

@@ -2,66 +2,123 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.modak.product.mapper.ProductMapper">
-
-	<!--  제품 리스트 product list -->
-	<select id="selectProductList"
-		resultType="com.example.modak.product.model.Product"> 
-		SELECT DISTINCT
-		p.PRODUCT_ID as productId, p.PRODUCT_NAME as productName, p.PRODUCT_TYPE
-		as productType, p.PRICE as price, p.DEPOSIT as deposit, p.DESCRIPTION as
-		description, p.IS_AVAILABLE as isAvailable, p.CREATED_AT as createdAt,
-		p.CATEGORY_ID as categoryId, c.CATEGORY_NAME as categoryName, p.BRAND_ID
-		as brandId, b.BRAND_NAME as brandName, i.IMG_URL as imgUrl FROM PRODUCT
-		p LEFT JOIN PRODUCT_CATEGORY c ON p.CATEGORY_ID = c.CATEGORY_ID LEFT
-		JOIN BRAND b ON p.BRAND_ID = b.BRAND_ID LEFT JOIN PRODUCT_IMG i ON
-		p.PRODUCT_ID = i.PRODUCT_ID AND i.IS_MAIN = 'Y' WHERE 1=1 <if
-			test="childCatId != null and childCatId > 0">
-			AND p.CATEGORY_ID = #{childCatId}
-		</if>
-		
-		<if
-			test="(childCatId == null or childCatId == 0) and (categoryId != null and categoryId > 0)">
-		AND (
-			p.CATEGORY_ID = #{categoryId}
-			OR p.CATEGORY_ID IN (
-			SELECT CATEGORY_ID
-			FROM PRODUCT_CATEGORY
-			WHERE PARENT_CATEGORY = #{categoryId}
-			) )
-		</if>
-	    <if
-			test="searchKeyword != null and searchKeyword != ''">
-			AND (
-			p.PRODUCT_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
-			OR b.BRAND_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
-			)
-		</if>
-		<choose>
-			<when test="rentable == true and buyable == false">
-				AND p.PRODUCT_TYPE = 'RENTAL'
-			</when>
-			<when test="rentable == false and buyable == true">
-				AND p.PRODUCT_TYPE = 'PURCHASE'
-			</when>
-			<when test="rentable == false and buyable == false">
-				AND 1 = 0
-			</when>
-			<otherwise>
-			</otherwise>
-		</choose>
-		<!--가격필터링-->
-		<if test="priceMin != null">
-			AND p.PRICE >= #{priceMin}
-		</if>
-		<if test="priceMax != null">
-			AND p.PRICE &lt;= #{priceMax}
-		</if>
-		<if
-			test="brandId != null and !brandId.isEmpty()"> AND p.BRAND_ID IN <foreach
-				item="id" collection="brandId" open="(" separator="," close=")">
-		#{id}
-			</foreach>
-		</if>
+	
+	<!--제품리스트-->
+	<select id="selectProductList" resultType="com.example.modak.product.model.Product"> 
+	    SELECT
+	        p.PRODUCT_ID as productId,
+	        p.PRODUCT_NAME as productName, 
+	        p.PRODUCT_TYPE as productType, 
+	        p.PRICE as price, 
+	        p.DEPOSIT as deposit, 
+	        p.DESCRIPTION as description, 
+	        p.IS_AVAILABLE as isAvailable, 
+	        p.CREATED_AT as createdAt,
+	        p.VIEW_COUNT as viewCount,
+	        p.CATEGORY_ID as categoryId, 
+	        c.CATEGORY_NAME as categoryName, 
+	        p.BRAND_ID as brandId, 
+	        b.BRAND_NAME as brandName, 
+	        i.IMG_URL as imgUrl,
+	        IFNULL(AVG(r.RATING), 0) as rating,
+	        COUNT(r.REVIEW_ID) as rCount
+	    FROM PRODUCT p 
+	        LEFT JOIN PRODUCT_CATEGORY c ON p.CATEGORY_ID = c.CATEGORY_ID 
+	        LEFT JOIN BRAND b ON p.BRAND_ID = b.BRAND_ID 
+	        LEFT JOIN PRODUCT_IMG i ON p.PRODUCT_ID = i.PRODUCT_ID AND i.IS_MAIN = 'Y'
+	        LEFT JOIN REVIEW r ON p.PRODUCT_ID = r.PRODUCT_ID AND r.REVIEW_STATUS = 'ACTIVE'
+	    WHERE 1=1 
+	
+	    <if test="childCatId != null and childCatId > 0">
+	        AND p.CATEGORY_ID = #{childCatId}
+	    </if>
+	
+	    <if test="(childCatId == null or childCatId == 0) and (categoryId != null and categoryId > 0)">
+	        AND (
+	            p.CATEGORY_ID = #{categoryId}
+	            OR p.CATEGORY_ID IN (
+	                SELECT CATEGORY_ID
+	                FROM PRODUCT_CATEGORY
+	                WHERE PARENT_CATEGORY = #{categoryId}
+	            )
+	        )
+	    </if>
+	
+	    <if test="searchKeyword != null and searchKeyword != ''">
+	        AND (
+	            p.PRODUCT_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
+	            OR b.BRAND_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
+	        )
+	    </if>
+	
+	    <choose>
+	        <when test="rentable == true and buyable == false">
+	            AND p.PRODUCT_TYPE = 'RENTAL'
+	        </when>
+	        <when test="rentable == false and buyable == true">
+	            AND p.PRODUCT_TYPE = 'PURCHASE'
+	        </when>
+	        <when test="rentable == false and buyable == false">
+	            AND 1 = 0
+	        </when>
+	    </choose>
+	
+	    <if test="priceMin != null">
+	        AND p.PRICE >= #{priceMin}
+	    </if>
+	
+	    <if test="priceMax != null">
+	        AND p.PRICE &lt;= #{priceMax}
+	    </if>
+	
+	    <if test="brandId != null and brandId.size() > 0"> 
+	        AND p.BRAND_ID IN 
+	        <foreach item="id" collection="brandId" open="(" separator="," close=")">
+	            #{id}
+	        </foreach>
+	    </if>
+	
+	    GROUP BY
+	        p.PRODUCT_ID,
+	        p.PRODUCT_NAME,
+	        p.PRODUCT_TYPE,
+	        p.PRICE,
+	        p.DEPOSIT,
+	        p.DESCRIPTION,
+	        p.IS_AVAILABLE,
+	        p.CREATED_AT,
+	        p.VIEW_COUNT,
+	        p.CATEGORY_ID,
+	        c.CATEGORY_NAME,
+	        p.BRAND_ID,
+	        b.BRAND_NAME,
+	        i.IMG_URL
+	
+	    <choose>
+	        <when test="sortKey == 'popular'">
+	            ORDER BY p.VIEW_COUNT DESC, p.PRODUCT_ID DESC
+	        </when>
+	
+	        <when test="sortKey == 'newest'">
+	            ORDER BY p.CREATED_AT DESC, p.PRODUCT_ID DESC
+	        </when>
+	
+	        <when test="sortKey == 'price-low'">
+	            ORDER BY p.PRICE ASC, p.PRODUCT_ID DESC
+	        </when>
+	
+	        <when test="sortKey == 'price-high'">
+	            ORDER BY p.PRICE DESC, p.PRODUCT_ID DESC
+	        </when>
+	
+	        <when test="sortKey == 'rating'">
+	            ORDER BY rating DESC, rCount DESC, p.PRODUCT_ID DESC
+	        </when>
+	
+	        <otherwise>
+	            ORDER BY p.VIEW_COUNT DESC, p.PRODUCT_ID DESC
+	        </otherwise>
+	    </choose>
 	</select>
 
 	<!--브랜드리스트-->

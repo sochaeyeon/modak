@@ -1,6 +1,7 @@
 package com.example.modak.user.dao;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -77,5 +78,12 @@ public class CouponService {
         logParam.put("discountAppliedAmt", discountAppliedAmt);
 
         couponMapper.insertCouponUseLog(logParam);
+    }
+    
+    public List<UserCoupon> selectMyCouponList(String userId) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("userId", userId);
+
+        return couponMapper.selectMyCouponList(map);
     }
 }

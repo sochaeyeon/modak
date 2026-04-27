@@ -6,8 +6,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>비회원 주문조회 - 모닥모닥</title>
-        <link <script src="https://code.jquery.com/jquery-3.7.1.min.js">
-        </script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <link rel="stylesheet" href="/css/order/guest-inquiry.css">
         <link rel="stylesheet" href="/css/common/font.css">
 

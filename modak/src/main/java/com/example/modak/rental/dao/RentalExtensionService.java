@@ -173,4 +173,155 @@ public class RentalExtensionService {
         final Long rentalId; final long createdAt;
         TokenEntry(Long r, long c) { rentalId = r; createdAt = c; }
     }
+    
+ // 반납 가능 목록 조회
+    public HashMap<String, Object> getReturnableList(HashMap<String, Object> map) {
+        HashMap<String, Object> result = new HashMap<>();
+        try {
+            List<HashMap<String, Object>> list = mapper.selectReturnableRentals(map);
+            result.put("result", "success");
+            result.put("list", list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+        }
+        return result;
+    }
+
+    // 반납 신청
+    @Transactional
+    public HashMap<String, Object> applyReturn(HashMap<String, Object> map) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            int affected = mapper.updateReturnRequest(map);
+
+            if (affected > 0) {
+                mapper.updateDeliveryReturnRequest(map);
+
+                result.put("result", "success");
+                result.put("message", "반납 신청이 완료되었습니다.");
+            } else {
+                result.put("result", "fail");
+                result.put("message", "반납 신청할 수 없는 상태입니다.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+            result.put("message", "반납 신청 중 오류가 발생했습니다.");
+        }
+
+        return result;
+    }
+    // 비회원 반납 신청
+    @Transactional
+    public HashMap<String, Object> applyGuestReturn(HashMap<String, Object> map) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            int affected = mapper.updateGuestReturnRequest(map);
+
+            if (affected > 0) {
+                mapper.updateDeliveryReturnRequest(map);
+
+                result.put("result", "success");
+                result.put("message", "반납 신청이 완료되었습니다.");
+            } else {
+                result.put("result", "fail");
+                result.put("message", "반납 신청할 수 없는 상태입니다.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+            result.put("message", "반납 신청 중 오류가 발생했습니다.");
+        }
+
+        return result;
+    }
+    
+    
+    @Transactional
+    public HashMap<String, Object> cancelReturn(HashMap<String, Object> map) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            int affected = mapper.cancelReturnRequest(map);
+
+            if (affected > 0) {
+                mapper.cancelDeliveryReturnRequest(map);
+
+                result.put("result", "success");
+                result.put("message", "반납 요청이 취소되었습니다.");
+            } else {
+                result.put("result", "fail");
+                result.put("message", "취소할 수 없는 상태입니다.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+        }
+
+        return result;
+    }
+
+    @Transactional
+    public HashMap<String, Object> cancelGuestReturn(HashMap<String, Object> map) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            int affected = mapper.cancelGuestReturnRequest(map);
+
+            if (affected > 0) {
+                mapper.cancelDeliveryReturnRequest(map);
+
+                result.put("result", "success");
+                result.put("message", "반납 요청이 취소되었습니다.");
+            } else {
+                result.put("result", "fail");
+                result.put("message", "취소할 수 없는 상태입니다.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+        }
+
+        return result;
+    }
+    public HashMap<String, Object> getDefaultPickupAddress(HashMap<String, Object> map) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            HashMap<String, Object> address = mapper.selectDefaultPickupAddress(map);
+
+            result.put("result", "success");
+            result.put("address", address);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+        }
+
+        return result;
+    }
+
+    public HashMap<String, Object> getGuestPickupAddress(HashMap<String, Object> map) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            HashMap<String, Object> address = mapper.selectGuestPickupAddress(map);
+
+            result.put("result", "success");
+            result.put("address", address);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+        }
+
+        return result;
+    }
+
+    
 }

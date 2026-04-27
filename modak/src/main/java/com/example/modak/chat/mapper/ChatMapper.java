@@ -18,4 +18,6 @@ public interface ChatMapper {
 	List<HashMap<String, Object>> selectChatRoomListPaged(HashMap<String, Object> map);
 
 	int selectChatRoomCount(HashMap<String, Object> map);
+	
+	List<HashMap<String, Object>> selectTopProducts();
 }

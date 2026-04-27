@@ -77,6 +77,7 @@
 		ORDER BY T.REG_DATE DESC
 		LIMIT ${pageSize} OFFSET ${offset}
 	</select>
+	
 
 	<!-- 챗봇 대화방 총 개수 -->
 	<select id="selectChatRoomCount" parameterType="hashmap" resultType="int">
@@ -84,4 +85,14 @@
 		FROM CAMP_CHAT_HISTORY
 		WHERE USER_ID = #{userId}
 	</select>
+	
+	<select id="selectTopProducts" resultType="hashmap">
+    SELECT PRODUCT_NAME AS productName,
+           PRODUCT_TYPE AS productType,
+           PRICE        AS price
+    FROM PRODUCT
+    WHERE IS_AVAILABLE = 'Y'
+    ORDER BY CREATED_AT DESC
+    LIMIT 10
+</select>
 </mapper>

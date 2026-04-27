@@ -1,10 +1,12 @@
 package com.example.modak.rental.mapper;
 
-import com.example.modak.rental.model.RentalExtension;
+import java.util.HashMap;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
+import com.example.modak.rental.model.RentalExtension;
 
 @Mapper
 public interface RentalExtensionMapper {
@@ -38,4 +40,18 @@ public interface RentalExtensionMapper {
     /* ── 반납일 업데이트 (음수=원복) ── */
     int updateReturnDate(@Param("rentalId")      Long rentalId,
                          @Param("extensionDays") int  extensionDays);
+    
+    List<HashMap<String, Object>> selectReturnableRentals(HashMap<String, Object> map);
+    int updateReturnRequest(HashMap<String, Object> map);
+    int updateGuestReturnRequest(HashMap<String, Object> map);
+    int updateDeliveryReturnRequest(HashMap<String, Object> map);
+    
+    int cancelReturnRequest(HashMap<String, Object> map);
+    int cancelGuestReturnRequest(HashMap<String, Object> map);
+    int cancelDeliveryReturnRequest(HashMap<String, Object> map);
+   
+    HashMap<String, Object> selectDefaultPickupAddress(HashMap<String, Object> map);
+
+    HashMap<String, Object> selectGuestPickupAddress(HashMap<String, Object> map);
+    
 }

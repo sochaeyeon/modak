@@ -1,829 +1,773 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>모닥모닥 - 장바구니</title>
     <link rel="stylesheet" href="/css/cart/cart-list.css">
-    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="/js/page-change.js"></script>
 </head>
 <body>
+
 <%@ include file="/WEB-INF/common/header.jsp" %>
-    <div id="app" v-cloak>
-            <!-- 브레드크럼 -->
-        <div class="breadcrumb">
-            <a href="#">장바구니</a>
-            <span>›</span>
-            <span style="color:#bbb">주문/결제</span>
-            <span>›</span>
-            <span style="color:#bbb">완료</span>
+
+<div id="app" v-cloak>
+
+    <!-- 브레드크럼 -->
+    <div class="breadcrumb">
+        <a href="#">장바구니</a>
+        <span>›</span>
+        <span style="color:#bbb">주문/결제</span>
+        <span>›</span>
+        <span style="color:#bbb">완료</span>
+    </div>
+
+    <div class="cart-wrap">
+
+        <!-- 탭: 대여 / 구매 -->
+        <div class="cart-tabs">
+            <button class="cart-tab" :class="{ on: activeTab === 'RENTAL' }" @click="switchTab('RENTAL')">
+                대여 장바구니
+            </button>
+            <span class="cart-tab-divider">|</span>
+            <button class="cart-tab" :class="{ on: activeTab === 'PURCHASE' }" @click="switchTab('PURCHASE')">
+                구매 장바구니
+            </button>
         </div>
 
-        <div class="cart-wrap">
+        <div class="cart-layout">
 
-            <!-- ── 탭: 대여 / 구매 ── -->
-            <div class="cart-tabs">
-                <button class="cart-tab" :class="{ on: activeTab === 'RENTAL' }" @click="switchTab('RENTAL')">
-                    대여 장바구니
-                </button>
-                <span class="cart-tab-divider">|</span>
-                <button class="cart-tab" :class="{ on: activeTab === 'PURCHASE' }" @click="switchTab('PURCHASE')">
-                    구매 장바구니
-                </button>
-            </div>
+            <!-- 메인 영역 -->
+            <div class="cart-main">
 
-            <div class="cart-layout">
-
-                <!-- ── 메인 영역 ── -->
-                <div class="cart-main">
-
-                    <!-- 전체선택 바 -->
-                    <div class="select-bar">
-                        <div class="select-bar-left">
-                            <div class="chk" :class="{ on: isAllChecked }" @click="toggleAll"></div>
-                            <span>전체 선택</span>
-                        </div>
-                        <button class="del-btn" @click="deleteSelected">
-                            <span>✕</span> 선택 삭제
-                        </button>
+                <!-- 전체선택 바 -->
+                <div class="select-bar">
+                    <div class="select-bar-left">
+                        <div class="chk" :class="{ on: isAllChecked }" @click="toggleAll"></div>
+                        <span>전체 선택</span>
                     </div>
-
-                    <!-- 빈 카트 -->
-                    <div v-if="filteredCart.length === 0" class="empty-cart">
-                        <div class="icon">🛒</div>
-                        <div>장바구니가 비어있습니다.</div>
-                    </div>
-
-                    <!-- 브랜드별 그룹 카드 -->
-                    <div v-for="group in groupedCart" :key="group.brandName" class="cart-card">
-
-                        <!-- 카드 헤더 (브랜드명) -->
-                        <div class="cart-card-header">
-                            <div class="chk" :class="{ on: isBrandChecked(group) }" @click="toggleBrand(group)"></div>
-                            <span>{{ group.brandName || '모닥모닥' }}</span>
-                        </div>
-
-                        <!-- 아이템 목록 -->
-                        <div v-for="item in group.items" :key="item.cartId" class="cart-item">
-                            <div class="cart-item-top" @click="goDetail(item.productId)" style="cursor:pointer;">
-                                <!-- 체크박스 -->
-                                <div class="chk" style="margin-top:4px;"
-                                    :class="{ on: checkedIds.includes(item.cartId) }"
-                                    @click.stop="toggleItem(item.cartId)">
-                                </div>
-
-                                <!-- 이미지 -->
-                                <div class="cart-item-img">
-                                    <img v-if="item.imgUrl" :src="item.imgUrl" :alt="item.productName">
-                                    <span v-else style="font-size:36px;display:flex;align-items:center;justify-content:center;height:100%;">🏕️</span>
-                                </div>
-
-                                <!-- 상품 정보 -->
-                                <div class="cart-item-info">
-                                    <div class="cart-item-badge">배송무료</div>
-                                    <div class="cart-item-name">
-                                        {{ item.productName }}
-                                        <span v-if="item.optionName" class="cart-item-option">
-                                            | 옵션 : {{ item.optionName }}
-                                        </span>
-                                    </div>
-                                    <div class="cart-item-orig">{{ formatPrice(item.price * 1.5) }}</div>
-                                    <div class="cart-item-price">
-                                        <span class="disc">{{ getDiscRate(item) }}%</span>
-                                        {{ formatPrice(item.price) }}
-                                    </div>
-                                    <!-- 대여 날짜 표시 -->
-                                    <div v-if="activeTab === 'RENTAL' && item.rentalStart" class="rental-dates">
-                                        📅 {{ item.rentalStart }} ~ {{ item.rentalEnd }}
-                                        <span style="background:var(--orange);color:#fff;border-radius:4px;padding:1px 6px;font-size:11px;">
-                                            {{ calcNights(item.rentalStart, item.rentalEnd) }}박
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 수량 + 합계 -->
-                            <div class="cart-item-bottom">
-                                <div class="qty-ctrl">
-                                    <button class="qty-btn" @click="chgItemQty(item, -1)">−</button>
-                                    <div class="qty-num">{{ item.quantity }}</div>
-                                    <button class="qty-btn" @click="chgItemQty(item, 1)">+</button>
-                                </div>
-                                <div class="item-total">
-                                    {{ formatPrice(item.price * item.quantity) }}
-                                    <button class="item-del-btn" @click.stop="deleteItem(item.cartId)" title="삭제">✕</button>
-                                </div>
-                            </div>
-
-                            <!-- 옵션 변경 버튼 -->
-                            <button class="opt-change-btn" @click.stop="openOptModal(item)">옵션 변경</button>
-                        </div>
-
-                        <!-- 그룹 소계 -->
-                        <div class="cart-subtotal">
-                            <div class="row">
-                                <span style="color:var(--muted)">총 배송비</span>
-                                <span>0원</span>
-                            </div>
-                            <div class="row total">
-                                <span>예상 주문금액</span>
-                                <span style="color:var(--orange)">{{ formatPrice(groupTotal(group)) }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div><!-- /cart-main -->
-                
-
-                <!-- ── 우측 사이드바 ── -->
-                <div class="cart-aside">
-                    <div class="aside-box">
-                        <div class="aside-title">주문 예상 금액</div>
-                        <div class="aside-rows">
-                            <div class="aside-row">
-                                <span>총 선택상품금액</span>
-                                <span class="val">{{ formatPrice(selectedTotal) }}</span>
-                            </div>
-                            <div class="coupon-box" v-if="isLogin">
-                                <div class="coupon-title">쿠폰 선택</div>
-
-                                <select class="coupon-select" v-model="selectedUserCouponId">
-                                    <option value="">쿠폰 사용 안함</option>
-                                    <option 
-                                        v-for="coupon in couponList"
-                                        :key="coupon.userCouponId"
-                                        :value="coupon.userCouponId"
-                                        :disabled="selectedTotal < coupon.minOrderAmt"
-                                    >
-                                        {{ coupon.couponName }}
-                                        / {{ couponText(coupon) }}
-                                        / {{ formatPrice(coupon.minOrderAmt) }} 이상
-                                    </option>
-                                </select>
-                            </div>
-
-                            <div class="aside-row" v-if="isLogin">
-                                <span>쿠폰할인예상금액</span>
-                                <span class="val red">-{{ formatPrice(couponDiscount) }}</span>
-                            </div>
-                            <div class="aside-row">
-                                <span>총 배송비</span>
-                                <span class="val">0원</span>
-                            </div>
-                            <div class="aside-row total">
-                                <span>총 주문 예상 금액</span>
-                                <span class="val">{{ formatPrice(finalTotal) }}</span>
-                            </div>
-                        </div>
-                        <button class="order-btn"
-                            :disabled="checkedIds.length === 0"
-                            @click="fnOrder">
-                            주문하기
-                            <span class="order-badge">{{ checkedIds.length }}</span>
-                        </button>
-                    </div>
-                </div>
-                <!-- 상품 더 담기 버튼 -->
-                <div class="cart-more-box">
-                    <button class="cart-more-btn" @click="goProductList">
-                        + 상품 추가하기
+                    <button class="del-btn" @click="deleteSelected">
+                        <span>✕</span> 선택 삭제
                     </button>
                 </div>
-            </div><!-- /cart-layout -->
-        </div><!-- /cart-wrap -->
 
-        <!-- ══════════ 옵션 변경 모달 ══════════ -->
-        <div v-if="optModal.open" class="modal-overlay" @click.self="optModal.open = false">
-            <div class="modal-box">
-
-                <!-- 헤더 -->
-                <div class="modal-header">
-                    <span class="modal-title">옵션 변경</span>
-                    <button class="modal-close" @click="optModal.open = false">✕</button>
+                <!-- 빈 카트 -->
+                <div v-if="filteredCart.length === 0" class="empty-cart">
+                    <div class="icon">🛒</div>
+                    <div>장바구니가 비어있습니다.</div>
                 </div>
 
-                <!-- 상품 미리보기 -->
-                <div class="modal-product" v-if="optModal.item">
-                    <img :src="optModal.item.imgUrl || '/img/product/default.jpg'" :alt="optModal.item.productName">
-                    <div>
-                        <div class="modal-product-name">{{ optModal.item.productName }}</div>
-                        <div class="modal-product-price">{{ formatPrice(optModal.item.price) }}</div>
-                    </div>
-                </div>
+                <!-- 브랜드별 그룹 카드 -->
+                <div v-for="group in groupedCart" :key="group.brandName" class="cart-card">
 
-                <!-- 대여 정보 -->
-                <div v-if="activeTab === 'RENTAL'">
-                    <div class="modal-info-row">
-                        <span class="modal-info-label">배송방법</span>
-                        <span>직접배송</span>
-                    </div>
-                    <div class="modal-info-row">
-                        <span class="modal-info-label">배송비건시</span>
-                        <span>무료</span>
+                    <div class="cart-card-header">
+                        <div class="chk" :class="{ on: isBrandChecked(group) }" @click="toggleBrand(group)"></div>
+                        <span>{{ group.brandName || '모닥모닥' }}</span>
                     </div>
 
-                    <!-- 캘린더 -->
-                    <div style="border:1px solid #eee;border-radius:10px;padding:14px;margin:12px 0;">
-                        <!-- 월 이동 -->
-                        <div class="cal-nav">
-                            <button @click="changeModalMonth(-1)">‹</button>
-                            <span style="font-size:14px;font-weight:700;">
-                                {{ optModal.year }}년 {{ optModal.month + 1 }}월
-                            </span>
-                            <button @click="changeModalMonth(1)">›</button>
-                        </div>
-
-                        <!-- 캘린더 그리드 -->
-                        <div class="cal-grid">
-                            <div v-for="w in ['일','월','화','수','목','금','토']" :key="w" class="day-name">{{w}}</div>
-                            <div v-for="(day, idx) in modalCalDays" :key="idx"
-                                :class="getModalDayClass(day)"
-                                @click="onModalDayClick(day)">
-                                <span v-if="day">{{ day.date }}</span>
+                    <div v-for="item in group.items" :key="item.cartId" class="cart-item">
+                        <div class="cart-item-top" @click="goDetail(item.productId)" style="cursor:pointer;">
+                            <div class="chk" style="margin-top:4px;"
+                                :class="{ on: checkedIds.includes(item.cartId) }"
+                                @click.stop="toggleItem(item.cartId)">
                             </div>
-                        </div>
-                        <!-- 옵션 -->
-                        <div v-if="optModal.optionList && optModal.optionList.length > 0" style="margin-top:10px;">
-                            <div style="font-size:13px;color:var(--muted);margin-bottom:6px;">옵션 선택</div>
 
-                            <div class="opt-list">
-                                <div 
-                                    v-for="opt in optModal.optionList"
-                                    :key="opt.optionId"
-                                    class="opt-item"
-                                    :class="{ active: String(optModal.selectedOption) === String(opt.optionId) }"
-                                    @click="optModal.selectedOption = opt.optionId"
-                                >
-                                    {{ opt.optionValue }}
+                            <div class="cart-item-img">
+                                <img v-if="item.imgUrl" :src="item.imgUrl" :alt="item.productName">
+                                <span v-else style="font-size:36px;display:flex;align-items:center;justify-content:center;height:100%;">🏕️</span>
+                            </div>
+
+                            <div class="cart-item-info">
+                                <div class="cart-item-badge">배송무료</div>
+                                <div class="cart-item-name">
+                                    {{ item.productName }}
+                                    <span v-if="item.optionName" class="cart-item-option">
+                                        | 옵션 : {{ item.optionName }}
+                                    </span>
+                                </div>
+                                <div class="cart-item-orig">{{ formatPrice(item.price * 1.5) }}</div>
+                                <div class="cart-item-price">
+                                    <span class="disc">{{ getDiscRate(item) }}%</span>
+                                    {{ formatPrice(item.price) }}
+                                </div>
+                                <div v-if="activeTab === 'RENTAL' && item.rentalStart" class="rental-dates">
+                                    📅 {{ item.rentalStart }} ~ {{ item.rentalEnd }}
+                                    <span style="background:var(--orange);color:#fff;border-radius:4px;padding:1px 6px;font-size:11px;">
+                                        {{ calcNights(item.rentalStart, item.rentalEnd) }}박
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 선택 결과 -->
-                        <div class="date-result">
-                            <div v-if="optModal.startDate && optModal.endDate" style="color:#333;font-weight:600;">
-                                📅 {{ optModal.startDate }} ~ {{ optModal.endDate }}
-                                <span style="color:var(--orange);margin-left:6px;">
-                                    {{ calcNights(optModal.startDate, optModal.endDate) }}박
-                                </span>
+                        <div class="cart-item-bottom">
+                            <div class="qty-ctrl">
+                                <button class="qty-btn" @click="chgItemQty(item, -1)">−</button>
+                                <div class="qty-num">{{ item.quantity }}</div>
+                                <button class="qty-btn" @click="chgItemQty(item, 1)">+</button>
                             </div>
-                            <div v-else-if="optModal.startDate" style="color:var(--orange);">
-                                종료일을 선택해주세요.
+                            <div class="item-total">
+                                {{ formatPrice(item.price * item.quantity) }}
+                                <button class="item-del-btn" @click.stop="deleteItem(item.cartId)" title="삭제">✕</button>
                             </div>
-                            <div v-else style="color:#bbb;">시작일을 선택해주세요.</div>
+                        </div>
+
+                        <button class="opt-change-btn" @click.stop="openOptModal(item)">옵션 변경</button>
+                    </div>
+
+                    <div class="cart-subtotal">
+                        <div class="row">
+                            <span style="color:var(--muted)">총 배송비</span>
+                            <span>0원</span>
+                        </div>
+                        <div class="row total">
+                            <span>예상 주문금액</span>
+                            <span style="color:var(--orange)">{{ formatPrice(groupTotal(group)) }}</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- 구매: 수량 변경 -->
-                <div v-else style="margin:16px 0;">
+            </div><!-- /cart-main -->
 
-                    <!-- 옵션 있는 경우 -->
-                    <div v-if="optModal.optionList && optModal.optionList.length > 0">
-                        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">옵션 선택</div>
+            <!-- 우측 사이드바 -->
+            <div class="cart-aside">
+                <div class="aside-box">
+                    <div class="aside-title">주문 예상 금액</div>
+                    <div class="aside-rows">
+                        <div class="aside-row">
+                            <span>총 선택상품금액</span>
+                            <span class="val">{{ formatPrice(selectedTotal) }}</span>
+                        </div>
 
+                        <!-- 쿠폰: 회원만 -->
+                        <div class="coupon-box" v-if="isLogin">
+                            <div class="coupon-title">쿠폰 선택</div>
+                            <select class="coupon-select" v-model="selectedUserCouponId">
+                                <option value="">쿠폰 사용 안함</option>
+                                <option
+                                    v-for="coupon in couponList"
+                                    :key="coupon.userCouponId"
+                                    :value="coupon.userCouponId"
+                                    :disabled="selectedTotal < coupon.minOrderAmt">
+                                    {{ coupon.couponName }}
+                                    / {{ couponText(coupon) }}
+                                    / {{ formatPrice(coupon.minOrderAmt) }} 이상
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- 비회원: 쿠폰 안내 -->
+                        <div v-if="!isLogin" style="padding:10px 0;font-size:12px;color:#999;text-align:center;">
+                            <a href="/user/login.do" style="color:var(--orange);font-weight:700;">로그인</a> 후 쿠폰을 사용할 수 있습니다.
+                        </div>
+
+                        <div class="aside-row" v-if="isLogin">
+                            <span>쿠폰할인예상금액</span>
+                            <span class="val red">-{{ formatPrice(couponDiscount) }}</span>
+                        </div>
+                        <div class="aside-row">
+                            <span>총 배송비</span>
+                            <span class="val">0원</span>
+                        </div>
+                        <div class="aside-row total">
+                            <span>총 주문 예상 금액</span>
+                            <span class="val">{{ formatPrice(finalTotal) }}</span>
+                        </div>
+                    </div>
+                    <button class="order-btn"
+                        :disabled="checkedIds.length === 0"
+                        @click="fnOrder">
+                        주문하기
+                        <span class="order-badge">{{ checkedIds.length }}</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 상품 추가하기 -->
+            <div class="cart-more-box">
+                <button class="cart-more-btn" @click="goProductList">+ 상품 추가하기</button>
+            </div>
+
+        </div><!-- /cart-layout -->
+    </div><!-- /cart-wrap -->
+
+    <!-- 옵션 변경 모달 -->
+    <div v-if="optModal.open" class="modal-overlay" @click.self="optModal.open = false">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">옵션 변경</span>
+                <button class="modal-close" @click="optModal.open = false">✕</button>
+            </div>
+
+            <div class="modal-product" v-if="optModal.item">
+                <img :src="optModal.item.imgUrl || '/img/product/default.jpg'" :alt="optModal.item.productName">
+                <div>
+                    <div class="modal-product-name">{{ optModal.item.productName }}</div>
+                    <div class="modal-product-price">{{ formatPrice(optModal.item.price) }}</div>
+                </div>
+            </div>
+
+            <!-- 대여: 캘린더 -->
+            <div v-if="activeTab === 'RENTAL'">
+                <div class="modal-info-row">
+                    <span class="modal-info-label">배송방법</span><span>직접배송</span>
+                </div>
+                <div class="modal-info-row">
+                    <span class="modal-info-label">배송비</span><span>무료</span>
+                </div>
+
+                <div style="border:1px solid #eee;border-radius:10px;padding:14px;margin:12px 0;">
+                    <div class="cal-nav">
+                        <button @click="changeModalMonth(-1)">‹</button>
+                        <span style="font-size:14px;font-weight:700;">
+                            {{ optModal.year }}년 {{ optModal.month + 1 }}월
+                        </span>
+                        <button @click="changeModalMonth(1)">›</button>
+                    </div>
+                    <div class="cal-grid">
+                        <div v-for="w in ['일','월','화','수','목','금','토']" :key="w" class="day-name">{{w}}</div>
+                        <div v-for="(day, idx) in modalCalDays" :key="idx"
+                            :class="getModalDayClass(day)"
+                            @click="onModalDayClick(day)">
+                            <span v-if="day">{{ day.date }}</span>
+                        </div>
+                    </div>
+
+                    <div v-if="optModal.optionList && optModal.optionList.length > 0" style="margin-top:10px;">
+                        <div style="font-size:13px;color:var(--muted);margin-bottom:6px;">옵션 선택</div>
                         <div class="opt-list">
-                            <div 
-                                v-for="opt in optModal.optionList"
-                                :key="opt.optionId"
+                            <div v-for="opt in optModal.optionList" :key="opt.optionId"
                                 class="opt-item"
                                 :class="{ active: String(optModal.selectedOption) === String(opt.optionId) }"
-                                @click="optModal.selectedOption = opt.optionId"
-                            >
+                                @click="optModal.selectedOption = opt.optionId">
                                 {{ opt.optionValue }}
                             </div>
                         </div>
                     </div>
 
-                    <!-- 옵션 없는 경우만 수량 -->
-                    <div v-else>
-                        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">수량</div>
-                        <div style="display:flex;align-items:center;">
-                            <button class="qty-btn" @click="optModal.qty = Math.max(1, optModal.qty - 1)">−</button>
-                            <div class="qty-num">{{ optModal.qty }}</div>
-                            <button class="qty-btn" @click="optModal.qty++">+</button>
+                    <div class="date-result">
+                        <div v-if="optModal.startDate && optModal.endDate" style="color:#333;font-weight:600;">
+                            📅 {{ optModal.startDate }} ~ {{ optModal.endDate }}
+                            <span style="color:var(--orange);margin-left:6px;">
+                                {{ calcNights(optModal.startDate, optModal.endDate) }}박
+                            </span>
                         </div>
-                    </div>
-
-                </div>
-
-                <!-- 금액 표시 -->
-                <div class="modal-price-row">
-                    <span class="modal-price-label">상품금액</span>
-                    <div>
-                        <div class="modal-price-val">
-                            {{ optModal.item ? formatPrice(calcModalTotal()) : '0원' }}
-                        </div>
-                        <div style="font-size:11px;color:var(--muted);text-align:right;">
-                            {{ activeTab === 'RENTAL' && optModal.startDate && optModal.endDate ? calcNights(optModal.startDate, optModal.endDate) + '박' : '' }}
-                        </div>
+                        <div v-else-if="optModal.startDate" style="color:var(--orange);">종료일을 선택해주세요.</div>
+                        <div v-else style="color:#bbb;">시작일을 선택해주세요.</div>
                     </div>
                 </div>
-
-                <!-- 하단 버튼 -->
-                <div class="modal-btns">
-                    <button class="modal-btn-cancel" @click="optModal.open = false">취소</button>
-                    <button class="modal-btn-ok"
-                        :disabled="activeTab === 'RENTAL' && (!optModal.startDate || !optModal.endDate)"
-                        @click="applyOptChange">
-                        변경 완료
-                    </button>
-                </div>
-
             </div>
-        </div>
-        <div v-if="confirmModal.open" class="confirm-overlay" @click.self="confirmCancel">
-            <div class="confirm-box">
-                <div class="confirm-title">알림</div>
-                <div class="confirm-message">{{ confirmModal.message }}</div>
 
-                <div class="confirm-btns">
-                    <button class="confirm-cancel" @click="confirmCancel">
-                        {{ confirmModal.cancelText }}
-                    </button>
-                    <button class="confirm-ok" @click="confirmOk">
-                        {{ confirmModal.okText }}
-                    </button>
+            <!-- 구매: 수량/옵션 -->
+            <div v-else style="margin:16px 0;">
+                <div v-if="optModal.optionList && optModal.optionList.length > 0">
+                    <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">옵션 선택</div>
+                    <div class="opt-list">
+                        <div v-for="opt in optModal.optionList" :key="opt.optionId"
+                            class="opt-item"
+                            :class="{ active: String(optModal.selectedOption) === String(opt.optionId) }"
+                            @click="optModal.selectedOption = opt.optionId">
+                            {{ opt.optionValue }}
+                        </div>
+                    </div>
+                </div>
+                <div v-else>
+                    <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">수량</div>
+                    <div style="display:flex;align-items:center;">
+                        <button class="qty-btn" @click="optModal.qty = Math.max(1, optModal.qty - 1)">−</button>
+                        <div class="qty-num">{{ optModal.qty }}</div>
+                        <button class="qty-btn" @click="optModal.qty++">+</button>
+                    </div>
                 </div>
             </div>
+
+            <div class="modal-price-row">
+                <span class="modal-price-label">상품금액</span>
+                <div>
+                    <div class="modal-price-val">{{ optModal.item ? formatPrice(calcModalTotal()) : '0원' }}</div>
+                    <div style="font-size:11px;color:var(--muted);text-align:right;">
+                        {{ activeTab === 'RENTAL' && optModal.startDate && optModal.endDate
+                            ? calcNights(optModal.startDate, optModal.endDate) + '박' : '' }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-btns">
+                <button class="modal-btn-cancel" @click="optModal.open = false">취소</button>
+                <button class="modal-btn-ok"
+                    :disabled="activeTab === 'RENTAL' && (!optModal.startDate || !optModal.endDate)"
+                    @click="applyOptChange">
+                    변경 완료
+                </button>
+            </div>
         </div>
-    </div><!-- app -->
+    </div>
+
+    <!-- 확인 모달 -->
+    <div v-if="confirmModal.open" class="confirm-overlay" @click.self="confirmCancel">
+        <div class="confirm-box">
+            <div class="confirm-title">알림</div>
+            <div class="confirm-message">{{ confirmModal.message }}</div>
+            <div class="confirm-btns">
+                <button class="confirm-cancel" @click="confirmCancel">{{ confirmModal.cancelText }}</button>
+                <button class="confirm-ok" @click="confirmOk">{{ confirmModal.okText }}</button>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /#app -->
+
 <%@ include file="/WEB-INF/common/footer.jsp" %>
-</body>
-</html>
 
 <script>
-    function showToast(msg) {
-        var t = document.getElementById('toast');
-        if (!t) {
-            t = document.createElement('div');
-            t.id = 'toast';
-            t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;display:none;';
-            document.body.appendChild(t);
-        }
-        t.textContent = msg;
-        t.style.display = 'block';
-        setTimeout(function(){ t.style.display = 'none'; }, 2200);
+/* ── 토스트 ── */
+function showToast(msg) {
+    var t = document.getElementById('toast');
+    if (!t) {
+        t = document.createElement('div');
+        t.id = 'toast';
+        t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);' +
+            'background:#333;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;display:none;';
+        document.body.appendChild(t);
     }
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(function(){ t.style.display = 'none'; }, 2200);
+}
 
-    const app = Vue.createApp({
-        data() {
-            return {
-                activeTab: 'RENTAL',   // 'RENTAL' | 'PURCHASE'
-                cartList: [],          // 전체 카트 목록
-                checkedIds: [],        // 선택된 cartId 배열
+/* ── localStorage 키 ── */
+var LS_KEY = 'modak_guest_cart';
 
-                // 옵션 변경 모달
-                optModal: {
-                    open: false,
-                    item: null,
-                    qty: 1,
-                    startDate: null,
-                    endDate: null,
-                    year: new Date().getFullYear(),
-                    month: new Date().getMonth(),
-                },
-                confirmModal: {
-                    open: false,
-                    message: '',
-                    okText: '확인',
-                    cancelText: '취소',
-                    onOk: null
-                },
-                couponList: [],
-                selectedUserCouponId: '',
-                isLogin: false,
-            };
+const app = Vue.createApp({
+    data() {
+        return {
+            activeTab: 'RENTAL',
+            cartList: [],
+            checkedIds: [],
+            isLogin: false,
+            optModal: {
+                open: false, item: null, qty: 1,
+                startDate: null, endDate: null,
+                year: new Date().getFullYear(),
+                month: new Date().getMonth(),
+                selectedOption: null, optionList: []
+            },
+            confirmModal: {
+                open: false, message: '',
+                okText: '확인', cancelText: '취소', onOk: null
+            },
+            couponList: [],
+            selectedUserCouponId: '',
+        };
+    },
+
+    computed: {
+        filteredCart() {
+            return this.cartList.filter(c => c.cartType === this.activeTab);
         },
-        computed: {
-            // 현재 탭에 맞는 카트 목록
-            filteredCart() {
-                return this.cartList.filter(c => c.cartType === this.activeTab);
-            },
-            // 브랜드별 그룹핑
-            groupedCart() {
-                const groups = {};
-                this.filteredCart.forEach(item => {
-                    const key = item.brandName || '모닥모닥';
-                    if (!groups[key]) groups[key] = { brandName: key, items: [] };
-                    groups[key].items.push(item);
+        groupedCart() {
+            const groups = {};
+            this.filteredCart.forEach(item => {
+                const key = item.brandName || '모닥모닥';
+                if (!groups[key]) groups[key] = { brandName: key, items: [] };
+                groups[key].items.push(item);
+            });
+            return Object.values(groups);
+        },
+        isAllChecked() {
+            if (!this.filteredCart.length) return false;
+            return this.filteredCart.every(c => this.checkedIds.includes(c.cartId));
+        },
+        selectedTotal() {
+            return this.filteredCart
+                .filter(c => this.checkedIds.includes(c.cartId))
+                .reduce((sum, c) => sum + c.price * c.quantity, 0);
+        },
+        modalCalDays() {
+            const { year, month } = this.optModal;
+            const firstDay = new Date(year, month, 1).getDay();
+            const lastDate = new Date(year, month + 1, 0).getDate();
+            const days = [];
+            for (let i = 0; i < firstDay; i++) days.push(null);
+            for (let d = 1; d <= lastDate; d++) {
+                const dateObj = new Date(year, month, d);
+                days.push({
+                    date: d,
+                    full: this.fmtDate(dateObj),
+                    isPast: dateObj < new Date().setHours(0,0,0,0)
                 });
-                return Object.values(groups);
-            },
-            // 전체선택 여부
-            isAllChecked() {
-                if (this.filteredCart.length === 0) return false;
-                return this.filteredCart.every(c => this.checkedIds.includes(c.cartId));
-            },
-            // 선택 상품 합계
-            selectedTotal() {
-                return this.filteredCart
-                    .filter(c => this.checkedIds.includes(c.cartId))
-                    .reduce((sum, c) => sum + c.price * c.quantity, 0);
-            },
-            // 모달 캘린더 날짜 배열
-            modalCalDays() {
-                const { year, month } = this.optModal;
-                const firstDay = new Date(year, month, 1).getDay();
-                const lastDate = new Date(year, month + 1, 0).getDate();
-                const days = [];
-                for (let i = 0; i < firstDay; i++) days.push(null);
-                for (let d = 1; d <= lastDate; d++) {
-                    const dateObj = new Date(year, month, d);
-                    const full = this.fmtDate(dateObj);
-                    days.push({
-                        date: d, full,
-                        isPast: dateObj < new Date().setHours(0,0,0,0)
-                    });
+            }
+            return days;
+        },
+        selectedCoupon() {
+            return this.couponList.find(c =>
+                String(c.userCouponId) === String(this.selectedUserCouponId)
+            ) || null;
+        },
+        couponDiscount() {
+            if (!this.isLogin) return 0;
+            const coupon = this.selectedCoupon;
+            if (!coupon || this.selectedTotal < coupon.minOrderAmt) return 0;
+            let discount = 0;
+            if (coupon.couponType === 'AMOUNT') {
+                discount = coupon.discountAmt;
+            } else if (coupon.couponType === 'RATE') {
+                discount = Math.floor(this.selectedTotal * coupon.discountRate / 100);
+                if (coupon.maxDiscountAmt > 0) discount = Math.min(discount, coupon.maxDiscountAmt);
+            }
+            return Math.min(discount, this.selectedTotal);
+        },
+        finalTotal() {
+            return Math.max(0, this.selectedTotal - this.couponDiscount);
+        }
+    },
+
+    methods: {
+        /* ── localStorage (비회원) ── */
+        loadGuestCart() {
+            try {
+                const raw = localStorage.getItem(LS_KEY);
+                this.cartList = raw ? JSON.parse(raw) : [];
+            } catch(e) { this.cartList = []; }
+        },
+        saveGuestCart() {
+            localStorage.setItem(LS_KEY, JSON.stringify(this.cartList));
+        },
+
+        /* ── 초기화 ── */
+        checkLogin() {
+            let self = this;
+            $.ajax({
+                url: '/user/session-check.dox',
+                type: 'POST', dataType: 'json',
+                success(res) {
+                    self.isLogin = res.isLogin === true;
+                    if (self.isLogin) {
+                        self.fetchCartList();
+                        self.fetchCouponList();
+                    } else {
+                        self.loadGuestCart();
+                    }
+                },
+                error() {
+                    self.isLogin = false;
+                    self.loadGuestCart();
                 }
-                return days;
-            },
-            selectedCoupon() {
-                return this.couponList.find(c => String(c.userCouponId) === String(this.selectedUserCouponId)) || null;
-            },
+            });
+        },
 
-            couponDiscount() {
-                if (!this.isLogin) return 0;
-
-                const coupon = this.selectedCoupon;
-
-                if (!coupon) return 0;
-                if (this.selectedTotal < coupon.minOrderAmt) return 0;
-
-                let discount = 0;
-
-                if (coupon.couponType === 'AMOUNT') {
-                    discount = coupon.discountAmt;
-                } else if (coupon.couponType === 'RATE') {
-                    discount = Math.floor(this.selectedTotal * coupon.discountRate / 100);
-
-                    if (coupon.maxDiscountAmt && coupon.maxDiscountAmt > 0) {
-                        discount = Math.min(discount, coupon.maxDiscountAmt);
+        /* ── 서버 API (회원) ── */
+        fetchCartList() {
+            let self = this;
+            $.ajax({
+                url: '/cart/list.dox', type: 'POST',
+                data: { cartType: self.activeTab }, dataType: 'json',
+                success(res) {
+                    if (res.result === 'success') {
+                        self.cartList  = res.list || [];
+                        self.checkedIds = [];
                     }
                 }
+            });
+        },
+        fetchCouponList() {
+            let self = this;
+            $.ajax({
+                url: '/coupon/myCouponList.dox', type: 'POST',
+                data: { start: 0, pageSize: 100 }, dataType: 'json',
+                success(res) {
+                    if (res.result === 'success') self.couponList = res.list || [];
+                }
+            });
+        },
 
-                return Math.min(discount, this.selectedTotal);
-            },
+        /* ── 탭 전환 ── */
+        switchTab(tab) {
+            this.activeTab  = tab;
+            this.checkedIds = [];
+        },
 
-            finalTotal() {
-                return Math.max(0, this.selectedTotal - this.couponDiscount);
+        /* ── 체크박스 ── */
+        toggleAll() {
+            const ids = this.filteredCart.map(c => c.cartId);
+            if (this.isAllChecked) {
+                this.checkedIds = this.checkedIds.filter(id => !ids.includes(id));
+            } else {
+                ids.forEach(id => { if (!this.checkedIds.includes(id)) this.checkedIds.push(id); });
             }
         },
-        methods: {
-            // ── 데이터 로드 ──
-            fetchCartList() {
-                let self = this;
-                $.ajax({
-                    url: '/cart/list.dox',
-                    type: 'POST',
-                    data: { cartType: self.activeTab },
-                    dataType: 'json',
-                    success(res) {
-                        if (res.result === 'success') {
-                            // 전체 타입 다 받아서 프론트에서 필터링
-                            self.cartList = res.list || [];
-                            self.checkedIds = [];
-                        }
-                    }
+        isBrandChecked(group) {
+            return group.items.every(c => this.checkedIds.includes(c.cartId));
+        },
+        toggleBrand(group) {
+            if (this.isBrandChecked(group)) {
+                const ids = group.items.map(c => c.cartId);
+                this.checkedIds = this.checkedIds.filter(id => !ids.includes(id));
+            } else {
+                group.items.forEach(c => {
+                    if (!this.checkedIds.includes(c.cartId)) this.checkedIds.push(c.cartId);
                 });
-            },
+            }
+        },
+        toggleItem(cartId) {
+            const idx = this.checkedIds.indexOf(cartId);
+            if (idx > -1) this.checkedIds.splice(idx, 1);
+            else this.checkedIds.push(cartId);
+        },
 
-            // ── 탭 전환 ──
-            switchTab(tab) {
-                this.activeTab = tab;
-                this.checkedIds = [];
-            },
+        /* ── 수량 변경 ── */
+        chgItemQty(item, d) {
+            const next = item.quantity + d;
+            if (next < 1) return;
+            item.quantity = next;
+            if (!this.isLogin) { this.saveGuestCart(); return; }
+            $.ajax({
+                url: '/cart/update.dox', type: 'POST',
+                data: { cartId: item.cartId, quantity: next }, dataType: 'json',
+                success(res) { if (res.result !== 'success') showToast('수량 변경에 실패했습니다.'); }
+            });
+        },
 
-            // ── 체크박스 ──
-            toggleAll() {
-                if (this.isAllChecked) {
-                    // 현재 탭 아이템 ID 제거
-                    const ids = this.filteredCart.map(c => c.cartId);
-                    this.checkedIds = this.checkedIds.filter(id => !ids.includes(id));
-                } else {
-                    const ids = this.filteredCart.map(c => c.cartId);
-                    ids.forEach(id => { if (!this.checkedIds.includes(id)) this.checkedIds.push(id); });
-                }
-            },
-            isBrandChecked(group) {
-                return group.items.every(c => this.checkedIds.includes(c.cartId));
-            },
-            toggleBrand(group) {
-                if (this.isBrandChecked(group)) {
-                    const ids = group.items.map(c => c.cartId);
-                    this.checkedIds = this.checkedIds.filter(id => !ids.includes(id));
-                } else {
-                    group.items.forEach(c => {
-                        if (!this.checkedIds.includes(c.cartId)) this.checkedIds.push(c.cartId);
-                    });
-                }
-            },
-            toggleItem(cartId) {
-                const idx = this.checkedIds.indexOf(cartId);
-                if (idx > -1) this.checkedIds.splice(idx, 1);
-                else this.checkedIds.push(cartId);
-            },
-
-            // ── 수량 변경 ──
-            chgItemQty(item, d) {
-                const next = item.quantity + d;
-                if (next < 1) return;
-                item.quantity = next;
-                // 서버 동기화
-                $.ajax({
-                    url: '/cart/update.dox',
-                    type: 'POST',
-                    data: { cartId: item.cartId, quantity: next },
-                    dataType: 'json',
-                    success(res) {
-                        if (res.result !== 'success') showToast('수량 변경에 실패했습니다.');
-                    }
-                });
-            },
-
-            // ── 삭제 ──
-            deleteItem(cartId) {
-                let self = this;
-
-                self.openConfirm('해당 상품을 삭제하시겠습니까?', function() {
-                    $.ajax({
-                        url: '/cart/delete.dox',
-                        type: 'POST',
-                        data: { cartId },
-                        dataType: 'json',
-                        success(res) {
-                            if (res.result === 'success') {
-                                self.cartList = self.cartList.filter(c => c.cartId !== cartId);
-                                self.checkedIds = self.checkedIds.filter(id => id !== cartId);
-                                showToast('삭제됐어요.');
-                            }
-                        }
-                    });
-                }, '삭제하기');
-            },
-            deleteSelected() {
-                if (this.checkedIds.length === 0) {
-                    showToast('선택된 상품이 없습니다.');
+        /* ── 단일 삭제 ── */
+        deleteItem(cartId) {
+            let self = this;
+            self.openConfirm('해당 상품을 삭제하시겠습니까?', function() {
+                if (!self.isLogin) {
+                    self.cartList  = self.cartList.filter(c => c.cartId !== cartId);
+                    self.checkedIds = self.checkedIds.filter(id => id !== cartId);
+                    self.saveGuestCart();
+                    showToast('삭제됐어요.');
                     return;
                 }
-
-                let self = this;
-
-                self.openConfirm(this.checkedIds.length + '개 상품을 삭제하시겠습니까?', function() {
-                    $.ajax({
-                        url: '/cart/deleteSelected.dox',
-                        type: 'POST',
-                        data: { cartIds: self.checkedIds.join(',') },
-                        dataType: 'json',
-                        success(res) {
-                            if (res.result === 'success') {
-                                self.cartList = self.cartList.filter(c => !self.checkedIds.includes(c.cartId));
-                                self.checkedIds = [];
-                                showToast('선택 상품이 삭제됐어요.');
-                            }
-                        }
-                    });
-                }, '삭제하기');
-            },
-            // ── 주문하기 ──
-            fnOrder() {
-                if (this.checkedIds.length === 0) { showToast('상품을 선택해주세요.'); return; }
-                const ids = this.checkedIds.join(',');
-                let url = '/order/checkout.do?cartIds=' + ids
-                    + '&cartType=' + this.activeTab;
-
-                if (this.isLogin && this.selectedUserCouponId) {
-                    url += '&userCouponId=' + this.selectedUserCouponId;
-                }
-                location.href = url;
-            },
-
-            // ── 옵션 변경 모달 ──
-            openOptModal(item) {
-                let self = this;
-
-                // 1. 모달 기본 세팅
-                self.optModal = {
-                    open: true,
-                    item: { ...item },
-                    qty: item.quantity,
-                    startDate: item.rentalStart || null,
-                    endDate: item.rentalEnd || null,
-                    year: new Date().getFullYear(),
-                    month: new Date().getMonth(),
-                    selectedOption: Number(item.optionId) || null,
-                    optionList: []
-                };
-
-                // 2. 여기 ↓↓↓ 추가하는거
                 $.ajax({
-                    url: '/product/option/list.dox',
-                    type: 'POST',
-                    data: {
-                        productId: item.productId   // 🔥 여기 넣는거
-                    },
-                    dataType: 'json',
+                    url: '/cart/delete.dox', type: 'POST',
+                    data: { cartId }, dataType: 'json',
                     success(res) {
                         if (res.result === 'success') {
-                            self.optModal.optionList = res.list;
+                            self.cartList  = self.cartList.filter(c => c.cartId !== cartId);
+                            self.checkedIds = self.checkedIds.filter(id => id !== cartId);
+                            showToast('삭제됐어요.');
                         }
                     }
                 });
-            },
-            changeModalMonth(diff) {
-                const d = new Date(this.optModal.year, this.optModal.month + diff, 1);
-                this.optModal.year = d.getFullYear();
-                this.optModal.month = d.getMonth();
-            },
-            getModalDayClass(day) {
-                if (!day) return 'cal-day empty';
-                if (day.isPast) return 'cal-day past';
-                if (day.full === this.optModal.startDate || day.full === this.optModal.endDate) return 'cal-day selected';
-                if (this.optModal.startDate && this.optModal.endDate
-                    && day.full > this.optModal.startDate && day.full < this.optModal.endDate) return 'cal-day in-range';
-                return 'cal-day available';
-            },
-            onModalDayClick(day) {
-                if (!day || day.isPast) return;
-                if (!this.optModal.startDate || (this.optModal.startDate && this.optModal.endDate)) {
-                    this.optModal.startDate = day.full; this.optModal.endDate = null;
-                } else {
-                    if (day.full < this.optModal.startDate) this.optModal.startDate = day.full;
-                    else if (day.full === this.optModal.startDate) this.optModal.startDate = null;
-                    else this.optModal.endDate = day.full;
-                }
-            },
-            calcModalTotal() {
-                const item = this.optModal.item;
-                if (!item) return 0;
-                if (this.activeTab === 'RENTAL') {
-                    const nights = this.calcNights(this.optModal.startDate, this.optModal.endDate);
-                    return item.price * (nights || 1);
-                }
-                return item.price * this.optModal.qty;
-            },
-            applyOptChange() {
-                const m = this.optModal;
-                if (this.activeTab === 'RENTAL' && (!m.startDate || !m.endDate)) {
-                    showToast('날짜를 선택해주세요.');
+            }, '삭제하기');
+        },
+
+        /* ── 선택 삭제 ── */
+        deleteSelected() {
+            if (!this.checkedIds.length) { showToast('선택된 상품이 없습니다.'); return; }
+            let self = this;
+            self.openConfirm(this.checkedIds.length + '개 상품을 삭제하시겠습니까?', function() {
+                if (!self.isLogin) {
+                    self.cartList  = self.cartList.filter(c => !self.checkedIds.includes(c.cartId));
+                    self.checkedIds = [];
+                    self.saveGuestCart();
+                    showToast('선택 상품이 삭제됐어요.');
                     return;
                 }
-                // 서버 업데이트
-                let self = this;
                 $.ajax({
-                    url: '/cart/updateOption.dox',
-                    type: 'POST',
-                    data: {
-                        cartId: m.item.cartId,
-                        quantity: m.qty,
-                        optionId: m.selectedOption || '',
-                        rentalStart: m.startDate || '',
-                        rentalEnd: m.endDate || '',
-                    },
-                    dataType: 'json',
+                    url: '/cart/deleteSelected.dox', type: 'POST',
+                    data: { cartIds: self.checkedIds.join(',') }, dataType: 'json',
                     success(res) {
                         if (res.result === 'success') {
-                            self.optModal.open = false;
-
-                            // 🔥 핵심: 서버 기준으로 다시 그리기
-                            self.fetchCartList();
-
-                            showToast(
-                                res.merged === 'Y'
-                                ? '✅ 같은 옵션 상품과 합쳐졌어요.'
-                                : '✅ 변경됐어요.'
-                            );
-
-                        } else {
-                            showToast('변경에 실패했습니다.');
-                        }
-                    }
-                });
-            },
-
-            // ── 유틸 ──
-            formatPrice(p) {
-                if (!p) return '0원';
-                return Number(p).toLocaleString('ko-KR') + '원';
-            },
-            fmtDate(dateVal) {
-                const d = new Date(dateVal);
-                return d.getFullYear() + '-'
-                    + String(d.getMonth() + 1).padStart(2, '0') + '-'
-                    + String(d.getDate()).padStart(2, '0');
-            },
-            calcNights(s, e) {
-                if (!s || !e) return 0;
-                return Math.ceil((new Date(e) - new Date(s)) / (1000 * 60 * 60 * 24));
-            },
-            getDiscRate(item) {
-                // 임시 할인율 표시용 (실제는 DB에서 받아야 함)
-                return 10;
-            },
-            groupTotal(group) {
-                return group.items.reduce((sum, c) => sum + c.price * c.quantity, 0);
-            },
-            goProductList() {
-                document.getElementById('app').classList.add('page-leaving');
-                location.href = '/product/list.do';
-            },
-            goDetail(productId) {
-                document.getElementById('app').classList.add('page-leaving');
-                location.href = '/product/detail.do?productId=' + productId;
-            },
-            openConfirm(message, onOk, okText = '확인', cancelText = '취소') {
-                this.confirmModal.message = message;
-                this.confirmModal.onOk = onOk;
-                this.confirmModal.okText = okText;
-                this.confirmModal.cancelText = cancelText;
-                this.confirmModal.open = true;
-            },
-
-            confirmOk() {
-                if (typeof this.confirmModal.onOk === 'function') {
-                    this.confirmModal.onOk();
-                }
-                this.confirmModal.open = false;
-            },
-
-            confirmCancel() {
-                this.confirmModal.open = false;
-            },
-            fetchCouponList() {
-                let self = this;
-
-                $.ajax({
-                    url: '/coupon/myCouponList.dox',
-                    data: {
-                        start: 0,
-                        pageSize: 100
-                    },
-                    type: 'POST',
-                    dataType: 'json',
-                    success(res) {
-                        console.log("쿠폰 응답 전체:", res);
-                        if (res.result === 'success') {
-                            self.couponList = res.list || [];
-                        } else {
-                            showToast(res.message || '쿠폰 조회에 실패했습니다.');
-                        }
-                    }
-                });
-            },
-
-            couponText(coupon) {
-                if (coupon.couponType === 'AMOUNT') {
-                    return this.formatPrice(coupon.discountAmt) + ' 할인';
-                }
-
-                if (coupon.couponType === 'RATE') {
-                    let txt = coupon.discountRate + '% 할인';
-
-                    if (coupon.maxDiscountAmt && coupon.maxDiscountAmt > 0) {
-                        txt += ' / 최대 ' + this.formatPrice(coupon.maxDiscountAmt);
-                    }
-
-                    return txt;
-                }
-
-                return '';
-            },
-            checkLogin() {
-                let self = this;
-
-                $.ajax({
-                    url: '/user/session-check.dox',
-                    type: 'POST',
-                    dataType: 'json',
-                    success(res) {
-                        console.log("로그인 체크 응답:", res);
-
-                        self.isLogin = res.isLogin === true;
-
-                        if (self.isLogin) {
-                            self.fetchCartList();
-                            self.fetchCouponList();
-                        } else {
-                            self.cartList = [];
+                            self.cartList  = self.cartList.filter(c => !self.checkedIds.includes(c.cartId));
                             self.checkedIds = [];
-                            self.couponList = [];
-                            self.selectedUserCouponId = '';
+                            showToast('선택 상품이 삭제됐어요.');
                         }
-                    },
-                    error(err) {
-                        console.log("로그인 체크 오류:", err);
                     }
                 });
-            },
-        }, // methods
-        mounted() {
-            this.checkLogin();
-        }
+            }, '삭제하기');
+        },
+
+        /* ── 주문하기 ── */
+        fnOrder() {
+            if (!this.checkedIds.length) { showToast('상품을 선택해주세요.'); return; }
+            if (!this.isLogin) {
+                // 비회원: 선택 아이템 sessionStorage에 저장 후 이동
+                const selected = this.filteredCart.filter(c => this.checkedIds.includes(c.cartId));
+                sessionStorage.setItem('guest_order_items', JSON.stringify(selected));
+                location.href = '/order/checkout.do?isGuest=true&cartType=' + this.activeTab;
+                return;
+            }
+            let url = '/order/checkout.do?cartIds=' + this.checkedIds.join(',') + '&cartType=' + this.activeTab;
+            if (this.selectedUserCouponId) url += '&userCouponId=' + this.selectedUserCouponId;
+            location.href = url;
+        },
+
+        /* ── 옵션 변경 모달 ── */
+        openOptModal(item) {
+            let self = this;
+            self.optModal = {
+                open: true, item: { ...item }, qty: item.quantity,
+                startDate: item.rentalStart || null, endDate: item.rentalEnd || null,
+                year: new Date().getFullYear(), month: new Date().getMonth(),
+                selectedOption: Number(item.optionId) || null, optionList: []
+            };
+            $.ajax({
+                url: '/product/option/list.dox', type: 'POST',
+                data: { productId: item.productId }, dataType: 'json',
+                success(res) { if (res.result === 'success') self.optModal.optionList = res.list; }
+            });
+        },
+        changeModalMonth(diff) {
+            const d = new Date(this.optModal.year, this.optModal.month + diff, 1);
+            this.optModal.year  = d.getFullYear();
+            this.optModal.month = d.getMonth();
+        },
+        getModalDayClass(day) {
+            if (!day) return 'cal-day empty';
+            if (day.isPast) return 'cal-day past';
+            if (day.full === this.optModal.startDate || day.full === this.optModal.endDate) return 'cal-day selected';
+            if (this.optModal.startDate && this.optModal.endDate
+                && day.full > this.optModal.startDate && day.full < this.optModal.endDate) return 'cal-day in-range';
+            return 'cal-day available';
+        },
+        onModalDayClick(day) {
+            if (!day || day.isPast) return;
+            if (!this.optModal.startDate || (this.optModal.startDate && this.optModal.endDate)) {
+                this.optModal.startDate = day.full;
+                this.optModal.endDate   = null;
+            } else {
+                if (day.full < this.optModal.startDate)       this.optModal.startDate = day.full;
+                else if (day.full === this.optModal.startDate) this.optModal.startDate = null;
+                else                                           this.optModal.endDate   = day.full;
+            }
+        },
+        calcModalTotal() {
+            const item = this.optModal.item;
+            if (!item) return 0;
+            if (this.activeTab === 'RENTAL') {
+                return item.price * (this.calcNights(this.optModal.startDate, this.optModal.endDate) || 1);
+            }
+            return item.price * this.optModal.qty;
+        },
+        applyOptChange() {
+            const m = this.optModal;
+            if (this.activeTab === 'RENTAL' && (!m.startDate || !m.endDate)) {
+                showToast('날짜를 선택해주세요.'); return;
+            }
+            if (!this.isLogin) {
+                const target = this.cartList.find(c => c.cartId === m.item.cartId);
+                if (target) {
+                    target.quantity    = m.qty;
+                    target.optionId    = m.selectedOption || null;
+                    target.rentalStart = m.startDate || null;
+                    target.rentalEnd   = m.endDate   || null;
+                }
+                this.saveGuestCart();
+                this.optModal.open = false;
+                showToast('변경됐어요.');
+                return;
+            }
+            let self = this;
+            $.ajax({
+                url: '/cart/updateOption.dox', type: 'POST',
+                data: {
+                    cartId: m.item.cartId, quantity: m.qty,
+                    optionId: m.selectedOption || '',
+                    rentalStart: m.startDate || '', rentalEnd: m.endDate || '',
+                },
+                dataType: 'json',
+                success(res) {
+                    if (res.result === 'success') {
+                        self.optModal.open = false;
+                        self.fetchCartList();
+                        showToast(res.merged === 'Y' ? '✅ 같은 옵션 상품과 합쳐졌어요.' : '✅ 변경됐어요.');
+                    } else { showToast('변경에 실패했습니다.'); }
+                }
+            });
+        },
+
+        /* ── 확인 모달 ── */
+        openConfirm(message, onOk, okText = '확인', cancelText = '취소') {
+            this.confirmModal.message    = message;
+            this.confirmModal.onOk       = onOk;
+            this.confirmModal.okText     = okText;
+            this.confirmModal.cancelText = cancelText;
+            this.confirmModal.open       = true;
+        },
+        confirmOk() {
+            if (typeof this.confirmModal.onOk === 'function') this.confirmModal.onOk();
+            this.confirmModal.open = false;
+        },
+        confirmCancel() { this.confirmModal.open = false; },
+
+        /* ── 유틸 ── */
+        formatPrice(p) {
+            if (!p) return '0원';
+            return Number(p).toLocaleString('ko-KR') + '원';
+        },
+        fmtDate(dateVal) {
+            const d = new Date(dateVal);
+            return d.getFullYear() + '-'
+                + String(d.getMonth() + 1).padStart(2, '0') + '-'
+                + String(d.getDate()).padStart(2, '0');
+        },
+        calcNights(s, e) {
+            if (!s || !e) return 0;
+            return Math.ceil((new Date(e) - new Date(s)) / (1000 * 60 * 60 * 24));
+        },
+        getDiscRate() { return 10; },
+        groupTotal(group) {
+            return group.items.reduce((sum, c) => sum + c.price * c.quantity, 0);
+        },
+        couponText(coupon) {
+            if (coupon.couponType === 'AMOUNT') return this.formatPrice(coupon.discountAmt) + ' 할인';
+            if (coupon.couponType === 'RATE') {
+                let txt = coupon.discountRate + '% 할인';
+                if (coupon.maxDiscountAmt > 0) txt += ' / 최대 ' + this.formatPrice(coupon.maxDiscountAmt);
+                return txt;
+            }
+            return '';
+        },
+        goProductList() {
+            document.getElementById('app').classList.add('page-leaving');
+            location.href = '/product/list.do';
+        },
+        goDetail(productId) {
+            document.getElementById('app').classList.add('page-leaving');
+            location.href = '/product/detail.do?productId=' + productId;
+        },
+    },
+
+    mounted() { this.checkLogin(); }
+});
+
+app.mount('#app');
+
+/* ════════════════════════════
+   로그인 시 비회원 카트 → 서버 병합
+   로그인 성공 핸들러에서 mergeGuestCartOnLogin() 호출
+════════════════════════════ */
+function mergeGuestCartOnLogin() {
+    var raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    var items = [];
+    try { items = JSON.parse(raw); } catch(e) { return; }
+    if (!items.length) return;
+
+    var promises = items.map(function(item) {
+        return $.ajax({
+            url: '/cart/add.dox', type: 'POST', dataType: 'json',
+            data: {
+                cartType:    item.cartType,
+                productId:   item.productId,
+                quantity:    item.quantity,
+                optionId:    item.optionId    || '',
+                rentalStart: item.rentalStart || '',
+                rentalEnd:   item.rentalEnd   || ''
+            }
+        });
     });
 
-    app.mount('#app');
+    Promise.all(promises).then(function() {
+        localStorage.removeItem(LS_KEY);
+        showToast('장바구니가 복원됐습니다.');
+    });
+}
 </script>
+
+</body>
+</html>

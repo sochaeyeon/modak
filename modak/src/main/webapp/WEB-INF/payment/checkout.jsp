@@ -444,8 +444,8 @@
                 if (this.isPaying) return; // ✅ 중복 방지
                 this.isPaying = true;
 
-                if (!this.agreeAll) { this.showToast('약관에 동의해주세요.'); return; }
-                if (this.orderItems.length === 0) { this.showToast('주문 상품이 없습니다.'); return; }
+                if (!this.agreeAll) { this.isPaying = false; this.showToast('약관에 동의해주세요.'); return; }
+                if (this.orderItems.length === 0) { this.isPaying = false; this.showToast('주문 상품이 없습니다.'); return; }
                 // ✅ 비회원 검증
                 if (!this.isLogin) {
                     if (!this.guestName.trim())    { this.isPaying = false; this.showToast('수령인 이름을 입력해주세요.'); return; }
@@ -496,7 +496,8 @@
                             amount: self.finalTotal,
                             orderId: orderId,
                             orderName: orderName,
-                            customerName: self.addrForm.receiverName || '고객',
+                            // customerName: self.addrForm.receiverName || '고객',
+                            customerName: self.isLogin ? self.addrForm.receiverName : self.guestName,
                             successUrl: window.location.origin + '/payment/success.do',
                             failUrl:    window.location.origin + '/payment/fail.do'
                         }).catch(() => {

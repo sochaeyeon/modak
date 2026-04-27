@@ -106,7 +106,8 @@
 	        QUANTITY,
 	        UNIT_PRICE,
 	        START_DATE,
-	        END_DATE
+	        END_DATE,
+	        OPTION_ID
 	    ) VALUES (
 	        #{orderId},
 	        #{productId},
@@ -114,7 +115,8 @@
 	        #{quantity},
 	        #{price},
 	        #{rentalStart},
-	        #{rentalEnd}
+	        #{rentalEnd},
+	        NULLIF(#{optionId}, '')
 	    )
 	</insert>
 	
@@ -129,8 +131,8 @@
 	</delete>
 	
 	<!--orderId 하나로 필요한 정보를 다 꺼내 쓸 수 있게-->
+	<!--첫 번째 상품명, 상품수 가져오기 (포인트 이력 설명용)-->
 	<select id="selectOrderById" parameterType="hashmap" resultType="hashmap">
-	    <!--첫 번째 상품명, 상품수 가져오기 (포인트 이력 설명용)-->
 	    SELECT 
 	        O.ORDER_ID, O.USER_ID, O.CART_IDS, O.USER_COUPON_ID,
 	        O.ORDER_TYPE, O.TOTAL_PRICE, O.GUEST_NAME, O.GUEST_PHONE,
@@ -208,13 +210,13 @@
 	
 	<!-- 재고 차감용 주문 아이템 조회 -->
 	<select id="selectOrderItemsForStock" parameterType="hashmap" resultType="hashmap">
-	    SELECT 
-	        OI.PRODUCT_ID,
-	        OI.OPTION_ID,
-	        OI.QUANTITY,
-	        OI.START_DATE,
-	        OI.END_DATE,
-	        O.ORDER_TYPE
+	 	SELECT 
+	        OI.PRODUCT_ID AS productId,
+	        OI.OPTION_ID AS optionId,
+	        OI.QUANTITY AS quantity,
+	        OI.START_DATE AS startDate,
+	        OI.END_DATE AS endDate,
+	        O.ORDER_TYPE AS orderType
 	    FROM ORDER_ITEM OI
 	    JOIN ORDERS O ON OI.ORDER_ID = O.ORDER_ID
 	    WHERE OI.ORDER_ID = #{orderId}

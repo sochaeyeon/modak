@@ -94,7 +94,7 @@ public class PaymentController {
 
         if ("success".equals(resultMap.get("result"))) {
             model.addAttribute("orderId", orderId);
-            return "payment/success"; // /WEB-INF/views/payment/success.jsp
+            return "payment/order-complete"; // /WEB-INF/views/payment/success.jsp
         } else {
             model.addAttribute("message", resultMap.get("message"));
             return "payment/fail";
@@ -110,6 +110,13 @@ public class PaymentController {
         model.addAttribute("message", message);
         model.addAttribute("orderId", orderId);
         return "payment/fail"; // /WEB-INF/views/payment/fail.jsp
+    }
+    
+ // 결제완료 화면 확인용
+    @RequestMapping("/payment/order-complete.do")
+    public String orderCompletePreview(Model model) {
+        model.addAttribute("orderId", "modak-테스트");
+        return "payment/order-complete";
     }
 
 }

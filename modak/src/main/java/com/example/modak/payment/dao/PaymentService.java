@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.modak.payment.mapper.PaymentMapper;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 @Service
 public class PaymentService {
@@ -65,52 +67,91 @@ public class PaymentService {
  // 임시 주문 저장 → ORDER_ID를 프론트에 반환
     public HashMap<String, Object> readyPayment(HashMap<String, Object> map) {
         HashMap<String, Object> resultMap = new HashMap<>();
-        try {
-            paymentMapper.insertTempOrder(map);
-            
-            // ✅ INSERT 후 생성된 ORDER_ID를 map에서 꺼내서 반환
-            Object orderId = map.get("orderId");
-            List<HashMap<String, Object>> items = paymentMapper.selectCheckoutItems(map);
 
+        try {
+            // 1. ORDERS 테이블에 READY 상태 주문 먼저 생성
+            paymentMapper.insertTempOrder(map);
+
+            // 2. INSERT 후 생성된 ORDER_ID 꺼내기
+            Object orderId = map.get("orderId");
+
+            // 3. 회원 / 비회원에 따라 주문상품 가져오는 방식 분리
+            List<HashMap<String, Object>> items;
+
+            if ("GUEST".equals(map.get("userId"))) {
+                // 비회원: 장바구니 DB가 아니라 프론트에서 보낸 sessionStorage 상품 사용
+                String guestOrderItems = (String) map.get("guestOrderItems");
+
+                items = new Gson().fromJson(
+                    guestOrderItems,
+                    new TypeToken<List<HashMap<String, Object>>>() {}.getType()
+                );
+            } else {
+                // 회원: cartIds 기준으로 CART 테이블에서 주문상품 조회
+                items = paymentMapper.selectCheckoutItems(map);
+            }
+
+            // 4. ORDER_ITEM 테이블에 주문상품 저장
             for (HashMap<String, Object> item : items) {
                 item.put("orderId", orderId);
                 paymentMapper.insertOrderItem(item);
             }
-            
+
+            // 5. 프론트에 orderId 반환 → Toss orderId 생성에 사용
             resultMap.put("result", "success");
-            resultMap.put("orderId", orderId); // 프론트로 ORDER_ID 전달
+            resultMap.put("orderId", orderId);
+
         } catch (Exception e) {
             e.printStackTrace();
             resultMap.put("result", "fail");
             resultMap.put("message", "주문 준비 실패: " + e.getMessage());
         }
+
         return resultMap;
     }
     
- // 토스 API 승인 - 트랜잭션 없음
+ // 토스 API 승인 - 외부 호출 + DB 처리 분리 구조
     public HashMap<String, Object> confirmPayment(String paymentKey, String orderId, Long amount) {
-        
-        // 1. 토스 API 승인 요청 (트랜잭션 밖)
+
+        // 1. 외부 API 호출 (트랜잭션 밖에서 처리 → 롤백 영향 X)
         HttpResponse<String> response = callTossApi(paymentKey, orderId, amount);
-        Long orderIdLong = Long.parseLong(orderId.replace("modak-", ""));
 
-        if (response.statusCode() == 200) {
-            // 2. DB 처리는 별도 트랜잭션 메서드로 위임
-            return processAfterPayment(orderIdLong, amount);
-        } else {
-            // 실패 처리
-            HashMap<String, Object> failMap = new HashMap<>();
-            failMap.put("orderId", orderIdLong);
-            failMap.put("orderStatus", "CANCELLED");
-            paymentMapper.updateOrderStatus(failMap);
-
+        // 2. API 호출 실패 (네트워크/서버 문제)
+        if (response == null) {
             HashMap<String, Object> resultMap = new HashMap<>();
             resultMap.put("result", "fail");
-            resultMap.put("message", "토스 승인 실패: " + response.body());
+            resultMap.put("message", "결제 서버 연결에 실패했습니다.");
             return resultMap;
         }
-        
+
+        // 3. 주문번호 파싱 (modak-123 → 123)
+        Long orderIdLong;
+        try {
+            orderIdLong = Long.parseLong(orderId.replace("modak-", ""));
+        } catch (Exception e) {
+            HashMap<String, Object> resultMap = new HashMap<>();
+            resultMap.put("result", "fail");
+            resultMap.put("message", "주문번호 형식 오류");
+            return resultMap;
+        }
+
+        // 4. 토스 승인 성공 → DB 처리 (별도 트랜잭션)
+        if (response.statusCode() == 200) {
+            return processAfterPayment(orderIdLong, amount);
+        }
+
+        // 5. 토스 승인 실패 → 주문 취소 처리
+        HashMap<String, Object> failMap = new HashMap<>();
+        failMap.put("orderId", orderIdLong);
+        failMap.put("orderStatus", "CANCELLED");
+        paymentMapper.updateOrderStatus(failMap);
+
+        HashMap<String, Object> resultMap = new HashMap<>();
+        resultMap.put("result", "fail");
+        resultMap.put("message", "토스 승인 실패: " + response.body());
+        return resultMap;
     }
+    
     private HttpResponse<String> callTossApi(String paymentKey, String orderId, Long amount) {
         try {
             String auth = Base64.getEncoder()
@@ -169,9 +210,12 @@ public class PaymentService {
         }
 
         // 4. 쿠폰 처리 (회원 + 쿠폰 있을 때만)
-        Object userCouponId = orderInfo.get("userCouponId");
+//        Object userCouponId = orderInfo.get("userCouponId");
+        Object userCouponId = orderInfo.get("USER_COUPON_ID");
+
         if (!isGuest && userCouponId != null) {
-        	long totalPrice = ((Number) orderInfo.get("totalPrice")).longValue();
+//        	long totalPrice = ((Number) orderInfo.get("totalPrice")).longValue();
+        	long totalPrice = ((Number) orderInfo.get("TOTAL_PRICE")).longValue();
         	long discountAmt = totalPrice - amount;
 
         	HashMap<String, Object> couponMap = new HashMap<>();
@@ -189,11 +233,12 @@ public class PaymentService {
             long earnedPoint = amount / 100;
 
             String orderName   = (String) orderInfo.get("orderName");
-            Long   itemCount   = (Long)   orderInfo.get("itemCount");
+//          Long   itemCount   = (Long)   orderInfo.get("itemCount");
+            long itemCount = ((Number) orderInfo.get("itemCount")).longValue();
             String description = "상품 구매 적립 포인트 지급";
             if (orderName != null) {
                 description += " - " + orderName;
-                if (itemCount != null && itemCount > 1) {
+                if (itemCount > 1) {
                     description += " 외 " + (itemCount - 1) + "건";
                 }
             }

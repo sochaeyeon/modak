@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>모닥모닥 - 결제</title>
+    <title>결제 - 모닥모닥</title>
     <link rel="stylesheet" href="/css/payment/payment.css">
     <link rel="stylesheet" href="/css/search/search.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
@@ -35,20 +35,46 @@
                 <section class="co-section">
                     <div class="co-section-title">배송지</div>
 
-                    <div class="addr-name">
-                        {{ addrForm.receiverName || addrForm.addressAlias || '배송지' }}
-                        <span class="addr-default-badge" v-if="addrForm.defaultYn === 'Y'">기본배송지</span>
+                    <!-- ✅ 회원일 때 - 기존 주소록 -->
+                    <template v-if="isLogin">
+                        <div class="addr-name">
+                            {{ addrForm.receiverName || addrForm.addressAlias || '배송지' }}
+                            <span class="addr-default-badge" v-if="addrForm.defaultYn === 'Y'">기본배송지</span>
+                        </div>
+                        <div class="addr-phone">{{ addrForm.receiverPhone || '연락처 없음' }}</div>
+                        <div class="addr-full">
+                            [{{ addrForm.zipcode }}] {{ addrForm.address }} {{ addrForm.detailedAddress }}
+                        </div>
+                        <button class="addr-change-btn" @click="addrModal.open = true">변경</button>
+                    </template>
+
+                    <!-- ✅ 비회원일 때 - 직접 입력 폼 -->
+                    <div v-else class="guest-addr-form">
+                        <div class="guest-field-wrap">
+                            <span class="guest-field-label">수령인 이름 *</span>
+                            <input class="guest-input" v-model="guestName" placeholder="홍길동" />
+                        </div>
+                        <div class="guest-field-wrap">
+                            <span class="guest-field-label">연락처 *</span>
+                            <input class="guest-input" v-model="guestPhone" placeholder="01012345678" />
+                        </div>
+                        <div class="guest-addr-row">
+                            <div class="guest-field-wrap zip">
+                                <span class="guest-field-label">우편번호 *</span>
+                                <input class="guest-input" v-model="guestZipcode" placeholder="06234" />
+                            </div>
+                            <div class="guest-field-wrap">
+                                <span class="guest-field-label">주소 *</span>
+                                <input class="guest-input" v-model="guestAddress" placeholder="서울시 강남구 테헤란로 123" />
+                            </div>
+                        </div>
+                        <div class="guest-field-wrap">
+                            <span class="guest-field-label">상세주소</span>
+                            <input class="guest-input optional" v-model="guestDetailAddress" placeholder="101동 202호" />
+                        </div>
                     </div>
 
-                    <div class="addr-phone">{{ addrForm.receiverPhone || '연락처 없음' }}</div>
-
-                    <div class="addr-full">
-                        [{{ addrForm.zipcode }}] {{ addrForm.address }} {{ addrForm.detailedAddress }}
-                    </div>
-
-                    <button class="addr-change-btn" @click="addrModal.open = true">변경</button>
-
-                    <!-- 배송 메모 -->
+                    <!-- 배송 메모 (공통) -->
                     <select class="delivery-memo-select" v-model="deliveryMemo">
                         <option value="">배송메모를 선택해주세요</option>
                         <option>문 앞에 놓아주세요</option>
@@ -130,84 +156,6 @@
                             </span>
                         </div>
                     </div>
-                </section>
-
-                <!-- ── 결제 수단 ── -->
-                <section class="co-section">
-                    <div class="co-section-title">결제수단
-                        <span class="co-total-badge">{{ formatPrice(finalTotal) }}</span>
-                    </div>
-
-                    <div class="pay-methods">
-                        <label v-for="pm in payMethods" :key="pm.value"
-                            class="pay-method-item"
-                            :class="{ on: payMethod === pm.value }">
-                            <input type="radio" :value="pm.value" v-model="payMethod" style="display:none">
-                            <span class="pay-method-radio"></span>
-                            <span class="pay-method-label">{{ pm.label }}</span>
-                            <span v-if="pm.badge" class="pay-method-badge">{{ pm.badge }}</span>
-                        </label>
-                    </div>
-
-                    <!-- 신용/체크카드 선택 -->
-                    <div v-if="payMethod === 'CARD'" class="card-select-box">
-                        <select class="card-select" v-model="selectedCard">
-                            <option value="">카드를 선택해주세요</option>
-                            <option>신한카드</option>
-                            <option>삼성카드</option>
-                            <option>현대카드</option>
-                            <option>KB국민카드</option>
-                            <option>하나카드</option>
-                            <option>우리카드</option>
-                            <option>NH농협카드</option>
-                            <option>롯데카드</option>
-                        </select>
-                        <select class="card-install-select" v-model="cardInstall">
-                            <option value="0">일시불</option>
-                            <option value="2">2개월</option>
-                            <option value="3">3개월</option>
-                            <option value="6">6개월</option>
-                            <option value="12">12개월</option>
-                        </select>
-                    </div>
-
-                    <!-- 계좌이체 -->
-                    <div v-if="payMethod === 'TRANSFER'" class="card-select-box">
-                        <select class="card-select" v-model="selectedBank">
-                            <option value="">은행을 선택해주세요</option>
-                            <option>신한은행</option>
-                            <option>국민은행</option>
-                            <option>하나은행</option>
-                            <option>우리은행</option>
-                            <option>카카오뱅크</option>
-                            <option>토스뱅크</option>
-                            <option>NH농협은행</option>
-                        </select>
-                    </div>
-                </section>
-
-                <!-- ── 현금영수증 ── -->
-                <section class="co-section" v-if="payMethod === 'TRANSFER' || payMethod === 'VBANK'">
-                    <div class="co-section-title">현금영수증</div>
-                    <div class="cash-receipt-wrap">
-                        <label class="cash-radio" :class="{ on: cashReceipt === 'none' }">
-                            <input type="radio" value="none" v-model="cashReceipt" style="display:none">
-                            <span class="cash-radio-dot"></span> 신청 안함
-                        </label>
-                        <label class="cash-radio" :class="{ on: cashReceipt === 'personal' }">
-                            <input type="radio" value="personal" v-model="cashReceipt" style="display:none">
-                            <span class="cash-radio-dot"></span> 개인소득공제
-                        </label>
-                        <label class="cash-radio" :class="{ on: cashReceipt === 'business' }">
-                            <input type="radio" value="business" v-model="cashReceipt" style="display:none">
-                            <span class="cash-radio-dot"></span> 사업자지출증빙
-                        </label>
-                    </div>
-                    <input v-if="cashReceipt !== 'none'"
-                        class="cash-number-input"
-                        v-model="cashReceiptNumber"
-                        :placeholder="cashReceipt === 'personal' ? '휴대폰 번호 또는 현금영수증 카드번호' : '사업자 등록번호'"
-                    >
                 </section>
 
                 <!-- ── 동의 ── -->
@@ -307,6 +255,7 @@
 </div><!-- /app -->
 <%@ include file="/WEB-INF/common/footer.jsp" %>
 <script>
+    const TOSS_CLIENT_KEY = "${tossClientKey}";
     const app = Vue.createApp({
         data() {
             return {
@@ -321,22 +270,6 @@
                 // 쿠폰
                 couponList: [],
                 selectedUserCouponId: '',
-
-                // 결제수단
-                payMethod: 'CARD',
-                payMethods: [
-                    { value: 'CARD',     label: '신용/체크카드' },
-                    { value: 'TRANSFER', label: '계좌이체' },
-                    { value: 'VBANK',    label: '가상계좌' },
-                    { value: 'PHONE',    label: '휴대폰 결제' },
-                ],
-                selectedCard: '',
-                cardInstall: '0',
-                selectedBank: '',
-
-                // 현금영수증
-                cashReceipt: 'none',
-                cashReceiptNumber: '',
 
                 // 동의
                 agreeAll: false,
@@ -358,6 +291,13 @@
                     receiverName: '',
                     receiverPhone: ''
                 },
+                // 비회원 정보
+                guestName: '',
+                guestPhone: '',
+                guestZipcode: '',      
+                guestAddress: '',      
+                guestDetailAddress: '',
+                isPaying: false
             };
         },
         computed: {
@@ -413,12 +353,11 @@
                     dataType: 'json',
                     success(res) {
                         self.isLogin = res.isLogin === true;
+                        // ✅ 비회원도 그냥 통과 (redirect 제거)
+                        self.fetchOrderItems();
+                        self.fetchAddressList();
                         if (self.isLogin) {
-                            self.fetchOrderItems();
                             self.fetchCouponList();
-                            self.fetchAddressList();
-                        } else {
-                            location.href = '/user/login.do';
                         }
                     }
                 });
@@ -426,6 +365,34 @@
 
             fetchOrderItems() {
                 let self = this;
+
+                // ✅ 비회원은 sessionStorage에서 주문상품 가져오기
+                if (!self.isLogin) {
+                    const raw = sessionStorage.getItem('guest_order_items');
+
+                    if (!raw) {
+                        console.log("비회원 주문 데이터 없음");
+                        self.orderItems = [];
+                        return;
+                    }
+
+                    try {
+                        self.orderItems = JSON.parse(raw) || [];
+                    } catch (e) {
+                        console.log("비회원 주문 데이터 파싱 오류", e);
+                        self.orderItems = [];
+                    }
+
+                    return;
+                }
+
+                // ✅ 회원만 cartIds로 DB 조회
+                if (!self.cartIds || self.cartIds.length === 0) {
+                    console.log("cartIds 없음");
+                    self.orderItems = [];
+                    return;
+                }
+
                 $.ajax({
                     url: '/payment/checkoutItems.dox',
                     type: 'POST',
@@ -474,38 +441,44 @@
 
             // ── 결제하기 ──
             fnPay() {
-                if (!this.agreeAll) {
-                    this.showToast('약관에 동의해주세요.');
-                    return;
-                }
-                if (this.orderItems.length === 0) {
-                    this.showToast('주문 상품이 없습니다.');
-                    return;
-                }
+                if (this.isPaying) return; // ✅ 중복 방지
+                this.isPaying = true;
 
-                // orderId 생성 (6자~64자, 중복 불가)
-                const orderId = 'modak-' + new Date().getTime();
+                if (!this.agreeAll) { this.showToast('약관에 동의해주세요.'); return; }
+                if (this.orderItems.length === 0) { this.showToast('주문 상품이 없습니다.'); return; }
+                // ✅ 비회원 검증
+                if (!this.isLogin) {
+                    if (!this.guestName.trim())    { this.showToast('수령인 이름을 입력해주세요.'); return; }
+                    if (!this.guestPhone.trim())   { this.showToast('연락처를 입력해주세요.'); return; }
+                    if (!this.guestZipcode.trim()) { this.showToast('우편번호를 입력해주세요.'); return; }
+                    if (!this.guestAddress.trim()) { this.showToast('주소를 입력해주세요.'); return; }
+                }
                 
-                // 주문명
+                // ✅ orderId는 이제 서버에서 받아옴 (프론트에서 생성 X)
                 const orderName = this.orderItems.length === 1
                     ? this.orderItems[0].productName
                     : this.orderItems[0].productName + ' 외 ' + (this.orderItems.length - 1) + '건';
 
-                // ① 먼저 서버에 임시 주문 저장 (금액 변조 방지)
                 let self = this;
                 $.ajax({
                     url: '/payment/ready.dox',
                     type: 'POST',
                     data: {
-                        orderId: orderId,
                         amount: self.finalTotal,
                         cartIds: self.cartIds.join(','),
                         cartType: self.cartType,
                         userCouponId: self.selectedUserCouponId || '',
-                        receiverName: self.addrForm.receiverName,
-                        receiverPhone: self.addrForm.receiverPhone,
-                        address: self.addrForm.address + ' ' + (self.addrForm.detailedAddress || ''),
-                        deliveryMemo: self.deliveryMemo === '직접 입력' ? self.deliveryMemoCustom : self.deliveryMemo
+                        guestOrderItems: self.isLogin ? '' : JSON.stringify(self.orderItems),
+                        receiverName:  self.isLogin ? self.addrForm.receiverName  : self.guestName,
+                        receiverPhone: self.isLogin ? self.addrForm.receiverPhone : self.guestPhone,
+                        address: self.isLogin
+                            ? self.addrForm.address + ' ' + (self.addrForm.detailedAddress || '')
+                            : self.guestAddress + ' ' + self.guestDetailAddress,  // ✅ 비회원 주소
+                        zipcode: self.isLogin ? self.addrForm.zipcode : self.guestZipcode, // ✅ 추가
+                        deliveryMemo: self.deliveryMemo === '직접 입력' ? self.deliveryMemoCustom : self.deliveryMemo,
+                        guestName:  self.isLogin ? '' : self.guestName,
+                        guestPhone: self.isLogin ? '' : self.guestPhone,
+                        isGuest: self.isLogin ? 'N' : 'Y'
                     },
                     dataType: 'json',
                     success(res) {
@@ -514,19 +487,22 @@
                             return;
                         }
 
-                        // ② 토스 결제창 호출
-                        const tossPayments = TossPayments("test_ck_여기에_클라이언트키_입력");
-                        
+                        // ✅ 서버에서 받은 ORDER_ID 사용
+                        // const orderId = String(res.orderId);
+                        const orderId = 'modak-' + String(res.orderId);
+
+                        const tossPayments = TossPayments(TOSS_CLIENT_KEY);
                         tossPayments.requestPayment('카드', {
                             amount: self.finalTotal,
                             orderId: orderId,
                             orderName: orderName,
-                            customerName: self.addrForm.receiverName,
+                            customerName: self.addrForm.receiverName || '고객',
                             successUrl: window.location.origin + '/payment/success.do',
                             failUrl: window.location.origin + '/payment/fail.do'
                         });
                     },
                     error() {
+                        self.isPaying = false; // ✅ 실패 시 잠금 해제
                         self.showToast('주문 처리 중 오류가 발생했습니다.');
                     }
                 });

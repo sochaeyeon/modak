@@ -26,32 +26,96 @@
 	
 	<!-- 파라미터로 받은 cartId 장바구니 조회 -->
 	<select id="selectCheckoutItems" parameterType="hashmap" resultType="hashmap">
-	    SELECT
-	        c.cart_id       AS cartId,
-	        c.quantity      AS quantity,
-	        c.cart_type     AS cartType,
-	        c.user_id       AS userId,
-	        c.product_id    AS productId,
-	        c.option_id     AS optionId,
-	        c.rental_start  AS rentalStart,
-	        c.rental_end    AS rentalEnd,
-	        p.product_name  AS productName,
-	        p.price         AS price,
-	        b.brand_name    AS brandName,
-	        i.img_url       AS imgUrl,
-	        o.option_value  AS optionName
-	    FROM CART c
-	    INNER JOIN PRODUCT p 
-	        ON c.product_id = p.product_id
-	    LEFT JOIN BRAND b 
-	        ON p.brand_id = b.brand_id
-	    LEFT JOIN PRODUCT_IMG i 
-	        ON p.product_id = i.product_id
-	        AND i.is_main = 'Y'
-	    LEFT JOIN PRODUCT_OPTION o 
-	        ON c.option_id = o.option_id
-	    WHERE c.cart_id IN (${cartIds})
-	    ORDER BY c.created_at DESC
+	    <if test="cartIds != null and cartIds != ''">
+	        SELECT
+	            c.cart_id       AS cartId,
+	            c.quantity      AS quantity,
+	            c.cart_type     AS cartType,
+	            c.user_id       AS userId,
+	            c.product_id    AS productId,
+	            c.option_id     AS optionId,
+	            c.rental_start  AS rentalStart,
+	            c.rental_end    AS rentalEnd,
+	            p.product_name  AS productName,
+	            p.price         AS price,
+	            b.brand_name    AS brandName,
+	            o.option_value  AS optionName,
+	            (
+	                SELECT img_url 
+	                FROM PRODUCT_IMG 
+	                WHERE product_id = c.product_id 
+	                  AND is_main = 'Y' 
+	                LIMIT 1
+	            ) AS imgUrl
+	        FROM CART c
+	        INNER JOIN PRODUCT p 
+	            ON c.product_id = p.product_id
+	        LEFT JOIN BRAND b 
+	            ON p.brand_id = b.brand_id
+	        LEFT JOIN PRODUCT_OPTION o 
+	            ON c.option_id = o.option_id
+	        WHERE c.cart_id IN (${cartIds})
+	        ORDER BY c.created_at DESC
+	    </if>
 	</select>
+
+	<!-- 임시 주문 INSERT (STATUS = READY) -->
+	<insert id="insertTempOrder" parameterType="hashmap" useGeneratedKeys="true" keyProperty="orderId">
+	    INSERT INTO ORDERS (
+	        ORDER_TYPE,
+	        ORDER_STATUS,
+	        TOTAL_PRICE,
+	        DISCOUNT_AMT,
+	        CREATED_AT,
+	        USER_ID,
+	        USER_COUPON_ID,
+	        GUEST_NAME,
+	        GUEST_PHONE
+	    ) VALUES (
+	        #{cartType},
+	        'READY',
+	        #{amount},
+	        0,
+	        NOW(),
+	        <choose>
+	            <when test='"Y".equals(isGuest)'>'GUEST'</when>
+	            <otherwise>#{userId}</otherwise>
+	        </choose>,
+	        <choose>
+	            <when test="userCouponId != null and userCouponId != ''">#{userCouponId}</when>
+	            <otherwise>NULL</otherwise>
+	        </choose>,
+	        <choose>
+	            <when test='"Y".equals(isGuest)'>#{guestName}</when>
+	            <otherwise>NULL</otherwise>
+	        </choose>,
+	        <choose>
+	            <when test='"Y".equals(isGuest)'>#{guestPhone}</when>
+	            <otherwise>NULL</otherwise>
+	        </choose>
+	    )
+	</insert>
+	
+	<!-- 결제 성공 시 상태 업데이트 -->
+	<update id="updateOrderStatus" parameterType="hashmap">
+	    UPDATE ORDERS
+	    SET ORDER_STATUS = #{orderStatus}
+	    WHERE ORDER_ID = #{orderId}
+	</update>
+	
+	<!-- PAYMENT 테이블 INSERT -->
+	<insert id="insertPayment" parameterType="hashmap">
+	    INSERT INTO PAYMENT (
+	        ORDER_ID,
+	        AMOUNT,
+	        PAY_STATUS,
+	        PAID_AT
+	    ) VALUES (
+	        #{orderId},
+	        #{amount},
+	        'PAID',
+	        NOW()
+	    )
+	</insert>
 
 </mapper>

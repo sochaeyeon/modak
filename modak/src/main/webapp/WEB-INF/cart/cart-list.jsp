@@ -692,10 +692,11 @@ const app = Vue.createApp({
             if (!this.isLogin) {
                 const selected = this.filteredCart.filter(c => this.checkedIds.includes(c.cartId));
                 sessionStorage.setItem('guest_order_items', JSON.stringify(selected));
-                location.href = '/order/checkout.do?isGuest=true&cartType=' + this.activeTab;
+                location.href = '/payment/checkout.do?isGuest=true&cartType=' + this.activeTab;
                 return;
             }
 
+            let url = '/payment/checkout.do?cartIds=' + this.checkedIds.join(',') + '&cartType=' + this.activeTab;
             let url = '/order/checkout.do?cartIds=' + this.checkedIds.join(',') + '&cartType=' + this.activeTab;
 
             if (this.selectedUserCouponId) {

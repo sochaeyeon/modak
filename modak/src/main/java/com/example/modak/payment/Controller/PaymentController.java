@@ -3,6 +3,7 @@ package com.example.modak.payment.Controller;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +24,8 @@ public class PaymentController {
     PaymentService paymentService;
     @Autowired
     HttpSession session;
+    @Value("${toss.client-key}") 
+    private String tossClientKey;
 
     // 장바구니 → 결제 페이지 이동
     @RequestMapping("/payment/checkout.do")
@@ -31,6 +34,7 @@ public class PaymentController {
 
         // cartIds, cartType, userCouponId 가 map 안에 담겨서 옴
         request.setAttribute("map", map); // jsp에서 ${map.cartIds} 로 꺼내기
+        model.addAttribute("tossClientKey", tossClientKey);
         return "payment/checkout"; 
     }
     
@@ -63,6 +67,49 @@ public class PaymentController {
         HashMap<String, Object> resultMap = new HashMap<>();
         resultMap = paymentService.getCheckoutItems(map);
         return new Gson().toJson(resultMap);
+    }
+    
+ // 임시 주문 저장 (금액 변조 방지용)
+    @RequestMapping(value = "/payment/ready.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String payReady(@RequestParam HashMap<String, Object> map) throws Exception {
+        HashMap<String, Object> resultMap = new HashMap<>();
+        
+        String userId = (String) session.getAttribute("sessionId");
+     // ✅ 비회원이면 GUEST로 세팅
+        map.put("userId", userId != null ? userId : "GUEST");
+        
+        resultMap = paymentService.readyPayment(map);
+        return new Gson().toJson(resultMap);
+    }
+ // ✅ 토스 결제 성공 콜백 (successUrl로 리다이렉트됨)
+    @RequestMapping("/payment/success.do")
+    public String paySuccess(
+            @RequestParam String paymentKey,
+            @RequestParam String orderId,
+            @RequestParam Long amount,
+            Model model) throws Exception {
+
+        HashMap<String, Object> resultMap = paymentService.confirmPayment(paymentKey, orderId, amount);
+
+        if ("success".equals(resultMap.get("result"))) {
+            model.addAttribute("orderId", orderId);
+            return "payment/success"; // /WEB-INF/views/payment/success.jsp
+        } else {
+            model.addAttribute("message", resultMap.get("message"));
+            return "payment/fail";
+        }
+    }
+
+    // ✅ 토스 결제 실패 콜백 (failUrl로 리다이렉트됨)
+    @RequestMapping("/payment/fail.do")
+    public String payFail(
+            @RequestParam(required = false) String message,
+            @RequestParam(required = false) String orderId,
+            Model model) {
+        model.addAttribute("message", message);
+        model.addAttribute("orderId", orderId);
+        return "payment/fail"; // /WEB-INF/views/payment/fail.jsp
     }
 
 }

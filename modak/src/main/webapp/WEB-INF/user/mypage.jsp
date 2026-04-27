@@ -8,7 +8,7 @@
                 <head>
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>마이페이지</title>
+                    <title>마이페이지 - 모닥모닥</title>
                     <script src="https://code.jquery.com/jquery-3.7.1.js"
                         integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
                         crossorigin="anonymous"></script>
@@ -17,7 +17,11 @@
                     <script src="//t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
                     <link rel="stylesheet" href="/css/user/mypage.css">
                     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
-
+<style>
+    [v-cloak] {
+        display: none !important;
+    }
+</style>
                 </head>
 
                 <body>
@@ -300,7 +304,7 @@
                                             <div class="section-head">
                                                 <h3>최근 주문내역</h3>
                                                 <div class="order-head-actions">
-                                                    <a href="/order/history.do">더보기 →</a>
+                                                    <a href="/order/history.do">전체보기 →</a>
                                                 </div>
                                             </div>
                                            <div class="order-list">
@@ -372,7 +376,7 @@
                                     <div class="tab-panel" id="tab-wishlist">
                                         <div class="section-card">
                                             <div class="section-head">
-                                                <h3>찜한 상품</h3><a href="javascript:;" @click="fnGoWishlistHistory">더보기
+                                                <h3>찜한 상품</h3><a href="javascript:;" @click="fnGoWishlistHistory">전체보기
                                                     →</a>
                                             </div>
                                             <div class="wish-grid">
@@ -380,18 +384,44 @@
                                                     <p>찜한 상품이 없습니다.</p>
                                                 </div>
 
-                                                <div class="wish-item" v-for="item in limitedWishlist"
-                                                    :key="item.productId" @click="fnGoProductDetail(item.productId)">
+                                               <div class="wish-item" v-for="item in limitedWishlist"
+                                                :key="item.productId"
+                                                @click="fnGoProductDetail(item.productId)">
+
                                                     <div class="wish-thumb">
-    <img v-if="item.imgUrl"
-         :src="item.imgUrl"
-         style="width:100%; height:100%; object-fit:cover;">
-    <span v-else>🛒</span>
-</div>
+                                                        <img v-if="item.imgUrl"
+                                                            :src="item.imgUrl"
+                                                            style="width:100%; height:100%; object-fit:cover;">
+                                                        <span v-else>🛒</span>
+                                                    </div>
+
+                                                    <button type="button" class="wish-remove-icon on"
+                                                        title="찜 해제"
+                                                        @click.stop="fnRemoveWishlist(item.wishId)">
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                            stroke-width="2">
+                                                            <path
+                                                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                                        </svg>
+                                                    </button>
+
                                                     <div class="wish-body">
-                                                        <div class="wish-name">{{ item.productName }}</div>
-                                                        <div class="wish-price">{{ Number(item.price ||
-                                                            0).toLocaleString() }}원</div>
+                                                    <div class="wish-name-wrap">
+                                                    <span class="wish-name">
+                                                        {{ item.productName }}
+                                                        <span v-if="item.brandName" class="wish-brand-inline">
+                                                            · {{ item.brandName }}
+                                                        </span>
+                                                    </span>
+                                                </div>
+
+                                                <div v-if="item.categoryName" class="wish-category-pill">
+    {{ item.categoryName }}
+</div>
+
+                                                        <div class="wish-price">
+                                                            {{ Number(item.price || 0).toLocaleString() }}원
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -403,30 +433,57 @@
                                         <div class="section-card">
                                             <div class="section-head">
                                                 <h3>최근 본 상품</h3>
-                                                <a href="javascript:;" @click="fnGoRecentHistory">더보기 →</a>
+                                                <a href="javascript:;" @click="fnGoRecentHistory">전체보기 →</a>
                                             </div>
                                             <div class="wish-grid">
                                                 <div v-if="recentList.length === 0" class="empty-state">
                                                     <p>최근 본 상품이 없습니다.</p>
                                                 </div>
 
-                                                <div class="wish-item" v-for="item in recentList" :key="item.productId"
-    @click="fnGoProductDetail(item.productId)">
+                                               <div class="wish-item"
+                                                    v-for="item in recentList"
+                                                    :key="item.productId"
+                                                    @click="fnGoProductDetail(item.productId)">
 
-    <div class="wish-thumb">
-        <img v-if="item.imgUrl"
-             :src="item.imgUrl"
-             style="width:100%; height:100%; object-fit:cover;">
-        <span v-else>🛒</span>
-    </div>
+                                                    <div class="wish-thumb">
+                                                        <img v-if="item.imgUrl"
+                                                            :src="item.imgUrl"
+                                                            style="width:100%; height:100%; object-fit:cover;">
+                                                        <span v-else>🛒</span>
+                                                    </div>
 
-    <div class="wish-body">
-        <div class="wish-name">{{ item.productName }}</div>
-        <div class="wish-price">
-            {{ Number(item.price || 0).toLocaleString() }}원
-        </div>
-    </div>
-</div>
+                                                    <button type="button"
+                                                            class="wish-remove-icon"
+                                                            :class="{ on: fnIsWished(item.productId) }"
+                                                            title="찜하기"
+                                                            @click.stop="fnToggleWishlist(item)">
+                                                        <svg viewBox="0 0 24 24"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            stroke-width="2">
+                                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                                        </svg>
+                                                    </button>
+
+                                                    <div class="wish-body">
+                                                        <div class="wish-name-wrap">
+                                                            <span class="wish-name">
+                                                                {{ item.productName }}
+                                                                <span v-if="item.brandName" class="wish-brand-inline">
+                                                                    · {{ item.brandName }}
+                                                                </span>
+                                                            </span>
+                                                        </div>
+
+                                                        <div v-if="item.categoryName" class="wish-category-pill">
+                                                            {{ item.categoryName }}
+                                                        </div>
+
+                                                        <div class="wish-price">
+                                                            {{ Number(item.price || 0).toLocaleString() }}원
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -578,7 +635,7 @@
                                         <div class="section-card">
                                             <div class="section-head benefits-history-head">
                                                 <h3>포인트 · 쿠폰 내역</h3>
-                                                <a href="javascript:;" @click="fnGoBenefitHistory">더보기 →</a>
+                                                <a href="javascript:;" @click="fnGoBenefitHistory">전체보기 →</a>
                                             </div>
 
                                             <div class="benefits-history-split">
@@ -634,54 +691,44 @@
                                                     </div>
 
                                                     <div class="coupon-history mini-history">
-                                                        <c:choose>
-                                                            <c:when test="${not empty couponList}">
-                                                                <c:forEach var="item" items="${couponList}">
-                                                                    <div class="coupon-item">
-                                                                        <div class="coupon-left">
-                                                                            <div class="coupon-name">${item.couponName}
-                                                                            </div>
-                                                                            <div class="coupon-date">
-                                                                                <c:choose>
-                                                                                    <c:when
-                                                                                        test="${not empty item.expiredAt}">
-                                                                                        ~ ${item.expiredAt}
-                                                                                    </c:when>
-                                                                                    <c:otherwise>
-                                                                                        사용기한 없음
-                                                                                    </c:otherwise>
-                                                                                </c:choose>
-                                                                            </div>
-                                                                        </div>
+                                                        <div v-if="couponList.length === 0" class="empty-state small-empty">
+                                                            <p>보유 쿠폰이 없습니다.</p>
+                                                        </div>
 
-                                                                        <div class="coupon-right">
-                                                                            <div
-                                                                                class="coupon-status ${fn:toLowerCase(item.status)}">
-                                                                                <c:choose>
-                                                                                    <c:when
-                                                                                        test="${item.status eq 'AVAILABLE'}">
-                                                                                        사용 가능</c:when>
-                                                                                    <c:when
-                                                                                        test="${item.status eq 'USED'}">
-                                                                                        사용 완료</c:when>
-                                                                                    <c:when
-                                                                                        test="${item.status eq 'EXPIRED'}">
-                                                                                        만료</c:when>
-                                                                                    <c:otherwise>${item.status}
-                                                                                    </c:otherwise>
-                                                                                </c:choose>
-                                                                            </div>
-                                                                        </div>
+                                                        <template v-for="(item, index) in couponList" :key="item.userCouponId">
+                                                            <div v-if="index < 3"
+                                                                class="coupon-ticket"
+                                                                :class="(item.status || '').toLowerCase()">
+                                                                <div class="coupon-ticket-left">
+                                                                    <div class="coupon-ticket-label">MODAK</div>
+
+                                                                    <div class="coupon-ticket-name">
+                                                                        {{ item.couponName }}
                                                                     </div>
-                                                                </c:forEach>
-                                                            </c:when>
 
-                                                            <c:otherwise>
-                                                                <div class="empty-state small-empty">
-                                                                    <p>보유 쿠폰이 없습니다.</p>
+                                                                   <div class="coupon-ticket-benefit">
+                                                                        {{ fnCouponBenefitText(item) }}
+
+                                                                        <span class="coupon-ticket-condition-inline">
+                                                                            {{ fnCouponConditionText(item) }}
+                                                                        </span>
+                                                                    </div>
+
+                                                                    <div class="coupon-ticket-date">
+                                                                        ~ {{ item.expiredAt }}
+                                                                    </div>
                                                                 </div>
-                                                            </c:otherwise>
-                                                        </c:choose>
+
+                                                                <div class="coupon-ticket-right">
+                                                                    <div class="coupon-status"
+                                                                        :class="(item.status || '').toLowerCase()">
+                                                                        {{ fnCouponStatusText(item.status) }}
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+
+                                                        </template>
                                                     </div>
                                                 </div>
 
@@ -694,7 +741,7 @@
                                         <div class="section-card">
                                             <div class="section-head">
                                                 <h3>내가 쓴 리뷰</h3>
-                                                <a href="/user/review/history.do">더보기 →</a>
+                                                <a href="/user/review/history.do">전체보기 →</a>
                                             </div>
 
                                             <div class="review-list">
@@ -791,7 +838,7 @@
                                         <div class="section-card">
                                             <div class="section-head">
                                                 <h3>내 문의 목록</h3>
-                                                <a href="/user/inquiry/history.do">더보기 →</a>
+                                                <a href="/user/inquiry/history.do">전체보기 →</a>
                                             </div>
 
                                             <div class="review-list inquiry-review-list">
@@ -889,7 +936,7 @@
                                         <div class="section-card">
                                             <div class="section-head">
                                                 <h3>챗봇 기록</h3>
-                                                <a href="javascript:;" @click="fnGoChatbotHistory">더보기 →</a>
+                                                <a href="javascript:;" @click="fnGoChatbotHistory">전체보기 →</a>
                                             </div>
 
                                             <div class="review-list chatbot-review-list">
@@ -1021,8 +1068,13 @@
                                                     </div>
 
                                                     <div class="settings-actions">
-                                                        <button type="button" class="btn-save"
-                                                            @click="fnSaveSettings">저장</button>
+                                                       <button
+    type="button"
+    class="btn-save"
+    :disabled="!isSettingsChanged"
+    @click="fnSaveSettings">
+    저장
+</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1111,6 +1163,29 @@
                         </div>
                         </main>
                         </div>
+                        <div class="toast" id="toast"></div>
+
+<div v-cloak v-if="modal.show" class="delete-modal-backdrop" @click.self="fnCloseModal">
+    <div
+        class="delete-modal-box"
+        ref="confirmModal"
+        tabindex="0"
+        @keydown.enter.prevent="fnModalConfirm"
+        @keydown.esc.prevent="fnCloseModal"
+    >
+        <div class="delete-modal-title">{{ modal.title }}</div>
+        <div class="delete-modal-desc" v-html="modal.message"></div>
+
+        <div class="delete-modal-actions">
+            <button type="button" class="delete-confirm-btn" @click="fnModalConfirm">
+                {{ modal.confirmText }}
+            </button>
+            <button type="button" class="delete-cancel-btn" @click="fnCloseModal">
+                취소
+            </button>
+        </div>
+    </div>
+</div>
                         </div>
                         <%@ include file="/WEB-INF/common/footer.jsp" %>
                 </body>
@@ -1215,9 +1290,27 @@
                                     profileImgUrl: "${empty user.profileImgUrl ? '' : user.profileImgUrl}"
                                 },
                                  profileImageVersion: Date.now(),
+                                    modal: {
+                                        show: false,
+                                        title: '',
+                                        message: '',
+                                        confirmText: '확인',
+                                        onConfirm: null
+                                    },
+                                        originalSettingsForm: {
+                                        userName: "",
+                                        nickName: "",
+                                        userPhone: ""
+                                    },
+                                couponList: [],
                             };
                         },
                         computed: {
+                            isSettingsChanged() {
+    return this.settingsForm.userName !== this.originalSettingsForm.userName
+        || this.settingsForm.nickName !== this.originalSettingsForm.nickName
+        || this.settingsForm.userPhone !== this.originalSettingsForm.userPhone;
+},
                             limitedOrderList() {
     return this.filteredOrderList.slice(0, 5);
 },
@@ -1348,6 +1441,47 @@
 },
                         },
                         methods: {
+                            showToast: function (msg) {
+    var t = document.getElementById("toast");
+    if (!t) return;
+
+    t.textContent = msg;
+    t.classList.add("show");
+
+    setTimeout(function () {
+        t.classList.remove("show");
+    }, 2300);
+},
+
+fnOpenModal: function (option) {
+    var self = this;
+
+    self.modal.show = true;
+    self.modal.title = option.title || "확인";
+    self.modal.message = option.message || "";
+    self.modal.confirmText = option.confirmText || "확인";
+    self.modal.onConfirm = option.onConfirm || null;
+
+    self.$nextTick(function () {
+        if (self.$refs.confirmModal) {
+            self.$refs.confirmModal.focus();
+        }
+    });
+},
+
+fnCloseModal: function () {
+    this.modal.show = false;
+    this.modal.onConfirm = null;
+},
+
+fnModalConfirm: function () {
+    var callback = this.modal.onConfirm;
+    this.fnCloseModal();
+
+    if (typeof callback === "function") {
+        callback();
+    }
+},
                             // 함수(메소드) - (key : function())
                             fnGetOrderList: function () {
                                 let self = this;
@@ -1678,77 +1812,80 @@
                                     },
                                     success: function (data) {
                                         if (data.result === "success") {
-                                            self.passwordMsg = data.message || "비밀번호가 변경되었습니다.";
-                                            self.passwordMsgType = "success";
+                                            self.showToast(data.message || "비밀번호가 변경되었습니다.");
 
                                             self.passwordForm.currentPwd = "";
                                             self.passwordForm.newPwd = "";
                                             self.passwordForm.newPwdConfirm = "";
                                         } else {
-                                            self.passwordMsg = data.message || "비밀번호 변경에 실패했습니다.";
-                                            self.passwordMsgType = "error";
+                                            self.showToast(data.message || "비밀번호 변경에 실패했습니다.");
                                         }
                                     },
                                     error: function () {
-                                        self.passwordMsg = "서버 오류가 발생했습니다.";
-                                        self.passwordMsgType = "error";
+                                        self.showToast("서버 오류가 발생했습니다.");
                                     }
                                 });
                             },
                             fnDeleteUser: function () {
                                 let self = this;
 
-                                // ✅ 1차 확인
-                                if (!confirm("정말 회원탈퇴 하시겠습니까?\n탈퇴 시 모든 정보가 삭제됩니다.")) {
-                                    return;
-                                }
-
-                                // (선택) 2차 확인까지 하고 싶으면
-                                if (!confirm("진짜로 탈퇴하시겠습니까? 되돌릴 수 없습니다.")) {
-                                    return;
-                                }
-
-                                $.ajax({
-                                    url: "/user/settings/delete.dox",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: {},
-                                    success: function (data) {
-                                        if (data.result === "success") {
-                                            alert("회원탈퇴가 완료되었습니다.");
-                                            location.href = "/user/login.do"; // 
-                                        } else {
-                                            alert(data.message || "탈퇴에 실패했습니다.");
-                                        }
-                                    },
-                                    error: function () {
-                                        alert("서버 오류가 발생했습니다.");
+                                self.fnOpenModal({
+                                    title: "회원탈퇴 하시겠습니까?",
+                                    message: "탈퇴 시 계정 정보가 삭제되며 <strong>되돌릴 수 없습니다.</strong>",
+                                    confirmText: "탈퇴",
+                                    onConfirm: function () {
+                                        $.ajax({
+                                            url: "/user/settings/delete.dox",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: {},
+                                            success: function (data) {
+                                                if (data.result === "success") {
+                                                    self.showToast(data.message || "회원탈퇴가 완료되었습니다.");
+                                                    setTimeout(function () {
+                                                        location.href = "/user/login.do";
+                                                    }, 900);
+                                                } else {
+                                                    self.showToast(data.message || "탈퇴에 실패했습니다.");
+                                                }
+                                            },
+                                            error: function () {
+                                                self.showToast("서버 오류가 발생했습니다.");
+                                            }
+                                        });
                                     }
                                 });
                             },
 
                             fnRemoveReview: function (reviewId) {
-                                if (!confirm("리뷰를 삭제하시겠습니까?")) {
-                                    return;
-                                }
+                                let self = this;
 
-                                $.ajax({
-                                    url: "/user/review/remove.dox",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: { reviewId: reviewId },
-                                    success: function (data) {
-                                        if (data.result === "success") {
-                                            alert("리뷰가 삭제되었습니다.");
-                                            // 리뷰 탭 유지용 저장
-                                            sessionStorage.setItem("activeTab", "reviews");
-                                            location.reload();
-                                        } else {
-                                            alert(data.message || "삭제에 실패했습니다.");
-                                        }
-                                    },
-                                    error: function () {
-                                        alert("서버 오류가 발생했습니다.");
+                                self.fnOpenModal({
+                                    title: "리뷰를 삭제하시겠습니까?",
+                                    message: "삭제한 리뷰는 다시 복구할 수 없습니다.",
+                                    confirmText: "삭제",
+                                    onConfirm: function () {
+                                        $.ajax({
+                                            url: "/user/review/remove.dox",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: { reviewId: reviewId },
+                                            success: function (data) {
+                                                if (data.result === "success") {
+                                                    self.showToast("리뷰가 삭제되었습니다.");
+                                                    sessionStorage.setItem("activeTab", "reviews");
+
+                                                    setTimeout(function () {
+                                                        location.reload();
+                                                    }, 700);
+                                                } else {
+                                                    self.showToast(data.message || "삭제에 실패했습니다.");
+                                                }
+                                            },
+                                            error: function () {
+                                                self.showToast("서버 오류가 발생했습니다.");
+                                            }
+                                        });
                                     }
                                 });
                             },
@@ -1795,21 +1932,26 @@
                                             self.settingsForm.userName = info.userName || "";
                                             self.settingsForm.nickName = info.nickName || "";
                                             let profileImgUrl = info.profileImgUrl || "";
-profileImgUrl = String(profileImgUrl).trim();
+                                            profileImgUrl = String(profileImgUrl).trim();
 
-if (
-    !profileImgUrl.startsWith("/img/profile/") &&
-    !profileImgUrl.startsWith("/upload/profile/")
-) {
-    profileImgUrl = "";
-}
+                                            if (
+                                                !profileImgUrl.startsWith("/img/profile/") &&
+                                                !profileImgUrl.startsWith("/upload/profile/")
+                                            ) {
+                                                profileImgUrl = "";
+                                            }
 
-self.displayUser.profileImgUrl = profileImgUrl;
+                                            self.displayUser.profileImgUrl = profileImgUrl;
                                             self.settingsForm.email = info.email || "";
                                             self.settingsForm.userPhone = info.userPhone || "";
                                             self.settingsForm.phoneVerifyYn = info.phoneVerifyYn || "N";
                                             self.settingsForm.phoneVerifiedAt = info.phoneVerifiedAt || "";
                                             self.settingsForm.socialType = info.socialType || "";
+                                            self.originalSettingsForm = {
+                                                userName: self.settingsForm.userName,
+                                                nickName: self.settingsForm.nickName,
+                                                userPhone: self.settingsForm.userPhone
+                                            };
 
                                             self.displayUser.userName = info.userName || "";
                                             self.displayUser.nickName = info.nickName || "";
@@ -2026,8 +2168,13 @@ self.displayUser.profileImgUrl = profileImgUrl;
                                     },
                                     success: function (data) {
                                         if (data.result === "success") {
-                                            self.settingsMsg = data.message || "회원정보가 저장되었습니다.";
+                                              self.showToast(data.message || "회원정보가 수정되었습니다.");
                                             self.settingsMsgType = "success";
+                                             self.originalSettingsForm = {
+                                                userName: self.settingsForm.userName,
+                                                nickName: self.settingsForm.nickName,
+                                                userPhone: self.settingsForm.userPhone
+                                            };
                                             self.fnGetUserSettings();
                                         } else {
                                             self.settingsMsg = data.message || "저장에 실패했습니다.";
@@ -2071,35 +2218,35 @@ self.displayUser.profileImgUrl = profileImgUrl;
                                 });
                             },
                            fnToggleInquiry: function (item) {
-    let self = this;
+                                let self = this;
 
-    if (self.openInquiryId === item.inquiryId) {
-        self.openInquiryId = null;
-        return;
-    }
+                                if (self.openInquiryId === item.inquiryId) {
+                                    self.openInquiryId = null;
+                                    return;
+                                }
 
-    self.openInquiryId = item.inquiryId;
+                                self.openInquiryId = item.inquiryId;
 
-    // 🔥 조건 수정 (핵심)
-    if (item.imageList && item.imageList.length > 0 && item._loaded) {
-        return;
-    }
+                                // 🔥 조건 수정 (핵심)
+                                if (item.imageList && item.imageList.length > 0 && item._loaded) {
+                                    return;
+                                }
 
-    $.ajax({
-        url: "/user/inquiry/img/list.dox",
-        type: "POST",
-        dataType: "json",
-        data: {
-            inquiryId: item.inquiryId
-        },
-        success: function (data) {
-            if (data.result === "success") {
-                item.imageList = data.list || [];
-                item._loaded = true; // 🔥 추가
-            }
-        }
-    });
-},
+                                $.ajax({
+                                    url: "/user/inquiry/img/list.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {
+                                        inquiryId: item.inquiryId
+                                    },
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            item.imageList = data.list || [];
+                                            item._loaded = true; // 🔥 추가
+                                        }
+                                    }
+                                });
+                            },
                             fnInquiryStatusText: function (item) {
                                 return item.replyId ? "답변완료" : "답변대기";
                             },
@@ -2113,26 +2260,29 @@ self.displayUser.profileImgUrl = profileImgUrl;
                             fnDeleteInquiry: function (inquiryId) {
                                 let self = this;
 
-                                if (!confirm("문의글을 삭제하시겠습니까?")) {
-                                    return;
-                                }
-
-                                $.ajax({
-                                    url: "/user/inquiry/remove.dox",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: { inquiryId: inquiryId },
-                                    success: function (data) {
-                                        if (data.result === "success") {
-                                            alert("문의가 삭제되었습니다.");
-                                            self.fnGetInquiryList();
-                                            self.openInquiryId = null;
-                                        } else {
-                                            alert(data.message || "삭제 실패");
-                                        }
-                                    },
-                                    error: function () {
-                                        alert("서버 오류");
+                                self.fnOpenModal({
+                                    title: "문의글을 삭제하시겠습니까?",
+                                    message: "삭제한 문의는 다시 복구할 수 없습니다.",
+                                    confirmText: "삭제",
+                                    onConfirm: function () {
+                                        $.ajax({
+                                            url: "/user/inquiry/remove.dox",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: { inquiryId: inquiryId },
+                                            success: function (data) {
+                                                if (data.result === "success") {
+                                                    self.showToast("문의가 삭제되었습니다.");
+                                                    self.fnGetInquiryList();
+                                                    self.openInquiryId = null;
+                                                } else {
+                                                    self.showToast(data.message || "삭제에 실패했습니다.");
+                                                }
+                                            },
+                                            error: function () {
+                                                self.showToast("서버 오류가 발생했습니다.");
+                                            }
+                                        });
                                     }
                                 });
                             },
@@ -2143,142 +2293,132 @@ self.displayUser.profileImgUrl = profileImgUrl;
                                 this.$refs.profileFileInput.click();
                             },
                             fnDeleteProfile: function () {
-    let self = this;
+                                let self = this;
 
-    if (!confirm("프로필 사진을 삭제하시겠습니까?")) {
-        return;
-    }
+                                if (!confirm("프로필 사진을 삭제하시겠습니까?")) {
+                                    return;
+                                }
 
-    $.ajax({
-        url: "/user/profile/delete.dox",
-        type: "POST",
-        dataType: "json",
-        data: {},
-        success: function (data) {
-            if (data.result === "success") {
-                self.displayUser.profileImgUrl = "";
-                self.$refs.profileFileInput.value = "";
-                alert("프로필 사진이 삭제되었습니다.");
-            } else {
-                alert(data.message || "프로필 사진 삭제에 실패했습니다.");
-            }
-        },
-        error: function () {
-            alert("서버 오류가 발생했습니다.");
-        }
-    });
-},
+                                $.ajax({
+                                    url: "/user/profile/delete.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {},
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.displayUser.profileImgUrl = "";
+                                            self.$refs.profileFileInput.value = "";
+                                            alert("프로필 사진이 삭제되었습니다.");
+                                        } else {
+                                            alert(data.message || "프로필 사진 삭제에 실패했습니다.");
+                                        }
+                                    },
+                                    error: function () {
+                                        alert("서버 오류가 발생했습니다.");
+                                    }
+                                });
+                            },
 
                           fnProfileImageChange: function (event) {
-    let self = this;
-    let file = event.target.files[0];
+                                let self = this;
+                                let file = event.target.files[0];
 
-    if (!file) {
-        return;
-    }
+                                if (!file) {
+                                    return;
+                                }
 
-    let formData = new FormData();
-    formData.append("profileImage", file);
+                                let formData = new FormData();
+                                formData.append("profileImage", file);
 
-    $.ajax({
-        url: "/user/profile/upload.dox",
-        type: "POST",
-        data: formData,
-        processData: false,
-        contentType: false,
-        dataType: "json",
-        success: function (data) {
-    self.$refs.profileFileInput.value = "";
+                                $.ajax({
+                                    url: "/user/profile/upload.dox",
+                                    type: "POST",
+                                    data: formData,
+                                    processData: false,
+                                    contentType: false,
+                                    dataType: "json",
+                                    success: function (data) {
+                                self.$refs.profileFileInput.value = "";
 
-    if (data.result === "success") {
-        location.href = location.pathname + "?profileRefresh=" + new Date().getTime();
-    } else {
-        alert(data.message || "프로필 사진 변경에 실패했습니다.");
-    }
-},
-        error: function () {
-            self.$refs.profileFileInput.value = "";
-            alert("서버 오류가 발생했습니다.");
-        }
-    });
-},
-                             fnGetOrderActions: function (item) {
-    const actions = [];
-    const status = (item.orderStatus || "").toUpperCase();
-    const type = (item.orderType || "").toUpperCase();
+                                if (data.result === "success") {
+                                    location.href = location.pathname + "?profileRefresh=" + new Date().getTime();
+                                } else {
+                                    alert(data.message || "프로필 사진 변경에 실패했습니다.");
+                                }
+                            },
+                                    error: function () {
+                                        self.$refs.profileFileInput.value = "";
+                                        alert("서버 오류가 발생했습니다.");
+                                    }
+                                });
+                            },
+                            fnGetOrderActions: function (item) {
+                                        const actions = [];
+                                        const status = (item.orderStatus || "").toUpperCase();
+                                        const type = (item.orderType || "").toUpperCase();
 
-    if (type === "PURCHASE") {
-        if (status === "DONE") {
-            actions.push("환불 신청");
-            actions.push("리뷰 작성");
-        }
-    } else if (type === "RENTAL") {
-        if (status === "DONE") {
-            actions.push("환불 신청");
-            actions.push("반납 신청");
-            actions.push("연장 신청");
-        }
+                                        if (type === "PURCHASE") {
+                                            if (status === "DONE") {
+                                                actions.push("환불 신청");
+                                                actions.push("리뷰 작성");
+                                            }
+                                        }
 
-        if (status === "IN_USE") {
-            actions.push("반납 신청");
-            actions.push("연장 신청");
-        }
+                                        if (type === "RENTAL") {
+                                            if (status === "IN_USE") {
+                                                actions.push("반납 신청");
+                                                actions.push("연장 신청");
+                                            }
 
-        if (status === "COMPLETED") {
-            actions.push("리뷰 작성");
-        }
-    }
+                                            if (status === "DONE" || status === "RETURNED" || status === "RETURN_COMPLETED" || status === "COMPLETED") {
+                                                actions.push("리뷰 작성");
+                                            }
+                                        }
 
-    return actions;
-},
-fnHandleOrderAction: function (item, action) {
-    if (action === "취소 신청") {
-        pageChange("/order/cancel/request.do", {
-            orderId: item.orderId
-        });
-        return;
-    }
+                                        return actions;
+                                    },
+                                    fnHandleOrderAction: function (item, action) {
 
-    if (action === "환불 신청") {
-        pageChange("/order/refund/request.do", {
-            orderId: item.orderId
-        });
-        return;
-    }
+                                        if (action === "환불 신청") {
+                                            pageChange("/order/refund/request.do", {
+                                                orderId: item.orderId
+                                            });
+                                            return;
+                                        }
 
-    if (action === "배송조회") {
-        if (!item.deliveryId) {
-            alert("배송 정보가 없습니다.");
-            return;
-        }
+                                        if (action === "배송조회") {
+                                            if (!item.deliveryId) {
+                                                alert("배송 정보가 없습니다.");
+                                                return;
+                                            }
 
-        pageChange("/user/delivery/detail.do", {
-            deliveryId: item.deliveryId
-        });
-        return;
-    }
+                                            pageChange("/user/delivery/detail.do", {
+                                                deliveryId: item.deliveryId
+                                            });
+                                            return;
+                                        }
 
-    if (action === "반납 신청") {
-        pageChange("/rental/return/request.do", {
-            orderId: item.orderId
-        });
-        return;
-    }
+                                        if (action === "반납 신청") {
+                                            pageChange("/rental/return/request.do", {
+                                                orderId: item.orderId
+                                            });
+                                            return;
+                                        }
 
-    if (action === "연장 신청") {
-        pageChange("/rental/extend/request.do", {
-            orderId: item.orderId
-        });
-        return;
-    }
+                                        if (action === "연장 신청") {
+                                            pageChange("/rental/extend/request.do", {
+                                                orderId: item.orderId
+                                            });
+                                            return;
+                                        }
 
-    if (action === "리뷰 작성") {
-        pageChange("/user/review/add.do", {
-            orderId: item.orderId
-        });
-        return;
-    }
-},
+                                        if (action === "리뷰 작성") {
+                                            pageChange("/user/review/add.do", {
+                                                orderId: item.orderId
+                                            });
+                                            return;
+                                        }
+                                    },
                                     fnGoTracking: function (item) {
                                         // trackingNo, carrierCode가 있다고 가정
                                         pageChange("/order/tracking.do", {
@@ -2319,45 +2459,167 @@ fnHandleOrderAction: function (item, action) {
                                         pageChange("/user/membership/info.do", {});
                                     },
                                    fnGetActionClass: function (action) {
-    if (action === "취소 신청") return "cancel";
-    if (action === "환불 신청") return "refund";
-    if (action === "배송조회") return "tracking";
-    if (action === "반납 신청") return "return";
-    if (action === "연장 신청") return "extend";
-    if (action === "리뷰 작성") return "review";
-    return "";
-},
-fnGoOrderDetail: function (orderId) {
-    pageChange("/order/detail.do", { orderId: orderId });
-},
+                                        if (action === "환불 신청") return "refund";
+                                        if (action === "배송조회") return "tracking";
+                                        if (action === "반납 신청") return "return";
+                                        if (action === "연장 신청") return "extend";
+                                        if (action === "리뷰 작성") return "review";
+                                        return "";
+                                    },
+                                    fnGoOrderDetail: function (orderId) {
+                                        pageChange("/order/detail.do", { orderId: orderId });
+                                    },
+                                   fnRemoveWishlist: function (wishId) {
+                                    let self =   this;
+
+                                    $.ajax({
+                                        url: "/user/wishlist/remove.dox",
+                                        type: "POST",
+                                        dataType: "json",
+                                        data: { wishId: wishId },
+                                        success: function (data) {
+                                            if (data.result === "success") {
+                                                self.wishlist = self.wishlist.filter(function (wish) {
+                                                    return Number(wish.wishId) !== Number(wishId);
+                                                });
+
+                                                self.showToast("위시리스트에서 제거되었어요");
+                                            } else {
+                                                self.showToast(data.message || "찜 해제에 실패했습니다.");
+                                            }
+                                        },
+                                        error: function () {
+                                            self.showToast("서버 오류가 발생했습니다.");
+                                        }
+                                    });
+                                },
+                                    fnFindWish: function (productId) {
+                                        return this.wishlist.find(function (wish) {
+                                            return Number(wish.productId) === Number(productId);
+                                        });
+                                    },
+
+                                    fnIsWished: function (productId) {
+                                        return !!this.fnFindWish(productId);
+                                    },
+
+                                    fnToggleWishlist: function (item) {
+                                        let self = this;
+
+                                        $.ajax({
+                                            url: "/user/wishlist/toggle.dox",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: {
+                                                productId: item.productId
+                                            },
+                                            success: function (data) {
+                                                if (data.result === "success") {
+
+                                                    if (data.action === "added") {
+                                                        self.showToast("❤️ 위시리스트에 추가했어요! ");
+                                                    }
+
+                                                    if (data.action === "removed") {
+                                                        self.showToast("위시리스트에서 제거했어요");
+                                                    }
+
+                                                    self.fnGetWishlist();
+                                                    return;
+                                                }
+
+                                                self.showToast(data.message || "찜 처리에 실패했습니다.");
+                                            },
+                                            error: function () {
+                                                self.showToast("서버 오류가 발생했습니다.");
+                                            }
+                                        });
+                                    },
+                                    fnGetCouponList: function () {
+                                        let self = this;
+
+                                        $.ajax({
+                                            url: "/user/coupon/list.dox",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: {
+                                                page: 1,
+                                                pageSize: 5
+                                            },
+                                            success: function (data) {
+                                                if (data.result === "success") {
+                                                    self.couponList = data.list || [];
+                                                } else {
+                                                    self.couponList = [];
+                                                }
+                                            },
+                                            error: function () {
+                                                self.couponList = [];
+                                            }
+                                        });
+                                    },
+
+                                    fnCouponBenefitText: function (item) {
+                                        if (item.couponType === "AMOUNT") {
+                                            return Number(item.discountAmt || 0).toLocaleString() + "원 할인";
+                                        }
+
+                                        if (item.couponType === "RATE") {
+                                            let text = Number(item.discountRate || 0) + "% 할인";
+
+                                            if (Number(item.maxDiscountAmt || 0) > 0) {
+                                                text += " · 최대 " + Number(item.maxDiscountAmt).toLocaleString() + "원";
+                                            }
+
+                                            return text;
+                                        }
+
+                                        return "할인 쿠폰";
+                                    },
+
+                                    fnCouponConditionText: function (item) {
+                                        if (Number(item.minOrderAmt || 0) > 0) {
+                                            return "최소 주문금액 " + Number(item.minOrderAmt).toLocaleString() + "원";
+                                        }
+
+                                        return "최소 주문금액 없이 사용 가능";
+                                    },
+
+                                    fnCouponStatusText: function (status) {
+                                        if (status === "AVAILABLE") return "사용 가능";
+                                        if (status === "USED") return "사용 완료";
+                                        if (status === "EXPIRED") return "만료";
+                                        return status || "-";
+                                    }
                                 }, // methods
                                     mounted() {
                                     let profileUrl = String(this.displayUser.profileImgUrl || "").trim();
 
-if (
-    !profileUrl ||
-    (
-        !profileUrl.startsWith("/img/profile/") &&
-        !profileUrl.startsWith("/upload/profile/")
-    )
-) {
-    this.displayUser.profileImgUrl = "";
-}
-                                let self = this;
-                                 this.fnGetOrderList();
-    this.fnGetAddressList();
-    this.fnGetWishlist();
-    this.fnGetRecentList();
-    this.fnGetChatbotList();
-    this.fnGetUserSettings();
-    this.fnGetInquiryList();
+                                    if (
+                                        !profileUrl ||
+                                        (
+                                            !profileUrl.startsWith("/img/profile/") &&
+                                            !profileUrl.startsWith("/upload/profile/")
+                                        )
+                                    ) {
+                                        this.displayUser.profileImgUrl = "";
+                                    }
+                                                                    let self = this;
+                                                                    this.fnGetOrderList();
+                                        this.fnGetAddressList();
+                                        this.fnGetWishlist();
+                                        this.fnGetRecentList();
+                                        this.fnGetChatbotList();
+                                        this.fnGetUserSettings();
+                                        this.fnGetInquiryList();
+                                        this.fnGetCouponList();
 
-    const savedTab = sessionStorage.getItem("activeTab") || "orders";
-    this.$nextTick(function () {
-        switchTab(savedTab, null);
-    });
-                            }
-                        });
+                                        const savedTab = sessionStorage.getItem("activeTab") || "orders";
+                                        this.$nextTick(function () {
+                                            switchTab(savedTab, null);
+                                        });
+                                     }
+                             });
 
                     app.mount('#app');
                 </script>

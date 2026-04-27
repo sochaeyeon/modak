@@ -22,4 +22,8 @@ public class Review {
     private String imageUrl;
     private List<ReviewImage> imageList;
     private int imageCount;
+    
+    private String nickname;
+    private String profileImgUrl;
+    private int gradeId;
 }

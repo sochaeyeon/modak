@@ -6,7 +6,7 @@
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>포인트 내역</title>
+            <title>포인트 · 쿠폰 - 모닥모닥</title>
 
             <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
             <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -19,7 +19,7 @@
         <body>
             <%@ include file="/WEB-INF/common/header.jsp" %>
 
-                <div id="app">
+                <div id="app" v-cloak>
                     <div class="page-wrap point-history-page">
                         <main class="main full">
                             <div class="section-card">
@@ -59,6 +59,9 @@
                                         @click="fnChangeTab('coupon')">
                                         쿠폰 내역
                                     </button>
+
+                                    <!-- 핵심 -->
+                                    <div class="tab-underline" :style="fnUnderlineStyle()"></div>
                                 </div>
 
                                 <div v-if="activeTab === 'point'">
@@ -77,9 +80,9 @@
 
                                             <div class="point-history-right">
                                                 <div class="point-history-amount"
-                                                    :class="item.type === 'PLUS' ? 'plus' : 'minus'">
-                                                    {{ item.type === 'PLUS' ? '+' : '-' }}{{ Number(item.amount ||
-                                                    0).toLocaleString() }}P
+                                                    :class="Number(item.amount) >= 0 ? 'plus' : 'minus'">
+                                                    {{ Number(item.amount) > 0 ? '+ ' : '- ' }}{{ Math.abs(item.amount
+                                                    || 0).toLocaleString() }}P
                                                 </div>
                                                 <div class="point-history-balance">
                                                     잔액 {{ Number(item.balanceAfter || 0).toLocaleString() }}P
@@ -107,22 +110,45 @@
                                             <p>쿠폰 내역이 없습니다.</p>
                                         </div>
 
-                                        <div v-for="(item, index) in couponList" :key="item.userCouponId"
-                                            class="coupon-history-card"
-                                            :style="{ animationDelay: (index * 0.06) + 's' }">
-                                            <div class="coupon-history-left">
-                                                <div class="coupon-history-name">{{ item.couponName }}</div>
-                                                <div class="coupon-history-date">
+                                        <div v-for="(item, index) in sortedCouponList" :key="item.userCouponId"
+                                            class="coupon-history-card" :class="(item.status || '').toLowerCase()">
+                                            <div class="coupon-ticket-left">
+                                                <div class="coupon-ticket-label">MODAK COUPON</div>
+
+                                                <div class="coupon-ticket-name">
+                                                    {{ item.couponName }}
+                                                </div>
+
+                                                <div class="coupon-ticket-benefit">
+                                                    {{ fnCouponBenefitText(item) }}
+                                                </div>
+
+                                                <div class="coupon-ticket-condition">
+                                                    {{ fnCouponConditionText(item) }}
+                                                </div>
+
+                                                <div class="coupon-ticket-date">
                                                     발급일 {{ item.issuedAt }} · 만료일 {{ item.expiredAt }}
                                                 </div>
                                             </div>
 
-                                            <div class="coupon-history-right">
+                                            <div class="coupon-ticket-right">
                                                 <div class="coupon-history-status"
                                                     :class="(item.status || '').toLowerCase()">
                                                     {{ fnCouponStatusText(item.status) }}
                                                 </div>
+
+                                                <div class="coupon-ticket-dday" v-if="item.status === 'AVAILABLE'">
+                                                    {{ fnCouponDdayText(item.expiredAt) }}
+                                                </div>
+
+                                                <button type="button" class="coupon-use-btn"
+                                                    v-if="item.status === 'AVAILABLE'"
+                                                    @click.stop="fnGoUseCoupon(item)">
+                                                    사용하러 가기
+                                                </button>
                                             </div>
+
                                         </div>
                                     </div>
 
@@ -140,7 +166,7 @@
                                             @click="fnNextCouponPage">다음</button>
                                     </div>
                                 </div>
-                                
+
                             </div>
                         </main>
                     </div>
@@ -155,7 +181,7 @@
             const app = Vue.createApp({
                 data() {
                     return {
-                        activeTab: "point",
+                        activeTab: "coupon",
 
                         currentPoint: 0,
                         availableCouponCount: 0,
@@ -179,6 +205,12 @@
                     },
                     couponTotalPages() {
                         return Math.ceil(this.couponTotalCount / this.couponPageSize);
+                    },
+                    sortedCouponList() {
+                        return [...this.couponList].sort((a, b) => {
+                            const order = { AVAILABLE: 0, USED: 1, EXPIRED: 2 };
+                            return order[a.status] - order[b.status];
+                        });
                     }
                 },
                 methods: {
@@ -233,6 +265,7 @@
                                     self.couponTotalCount = data.totalCount || 0;
                                     self.availableCouponCount = data.availableCouponCount || 0;
                                     self.renderKey++;
+                                    console.log("쿠폰 리스트", data.list);
                                 } else {
                                     self.couponList = [];
                                     self.couponTotalCount = 0;
@@ -301,6 +334,75 @@
                         if (status === "EXPIRED") return "만료";
                         return status || "-";
                     },
+                    fnUnderlineStyle: function () {
+                        const tabs = document.querySelectorAll(".benefit-tab-btn");
+                        const activeIndex = this.activeTab === "point" ? 0 : 1;
+
+                        if (!tabs.length) return {};
+
+                        const target = tabs[activeIndex];
+
+                        return {
+                            width: target.offsetWidth + "px",
+                            transform: "translateX(" + (target.offsetLeft - 22) + "px)"
+                        };
+                    },
+                    fnCouponBenefitText: function (item) {
+                        if (item.couponType === "AMOUNT") {
+                            return Number(item.discountAmt || 0).toLocaleString() + "원 할인";
+                        }
+
+                        if (item.couponType === "RATE") {
+                            let text = Number(item.discountRate || 0) + "% 할인";
+
+                            if (Number(item.maxDiscountAmt || 0) > 0) {
+                                text += " · 최대 " + Number(item.maxDiscountAmt).toLocaleString() + "원";
+                            }
+
+                            return text;
+                        }
+
+                        return "할인 쿠폰";
+                    },
+
+                    fnCouponConditionText: function (item) {
+                        const minOrderAmt = Number(item.minOrderAmt || item.MIN_ORDER_AMT || 0);
+
+                        if (minOrderAmt > 0) {
+                            return minOrderAmt.toLocaleString() + "원 이상 주문 시 사용 가능";
+                        }
+
+                        return "최소 주문금액 없이 사용 가능";
+                    },
+
+                    fnCouponDdayText: function (expiredAt) {
+                        if (!expiredAt) return "";
+
+                        const today = new Date();
+                        const end = new Date(expiredAt);
+                        today.setHours(0, 0, 0, 0);
+                        end.setHours(0, 0, 0, 0);
+
+                        const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+
+                        if (diff < 0) return "만료됨";
+                        if (diff === 0) return "오늘 만료";
+                        return "D-" + diff;
+                    },
+                    fnGoUseCoupon: function (item) {
+
+                        if (item.couponName.includes("대여")) {
+                            pageChange("/product/list.do?rental=Y", {});
+                            return;
+                        }
+
+                        if (item.couponName.includes("구매")) {
+                            pageChange("/product/list.do?purchase=Y", {});
+                            return;
+                        }
+
+                        pageChange("/product/list.do", {});
+                    }
                 },
                 mounted() {
                     this.fnGetPointHistoryList();

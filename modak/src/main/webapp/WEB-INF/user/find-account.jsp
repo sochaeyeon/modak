@@ -6,7 +6,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>아이디 · 비밀번호 찾기</title>
+        <title>아이디 · 비밀번호 찾기 - 모닥모닥</title>
         <script src="https://code.jquery.com/jquery-3.7.1.js"
             integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -21,7 +21,7 @@
     </head>
 
     <body>
-        <div id="app">
+        <div id="app" v-cloak>
             <!-- HEADER -->
             <%@ include file="/WEB-INF/common/header.jsp" %>
 
@@ -70,20 +70,25 @@
 
                             <!-- TAB -->
                             <div class="tab-row">
-                                <button class="tab-btn active" onclick="switchTab('id')">아이디 찾기</button>
-                                <button class="tab-btn" onclick="switchTab('pw')">비밀번호 찾기</button>
+                                <button class="tab-btn active" onclick="switchTab('id', this)">아이디 찾기</button>
+                                <button class="tab-btn" onclick="switchTab('pw', this)">비밀번호 찾기</button>
+
+                                <div class="tab-underline"></div>
                             </div>
 
                             <!-- ═══ 아이디 찾기 패널 ═══ -->
                             <div class="panel-content active" id="panel-id">
-                                <div class="section-title">아이디 찾기</div>
-                                <div class="section-desc">가입 시 입력한 정보로 아이디를 확인할 수 있어요.</div>
+                                <div class="section-title" v-if="!isIdFound">아이디 찾기</div>
+                                <div class="section-desc" v-if="!isIdFound">가입 시 입력한 정보로 아이디를 확인할 수 있어요.</div>
 
                                 <div class="method-tabs" v-if="!isIdFound">
                                     <button class="method-btn active" onclick="switchIdMethod('email', this)">이름 +
                                         이메일</button>
                                     <button class="method-btn" onclick="switchIdMethod('phone', this)">이름 +
                                         전화번호</button>
+
+                                    <!-- 🔥 추가 -->
+                                    <div class="method-underline"></div>
                                 </div>
 
                                 <!-- 이름 + 이메일 -->
@@ -304,8 +309,12 @@
                                     </div>
 
                                     <!-- 🔹 완료 메시지 -->
-                                    <div v-else class="success-box">
+                                    <div class="success-box">
+
+                                        <div class="success-icon">✓</div>
+
                                         <div class="success-title">비밀번호 변경 완료</div>
+
                                         <div class="success-desc">
                                             비밀번호가 안전하게 변경되었어요.<br>
                                             다시 로그인해 주세요.
@@ -338,26 +347,57 @@
 
     <script>
         // ── TAB SWITCH ──
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach((b, i) => {
-                b.classList.toggle('active', (i === 0 && tab === 'id') || (i === 1 && tab === 'pw'));
-            });
-            document.getElementById('panel-id').classList.toggle('active', tab === 'id');
-            document.getElementById('panel-pw').classList.toggle('active', tab === 'pw');
-            document.getElementById('panel-id').style.display = tab === 'id' ? 'flex' : 'none';
-            document.getElementById('panel-pw').style.display = tab === 'pw' ? 'flex' : 'none';
+        function switchTab(tab, btn) {
+            const idPanel = document.getElementById('panel-id');
+            const pwPanel = document.getElementById('panel-pw');
+
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            if (tab === 'id') {
+                idPanel.classList.add('active');
+                pwPanel.classList.remove('active');
+            } else {
+                pwPanel.classList.add('active');
+                idPanel.classList.remove('active');
+            }
+
+            // 🔥 underline 이동
+            const underline = document.querySelector('.tab-underline');
+            underline.style.width = btn.offsetWidth + 'px';
+            underline.style.left = btn.offsetLeft + 'px';
         }
-        // initial state
-        document.getElementById('panel-id').style.display = 'flex';
-        document.getElementById('panel-pw').style.display = 'none';
+        window.addEventListener('load', () => {
+            const tabActive = document.querySelector('.tab-btn.active');
+            const tabUnderline = document.querySelector('.tab-underline');
+
+            if (tabActive && tabUnderline) {
+                tabUnderline.style.width = tabActive.offsetWidth + 'px';
+                tabUnderline.style.left = tabActive.offsetLeft + 'px';
+            }
+
+            const methodActive = document.querySelector('.method-btn.active');
+            const methodUnderline = document.querySelector('.method-underline');
+
+            if (methodActive && methodUnderline) {
+                methodUnderline.style.width = methodActive.offsetWidth + 'px';
+                methodUnderline.style.left = methodActive.offsetLeft + 'px';
+            }
+        });
 
         // ── ID METHOD SWITCH ──
         function switchIdMethod(method, btn) {
             document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+
             document.getElementById('id-email-form').classList.toggle('hidden', method !== 'email');
             document.getElementById('id-phone-form').classList.toggle('hidden', method !== 'phone');
-            document.getElementById('id-result').classList.remove('show');
+
+            // 🔥 밑줄 이동
+            const underline = document.querySelector('.method-underline');
+
+            underline.style.width = btn.offsetWidth + 'px';
+            underline.style.left = btn.offsetLeft + 'px';
         }
 
         // ── SMS SEND ──
@@ -783,29 +823,35 @@
                         return;
                     }
 
+                    self.pwMailSent = true;
+                    self.pwVerified = false;
+                    self.pwVerifyMsg = '인증 메일을 발송 중이에요. 메일함을 확인해 주세요.';
+
+                    self.$nextTick(function () {
+                        startTimer('pw-timer', 300);
+                    });
+
                     $.ajax({
                         url: "/user/send-pw-auth-email.dox",
                         type: "POST",
                         dataType: "json",
                         data: {
-                            userId: self.pwId,
-                            email: self.pwEmail
+                            userId: self.pwId.trim(),
+                            email: self.pwEmail.trim()
                         },
                         success: function (data) {
                             if (data.result === "success") {
-                                self.pwMailSent = true;
-                                self.pwVerified = false;
-                                self.pwVerifyMsg = data.message;
+                                self.pwVerifyMsg = '인증 메일을 발송했어요. 메일함을 확인해 주세요.';
                                 self.pwErrMsg = '';
-
-                                self.$nextTick(function () {
-                                    startTimer('pw-timer', 300);
-                                });
                             } else {
+                                self.pwMailSent = false;
+                                self.pwVerifyMsg = '';
                                 self.pwErrMsg = data.message;
                             }
                         },
                         error: function () {
+                            self.pwMailSent = false;
+                            self.pwVerifyMsg = '';
                             self.pwErrMsg = "인증메일 발송 중 오류가 발생했어요.";
                         }
                     });

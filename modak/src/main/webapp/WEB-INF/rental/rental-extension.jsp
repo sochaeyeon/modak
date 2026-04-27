@@ -126,6 +126,15 @@
                         ⚠ 예약완료 또는 대여중 상태의 대여만 연장 신청이 가능합니다.
                     </div>
                 </div>
+                <div v-if="modal.show" class="delete-modal-backdrop" @click.self="fnCloseModal">
+
+                    <div class="delete-modal-box" ref="confirmModal" tabindex="0"
+                        @keydown.enter.prevent="fnModalConfirm" @keydown.esc.prevent="fnCloseModal">
+                        <div class="delete-modal-title">
+                            {{ modal.title }}
+                        </div>
+
+                        <div class="delete-modal-desc" v-html="modal.message"></div>
 
                 <!-- 연장 내역 -->
                 <div class="ext-history">

@@ -181,7 +181,8 @@
                                                         <div class="review-bottom">
                                                             <div></div>
 
-                                                            <div class="review-actions" v-if="!item.replyId" @click.stop>
+                                                            <div class="review-actions" v-if="!item.replyId"
+                                                                @click.stop>
                                                                 <button class="btn-outline btn-sm"
                                                                     @click.stop="fnEditInquiry(item.inquiryId)">
                                                                     수정
@@ -301,7 +302,8 @@
                         },
                         computed: {
                             summaryCount() {
-                                return this.filteredInquiryList.length;
+                                return this.totalCount;
+
                             },
 
                         },

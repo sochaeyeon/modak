@@ -508,7 +508,7 @@
             <div class="tnav">
                 <button class="tbtn on" @click="stab('det', $event)">상품 정보</button>
                 <button class="tbtn" @click="stab('rev', $event)">리뷰 ({{ reviewList.length }})</button>
-                <button class="tbtn" @click="stab('qna', $event)">Q&A (12)</button>
+                <button class="tbtn" @click="stab('qna', $event)">Q&A</button>
                 <button class="tbtn" @click="stab('shp', $event)">배송/대여 안내</button>
             </div>
             <div class="tcont">
@@ -594,15 +594,37 @@
                 <!-- 리뷰 목록 -->
                 <div class="rcard" v-for="review in reviewList" :key="review.reviewId">
                     <div class="rhead">
+                    <div class="review-user">
+
+                        <!-- 프로필 -->
+                        <img
+                            class="review-profile"
+                            :src="review.profileImgUrl || '/img/profile/default.png'">
+
+                        <!-- 이름 + 뱃지 -->
                         <div>
-                            <div class="rname">{{ review.userId }}</div>
+                            <div class="rname">
+                                {{ review.nickname || review.userId }}
+
+                                <span v-if="review.gradeId >= 4" class="grade-badge vip">VIP</span>
+                                <span v-else-if="review.gradeId == 3" class="grade-badge gold">GOLD</span>
+                                <span v-else-if="review.gradeId == 2" class="grade-badge silver">SILVER</span>
+                            </div>
+
+                            <!-- 별점 -->
                             <div class="stars" style="display:flex;gap:1px;margin-top:3px">
                                 <span v-for="(star, i) in getStars(review.rating)" :key="i"
-                                    class="st" :style="{ fontSize:'12px', color: star === '★' ? '' : '#ddd' }">
+                                    class="st"
+                                    :style="{ fontSize:'12px', color: star === '★' ? '' : '#ddd' }">
                                     {{ star }}
+                                </span>
+                                <span style="font-size:12px;color:#999;margin-left:6px;">
+                                    {{ Number(review.rating).toFixed(1) }}점
                                 </span>
                             </div>
                         </div>
+
+                    </div>
                         <div class="rdate">{{ review.createdAt }}</div>
                     </div>
                     <div class="rtext" style="font-weight:600;margin-bottom:4px">{{ review.title }}</div>
@@ -717,6 +739,12 @@
                 </div>
             </div>
         </div>
+        <div v-if="reviewImgModal.open" class="img-modal-overlay" @click.self="reviewImgModal.open = false">
+            <div class="img-modal-box">
+                <button class="img-modal-close" @click="reviewImgModal.open = false">✕</button>
+                <img :src="reviewImgModal.url" class="img-modal-photo">
+            </div>
+        </div>
         <div v-if="confirmModal.open" class="confirm-overlay" @click.self="confirmCancel">
             <div class="confirm-box">
                 <div class="confirm-title">알림</div>
@@ -808,7 +836,11 @@
                     okText: '확인',
                     cancelText: '취소',
                     onOk: null
-                }
+                },
+                reviewImgModal: {
+                    open: false,
+                    url: ''
+                },
             };
         },
         computed: {
@@ -1002,20 +1034,22 @@
                 if (!dateStr) return '';
                 return dateStr.slice(0, 10).replace(/-/g, '.');
             },
-            stab: function(n, event) {
+            stab(n, event) {
                 const el = event.currentTarget;
+
                 document.querySelectorAll('.tbtn').forEach(b => b.classList.remove('on'));
                 document.querySelectorAll('.tpane').forEach(p => p.classList.remove('on'));
+
                 el.classList.add('on');
                 document.getElementById('tp-' + n).classList.add('on');
 
-                // 리뷰 탭 클릭 시 리뷰 불러오기
-                if (n === 'rev') {
-                    this.fnGetReviews();
+                if (n === 'rev' && this.reviewList.length === 0) {
+                    this.fnGetReviews();   // ⭐ 처음만 호출
                 }
             },
             openImg: function(url) {
-                window.open(url, '_blank');
+                this.reviewImgModal.open = true;
+                this.reviewImgModal.url = url;
             },
             formatPrice: function(price) {
                 if (!price) return '0원';
@@ -1163,13 +1197,6 @@
             // ── 장바구니 담기 ──
             fnAddToCart: function() {
                 let self = this;
-                
-                if (!loginUserId || loginUserId === 'null' || loginUserId === '') {
-                        self.openConfirm('로그인이 필요한 서비스입니다. 로그인하시겠습니까?', function() {
-                            location.href = '/user/login.do';
-                        }, '로그인하기');
-                        return;
-                    }
 
                 if (self.productOptions.length > 0) {
                     let optionGroupCount = Object.keys(self.groupedOptions).length;
@@ -1271,7 +1298,7 @@
             let self = this;
             self.fnDetail();
             self.fetchProductImages();
-            //self.fetchRentedDates();
+            this.fnGetReviews();
             
         }
     });

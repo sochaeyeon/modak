@@ -12,4 +12,6 @@ public interface PointHistoryMapper {
 	List<PointHistory> selectPointHistoryList(HashMap<String, Object> map);
 
 	int selectPointHistoryCount(HashMap<String, Object> map);
+	
+	int selectUserPoint(String userId);
 }

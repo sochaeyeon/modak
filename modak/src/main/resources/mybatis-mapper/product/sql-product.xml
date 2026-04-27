@@ -318,19 +318,22 @@
 	    LIMIT 5
 	</select>
 	
-	<!-- 상품 옵션 목록 -->
-	<select id="selectProductOptions" parameterType="hashmap"
-	        resultType="com.example.modak.product.model.ProductOption">
-	    SELECT
-	        OPTION_ID,
-	        OPTION_NAME,
-	        OPTION_VALUE,
-	        ADD_PRICE,
-	        PRODUCT_ID
-	    FROM PRODUCT_OPTION
-	    WHERE PRODUCT_ID = #{productId}
-	    ORDER BY OPTION_ID ASC
-	</select>
+	<!-- 상품 옵션 목록 : 옵션 그룹 + 옵션 값 -->
+<select id="selectProductOptions" parameterType="hashmap"
+        resultType="com.example.modak.product.model.ProductOption">
+    SELECT
+        pog.OPTION_GROUP_ID AS optionGroupId,
+        pog.OPTION_NAME     AS optionName,
+        pov.OPTION_VALUE_ID AS optionValueId,
+        pov.OPTION_VALUE    AS optionValue,
+        pov.ADD_PRICE       AS addPrice,
+        pog.PRODUCT_ID      AS productId
+    FROM PRODUCT_OPTION_GROUP pog
+    JOIN PRODUCT_OPTION_VALUE pov
+        ON pog.OPTION_GROUP_ID = pov.OPTION_GROUP_ID
+    WHERE pog.PRODUCT_ID = #{productId}
+    ORDER BY pog.SORT_ORDER ASC, pov.SORT_ORDER ASC, pov.OPTION_VALUE_ID ASC
+</select>
 	<select id="selectAllCategoryList" resultType="hashmap">
     SELECT
         CATEGORY_ID AS categoryId,
@@ -341,5 +344,25 @@
         CASE WHEN PARENT_CATEGORY IS NULL THEN CATEGORY_ID ELSE PARENT_CATEGORY END,
         PARENT_CATEGORY IS NOT NULL,
         CATEGORY_ID ASC
+</select>
+
+<!-- 상품 옵션 조합 + 재고 목록 -->
+<select id="selectProductOptionItems" parameterType="hashmap"
+        resultType="com.example.modak.product.model.ProductOptionItem">
+    SELECT
+        poi.OPTION_ITEM_ID AS optionItemId,
+        poi.PRODUCT_ID     AS productId,
+        poi.ITEM_NAME      AS itemName,
+        poi.EXTRA_PRICE    AS extraPrice,
+        poi.IS_AVAILABLE   AS isAvailable,
+        IFNULL(ps.TOTAL_QTY, 0)     AS totalQty,
+        IFNULL(ps.RESERVED_QTY, 0)  AS reservedQty,
+        IFNULL(ps.AVAILABLE_QTY, 0) AS availableQty
+    FROM PRODUCT_OPTION_ITEM poi
+    LEFT JOIN PRODUCT_STOCK ps
+        ON poi.OPTION_ITEM_ID = ps.OPTION_ITEM_ID
+       AND ps.STOCK_DATE = CURDATE()
+    WHERE poi.PRODUCT_ID = #{productId}
+    ORDER BY poi.OPTION_ITEM_ID ASC
 </select>
 </mapper>

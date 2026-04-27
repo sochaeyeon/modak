@@ -684,27 +684,26 @@ const app = Vue.createApp({
         },
 
         fnOrder() {
-            if (!this.checkedIds.length) {
-                showToast('상품을 선택해주세요.');
-                return;
-            }
+    if (!this.checkedIds.length) {
+        showToast('상품을 선택해주세요.');
+        return;
+    }
 
-            if (!this.isLogin) {
-                const selected = this.filteredCart.filter(c => this.checkedIds.includes(c.cartId));
-                sessionStorage.setItem('guest_order_items', JSON.stringify(selected));
-                location.href = '/payment/checkout.do?isGuest=true&cartType=' + this.activeTab;
-                return;
-            }
+    if (!this.isLogin) {
+        const selected = this.filteredCart.filter(c => this.checkedIds.includes(c.cartId));
+        sessionStorage.setItem('guest_order_items', JSON.stringify(selected));
+        location.href = '/payment/checkout.do?isGuest=true&cartType=' + this.activeTab;
+        return;
+    }
 
-            let url = '/payment/checkout.do?cartIds=' + this.checkedIds.join(',') + '&cartType=' + this.activeTab;
-            let url = '/order/checkout.do?cartIds=' + this.checkedIds.join(',') + '&cartType=' + this.activeTab;
+    let url = '/payment/checkout.do?cartIds=' + this.checkedIds.join(',') + '&cartType=' + this.activeTab;
 
-            if (this.selectedUserCouponId) {
-                url += '&userCouponId=' + this.selectedUserCouponId;
-            }
+    if (this.selectedUserCouponId) {
+        url += '&userCouponId=' + this.selectedUserCouponId;
+    }
 
-            location.href = url;
-        },
+    location.href = url;
+},
 
         openOptModal(item) {
             let self = this;

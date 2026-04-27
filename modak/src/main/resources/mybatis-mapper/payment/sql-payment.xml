@@ -62,37 +62,17 @@
 	<!-- 임시 주문 INSERT (STATUS = READY) -->
 	<insert id="insertTempOrder" parameterType="hashmap" useGeneratedKeys="true" keyProperty="orderId">
 	    INSERT INTO ORDERS (
-	        ORDER_TYPE,
-	        ORDER_STATUS,
-	        TOTAL_PRICE,
-	        DISCOUNT_AMT,
-	        CREATED_AT,
-	        USER_ID,
-	        USER_COUPON_ID,
-	        GUEST_NAME,
-	        GUEST_PHONE
+	        ORDER_TYPE, ORDER_STATUS, TOTAL_PRICE, DISCOUNT_AMT,
+	        CREATED_AT, USER_ID, USER_COUPON_ID,
+	        GUEST_NAME, GUEST_PHONE, CART_IDS
 	    ) VALUES (
-	        #{cartType},
-	        'READY',
-	        #{amount},
-	        0,
-	        NOW(),
-	        <choose>
-	            <when test='"Y".equals(isGuest)'>'GUEST'</when>
-	            <otherwise>#{userId}</otherwise>
-	        </choose>,
+	        #{cartType}, 'READY', #{amount}, #{discountAmt},
+	        NOW(), #{userId}, 
 	        <choose>
 	            <when test="userCouponId != null and userCouponId != ''">#{userCouponId}</when>
 	            <otherwise>NULL</otherwise>
 	        </choose>,
-	        <choose>
-	            <when test='"Y".equals(isGuest)'>#{guestName}</when>
-	            <otherwise>NULL</otherwise>
-	        </choose>,
-	        <choose>
-	            <when test='"Y".equals(isGuest)'>#{guestPhone}</when>
-	            <otherwise>NULL</otherwise>
-	        </choose>
+	        #{guestName}, #{guestPhone}, #{cartIds}
 	    )
 	</insert>
 	
@@ -118,4 +98,147 @@
 	    )
 	</insert>
 
+	<insert id="insertOrderItem" parameterType="hashmap">
+	    INSERT INTO ORDER_ITEM (
+	        ORDER_ID,
+	        PRODUCT_ID,
+	        OPTION_ID,
+	        QUANTITY,
+	        UNIT_PRICE,
+	        START_DATE,
+	        END_DATE
+	    ) VALUES (
+	        #{orderId},
+	        #{productId},
+	        #{optionId},
+	        #{quantity},
+	        #{price},
+	        #{rentalStart},
+	        #{rentalEnd}
+	    )
+	</insert>
+	
+	<!-- MySQL 버전 결제성공하고 카트에서 삭제 -->
+	<delete id="deleteCartByOrderId" parameterType="hashmap">
+	    DELETE FROM CART
+	    WHERE FIND_IN_SET(
+	        CART_ID,
+	        (SELECT CART_IDS FROM ORDERS WHERE ORDER_ID = #{orderId})
+	    ) > 0
+	    AND USER_ID = #{userId}
+	</delete>
+	
+	<!--orderId 하나로 필요한 정보를 다 꺼내 쓸 수 있게-->
+	<select id="selectOrderById" parameterType="hashmap" resultType="hashmap">
+	    <!--첫 번째 상품명, 상품수 가져오기 (포인트 이력 설명용)-->
+	    SELECT 
+	        O.ORDER_ID, O.USER_ID, O.CART_IDS, O.USER_COUPON_ID,
+	        O.ORDER_TYPE, O.TOTAL_PRICE, O.GUEST_NAME, O.GUEST_PHONE,
+	        (
+	            SELECT P.PRODUCT_NAME
+	            FROM ORDER_ITEM OI
+	            JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+	            WHERE OI.ORDER_ID = O.ORDER_ID
+	            LIMIT 1
+	        ) AS orderName,
+	        (
+	            SELECT COUNT(*)
+	            FROM ORDER_ITEM OI
+	            WHERE OI.ORDER_ID = O.ORDER_ID
+	        ) AS itemCount
+	    FROM ORDERS O
+	    WHERE O.ORDER_ID = #{orderId}
+	</select>
+	
+	<!-- 쿠폰 사용 처리 -->
+	<update id="updateCouponUsed" parameterType="hashmap">
+	    UPDATE USER_COUPON
+	    SET USED_YN   = 'Y',
+	        USED_AT   = NOW(),
+	        ORDER_ID  = #{orderId},
+	        STATUS    = 'USED',
+	        UPDATED_AT = NOW()
+	    WHERE USER_COUPON_ID = #{userCouponId}
+	    AND USER_ID = #{userId}
+	    AND STATUS = 'AVAILABLE'
+	</update>
+	
+	<!-- 쿠폰 사용 로그 -->
+	<insert id="insertCouponUseLog" parameterType="hashmap">
+	    INSERT INTO COUPON_USE_LOG (
+	        USER_COUPON_ID, USER_ID, COUPON_ID,
+	        ORDER_ID, USED_AT, DISCOUNT_APPLIED_AMT
+	    )
+	    SELECT
+	        #{userCouponId},
+	        #{userId},
+	        COUPON_ID,
+	        #{orderId},
+	        NOW(),
+	        #{discountAmt}
+	    FROM USER_COUPON
+	    WHERE USER_COUPON_ID = #{userCouponId}
+	</insert>
+	
+	<!-- 포인트 적립 이력 -->
+	<insert id="insertPointHistory" parameterType="hashmap">
+	    INSERT INTO POINT_HISTORY (
+	        USER_ID, DESCRIPTION, AMOUNT, TYPE, CREATED_AT, BALANCE_AFTER
+	    ) VALUES (
+	        #{userId},
+	        #{description},
+	        #{earnedPoint},
+	        'SAVE',
+	        NOW(),
+	        (
+	            SELECT COALESCE(POINT, 0) + #{earnedPoint}
+	            FROM USER
+	            WHERE USER_ID = #{userId}
+	        )
+	    )
+	</insert>
+	
+	<!-- 누적금액 + 포인트 -->
+	<update id="updateUserPointAndAmount" parameterType="hashmap">
+	    UPDATE USER
+	    SET POINT        = POINT + #{earnedPoint},
+	        TOTAL_AMOUNT = TOTAL_AMOUNT + #{amount}
+	    WHERE USER_ID = #{userId}
+	</update>
+	
+	<!-- 재고 차감용 주문 아이템 조회 -->
+	<select id="selectOrderItemsForStock" parameterType="hashmap" resultType="hashmap">
+	    SELECT 
+	        OI.PRODUCT_ID,
+	        OI.OPTION_ID,
+	        OI.QUANTITY,
+	        OI.START_DATE,
+	        OI.END_DATE,
+	        O.ORDER_TYPE
+	    FROM ORDER_ITEM OI
+	    JOIN ORDERS O ON OI.ORDER_ID = O.ORDER_ID
+	    WHERE OI.ORDER_ID = #{orderId}
+	</select>
+	
+	<!-- 구매 재고 차감 -->
+	<update id="decreaseStockForPurchase" parameterType="hashmap">
+	    UPDATE PRODUCT_STOCK
+	    SET RESERVED_QTY  = RESERVED_QTY  + #{quantity},
+	        AVAILABLE_QTY = AVAILABLE_QTY - #{quantity}
+	    WHERE PRODUCT_ID = #{productId}
+	    <if test="optionId != null">
+	        AND OPTION_ID = #{optionId}
+	    </if>
+	    AND AVAILABLE_QTY >= #{quantity}
+	</update>
+	
+	<!-- 대여 재고 차감 (날짜 범위) -->
+	<update id="decreaseStockForRental" parameterType="hashmap">
+	    UPDATE PRODUCT_STOCK
+	    SET RESERVED_QTY  = RESERVED_QTY  + #{quantity},
+	        AVAILABLE_QTY = AVAILABLE_QTY - #{quantity}
+	    WHERE PRODUCT_ID = #{productId}
+	    AND STOCK_DATE BETWEEN #{startDate} AND DATE_SUB(#{endDate}, INTERVAL 1 DAY)
+	    AND AVAILABLE_QTY >= #{quantity}
+	</update>
 </mapper>

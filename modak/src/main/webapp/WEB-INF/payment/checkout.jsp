@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>결제 - 모닥모닥</title>
-    <link rel="stylesheet" href="/css/payment/payment.css">
+    <link rel="stylesheet" href="/css/payment/checkout.css">
     <link rel="stylesheet" href="/css/search/search.css">
     <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -448,10 +448,10 @@
                 if (this.orderItems.length === 0) { this.showToast('주문 상품이 없습니다.'); return; }
                 // ✅ 비회원 검증
                 if (!this.isLogin) {
-                    if (!this.guestName.trim())    { this.showToast('수령인 이름을 입력해주세요.'); return; }
-                    if (!this.guestPhone.trim())   { this.showToast('연락처를 입력해주세요.'); return; }
-                    if (!this.guestZipcode.trim()) { this.showToast('우편번호를 입력해주세요.'); return; }
-                    if (!this.guestAddress.trim()) { this.showToast('주소를 입력해주세요.'); return; }
+                    if (!this.guestName.trim())    { this.isPaying = false; this.showToast('수령인 이름을 입력해주세요.'); return; }
+                    if (!this.guestPhone.trim())   { this.isPaying = false; this.showToast('연락처를 입력해주세요.'); return; }
+                    if (!this.guestZipcode.trim()) { this.isPaying = false; this.showToast('우편번호를 입력해주세요.'); return; }
+                    if (!this.guestAddress.trim()) { this.isPaying = false; this.showToast('주소를 입력해주세요.'); return; }
                 }
                 
                 // ✅ orderId는 이제 서버에서 받아옴 (프론트에서 생성 X)
@@ -464,10 +464,11 @@
                     url: '/payment/ready.dox',
                     type: 'POST',
                     data: {
-                        amount: self.finalTotal,
+                        amount: self.finalTotal, // 최종 결제금액 (할인 후)
                         cartIds: self.cartIds.join(','),
                         cartType: self.cartType,
                         userCouponId: self.selectedUserCouponId || '',
+                        discountAmt: self.couponDiscount,
                         guestOrderItems: self.isLogin ? '' : JSON.stringify(self.orderItems),
                         receiverName:  self.isLogin ? self.addrForm.receiverName  : self.guestName,
                         receiverPhone: self.isLogin ? self.addrForm.receiverPhone : self.guestPhone,
@@ -483,22 +484,23 @@
                     dataType: 'json',
                     success(res) {
                         if (res.result !== 'success') {
+                            self.isPaying = false;  // ✅ 추가
                             self.showToast(res.message || '주문 준비에 실패했습니다.');
                             return;
                         }
 
-                        // ✅ 서버에서 받은 ORDER_ID 사용
-                        // const orderId = String(res.orderId);
                         const orderId = 'modak-' + String(res.orderId);
-
                         const tossPayments = TossPayments(TOSS_CLIENT_KEY);
+
                         tossPayments.requestPayment('카드', {
                             amount: self.finalTotal,
                             orderId: orderId,
                             orderName: orderName,
                             customerName: self.addrForm.receiverName || '고객',
                             successUrl: window.location.origin + '/payment/success.do',
-                            failUrl: window.location.origin + '/payment/fail.do'
+                            failUrl:    window.location.origin + '/payment/fail.do'
+                        }).catch(() => {
+                            self.isPaying = false;  // ✅ 토스 창 닫거나 취소 시 해제
                         });
                     },
                     error() {

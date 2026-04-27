@@ -541,6 +541,57 @@ const app = Vue.createApp({
                     showToast('삭제됐어요.');
                     return;
                 }
+
+                let self = this;
+
+                self.openConfirm(this.checkedIds.length + '개 상품을 삭제하시겠습니까?', function() {
+                    $.ajax({
+                        url: '/cart/deleteSelected.dox',
+                        type: 'POST',
+                        data: { cartIds: self.checkedIds.join(',') },
+                        dataType: 'json',
+                        success(res) {
+                            if (res.result === 'success') {
+                                self.cartList = self.cartList.filter(c => !self.checkedIds.includes(c.cartId));
+                                self.checkedIds = [];
+                                showToast('선택 상품이 삭제됐어요.');
+                            }
+                        }
+                    });
+                }, '삭제하기');
+            },
+            // ── 주문하기 ──
+            fnOrder() {
+                if (this.checkedIds.length === 0) { showToast('상품을 선택해주세요.'); return; }
+                const ids = this.checkedIds.join(',');
+                let url = '/payment/checkout.do?cartIds=' + ids
+                    + '&cartType=' + this.activeTab;
+                    
+
+                if (this.isLogin && this.selectedUserCouponId) {
+                    url += '&userCouponId=' + this.selectedUserCouponId;
+                }
+                location.href = url;
+            },
+
+            // ── 옵션 변경 모달 ──
+            openOptModal(item) {
+                let self = this;
+
+                // 1. 모달 기본 세팅
+                self.optModal = {
+                    open: true,
+                    item: { ...item },
+                    qty: item.quantity,
+                    startDate: item.rentalStart || null,
+                    endDate: item.rentalEnd || null,
+                    year: new Date().getFullYear(),
+                    month: new Date().getMonth(),
+                    selectedOption: Number(item.optionId) || null,
+                    optionList: []
+                };
+
+                // 2. 여기 ↓↓↓ 추가하는거
                 $.ajax({
                     url: '/cart/delete.dox', type: 'POST',
                     data: { cartId }, dataType: 'json',

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   
+<mapper namespace="com.example.modak.payment.mapper.PaymentMapper">
+
+   <!-- 배송지 검색 -->
+   <select id="selectAddressList" parameterType="hashmap" resultType="hashmap">
+	    SELECT
+		 	A.ADDRESS_ID AS addressId,
+		    A.ADDRESS_ALIAS AS addressAlias,
+		    A.ZIPCODE AS zipcode,
+		    A.ADDRESS AS address,
+		    A.DETAILED_ADDRESS AS detailedAddress,
+		    A.DEFAULT_YN AS defaultYn,
+		    U.USER_NAME AS receiverName,
+		    U.USER_PHONE AS receiverPhone
+	    FROM USER_ADDRESS A
+	    INNER JOIN `USER` U
+	        ON A.USER_ID = U.USER_ID
+	    WHERE A.USER_ID = #{userId}
+	    ORDER BY
+	        CASE A.DEFAULT_YN WHEN 'Y' THEN 0 ELSE 1 END,
+	        A.ADDRESS_ID DESC
+	</select>
+	
+	<!-- 파라미터로 받은 cartId 장바구니 조회 -->
+	<select id="selectCheckoutItems" parameterType="hashmap" resultType="hashmap">
+	    SELECT
+	        c.cart_id       AS cartId,
+	        c.quantity      AS quantity,
+	        c.cart_type     AS cartType,
+	        c.user_id       AS userId,
+	        c.product_id    AS productId,
+	        c.option_id     AS optionId,
+	        c.rental_start  AS rentalStart,
+	        c.rental_end    AS rentalEnd,
+	        p.product_name  AS productName,
+	        p.price         AS price,
+	        b.brand_name    AS brandName,
+	        i.img_url       AS imgUrl,
+	        o.option_value  AS optionName
+	    FROM CART c
+	    INNER JOIN PRODUCT p 
+	        ON c.product_id = p.product_id
+	    LEFT JOIN BRAND b 
+	        ON p.brand_id = b.brand_id
+	    LEFT JOIN PRODUCT_IMG i 
+	        ON p.product_id = i.product_id
+	        AND i.is_main = 'Y'
+	    LEFT JOIN PRODUCT_OPTION o 
+	        ON c.option_id = o.option_id
+	    WHERE c.cart_id IN (${cartIds})
+	    ORDER BY c.created_at DESC
+	</select>
+
+</mapper>

@@ -84,6 +84,6 @@ public class CouponService {
         HashMap<String, Object> map = new HashMap<>();
         map.put("userId", userId);
 
-        return couponMapper.selectMyCouponList(map);
+        return couponMapper.selectUserCouponList(map);
     }
 }

@@ -322,22 +322,24 @@
 <%@ include file="/WEB-INF/common/footer.jsp" %>
 
 <script>
-/* ── 토스트 ── */
 function showToast(msg) {
     var t = document.getElementById('toast');
     if (!t) {
         t = document.createElement('div');
         t.id = 'toast';
-        t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);' +
-            'background:#333;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;display:none;';
+        t.style.cssText =
+            'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);' +
+            'background:#333;color:#fff;padding:10px 20px;border-radius:8px;' +
+            'font-size:13px;z-index:9999;display:none;';
         document.body.appendChild(t);
     }
     t.textContent = msg;
     t.style.display = 'block';
-    setTimeout(function(){ t.style.display = 'none'; }, 2200);
+    setTimeout(function () {
+        t.style.display = 'none';
+    }, 2200);
 }
 
-/* ── localStorage 키 ── */
 var LS_KEY = 'modak_guest_cart';
 
 const app = Vue.createApp({
@@ -347,19 +349,29 @@ const app = Vue.createApp({
             cartList: [],
             checkedIds: [],
             isLogin: false,
+
             optModal: {
-                open: false, item: null, qty: 1,
-                startDate: null, endDate: null,
+                open: false,
+                item: null,
+                qty: 1,
+                startDate: null,
+                endDate: null,
                 year: new Date().getFullYear(),
                 month: new Date().getMonth(),
-                selectedOption: null, optionList: []
+                selectedOption: null,
+                optionList: []
             },
+
             confirmModal: {
-                open: false, message: '',
-                okText: '확인', cancelText: '취소', onOk: null
+                open: false,
+                message: '',
+                okText: '확인',
+                cancelText: '취소',
+                onOk: null
             },
+
             couponList: [],
-            selectedUserCouponId: '',
+            selectedUserCouponId: ''
         };
     },
 
@@ -367,83 +379,115 @@ const app = Vue.createApp({
         filteredCart() {
             return this.cartList.filter(c => c.cartType === this.activeTab);
         },
+
         groupedCart() {
             const groups = {};
             this.filteredCart.forEach(item => {
                 const key = item.brandName || '모닥모닥';
-                if (!groups[key]) groups[key] = { brandName: key, items: [] };
+                if (!groups[key]) {
+                    groups[key] = { brandName: key, items: [] };
+                }
                 groups[key].items.push(item);
             });
             return Object.values(groups);
         },
+
         isAllChecked() {
             if (!this.filteredCart.length) return false;
             return this.filteredCart.every(c => this.checkedIds.includes(c.cartId));
         },
+
         selectedTotal() {
             return this.filteredCart
                 .filter(c => this.checkedIds.includes(c.cartId))
-                .reduce((sum, c) => sum + c.price * c.quantity, 0);
+                .reduce((sum, c) => sum + Number(c.price || 0) * Number(c.quantity || 1), 0);
         },
+
         modalCalDays() {
-            const { year, month } = this.optModal;
+            const year = this.optModal.year;
+            const month = this.optModal.month;
             const firstDay = new Date(year, month, 1).getDay();
             const lastDate = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
             const days = [];
-            for (let i = 0; i < firstDay; i++) days.push(null);
+
+            for (let i = 0; i < firstDay; i++) {
+                days.push(null);
+            }
+
             for (let d = 1; d <= lastDate; d++) {
                 const dateObj = new Date(year, month, d);
+                const checkDate = new Date(dateObj);
+                checkDate.setHours(0, 0, 0, 0);
+
                 days.push({
                     date: d,
                     full: this.fmtDate(dateObj),
-                    isPast: dateObj < new Date().setHours(0,0,0,0)
+                    isPast: checkDate < today
                 });
             }
+
             return days;
         },
+
         selectedCoupon() {
             return this.couponList.find(c =>
                 String(c.userCouponId) === String(this.selectedUserCouponId)
             ) || null;
         },
+
         couponDiscount() {
             if (!this.isLogin) return 0;
+
             const coupon = this.selectedCoupon;
-            if (!coupon || this.selectedTotal < coupon.minOrderAmt) return 0;
+            if (!coupon) return 0;
+            if (this.selectedTotal < Number(coupon.minOrderAmt || 0)) return 0;
+
             let discount = 0;
+
             if (coupon.couponType === 'AMOUNT') {
-                discount = coupon.discountAmt;
+                discount = Number(coupon.discountAmt || 0);
             } else if (coupon.couponType === 'RATE') {
-                discount = Math.floor(this.selectedTotal * coupon.discountRate / 100);
-                if (coupon.maxDiscountAmt > 0) discount = Math.min(discount, coupon.maxDiscountAmt);
+                discount = Math.floor(this.selectedTotal * Number(coupon.discountRate || 0) / 100);
+                if (Number(coupon.maxDiscountAmt || 0) > 0) {
+                    discount = Math.min(discount, Number(coupon.maxDiscountAmt));
+                }
             }
+
             return Math.min(discount, this.selectedTotal);
         },
+
         finalTotal() {
             return Math.max(0, this.selectedTotal - this.couponDiscount);
         }
     },
 
     methods: {
-        /* ── localStorage (비회원) ── */
         loadGuestCart() {
             try {
                 const raw = localStorage.getItem(LS_KEY);
                 this.cartList = raw ? JSON.parse(raw) : [];
-            } catch(e) { this.cartList = []; }
+            } catch (e) {
+                this.cartList = [];
+            }
         },
+
         saveGuestCart() {
             localStorage.setItem(LS_KEY, JSON.stringify(this.cartList));
         },
 
-        /* ── 초기화 ── */
         checkLogin() {
             let self = this;
+
             $.ajax({
                 url: '/user/session-check.dox',
-                type: 'POST', dataType: 'json',
+                type: 'POST',
+                dataType: 'json',
                 success(res) {
                     self.isLogin = res.isLogin === true;
+
                     if (self.isLogin) {
                         self.fetchCartList();
                         self.fetchCouponList();
@@ -458,362 +502,450 @@ const app = Vue.createApp({
             });
         },
 
-        /* ── 서버 API (회원) ── */
         fetchCartList() {
             let self = this;
+
             $.ajax({
-                url: '/cart/list.dox', type: 'POST',
-                data: { cartType: self.activeTab }, dataType: 'json',
+                url: '/cart/list.dox',
+                type: 'POST',
+                data: { cartType: self.activeTab },
+                dataType: 'json',
                 success(res) {
                     if (res.result === 'success') {
-                        self.cartList  = res.list || [];
+                        self.cartList = res.list || [];
                         self.checkedIds = [];
                     }
                 }
             });
         },
+
         fetchCouponList() {
             let self = this;
+
             $.ajax({
-                url: '/coupon/myCouponList.dox', type: 'POST',
-                data: { start: 0, pageSize: 100 }, dataType: 'json',
+                url: '/coupon/myCouponList.dox',
+                type: 'POST',
+                data: {
+                    start: 0,
+                    pageSize: 100
+                },
+                dataType: 'json',
                 success(res) {
-                    if (res.result === 'success') self.couponList = res.list || [];
+                    if (res.result === 'success') {
+                        self.couponList = res.list || [];
+                    }
                 }
             });
         },
 
-        /* ── 탭 전환 ── */
         switchTab(tab) {
-            this.activeTab  = tab;
+            this.activeTab = tab;
             this.checkedIds = [];
+            this.selectedUserCouponId = '';
+
+            if (this.isLogin) {
+                this.fetchCartList();
+            }
         },
 
-        /* ── 체크박스 ── */
         toggleAll() {
             const ids = this.filteredCart.map(c => c.cartId);
+
             if (this.isAllChecked) {
                 this.checkedIds = this.checkedIds.filter(id => !ids.includes(id));
             } else {
-                ids.forEach(id => { if (!this.checkedIds.includes(id)) this.checkedIds.push(id); });
-            }
-        },
-        isBrandChecked(group) {
-            return group.items.every(c => this.checkedIds.includes(c.cartId));
-        },
-        toggleBrand(group) {
-            if (this.isBrandChecked(group)) {
-                const ids = group.items.map(c => c.cartId);
-                this.checkedIds = this.checkedIds.filter(id => !ids.includes(id));
-            } else {
-                group.items.forEach(c => {
-                    if (!this.checkedIds.includes(c.cartId)) this.checkedIds.push(c.cartId);
+                ids.forEach(id => {
+                    if (!this.checkedIds.includes(id)) {
+                        this.checkedIds.push(id);
+                    }
                 });
             }
         },
-        toggleItem(cartId) {
-            const idx = this.checkedIds.indexOf(cartId);
-            if (idx > -1) this.checkedIds.splice(idx, 1);
-            else this.checkedIds.push(cartId);
+
+        isBrandChecked(group) {
+            return group.items.every(c => this.checkedIds.includes(c.cartId));
         },
 
-        /* ── 수량 변경 ── */
+        toggleBrand(group) {
+            const ids = group.items.map(c => c.cartId);
+
+            if (this.isBrandChecked(group)) {
+                this.checkedIds = this.checkedIds.filter(id => !ids.includes(id));
+            } else {
+                ids.forEach(id => {
+                    if (!this.checkedIds.includes(id)) {
+                        this.checkedIds.push(id);
+                    }
+                });
+            }
+        },
+
+        toggleItem(cartId) {
+            const idx = this.checkedIds.indexOf(cartId);
+
+            if (idx > -1) {
+                this.checkedIds.splice(idx, 1);
+            } else {
+                this.checkedIds.push(cartId);
+            }
+        },
+
         chgItemQty(item, d) {
-            const next = item.quantity + d;
+            const next = Number(item.quantity || 1) + d;
             if (next < 1) return;
+
             item.quantity = next;
-            if (!this.isLogin) { this.saveGuestCart(); return; }
+
+            if (!this.isLogin) {
+                this.saveGuestCart();
+                return;
+            }
+
             $.ajax({
-                url: '/cart/update.dox', type: 'POST',
-                data: { cartId: item.cartId, quantity: next }, dataType: 'json',
-                success(res) { if (res.result !== 'success') showToast('수량 변경에 실패했습니다.'); }
+                url: '/cart/update.dox',
+                type: 'POST',
+                data: {
+                    cartId: item.cartId,
+                    quantity: next
+                },
+                dataType: 'json',
+                success(res) {
+                    if (res.result !== 'success') {
+                        showToast('수량 변경에 실패했습니다.');
+                    }
+                }
             });
         },
 
-        /* ── 단일 삭제 ── */
         deleteItem(cartId) {
             let self = this;
-            self.openConfirm('해당 상품을 삭제하시겠습니까?', function() {
+
+            self.openConfirm('해당 상품을 삭제하시겠습니까?', function () {
                 if (!self.isLogin) {
-                    self.cartList  = self.cartList.filter(c => c.cartId !== cartId);
+                    self.cartList = self.cartList.filter(c => c.cartId !== cartId);
                     self.checkedIds = self.checkedIds.filter(id => id !== cartId);
                     self.saveGuestCart();
                     showToast('삭제됐어요.');
                     return;
                 }
 
-                let self = this;
-
-                self.openConfirm(this.checkedIds.length + '개 상품을 삭제하시겠습니까?', function() {
-                    $.ajax({
-                        url: '/cart/deleteSelected.dox',
-                        type: 'POST',
-                        data: { cartIds: self.checkedIds.join(',') },
-                        dataType: 'json',
-                        success(res) {
-                            if (res.result === 'success') {
-                                self.cartList = self.cartList.filter(c => !self.checkedIds.includes(c.cartId));
-                                self.checkedIds = [];
-                                showToast('선택 상품이 삭제됐어요.');
-                            }
-                        }
-                    });
-                }, '삭제하기');
-            },
-            // ── 주문하기 ──
-            fnOrder() {
-                if (this.checkedIds.length === 0) { showToast('상품을 선택해주세요.'); return; }
-                const ids = this.checkedIds.join(',');
-                let url = '/payment/checkout.do?cartIds=' + ids
-                    + '&cartType=' + this.activeTab;
-                    
-
-                if (this.isLogin && this.selectedUserCouponId) {
-                    url += '&userCouponId=' + this.selectedUserCouponId;
-                }
-                location.href = url;
-            },
-
-            // ── 옵션 변경 모달 ──
-            openOptModal(item) {
-                let self = this;
-
-                // 1. 모달 기본 세팅
-                self.optModal = {
-                    open: true,
-                    item: { ...item },
-                    qty: item.quantity,
-                    startDate: item.rentalStart || null,
-                    endDate: item.rentalEnd || null,
-                    year: new Date().getFullYear(),
-                    month: new Date().getMonth(),
-                    selectedOption: Number(item.optionId) || null,
-                    optionList: []
-                };
-
-                // 2. 여기 ↓↓↓ 추가하는거
                 $.ajax({
-                    url: '/cart/delete.dox', type: 'POST',
-                    data: { cartId }, dataType: 'json',
+                    url: '/cart/delete.dox',
+                    type: 'POST',
+                    data: { cartId: cartId },
+                    dataType: 'json',
                     success(res) {
                         if (res.result === 'success') {
-                            self.cartList  = self.cartList.filter(c => c.cartId !== cartId);
+                            self.cartList = self.cartList.filter(c => c.cartId !== cartId);
                             self.checkedIds = self.checkedIds.filter(id => id !== cartId);
                             showToast('삭제됐어요.');
+                        } else {
+                            showToast('삭제에 실패했습니다.');
                         }
                     }
                 });
             }, '삭제하기');
         },
 
-        /* ── 선택 삭제 ── */
         deleteSelected() {
-            if (!this.checkedIds.length) { showToast('선택된 상품이 없습니다.'); return; }
+            if (!this.checkedIds.length) {
+                showToast('선택된 상품이 없습니다.');
+                return;
+            }
+
             let self = this;
-            self.openConfirm(this.checkedIds.length + '개 상품을 삭제하시겠습니까?', function() {
+            const deleteIds = [...self.checkedIds];
+
+            self.openConfirm(deleteIds.length + '개 상품을 삭제하시겠습니까?', function () {
                 if (!self.isLogin) {
-                    self.cartList  = self.cartList.filter(c => !self.checkedIds.includes(c.cartId));
+                    self.cartList = self.cartList.filter(c => !deleteIds.includes(c.cartId));
                     self.checkedIds = [];
                     self.saveGuestCart();
                     showToast('선택 상품이 삭제됐어요.');
                     return;
                 }
+
                 $.ajax({
-                    url: '/cart/deleteSelected.dox', type: 'POST',
-                    data: { cartIds: self.checkedIds.join(',') }, dataType: 'json',
+                    url: '/cart/deleteSelected.dox',
+                    type: 'POST',
+                    data: { cartIds: deleteIds.join(',') },
+                    dataType: 'json',
                     success(res) {
                         if (res.result === 'success') {
-                            self.cartList  = self.cartList.filter(c => !self.checkedIds.includes(c.cartId));
+                            self.cartList = self.cartList.filter(c => !deleteIds.includes(c.cartId));
                             self.checkedIds = [];
                             showToast('선택 상품이 삭제됐어요.');
+                        } else {
+                            showToast('삭제에 실패했습니다.');
                         }
                     }
                 });
             }, '삭제하기');
         },
 
-        /* ── 주문하기 ── */
         fnOrder() {
-            if (!this.checkedIds.length) { showToast('상품을 선택해주세요.'); return; }
-            if (!this.isLogin) {
-                // 비회원: 선택 아이템 sessionStorage에 저장 후 이동
-                const selected = this.filteredCart.filter(c => this.checkedIds.includes(c.cartId));
-                sessionStorage.setItem('guest_order_items', JSON.stringify(selected));
-                location.href = '/order/checkout.do?isGuest=true&cartType=' + this.activeTab;
+            if (!this.checkedIds.length) {
+                showToast('상품을 선택해주세요.');
                 return;
             }
-            let url = '/order/checkout.do?cartIds=' + this.checkedIds.join(',') + '&cartType=' + this.activeTab;
-            if (this.selectedUserCouponId) url += '&userCouponId=' + this.selectedUserCouponId;
+
+            if (!this.isLogin) {
+                const selected = this.filteredCart.filter(c => this.checkedIds.includes(c.cartId));
+                sessionStorage.setItem('guest_order_items', JSON.stringify(selected));
+                location.href = '/payment/checkout.do?isGuest=true&cartType=' + this.activeTab;
+                return;
+            }
+
+            let url = '/payment/checkout.do?cartIds=' + this.checkedIds.join(',') + '&cartType=' + this.activeTab;
+
+            if (this.selectedUserCouponId) {
+                url += '&userCouponId=' + this.selectedUserCouponId;
+            }
+
             location.href = url;
         },
 
-        /* ── 옵션 변경 모달 ── */
         openOptModal(item) {
             let self = this;
+
             self.optModal = {
-                open: true, item: { ...item }, qty: item.quantity,
-                startDate: item.rentalStart || null, endDate: item.rentalEnd || null,
-                year: new Date().getFullYear(), month: new Date().getMonth(),
-                selectedOption: Number(item.optionId) || null, optionList: []
+                open: true,
+                item: { ...item },
+                qty: Number(item.quantity || 1),
+                startDate: item.rentalStart || null,
+                endDate: item.rentalEnd || null,
+                year: new Date().getFullYear(),
+                month: new Date().getMonth(),
+                selectedOption: Number(item.optionId) || null,
+                optionList: []
             };
+
             $.ajax({
-                url: '/product/option/list.dox', type: 'POST',
-                data: { productId: item.productId }, dataType: 'json',
-                success(res) { if (res.result === 'success') self.optModal.optionList = res.list; }
+                url: '/product/option/list.dox',
+                type: 'POST',
+                data: { productId: item.productId },
+                dataType: 'json',
+                success(res) {
+                    if (res.result === 'success') {
+                        self.optModal.optionList = res.list || [];
+                    }
+                }
             });
         },
+
         changeModalMonth(diff) {
             const d = new Date(this.optModal.year, this.optModal.month + diff, 1);
-            this.optModal.year  = d.getFullYear();
+            this.optModal.year = d.getFullYear();
             this.optModal.month = d.getMonth();
         },
+
         getModalDayClass(day) {
             if (!day) return 'cal-day empty';
             if (day.isPast) return 'cal-day past';
-            if (day.full === this.optModal.startDate || day.full === this.optModal.endDate) return 'cal-day selected';
-            if (this.optModal.startDate && this.optModal.endDate
-                && day.full > this.optModal.startDate && day.full < this.optModal.endDate) return 'cal-day in-range';
+
+            if (day.full === this.optModal.startDate || day.full === this.optModal.endDate) {
+                return 'cal-day selected';
+            }
+
+            if (
+                this.optModal.startDate &&
+                this.optModal.endDate &&
+                day.full > this.optModal.startDate &&
+                day.full < this.optModal.endDate
+            ) {
+                return 'cal-day in-range';
+            }
+
             return 'cal-day available';
         },
+
         onModalDayClick(day) {
             if (!day || day.isPast) return;
+
             if (!this.optModal.startDate || (this.optModal.startDate && this.optModal.endDate)) {
                 this.optModal.startDate = day.full;
-                this.optModal.endDate   = null;
+                this.optModal.endDate = null;
             } else {
-                if (day.full < this.optModal.startDate)       this.optModal.startDate = day.full;
-                else if (day.full === this.optModal.startDate) this.optModal.startDate = null;
-                else                                           this.optModal.endDate   = day.full;
+                if (day.full < this.optModal.startDate) {
+                    this.optModal.startDate = day.full;
+                } else if (day.full === this.optModal.startDate) {
+                    this.optModal.startDate = null;
+                } else {
+                    this.optModal.endDate = day.full;
+                }
             }
         },
+
         calcModalTotal() {
             const item = this.optModal.item;
             if (!item) return 0;
+
             if (this.activeTab === 'RENTAL') {
-                return item.price * (this.calcNights(this.optModal.startDate, this.optModal.endDate) || 1);
+                const nights = this.calcNights(this.optModal.startDate, this.optModal.endDate) || 1;
+                return Number(item.price || 0) * nights;
             }
-            return item.price * this.optModal.qty;
+
+            return Number(item.price || 0) * Number(this.optModal.qty || 1);
         },
+
         applyOptChange() {
             const m = this.optModal;
+
             if (this.activeTab === 'RENTAL' && (!m.startDate || !m.endDate)) {
-                showToast('날짜를 선택해주세요.'); return;
+                showToast('날짜를 선택해주세요.');
+                return;
             }
+
             if (!this.isLogin) {
                 const target = this.cartList.find(c => c.cartId === m.item.cartId);
+
                 if (target) {
-                    target.quantity    = m.qty;
-                    target.optionId    = m.selectedOption || null;
+                    target.quantity = m.qty;
+                    target.optionId = m.selectedOption || null;
                     target.rentalStart = m.startDate || null;
-                    target.rentalEnd   = m.endDate   || null;
+                    target.rentalEnd = m.endDate || null;
                 }
+
                 this.saveGuestCart();
                 this.optModal.open = false;
                 showToast('변경됐어요.');
                 return;
             }
+
             let self = this;
+
             $.ajax({
-                url: '/cart/updateOption.dox', type: 'POST',
+                url: '/cart/updateOption.dox',
+                type: 'POST',
                 data: {
-                    cartId: m.item.cartId, quantity: m.qty,
+                    cartId: m.item.cartId,
+                    quantity: m.qty,
                     optionId: m.selectedOption || '',
-                    rentalStart: m.startDate || '', rentalEnd: m.endDate || '',
+                    rentalStart: m.startDate || '',
+                    rentalEnd: m.endDate || ''
                 },
                 dataType: 'json',
                 success(res) {
                     if (res.result === 'success') {
                         self.optModal.open = false;
                         self.fetchCartList();
-                        showToast(res.merged === 'Y' ? '✅ 같은 옵션 상품과 합쳐졌어요.' : '✅ 변경됐어요.');
-                    } else { showToast('변경에 실패했습니다.'); }
+                        showToast(res.merged === 'Y' ? '같은 옵션 상품과 합쳐졌어요.' : '변경됐어요.');
+                    } else {
+                        showToast('변경에 실패했습니다.');
+                    }
                 }
             });
         },
 
-        /* ── 확인 모달 ── */
         openConfirm(message, onOk, okText = '확인', cancelText = '취소') {
-            this.confirmModal.message    = message;
-            this.confirmModal.onOk       = onOk;
-            this.confirmModal.okText     = okText;
+            this.confirmModal.message = message;
+            this.confirmModal.onOk = onOk;
+            this.confirmModal.okText = okText;
             this.confirmModal.cancelText = cancelText;
-            this.confirmModal.open       = true;
+            this.confirmModal.open = true;
         },
+
         confirmOk() {
-            if (typeof this.confirmModal.onOk === 'function') this.confirmModal.onOk();
+            if (typeof this.confirmModal.onOk === 'function') {
+                this.confirmModal.onOk();
+            }
             this.confirmModal.open = false;
         },
-        confirmCancel() { this.confirmModal.open = false; },
 
-        /* ── 유틸 ── */
-        formatPrice(p) {
-            if (!p) return '0원';
-            return Number(p).toLocaleString('ko-KR') + '원';
+        confirmCancel() {
+            this.confirmModal.open = false;
         },
+
+        formatPrice(p) {
+            return Number(p || 0).toLocaleString('ko-KR') + '원';
+        },
+
         fmtDate(dateVal) {
             const d = new Date(dateVal);
+
             return d.getFullYear() + '-'
                 + String(d.getMonth() + 1).padStart(2, '0') + '-'
                 + String(d.getDate()).padStart(2, '0');
         },
+
         calcNights(s, e) {
             if (!s || !e) return 0;
             return Math.ceil((new Date(e) - new Date(s)) / (1000 * 60 * 60 * 24));
         },
-        getDiscRate() { return 10; },
-        groupTotal(group) {
-            return group.items.reduce((sum, c) => sum + c.price * c.quantity, 0);
+
+        getDiscRate() {
+            return 10;
         },
+
+        groupTotal(group) {
+            return group.items.reduce((sum, c) => sum + Number(c.price || 0) * Number(c.quantity || 1), 0);
+        },
+
         couponText(coupon) {
-            if (coupon.couponType === 'AMOUNT') return this.formatPrice(coupon.discountAmt) + ' 할인';
+            if (coupon.couponType === 'AMOUNT') {
+                return this.formatPrice(coupon.discountAmt) + ' 할인';
+            }
+
             if (coupon.couponType === 'RATE') {
                 let txt = coupon.discountRate + '% 할인';
-                if (coupon.maxDiscountAmt > 0) txt += ' / 최대 ' + this.formatPrice(coupon.maxDiscountAmt);
+                if (Number(coupon.maxDiscountAmt || 0) > 0) {
+                    txt += ' / 최대 ' + this.formatPrice(coupon.maxDiscountAmt);
+                }
                 return txt;
             }
+
             return '';
         },
+
         goProductList() {
             document.getElementById('app').classList.add('page-leaving');
             location.href = '/product/list.do';
         },
+
         goDetail(productId) {
             document.getElementById('app').classList.add('page-leaving');
             location.href = '/product/detail.do?productId=' + productId;
-        },
+        }
     },
 
-    mounted() { this.checkLogin(); }
+    mounted() {
+        this.checkLogin();
+    }
 });
 
 app.mount('#app');
 
-/* ════════════════════════════
-   로그인 시 비회원 카트 → 서버 병합
-   로그인 성공 핸들러에서 mergeGuestCartOnLogin() 호출
-════════════════════════════ */
 function mergeGuestCartOnLogin() {
     var raw = localStorage.getItem(LS_KEY);
     if (!raw) return;
+
     var items = [];
-    try { items = JSON.parse(raw); } catch(e) { return; }
+
+    try {
+        items = JSON.parse(raw);
+    } catch (e) {
+        return;
+    }
+
     if (!items.length) return;
 
-    var promises = items.map(function(item) {
+    var promises = items.map(function (item) {
         return $.ajax({
-            url: '/cart/add.dox', type: 'POST', dataType: 'json',
+            url: '/cart/add.dox',
+            type: 'POST',
+            dataType: 'json',
             data: {
-                cartType:    item.cartType,
-                productId:   item.productId,
-                quantity:    item.quantity,
-                optionId:    item.optionId    || '',
+                cartType: item.cartType,
+                productId: item.productId,
+                quantity: item.quantity,
+                optionId: item.optionId || '',
                 rentalStart: item.rentalStart || '',
-                rentalEnd:   item.rentalEnd   || ''
+                rentalEnd: item.rentalEnd || ''
             }
         });
     });
 
-    Promise.all(promises).then(function() {
+    Promise.all(promises).then(function () {
         localStorage.removeItem(LS_KEY);
         showToast('장바구니가 복원됐습니다.');
     });

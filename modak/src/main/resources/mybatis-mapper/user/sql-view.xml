@@ -26,9 +26,15 @@
         ON P.CATEGORY_ID = C.CATEGORY_ID
     LEFT JOIN BRAND B
         ON P.BRAND_ID = B.BRAND_ID
-    LEFT JOIN PRODUCT_IMG I
-        ON P.PRODUCT_ID = I.PRODUCT_ID
-        AND I.IS_MAIN = 'Y'
+    LEFT JOIN (
+    SELECT
+        PRODUCT_ID,
+        MIN(IMG_URL) AS IMG_URL
+    FROM PRODUCT_IMG
+    WHERE IS_MAIN = 'Y'
+    GROUP BY PRODUCT_ID
+) I
+    ON P.PRODUCT_ID = I.PRODUCT_ID
     WHERE 1 = 1
     <if test="keyword != null and keyword != ''">
         AND (

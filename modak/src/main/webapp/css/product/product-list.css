@@ -1,26 +1,27 @@
-/* 1. CSS 변수 (색상, 공통 디자인 토큰) */
 :root {
-  --forest:    #2C3E2D;
-  --pine:      #3D5A40;
-  --moss:      #5A7A4E;
-  --sage:      #8FAF7E;
-  --mist:      #C8D8B8;
-  --smoke:     #EDF2E6;
-  --ember:     #C8602A;
-  --flame:     #E8884A;
-  --ash:       #F5EFE4;
-  --bark:      #7A5C3E;
-  --stone:     #A09080;
-  --parchment: #FBF7F0;
-  --ink:       #1E2A1F;
-  --border:    rgba(90,122,78,0.15);
-  --card-bg:   #FDF9F3;
+    --cream:   #F6F0E6;
+    --cream2:  #EDE5D4;
+    --cream3:  #E2D8C3;
+    --orange:  #E8732A;
+    --orange2: #C4621E;
+    --amber:   #D4932A;
+    --brown:   #2C1E0F;
+    --brown2:  #5C4230;
+    --brown3:  #8B6B4A;
+    --brown4:  #B89A7A;
+    --white:   #FFFDF8;
+
+    /* 추가 (핵심) */
+    --text-main: var(--brown);
+    --text-sub: var(--brown3);
+    --border: rgba(44,30,15,0.08);
+    --card-bg: var(--white);
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
-  background: var(--parchment);
-  color: var(--ink);
+  background: var(--cream);
+  color: var(--text-sub);
   font-weight: 300;
   line-height: 1.7;
   min-height: 100vh;

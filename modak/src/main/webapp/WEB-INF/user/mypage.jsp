@@ -17,11 +17,6 @@
                     <script src="//t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
                     <link rel="stylesheet" href="/css/user/mypage.css">
                     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
-<style>
-    [v-cloak] {
-        display: none !important;
-    }
-</style>
                 </head>
 
                 <body>
@@ -32,53 +27,61 @@
 
                                 <!-- SIDEBAR -->
                                 <aside class="sidebar">
-                                    <div class="profile-card">
-                                        <div class="avatar-wrap">
-    <div class="avatar-ring profile-avatar" @click="fnTriggerProfileFile">
-       <img :src="profileImageSrc"
-     alt="프로필 이미지"
-     class="profile-avatar-img">
+                                    <div class="profile-card profile-card-new">
 
-        <div class="profile-overlay">
-            <div class="overlay-content">
-                <span class="overlay-icon">📷</span>
-                <span>사진 변경</span>
-            </div>
-        </div>
-    </div>
-
-    <div class="profile-image-actions">
-        <button type="button" class="profile-action-btn change" @click="fnTriggerProfileFile">
-            변경
-        </button>
-        <button type="button" class="profile-action-btn delete" @click="fnDeleteProfile">
-            삭제
-        </button>
-    </div>
-
-    <input type="file"
-           ref="profileFileInput"
-           accept="image/*"
-           style="display:none;"
-           @change="fnProfileImageChange">
-</div>
-
-                                        <div class="profile-name">
-                                            {{ displayUser.userName }}
+                                        <div class="profile-top-label">
+                                            MY CAMPING PROFILE
                                         </div>
 
-                                        <div class="profile-nick">
-                                            @{{ displayUser.nickName }}
+                                        <div class="avatar-wrap profile-avatar-wrap">
+                                            <div class="avatar-ring profile-avatar-new" @click="fnTriggerProfileFile">
+                                                <img :src="profileImageSrc"
+                                                    alt="프로필 이미지"
+                                                    class="profile-avatar-img">
+
+                                                <div class="profile-overlay">
+                                                    <div class="overlay-content">
+                                                        <span class="overlay-icon">📷</span>
+                                                        <span>사진 변경</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <input type="file"
+                                                ref="profileFileInput"
+                                                accept="image/*"
+                                                style="display:none;"
+                                                @change="fnProfileImageChange">
+                                        </div>
+
+                                        <div class="profile-user-block">
+                                            <div class="profile-name">
+                                                {{ displayUser.userName }}
+                                            </div>
+
+                                            <div class="profile-nick">
+                                                @{{ displayUser.nickName }}
+                                            </div>
                                         </div>
 
                                         <div class="level-badge 
-    grade-${empty user.gradeName ? 'default' : fn:toLowerCase(user.gradeName)}" @click="fnGoMembershipInfo">
+                                            grade-${empty user.gradeName ? 'default' : fn:toLowerCase(user.gradeName)}"
+                                            @click="fnGoMembershipInfo">
                                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                                <path
-                                                    d="M6 1L7.5 4.5H11L8.5 7L9.5 10.5L6 8.5L2.5 10.5L3.5 7L1 4.5H4.5Z" />
+                                                <path d="M6 1L7.5 4.5H11L8.5 7L9.5 10.5L6 8.5L2.5 10.5L3.5 7L1 4.5H4.5Z" />
                                             </svg>
                                             ${empty user.gradeName ? '일반 회원' : user.gradeName}
                                         </div>
+
+                                        <div class="profile-action-row">
+                                            <button type="button" class="profile-action-btn change" @click="fnTriggerProfileFile">
+                                                사진 변경
+                                            </button>
+                                            <button type="button" class="profile-action-btn delete" @click="fnDeleteProfile">
+                                                삭제
+                                            </button>
+                                        </div>
+
                                     </div>
 
                                     <div class="nav-card">
@@ -1157,36 +1160,36 @@
                                             </div>
                                         </div>
 
-                                    </div>
 
                             </div>
-                        </div>
-                        </main>
-                        </div>
-                        <div class="toast" id="toast"></div>
+                                                </main>
+                    </div>
 
-<div v-cloak v-if="modal.show" class="delete-modal-backdrop" @click.self="fnCloseModal">
-    <div
-        class="delete-modal-box"
-        ref="confirmModal"
-        tabindex="0"
-        @keydown.enter.prevent="fnModalConfirm"
-        @keydown.esc.prevent="fnCloseModal"
-    >
-        <div class="delete-modal-title">{{ modal.title }}</div>
-        <div class="delete-modal-desc" v-html="modal.message"></div>
+                    <div class="toast" id="toast"></div>
 
-        <div class="delete-modal-actions">
-            <button type="button" class="delete-confirm-btn" @click="fnModalConfirm">
-                {{ modal.confirmText }}
-            </button>
-            <button type="button" class="delete-cancel-btn" @click="fnCloseModal">
-                취소
-            </button>
-        </div>
-    </div>
-</div>
+                    <div v-if="modal.show" class="delete-modal-backdrop" @click.self="fnCloseModal">
+                        <div
+                            class="delete-modal-box"
+                            ref="confirmModal"
+                            tabindex="0"
+                            @keydown.enter.prevent="fnModalConfirm"
+                            @keydown.esc.prevent="fnCloseModal"
+                        >
+                            <div class="delete-modal-title">{{ modal.title }}</div>
+                            <div class="delete-modal-desc" v-html="modal.message"></div>
+
+                            <div class="delete-modal-actions">
+                                <button type="button" class="delete-confirm-btn" @click="fnModalConfirm">
+                                    {{ modal.confirmText }}
+                                </button>
+                                <button type="button" class="delete-cancel-btn" @click="fnCloseModal">
+                                    취소
+                                </button>
+                            </div>
                         </div>
+                    </div>
+
+                </div> <!-- id="app" 끝 -->
                         <%@ include file="/WEB-INF/common/footer.jsp" %>
                 </body>
 
@@ -1243,7 +1246,6 @@
                                     detailedAddress: "",
                                     defaultYn: false
                                 },
-
                                 addressMsg: "",
                                 addressMsgType: "",
 
@@ -2590,7 +2592,10 @@ fnModalConfirm: function () {
                                         if (status === "USED") return "사용 완료";
                                         if (status === "EXPIRED") return "만료";
                                         return status || "-";
-                                    }
+                                    },
+                                    fnEditReview: function (reviewId) {
+                                        pageChange("/user/review/edit.do", { reviewId: reviewId });
+                                    },
                                 }, // methods
                                     mounted() {
                                     let profileUrl = String(this.displayUser.profileImgUrl || "").trim();
@@ -2614,9 +2619,13 @@ fnModalConfirm: function () {
                                         this.fnGetInquiryList();
                                         this.fnGetCouponList();
 
-                                        const savedTab = sessionStorage.getItem("activeTab") || "orders";
+                                        const savedTab = sessionStorage.getItem("activeTab");
+
                                         this.$nextTick(function () {
-                                            switchTab(savedTab, null);
+                                            switchTab(savedTab || "orders", null);
+
+                                            this.showDeleteModal = false;
+                                            this.deleteTargetId = null;
                                         });
                                      }
                              });

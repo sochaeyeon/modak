@@ -97,7 +97,7 @@
                     <label>아이디<span class="required">*</span></label>
                     <div class="input-wrap input-with-btn">
                         <input v-model="userId" type="text" id="userIdInput"
-                            placeholder="영문·숫자·_ 4~20자">
+                            placeholder="아이디를 입력해주세요">
                         <button type="button" class="btn-check" @click="fnCheckUserId">중복체크</button>
                     </div>
                     <p class="field-hint" id="userIdHint"></p>
@@ -236,30 +236,34 @@
 </html>
 
 <script>
-    /* ── 비밀번호 토글 ── */
     function togglePw(id) {
         const inp = document.getElementById(id);
         inp.type = inp.type === 'password' ? 'text' : 'password';
     }
 
-    /* ── 아이콘 헬퍼 ── */
-    const okSvg  = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" fill="#5a9a6a" opacity=".15"/><path d="M4.5 7.5L6.5 9.5L10.5 5.5" stroke="#5a9a6a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    const okSvg = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" fill="#5a9a6a" opacity=".15"/><path d="M4.5 7.5L6.5 9.5L10.5 5.5" stroke="#5a9a6a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     const errSvg = `<svg width="15" height="15" viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6.5" fill="#c94f1e" opacity=".12"/><path d="M5 5L10 10M10 5L5 10" stroke="#c94f1e" stroke-width="1.5" stroke-linecap="round"/></svg>`;
 
     function setField(inputId, iconId, hintId, valid, msg) {
-        const inp  = document.getElementById(inputId);
+        const inp = document.getElementById(inputId);
         const hint = document.getElementById(hintId);
+
         if (inp.value === '') {
             inp.classList.remove('valid', 'invalid');
             if (iconId) document.getElementById(iconId).innerHTML = '';
-            hint.className   = 'field-hint';
+            hint.className = 'field-hint';
             hint.textContent = msg || '';
             return;
         }
-        inp.classList.toggle('valid',   valid);
+
+        inp.classList.toggle('valid', valid);
         inp.classList.toggle('invalid', !valid);
-        if (iconId) document.getElementById(iconId).innerHTML = valid ? okSvg : errSvg;
-        hint.className   = 'field-hint ' + (valid ? 'ok' : 'error');
+
+        if (iconId) {
+            document.getElementById(iconId).innerHTML = valid ? okSvg : errSvg;
+        }
+
+        hint.className = 'field-hint ' + (valid ? 'ok' : 'error');
         hint.textContent = msg;
     }
 
@@ -269,376 +273,300 @@
             v.length >= 2,
             v.length >= 2 ? '좋아요!' : '이름은 2자 이상 입력해주세요.');
     }
+
     function validateNick() {
-        const v  = document.getElementById('nickInput').value;
+        const v = document.getElementById('nickInput').value.trim();
         const ok = /^[가-힣a-zA-Z0-9_]{2,12}$/.test(v);
+
         setField('nickInput', 'nickIcon', 'nickHint',
             ok,
-            ok ? '사용 가능한 닉네임이에요!' : '한글·영문·숫자·_ 2~12자로 입력해주세요.');
+            ok ? '사용 가능한 별명이에요!' : '한글·영문·숫자·_ 2~12자로 입력해주세요.');
     }
+
     function validateEmail() {
-        const v  = document.getElementById('emailInput').value;
+        const v = document.getElementById('emailInput').value;
         const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
         setField('emailInput', null, 'emailHint',
             ok,
             ok ? '올바른 이메일 형식이에요.' : '이메일 형식을 확인해주세요.');
     }
+
     function validatePw() {
-        const v    = document.getElementById('pwInput').value;
-        const bars = ['str1','str2','str3','str4'].map(id => document.getElementById(id));
-        const colors = ['#e0621a','#e0621a','#f0a030','#5a9a6a'];
+        const v = document.getElementById('pwInput').value;
+        const bars = ['str1', 'str2', 'str3', 'str4'].map(id => document.getElementById(id));
+        const colors = ['#e0621a', '#e0621a', '#f0a030', '#5a9a6a'];
+
         let score = 0;
-        if (v.length >= 8)                              score++;
-        if (/[A-Za-z]/.test(v) && /[0-9]/.test(v))    score++;
-        if (/[^A-Za-z0-9]/.test(v))                    score++;
-        if (v.length >= 12)                             score++;
+        if (v.length >= 8) score++;
+        if (/[A-Za-z]/.test(v) && /[0-9]/.test(v)) score++;
+        if (/[^A-Za-z0-9]/.test(v)) score++;
+        if (v.length >= 12) score++;
+
         bars.forEach((b, i) => {
-            b.style.background = i < score ? colors[Math.min(score-1, 3)] : 'rgba(180,140,100,.2)';
+            b.style.background = i < score ? colors[Math.min(score - 1, 3)] : 'rgba(180,140,100,.2)';
         });
-        const labels = ['','취약한 비밀번호','보통 비밀번호','강한 비밀번호','매우 강한 비밀번호'];
+
+        const labels = ['', '취약한 비밀번호', '보통 비밀번호', '강한 비밀번호', '매우 강한 비밀번호'];
+
         setField('pwInput', null, 'pwHint',
             score >= 2,
             score > 0 ? labels[score] : '영문·숫자를 포함해 8자 이상 입력해주세요.');
+
         if (document.getElementById('pwConfirm').value) validateConfirm();
     }
+
     function validateConfirm() {
-        const pw   = document.getElementById('pwInput').value;
+        const pw = document.getElementById('pwInput').value;
         const conf = document.getElementById('pwConfirm').value;
+
         setField('pwConfirm', null, 'confirmHint',
             pw === conf && conf !== '',
             pw === conf ? '비밀번호가 일치해요.' : '비밀번호가 일치하지 않아요.');
     }
 
-    /* ── Vue 앱 ── */
+    function showToast(msg) {
+        let toast = document.getElementById("toast");
+
+        if (!toast) {
+            toast = document.createElement("div");
+            toast.id = "toast";
+            toast.style.cssText =
+                "position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;display:none;";
+            document.body.appendChild(toast);
+        }
+
+        toast.textContent = msg;
+        toast.style.display = "block";
+
+        setTimeout(() => {
+            toast.style.display = "none";
+        }, 2000);
+    }
+
     const app = Vue.createApp({
         data() {
             return {
-                userId:         '',
-                userName:       '',
-                nickName:       '',
-                email:          '',
-                userPwd:        '',
-                checked:        false,
+                userId: '',
+                userName: '',
+                nickName: '',
+                email: '',
+                userPwd: '',
+                checked: false,
                 signupSuccessed: false,
-                marketingYn:    false,
-                agreeAll:       false,
-                term1:          false,
-                term2:          false
+                marketingYn: false,
+                agreeAll: false,
+                term1: false,
+                term2: false
             };
         },
-        methods: {
 
-            /* 전체 동의 토글 */
+        methods: {
             toggleAll() {
-                const all    = !this.agreeAll;
-                this.agreeAll    = all;
-                this.term1       = all;
-                this.term2       = all;
+                const all = !this.agreeAll;
+                this.agreeAll = all;
+                this.term1 = all;
+                this.term2 = all;
                 this.marketingYn = all;
             },
 
-            /* 개별 체크 → 전체 동의 상태 갱신 */
             updateAll() {
                 this.agreeAll = this.term1 && this.term2 && this.marketingYn;
             },
 
-            /* ── 회원가입 ── */
             fnSignUp() {
                 const self = this;
 
-                /* 1. 아이디 빈값 체크 */
-                if (!self.userId || self.userId.trim() === '') {
-                    const hint = document.getElementById("userIdHint");
-                    hint.textContent = "아이디를 입력해주세요.";
-                    hint.className   = "field-hint error";
-                    document.getElementById("userIdInput").focus();
-                    return;
+                const requiredList = [
+                    { id: "userIdInput", msg: "아이디를 입력해주세요." },
+                    { id: "nameInput", msg: "이름을 입력해주세요." },
+                    { id: "nickInput", msg: "별명을 입력해주세요." },
+                    { id: "emailInput", msg: "이메일을 입력해주세요." },
+                    { id: "pwInput", msg: "비밀번호를 입력해주세요." },
+                    { id: "pwConfirm", msg: "비밀번호 확인을 입력해주세요." }
+                ];
+
+                for (let item of requiredList) {
+                    const el = document.getElementById(item.id);
+                    const value = el.value.trim();
+
+                    if (value.length === 0) {
+                        const field = el.closest(".field");
+                        const hint = field.querySelector(".field-hint");
+
+                        el.classList.remove("valid");
+                        el.classList.add("invalid");
+
+                        hint.className = "field-hint error";
+                        hint.textContent = item.msg;
+
+                        el.focus();
+                        showToast(item.msg);
+                        return;
+                    }
                 }
 
-                /* 2. 아이디 형식 체크 (영문·숫자·_ 4~20자) */
                 const idRegex = /^[a-zA-Z0-9_]{4,20}$/;
                 if (!idRegex.test(self.userId.trim())) {
+                    const el = document.getElementById("userIdInput");
                     const hint = document.getElementById("userIdHint");
+
+                    el.classList.add("invalid");
+                    hint.className = "field-hint error";
                     hint.textContent = "아이디는 영문·숫자·_ 4~20자로 입력해주세요.";
-                    hint.className   = "field-hint error";
-                    document.getElementById("userIdInput").focus();
+
+                    el.focus();
+                    showToast("아이디 형식을 확인해주세요.");
                     return;
                 }
 
-        function validateName() {
-            const v = document.getElementById('nameInput').value;
-            setField('nameInput', 'nameIcon', 'nameHint', v.length >= 2, v.length >= 2 ? '좋아요!' : '이름은 2자 이상 입력해주세요.');
-        }
-        function validateNick() {
-            const v = document.getElementById('nickInput').value.trim();
+                if (!self.checked) {
+                    const el = document.getElementById("userIdInput");
+                    const hint = document.getElementById("userIdHint");
 
-            const ok = v.length >= 2;
+                    el.classList.add("invalid");
+                    hint.className = "field-hint error";
+                    hint.textContent = "아이디 중복 확인을 해주세요.";
 
-            setField(
-                'nickInput',
-                'nickIcon',
-                'nickHint',
-                ok,
-                ok ? '사용 가능한 별명이에요!' : '별명은 2자 이상 입력해주세요.'
-            );
-        }
-        function validateEmail() {
-            const v = document.getElementById('emailInput').value;
-            const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-            setField('emailInput', null, 'emailHint', ok, ok ? '올바른 이메일 형식이에요.' : '이메일 형식을 확인해주세요.');
-        }
-
-                /* 4. 이름 체크 */
-                if (!self.userName || self.userName.trim().length < 2) {
-                    alert("이름을 2자 이상 입력해주세요.");
-                    document.getElementById("nameInput").focus();
+                    el.focus();
+                    showToast("아이디 중복 확인이 필요합니다.");
                     return;
                 }
 
-                /* 5. 닉네임 체크 */
-                if (!self.nickName || !/^[가-힣a-zA-Z0-9_]{2,12}$/.test(self.nickName.trim())) {
-                    alert("닉네임을 올바르게 입력해주세요. (한글·영문·숫자·_ 2~12자)");
-                    document.getElementById("nickInput").focus();
+                if (!/^[가-힣a-zA-Z0-9_]{2,12}$/.test(self.nickName.trim())) {
+                    const el = document.getElementById("nickInput");
+                    const hint = document.getElementById("nickHint");
+
+                    el.classList.add("invalid");
+                    hint.className = "field-hint error";
+                    hint.textContent = "별명은 한글·영문·숫자·_ 2~12자로 입력해주세요.";
+
+                    el.focus();
+                    showToast("별명 형식을 확인해주세요.");
                     return;
                 }
 
-                /* 6. 이메일 체크 */
-                if (!self.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(self.email.trim())) {
-                    alert("올바른 이메일을 입력해주세요.");
-                    document.getElementById("emailInput").focus();
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(self.email.trim())) {
+                    const el = document.getElementById("emailInput");
+                    const hint = document.getElementById("emailHint");
+
+                    el.classList.add("invalid");
+                    hint.className = "field-hint error";
+                    hint.textContent = "이메일 형식을 확인해주세요.";
+
+                    el.focus();
+                    showToast("이메일 형식을 확인해주세요.");
                     return;
                 }
 
-        function updateAll() {
-            const cbs = document.querySelectorAll('.term-cb');
-            document.getElementById('agreeAll').checked = [...cbs].every(c => c.checked);
-        }
-        function showToast(msg) {
-            const toast = document.getElementById("toast");
-            toast.textContent = msg;
+                const pw = document.getElementById("pwInput").value.trim();
+                const conf = document.getElementById("pwConfirm").value.trim();
 
-            toast.classList.add("show");
+                if (pw !== conf) {
+                    const el = document.getElementById("pwConfirm");
+                    const hint = document.getElementById("confirmHint");
 
-            setTimeout(() => {
-                toast.classList.remove("show");
-            }, 2000);
-        }
-        const app = Vue.createApp({
-            data() {
-                return {
-                    userId: '',
-                    userName: '',
-                    nickName: '',
-                    email: '',
-                    userPwd: '',
-                    checked: false,
-                    signupSuccessed: false,
-                    marketingYn: false,
-                    // ★ 추가
-                    agreeAll: false,
-                    term1: false,
-                    term2: false
+                    el.classList.add("invalid");
+                    hint.className = "field-hint error";
+                    hint.textContent = "비밀번호가 일치하지 않아요.";
+
+                    el.focus();
+                    showToast("비밀번호가 일치하지 않습니다.");
+                    return;
+                }
+
+                if (!self.term1 || !self.term2) {
+                    showToast("필수 약관에 동의해주세요.");
+                    return;
+                }
+
+                const param = {
+                    userId: self.userId.trim(),
+                    userName: self.userName.trim(),
+                    nickName: self.nickName.trim(),
+                    email: self.email.trim(),
+                    userPwd: self.userPwd.trim(),
+                    marketingYn: self.marketingYn ? "Y" : "N"
                 };
-            },
-            methods: {
-                // ★ 전체 동의 — Vue로 통합
-                toggleAll() {
-                    const all = !this.agreeAll;
-                    this.agreeAll = all;
-                    this.term1 = all;
-                    this.term2 = all;
-                    this.marketingYn = all;
-                },
-                updateAll() {
-                    this.agreeAll = this.term1 && this.term2 && this.marketingYn;
-                },
 
-                fnSignUp() {
-                    let self = this;
-
-                    const requiredList = [
-                        { id: "userIdInput", msg: "아이디를 입력해주세요." },
-                        { id: "nameInput", msg: "이름을 입력해주세요." },
-                        { id: "nickInput", msg: "별명을 입력해주세요." },
-                        { id: "emailInput", msg: "이메일을 입력해주세요." },
-                        { id: "pwInput", msg: "비밀번호를 입력해주세요." },
-                        { id: "pwConfirm", msg: "비밀번호 확인을 입력해주세요." }
-                    ];
-
-                    for (let item of requiredList) {
-                        const el = document.getElementById(item.id);
-                        const value = el.value.trim();
-
-                        if (value.length === 0) {
-                            const field = el.closest(".field");
-                            const hint = field.querySelector(".field-hint");
-
-                            el.classList.remove("valid");
-                            el.classList.add("invalid");
-
-                            hint.className = "field-hint error";
-                            hint.textContent = item.msg;
-
-                            el.focus();
-                            showToast(item.msg);
-                            return;
+                $.ajax({
+                    url: "/user/sign-up.dox",
+                    dataType: "json",
+                    type: "POST",
+                    data: param,
+                    success(data) {
+                        if (data.result === "success") {
+                            self.signupSuccessed = true;
+                        } else {
+                            showToast(data.message || "회원가입에 실패했습니다.");
                         }
-                    }
-
-                    if (self.userId.trim().length < 4) {
-                        const el = document.getElementById("userIdInput");
-                        const hint = document.getElementById("userIdHint");
-
-                        el.classList.add("invalid");
-                        hint.className = "field-hint error";
-                        hint.textContent = "아이디는 4자 이상 입력해주세요.";
-
-                        el.focus();
-                        showToast("아이디는 4자 이상 입력해주세요.");
-                        return;
-                    }
-
-                    if (!self.checked) {
-                        const el = document.getElementById("userIdInput");
-                        const hint = document.getElementById("userIdHint");
-
-                        el.classList.add("invalid");
-                        hint.className = "field-hint error";
-                        hint.textContent = "아이디 중복 확인을 해주세요.";
-
-                        el.focus();
-                        showToast("아이디 중복 확인이 필요합니다.");
-                        return;
-                    }
-
-                    if (self.nickName.trim().length < 2) {
-                        const el = document.getElementById("nickInput");
-                        const hint = document.getElementById("nickHint");
-
-                        el.classList.add("invalid");
-                        hint.className = "field-hint error";
-                        hint.textContent = "별명은 2자 이상 입력해주세요.";
-
-                        el.focus();
-                        showToast("별명은 2자 이상 입력해주세요.");
-                        return;
-                    }
-
-                    const pw = document.getElementById("pwInput").value.trim();
-                    const conf = document.getElementById("pwConfirm").value.trim();
-
-                    if (pw !== conf) {
-                        const el = document.getElementById("pwConfirm");
-                        const hint = document.getElementById("confirmHint");
-
-                        el.classList.add("invalid");
-                        hint.className = "field-hint error";
-                        hint.textContent = "비밀번호가 일치하지 않아요.";
-
-                        el.focus();
-                        showToast("비밀번호가 일치하지 않습니다.");
-                        return;
-                    }
-
-                    if (!self.term1 || !self.term2) {
-                        showToast("필수 약관에 동의해주세요.");
-                        return;
+                    },
+                    error() {
+                        showToast("회원가입 처리 중 오류가 발생했습니다.");
                     }
                 });
             },
 
-                    let param = {
-                        userId: self.userId.trim(),
-                        userName: self.userName.trim(),
-                        nickName: self.nickName.trim(),
-                        email: self.email.trim(),
-                        userPwd: self.userPwd.trim(),
-                        marketingYn: self.marketingYn ? "Y" : "N"
-                    };
+            fnCheckUserId() {
+                const self = this;
 
-                    $.ajax({
-                        url: "http://localhost:8080/user/sign-up.dox",
-                        dataType: "json",
-                        type: "POST",
-                        data: param,
-                        success(data) {
-                            if (data.result === "success") {
-                                self.signupSuccessed = true;
-                            } else {
-                                showToast(data.message);
-                            }
+                const input = document.getElementById("userIdInput");
+                const hint = document.getElementById("userIdHint");
+                const userId = self.userId.trim();
+
+                if (userId === "") {
+                    self.checked = false;
+                    input.classList.remove("valid");
+                    input.classList.add("invalid");
+                    hint.className = "field-hint error";
+                    hint.textContent = "아이디를 입력해주세요.";
+                    input.focus();
+                    showToast("아이디를 입력해주세요.");
+                    return;
+                }
+
+                const idRegex = /^[a-zA-Z0-9_]{4,20}$/;
+                if (!idRegex.test(userId)) {
+                    self.checked = false;
+                    input.classList.remove("valid");
+                    input.classList.add("invalid");
+                    hint.className = "field-hint error";
+                    hint.textContent = "아이디는 영문·숫자·_ 4~20자로 입력해주세요.";
+                    input.focus();
+                    showToast("아이디 형식을 확인해주세요.");
+                    return;
+                }
+
+                $.ajax({
+                    url: "/user/check-user-id.dox",
+                    dataType: "json",
+                    type: "POST",
+                    data: { userId: userId },
+                    success(data) {
+                        hint.textContent = data.message;
+
+                        if (data.result === "success") {
+                            input.classList.remove("invalid");
+                            input.classList.add("valid");
+                            hint.className = "field-hint ok";
+                            self.checked = true;
+                        } else {
+                            input.classList.remove("valid");
+                            input.classList.add("invalid");
+                            hint.className = "field-hint error";
+                            self.checked = false;
                         }
-                    });
-                },
-                fnCheckUserId: function () {
-                    let self = this;
-
-                    const input = document.getElementById("userIdInput");
-                    const hint = document.getElementById("userIdHint");
-                    const userId = self.userId.trim();
-
-                    // 1. 널값 차단
-                    if (userId === "") {
+                    },
+                    error() {
                         self.checked = false;
-
-                        input.classList.remove("valid");
-                        input.classList.add("invalid");
-
-                        hint.className = "field-hint error";
-                        hint.textContent = "아이디를 입력해주세요.";
-
-                        input.focus();
-                        showToast("아이디를 입력해주세요.");
-                        return;
-                    }
-
-                    // 2. 4자 미만 차단
-                    if (userId.length < 4) {
-                        self.checked = false;
-
-                        input.classList.remove("valid");
-                        input.classList.add("invalid");
-
-                        hint.className = "field-hint error";
-                        hint.textContent = "아이디는 4자 이상 입력해주세요.";
-
-                        input.focus();
-                        showToast("아이디는 4자 이상 입력해주세요.");
-                        return;
-                    }
-
-                    let param = {
-                        userId: userId
-                    };
-
-                    $.ajax({
-                        url: "http://localhost:8080/user/check-user-id.dox",
-                        dataType: "json",
-                        type: "POST",
-                        data: param,
-                        success: function (data) {
-                            hint.textContent = data.message;
-
-                            if (data.result === "success") {
-                                input.classList.remove("invalid");
-                                input.classList.add("valid");
-
-                                hint.className = "field-hint ok";
-                                self.checked = true;
-                            } else {
-                                input.classList.remove("valid");
-                                input.classList.add("invalid");
-
-                                hint.className = "field-hint error";
-                                self.checked = false;
-                            }
-                        }
+                        showToast("아이디 중복 확인 중 오류가 발생했습니다.");
                     }
                 });
             },
 
             fnGoLogin() {
-                location.href = "/user/login.do";
+                pageChange("/user/login.do", {});
             }
         },
 
@@ -646,47 +574,39 @@
             userId(newVal) {
                 this.checked = false;
 
-                /* 공백 입력 즉시 제거 */
                 if (newVal !== newVal.trim()) {
                     this.userId = newVal.trim();
                     return;
                 }
-            }, // methods
-            watch: {
-                userId(newVal) {
-                    let self = this;
-                    self.checked = false;
 
-                    const input = document.getElementById("userIdInput");
-                    const hint = document.getElementById("userIdHint");
-                    const value = newVal.trim();
+                const input = document.getElementById("userIdInput");
+                const hint = document.getElementById("userIdHint");
 
-                    if (value === "") {
-                        input.classList.remove("valid", "invalid");
-                        hint.textContent = "";
-                        hint.className = "field-hint";
-                        return;
-                    }
+                if (!input || !hint) return;
 
-                    if (value.length < 4) {
-                        input.classList.remove("valid");
-                        input.classList.add("invalid");
-                        hint.textContent = "아이디는 4자 이상 입력해주세요.";
-                        hint.className = "field-hint error";
-                        return;
-                    }
+                const value = newVal.trim();
 
-                    input.classList.remove("invalid");
-                    hint.textContent = "아이디 중복 확인이 필요합니다.";
-                    hint.className   = "field-hint";
-                } else {
+                if (value === "") {
+                    input.classList.remove("valid", "invalid");
                     hint.textContent = "";
-                    hint.className   = "field-hint";
+                    hint.className = "field-hint";
+                    return;
                 }
-            }
-        },
 
-        mounted() {}
+                if (value.length < 4) {
+                    input.classList.remove("valid");
+                    input.classList.add("invalid");
+                    hint.textContent = "아이디는 4자 이상 입력해주세요.";
+                    hint.className = "field-hint error";
+                    return;
+                }
+
+                input.classList.remove("invalid");
+                input.classList.remove("valid");
+                hint.textContent = "아이디 중복 확인이 필요합니다.";
+                hint.className = "field-hint";
+            }
+        }
     });
 
     app.mount('#app');

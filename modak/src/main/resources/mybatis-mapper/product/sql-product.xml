@@ -308,5 +308,15 @@
 	    WHERE PRODUCT_ID = #{productId}
 	    ORDER BY OPTION_ID ASC
 	</select>
-
+	<select id="selectAllCategoryList" resultType="hashmap">
+    SELECT
+        CATEGORY_ID AS categoryId,
+        CATEGORY_NAME AS categoryName,
+        PARENT_CATEGORY AS parentId
+    FROM PRODUCT_CATEGORY
+    ORDER BY 
+        CASE WHEN PARENT_CATEGORY IS NULL THEN CATEGORY_ID ELSE PARENT_CATEGORY END,
+        PARENT_CATEGORY IS NOT NULL,
+        CATEGORY_ID ASC
+</select>
 </mapper>

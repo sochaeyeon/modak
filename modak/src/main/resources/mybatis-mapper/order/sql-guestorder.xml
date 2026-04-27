@@ -92,5 +92,24 @@
         WHERE  ORDER_ID     = #{orderId}
           AND  USER_ID      = 'GUEST'
     </update>
+    
+    <insert id="insertGuestExchange" parameterType="hashmap">
+    INSERT INTO ORDER_EXCHANGE (
+        ORDER_ID, USER_ID, EXCHANGE_REASON, REASON_DETAIL,
+        EXCHANGE_METHOD, ZIPCODE, ADDRESS, DETAIL_ADDRESS, MEMO,
+        EXCHANGE_STATUS, CREATED_AT
+    ) VALUES (
+        #{orderId}, 'GUEST', #{exchangeReason}, #{reasonDetail},
+        #{exchangeMethod}, #{zipcode}, #{address}, #{detailAddress}, #{memo},
+        'REQUESTED', NOW()
+    )
+</insert>
+
+<update id="updateOrderStatusToExchange">
+    UPDATE ORDERS
+    SET    ORDER_STATUS = 'EXCHANGE_REQUESTED'
+    WHERE  ORDER_ID = #{orderId}
+      AND  USER_ID  = 'GUEST'
+</update>
 
 </mapper>

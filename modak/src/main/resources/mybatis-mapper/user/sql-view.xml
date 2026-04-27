@@ -10,6 +10,8 @@
         P.PRODUCT_ID AS productId,
         P.PRODUCT_NAME AS productName,
         P.PRICE AS price,
+        C.CATEGORY_NAME AS categoryName,
+        B.BRAND_NAME AS brandName,
         I.IMG_URL AS imgUrl,
         V.LATEST_VIEW_DT AS viewDt
     FROM (
@@ -17,24 +19,51 @@
         FROM VIEW_HISTORY
         WHERE USER_ID = #{userId}
         GROUP BY TARGET_ID
-        ORDER BY LATEST_VIEW_DT DESC
-        LIMIT 50
     ) V
     INNER JOIN PRODUCT P
         ON V.TARGET_ID = P.PRODUCT_ID
+    LEFT JOIN PRODUCT_CATEGORY C
+        ON P.CATEGORY_ID = C.CATEGORY_ID
+    LEFT JOIN BRAND B
+        ON P.BRAND_ID = B.BRAND_ID
     LEFT JOIN PRODUCT_IMG I
         ON P.PRODUCT_ID = I.PRODUCT_ID
         AND I.IS_MAIN = 'Y'
+    WHERE 1 = 1
+    <if test="keyword != null and keyword != ''">
+        AND (
+            P.PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
+            OR C.CATEGORY_NAME LIKE CONCAT('%', #{keyword}, '%')
+            OR B.BRAND_NAME LIKE CONCAT('%', #{keyword}, '%')
+        )
+    </if>
     ORDER BY V.LATEST_VIEW_DT DESC
     LIMIT ${pageSize} OFFSET ${offset}
 </select>
-
 	<!-- 최근 본 상품 전체 개수 : 중복 제거 기준, 최대 50 -->
 	<select id="selectRecentCount" parameterType="hashmap" resultType="int">
-		SELECT LEAST(COUNT(DISTINCT TARGET_ID), 50)
-		FROM VIEW_HISTORY
-		WHERE USER_ID = #{userId}
-	</select>
+    SELECT COUNT(*)
+    FROM (
+        SELECT TARGET_ID, MAX(VIEW_DT) AS LATEST_VIEW_DT
+        FROM VIEW_HISTORY
+        WHERE USER_ID = #{userId}
+        GROUP BY TARGET_ID
+    ) V
+    INNER JOIN PRODUCT P
+        ON V.TARGET_ID = P.PRODUCT_ID
+    LEFT JOIN PRODUCT_CATEGORY C
+        ON P.CATEGORY_ID = C.CATEGORY_ID
+    LEFT JOIN BRAND B
+        ON P.BRAND_ID = B.BRAND_ID
+    WHERE 1 = 1
+    <if test="keyword != null and keyword != ''">
+        AND (
+            P.PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
+            OR C.CATEGORY_NAME LIKE CONCAT('%', #{keyword}, '%')
+            OR B.BRAND_NAME LIKE CONCAT('%', #{keyword}, '%')
+        )
+    </if>
+</select>
 
 	<!-- 같은 상품 기존 기록 삭제 -->
 	<delete id="deleteSameProductViewHistory" parameterType="hashmap">

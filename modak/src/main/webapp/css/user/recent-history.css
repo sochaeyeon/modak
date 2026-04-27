@@ -1,3 +1,7 @@
+[v-cloak] {
+	display: none;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -152,17 +156,35 @@ body {
 }
 
 .wish-item {
+    position: relative;
     border: 1px solid #eadfce;
     border-radius: 16px;
     overflow: hidden;
     cursor: pointer;
     background: #fffaf5;
-    transition: transform .18s ease, box-shadow .18s ease;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
 }
 
 .wish-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 18px rgba(180, 100, 40, .08);
+    border-color: rgba(201, 79, 30, 0.6);
+    box-shadow: 0 6px 14px rgba(180, 100, 40, .08);
+    transform: translateY(-1px);
+}
+
+.wish-name {
+    position: relative;
+    display: inline;
+    font-size: 14px;
+    color: var(--text-dark);
+    font-family: 'GgiBatang', sans-serif;
+    line-height: 1.5;
+    min-height: 42px;
+    font-weight: 600;
+    transition: color .2s ease;
+}
+
+.wish-item:hover .wish-name {
+    color: var(--ember-deep);
 }
 
 .wish-thumb {
@@ -178,15 +200,6 @@ body {
 
 .wish-body {
     padding: 14px 14px 10px;
-}
-
-.wish-name {
-    font-size: 14px;
-    color: var(--text-dark);
-    font-family: 'GgiBatang', sans-serif;
-    margin-bottom: 8px;
-    line-height: 1.5;
-    min-height: 42px;
 }
 
 .wish-price {
@@ -324,4 +337,209 @@ body {
     .wish-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* 검색 박스 */
+.wishlist-search-box {
+    position: relative;
+    width: 320px;
+    margin-left: auto;
+}
+
+/* 입력창 */
+.wishlist-search-box input[type="text"] {
+    width: 100%;
+    height: 45px;
+    padding: 0 79px 0 14px;
+    border: 1px solid #e6d7c7;
+    border-radius: 22px;
+    background: #ffffff;
+    font-size: 13px;
+    color: var(--text-dark);
+    outline: none;
+    font-family: 'GgiBatang', sans-serif;
+    transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+/* 포커스 애니메이션 라인 */
+.wishlist-search-box::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 22px;
+    border: 1.5px solid var(--ember);
+    clip-path: inset(0 100% 0 0);
+    pointer-events: none;
+    transition: clip-path .35s ease;
+    z-index: 2;
+}
+
+.wishlist-search-box:focus-within::before {
+    clip-path: inset(0 0 0 0);
+}
+
+/* placeholder */
+.wishlist-search-box input::placeholder {
+    color: #a28b79;
+}
+
+/* 검색 버튼 */
+.wishlist-search-box button {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 34px;
+    padding: 7px 16px;
+    border: none;
+    border-radius: 14px;
+    background: var(--ember);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'GgiBatang', sans-serif;
+    z-index: 3;
+    transition: background .18s ease, transform .15s ease;
+}
+
+.wishlist-search-box button:hover {
+    background: var(--ember-deep);
+    transform: translateY(-50%) scale(1.03);
+}
+
+/* 모바일 대응 */
+@media (max-width: 640px) {
+    .section-head {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .wishlist-search-box {
+        width: 100%;
+    }
+}
+
+
+.list-rise-enter-from,
+.list-rise-leave-to {
+    opacity: 0;
+    transform: translateY(18px);
+}
+
+.count-rise-enter-active,
+.count-rise-leave-active {
+    display: inline-block;
+    transition: all .28s ease;
+}
+
+.count-rise-enter-from {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.count-rise-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+/* 상품명 + 브랜드 */
+.wish-name-wrap {
+    min-height: 25px;
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.wish-brand-inline {
+    color: var(--text-light);
+    font-size: 12px;
+    margin-left: 4px;
+    font-weight: 400;
+}
+
+/* 카테고리 태그 */
+.wish-category {
+    display: inline-block;
+    margin-bottom: 8px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(224, 98, 26, 0.08);
+    color: var(--ember-deep);
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+/* 하트 버튼 */
+.wish-remove-icon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.88);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all .2s ease;
+    box-shadow: 0 2px 8px rgba(46, 26, 14, .12);
+    z-index: 3;
+}
+
+.wish-remove-icon svg {
+    width: 16px;
+    height: 16px;
+    color: #e04b6a;
+    fill: none;
+    stroke: currentColor;
+    transition: all .2s ease;
+}
+
+.wish-remove-icon.on svg {
+    fill: #e04b6a;
+    stroke: #e04b6a;
+}
+
+.wish-remove-icon:hover {
+    background: #fff;
+    transform: scale(1.08);
+    box-shadow: 0 6px 16px rgba(224, 75, 106, .18);
+}
+
+.wish-remove-icon:hover svg {
+    transform: scale(.92);
+    color: #c83d5c;
+}
+
+/* 토스트 */
+.modak-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 32px;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: inline-block;
+    max-width: 80%;
+    padding: 8px 14px;
+    background: rgba(46, 26, 14, 0.9);
+    color: #fffaf5;
+    border-radius: 999px;
+    font-size: 12px;
+    white-space: nowrap;
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(46, 26, 14, 0.18);
+    backdrop-filter: blur(6px);
+}
+
+.toast-fade-enter-active,
+.toast-fade-leave-active {
+    transition: all .25s ease;
+}
+
+.toast-fade-enter-from,
+.toast-fade-leave-to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
 }

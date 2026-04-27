@@ -22,6 +22,7 @@ public class WishlistService {
     HttpSession session;
 
     // 찜 목록 조회
+ // 찜 목록 조회
     public HashMap<String, Object> getWishlistList(HashMap<String, Object> map) {
         HashMap<String, Object> resultMap = new HashMap<>();
 
@@ -29,10 +30,19 @@ public class WishlistService {
             String userId = (String) session.getAttribute("sessionId");
             map.put("userId", userId);
 
+            int page = Integer.parseInt(String.valueOf(map.getOrDefault("page", "1")));
+            int pageSize = Integer.parseInt(String.valueOf(map.getOrDefault("pageSize", "9")));
+            int start = (page - 1) * pageSize;
+
+            map.put("start", start);
+            map.put("pageSize", pageSize);
+
             List<Wishlist> list = wishlistMapper.selectWishlistList(map);
+            int totalCount = wishlistMapper.selectWishlistCountAll(map);
 
             resultMap.put("result", "success");
             resultMap.put("list", list);
+            resultMap.put("totalCount", totalCount);
             resultMap.put("message", "조회되었습니다.");
         } catch (Exception e) {
             System.out.println(e.getMessage());

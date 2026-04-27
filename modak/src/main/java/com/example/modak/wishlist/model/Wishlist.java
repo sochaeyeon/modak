@@ -17,4 +17,10 @@ public class Wishlist {
 
     // PRODUCT_IMG 조인
     private String imgUrl;
+    
+    // PRODUCT_CATEGORY 조인
+    private String categoryName;
+    
+    // 브랜드 .............
+    private String brandName;
 }

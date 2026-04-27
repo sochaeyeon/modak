@@ -28,5 +28,9 @@ public interface CouponMapper {
     // 쿠폰 사용 로그
     int insertCouponUseLog(HashMap<String, Object> map);
     
-    public List<UserCoupon> selectMyCouponList(HashMap<String, Object> map);
+    List<UserCoupon> selectUserCouponList(HashMap<String, Object> map);
+
+    int selectUserCouponCount(HashMap<String, Object> map);
+
+    int selectAvailableCouponCount(HashMap<String, Object> map);	
 }

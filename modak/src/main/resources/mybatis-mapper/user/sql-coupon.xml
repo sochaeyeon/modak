@@ -102,37 +102,63 @@
 		#{discountAppliedAmt}
 		)
 	</insert>
-	
-	<select id="selectMyCouponList" parameterType="hashmap" resultType="com.example.modak.user.model.UserCoupon">
-	    SELECT
-	        UC.USER_COUPON_ID AS userCouponId,
-	        UC.USER_ID AS userId,
-	        UC.COUPON_ID AS couponId,
-	        UC.ISSUED_AT AS issuedAt,
-	        UC.EXPIRED_AT AS expiredAt,
-	        UC.USED_YN AS usedYn,
-	        UC.USED_AT AS usedAt,
-	        UC.ORDER_ID AS orderId,
-	        UC.STATUS AS status,
-	        UC.CREATED_AT AS createdAt,
-	        UC.UPDATED_AT AS updatedAt,
-	
-	        C.COUPON_NAME AS couponName,
-	        C.COUPON_TYPE AS couponType,
-	        C.DISCOUNT_AMT AS discountAmt,
-	        C.DISCOUNT_RATE AS discountRate,
-	        C.MIN_ORDER_AMT AS minOrderAmt,
-	        C.MAX_DISCOUNT_AMT AS maxDiscountAmt
-	    FROM USER_COUPON UC
-	    JOIN COUPON C
-	        ON UC.COUPON_ID = C.COUPON_ID
-	    WHERE UC.USER_ID = #{userId}
-	      AND UC.USED_YN = 'N'
-	      AND UC.STATUS = 'AVAILABLE'
-	      AND C.IS_ACTIVE = 'Y'
-	      AND (UC.EXPIRED_AT IS NULL OR UC.EXPIRED_AT >= NOW())
-	    ORDER BY UC.EXPIRED_AT ASC
+	<!-- 사용자 쿠폰 목록 조회 -->
+	<select id="selectUserCouponList"
+		parameterType="hashmap"
+		resultType="com.example.modak.user.model.UserCoupon">
+		SELECT
+		UC.USER_COUPON_ID,
+		UC.USER_ID,
+		UC.COUPON_ID,
+		DATE_FORMAT(UC.ISSUED_AT, '%Y-%m-%d') AS issuedAt,
+		DATE_FORMAT(UC.EXPIRED_AT, '%Y-%m-%d') AS expiredAt,
+		UC.USED_YN,
+		DATE_FORMAT(UC.USED_AT, '%Y-%m-%d') AS usedAt,
+		UC.ORDER_ID,
+		UC.STATUS,
+
+		C.COUPON_NAME,
+		C.COUPON_TYPE,
+		C.DISCOUNT_AMT,
+		C.DISCOUNT_RATE,
+		C.MIN_ORDER_AMT,
+		C.MAX_DISCOUNT_AMT ,
+		C.ISSUE_TARGET
+		FROM USER_COUPON UC
+		INNER JOIN COUPON C
+		ON UC.COUPON_ID = C.COUPON_ID
+		WHERE UC.USER_ID = #{userId}
+		ORDER BY
+		CASE UC.STATUS
+		WHEN 'AVAILABLE' THEN 1
+		WHEN 'USED' THEN 2
+		WHEN 'EXPIRED' THEN 3
+		ELSE 4
+		END,
+		UC.EXPIRED_AT ASC,
+		UC.ISSUED_AT DESC
+		LIMIT #{start}, #{pageSize}
 	</select>
 
+	<!-- 사용자 쿠폰 전체 개수 -->
+	<select id="selectUserCouponCount"
+		parameterType="hashmap"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM USER_COUPON
+		WHERE USER_ID = #{userId}
+	</select>
+
+	<!-- 사용 가능 쿠폰 개수 -->
+	<select id="selectAvailableCouponCount"
+		parameterType="hashmap"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM USER_COUPON
+		WHERE USER_ID = #{userId}
+		AND USED_YN = 'N'
+		AND STATUS = 'AVAILABLE'
+		AND (EXPIRED_AT IS NULL OR EXPIRED_AT >= NOW())
+	</select>
 
 </mapper>

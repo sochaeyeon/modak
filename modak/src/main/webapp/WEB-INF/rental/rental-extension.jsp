@@ -158,7 +158,8 @@
                 </div>
                 <div v-if="modal.show" class="delete-modal-backdrop" @click.self="fnCloseModal">
 
-                    <div class="delete-modal-box">
+                    <div class="delete-modal-box" ref="confirmModal" tabindex="0"
+                        @keydown.enter.prevent="fnModalConfirm" @keydown.esc.prevent="fnCloseModal">
                         <div class="delete-modal-title">
                             {{ modal.title }}
                         </div>

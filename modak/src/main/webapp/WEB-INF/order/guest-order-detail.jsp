@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>비회원 주문상세 - 모닥모닥</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
+   <link rel="stylesheet" href="/css/common/font.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/order/guest-detail.css">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>

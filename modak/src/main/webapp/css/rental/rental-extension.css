@@ -23,7 +23,7 @@
 
 body {
     /* ★ font.css 의 CSS 변수 사용 — fallback 포함 */
-    font-family: var(--font-body, 'Noto Sans KR', sans-serif);
+   
     background: linear-gradient(180deg, var(--white) 0%, var(--cream) 100%);
     color: var(--brown);
     min-height: 100vh;
@@ -594,4 +594,22 @@ body {
 .price-preview-val,
 .ext-item-price {
     color: var(--orange2);
+}
+.ext-panel-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.ext-panel-img {
+    width: 72px;
+    height: 72px;
+    border-radius: 12px;
+    background: var(--cream2);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 1px solid var(--cream3);
 }

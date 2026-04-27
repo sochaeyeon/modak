@@ -102,7 +102,7 @@ body {
 }
 
 .result-count-unit {
-    font-family: 'GgiBatang', 'Pretendard', sans-serif;
+  
     font-size: 12px;
     margin-left: 4px;
     color: var(--text-light);
@@ -124,7 +124,7 @@ body {
 }
 
 .section-head h3 {
-    font-family: 'GgiBatang', 'Pretendard', sans-serif;
+   
     font-size: 14.5px;
     color: var(--text-dark);
     font-weight: 700;
@@ -270,7 +270,7 @@ body {
 }
 
 .group-date {
-    font-family: 'GgiBatang', 'Pretendard', sans-serif;
+    
     font-size: 17px;
     font-weight: 700;
     color: var(--text-dark);
@@ -372,7 +372,7 @@ body {
 }
 
 .name-row strong {
-    font-family: 'GgiBatang', 'Pretendard', sans-serif;
+
     font-size: 16px;
     color: var(--text-dark);
     line-height: 1.5;

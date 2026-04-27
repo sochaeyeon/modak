@@ -52,7 +52,10 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/images/**",
                                 "/img/**",
-                                "/static/**"
+                                "/static/**",
+                                "/rental/extension/inquiry.do",
+                                "/rental/extension/main.do",
+                                "/rental/extension/guest/**"
                         )
                         .permitAll()
                         .anyRequest().permitAll()

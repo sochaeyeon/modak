@@ -117,26 +117,54 @@ body {
 .info-box p { font-size: 12px; color: var(--brown3); line-height: 1.8; font-weight: 300; }
 
 /* ── 버튼 ── */
+/* ── 버튼 스타일 (보정본) ── */
 .btn-submit {
-    width: 100%; margin-top: 28px; padding: 15px;
-    background: var(--orange); color: #fff;
-    font-family: inherit; font-size: 15px; font-weight: 600;
-    border: none; border-radius: 14px; cursor: pointer;
+    width: 100%; 
+    margin-top: 28px; 
+    padding: 15px;
+    background: var(--orange); 
+    color: #fff;
+    font-size: 15px; 
+    font-weight: 800; /* 기바탕 폰트의 묵직함을 위해 800 권장 */
+    border: none; 
+    border-radius: 14px; 
+    cursor: pointer;
     transition: all .2s;
-    box-shadow: 0 4px 18px rgba(232,115,42,.3);
+    box-shadow: 0 4px 18px rgba(232, 115, 42, .3);
+    
+    /* 텍스트 중앙 정렬 보장 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
 }
 
-.btn-submit:hover { background: var(--orange2); transform: translateY(-1px); }
-.btn-submit:disabled { opacity: .65; cursor: not-allowed; transform: none; }
+.btn-submit:hover { 
+    background: var(--orange2); 
+    transform: translateY(-1px); 
+}
+
+/* 로딩 중일 때만 글자를 숨기고 스피너를 보여줌 */
+.btn-submit.loading .btn-text { 
+    visibility: hidden; /* display:none 대신 visibility를 쓰면 버튼 크기가 유지되어닥 */
+}
+
+.btn-submit.loading .spinner { 
+    display: block; 
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
 
 .spinner {
-    display: none; width: 16px; height: 16px;
-    border: 2px solid rgba(255,255,255,.4);
-    border-top-color: #fff; border-radius: 50%;
-    animation: spin .7s linear infinite; margin: 0 auto;
+    display: none; 
+    width: 20px; height: 20px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-top-color: #fff; 
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
 }
-.btn-submit.loading .btn-text { display: none; }
-.btn-submit.loading .spinner   { display: inline-block; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -163,24 +191,40 @@ body {
 
 .promo-text strong {
     color: var(--orange2);
+	
 }
 
+/* ── 보정된 회원가입 링크 버튼 ── */
 .btn-signup-link {
-    display: inline-block;
-    padding: 10px 24px;
+    display: inline-flex;  /* 텍스트와 아이콘 중앙 정렬을 위해 변경 */
+    align-items: center;
+    justify-content: center;
+    padding: 12px 28px;
     background: var(--brown);
-    color: #fff;
-    font-size: 13px;
-    font-weight: 500;
+    
+    /* ★ 핵심 보정: 글자색을 하얀색으로 강제 고정 */
+    color: #ffffff !important; 
+    
+    font-size: 14px;       /* 가독성을 위해 살짝 키움 */
+    font-weight: 700;      /* 기바탕 폰트에서 잘 보이도록 두껍게 */
     text-decoration: none;
     border-radius: 30px;
     transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(44, 30, 15, 0.15);
 }
 
 .btn-signup-link:hover {
-    background: var(--orange2);
+    background: var(--orange2); /* 마우스 올리면 오렌지색으로 변경 */
+    color: #ffffff !important;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(196, 98, 30, 0.2);
+    box-shadow: 0 6px 16px rgba(196, 98, 30, 0.25);
+}
+
+/* 아이콘과 글자 사이 간격 미세 조정 */
+.btn-signup-link em, 
+.btn-signup-link i {
+    margin-right: 6px;
+    font-style: normal;
 }
 
 @keyframes fadeIn {

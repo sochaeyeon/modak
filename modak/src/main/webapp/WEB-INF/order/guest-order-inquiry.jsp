@@ -7,10 +7,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>비회원 주문조회 - 모닥모닥</title>
         <link
-            href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Sans+KR:wght@300;400;500;600&display=swap"
-            rel="stylesheet">
+            
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <link rel="stylesheet" href="/css/order/guest-inquiry.css">
+		<link rel="stylesheet" href="/css/common/font.css">
 
     </head>
 

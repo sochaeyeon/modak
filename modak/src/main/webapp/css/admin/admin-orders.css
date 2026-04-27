@@ -120,3 +120,141 @@
     border-color: var(--o-accent); 
     box-shadow: 0 0 0 2px var(--o-accent-glow); 
 }
+/* ════ 기존 admin-orders.css 아래에 추가 ════ */
+
+/* ── 탭 바 ── */
+.o-tab-bar {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    border-bottom: 2px solid rgba(255,255,255,0.08);
+}
+
+.o-tab-btn {
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    background: none;
+    border: none;
+    border-bottom: 2.5px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.o-tab-btn:hover { color: rgba(255,255,255,0.7); }
+
+.o-tab-btn.active {
+    color: #fff;
+    border-bottom-color: var(--o-accent);
+}
+
+/* 반납 요청 뱃지 */
+.o-tab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    background: var(--o-accent);
+    color: #fff;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 800;
+    animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(232,115,42,0.5); }
+    50%       { box-shadow: 0 0 0 5px rgba(232,115,42,0); }
+}
+
+/* ── 반납 필터 바 ── */
+.return-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.o-filter-btn {
+    padding: 6px 16px;
+    border-radius: 99px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.o-filter-btn:hover { border-color: var(--o-accent); color: #fff; }
+
+.o-filter-btn.active {
+    background: var(--o-accent);
+    border-color: var(--o-accent);
+    color: #fff;
+}
+
+.return-total {
+    margin-left: auto;
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+}
+
+.return-total strong { color: var(--o-accent); }
+
+/* ── 반납 상태 배지 ── */
+.o-status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.rs-RETURN_REQUESTED { background: rgba(232,115,42,0.18); color: #E8732A; border: 1px solid rgba(232,115,42,0.35); }
+.rs-RETURN_PICKED    { background: rgba(33,150,243,0.18);  color: #64b5f6; border: 1px solid rgba(33,150,243,0.35); }
+.rs-RETURN_COMPLETED { background: rgba(76,175,80,0.18);   color: #81c784; border: 1px solid rgba(76,175,80,0.35); }
+.rs-IN_USE           { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.1); }
+
+/* ── 액션 버튼 ── */
+.o-action-btn {
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: none;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.o-action-btn.pickup {
+    background: rgba(33,150,243,0.15);
+    color: #64b5f6;
+    border: 1px solid rgba(33,150,243,0.3);
+}
+.o-action-btn.pickup:hover { background: rgba(33,150,243,0.3); }
+
+.o-action-btn.complete {
+    background: rgba(76,175,80,0.15);
+    color: #81c784;
+    border: 1px solid rgba(76,175,80,0.3);
+}
+.o-action-btn.complete:hover { background: rgba(76,175,80,0.3); }
+
+.o-action-btn.cancel {
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.4);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.o-action-btn.cancel:hover { background: rgba(255,255,255,0.1); color: #fff; }

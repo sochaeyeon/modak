@@ -72,6 +72,12 @@ public interface AdminMapper {
 
     // 주문 상태(결제완료 -> 배송중 -> 배송완료 등) 변경 처리
     void updateOrderStatus(HashMap<String, Object> map); 
+    
+ // 반납 요청 목록
+    List<Map<String, Object>> selectReturnRequestList();
+     
+    // 반납 상태 변경
+    int updateReturnRequestStatus(HashMap<String, Object> map);
 
 
     /* ==========================================================
@@ -133,6 +139,10 @@ public interface AdminMapper {
     void deleteProductSpec(HashMap<String, Object> map);
     void deleteProductFeature(HashMap<String, Object> map);
     void deleteProduct(HashMap<String, Object> map);
+    
+    List<Map<String, Object>> selectProductStockList(HashMap<String, Object> map);
+    int updateProductStock(HashMap<String, Object> map);
+    int insertProductStock(HashMap<String, Object> map);
 
 
     /* ==========================================================

@@ -51,7 +51,7 @@ public interface RentalExtensionMapper {
     int cancelDeliveryReturnRequest(HashMap<String, Object> map);
    
     HashMap<String, Object> selectDefaultPickupAddress(HashMap<String, Object> map);
-
+    List<HashMap<String, Object>> selectReturnHistoryByRentalId(@Param("rentalId") Long rentalId);
     HashMap<String, Object> selectGuestPickupAddress(HashMap<String, Object> map);
     
 }

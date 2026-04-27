@@ -2400,18 +2400,15 @@ fnModalConfirm: function () {
                                             return;
                                         }
 
+                                       // 수정 후 — 둘 다 연장/반납 통합 페이지로 이동
                                         if (action === "반납 신청") {
-                                            pageChange("/rental/return/request.do", {
-                                                orderId: item.orderId
-                                            });
+                                            location.href = "/rental/extension/main.do?tab=return";
                                             return;
                                         }
 
                                         if (action === "연장 신청") {
-                                            pageChange("/rental/extend/request.do", {
-                                                orderId: item.orderId
-                                            });
-                                            return;
+                                            location.href = "/rental/extension/main.do?tab=extension";
+                                             return;
                                         }
 
                                         if (action === "리뷰 작성") {

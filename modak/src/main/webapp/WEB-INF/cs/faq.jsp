@@ -10,7 +10,7 @@
 			<title>자주 묻는 질문 - 모닥모닥</title>
 			<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 			<link rel="stylesheet" href="${pageContext.request.contextPath}/css/cs/faq.css">
-			<link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
+			<link rel="stylesheet" href="/css/common/font.css">
 		</head>
 
 		<body>

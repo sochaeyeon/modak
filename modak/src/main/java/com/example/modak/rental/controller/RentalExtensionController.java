@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.modak.rental.dao.RentalExtensionService;
+import com.google.gson.Gson;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -116,5 +117,83 @@ public class RentalExtensionController {
         map.put("result",  "fail");
         map.put("message", message);
         return map;
+    }
+ // 반납 가능 목록
+    @PostMapping(value = "/return/list.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String getReturnableList(@RequestParam HashMap<String, Object> map,
+                                    HttpSession session) {
+        String userId = (String) session.getAttribute("sessionId");
+
+        if (userId == null) {
+            return "{\"result\":\"fail\",\"message\":\"로그인이 필요합니다.\"}";
+        }
+
+        map.put("userId", userId);
+        return new Gson().toJson(service.getReturnableList(map));
+    }
+
+    // 회원 반납 신청
+    @PostMapping(value = "/return/apply.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String applyReturn(@RequestParam HashMap<String, Object> map,
+                              HttpSession session) {
+        String userId = (String) session.getAttribute("sessionId");
+
+        if (userId == null) {
+            return "{\"result\":\"fail\",\"message\":\"로그인이 필요합니다.\"}";
+        }
+
+        map.put("userId", userId);
+        return new Gson().toJson(service.applyReturn(map));
+    }
+
+    // 비회원 반납 신청
+    @PostMapping(value = "/return/guest/apply.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String applyGuestReturn(@RequestParam HashMap<String, Object> map) {
+        String token = (String) map.get("token");
+        String rentalId = (String) map.get("rentalId");
+
+        return new Gson().toJson(service.applyGuestReturn(map));
+    }
+    
+    @PostMapping(value = "/return/cancel.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String cancelReturn(@RequestParam HashMap<String, Object> map,
+                               HttpSession session) {
+        String userId = (String) session.getAttribute("sessionId");
+
+        if (userId == null) {
+            return "{\"result\":\"fail\",\"message\":\"로그인이 필요합니다.\"}";
+        }
+
+        map.put("userId", userId);
+        return new Gson().toJson(service.cancelReturn(map));
+    }
+    
+    @PostMapping(value = "/return/guest/cancel.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String cancelGuestReturn(@RequestParam HashMap<String, Object> map) {
+        return new Gson().toJson(service.cancelGuestReturn(map));
+    }
+    
+    @PostMapping(value = "/return/address.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String getReturnAddress(@RequestParam HashMap<String, Object> map,
+                                   HttpSession session) {
+        String userId = (String) session.getAttribute("sessionId");
+
+        if (userId == null) {
+            return "{\"result\":\"fail\",\"message\":\"로그인이 필요합니다.\"}";
+        }
+
+        map.put("userId", userId);
+        return new Gson().toJson(service.getDefaultPickupAddress(map));
+    }
+    @PostMapping(value = "/return/guest/address.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String getGuestReturnAddress(@RequestParam HashMap<String, Object> map) {
+        return new Gson().toJson(service.getGuestPickupAddress(map));
     }
 }

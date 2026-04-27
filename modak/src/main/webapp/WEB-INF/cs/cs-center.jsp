@@ -84,7 +84,7 @@
 							<div class="ns-dot">!</div>
 							<div class="ns-text">
 								<strong>도움이 필요하신가요?</strong><br>
-								전문 상담사가 빠르게 도와드리겠습니다. 평일 09:00 ~ 18:00 운영중입니다.
+								챗봇 모닥이가 도와들게요!!
 							</div>
 						</div>
 						<button class="ns-btn" onclick="location.href='/chat/bot.do'">상담 신청하기 </button>
@@ -517,8 +517,6 @@
 							});
 						}
 
-
-
 						/* ════════════════════════════
 						   유틸
 						════════════════════════════ */
@@ -576,6 +574,9 @@
 							fnGetFaqList();
 							fnGetNotificationList();
 						});
+
+
+
 					</script>
 
 		</body>

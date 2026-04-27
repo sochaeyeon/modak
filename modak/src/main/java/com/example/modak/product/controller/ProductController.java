@@ -114,5 +114,14 @@ public class ProductController {
 	public String getOptionList(@RequestParam HashMap<String, Object> map) throws Exception {
 	    return new Gson().toJson(productService.getProductOptions(map));
 	}
+	@RequestMapping("/category/allList.dox")
+	@ResponseBody
+	public HashMap<String, Object> allList() {
+	    HashMap<String, Object> resultMap = new HashMap<>();
 
+	    resultMap.put("result", "success");
+	    resultMap.put("list", productService.selectAllCategoryList());
+
+	    return resultMap;
+	}
 }

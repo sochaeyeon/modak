@@ -170,5 +170,7 @@ public class ProductService {
 	    }
 	    return resultMap;
 	}
-	
+	public List<HashMap<String, Object>> selectAllCategoryList() {
+	    return productMapper.selectAllCategoryList();
+	}
 }

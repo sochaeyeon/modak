@@ -26,6 +26,9 @@
 					<button class="tab" data-type="ongoing">진행중인 이벤트</button>
 					<button class="tab" data-type="ended">종료된 이벤트</button>
 					<button class="tab" data-type="winner">당첨자 발표</button>
+
+					<!-- 움직이는 오렌지 밑줄 -->
+					<span class="tab-underline"></span>
 				</div>
 
 				<!-- Cards -->
@@ -124,10 +127,12 @@
 							var imgSrc = ev.img_path
 								? ev.img_path
 								: '${pageContext.request.contextPath}/img/common/no-image.png';
+							var ddayHtml = getDdayText(startDate, endDate, now);
 
 							html += '<div class="card" onclick="goDetail(' + ev.eventId + ')">'
 								+ '<div class="card-image">'
 								+ '<span class="card-badge ' + badgeClass + '">' + badgeText + '</span>'
+								+ (ddayHtml ? '<span class="card-dday ' + ddayHtml.class + '">' + ddayHtml.text + '</span>' : '')
 								+ '<img src="' + imgSrc + '" alt="' + esc(ev.title) + '" '
 								+ 'style="width:100%; height:100%; object-fit:cover;">'
 								+ '</div>'
@@ -141,7 +146,43 @@
 
 						$grid.html(html);
 					}
+					function getDdayText(startDate, endDate, now) {
+						if (!startDate || !endDate) return null;
 
+						var oneDay = 1000 * 60 * 60 * 24;
+
+						// 예정
+						if (startDate > now) {
+							var diff = Math.ceil((startDate - now) / oneDay);
+							return {
+								text: 'D-' + diff,
+								class: 'dday-ready'
+							};
+						}
+
+						// 종료
+						if (endDate < now) {
+							return {
+								text: '종료',
+								class: 'dday-ended'
+							};
+						}
+
+						// 진행중
+						var diff = Math.ceil((endDate - now) / oneDay);
+
+						if (diff === 0) {
+							return {
+								text: '오늘 마감',
+								class: 'dday-last'
+							};
+						}
+
+						return {
+							text: 'D-' + diff,
+							class: 'dday-ongoing'
+						};
+					}
 					/* ════════════════════════════════════════════════════
 					   페이지네이션 렌더링
 					════════════════════════════════════════════════════ */
@@ -189,12 +230,37 @@
 					/* ════════════════════════════════════════════════════
 					   탭 클릭
 					════════════════════════════════════════════════════ */
+					function moveTabUnderline() {
+						var $active = $('.tab.active');
+						var $tabs = $('.tabs');
+						var $underline = $('.tab-underline');
+
+						if (!$active.length) return;
+
+						$underline.css({
+							width: $active.outerWidth(),
+							left: $active.position().left
+						});
+					}
+
 					$('.tabs').on('click', '.tab', function () {
 						$('.tab').removeClass('active');
 						$(this).addClass('active');
+
+						moveTabUnderline();
+
 						currentTab = $(this).data('type');
 						currentPage = 1;
 						fnGetList();
+					});
+
+					$(document).ready(function () {
+						fnGetList();
+						moveTabUnderline();
+
+						$(window).on('resize', function () {
+							moveTabUnderline();
+						});
 					});
 
 					/* ════════════════════════════════════════════════════
@@ -207,13 +273,6 @@
 						if (!str) return '';
 						return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 					}
-
-					/* ════════════════════════════════════════════════════
-					   초기 실행
-					════════════════════════════════════════════════════ */
-					$(document).ready(function () {
-						fnGetList();
-					});
 				</script>
 	</body>
 

@@ -6,11 +6,10 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>비회원 주문조회 - 모닥모닥</title>
-        <link
-            
-        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <link <script src="https://code.jquery.com/jquery-3.7.1.min.js">
+        </script>
         <link rel="stylesheet" href="/css/order/guest-inquiry.css">
-		<link rel="stylesheet" href="/css/common/font.css">
+        <link rel="stylesheet" href="/css/common/font.css">
 
     </head>
 
@@ -65,7 +64,8 @@
                             회원가입 시 쿠폰 혜택과 간편한 주문 관리가 가능합니다.
                         </p>
                         <a href="/user/login.do" class="btn-signup-link">
-                            🔥 3초만에 회원가입하고 혜택받기
+                            <span>🔥</span>
+                            <span>3초만에 회원가입하고 혜택받기</span>
                         </a>
                     </div>
 

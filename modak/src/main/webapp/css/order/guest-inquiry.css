@@ -196,23 +196,22 @@ body {
 
 /* ── 보정된 회원가입 링크 버튼 ── */
 .btn-signup-link {
-    display: inline-flex;  /* 텍스트와 아이콘 중앙 정렬을 위해 변경 */
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 12px 28px;
+    gap: 6px;          /* ← 이모지와 텍스트 사이 간격 */
+    padding: 13px 28px;
     background: var(--brown);
-    
-    /* ★ 핵심 보정: 글자색을 하얀색으로 강제 고정 */
-    color: #ffffff !important; 
-    
-    font-size: 14px;       /* 가독성을 위해 살짝 키움 */
-    font-weight: 700;      /* 기바탕 폰트에서 잘 보이도록 두껍게 */
+    color: #ffffff !important;
+    font-size: 14px;
+    font-weight: 700;
     text-decoration: none;
     border-radius: 30px;
     transition: all 0.3s;
     box-shadow: 0 4px 12px rgba(44, 30, 15, 0.15);
+    white-space: nowrap;   /* ← 줄바꿈 방지 */
+    width: 100%;           /* ← 카드 너비에 맞게 */
 }
-
 .btn-signup-link:hover {
     background: var(--orange2); /* 마우스 올리면 오렌지색으로 변경 */
     color: #ffffff !important;

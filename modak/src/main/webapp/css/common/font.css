@@ -76,7 +76,7 @@ b, strong {
     font-weight: 500 !important;
 }
 a, a:link, a:visited, a:hover, a:active {
-    text-decoration: none !important; /* 밑줄 강제 제거 */
-    color: inherit !important;       /* 부모 요소의 글자색을 그대로 상속 (파란색 방지) */
+    text-decoration: none !important;
+    /* color: inherit !important; ← 이 줄 제거 */
     cursor: pointer;
 }

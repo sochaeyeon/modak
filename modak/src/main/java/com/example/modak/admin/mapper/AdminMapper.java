@@ -144,6 +144,25 @@ public interface AdminMapper {
     int updateProductStock(HashMap<String, Object> map);
     int insertProductStock(HashMap<String, Object> map);
 
+ // 상세 이미지
+    List<Map<String, Object>> selectDetailImages(HashMap<String, Object> map);
+    int insertDetailImage(HashMap<String, Object> map);
+    int deleteDetailImage(HashMap<String, Object> map);
+     
+    // 옵션 그룹
+    List<Map<String, Object>> selectOptionGroups(HashMap<String, Object> map);
+    int insertOptionGroup(HashMap<String, Object> map);
+    int deleteOptionGroup(HashMap<String, Object> map);
+     
+    // 옵션 값
+    List<Map<String, Object>> selectOptionValues(HashMap<String, Object> map);
+    int insertOptionValue(HashMap<String, Object> map);
+    int deleteOptionValue(HashMap<String, Object> map);
+     
+    // 옵션 아이템
+    List<Map<String, Object>> selectOptionItems(HashMap<String, Object> map);
+    int updateOptionItemAvail(HashMap<String, Object> map);
+     
 
     /* ==========================================================
        7. 리뷰 및 이벤트 관리 (Review & Event)
@@ -268,5 +287,11 @@ List<HashMap<String, Object>> selectAlarmLogs(HashMap<String, Object> map);
 
 //회원 단건 조회
 HashMap<String, Object> selectMemberById(HashMap<String, Object> map);
+
+//배송 등록 (운송장 번호 upsert)
+void upsertDelivery(HashMap<String, Object> map);
+
+//최근 배송 목록 조회
+List<Map<String, Object>> selectDeliveryList(HashMap<String, Object> map);
     
 }

@@ -258,3 +258,27 @@
     border: 1px solid rgba(255,255,255,0.1);
 }
 .o-action-btn.cancel:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.o-input {
+    width: 100%;
+    background: #262a3a;
+    color: #fff;
+    border: 1px solid var(--o-border);
+    padding: 10px 14px;
+    border-radius: 10px;
+    outline: none;
+    font-size: 13px;
+    transition: 0.2s;
+}
+.o-input:focus { border-color: var(--o-accent); box-shadow: 0 0 0 2px var(--o-accent-glow); }
+.o-input::placeholder { color: var(--o-text-muted); }
+
+.delivery-result-box {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    max-width: 700px;
+}
+.delivery-result-box.success { background: rgba(76,175,80,0.15); color: #81c784; border: 1px solid rgba(76,175,80,0.3); }
+.delivery-result-box.error   { background: rgba(244,67,54,0.15);  color: #e57373; border: 1px solid rgba(244,67,54,0.3); }

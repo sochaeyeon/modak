@@ -26,7 +26,7 @@
 }
 
 body {
-    font-family: 'Noto Sans KR', 'GgiBatang', sans-serif;
+  
     background: var(--white);
     color: var(--brown);
     overflow: hidden;
@@ -38,6 +38,9 @@ body {
     height: 100vh;
     width: 100vw;
     overflow: hidden;
+}
+#app:has(.sidebar.closed) .chat-header {
+    padding-left: 64px;
 }
 
 /* ── 사이드바 ── */
@@ -53,6 +56,55 @@ body {
     flex-shrink: 0;
     overflow-y: auto;
     height: 100vh;
+
+    transition: width .25s ease, min-width .25s ease, padding .25s ease, opacity .2s ease;
+}
+
+/* 사이드바 닫힘 상태 */
+.sidebar.closed {
+    width: 0;
+    min-width: 0;
+    padding-left: 0;
+    padding-right: 0;
+    opacity: 0;
+    overflow: hidden;
+    border-right: none;
+}
+
+/* 사이드바 열고 닫기 버튼 */
+.sidebar-toggle-btn {
+    position: fixed;
+    top: 28px;
+    left: 310px;
+    z-index: 1000;
+
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+
+    border: 1px solid rgba(44, 30, 15, .12);
+    background: #fffdf8;
+    color: var(--brown);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    font-size: 22px;
+    transition: left .25s ease, background .18s ease, color .18s ease;
+}
+
+
+.sidebar-toggle-btn:hover {
+    background: var(--orange);
+    color: #fff;
+    border-color: var(--orange);
+}
+
+/* 사이드바 닫혔을 때 버튼 위치 */
+#app:has(.sidebar.closed) .sidebar-toggle-btn {
+    left: 18px;
 }
 
 /* 사이드바 히스토리 스크롤바 */
@@ -76,22 +128,32 @@ body {
     font-weight: 700;
 }
 
-.new-chat-btn {
-    background: var(--brown);
-    color: #fff;
-    border: none;
-    padding: 13px;
-    border-radius: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-bottom: 30px;
-    transition: 0.3s;
-    font-family: inherit;
-}
+/* 모바일 */
+@media (max-width: 768px) {
+    .sidebar {
+        display: flex;
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 999;
+        width: 280px;
+        min-width: 280px;
+    }
 
-.new-chat-btn:hover {
-    background: var(--brown2);
-    transform: translateY(-2px);
+    .sidebar.closed {
+        width: 0;
+        min-width: 0;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .sidebar-toggle-btn {
+        left: 18px;
+    }
+
+    #app:has(.sidebar:not(.closed)) .sidebar-toggle-btn {
+        left: 286px;
+    }
 }
 
 .history-item {

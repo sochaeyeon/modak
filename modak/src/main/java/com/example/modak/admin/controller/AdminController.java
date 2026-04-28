@@ -1,6 +1,7 @@
 package com.example.modak.admin.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +11,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.File;
 
 import com.example.modak.admin.dao.AdminService;
 import com.google.gson.Gson;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -251,6 +255,130 @@ public class AdminController {
 	    if (!isAdmin()) return noAuth();
 	    return new Gson().toJson(adminService.addProductStock(map));
 	}
+	@PostMapping(value = "/product/upload-img.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String uploadProductImg(@RequestParam("file") MultipartFile file,
+	                                @RequestParam(value="type", defaultValue="main") String type,
+	                                HttpServletRequest request) {
+	    if (!isAdmin()) return noAuth();
+	    try {
+	        // ★ 프로젝트 static/img/product/ 경로에 저장
+	        String realPath = request.getServletContext().getRealPath("/img/product/");
+	        File dir = new File(realPath);
+	        if (!dir.exists()) dir.mkdirs();
+
+	        String originalName = file.getOriginalFilename();
+	        String filename = "productImg_" + System.currentTimeMillis() + "_" 
+	                        + originalName.replaceAll("[^a-zA-Z0-9._-]", "");
+	        
+	        File saveFile = new File(dir, filename);
+	        file.transferTo(saveFile);
+
+	        String imgUrl = "/img/product/" + filename;
+	        return new Gson().toJson(Map.of("result", "success", "imgUrl", imgUrl));
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return new Gson().toJson(Map.of("result", "fail", "message", e.getMessage()));
+	    }
+	}
+	 
+	// ── 상세 이미지 복수 업로드 ──
+	@PostMapping(value = "/product/upload-detail-imgs.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String uploadDetailImgs(@RequestParam("files") List<MultipartFile> files,
+	                                @RequestParam("productId") String productId,
+	                                HttpServletRequest request) {
+	    if (!isAdmin()) return noAuth();
+	    try {
+	        String realPath = request.getServletContext().getRealPath("/img/product/");
+	        File dir = new File(realPath);
+	        if (!dir.exists()) dir.mkdirs();
+
+	        for (MultipartFile file : files) {
+	            String filename = "productImg_" + System.currentTimeMillis() + "_" 
+	                            + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9._-]", "");
+	            file.transferTo(new File(dir, filename));
+
+	            HashMap<String, Object> param = new HashMap<>();
+	            param.put("productId", productId);
+	            param.put("imgUrl", "/img/product/" + filename);
+	            adminService.insertDetailImage(param);
+	        }
+	        return new Gson().toJson(Map.of("result", "success"));
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return new Gson().toJson(Map.of("result", "fail", "message", e.getMessage()));
+	    }
+	}
+	 
+	// ── 상세 이미지 목록 조회 ──
+	@PostMapping(value = "/product/detail-images.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getDetailImages(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.getDetailImages(map));
+	}
+	 
+	// ── 상세 이미지 삭제 ──
+	@PostMapping(value = "/product/detail-image/remove.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String removeDetailImage(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.removeDetailImage(map));
+	}
+	 
+	// ── 옵션 목록 조회 ──
+	@PostMapping(value = "/product/option/list.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getOptionList(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.getOptionList(map));
+	}
+	 
+	// ── 옵션 그룹 추가 ──
+	@PostMapping(value = "/product/option/group/add.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String addOptionGroup(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.addOptionGroup(map));
+	}
+	 
+	// ── 옵션 그룹 삭제 ──
+	@PostMapping(value = "/product/option/group/remove.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String removeOptionGroup(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.removeOptionGroup(map));
+	}
+	 
+	// ── 옵션 값 추가 ──
+	@PostMapping(value = "/product/option/value/add.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String addOptionValue(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.addOptionValue(map));
+	}
+	 
+	// ── 옵션 값 삭제 ──
+	@PostMapping(value = "/product/option/value/remove.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String removeOptionValue(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.removeOptionValue(map));
+	}
+	 
+	// ── 옵션 아이템 판매상태 변경 ──
+	@PostMapping(value = "/product/option/item/avail.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String updateOptionItemAvail(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.updateOptionItemAvail(map));
+	}
+	
+	
+	
 
 	/* --- 리뷰 관리 API --- */
 	@PostMapping("/review/list.dox")
@@ -528,5 +656,19 @@ public class AdminController {
 	public String findMember(@RequestParam HashMap<String,Object> map) {
 	    if (!isAdmin()) return noAuth();
 	    return new Gson().toJson(adminService.findMember(map));
+	}
+	// AdminController.java 추가
+	@PostMapping(value = "/delivery/register.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String registerDelivery(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.registerDelivery(map));
+	}
+
+	@PostMapping(value = "/delivery/list.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getDeliveryList(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.getDeliveryList(map));
 	}
 }

@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.ui.Model;
 
 import com.example.modak.rental.dao.RentalExtensionService;
 import com.google.gson.Gson;
@@ -195,5 +197,76 @@ public class RentalExtensionController {
     @ResponseBody
     public String getGuestReturnAddress(@RequestParam HashMap<String, Object> map) {
         return new Gson().toJson(service.getGuestPickupAddress(map));
+    }
+    
+    @Value("${toss.client-key}")
+    private String tossClientKey;
+
+    // 연장 결제 준비 (회원/비회원)
+    @PostMapping(value = "/payment/ready.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String extensionPaymentReady(@RequestParam HashMap<String, Object> map, HttpSession session) {
+        String userId = (String) session.getAttribute("sessionId");
+
+        if (userId != null) {
+            // 회원
+            map.put("userId", userId);
+            map.put("token",  null);
+        } else {
+            // 비회원 — JSP에서 guestToken 전달
+            String token = String.valueOf(map.get("token"));
+            if (token == null || "null".equals(token) || token.isEmpty()) {
+                return "{\"result\":\"fail\",\"message\":\"비회원 인증 정보가 없습니다.\"}";
+            }
+            map.put("userId", "GUEST");
+        }
+
+        return new Gson().toJson(service.readyExtensionPayment(map));
+    }
+
+    // 연장 결제 페이지
+    @GetMapping("/payment.do")
+    public String extensionPaymentPage(@RequestParam HashMap<String, Object> map, Model model) {
+
+        HashMap<String, Object> order = service.getExtensionOrder(map);
+
+        model.addAttribute("tossClientKey", tossClientKey);
+        model.addAttribute("extensionOrderId", order.get("EXTENSION_ORDER_ID"));
+        model.addAttribute("amount", order.get("PRICE"));
+        model.addAttribute("days", order.get("EXTENSION_DAYS"));
+        model.addAttribute("productName", order.get("PRODUCT_NAME"));
+        model.addAttribute("imgUrl", order.get("IMG_URL"));
+        model.addAttribute("token", map.getOrDefault("token", ""));
+
+        return "rental/extension-payment";
+    }
+
+    // 연장 결제 성공 콜백
+    @GetMapping("/payment/success.do")
+    public String extensionPaymentSuccess(
+            @RequestParam String paymentKey,
+            @RequestParam String orderId,
+            @RequestParam Long   amount,
+            @RequestParam(required = false, defaultValue = "") String token,
+            Model model) {
+
+        HashMap<String, Object> result =
+           service.confirmExtensionPayment(paymentKey, orderId, amount, token);
+
+        if ("success".equals(result.get("result"))) {
+            model.addAttribute("rentalId", result.get("rentalId"));
+            model.addAttribute("token", token);
+            return "rental/extension-complete";
+        }
+        model.addAttribute("message", result.get("message"));
+        return "payment/fail";
+    }
+
+    // 연장 결제 실패 콜백
+    @GetMapping("/payment/fail.do")
+    public String extensionPaymentFail(
+            @RequestParam(required = false) String message, Model model) {
+        model.addAttribute("message", message);
+        return "payment/fail";
     }
 }

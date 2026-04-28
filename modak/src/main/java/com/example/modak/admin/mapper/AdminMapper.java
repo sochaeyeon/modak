@@ -162,8 +162,10 @@ public interface AdminMapper {
     // 옵션 아이템
     List<Map<String, Object>> selectOptionItems(HashMap<String, Object> map);
     int updateOptionItemAvail(HashMap<String, Object> map);
-     
-
+    List<Map<String, Object>> selectBrandList();
+    
+    int deleteMainProductImg(HashMap<String, Object> map);
+    int insertMainProductImg(HashMap<String, Object> map);
     /* ==========================================================
        7. 리뷰 및 이벤트 관리 (Review & Event)
        ========================================================== */

@@ -377,6 +377,11 @@
             kakao.maps.load(function () {
               var container = document.getElementById('mainMap'); if (!container) return;
               var map = new kakao.maps.Map(container, { center: new kakao.maps.LatLng(36.5, 127.8), level: 11, scrollwheel: false });
+
+              // ★ 마우스 올리면 줌 활성화, 나가면 비활성화
+              container.addEventListener('mouseenter', function () { map.setZoomable(true); });
+              container.addEventListener('mouseleave', function () { map.setZoomable(false); });
+
               map.addControl(new kakao.maps.ZoomControl(), kakao.maps.ControlPosition.RIGHT);
               var iw = new kakao.maps.InfoWindow({ zIndex: 10 });
               $.ajax({

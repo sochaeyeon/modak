@@ -437,7 +437,7 @@
                                         </button>
                                         <button v-if="loginUserId && String(review.userId) !== String(loginUserId)"
                                             class="report-btn" @click="reportReview(review.reviewId)">
-                                           
+
                                             🚨 신고
                                         </button>
 
@@ -800,6 +800,10 @@
                                         url: '/product/detail.dox', type: 'POST',
                                         data: { productId: self.productId }, dataType: 'json',
                                         success(data) {
+                                            if (!data || !data.info) {
+                                                console.error('상품 정보 없음:', data);
+                                                return;
+                                            }
                                             self.productInfo = data.info;
                                             self.orderCount = data.orderCount || 0;
                                             self.availableQty = data.info.availableQty || 0;

@@ -293,5 +293,47 @@
 		WHERE R.RENTAL_ID = #{rentalId}
 		LIMIT 1
 	</select>
+	
+	<!-- 연장 결제 주문 생성 -->
+<insert id="insertExtensionOrder" parameterType="hashmap" useGeneratedKeys="true" keyProperty="extensionOrderId">
+    INSERT INTO RENTAL_EXTENSION_ORDER
+    (RENTAL_ID, EXTENSION_DAYS, PRICE, STATUS, USER_ID, GUEST_TOKEN, CREATED_AT)
+    VALUES (#{rentalId}, #{extensionDays}, #{price}, 'PENDING', #{userId}, #{guestToken}, NOW())
+</insert>
+
+<!-- 연장 결제 주문 조회 -->
+<select id="selectExtensionOrder" parameterType="hashmap" resultType="hashmap">
+    SELECT
+        eo.EXTENSION_ORDER_ID,
+        eo.RENTAL_ID,
+        eo.EXTENSION_DAYS,
+        eo.PRICE,
+        eo.STATUS,
+        eo.USER_ID,
+        eo.GUEST_TOKEN,
+
+        p.PRODUCT_NAME,
+        (
+            SELECT pi.IMG_URL
+            FROM PRODUCT_IMG pi
+            WHERE pi.PRODUCT_ID = p.PRODUCT_ID
+            AND pi.IS_MAIN = 'Y'
+            LIMIT 1
+        ) AS IMG_URL
+
+    FROM RENTAL_EXTENSION_ORDER eo
+    JOIN RENTALS r ON eo.RENTAL_ID = r.RENTAL_ID
+    JOIN ORDER_ITEM oi ON r.ITEM_ID = oi.ITEM_ID
+    JOIN PRODUCT p ON oi.PRODUCT_ID = p.PRODUCT_ID
+
+    WHERE eo.EXTENSION_ORDER_ID = #{extensionOrderId}
+</select>
+
+<!-- 연장 결제 주문 상태 업데이트 -->
+<update id="updateExtensionOrderStatus" parameterType="hashmap">
+    UPDATE RENTAL_EXTENSION_ORDER
+    SET STATUS = #{status}
+    WHERE EXTENSION_ORDER_ID = #{extensionOrderId}
+</update>
 
 </mapper>

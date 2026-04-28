@@ -226,7 +226,8 @@
     ════════════════════════════════════════ -->
  <select id="selectAdminProductList" parameterType="hashmap" resultType="map">
     SELECT p.PRODUCT_ID, p.PRODUCT_NAME, p.PRODUCT_TYPE, p.PRICE, p.DEPOSIT,
-           p.DESCRIPTION, p.VIEW_COUNT, p.IS_AVAILABLE,
+           p.DESCRIPTION, p.VIEW_COUNT, p.IS_AVAILABLE, p.BRAND_ID,                          
+           p.CATEGORY_ID,                       
            DATE_FORMAT(p.CREATED_AT, '%Y-%m-%d') AS CREATED_AT,
            (SELECT IMG_URL FROM product_img pi
             WHERE pi.PRODUCT_ID = p.PRODUCT_ID LIMIT 1) AS IMG_URL,
@@ -256,6 +257,45 @@
     ORDER BY p.PRODUCT_ID DESC
     LIMIT #{offset}, #{pageSize}
 </select>
+<select id="selectProductDetail" parameterType="int" resultType="map">
+    SELECT 
+        p.PRODUCT_ID,
+        p.PRODUCT_NAME,
+        p.PRODUCT_TYPE,
+        p.CATEGORY_ID,
+        p.PRICE,
+        p.DEPOSIT,
+        p.DESCRIPTION,
+        p.IS_AVAILABLE,
+        p.VIEW_COUNT,
+        p.CREATED_AT,
+
+        pi.IMG_URL,
+
+        ps.CAPACITY,
+        ps.SIZE,
+        ps.WEIGHT,
+        ps.MATERIAL,
+        ps.ORIGIN,
+
+        pf.TITLE AS FEATURE_TITLE,
+        pf.CONTENT AS FEATURE_CONTENT
+
+    FROM product p
+    LEFT JOIN product_img pi 
+        ON p.PRODUCT_ID = pi.PRODUCT_ID 
+       AND pi.IS_MAIN = 'Y'
+    LEFT JOIN product_spec ps 
+        ON p.PRODUCT_ID = ps.PRODUCT_ID
+    LEFT JOIN product_feature pf 
+        ON p.PRODUCT_ID = pf.PRODUCT_ID
+    WHERE p.PRODUCT_ID = #{productId}
+</select>
+<select id="selectBrandList" resultType="map">
+    SELECT BRAND_ID AS brandId, BRAND_NAME AS brandName
+    FROM brand
+    ORDER BY BRAND_ID ASC
+</select>
 
 <select id="selectAdminProductCount" parameterType="hashmap" resultType="int">
     SELECT COUNT(*) FROM product
@@ -271,8 +311,8 @@
 
     <insert id="insertProduct" parameterType="hashmap" useGeneratedKeys="true"
         keyProperty="productId" keyColumn="PRODUCT_ID">
-    INSERT INTO product (PRODUCT_NAME, PRODUCT_TYPE, CATEGORY_ID, PRICE, DEPOSIT, DESCRIPTION, IS_AVAILABLE, CREATED_AT)
-    VALUES (#{productName}, #{productType}, #{categoryId},
+   INSERT INTO product (PRODUCT_NAME, PRODUCT_TYPE, CATEGORY_ID, BRAND_ID, PRICE, DEPOSIT, DESCRIPTION, IS_AVAILABLE, CREATED_AT)
+    VALUES (#{productName}, #{productType}, #{categoryId}, NULLIF(#{brandId}, ''),
             NULLIF(#{price}, ''), NULLIF(#{deposit}, ''),
             #{description}, 'Y', NOW())
 </insert>
@@ -297,17 +337,23 @@
     SET PRODUCT_NAME = #{productName},
         PRODUCT_TYPE = #{productType},
         CATEGORY_ID  = #{categoryId},
+        BRAND_ID     = NULLIF(#{brandId}, ''),  <!-- ← 추가 -->
         PRICE        = NULLIF(#{price}, ''),
         DEPOSIT      = NULLIF(#{deposit}, ''),
         DESCRIPTION  = #{description}
     WHERE PRODUCT_ID = #{productId}
 </update>
 
-    <insert id="updateProductImg" parameterType="hashmap">
-        INSERT INTO product_img (PRODUCT_ID, IMG_URL, IS_MAIN, SORT_ORDER)
-        VALUES (#{productId}, #{imgUrl}, 'Y', 1)
-        ON DUPLICATE KEY UPDATE IMG_URL = #{imgUrl}
-    </insert>
+    <!-- updateProductImg 삭제하고 아래 두 개로 교체 -->
+<delete id="deleteMainProductImg" parameterType="hashmap">
+    DELETE FROM product_img
+    WHERE PRODUCT_ID = #{productId} AND IS_MAIN = 'Y'
+</delete>
+
+<insert id="insertMainProductImg" parameterType="hashmap">
+    INSERT INTO product_img (PRODUCT_ID, IMG_URL, IS_MAIN, SORT_ORDER)
+    VALUES (#{productId}, #{imgUrl}, 'Y', 1)
+</insert>
 
     <insert id="updateProductSpec" parameterType="hashmap">
         INSERT INTO product_spec (PRODUCT_ID, CAPACITY, SIZE, WEIGHT, MATERIAL, ORIGIN)
@@ -365,9 +411,21 @@
     WHERE STOCK_ID = #{stockId}
 </update>
 
-<insert id="insertProductStock" parameterType="hashmap">
-    INSERT INTO PRODUCT_STOCK (PRODUCT_ID, OPTION_ITEM_ID, TOTAL_QTY, RESERVED_QTY, AVAILABLE_QTY, STOCK_DATE)
-    VALUES (#{productId}, NULLIF(#{optionId}, ''), #{totalQty}, #{reservedQty}, #{availableQty}, NOW())
+<insert id="insertProductStock">
+INSERT INTO PRODUCT_STOCK 
+(PRODUCT_ID, OPTION_ITEM_ID, TOTAL_QTY, RESERVED_QTY, AVAILABLE_QTY, STOCK_DATE)
+VALUES (
+    #{productId},
+    NULLIF(#{optionId}, ''),
+    #{totalQty},
+    #{reservedQty},
+    #{availableQty},
+    CURDATE()
+)
+ON DUPLICATE KEY UPDATE
+    TOTAL_QTY     = #{totalQty},
+    RESERVED_QTY  = #{reservedQty},
+    AVAILABLE_QTY = #{availableQty};
 </insert>
 <select id="selectDetailImages" parameterType="hashmap" resultType="map">
     SELECT IMAGE_ID  AS imageId,

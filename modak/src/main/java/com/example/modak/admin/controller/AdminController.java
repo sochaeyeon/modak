@@ -320,6 +320,7 @@ public class AdminController {
 	    if (!isAdmin()) return noAuth();
 	    return new Gson().toJson(adminService.getDetailImages(map));
 	}
+	
 	 
 	// ── 상세 이미지 삭제 ──
 	@PostMapping(value = "/product/detail-image/remove.dox", produces = "application/json;charset=UTF-8")
@@ -375,6 +376,12 @@ public class AdminController {
 	public String updateOptionItemAvail(@RequestParam HashMap<String, Object> map) {
 	    if (!isAdmin()) return noAuth();
 	    return new Gson().toJson(adminService.updateOptionItemAvail(map));
+	}
+	@PostMapping(value = "/brand/list.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getBrandList() {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.getBrandList());
 	}
 	
 	

@@ -287,11 +287,16 @@ public class AdminService {
 	public HashMap<String, Object> updateFullProduct(HashMap<String, Object> map) {
 	    HashMap<String, Object> r = new HashMap<>();
 	    try {
-	        mapper.updateProduct(map);        // 1. product 테이블 수정
-	        mapper.updateProductImg(map);     // 2. product_img 테이블 수정 (ON DUPLICATE KEY)
-	        mapper.updateProductSpec(map);    // 3. product_spec 테이블 수정 (ON DUPLICATE KEY)
-	        mapper.updateProductFeature(map); // 4. product_feature 테이블 수정 (ON DUPLICATE KEY)
-	        
+	        mapper.updateProduct(map);
+
+	        // 이미지가 있을 때만 처리
+	        if (map.get("imgUrl") != null && !map.get("imgUrl").toString().isEmpty()) {
+	            mapper.deleteMainProductImg(map);   // 기존 메인 이미지 삭제
+	            mapper.insertMainProductImg(map);   // 새 이미지 INSERT
+	        }
+
+	        mapper.updateProductSpec(map);
+	        mapper.updateProductFeature(map);
 	        r.put("result", "success");
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -485,6 +490,16 @@ public class AdminService {
 	}
 	public void insertDetailImage(HashMap<String, Object> map) {
 	    mapper.insertDetailImage(map);
+	}
+	public HashMap<String, Object> getBrandList() {
+	    HashMap<String, Object> result = new HashMap<>();
+	    try {
+	        result.put("result", "success");
+	        result.put("list", mapper.selectBrandList());
+	    } catch (Exception e) {
+	        e.printStackTrace(); result.put("result", "fail");
+	    }
+	    return result;
 	}
 
 	/* ==========================================================

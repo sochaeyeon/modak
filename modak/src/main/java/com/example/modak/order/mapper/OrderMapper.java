@@ -22,5 +22,7 @@ public interface OrderMapper {
     int updateOrderStatus(@Param("orderId") Long orderId, @Param("status") String status);
     
     int insertOrderCancel(Map<String, Object> map);
+    
+    Integer selectDeliveryIdByOrderId(Integer orderId);
 
 }

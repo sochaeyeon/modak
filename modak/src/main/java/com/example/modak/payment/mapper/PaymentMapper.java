@@ -34,11 +34,11 @@ public interface PaymentMapper {
     // 쿠폰 사용 로그 INSERT
     public int insertCouponUseLog(HashMap<String, Object> map);
     
-    // 포인트 적립 이력 INSERT
-    public int insertPointHistory(HashMap<String, Object> map);
-    
     // 기존 updateUserPoint, updateUserTotalAmount 대신 하나로
     public int updateUserPointAndAmount(HashMap<String, Object> map);
+    
+    // 포인트 적립 이력 INSERT
+    public int insertPointHistory(HashMap<String, Object> map);
     
     // 주문 아이템 목록 조회 (재고 차감용)
     public List<HashMap<String, Object>> selectOrderItemsForStock(HashMap<String, Object> map);
@@ -48,6 +48,9 @@ public interface PaymentMapper {
 
     // 대여 재고 차감
     public int decreaseStockForRental(HashMap<String, Object> map);
+    
+    // 대여날짜 자동생성
+    public void insertStockIfNotExists(HashMap<String, Object> map);
     
     // 결제 내역 생성
     public int insertPaymentHistory(HashMap<String, Object> map);

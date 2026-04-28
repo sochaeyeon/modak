@@ -395,7 +395,7 @@
                                     <div class="rhead">
                                         <div class="review-user">
                                             <img class="review-profile"
-                                                :src="review.profileImgUrl || '/img/profile/default.png'">
+                                                :src="review.profileImgUrl || '/img/profile/default-profile.png'">
                                             <div>
                                                 <div class="rname">
                                                     {{ review.nickname || review.userId }}
@@ -428,9 +428,9 @@
                                     <div class="rhelprow">
                                         <span>도움이 됐나요?</span>
                                         <button class="hbtn" :class="{ 
-            on: review.helpfulYn === 'Y',
-            disabled: String(review.userId) === String(loginUserId)
-        }" :disabled="String(review.userId) === String(loginUserId)" @click="fnReviewHelpful(review)">
+                                                on: review.helpfulYn === 'Y',
+                                                disabled: String(review.userId) === String(loginUserId)
+                                            }" :disabled="String(review.userId) === String(loginUserId)" @click="fnReviewHelpful(review)">
                                             <i
                                                 :class="review.helpfulYn === 'Y' ? 'ri-thumb-up-fill' : 'ri-thumb-up-line'"></i>
                                             도움돼요 {{ review.helpfulCount || 0 }}
@@ -609,11 +609,10 @@
                             </div>
                         </div>
                     </div>
-                </div><!-- /#app -->
-
-                <%@ include file="/WEB-INF/common/footer.jsp" %>
-
-                    <script>
+                </div>
+                
+            </div><!-- /#app -->
+            <script>
                         const loginUserId = '${sessionScope.sessionId}' || '';
                         const LS_KEY = 'modak_guest_cart'; // 장바구니 localStorage 키
 
@@ -708,6 +707,7 @@
 
                                     return desc;
                                 },
+                                
 
                                 displayQty() {
                                     return this.productType === 'PURCHASE' ? this.totalQty : this.availableQty;
@@ -900,6 +900,9 @@
                                     const optionId = selectedOptionValues.map(opt => opt.optionValueId).join(',');
                                     const optionName = selectedOptionValues.map(opt => opt.optionValue).join(' / ');
 
+                                    console.log("선택 옵션:", selectedOptionValues);
+                                    console.log("optionValueIds:", optionId);
+
                                     /* ══ 비회원: localStorage 저장 ══ */
                                     if (!self.isLogin) {
                                         const cart = self.loadGuestCart();
@@ -917,13 +920,14 @@
                                             optionName: optionName,
                                             rentalStart: self.productType === 'RENTAL' ? self.startDate : null,
                                             rentalEnd: self.productType === 'RENTAL' ? self.endDate : null,
+                                            deposit: self.productInfo.deposit || 0
                                         };
 
                                         // 중복 체크
                                         const dup = cart.find(c =>
                                             c.productId === newItem.productId &&
                                             c.cartType === newItem.cartType &&
-                                            c.optionId === newItem.optionId &&
+                                            c.optionValueIds === newItem.optionValueIds &&
                                             c.rentalStart === newItem.rentalStart &&
                                             c.rentalEnd === newItem.rentalEnd
                                         );
@@ -1341,6 +1345,7 @@
 
                         app.mount('#app');
                     </script>
+                    <%@ include file="/WEB-INF/common/footer.jsp" %>
     </body>
-
     </html>
+    

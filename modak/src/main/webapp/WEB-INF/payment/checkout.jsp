@@ -40,15 +40,19 @@
 
                                 <!-- ✅ 회원일 때 - 기존 주소록 -->
                                 <template v-if="isLogin">
-                                    <div class="addr-name">
-                                        {{ addrForm.receiverName || addrForm.addressAlias || '배송지' }}
-                                        <span class="addr-default-badge" v-if="addrForm.defaultYn === 'Y'">기본배송지</span>
+                                    <div class="addr-info-box">
+                                        <div class="addr-info-content">
+                                            <div class="addr-name">
+                                                {{ addrForm.receiverName || addrForm.addressAlias || '배송지' }}
+                                                <span class="addr-default-badge" v-if="addrForm.defaultYn === 'Y'">기본배송지</span>
+                                            </div>
+                                            <div class="addr-phone">{{ addrForm.receiverPhone || '연락처 없음' }}</div>
+                                            <div class="addr-full">
+                                                [{{ addrForm.zipcode }}] {{ addrForm.address }} {{ addrForm.detailedAddress }}
+                                            </div>
+                                        </div>
+                                        <button class="addr-change-btn" @click="addrModal.open = true">변경</button>
                                     </div>
-                                    <div class="addr-phone">{{ addrForm.receiverPhone || '연락처 없음' }}</div>
-                                    <div class="addr-full">
-                                        [{{ addrForm.zipcode }}] {{ addrForm.address }} {{ addrForm.detailedAddress }}
-                                    </div>
-                                    <button class="addr-change-btn" @click="addrModal.open = true">변경</button>
                                 </template>
 
                                 <!-- ✅ 비회원일 때 - 직접 입력 폼 -->
@@ -135,15 +139,17 @@
                                     </div>
                                 </div>
 
-                                <div class="order-total-row">
+                                <!-- <div class="order-total-row">
                                     <span>총 주문금액</span>
                                     <span class="order-total-price">{{ formatPrice(itemTotal) }}</span>
-                                </div>
+                                </div> -->
                             </section>
 
                             <!-- ── 쿠폰 / 할인 ── -->
                             <section class="co-section" v-if="isLogin">
                                 <div class="co-section-title">할인 혜택</div>
+
+                                <!-- 쿠폰 -->
                                 <div class="discount-row">
                                     <span class="discount-label">쿠폰</span>
                                     <div class="discount-right">
@@ -160,7 +166,22 @@
                                         </span>
                                     </div>
                                 </div>
+
+                                <!-- 포인트 -->
+                                <div class="discount-row" style="margin-top: 12px;">
+                                    <span class="discount-label">포인트</span>
+                                    <div class="discount-right">
+                                        <input type="number" class="coupon-select" v-model.number="usePoint"
+                                            :max="maxUsePoint" min="0" :placeholder="'보유 ' + formatPrice(userPoint)" style="background-image: none;" />
+                                        <button type="button" class="addr-change-btn" @click="useAllPoint">전액사용</button>
+                                        <span class="discount-amount" v-if="validUsePoint > 0">
+                                            -{{ formatPrice(validUsePoint) }}
+                                        </span>
+                                    </div>
+                                </div>
                             </section>
+                            
+                                
 
                             <!-- ── 동의 ── -->
                             <section class="co-section agree-section">
@@ -187,27 +208,22 @@
                                             <span>쿠폰 할인</span>
                                             <span class="s-val red">-{{ formatPrice(couponDiscount) }}</span>
                                         </div>
+                                        <div class="summary-row" v-if="isLogin && validUsePoint > 0">
+                                            <span>포인트 할인</span>
+                                            <span class="s-val red">-{{ formatPrice(validUsePoint) }}</span>
+                                        </div>
                                         <div class="summary-row">
                                             <span>배송비</span>
                                             <span class="s-val">0원</span>
                                         </div>
+                                        
                                         <div class="summary-row total">
                                             <span>최종 결제금액</span>
                                             <span class="s-val orange">{{ formatPrice(finalTotal) }}</span>
                                         </div>
                                     </div>
 
-                                    <!-- 주문 상품 목록 요약 -->
-                                    <div class="summary-items">
-                                        <div v-for="item in orderItems" :key="item.cartId" class="summary-item-row">
-                                            <span class="summary-item-name">
-                                                {{ item.productName }}
-                                                <span v-if="item.optionName" class="summary-item-opt">/ {{
-                                                    item.optionName }}</span>
-                                            </span>
-                                            <span class="summary-item-price">{{ formatPrice(calcItemTotal(item)) }}</span>
-                                        </div>
-                                    </div>
+     
 
                                     <button class="pay-btn" :disabled="!agreeAll || orderItems.length === 0"
                                         @click="fnPay">
@@ -298,7 +314,10 @@
                                 guestAddress: '',
                                 guestDetailAddress: '',
                                 isPaying: false,
-                                guestKey: localStorage.getItem('guestKey') || ''
+                                guestKey: localStorage.getItem('guestKey') || '',
+
+                                userPoint: 0,
+                                usePoint: 0,
                             };
                         },
                         computed: {
@@ -330,8 +349,20 @@
                                 }
                                 return Math.min(discount, this.itemTotal);
                             },
+                            maxUsePoint() {
+                                return Math.min(
+                                    Number(this.userPoint || 0),
+                                    Math.max(0, this.itemTotal - this.couponDiscount)
+                                );
+                            },
+                            validUsePoint() {
+                                let point = Number(this.usePoint || 0);
+                                if (point < 0) point = 0;
+                                if (point > this.maxUsePoint) point = this.maxUsePoint;
+                                return point;
+                            },
                             finalTotal() {
-                                return Math.max(0, this.itemTotal - this.couponDiscount);
+                                return Math.max(0, this.itemTotal - this.couponDiscount - this.validUsePoint);
                             }
                         },
                         methods: {
@@ -342,7 +373,14 @@
                                 const ids = params.get('cartIds');
                                 this.cartIds = ids ? ids.split(',').map(Number) : [];
                                 const couponId = params.get('userCouponId');
-                                if (couponId) this.selectedUserCouponId = couponId;
+                                if (couponId) {
+                                    this.selectedUserCouponId = couponId;
+                                }
+
+                                const usePoint = params.get('usePoint');
+                                if (usePoint) {
+                                    this.usePoint = Number(usePoint || 0);
+                                }
                                 if (!this.guestKey) {
                                     this.guestKey = 'GUEST_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
                                     localStorage.setItem('guestKey', this.guestKey);
@@ -362,7 +400,8 @@
                                         self.fetchOrderItems();
                                         self.fetchAddressList();
                                         if (self.isLogin) {
-                                            self.fetchCouponList();
+                                            self.fetchCouponList(); // 쿠폰조회
+                                            self.fetchUserPoint(); // 포인트조회
                                         }
                                     }
                                 });
@@ -370,10 +409,11 @@
 
                             fetchOrderItems() {
                                 let self = this;
-
-                                if (!self.cartIds || self.cartIds.length === 0) {
-                                    console.log("cartIds 없음");
-                                    self.orderItems = [];
+                                if (!self.isLogin) {
+                                    try {
+                                        const raw = localStorage.getItem('checkout_items');
+                                        self.orderItems = raw ? JSON.parse(raw) : [];
+                                    } catch(e) { self.orderItems = []; }
                                     return;
                                 }
 
@@ -437,8 +477,17 @@
                                 if (this.isPaying) return; // ✅ 중복 방지
                                 this.isPaying = true;
 
-                                if (!this.agreeAll) { this.showToast('약관에 동의해주세요.'); return; }
-                                if (this.orderItems.length === 0) { this.showToast('주문 상품이 없습니다.'); return; }
+                                if (!this.agreeAll) {
+                                    this.isPaying = false;
+                                    this.showToast('약관에 동의해주세요.');
+                                    return;
+                                }
+
+                                if (this.orderItems.length === 0) {
+                                    this.isPaying = false;
+                                    this.showToast('주문 상품이 없습니다.');
+                                    return;
+                                }
                                 // ✅ 비회원 검증
                                 if (!this.isLogin) {
                                     if (!this.guestName.trim()) { this.isPaying = false; this.showToast('수령인 이름을 입력해주세요.'); return; }
@@ -461,6 +510,7 @@
                                         cartIds: self.cartIds.join(','),
                                         cartType: self.cartType,
                                         guestKey: self.guestKey,
+                                        guestItems: !self.isLogin ? JSON.stringify(self.orderItems) : '',
                                         userCouponId: self.selectedUserCouponId || '',
                                         discountAmt: self.couponDiscount,
                                         receiverName: self.isLogin ? self.addrForm.receiverName : self.guestName,
@@ -472,7 +522,8 @@
                                         deliveryMemo: self.deliveryMemo === '직접 입력' ? self.deliveryMemoCustom : self.deliveryMemo,
                                         guestName: self.isLogin ? '' : self.guestName,
                                         guestPhone: self.isLogin ? '' : self.guestPhone,
-                                        isGuest: self.isLogin ? 'N' : 'Y'
+                                        isGuest: self.isLogin ? 'N' : 'Y',
+                                        usePoint: self.validUsePoint,
                                     },
                                     dataType: 'json',
                                     success(res) {
@@ -486,7 +537,7 @@
                                         const tossPayments = TossPayments(TOSS_CLIENT_KEY);
 
                                         tossPayments.requestPayment('카드', {
-                                            amount: res.amount,
+                                            amount: res.amount, 
                                             orderId: orderId,
                                             orderName: orderName,
                                             customerName: self.isLogin ? self.addrForm.receiverName : self.guestName,
@@ -587,7 +638,23 @@
                                 }
 
                                 return price * quantity;
-                            }
+                            },
+                            fetchUserPoint() {
+                                let self = this;
+                                $.ajax({
+                                    url: '/user/point.dox',
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    success(res) {
+                                        if (res.result === 'success') {
+                                            self.userPoint = Number(res.point || 0);
+                                        }
+                                    }
+                                });
+                            },
+                            useAllPoint() {
+                                this.usePoint = this.maxUsePoint;
+                            },
                         },
                         mounted() {
                             this.init();

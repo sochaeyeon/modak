@@ -27,26 +27,22 @@ public class CartController {
 	HttpSession session;
 
 	private String getCartUserId() {
-		String loginUserId = (String) session.getAttribute("sessionId");
+	    String loginUserId = (String) session.getAttribute("sessionId");
+	    if (loginUserId != null && !"".equals(loginUserId)) return loginUserId;
 
-		if (loginUserId != null && !"".equals(loginUserId)) {
-			return loginUserId;
-		}
-
-		String guestCartId = (String) session.getAttribute("guestCartId");
-
-		if (guestCartId == null || "".equals(guestCartId)) {
-			guestCartId = "GUEST_" + session.getId().substring(0, 12);
-			session.setAttribute("guestCartId", guestCartId);
-		}
-
-		return guestCartId;
+	    // 프론트에서 guestKey를 request param으로 넘기는 방식으로 변경 필요
+	    // 또는 세션에 저장한 guestCartId를 localStorage에도 내려주는 방식 선택
+	    String guestCartId = (String) session.getAttribute("guestCartId");
+	    if (guestCartId == null || "".equals(guestCartId)) {
+	        guestCartId = "GUEST_" + session.getId().substring(0, 12);
+	        session.setAttribute("guestCartId", guestCartId);
+	    }
+	    return guestCartId;
 	}
 
 	@RequestMapping("/cart/list.do")
-	public String test1(HttpServletRequest request, Model model, @RequestParam HashMap<String, Object> map)
-			throws Exception {
-		return "/cart/cart-list";
+	public String cartListPage() {
+	    return "/cart/cart-list";
 	}
 
 	// 장바구니 담기

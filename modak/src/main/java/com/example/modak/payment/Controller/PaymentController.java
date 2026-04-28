@@ -139,11 +139,6 @@ public class PaymentController {
         return "payment/fail"; // /WEB-INF/views/payment/fail.jsp
     }
     
- // 결제완료 화면 확인용
-    @RequestMapping("/payment/order-complete.do")
-    public String orderCompletePreview(Model model) {
-        model.addAttribute("orderId", "modak-테스트");
-        return "payment/order-complete";
-    }
+
 
 }

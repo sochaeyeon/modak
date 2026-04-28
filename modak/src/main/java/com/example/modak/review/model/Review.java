@@ -17,6 +17,8 @@ public class Review {
     private Long productId;
     private Long itemId;
     private String title;
+    private int helpfulCount;
+    private String helpfulYn;
 
     private String productName;
     private String imageUrl;

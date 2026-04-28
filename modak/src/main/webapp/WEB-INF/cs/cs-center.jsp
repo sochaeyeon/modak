@@ -6,9 +6,10 @@
 		<head>
 			<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
-			<title>모닥모닥 고객센터 - Frame</title>
+			<title>고객센터 - 모닥모닥</title>
 			<link rel="stylesheet" href="${pageContext.request.contextPath}/css/cs/cs-center.css">
 			<link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
+			<link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
 			<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 		</head>
 
@@ -18,13 +19,13 @@
 
 				<!-- HERO -->
 				<div class="hero">
-					<span class="hero-icon">🔥</span>
+					<span class="hero-icon"><i class="ri-customer-service-2-line"></i></span>
 					<h1>모닥모닥 고객센터에</h1>
 					<p>오신 것을 환영합니다</p>
 					<div class="hero-search-wrap">
-						<input type="text" id="heroSearchInput" placeholder="궁금한 것을 검색해보세요"
+						<input type="text" id="heroSearchInput" placeholder="검색어를 입력하세요"
 							onkeydown="if(event.key==='Enter') doHeroSearch()">
-						<button onclick="doHeroSearch()">🔍</button>
+						<button type="button" class="search-btn" onclick="doHeroSearch()">검색</button>
 					</div>
 					<div class="search-result-box" id="searchResultBox" style="display:none;">
 						<div class="search-result-inner" id="searchResultInner"></div>
@@ -51,27 +52,27 @@
 						<div class="sec-title">어떤 도움이 필요하세요?</div>
 						<div class="cat-grid">
 							<div class="cat-card" onclick="moveFaqTab('서비스')">
-								<div class="ci">🏠</div>
+								<div class="ci"><i class="ri-compass-3-line"></i></div>
 								<div class="cn">서비스 안내</div>
 								<div class="cd">이용방법</div>
 							</div>
 							<div class="cat-card" onclick="moveFaqTab('요금')">
-								<div class="ci">📧</div>
+								<div class="ci"><i class="ri-bank-card-line"></i></div>
 								<div class="cn">청구 / 요금</div>
 								<div class="cd">결제 문의</div>
 							</div>
 							<div class="cat-card" onclick="location.href='/notification/list.do'">
-								<div class="ci">📋</div>
+								<div class="ci"><i class="ri-megaphone-line"></i></div>
 								<div class="cn">공지 / 이벤트</div>
 								<div class="cd">최신 소식</div>
 							</div>
 							<div class="cat-card" onclick="moveFaqTab('계정')">
-								<div class="ci">🔧</div>
+								<div class="ci"><i class="ri-settings-3-line"></i></div>
 								<div class="cn">계약 / 설정</div>
 								<div class="cd">계정 관리</div>
 							</div>
 							<div class="cat-card" onclick="moveFaqTab('계정')">
-								<div class="ci">👤</div>
+								<div class="ci"><i class="ri-user-smile-line"></i></div>
 								<div class="cn">회원 / 계정</div>
 								<div class="cd">회원정보</div>
 							</div>
@@ -136,7 +137,7 @@
 						<div class="consult-layout">
 							<div class="consult-left">
 								<div class="consult-card">
-									<div class="c-avatar">🧸</div>
+									<div class="c-avatar"><i class="ri-phone-line"></i></div>
 									<div class="c-info">
 										<div class="c-name">전화 상담</div>
 										<div class="c-desc">전화를 통해 빠르게 상담받으실 수 있습니다.<br>대기 시간이 발생할 수 있습니다.</div>
@@ -145,7 +146,7 @@
 								</div>
 								<!-- 채팅 상담 카드 버튼 -->
 								<div class="consult-card">
-									<div class="c-avatar blue">💭</div>
+									<div class="c-avatar blue"><i class="ri-chat-smile-3-line"></i></div>
 									<div class="c-info">
 										<div class="c-name">채팅 상담</div>
 										<div class="c-desc">AI 챗봇을 통해 24시간 상담이 가능합니다.<br>빠른 답변을 받아보실 수 있습니다.</div>
@@ -153,7 +154,7 @@
 									</div>
 								</div>
 								<div class="consult-card">
-									<div class="c-avatar gray"> 💌</div>
+									<div class="c-avatar gray"><i class="ri-mail-send-line"></i></div>
 									<div class="c-info">
 										<div class="c-name">이메일 문의</div>
 										<div class="c-desc">help@modakmodak.com으로 문의해주세요.<br>1~2 영업일 내 답변드립니다.</div>
@@ -161,7 +162,7 @@
 									</div>
 								</div>
 								<div class="consult-card">
-									<div class="c-avatar green">✏️</div>
+									<div class="c-avatar green"><i class="ri-edit-2-line"></i></div>
 									<div class="c-info">
 										<div class="c-name">온라인 문의 접수</div>
 										<div class="c-desc">궁금하신 사항을 남겨주시면 빠르게 답변드리겠습니다.<br>1:1 문의를 통해 접수해주세요.</div>
@@ -222,12 +223,29 @@
 
 				<%@ include file="/WEB-INF/common/footer.jsp" %>
 
+
+					<!-- 전화 연결 확인 모달 -->
+					<div id="phoneConfirmModal" class="confirm-modal" style="display:none;">
+						<div class="confirm-box" role="dialog" aria-modal="true" aria-labelledby="phoneConfirmTitle">
+							<div class="confirm-icon"><i class="ri-phone-line"></i></div>
+							<div class="confirm-title" id="phoneConfirmTitle">전화 상담으로 이동할까요?</div>
+							<div class="confirm-desc">평일 09:00 ~ 18:00 운영됩니다.<br>확인을 누르면 1588-0000으로 연결돼요.</div>
+							<div class="confirm-actions">
+								<button type="button" class="confirm-btn primary"
+									onclick="confirmPhoneCall()">이동</button>
+								<button type="button" class="confirm-btn secondary"
+									onclick="closePhoneModal()">취소</button>
+							</div>
+						</div>
+					</div>
+
 					<!-- 챗봇 모달 -->
 					<div id="chatbotModal" class="chatbot-modal" style="display:none;">
 						<div class="chatbot-wrap">
 							<div class="chatbot-header">
-								<span>🔥 모닥모닥 AI 상담</span>
-								<button class="chatbot-close" onclick="closeChatbot()">✕</button>
+								<span><i class="ri-sparkling-2-line"></i> 모닥모닥 AI 상담</span>
+								<button class="chatbot-close" onclick="closeChatbot()" aria-label="닫기"><i
+										class="ri-close-line"></i></button>
 							</div>
 							<div class="chatbot-body" id="chatbotBody">
 								<div class="chat-msg bot">안녕하세요! 모닥모닥 고객센터입니다. 무엇을 도와드릴까요?</div>
@@ -289,7 +307,7 @@
 									sendCategory = currentSubTab;
 								} else {
 									var subTabs = SUB_TABS[currentCat] || [];
-									var subs = subTabs.filter(function (t) {return t !== '전체';});
+									var subs = subTabs.filter(function (t) { return t !== '전체'; });
 									sendCategory = subs.join(',');
 								}
 							}
@@ -329,7 +347,7 @@
 								html += '<div class="faq-item">'
 									+ '<div class="faq-question">'
 									+ '<span class="q-text">' + escHtml(f.question) + '</span>'
-									+ '<span class="q-arrow">›</span>'
+									+ '<span class="q-arrow"><i class="ri-arrow-down-s-line"></i></span>'
 									+ '</div>'
 									+ '<div class="faq-answer" style="display:none;">'  // ← display:none 유지
 									+ '<div class="faq-answer-inner">' + escHtml(f.answer) + '</div>'
@@ -345,11 +363,11 @@
 								var wasOpen = $item.hasClass('open');
 
 								// 열려있는 항목 모두 닫기 (동시에 하나만 열리게)
-								$wrap.find('.faq-item.open').removeClass('open').find('.faq-answer').slideUp(180);
+								$wrap.find('.faq-item.open').removeClass('open').find('.faq-answer').stop(true, true).slideUp(160);
 
 								if (!wasOpen) {
 									$item.addClass('open');
-									$answer.slideDown(180);
+									$answer.stop(true, true).slideDown(160);
 								}
 							});
 						}
@@ -363,7 +381,7 @@
 								url: CTX + '/cs/center.dox',
 								type: 'POST',
 								dataType: 'json',
-								data: {action: 'notificationList', limit: 4},
+								data: { action: 'notificationList', limit: 4 },
 								success: function (data) {
 									if (data.result === 'success') {
 										renderNotificationList(data.list);
@@ -399,11 +417,11 @@
 						}
 
 						function getBadgeClass(type) {
-							var map = {ORDER: '', SYSTEM: 'blue', EVENT: 'blue', POLICY: 'gray', RENTAL: '', INQUIRY: 'gray'};
+							var map = { ORDER: '', SYSTEM: 'blue', EVENT: 'blue', POLICY: 'gray', RENTAL: '', INQUIRY: 'gray' };
 							return map[type] !== undefined ? map[type] : 'gray';
 						}
 						function getBadgeLabel(type) {
-							var map = {ORDER: '공지', SYSTEM: '업데이트', EVENT: '이벤트', POLICY: '안내', RENTAL: '공지', INQUIRY: '일반'};
+							var map = { ORDER: '공지', SYSTEM: '업데이트', EVENT: '이벤트', POLICY: '안내', RENTAL: '공지', INQUIRY: '일반' };
 							return map[type] || '공지';
 						}
 
@@ -453,7 +471,7 @@
 							currentKeyword = '';
 							renderSubTabs(cat);
 							fnGetFaqList();
-							$('html, body').animate({scrollTop: $('.faq-section').offset().top - 80}, 400);
+							$('html, body').animate({ scrollTop: $('.faq-section').offset().top - 80 }, 400);
 						}
 
 						/* ════════════════════════════
@@ -513,7 +531,7 @@
 								$('#faqSidebarList li').removeClass('active').filter('[data-cat="전체"]').addClass('active');
 								renderSubTabs('전체');
 								fnGetFaqList();
-								$('html, body').animate({scrollTop: $('.faq-section').offset().top - 80}, 400);
+								$('html, body').animate({ scrollTop: $('.faq-section').offset().top - 80 }, 400);
 							});
 						}
 
@@ -521,7 +539,7 @@
 						   유틸
 						════════════════════════════ */
 						function escapeRegex(str) {
-							return str.replace(/[.*+?^$()|[\]\\]/g, function (m) {return '\\' + m;});
+							return str.replace(/[.*+?^$()|[\]\\]/g, function (m) { return '\\' + m; });
 						}
 						function escHtml(str) {
 							if (!str) return '';
@@ -532,12 +550,34 @@
 
 						/* ── 전화 상담 ── */
 						function callPhone() {
-							if (confirm('1588-0000으로 전화 연결하시겠습니까?\n(평일 09:00 ~ 18:00)')) location.href = 'tel:15880000';
+							$('#phoneConfirmModal').fadeIn(160);
+							setTimeout(function () {
+								$('#phoneConfirmModal .primary').focus();
+							}, 30);
 						}
+
+						function closePhoneModal() {
+							$('#phoneConfirmModal').fadeOut(140);
+						}
+
+						function confirmPhoneCall() {
+							location.href = 'tel:15880000';
+						}
+
+						$(document).on('keydown', function (e) {
+							if ($('#phoneConfirmModal').is(':visible')) {
+								if (e.key === 'Enter') confirmPhoneCall();
+								if (e.key === 'Escape') closePhoneModal();
+							}
+						});
+
+						$(document).on('click', '#phoneConfirmModal', function (e) {
+							if ($(e.target).is('#phoneConfirmModal')) closePhoneModal();
+						});
 
 						/* ── 이메일 문의 ── */
 						function sendEmail() {
-							location.href = 'mailto:help@modakmodak.com?subject=[문의]&body=문의 내용을 입력해주세요.';
+							window.open('mailto:help@modakmodak.com?subject=' + encodeURIComponent('[문의]') + '&body=' + encodeURIComponent('문의 내용을 입력해주세요.'), '_self');
 						}
 
 						/* ── 챗봇 ── */
@@ -549,8 +589,8 @@
 							'예약': '예약 관련 문의는 예약 내역에서 확인하실 수 있습니다.',
 							'대여': '대여 관련 문의는 예약 내역 > 대여 현황에서 확인하실 수 있습니다.'
 						};
-						function openChatbot() {$('#chatbotModal').fadeIn(200); $('#chatbotInput').focus();}
-						function closeChatbot() {$('#chatbotModal').fadeOut(200);}
+						function openChatbot() { $('#chatbotModal').fadeIn(200); $('#chatbotInput').focus(); }
+						function closeChatbot() { $('#chatbotModal').fadeOut(200); }
 						function sendChat() {
 							var msg = $('#chatbotInput').val().trim();
 							if (!msg) return;
@@ -558,7 +598,7 @@
 							$('#chatbotBody').append('<div class="chat-msg user">' + escHtml(msg) + '</div>');
 							var reply = '죄송합니다. 해당 내용은 1:1 문의나 전화 상담을 이용해주세요.';
 							$.each(chatBotAnswers, function (keyword, answer) {
-								if (msg.indexOf(keyword) >= 0) {reply = answer; return false;}
+								if (msg.indexOf(keyword) >= 0) { reply = answer; return false; }
 							});
 							setTimeout(function () {
 								$('#chatbotBody').append('<div class="chat-msg bot">' + reply + '</div>');

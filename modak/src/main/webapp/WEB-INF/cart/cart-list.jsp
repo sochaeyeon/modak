@@ -110,6 +110,12 @@
                                                     {{ calcNights(item.rentalStart, item.rentalEnd) }}박
                                                 </span>
                                             </div>
+                                            <div v-if="item.cartType === 'RENTAL'" class="rental-price-info">
+                                                대여료 {{ formatPrice(rentalFee(item)) }}
+                                                <span v-if="item.deposit > 0">
+                                                    / 보증금 {{ formatPrice(depositFee(item)) }}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -120,7 +126,7 @@
                                             <button class="qty-btn" @click="chgItemQty(item, 1)">+</button>
                                         </div>
                                         <div class="item-total">
-                                            {{ formatPrice((item.unitPrice || item.price) * item.quantity) }} <button
+                                            {{ formatPrice(cartItemTotal(item)) }} <button
                                                 class="item-del-btn" @click.stop="deleteItem(item.cartId)"
                                                 title="삭제">✕</button>
                                         </div>
@@ -522,7 +528,7 @@
                             selectedTotal() {
                                 return this.filteredCart
                                     .filter(c => this.checkedIds.includes(c.cartId))
-                                    .reduce((sum, c) => sum + Number(c.unitPrice || c.price || 0) * Number(c.quantity || 1), 0);
+                                    .reduce((sum, c) => sum + this.cartItemTotal(c), 0);
                             },
 
                             modalCalDays() {
@@ -961,7 +967,7 @@
 
                                 if (this.activeTab === 'RENTAL') {
                                     const nights = this.calcNights(this.optModal.startDate, this.optModal.endDate) || 1;
-                                    return Number(item.price || 0) * nights;
+                                    return (Number(item.price || 0) * nights) + Number(item.deposit || 0);
                                 }
 
                                 return Number(item.price || 0) * Number(this.optModal.qty || 1);
@@ -1058,7 +1064,7 @@
 
                             groupTotal(group) {
                                 return group.items.reduce((sum, c) => {
-                                    return sum + Number(c.unitPrice || c.price || 0) * Number(c.quantity || 1);
+                                    return sum + this.cartItemTotal(c);
                                 }, 0);
                             },
 
@@ -1214,6 +1220,33 @@
                                         }
                                     }
                                 });
+                            },
+                            cartItemTotal(item) {
+                                const unitPrice = Number(item.unitPrice || item.price || 0);
+                                const quantity = Number(item.quantity || 1);
+
+                                if (item.cartType === 'RENTAL') {
+                                    const nights = this.calcNights(item.rentalStart, item.rentalEnd) || 1;
+                                    const deposit = Number(item.deposit || 0);
+
+                                    return (unitPrice * nights + deposit) * quantity;
+                                }
+
+                                return unitPrice * quantity;
+                            },
+                            rentalFee(item) {
+                                const unitPrice = Number(item.unitPrice || item.price || 0);
+                                const quantity = Number(item.quantity || 1);
+                                const nights = this.calcNights(item.rentalStart, item.rentalEnd) || 1;
+
+                                return unitPrice * nights * quantity;
+                            },
+
+                            depositFee(item) {
+                                const deposit = Number(item.deposit || 0);
+                                const quantity = Number(item.quantity || 1);
+
+                                return deposit * quantity;
                             },
                         },
 

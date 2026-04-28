@@ -199,6 +199,19 @@ public class CartService {
 
 	    return resultMap;
 	}
+	// 장바구니에서 수량옵션 변경
+	public HashMap<String, Object> updateCartQty(HashMap<String, Object> map) {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+
+	    try {
+	        cartMapper.updateCartQtyDirect(map);
+	        resultMap.put("result", "success");
+	    } catch (Exception e) {
+	        resultMap.put("result", "fail");
+	    }
+
+	    return resultMap;
+	}
 
 	// 헤더 장바구니 개수 아이콘
 	public HashMap<String, Object> getCartCount(HashMap<String, Object> map) {

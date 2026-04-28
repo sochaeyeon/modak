@@ -65,7 +65,23 @@ public class PaymentController {
     @ResponseBody
     public String checkoutItems(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
         HashMap<String, Object> resultMap = new HashMap<>();
+
+        String userId = (String) session.getAttribute("sessionId");
+
+        if (userId == null || "".equals(userId)) {
+            userId = String.valueOf(map.get("guestKey"));
+        }
+
+        if (userId == null || "null".equals(userId) || "".equals(userId)) {
+            resultMap.put("result", "fail");
+            resultMap.put("message", "사용자 식별값이 없습니다.");
+            return new Gson().toJson(resultMap);
+        }
+
+        map.put("userId", userId);
+
         resultMap = paymentService.getCheckoutItems(map);
+
         return new Gson().toJson(resultMap);
     }
     
@@ -74,14 +90,25 @@ public class PaymentController {
     @ResponseBody
     public String payReady(@RequestParam HashMap<String, Object> map) throws Exception {
         HashMap<String, Object> resultMap = new HashMap<>();
-        
+
         String userId = (String) session.getAttribute("sessionId");
-     // ✅ 비회원이면 GUEST로 세팅
-        map.put("userId", userId != null ? userId : "GUEST");
-        
+
+        if (userId == null || "".equals(userId)) {
+            userId = String.valueOf(map.get("guestKey"));
+        }
+
+        if (userId == null || "null".equals(userId) || "".equals(userId)) {
+            resultMap.put("result", "fail");
+            resultMap.put("message", "비회원 식별값이 없습니다.");
+            return new Gson().toJson(resultMap);
+        }
+
+        map.put("userId", userId);
+
         resultMap = paymentService.readyPayment(map);
         return new Gson().toJson(resultMap);
     }
+    
  // ✅ 토스 결제 성공 콜백 (successUrl로 리다이렉트됨)
     @RequestMapping("/payment/success.do")
     public String paySuccess(

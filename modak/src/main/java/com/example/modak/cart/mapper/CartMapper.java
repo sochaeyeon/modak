@@ -35,6 +35,9 @@ public interface CartMapper {
 	public Cart selectSameCartForUpdate(HashMap<String, Object> map);
 
 	public int mergeCartQty(HashMap<String, Object> map);
+	
+	// 장바구니에서 수량변경
+	public int updateCartQtyDirect(HashMap<String, Object> map);
 
 	// 선택한 옵션값들로 실제 옵션 조합 ID 찾기
 	public Integer selectOptionItemIdByValues(HashMap<String, Object> map);

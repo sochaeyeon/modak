@@ -115,6 +115,15 @@ public class CartController {
 		HashMap<String, Object> resultMap = cartService.updateCartOption(map);
 		return new Gson().toJson(resultMap);
 	}
+	// 장바구니에서 수량변경
+	@RequestMapping("/cart/update.dox")
+	@ResponseBody
+	public String updateCartQty(@RequestParam HashMap<String, Object> map) throws Exception {
+	    String userId = getCartUserId();
+	    map.put("userId", userId);
+
+	    return new Gson().toJson(cartService.updateCartQty(map));
+	}
 
 	// 헤더 장바구니 수량 조회
 	@PostMapping(value = "/cart/count.dox", produces = "application/json;charset=UTF-8")

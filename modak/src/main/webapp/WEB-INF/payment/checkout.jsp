@@ -125,7 +125,7 @@
                                             <div class="order-item-qty">수량 : {{ item.quantity }}개</div>
                                         </div>
                                         <div class="order-item-price">
-                                            {{ formatPrice(item.price * item.quantity) }}
+                                            {{ formatPrice(calcItemTotal(item)) }}
                                         </div>
                                     </div>
 
@@ -205,8 +205,7 @@
                                                 <span v-if="item.optionName" class="summary-item-opt">/ {{
                                                     item.optionName }}</span>
                                             </span>
-                                            <span class="summary-item-price">{{ formatPrice(item.price * item.quantity)
-                                                }}</span>
+                                            <span class="summary-item-price">{{ formatPrice(calcItemTotal(item)) }}</span>
                                         </div>
                                     </div>
 
@@ -298,7 +297,8 @@
                                 guestZipcode: '',
                                 guestAddress: '',
                                 guestDetailAddress: '',
-                                isPaying: false
+                                isPaying: false,
+                                guestKey: localStorage.getItem('guestKey') || ''
                             };
                         },
                         computed: {
@@ -312,7 +312,7 @@
                                 return Object.values(groups);
                             },
                             itemTotal() {
-                                return this.orderItems.reduce((sum, c) => sum + c.price * c.quantity, 0);
+                                return this.orderItems.reduce((sum, c) => sum + this.calcItemTotal(c), 0);
                             },
                             selectedCoupon() {
                                 return this.couponList.find(c => String(c.userCouponId) === String(this.selectedUserCouponId)) || null;
@@ -343,6 +343,10 @@
                                 this.cartIds = ids ? ids.split(',').map(Number) : [];
                                 const couponId = params.get('userCouponId');
                                 if (couponId) this.selectedUserCouponId = couponId;
+                                if (!this.guestKey) {
+                                    this.guestKey = 'GUEST_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+                                    localStorage.setItem('guestKey', this.guestKey);
+                                }   
                             },
 
                             // ── 로그인 & 데이터 로드 ──
@@ -367,27 +371,6 @@
                             fetchOrderItems() {
                                 let self = this;
 
-                                // ✅ 비회원은 sessionStorage에서 주문상품 가져오기
-                                if (!self.isLogin) {
-                                    const raw = sessionStorage.getItem('guest_order_items');
-
-                                    if (!raw) {
-                                        console.log("비회원 주문 데이터 없음");
-                                        self.orderItems = [];
-                                        return;
-                                    }
-
-                                    try {
-                                        self.orderItems = JSON.parse(raw) || [];
-                                    } catch (e) {
-                                        console.log("비회원 주문 데이터 파싱 오류", e);
-                                        self.orderItems = [];
-                                    }
-
-                                    return;
-                                }
-
-                                // ✅ 회원만 cartIds로 DB 조회
                                 if (!self.cartIds || self.cartIds.length === 0) {
                                     console.log("cartIds 없음");
                                     self.orderItems = [];
@@ -399,7 +382,8 @@
                                     type: 'POST',
                                     data: {
                                         cartIds: self.cartIds.join(','),
-                                        cartType: self.cartType
+                                        cartType: self.cartType,
+                                        guestKey: self.guestKey
                                     },
                                     dataType: 'json',
                                     success(res) {
@@ -407,7 +391,15 @@
 
                                         if (res.result === 'success') {
                                             self.orderItems = res.list || [];
+                                        } else {
+                                            self.orderItems = [];
+                                            self.showToast(res.message || '주문상품 조회 실패');
                                         }
+                                    },
+                                    error(err) {
+                                        console.log("주문상품 조회 오류:", err);
+                                        self.orderItems = [];
+                                        self.showToast('주문상품 조회 중 오류가 발생했습니다.');
                                     }
                                 });
                             },
@@ -468,9 +460,9 @@
                                         amount: self.finalTotal, // 최종 결제금액 (할인 후)
                                         cartIds: self.cartIds.join(','),
                                         cartType: self.cartType,
+                                        guestKey: self.guestKey,
                                         userCouponId: self.selectedUserCouponId || '',
                                         discountAmt: self.couponDiscount,
-                                        guestOrderItems: self.isLogin ? '' : JSON.stringify(self.orderItems),
                                         receiverName: self.isLogin ? self.addrForm.receiverName : self.guestName,
                                         receiverPhone: self.isLogin ? self.addrForm.receiverPhone : self.guestPhone,
                                         address: self.isLogin
@@ -494,10 +486,10 @@
                                         const tossPayments = TossPayments(TOSS_CLIENT_KEY);
 
                                         tossPayments.requestPayment('카드', {
-                                            amount: self.finalTotal,
+                                            amount: res.amount,
                                             orderId: orderId,
                                             orderName: orderName,
-                                            customerName: self.addrForm.receiverName || '고객',
+                                            customerName: self.isLogin ? self.addrForm.receiverName : self.guestName,
                                             successUrl: window.location.origin + '/payment/success.do',
                                             failUrl: window.location.origin + '/payment/fail.do'
                                         }).catch(() => {
@@ -582,6 +574,19 @@
 
                                 this.addrForm = { ...addr };
                                 this.addrModal.open = false;
+                            },
+                            calcItemTotal(item) {
+                                const price = Number(item.unitPrice || item.price || 0);
+                                const quantity = Number(item.quantity || 1);
+
+                                if (this.cartType === 'RENTAL') {
+                                    const nights = this.calcNights(item.rentalStart, item.rentalEnd) || 1;
+                                    const deposit = Number(item.deposit || 0);
+
+                                    return (price * nights + deposit) * quantity;
+                                }
+
+                                return price * quantity;
                             }
                         },
                         mounted() {

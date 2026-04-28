@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.modak.payment.mapper.PaymentMapper;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 @Service
 public class PaymentService {
@@ -67,27 +65,73 @@ public class PaymentService {
 
 	// 임시 주문 저장 → ORDER_ID를 프론트에 반환
 	public HashMap<String, Object> readyPayment(HashMap<String, Object> map) {
-		HashMap<String, Object> resultMap = new HashMap<>();
-		try {
-			paymentMapper.insertTempOrder(map);
+	    HashMap<String, Object> resultMap = new HashMap<>();
 
-			// ✅ INSERT 후 생성된 ORDER_ID를 map에서 꺼내서 반환
-			Object orderId = map.get("orderId");
-			List<HashMap<String, Object>> items = paymentMapper.selectCheckoutItems(map);
+	    try {
+	        // 1. 주문 상품 먼저 조회
+	        List<HashMap<String, Object>> items = paymentMapper.selectCheckoutItems(map);
 
-			for (HashMap<String, Object> item : items) {
-				item.put("orderId", orderId);
-				paymentMapper.insertOrderItem(item);
-			}
+	        if (items == null || items.size() == 0) {
+	            throw new RuntimeException("주문 상품이 없습니다.");
+	        }
 
-			resultMap.put("result", "success");
-			resultMap.put("orderId", orderId); // 프론트로 ORDER_ID 전달
-		} catch (Exception e) {
-			e.printStackTrace();
-			resultMap.put("result", "fail");
-			resultMap.put("message", "주문 준비 실패: " + e.getMessage());
-		}
-		return resultMap;
+	        // 2. 서버에서 총액 재계산
+	        long serverAmount = 0;
+	        String cartType = String.valueOf(map.get("cartType"));
+
+	        for (HashMap<String, Object> item : items) {
+	            long unitPrice = Long.parseLong(String.valueOf(item.get("unitPrice")));
+	            long quantity = Long.parseLong(String.valueOf(item.get("quantity")));
+
+	            if ("RENTAL".equals(cartType)) {
+	                long deposit = item.get("deposit") == null ? 0 : Long.parseLong(String.valueOf(item.get("deposit")));
+
+	                String start = String.valueOf(item.get("rentalStart"));
+	                String end = String.valueOf(item.get("rentalEnd"));
+
+	                long nights = java.time.temporal.ChronoUnit.DAYS.between(
+	                    java.time.LocalDate.parse(start),
+	                    java.time.LocalDate.parse(end)
+	                );
+
+	                serverAmount += (unitPrice * nights + deposit) * quantity;
+	            } else {
+	                serverAmount += unitPrice * quantity;
+	            }
+	        }
+
+	        // 3. 쿠폰 할인 반영
+	        long discountAmt = 0;
+	        if (map.get("discountAmt") != null && !"".equals(String.valueOf(map.get("discountAmt")))) {
+	            discountAmt = Long.parseLong(String.valueOf(map.get("discountAmt")));
+	        }
+
+	        long finalAmount = Math.max(0, serverAmount - discountAmt);
+
+	        map.put("amount", finalAmount);
+
+	        // 4. 주문 생성
+	        paymentMapper.insertTempOrder(map);
+
+	        Object orderId = map.get("orderId");
+
+	        // 5. 주문상품 생성
+	        for (HashMap<String, Object> item : items) {
+	            item.put("orderId", orderId);
+	            paymentMapper.insertOrderItem(item);
+	        }
+
+	        resultMap.put("result", "success");
+	        resultMap.put("orderId", orderId);
+	        resultMap.put("amount", finalAmount);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result", "fail");
+	        resultMap.put("message", "주문 준비 실패: " + e.getMessage());
+	    }
+
+	    return resultMap;
 	}
 
 	// 토스 API 승인 - 트랜잭션 없음
@@ -152,7 +196,7 @@ public class PaymentService {
 			userId = String.valueOf(orderInfo.get("USER_ID"));
 		}
 
-		boolean isGuest = "GUEST".equals(userId);
+		boolean isGuest = userId != null && userId.startsWith("GUEST_");
 
 		// 1. 주문 상태 PAID
 		baseMap.put("orderStatus", "PAID");
@@ -167,10 +211,8 @@ public class PaymentService {
 		paymentMapper.insertPaymentHistory(baseMap);
 
 		// 4. 장바구니 삭제
-		if (!isGuest) {
-			baseMap.put("userId", userId);
-			paymentMapper.deleteCartByOrderId(baseMap);
-		}
+		baseMap.put("userId", userId);
+		paymentMapper.deleteCartByOrderId(baseMap);
 
 		// 5. 쿠폰 사용 처리
 		Object userCouponId = orderInfo.get("userCouponId");

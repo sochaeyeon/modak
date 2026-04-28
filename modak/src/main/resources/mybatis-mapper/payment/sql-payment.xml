@@ -55,9 +55,13 @@
         ON c.option_item_id = poi.option_item_id
     WHERE c.user_id = #{userId}
 
-    <if test="cartIds != null and cartIds != ''">
-        AND c.cart_id IN (${cartIds})
-    </if>
+    <if test="cartType != null and cartType != ''">
+	    AND c.cart_type = #{cartType}
+	</if>
+	
+	<if test="cartIds != null and cartIds != ''">
+	    AND c.cart_id IN (${cartIds})
+	</if>
 
     ORDER BY c.created_at DESC
 </select>

@@ -110,47 +110,50 @@
 	          #{cartId}
 	      </foreach>
 	</delete>
+	
 	<update id="updateCartOption" parameterType="hashmap">
-    UPDATE CART
-    SET
-        QUANTITY = #{quantity},
-        OPTION_ITEM_ID = #{optionItemId},
-        RENTAL_START = NULLIF(#{rentalStart}, ''),
-        RENTAL_END = NULLIF(#{rentalEnd}, '')
-    WHERE CART_ID = #{cartId}
-      AND USER_ID = #{userId}
-</update>
-<select id="selectCartById" parameterType="hashmap" resultType="com.example.modak.cart.model.Cart">
-    SELECT
-        CART_ID AS cartId,
-        QUANTITY AS quantity,
-        CART_TYPE AS cartType,
-        PRODUCT_ID AS productId,
-        OPTION_ITEM_ID AS optionItemId,
-        RENTAL_START AS rentalStart,
-        RENTAL_END AS rentalEnd
-    FROM CART
-    WHERE CART_ID = #{cartId}
-      AND USER_ID = #{userId}
-</select>
+	    UPDATE CART
+	    SET
+	        QUANTITY = #{quantity},
+	        OPTION_ITEM_ID = #{optionItemId},
+	        RENTAL_START = NULLIF(#{rentalStart}, ''),
+	        RENTAL_END = NULLIF(#{rentalEnd}, '')
+	    WHERE CART_ID = #{cartId}
+	      AND USER_ID = #{userId}
+	</update>
+	
+	<select id="selectCartById" parameterType="hashmap" resultType="com.example.modak.cart.model.Cart">
+	    SELECT
+	        CART_ID AS cartId,
+	        QUANTITY AS quantity,
+	        CART_TYPE AS cartType,
+	        PRODUCT_ID AS productId,
+	        OPTION_ITEM_ID AS optionItemId,
+	        RENTAL_START AS rentalStart,
+	        RENTAL_END AS rentalEnd
+	    FROM CART
+	    WHERE CART_ID = #{cartId}
+	      AND USER_ID = #{userId}
+	</select>
+	
 	<select id="selectSameCartForUpdate" parameterType="hashmap" resultType="com.example.modak.cart.model.Cart">
-    SELECT
-        CART_ID AS cartId,
-        QUANTITY AS quantity
-    FROM CART
-    WHERE USER_ID = #{userId}
-      AND PRODUCT_ID = #{productId}
-      AND CART_TYPE = #{cartType}
-      AND CART_ID != #{cartId}
-      AND IFNULL(OPTION_ITEM_ID, 0) = IFNULL(#{optionItemId}, 0)
-
-    <if test="cartType == 'RENTAL'">
-        AND IFNULL(RENTAL_START, '1000-01-01') = IFNULL(NULLIF(#{rentalStart}, ''), '1000-01-01')
-        AND IFNULL(RENTAL_END, '1000-01-01') = IFNULL(NULLIF(#{rentalEnd}, ''), '1000-01-01')
-    </if>
-
-    LIMIT 1
-</select>
+	    SELECT
+	        CART_ID AS cartId,
+	        QUANTITY AS quantity
+	    FROM CART
+	    WHERE USER_ID = #{userId}
+	      AND PRODUCT_ID = #{productId}
+	      AND CART_TYPE = #{cartType}
+	      AND CART_ID != #{cartId}
+	      AND IFNULL(OPTION_ITEM_ID, 0) = IFNULL(#{optionItemId}, 0)
+	
+	    <if test="cartType == 'RENTAL'">
+	        AND IFNULL(RENTAL_START, '1000-01-01') = IFNULL(NULLIF(#{rentalStart}, ''), '1000-01-01')
+	        AND IFNULL(RENTAL_END, '1000-01-01') = IFNULL(NULLIF(#{rentalEnd}, ''), '1000-01-01')
+	    </if>
+	
+	    LIMIT 1
+	</select>
 	<!-- 선택한 옵션값들로 실제 옵션 조합 ID 찾기 -->
 <select id="selectOptionItemIdByValues" parameterType="hashmap" resultType="int">
     SELECT
@@ -180,8 +183,16 @@
 	</update>
 	
 	<select id="selectCartCount" parameterType="hashmap" resultType="int">
-    SELECT IFNULL(SUM(QUANTITY), 0)
-    FROM CART
-    WHERE USER_ID = #{userId}
-</select>
+	    SELECT IFNULL(SUM(QUANTITY), 0)
+	    FROM CART
+	    WHERE USER_ID = #{userId}
+	</select>
+	
+	<!--장바구니에서 수량변경-->
+	<update id="updateCartQtyDirect">
+	    UPDATE CART
+	    SET QUANTITY = #{quantity}
+	    WHERE CART_ID = #{cartId}
+	      AND USER_ID = #{userId}
+	</update>
 </mapper>

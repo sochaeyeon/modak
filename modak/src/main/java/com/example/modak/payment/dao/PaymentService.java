@@ -152,7 +152,7 @@ public class PaymentService {
 		HttpResponse<String> response = callTossApi(paymentKey, orderId, amount);
 		Long orderIdLong = Long.parseLong(orderId.replace("modak-", ""));
 		if (response != null && response.statusCode() == 200) {
-			return processAfterPayment(orderIdLong, amount);
+			return processAfterPayment(orderIdLong, amount, paymentKey);
 		} else {
 			// 실패 처리
 			HashMap<String, Object> failMap = new HashMap<>();
@@ -191,7 +191,7 @@ public class PaymentService {
 
 	// DB 처리 전용 - 트랜잭션 적용
 	@Transactional
-	public HashMap<String, Object> processAfterPayment(Long orderIdLong, Long amount) {
+	public HashMap<String, Object> processAfterPayment(Long orderIdLong, Long amount, String paymentKey) {
 		HashMap<String, Object> resultMap = new HashMap<>();
 
 		HashMap<String, Object> baseMap = new HashMap<>();
@@ -215,6 +215,7 @@ public class PaymentService {
 
 		// 2. 결제 INSERT
 		baseMap.put("amount", amount);
+		baseMap.put("paymentKey", paymentKey);
 		paymentMapper.insertPayment(baseMap);
 
 		// 3. 결제 이력 INSERT

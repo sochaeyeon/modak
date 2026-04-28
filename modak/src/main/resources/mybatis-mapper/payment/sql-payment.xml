@@ -106,19 +106,20 @@
 	</update>
 
 	<!-- PAYMENT 테이블 INSERT -->
-	<insert id="insertPayment" parameterType="hashmap" useGeneratedKeys="true"
-		keyProperty="payId">
-		INSERT INTO PAYMENT (
-		ORDER_ID,
-		AMOUNT,
-		PAY_STATUS,
-		PAID_AT
-		) VALUES (
-		#{orderId},
-		#{amount},
-		'PAID',
-		NOW()
-		)
+	<insert id="insertPayment" parameterType="hashmap" useGeneratedKeys="true" keyProperty="payId">
+	    INSERT INTO PAYMENT (
+	        ORDER_ID,
+	        AMOUNT,
+	        PAY_STATUS,
+	        PAID_AT,
+	        PAYMENT_KEY
+	    ) VALUES (
+	        #{orderId},
+	        #{amount},
+	        'PAID',
+	        NOW(),
+	        #{paymentKey}
+	    )
 	</insert>
 
 	<insert id="insertOrderItem" parameterType="hashmap">

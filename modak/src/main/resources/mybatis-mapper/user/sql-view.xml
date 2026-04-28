@@ -13,29 +13,50 @@
         C.CATEGORY_NAME AS categoryName,
         B.BRAND_NAME AS brandName,
         I.IMG_URL AS imgUrl,
-        V.LATEST_VIEW_DT AS viewDt
+        V.LATEST_VIEW_DT AS viewDt,
+
+        IFNULL(RV.avgRating, 0) AS avgRating,
+        IFNULL(RV.reviewCount, 0) AS reviewCount
+
     FROM (
         SELECT TARGET_ID, MAX(VIEW_DT) AS LATEST_VIEW_DT
         FROM VIEW_HISTORY
         WHERE USER_ID = #{userId}
         GROUP BY TARGET_ID
     ) V
+
     INNER JOIN PRODUCT P
         ON V.TARGET_ID = P.PRODUCT_ID
+
     LEFT JOIN PRODUCT_CATEGORY C
         ON P.CATEGORY_ID = C.CATEGORY_ID
+
     LEFT JOIN BRAND B
         ON P.BRAND_ID = B.BRAND_ID
+
     LEFT JOIN (
-    SELECT
-        PRODUCT_ID,
-        MIN(IMG_URL) AS IMG_URL
-    FROM PRODUCT_IMG
-    WHERE IS_MAIN = 'Y'
-    GROUP BY PRODUCT_ID
-) I
-    ON P.PRODUCT_ID = I.PRODUCT_ID
+        SELECT
+            PRODUCT_ID,
+            MIN(IMG_URL) AS IMG_URL
+        FROM PRODUCT_IMG
+        WHERE IS_MAIN = 'Y'
+        GROUP BY PRODUCT_ID
+    ) I
+        ON P.PRODUCT_ID = I.PRODUCT_ID
+
+    LEFT JOIN (
+        SELECT
+            PRODUCT_ID,
+            ROUND(AVG(RATING), 1) AS avgRating,
+            COUNT(*) AS reviewCount
+        FROM REVIEW
+        WHERE REVIEW_STATUS = 'ACTIVE'
+        GROUP BY PRODUCT_ID
+    ) RV
+        ON P.PRODUCT_ID = RV.PRODUCT_ID
+
     WHERE 1 = 1
+
     <if test="keyword != null and keyword != ''">
         AND (
             P.PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
@@ -43,6 +64,7 @@
             OR B.BRAND_NAME LIKE CONCAT('%', #{keyword}, '%')
         )
     </if>
+
     ORDER BY V.LATEST_VIEW_DT DESC
     LIMIT ${pageSize} OFFSET ${offset}
 </select>

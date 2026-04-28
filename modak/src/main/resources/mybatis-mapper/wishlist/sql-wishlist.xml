@@ -3,9 +3,7 @@
 
 <mapper namespace="com.example.modak.wishlist.mapper.WishlistMapper">
 
-    <!-- 찜 목록 조회 -->
-<!-- 찜 목록 조회 -->
-<select id="selectWishlistList" parameterType="hashmap"
+  <select id="selectWishlistList" parameterType="hashmap"
     resultType="com.example.modak.wishlist.model.Wishlist">
     SELECT
         w.WISH_ID,
@@ -16,23 +14,43 @@
         p.PRICE,
         c.CATEGORY_NAME AS categoryName,
         b.BRAND_NAME AS brandName,
-        i.IMG_URL AS imgUrl
+        i.IMG_URL AS imgUrl,
+
+        IFNULL(rv.avgRating, 0) AS avgRating,
+        IFNULL(rv.reviewCount, 0) AS reviewCount
+
     FROM WISHLIST w
-    INNER JOIN PRODUCT p 
+
+    INNER JOIN PRODUCT p
         ON w.PRODUCT_ID = p.PRODUCT_ID
+
     LEFT JOIN PRODUCT_CATEGORY c
         ON p.CATEGORY_ID = c.CATEGORY_ID
+
     LEFT JOIN BRAND b
         ON p.BRAND_ID = b.BRAND_ID
-   LEFT JOIN (
-    SELECT
-        PRODUCT_ID,
-        MIN(IMG_URL) AS IMG_URL
-    FROM PRODUCT_IMG
-    WHERE IS_MAIN = 'Y'
-    GROUP BY PRODUCT_ID
-) i
-    ON p.PRODUCT_ID = i.PRODUCT_ID
+
+    LEFT JOIN (
+        SELECT
+            PRODUCT_ID,
+            MIN(IMG_URL) AS IMG_URL
+        FROM PRODUCT_IMG
+        WHERE IS_MAIN = 'Y'
+        GROUP BY PRODUCT_ID
+    ) i
+        ON p.PRODUCT_ID = i.PRODUCT_ID
+
+    LEFT JOIN (
+        SELECT
+            PRODUCT_ID,
+            ROUND(AVG(RATING), 1) AS avgRating,
+            COUNT(*) AS reviewCount
+        FROM REVIEW
+        WHERE REVIEW_STATUS = 'ACTIVE'
+        GROUP BY PRODUCT_ID
+    ) rv
+        ON p.PRODUCT_ID = rv.PRODUCT_ID
+
     WHERE w.USER_ID = #{userId}
 
     <if test="keyword != null and keyword != ''">

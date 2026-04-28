@@ -3,15 +3,44 @@
 <mapper namespace="com.example.modak.camp.mapper.CampMapper">
 
 	<select id="selectCampList" parameterType="hashmap"
-		resultType="com.example.modak.camp.model.Camp"> SELECT C.CAMP_ID AS
-		contentId, C.CAMP_NAME AS facltNm, C.ADDRESS AS addr1, C.LATITUDE AS
-		mapY, C.LONGITUDE AS mapX, C.DESCRIPTION AS lineIntro, C.INDUTY AS
-		induty, I.IMG_URL AS firstImageUrl FROM CAMP C LEFT JOIN CAMP_IMG I ON
-		C.CAMP_ID = I.CAMP_ID AND I.IS_MAIN = 'Y' WHERE 1=1 <if
-			test="selectedArea != null and selectedArea != ''"> AND C.ADDRESS
-		LIKE CONCAT('%', #{selectedArea}, '%') </if> GROUP BY C.CAMP_ID,
-		C.CAMP_NAME, C.ADDRESS, C.LATITUDE, C.LONGITUDE, C.DESCRIPTION,
-		C.INDUTY, I.IMG_URL ORDER BY C.CAMP_ID ASC </select>
+    resultType="com.example.modak.camp.model.Camp">
+
+    SELECT
+        C.CAMP_ID AS contentId,
+        C.CAMP_NAME AS facltNm,
+        C.ADDRESS AS addr1,
+        C.LATITUDE AS mapY,
+        C.LONGITUDE AS mapX,
+        C.DESCRIPTION AS lineIntro,
+        C.INDUTY AS induty,
+        COALESCE(MAIN_IMG.IMG_URL, RAND_IMG.IMG_URL) AS firstImageUrl
+    FROM CAMP C
+    LEFT JOIN (
+        SELECT CAMP_ID, MIN(IMG_URL) AS IMG_URL
+        FROM CAMP_IMG
+        WHERE IS_MAIN = 'Y'
+        GROUP BY CAMP_ID
+    ) MAIN_IMG
+        ON C.CAMP_ID = MAIN_IMG.CAMP_ID
+    LEFT JOIN (
+        SELECT
+            C2.CAMP_ID,
+            (
+                SELECT CI.IMG_URL
+                FROM CAMP_IMG CI
+                ORDER BY RAND()
+                LIMIT 1
+            ) AS IMG_URL
+        FROM CAMP C2
+    ) RAND_IMG
+        ON C.CAMP_ID = RAND_IMG.CAMP_ID
+    WHERE 1=1
+    <if test="selectedArea != null and selectedArea != ''">
+        AND C.ADDRESS LIKE CONCAT('%', #{selectedArea}, '%')
+    </if>
+    ORDER BY C.CAMP_ID ASC
+
+</select>
 	<!--  ════════════════════════════════════════
          CAMP 테이블 저장
          INDUTY 컬럼 추가

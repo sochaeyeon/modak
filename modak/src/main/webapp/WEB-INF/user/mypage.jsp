@@ -2408,7 +2408,7 @@
                             fnHandleOrderAction: function (item, action) {
 
                                 if (action === "환불 신청") {
-                                    pageChange("/order/refund/request.do", {
+                                    pageChange("/refund/request.do", {
                                         orderId: item.orderId
                                     });
                                     return;

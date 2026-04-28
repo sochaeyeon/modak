@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.modak.common.Message;
 import com.example.modak.review.mapper.ReviewMapper;
 import com.example.modak.review.model.Review;
+import com.example.modak.review.model.ReviewHelpful;
 import com.example.modak.review.model.ReviewImage;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -260,7 +262,6 @@ public class ReviewService {
             	} else {
             	    List<Long> keepList = new ArrayList<>();
 
-            	    // 🔥 JSON 문자열 처리
             	    String json = String.valueOf(keepObj);
 
             	    json = json.replace("[", "")
@@ -422,5 +423,58 @@ public class ReviewService {
         }
 
         return resultMap;
+    }
+    public Map<String, Object> addHelpful(ReviewHelpful helpful) {
+        Map<String, Object> result = new HashMap<>();
+
+        int exists = reviewMapper.existsHelpful(helpful);
+
+        if (exists > 0) {
+            result.put("result", "duplicate");
+            return result;
+        }
+
+        reviewMapper.insertHelpful(helpful);
+        reviewMapper.increaseHelpfulCount(helpful.getReviewId());
+
+        result.put("result", "success");
+        return result;
+    }
+    public Map<String, Object> toggleHelpful(ReviewHelpful helpful) {
+        Map<String, Object> result = new HashMap<>();
+
+        int exists = reviewMapper.existsHelpful(helpful);
+
+        if (exists > 0) {
+            reviewMapper.deleteHelpful(helpful);
+            reviewMapper.decreaseHelpfulCount(helpful.getReviewId());
+
+            result.put("result", "success");
+            result.put("helpfulYn", "N");
+            return result;
+        }
+
+        reviewMapper.insertHelpful(helpful);
+        reviewMapper.increaseHelpfulCount(helpful.getReviewId());
+
+        result.put("result", "success");
+        result.put("helpfulYn", "Y");
+        return result;
+    }
+
+    public HashMap<String, Object> reportReview(HashMap<String, Object> map) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        int exists = reviewMapper.existsReport(map);
+
+        if (exists > 0) {
+            result.put("result", "duplicate");
+            return result;
+        }
+
+        reviewMapper.insertReport(map);
+        result.put("result", "success");
+
+        return result;
     }
 }

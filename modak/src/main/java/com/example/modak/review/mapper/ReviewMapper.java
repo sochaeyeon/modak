@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.example.modak.review.model.Review;
+import com.example.modak.review.model.ReviewHelpful;
 import com.example.modak.review.model.ReviewImage;
 
 @Mapper
@@ -50,4 +51,20 @@ public interface ReviewMapper {
     HashMap<String, Object> selectReviewOrderInfo(HashMap<String, Object> map);
     List<HashMap<String, Object>> selectReviewOrderItemList(HashMap<String, Object> map);
     int updateUserPoint(HashMap<String, Object> map);
+    
+
+
+    int existsHelpful(ReviewHelpful helpful);
+
+    int insertHelpful(ReviewHelpful helpful);
+
+    int deleteHelpful(ReviewHelpful helpful);
+
+    int increaseHelpfulCount(Long reviewId);
+
+    int decreaseHelpfulCount(Long reviewId);
+    
+    int existsReport(HashMap<String, Object> map);
+
+    int insertReport(HashMap<String, Object> map);
 }

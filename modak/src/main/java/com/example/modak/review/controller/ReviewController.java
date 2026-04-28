@@ -1,17 +1,24 @@
 package com.example.modak.review.controller;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.modak.review.dao.ReviewService;
+import com.example.modak.review.model.ReviewHelpful;
 import com.google.gson.Gson;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class ReviewController {
@@ -112,5 +119,45 @@ public class ReviewController {
 	public String getProductReviewList(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
 		HashMap<String, Object> resultMap = reviewService.getProductReviewList(map);
 		return new Gson().toJson(resultMap);
+	}
+
+	@PostMapping("/review/helpful.dox")
+	@ResponseBody
+	public Map<String, Object> helpful(@RequestParam Long reviewId, HttpSession session) {
+		Map<String, Object> result = new HashMap<>();
+
+		String userId = (String) session.getAttribute("sessionId");
+
+		if (userId == null) {
+			result.put("result", "login");
+			return result;
+		}
+
+		ReviewHelpful helpful = new ReviewHelpful();
+		helpful.setReviewId(reviewId);
+		helpful.setUserId(userId);
+
+		return reviewService.toggleHelpful(helpful);
+	}
+
+	@PostMapping("/review/report.dox")
+	@ResponseBody
+	public HashMap<String, Object> reportReview(@RequestParam Long reviewId, @RequestParam String content,
+			HttpSession session) {
+		HashMap<String, Object> result = new HashMap<>();
+
+		String userId = (String) session.getAttribute("sessionId");
+
+		if (userId == null) {
+			result.put("result", "login");
+			return result;
+		}
+
+		HashMap<String, Object> map = new HashMap<>();
+		map.put("reviewId", reviewId);
+		map.put("userId", userId);
+		map.put("content", content);
+
+		return reviewService.reportReview(map);
 	}
 }

@@ -177,12 +177,12 @@ public class CartService {
 	        Cart sameCart = cartMapper.selectSameCartForUpdate(map);
 
 	        if (sameCart != null && sameCart.getCartId() != target.getCartId()) {
-	            map.put("targetCartId", sameCart.getCartId());
-	            map.put("addQuantity", map.get("quantity"));
+	        	map.put("targetCartId", sameCart.getCartId());
+	        	map.put("addQuantity", map.get("quantity"));
+	        	map.put("cartId", target.getCartId()); // ← 삭제 대상은 원래 카트
 
-	            cartMapper.mergeCartQty(map);
-	            cartMapper.deleteCart(map);
-
+	        	cartMapper.mergeCartQty(map);  // targetCartId 기준 수량 합산
+	        	cartMapper.deleteCart(map);    // cartId(원래 카트) 삭제
 	            resultMap.put("merged", "Y");
 	        } else {
 	            cartMapper.updateCartOption(map);

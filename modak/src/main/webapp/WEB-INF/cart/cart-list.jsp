@@ -98,22 +98,17 @@
                                                     {{ item.optionName }}
                                                 </span>
                                             </div>
-                                            <div class="cart-item-orig">{{ formatPrice(item.price * 1.5) }}</div>
                                             <div class="cart-item-price">
-                                                <span class="disc">{{ getDiscRate(item) }}%</span>
                                                 {{ formatPrice(item.unitPrice || item.price) }}
+                                                <span v-if="item.cartType === 'RENTAL'" class="rental-price-info">
+                                                    (대여료 {{ formatPrice(rentalFee(item)) }}<span v-if="item.deposit > 0"> / 보증금 {{ formatPrice(depositFee(item)) }}</span>)
+                                                </span>
                                             </div>
                                             <div v-if="activeTab === 'RENTAL' && item.rentalStart" class="rental-dates">
                                                 📅 {{ item.rentalStart }} ~ {{ item.rentalEnd }}
                                                 <span
                                                     style="background:var(--orange);color:#fff;border-radius:4px;padding:1px 6px;font-size:11px;">
                                                     {{ calcNights(item.rentalStart, item.rentalEnd) }}박
-                                                </span>
-                                            </div>
-                                            <div v-if="item.cartType === 'RENTAL'" class="rental-price-info">
-                                                대여료 {{ formatPrice(rentalFee(item)) }}
-                                                <span v-if="item.deposit > 0">
-                                                    / 보증금 {{ formatPrice(depositFee(item)) }}
                                                 </span>
                                             </div>
                                         </div>
@@ -868,12 +863,8 @@
 
                                 if (!this.isLogin) {
                                     const selected = this.filteredCart.filter(c => this.checkedIds.includes(c.cartId));
-                                    sessionStorage.setItem('guest_order_items', JSON.stringify(selected));
-
-                                    location.href =
-                                        '/payment/checkout.do?isGuest=true'
-                                        + '&cartType=' + this.activeTab;
-
+                                    localStorage.setItem('checkout_items', JSON.stringify(selected));
+                                    location.href = '/payment/checkout.do?cartType=' + this.activeTab + '&isGuest=true';
                                     return;
                                 }
 
@@ -986,7 +977,7 @@
 
                                     if (target) {
                                         target.quantity = m.qty;
-                                        target.optionId = m.selectedOption || null;
+                                        // (모달에서 selectedOption이 optionValueId인지 확인 필요)
                                         target.rentalStart = m.startDate || null;
                                         target.rentalEnd = m.endDate || null;
                                     }
@@ -1056,10 +1047,6 @@
                             calcNights(s, e) {
                                 if (!s || !e) return 0;
                                 return Math.ceil((new Date(e) - new Date(s)) / (1000 * 60 * 60 * 24));
-                            },
-
-                            getDiscRate() {
-                                return 10;
                             },
 
                             groupTotal(group) {
@@ -1150,6 +1137,7 @@
                                 };
                             },
 
+                            // ✅ 수정
                             applyInlineOption(item) {
                                 const optionGroupCount = Object.keys(this.inlineGroupedOptions).length;
                                 const selectedCount = Object.keys(this.inlineOption.selectedOptions).length;
@@ -1160,13 +1148,28 @@
                                 }
 
                                 const selectedOptionValues = Object.values(this.inlineOption.selectedOptions);
+                                const optionValueIds = selectedOptionValues.map(opt => opt.optionValueId).join(',');
+                                const optionName = selectedOptionValues.map(opt => opt.optionValue).join(' / ');
 
-                                const optionValueIds = selectedOptionValues
-                                    .map(opt => opt.optionValueId)
-                                    .join(',');
+                                // ✅ 비회원 - localStorage 직접 수정
+                                if (!this.isLogin) {
+                                    const target = this.cartList.find(c => c.cartId === item.cartId);
+                                    if (target) {
+                                        target.optionValueIds = optionValueIds;
+                                        target.optionName = optionName;
 
+                                        // unitPrice도 재계산 (옵션 추가금 반영)
+                                        const addPrice = selectedOptionValues.reduce((sum, opt) => sum + (opt.addPrice || 0), 0);
+                                        target.unitPrice = Number(target.price || 0) + addPrice;
+                                    }
+                                    this.saveGuestCart();
+                                    this.closeInlineOption();
+                                    showToast('옵션이 변경됐어요.');
+                                    return;
+                                }
+
+                                // 회원 - 기존 서버 API 호출
                                 let self = this;
-
                                 $.ajax({
                                     url: '/cart/updateOption.dox',
                                     type: 'POST',
@@ -1189,21 +1192,6 @@
                                     }
                                 });
                             },
-                            fetchUserPoint() {
-                                let self = this;
-
-                                $.ajax({
-                                    url: '/user/point.dox',
-                                    type: 'POST',
-                                    dataType: 'json',
-                                    success(res) {
-                                        if (res.result === 'success') {
-                                            self.userPoint = Number(res.point || 0);
-                                        }
-                                    }
-                                });
-                            },
-
                             useAllPoint() {
                                 this.usePoint = this.maxUsePoint;
                             },
@@ -1236,17 +1224,12 @@
                             },
                             rentalFee(item) {
                                 const unitPrice = Number(item.unitPrice || item.price || 0);
-                                const quantity = Number(item.quantity || 1);
                                 const nights = this.calcNights(item.rentalStart, item.rentalEnd) || 1;
-
-                                return unitPrice * nights * quantity;
+                                return unitPrice * nights;  // ✅ 1개 기준 대여료
                             },
 
                             depositFee(item) {
-                                const deposit = Number(item.deposit || 0);
-                                const quantity = Number(item.quantity || 1);
-
-                                return deposit * quantity;
+                                return Number(item.deposit || 0);  // ✅ 1개 기준 보증금
                             },
                         },
 

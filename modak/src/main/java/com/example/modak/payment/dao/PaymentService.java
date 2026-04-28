@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.modak.payment.mapper.PaymentMapper;
+import com.google.gson.Gson;
 
 @Service
 public class PaymentService {
@@ -69,22 +70,32 @@ public class PaymentService {
 
 	    try {
 	        // 1. 주문 상품 먼저 조회
-	        List<HashMap<String, Object>> items = paymentMapper.selectCheckoutItems(map);
+	    	List<HashMap<String, Object>> items;
+	    	String guestItemsJson = String.valueOf(map.get("guestItems"));
 
-	        if (items == null || items.size() == 0) {
-	            throw new RuntimeException("주문 상품이 없습니다.");
-	        }
+	    	if (guestItemsJson != null && !"null".equals(guestItemsJson) && !"".equals(guestItemsJson)) {
+	    	    Gson gson = new Gson();
+	    	    items = gson.fromJson(guestItemsJson,
+	    	        new com.google.gson.reflect.TypeToken<List<HashMap<String, Object>>>(){}.getType());
+	    	} else {
+	    	    items = paymentMapper.selectCheckoutItems(map);
+	    	}
 
 	        // 2. 서버에서 총액 재계산
 	        long serverAmount = 0;
 	        String cartType = String.valueOf(map.get("cartType"));
 
 	        for (HashMap<String, Object> item : items) {
-	            long unitPrice = Long.parseLong(String.valueOf(item.get("unitPrice")));
-	            long quantity = Long.parseLong(String.valueOf(item.get("quantity")));
+	        	
+	        	long unitPrice = item.get("unitPrice") != null
+	        		    ? ((Number) item.get("unitPrice")).longValue()
+	        		    : ((Number) item.get("price")).longValue();
+
+	        	long quantity = ((Number) item.get("quantity")).longValue();
 
 	            if ("RENTAL".equals(cartType)) {
-	                long deposit = item.get("deposit") == null ? 0 : Long.parseLong(String.valueOf(item.get("deposit")));
+	            	long deposit = item.get("deposit") == null ? 0
+	            		    : ((Number) item.get("deposit")).longValue();
 
 	                String start = String.valueOf(item.get("rentalStart"));
 	                String end = String.valueOf(item.get("rentalEnd"));
@@ -222,7 +233,7 @@ public class PaymentService {
 
 		if (!isGuest && userCouponId != null && !"".equals(String.valueOf(userCouponId))) {
 			long totalPrice = getLongValue(orderInfo, "totalPrice", "TOTAL_PRICE");
-			long discountAmt = Math.max(0, totalPrice - amount);
+			long discountAmt = getLongValue(orderInfo, "discountAmt", "DISCOUNT_AMT");
 
 			HashMap<String, Object> couponMap = new HashMap<>();
 			couponMap.put("userCouponId", userCouponId);
@@ -266,42 +277,52 @@ public class PaymentService {
 		List<HashMap<String, Object>> orderItems = paymentMapper.selectOrderItemsForStock(baseMap);
 
 		for (HashMap<String, Object> item : orderItems) {
-			String orderType = getStringValue(item, "orderType", "ORDER_TYPE");
+		    String orderType = getStringValue(item, "orderType", "ORDER_TYPE");
 
-			HashMap<String, Object> stockMap = new HashMap<>();
-			stockMap.put("productId", getValue(item, "productId", "PRODUCT_ID"));
-			stockMap.put("optionItemId", getValue(item, "optionItemId", "OPTION_ITEM_ID"));
-			stockMap.put("quantity", getValue(item, "quantity", "QUANTITY"));
+		    HashMap<String, Object> stockMap = new HashMap<>();
+		    stockMap.put("productId", getValue(item, "productId", "PRODUCT_ID"));
+		    stockMap.put("optionItemId", getValue(item, "optionItemId", "OPTION_ITEM_ID"));
+		    stockMap.put("quantity", getValue(item, "quantity", "QUANTITY"));
 
-			if ("PURCHASE".equals(orderType)) {
-				int updated = paymentMapper.decreaseStockForPurchase(stockMap);
-				if (updated == 0) {
-					throw new RuntimeException("재고 부족 - PRODUCT_ID: " + stockMap.get("productId"));
-				}
-			} else if ("RENTAL".equals(orderType)) {
-			    stockMap.put("startDate", getValue(item, "startDate", "START_DATE"));
-			    stockMap.put("endDate", getValue(item, "endDate", "END_DATE"));
+		    if ("PURCHASE".equals(orderType)) {
+		        int updated = paymentMapper.decreaseStockForPurchase(stockMap);
+		        if (updated == 0) {
+		            throw new RuntimeException("재고 부족 - PRODUCT_ID: " + stockMap.get("productId"));
+		        }
 
-			    int updated = paymentMapper.decreaseStockForRental(stockMap);
-			    if (updated == 0) {
-			        throw new RuntimeException("대여 재고 부족 - PRODUCT_ID: " + stockMap.get("productId"));
-			    }
+		    } else if ("RENTAL".equals(orderType)) {
+		        stockMap.put("startDate", getValue(item, "startDate", "START_DATE"));
+		        stockMap.put("endDate", getValue(item, "endDate", "END_DATE"));
 
-			    int quantity = Integer.parseInt(String.valueOf(getValue(item, "quantity", "QUANTITY")));
+		        // 1. 날짜별 재고 레코드 없으면 자동 생성
+		        paymentMapper.insertStockIfNotExists(stockMap);
 
-			    for (int i = 0; i < quantity; i++) {
-			        HashMap<String, Object> rentalMap = new HashMap<>();
+		        // 2. 재고 차감
+		        int updatedRows = paymentMapper.decreaseStockForRental(stockMap);
 
-			        rentalMap.put("itemId", getValue(item, "optionItemId", "OPTION_ITEM_ID"));
-			        rentalMap.put("userId", userId); // 회원ID 또는 GUEST
-			        rentalMap.put("startDate", getValue(item, "startDate", "START_DATE"));
-			        rentalMap.put("returnDate", getValue(item, "endDate", "END_DATE"));
-			        rentalMap.put("guestName", getValue(orderInfo, "guestName", "GUEST_NAME"));
-			        rentalMap.put("guestPhone", getValue(orderInfo, "guestPhone", "GUEST_PHONE"));
+		        // 3. 차감된 rows가 대여 일수보다 적으면 재고 부족
+		        long rentalDays = java.time.temporal.ChronoUnit.DAYS.between(
+		            java.time.LocalDate.parse(String.valueOf(stockMap.get("startDate"))),
+		            java.time.LocalDate.parse(String.valueOf(stockMap.get("endDate")))
+		        );
 
-			        paymentMapper.insertRental(rentalMap);
-			    }
-			}
+		        if (updatedRows < rentalDays) {
+		            throw new RuntimeException("대여 재고 부족 - PRODUCT_ID: " + stockMap.get("productId"));
+		        }
+
+		        // 4. rental 이력 INSERT
+		        int quantity = Integer.parseInt(String.valueOf(getValue(item, "quantity", "QUANTITY")));
+		        for (int i = 0; i < quantity; i++) {
+		            HashMap<String, Object> rentalMap = new HashMap<>();
+		            rentalMap.put("itemId", getValue(item, "optionItemId", "OPTION_ITEM_ID"));
+		            rentalMap.put("userId", userId);
+		            rentalMap.put("startDate", getValue(item, "startDate", "START_DATE"));
+		            rentalMap.put("returnDate", getValue(item, "endDate", "END_DATE"));
+		            rentalMap.put("guestName", getValue(orderInfo, "guestName", "GUEST_NAME"));
+		            rentalMap.put("guestPhone", getValue(orderInfo, "guestPhone", "GUEST_PHONE"));
+		            paymentMapper.insertRental(rentalMap);
+		        }
+		    }
 		}
 	
 
@@ -323,11 +344,13 @@ public class PaymentService {
 	}
 
 	private long getLongValue(HashMap<String, Object> map, String camelKey, String upperKey) {
-		Object value = getValue(map, camelKey, upperKey);
-		if (value == null || "".equals(String.valueOf(value))) {
-			return 0L;
-		}
-		return Long.parseLong(String.valueOf(value));
+	    Object value = getValue(map, camelKey, upperKey);
+	    if (value == null || "".equals(String.valueOf(value))) return 0L;
+	    
+	    if (value instanceof Number) {
+	        return ((Number) value).longValue();  // Gson Double이든 DB Integer든 전부 처리
+	    }
+	    return Long.parseLong(String.valueOf(value));  // 혹시 String으로 온 경우 폴백
 	}
 
 }

@@ -90,8 +90,11 @@
        AND i.IS_MAIN = 'Y'
     LEFT JOIN PRODUCT_OPTION_ITEM poi
         ON c.OPTION_ITEM_ID = poi.OPTION_ITEM_ID
-    WHERE c.USER_ID = #{userId}
-    ORDER BY c.CREATED_AT DESC
+	WHERE c.USER_ID = #{userId}
+	<if test="cartType != null and cartType != ''">
+	    AND c.CART_TYPE = #{cartType}
+	</if>
+	ORDER BY c.CREATED_AT DESC
 </select>
 	
 	<!-- 장바구니 단일 삭제 -->

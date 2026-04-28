@@ -158,8 +158,17 @@
                 </div>
 
                 <div class="filter-panel" :class="{ open: filterOpen.price }">
-                  <input type="range" min="0" max="100000" step="5000" v-model.number="filter.priceMax"
-                    :style="{ '--range-percent': pricePercent + '%' }" @input="fnPriceInput" class="price-range">
+
+                  <div class="price-guide-row">
+                    <span>0원</span>
+                    <span>5만원</span>
+                    <span>10만원</span>
+                  </div>
+
+                  <div class="price-slider-box">
+                    <input type="range" min="0" max="100000" step="5000" v-model.number="filter.priceMax"
+                      :style="{ '--range-percent': pricePercent + '%' }" @input="fnPriceInput" class="price-range">
+                  </div>
                 </div>
               </div>
 
@@ -289,6 +298,10 @@
         </div><!-- /#app -->
         <%@ include file="/WEB-INF/common/footer.jsp" %>
           <script>
+            if ('scrollRestoration' in history) {
+              history.scrollRestoration = 'manual';
+            }
+
             // ── 토스트 ──
             function showToast(msg) {
               var t = document.getElementById('toast');
@@ -446,7 +459,8 @@
                     brandId: self.filter.brandId.length > 0 ? self.filter.brandId : null,
                     priceMin: minP,
                     priceMax: maxP,
-                    searchKeyword: self.searchKeyword
+                    searchKeyword: self.searchKeyword,
+                    searchKeywordNoSpace: (self.searchKeyword || '').replace(/\s+/g, '')
                   };
 
                   $.ajax({
@@ -486,20 +500,21 @@
                   });
                 },
 
-                fnSearch() {
-                  const scrollY = window.scrollY; // 현재 위치 저장
+                fnSearch(keepScroll = true) {
+                  const scrollY = keepScroll ? window.scrollY : 0;
 
                   this.currentPage = 1;
-
                   clearTimeout(this.filterTimer);
 
                   this.filterTimer = setTimeout(() => {
                     this.fnList();
 
                     this.$nextTick(() => {
-                      window.scrollTo(0, scrollY); // 다시 복원
+                      if (keepScroll) {
+                        window.scrollTo(0, scrollY);
+                      }
                     });
-                  }, 180);
+                  }, 120);
                 },
                 // ── 부모 카테고리 조회 (pill 바) ──
                 fetchCategory() {
@@ -553,6 +568,8 @@
                 },
 
                 resetFilter() {
+                  clearTimeout(this.filterTimer);
+
                   this.filter = {
                     rentable: true,
                     buyable: true,
@@ -565,15 +582,16 @@
                   this.openParent = null;
                   this.childCategory = [];
                   this.currentPage = 1;
+                  this.searchKeyword = '';
 
-                  this.fnSearch();
-
-                  this.$nextTick(() => {
-                    window.scrollTo({
-                      top: 0,
-                      behavior: 'smooth'
-                    });
+                  window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
                   });
+
+                  setTimeout(() => {
+                    this.fnSearch(false);
+                  }, 120);
                 },
                 fnView: function (productId) {
                   location.href = "/product/detail.do?productId=" + productId;
@@ -716,8 +734,7 @@
                 },
 
                 fnHandleScroll() {
-                  const y = window.scrollY;
-
+                  this.showTopBtn = window.scrollY > 420;
                 },
                 fnGoEvent() {
                   pageChange("/event/detail.do", {
@@ -787,7 +804,6 @@
                 }
                 window.addEventListener('scroll', this.fnHandleScroll);
               },
-
               unmounted() {
                 window.removeEventListener('scroll', this.fnHandleScroll);
               }

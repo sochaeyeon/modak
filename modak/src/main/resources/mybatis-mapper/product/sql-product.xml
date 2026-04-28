@@ -2,125 +2,111 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.modak.product.mapper.ProductMapper">
-	
+
 	<!--제품리스트-->
-	<select id="selectProductList" resultType="com.example.modak.product.model.Product"> 
-	    SELECT
-	        p.PRODUCT_ID as productId,
-	        p.PRODUCT_NAME as productName, 
-	        p.PRODUCT_TYPE as productType, 
-	        p.PRICE as price, 
-	        p.DEPOSIT as deposit, 
-	        p.DESCRIPTION as description, 
-	        p.IS_AVAILABLE as isAvailable, 
-	        p.CREATED_AT as createdAt,
-	        p.VIEW_COUNT as viewCount,
-	        p.CATEGORY_ID as categoryId, 
-	        c.CATEGORY_NAME as categoryName, 
-	        p.BRAND_ID as brandId, 
-	        b.BRAND_NAME as brandName, 
-	        i.IMG_URL as imgUrl,
-	        IFNULL(AVG(r.RATING), 0) as rating,
-	        COUNT(r.REVIEW_ID) as rCount
-	    FROM PRODUCT p 
-	        LEFT JOIN PRODUCT_CATEGORY c ON p.CATEGORY_ID = c.CATEGORY_ID 
-	        LEFT JOIN BRAND b ON p.BRAND_ID = b.BRAND_ID 
-	        LEFT JOIN PRODUCT_IMG i ON p.PRODUCT_ID = i.PRODUCT_ID AND i.IS_MAIN = 'Y'
-	        LEFT JOIN REVIEW r ON p.PRODUCT_ID = r.PRODUCT_ID AND r.REVIEW_STATUS = 'ACTIVE'
-	    WHERE 1=1 
+	<select id="selectProductList"
+		resultType="com.example.modak.product.model.Product"> SELECT
+		p.PRODUCT_ID as productId, p.PRODUCT_NAME as productName, p.PRODUCT_TYPE
+		as productType, p.PRICE as price, p.DEPOSIT as deposit, p.DESCRIPTION as
+		description, p.IS_AVAILABLE as isAvailable, p.CREATED_AT as createdAt,
+		p.VIEW_COUNT as viewCount, p.CATEGORY_ID as categoryId, c.CATEGORY_NAME
+		as categoryName, p.BRAND_ID as brandId, b.BRAND_NAME as brandName,
+		i.IMG_URL as imgUrl, IFNULL(AVG(r.RATING), 0) as rating,
+		COUNT(r.REVIEW_ID) as rCount FROM PRODUCT p LEFT JOIN PRODUCT_CATEGORY c
+		ON p.CATEGORY_ID = c.CATEGORY_ID LEFT JOIN BRAND b ON p.BRAND_ID =
+		b.BRAND_ID LEFT JOIN PRODUCT_IMG i ON p.PRODUCT_ID = i.PRODUCT_ID AND
+		i.IS_MAIN = 'Y' LEFT JOIN REVIEW r ON p.PRODUCT_ID = r.PRODUCT_ID AND
+		r.REVIEW_STATUS = 'ACTIVE' WHERE 1=1 <if
+			test="childCatId != null and childCatId > 0">
+			AND p.CATEGORY_ID = #{childCatId}
+		</if>
 	
-	    <if test="childCatId != null and childCatId > 0">
-	        AND p.CATEGORY_ID = #{childCatId}
-	    </if>
+	    <if
+			test="(childCatId == null or childCatId == 0) and (categoryId != null and categoryId > 0)">
+		AND (
+			p.CATEGORY_ID = #{categoryId}
+			OR p.CATEGORY_ID IN (
+			SELECT CATEGORY_ID
+			FROM PRODUCT_CATEGORY
+			WHERE PARENT_CATEGORY = #{categoryId}
+			)
+			)
+		</if>
 	
-	    <if test="(childCatId == null or childCatId == 0) and (categoryId != null and categoryId > 0)">
-	        AND (
-	            p.CATEGORY_ID = #{categoryId}
-	            OR p.CATEGORY_ID IN (
-	                SELECT CATEGORY_ID
-	                FROM PRODUCT_CATEGORY
-	                WHERE PARENT_CATEGORY = #{categoryId}
-	            )
-	        )
-	    </if>
-	
-	    <if test="searchKeyword != null and searchKeyword != ''">
-	        AND (
-	            p.PRODUCT_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
-	            OR b.BRAND_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
-	        )
-	    </if>
-	
-	    <choose>
-	        <when test="rentable == true and buyable == false">
-	            AND p.PRODUCT_TYPE = 'RENTAL'
-	        </when>
-	        <when test="rentable == false and buyable == true">
-	            AND p.PRODUCT_TYPE = 'PURCHASE'
-	        </when>
-	        <when test="rentable == false and buyable == false">
-	            AND 1 = 0
-	        </when>
-	    </choose>
-	
-	    <if test="priceMin != null">
-	        AND p.PRICE >= #{priceMin}
-	    </if>
-	
-	    <if test="priceMax != null">
-	        AND p.PRICE &lt;= #{priceMax}
-	    </if>
-	
-	    <if test="brandId != null and brandId.size() > 0"> 
-	        AND p.BRAND_ID IN 
-	        <foreach item="id" collection="brandId" open="(" separator="," close=")">
-	            #{id}
-	        </foreach>
-	    </if>
-	
-	    GROUP BY
-	        p.PRODUCT_ID,
-	        p.PRODUCT_NAME,
-	        p.PRODUCT_TYPE,
-	        p.PRICE,
-	        p.DEPOSIT,
-	        p.DESCRIPTION,
-	        p.IS_AVAILABLE,
-	        p.CREATED_AT,
-	        p.VIEW_COUNT,
-	        p.CATEGORY_ID,
-	        c.CATEGORY_NAME,
-	        p.BRAND_ID,
-	        b.BRAND_NAME,
-	        i.IMG_URL
+	   <if
+			test="searchKeyword != null and searchKeyword != ''">
+			AND (
+			REPLACE(p.PRODUCT_NAME, ' ', '')
+			LIKE CONCAT('%', REPLACE(#{searchKeyword}, ' ', ''), '%')
+
+			OR p.PRODUCT_NAME
+			LIKE CONCAT('%', #{searchKeyword}, '%')
+
+			OR REPLACE(b.BRAND_NAME, ' ', '')
+			LIKE CONCAT('%', REPLACE(#{searchKeyword}, ' ', ''), '%')
+
+			OR REPLACE(c.CATEGORY_NAME, ' ', '')
+			LIKE CONCAT('%', REPLACE(#{searchKeyword}, ' ', ''), '%')
+			)
+		</if>
 	
 	    <choose>
-	        <when test="sortKey == 'popular'">
-	            ORDER BY p.VIEW_COUNT DESC, p.PRODUCT_ID DESC
-	        </when>
-	
-	        <when test="sortKey == 'newest'">
-	            ORDER BY p.CREATED_AT DESC, p.PRODUCT_ID DESC
-	        </when>
-	
-	        <when test="sortKey == 'price-low'">
-	            ORDER BY p.PRICE ASC, p.PRODUCT_ID DESC
-	        </when>
-	
-	        <when test="sortKey == 'price-high'">
-	            ORDER BY p.PRICE DESC, p.PRODUCT_ID DESC
-	        </when>
-	
-	        <when test="sortKey == 'rating'">
-	            ORDER BY rating DESC, rCount DESC, p.PRODUCT_ID DESC
-	        </when>
-			<when test="sortKey == 'review-count'">
-			    ORDER BY rCount DESC, rating DESC, p.PRODUCT_ID DESC
+			<when test="rentable == true and buyable == false">
+				AND p.PRODUCT_TYPE = 'RENTAL'
 			</when>
-	        <otherwise>
-	            ORDER BY p.VIEW_COUNT DESC, p.PRODUCT_ID DESC
-	        </otherwise>
-	    </choose>
+			<when test="rentable == false and buyable == true">
+				AND p.PRODUCT_TYPE = 'PURCHASE'
+			</when>
+			<when test="rentable == false and buyable == false">
+				AND 1 = 0
+			</when>
+		</choose>
+	
+	    <if
+			test="priceMin != null">
+			AND p.PRICE >= #{priceMin}
+		</if>
+	
+	    <if
+			test="priceMax != null">
+			AND p.PRICE &lt;= #{priceMax}
+		</if>
+	
+	    <if
+			test="brandId != null and brandId.size() > 0"> AND p.BRAND_ID IN <foreach
+				item="id" collection="brandId" open="(" separator="," close=")">
+		#{id}
+			</foreach>
+		</if> GROUP BY
+		p.PRODUCT_ID, p.PRODUCT_NAME, p.PRODUCT_TYPE, p.PRICE, p.DEPOSIT,
+		p.DESCRIPTION, p.IS_AVAILABLE, p.CREATED_AT, p.VIEW_COUNT,
+		p.CATEGORY_ID, c.CATEGORY_NAME, p.BRAND_ID, b.BRAND_NAME, i.IMG_URL <choose>
+			<when test="sortKey == 'popular'">
+				ORDER BY p.VIEW_COUNT DESC, p.PRODUCT_ID DESC
+			</when>
+
+			<when test="sortKey == 'newest'">
+				ORDER BY p.CREATED_AT DESC, p.PRODUCT_ID DESC
+			</when>
+
+			<when test="sortKey == 'price-low'">
+				ORDER BY p.PRICE ASC, p.PRODUCT_ID DESC
+			</when>
+
+			<when test="sortKey == 'price-high'">
+				ORDER BY p.PRICE DESC, p.PRODUCT_ID DESC
+			</when>
+
+			<when test="sortKey == 'rating'">
+				ORDER BY rating DESC, rCount DESC, p.PRODUCT_ID DESC
+			</when>
+			<when test="sortKey == 'review-count'">
+				ORDER BY rCount DESC, rating DESC, p.PRODUCT_ID DESC
+			</when>
+			<otherwise>
+				ORDER BY p.VIEW_COUNT DESC, p.PRODUCT_ID DESC
+			</otherwise>
+		</choose>
 	</select>
 
 	<!--브랜드리스트-->
@@ -142,40 +128,41 @@
 		WHERE PRODUCT_ID = #{productId}
 		ORDER BY IS_MAIN DESC, SORT_ORDER ASC
 	</select>
-	
-	<select id="selectProduct" parameterType="hashmap" resultType="com.example.modak.product.model.Product"> 
-    SELECT
-    p.PRODUCT_ID as productId,
-    p.PRODUCT_NAME as productName, 
-    p.PRODUCT_TYPE as productType, 
-    p.PRICE as price, 
-    p.DEPOSIT as deposit, 
-    p.DESCRIPTION as description, 
-    p.IS_AVAILABLE as isAvailable, 
-    p.CREATED_AT as createdAt,
-    p.CATEGORY_ID as categoryId, 
-    p.BRAND_ID as brandId, 
-    b.BRAND_NAME as brandName, 
-    i.IMG_URL as imgUrl,
-    (
-        SELECT SUM(ps.AVAILABLE_QTY)
-        FROM PRODUCT_STOCK ps
-        WHERE ps.PRODUCT_ID = p.PRODUCT_ID
-    ) AS availableQty,
-    (
-        SELECT SUM(ps.TOTAL_QTY)   
-        FROM PRODUCT_STOCK ps
-        WHERE ps.PRODUCT_ID = p.PRODUCT_ID
-    ) AS totalQty
-    FROM PRODUCT p 
-    LEFT JOIN BRAND b 
-    ON p.BRAND_ID = b.BRAND_ID 
-    LEFT JOIN PRODUCT_IMG i 
-    ON p.PRODUCT_ID = i.PRODUCT_ID 
-    AND i.IS_MAIN = 'Y'
-    WHERE p.PRODUCT_ID = #{productId}
-    LIMIT 1
-</select>
+
+	<select id="selectProduct" parameterType="hashmap"
+		resultType="com.example.modak.product.model.Product">
+		SELECT
+		p.PRODUCT_ID as productId,
+		p.PRODUCT_NAME as productName,
+		p.PRODUCT_TYPE as productType,
+		p.PRICE as price,
+		p.DEPOSIT as deposit,
+		p.DESCRIPTION as description,
+		p.IS_AVAILABLE as isAvailable,
+		p.CREATED_AT as createdAt,
+		p.CATEGORY_ID as categoryId,
+		p.BRAND_ID as brandId,
+		b.BRAND_NAME as brandName,
+		i.IMG_URL as imgUrl,
+		(
+		SELECT SUM(ps.AVAILABLE_QTY)
+		FROM PRODUCT_STOCK ps
+		WHERE ps.PRODUCT_ID = p.PRODUCT_ID
+		) AS availableQty,
+		(
+		SELECT SUM(ps.TOTAL_QTY)
+		FROM PRODUCT_STOCK ps
+		WHERE ps.PRODUCT_ID = p.PRODUCT_ID
+		) AS totalQty
+		FROM PRODUCT p
+		LEFT JOIN BRAND b
+		ON p.BRAND_ID = b.BRAND_ID
+		LEFT JOIN PRODUCT_IMG i
+		ON p.PRODUCT_ID = i.PRODUCT_ID
+		AND i.IS_MAIN = 'Y'
+		WHERE p.PRODUCT_ID = #{productId}
+		LIMIT 1
+	</select>
 
 	<select id="selectMainCategoryList" resultType="hashmap">
 		SELECT
@@ -189,50 +176,50 @@
 	</select>
 
 	<select id="selectPopularProducts"
-    resultType="com.example.modak.product.model.Product">
-    SELECT
-        p.PRODUCT_ID AS productId,
-        p.PRODUCT_NAME AS productName,
-        p.PRODUCT_TYPE AS productType,
-        p.PRICE AS price,
-        p.DEPOSIT AS deposit,
-        p.IS_AVAILABLE AS isAvailable,
-        p.VIEW_COUNT AS viewCount,
-        p.CATEGORY_ID AS categoryId,
-        c.CATEGORY_NAME AS categoryName,
-        p.BRAND_ID AS brandId,
-        b.BRAND_NAME AS brandName,
-        i.IMG_URL AS imgUrl,
-        IFNULL(ROUND(AVG(r.RATING), 1), 0) AS rating,
-        COUNT(r.REVIEW_ID) AS rCount
-    FROM PRODUCT p
-    LEFT JOIN PRODUCT_CATEGORY c 
-        ON p.CATEGORY_ID = c.CATEGORY_ID
-    LEFT JOIN BRAND b 
-        ON p.BRAND_ID = b.BRAND_ID
-    LEFT JOIN PRODUCT_IMG i 
-        ON p.PRODUCT_ID = i.PRODUCT_ID
-       AND i.IS_MAIN = 'Y'
-    LEFT JOIN REVIEW r
-        ON p.PRODUCT_ID = r.PRODUCT_ID
-       AND r.REVIEW_STATUS = 'ACTIVE'
-    WHERE p.IS_AVAILABLE = 'Y'
-    GROUP BY
-        p.PRODUCT_ID,
-        p.PRODUCT_NAME,
-        p.PRODUCT_TYPE,
-        p.PRICE,
-        p.DEPOSIT,
-        p.IS_AVAILABLE,
-        p.VIEW_COUNT,
-        p.CATEGORY_ID,
-        c.CATEGORY_NAME,
-        p.BRAND_ID,
-        b.BRAND_NAME,
-        i.IMG_URL
-    ORDER BY p.VIEW_COUNT DESC
-    LIMIT 4
-</select>
+		resultType="com.example.modak.product.model.Product">
+		SELECT
+		p.PRODUCT_ID AS productId,
+		p.PRODUCT_NAME AS productName,
+		p.PRODUCT_TYPE AS productType,
+		p.PRICE AS price,
+		p.DEPOSIT AS deposit,
+		p.IS_AVAILABLE AS isAvailable,
+		p.VIEW_COUNT AS viewCount,
+		p.CATEGORY_ID AS categoryId,
+		c.CATEGORY_NAME AS categoryName,
+		p.BRAND_ID AS brandId,
+		b.BRAND_NAME AS brandName,
+		i.IMG_URL AS imgUrl,
+		IFNULL(ROUND(AVG(r.RATING), 1), 0) AS rating,
+		COUNT(r.REVIEW_ID) AS rCount
+		FROM PRODUCT p
+		LEFT JOIN PRODUCT_CATEGORY c
+		ON p.CATEGORY_ID = c.CATEGORY_ID
+		LEFT JOIN BRAND b
+		ON p.BRAND_ID = b.BRAND_ID
+		LEFT JOIN PRODUCT_IMG i
+		ON p.PRODUCT_ID = i.PRODUCT_ID
+		AND i.IS_MAIN = 'Y'
+		LEFT JOIN REVIEW r
+		ON p.PRODUCT_ID = r.PRODUCT_ID
+		AND r.REVIEW_STATUS = 'ACTIVE'
+		WHERE p.IS_AVAILABLE = 'Y'
+		GROUP BY
+		p.PRODUCT_ID,
+		p.PRODUCT_NAME,
+		p.PRODUCT_TYPE,
+		p.PRICE,
+		p.DEPOSIT,
+		p.IS_AVAILABLE,
+		p.VIEW_COUNT,
+		p.CATEGORY_ID,
+		c.CATEGORY_NAME,
+		p.BRAND_ID,
+		b.BRAND_NAME,
+		i.IMG_URL
+		ORDER BY p.VIEW_COUNT DESC
+		LIMIT 4
+	</select>
 
 	<!-- ★ 상품 상세 조회 시 조회수 +1 -->
 	<update id="increaseViewCount" parameterType="hashmap">
@@ -249,143 +236,135 @@
 		WHERE OI.PRODUCT_ID = #{productId}
 		AND O.ORDER_STATUS != 'CANCELLED'
 	</select>
-	
+
 	<!--product detail 하단에 추천상품-->
 	<select id="selectRelatedProducts" parameterType="hashmap"
-        resultType="com.example.modak.product.model.Product">
-    SELECT
-        p.PRODUCT_ID    AS productId,
-        p.PRODUCT_NAME  AS productName,
-        p.PRODUCT_TYPE  AS productType,
-        p.PRICE         AS price,
-        p.IS_AVAILABLE  AS isAvailable,
-        p.VIEW_COUNT    AS viewCount,
-        p.CATEGORY_ID   AS categoryId,
-        c.CATEGORY_NAME AS categoryName,
-        b.BRAND_NAME    AS brandName,
-        i.IMG_URL       AS imgUrl,
-        IFNULL(ROUND(AVG(r.RATING), 1), 0) AS rating,
-        COUNT(r.REVIEW_ID) AS rCount
-    FROM PRODUCT p
-    LEFT JOIN PRODUCT_CATEGORY c
-        ON p.CATEGORY_ID = c.CATEGORY_ID
-    LEFT JOIN BRAND b
-        ON p.BRAND_ID = b.BRAND_ID
-    LEFT JOIN PRODUCT_IMG i
-        ON p.PRODUCT_ID = i.PRODUCT_ID
-       AND i.IS_MAIN = 'Y'
-    LEFT JOIN REVIEW r
-        ON p.PRODUCT_ID = r.PRODUCT_ID
-       AND r.REVIEW_STATUS = 'ACTIVE'
-    WHERE p.CATEGORY_ID = #{categoryId}
-      AND p.PRODUCT_ID != #{productId}
-      AND p.IS_AVAILABLE = 'Y'
-    GROUP BY
-        p.PRODUCT_ID,
-        p.PRODUCT_NAME,
-        p.PRODUCT_TYPE,
-        p.PRICE,
-        p.IS_AVAILABLE,
-        p.VIEW_COUNT,
-        p.CATEGORY_ID,
-        c.CATEGORY_NAME,
-        b.BRAND_NAME,
-        i.IMG_URL
-    ORDER BY p.VIEW_COUNT DESC
-    LIMIT 4
-</select>
-	
+		resultType="com.example.modak.product.model.Product">
+		SELECT
+		p.PRODUCT_ID AS productId,
+		p.PRODUCT_NAME AS productName,
+		p.PRODUCT_TYPE AS productType,
+		p.PRICE AS price,
+		p.IS_AVAILABLE AS isAvailable,
+		p.VIEW_COUNT AS viewCount,
+		p.CATEGORY_ID AS categoryId,
+		c.CATEGORY_NAME AS categoryName,
+		b.BRAND_NAME AS brandName,
+		i.IMG_URL AS imgUrl,
+		IFNULL(ROUND(AVG(r.RATING), 1), 0) AS rating,
+		COUNT(r.REVIEW_ID) AS rCount
+		FROM PRODUCT p
+		LEFT JOIN PRODUCT_CATEGORY c
+		ON p.CATEGORY_ID = c.CATEGORY_ID
+		LEFT JOIN BRAND b
+		ON p.BRAND_ID = b.BRAND_ID
+		LEFT JOIN PRODUCT_IMG i
+		ON p.PRODUCT_ID = i.PRODUCT_ID
+		AND i.IS_MAIN = 'Y'
+		LEFT JOIN REVIEW r
+		ON p.PRODUCT_ID = r.PRODUCT_ID
+		AND r.REVIEW_STATUS = 'ACTIVE'
+		WHERE p.CATEGORY_ID = #{categoryId}
+		AND p.PRODUCT_ID != #{productId}
+		AND p.IS_AVAILABLE = 'Y'
+		GROUP BY
+		p.PRODUCT_ID,
+		p.PRODUCT_NAME,
+		p.PRODUCT_TYPE,
+		p.PRICE,
+		p.IS_AVAILABLE,
+		p.VIEW_COUNT,
+		p.CATEGORY_ID,
+		c.CATEGORY_NAME,
+		b.BRAND_NAME,
+		i.IMG_URL
+		ORDER BY p.VIEW_COUNT DESC
+		LIMIT 4
+	</select>
+
 	<!-- 상품 스펙 단건 조회 -->
 	<select id="selectProductSpec" parameterType="hashmap"
-	        resultType="com.example.modak.product.model.ProductSpec">
-	    SELECT
-	        SPEC_ID,
-	        PRODUCT_ID,
-	        CAPACITY,
-	        SIZE,
-	        WEIGHT,
-	        MATERIAL,
-	        ORIGIN
-	    FROM PRODUCT_SPEC
-	    WHERE PRODUCT_ID = #{productId}
+		resultType="com.example.modak.product.model.ProductSpec">
+		SELECT
+		SPEC_ID,
+		PRODUCT_ID,
+		CAPACITY,
+		SIZE,
+		WEIGHT,
+		MATERIAL,
+		ORIGIN
+		FROM PRODUCT_SPEC
+		WHERE PRODUCT_ID = #{productId}
 	</select>
-	
+
 	<!-- 상품 특징 목록 조회 -->
 	<select id="selectProductFeatures" parameterType="hashmap"
-	        resultType="com.example.modak.product.model.ProductFeature">
-	    SELECT
-	        FEATURE_ID,
-	        PRODUCT_ID,
-	        TITLE,
-	        CONTENT,
-	        SORT_ORDER
-	    FROM PRODUCT_FEATURE
-	    WHERE PRODUCT_ID = #{productId}
-	    ORDER BY SORT_ORDER ASC
+		resultType="com.example.modak.product.model.ProductFeature">
+		SELECT
+		FEATURE_ID,
+		PRODUCT_ID,
+		TITLE,
+		CONTENT,
+		SORT_ORDER
+		FROM PRODUCT_FEATURE
+		WHERE PRODUCT_ID = #{productId}
+		ORDER BY SORT_ORDER ASC
 	</select>
-	
-	<select id="selectFaqList" parameterType="hashmap"
-        resultType="com.example.modak.csCenter.model.Faq">
-	    SELECT
-	        FAQ_ID     AS faqId,
-	        QUESTION   AS question,
-	        ANSWER     AS answer,
-	        CREATED_AT AS createdAt,
-	        CATEGORY   AS category
-	    FROM FAQ
-	    WHERE CATEGORY IN
-	    <foreach item="cat" collection="categories" open="(" separator="," close=")">
-	        #{cat}
-	    </foreach>
-	    ORDER BY FAQ_ID ASC
-	    LIMIT 5
-	</select>
-	
-	<!-- 상품 옵션 목록 : 옵션 그룹 + 옵션 값 -->
-<select id="selectProductOptions" parameterType="hashmap"
-        resultType="com.example.modak.product.model.ProductOption">
-    SELECT
-        pog.OPTION_GROUP_ID AS optionGroupId,
-        pog.OPTION_NAME     AS optionName,
-        pov.OPTION_VALUE_ID AS optionValueId,
-        pov.OPTION_VALUE    AS optionValue,
-        pov.ADD_PRICE       AS addPrice,
-        pog.PRODUCT_ID      AS productId
-    FROM PRODUCT_OPTION_GROUP pog
-    JOIN PRODUCT_OPTION_VALUE pov
-        ON pog.OPTION_GROUP_ID = pov.OPTION_GROUP_ID
-    WHERE pog.PRODUCT_ID = #{productId}
-    ORDER BY pog.SORT_ORDER ASC, pov.SORT_ORDER ASC, pov.OPTION_VALUE_ID ASC
-</select>
-	<select id="selectAllCategoryList" resultType="hashmap">
-    SELECT
-        CATEGORY_ID AS categoryId,
-        CATEGORY_NAME AS categoryName,
-        PARENT_CATEGORY AS parentId
-    FROM PRODUCT_CATEGORY
-    ORDER BY 
-        CASE WHEN PARENT_CATEGORY IS NULL THEN CATEGORY_ID ELSE PARENT_CATEGORY END,
-        PARENT_CATEGORY IS NOT NULL,
-        CATEGORY_ID ASC
-</select>
 
-<!-- 상품 옵션 조합 + 재고 목록 -->
-<select id="selectProductOptionItems" parameterType="hashmap"
-        resultType="com.example.modak.product.model.ProductOptionItem">
-    SELECT
-        poi.OPTION_ITEM_ID AS optionItemId,
-        poi.PRODUCT_ID     AS productId,
-        poi.ITEM_NAME      AS itemName,
-        poi.EXTRA_PRICE    AS extraPrice,
-        poi.IS_AVAILABLE   AS isAvailable,
-        IFNULL(ps.TOTAL_QTY, 0)     AS totalQty,
-        IFNULL(ps.RESERVED_QTY, 0)  AS reservedQty,
-        IFNULL(ps.AVAILABLE_QTY, 0) AS availableQty
-    FROM PRODUCT_OPTION_ITEM poi
-    LEFT JOIN PRODUCT_STOCK ps
-        ON poi.OPTION_ITEM_ID = ps.OPTION_ITEM_ID
-       AND ps.STOCK_DATE = CURDATE()
-    WHERE poi.PRODUCT_ID = #{productId}
-    ORDER BY poi.OPTION_ITEM_ID ASC
-</select>
+	<select id="selectFaqList" parameterType="hashmap"
+		resultType="com.example.modak.csCenter.model.Faq"> SELECT FAQ_ID AS
+		faqId, QUESTION AS question, ANSWER AS answer, CREATED_AT AS createdAt,
+		CATEGORY AS category FROM FAQ WHERE CATEGORY IN <foreach item="cat"
+			collection="categories" open="(" separator="," close=")">
+			#{cat}
+		</foreach> ORDER BY FAQ_ID ASC LIMIT 5 </select>
+
+	<!-- 상품 옵션 목록 : 옵션 그룹 + 옵션 값 -->
+	<select id="selectProductOptions" parameterType="hashmap"
+		resultType="com.example.modak.product.model.ProductOption">
+		SELECT
+		pog.OPTION_GROUP_ID AS optionGroupId,
+		pog.OPTION_NAME AS optionName,
+		pov.OPTION_VALUE_ID AS optionValueId,
+		pov.OPTION_VALUE AS optionValue,
+		pov.ADD_PRICE AS addPrice,
+		pog.PRODUCT_ID AS productId
+		FROM PRODUCT_OPTION_GROUP pog
+		JOIN PRODUCT_OPTION_VALUE pov
+		ON pog.OPTION_GROUP_ID = pov.OPTION_GROUP_ID
+		WHERE pog.PRODUCT_ID = #{productId}
+		ORDER BY pog.SORT_ORDER ASC, pov.SORT_ORDER ASC, pov.OPTION_VALUE_ID ASC
+	</select>
+	<select id="selectAllCategoryList" resultType="hashmap">
+		SELECT
+		CATEGORY_ID AS categoryId,
+		CATEGORY_NAME AS categoryName,
+		PARENT_CATEGORY AS parentId
+		FROM PRODUCT_CATEGORY
+		ORDER BY
+		CASE WHEN PARENT_CATEGORY IS NULL THEN CATEGORY_ID ELSE PARENT_CATEGORY
+		END,
+		PARENT_CATEGORY IS NOT NULL,
+		CATEGORY_ID ASC
+	</select>
+
+	<!-- 상품 옵션 조합 + 재고 목록 -->
+	<select id="selectProductOptionItems" parameterType="hashmap"
+		resultType="com.example.modak.product.model.ProductOptionItem">
+		SELECT
+		poi.OPTION_ITEM_ID AS optionItemId,
+		poi.PRODUCT_ID AS productId,
+		poi.ITEM_NAME AS itemName,
+		poi.EXTRA_PRICE AS extraPrice,
+		poi.IS_AVAILABLE AS isAvailable,
+		IFNULL(ps.TOTAL_QTY, 0) AS totalQty,
+		IFNULL(ps.RESERVED_QTY, 0) AS reservedQty,
+		IFNULL(ps.AVAILABLE_QTY, 0) AS availableQty
+		FROM PRODUCT_OPTION_ITEM poi
+		LEFT JOIN PRODUCT_STOCK ps
+		ON poi.OPTION_ITEM_ID = ps.OPTION_ITEM_ID
+		AND ps.STOCK_DATE = CURDATE()
+		WHERE poi.PRODUCT_ID = #{productId}
+		ORDER BY poi.OPTION_ITEM_ID ASC
+	</select>
 </mapper>

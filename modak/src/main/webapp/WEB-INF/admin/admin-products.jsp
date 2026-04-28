@@ -156,7 +156,7 @@
                                     </div>
 
                                     <div class="section-title">기본 정보</div>
-                                    <div style="display:grid;grid-template-columns:2fr 1fr;gap:15px">
+                                    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:15px">
                                         <input class="p-input" v-model="form.productName" placeholder="상품명">
                                         <select class="p-input" v-model="form.categoryId">
                                             <option value="1">텐트/타프</option>
@@ -164,6 +164,12 @@
                                             <option value="3">테이블/의자</option>
                                             <option value="4">조명/랜턴</option>
                                             <option value="5">취사도구</option>
+                                        </select>
+                                        <select class="p-input" v-model="form.brandId">
+                                            <option value="">브랜드 선택</option>
+                                            <option v-for="b in brandList" :key="b.brandId" :value="b.brandId">
+                                                {{ b.brandName }}
+                                            </option>
                                         </select>
                                     </div>
                                     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px">
@@ -407,6 +413,7 @@
                                     modalOpen: false, isEdit: false,
                                     activeTab: 'basic',
                                     totalCount: 0,
+                                    brandList: [],
                                     // 이미지
                                     mainImgPreview: '',
                                     mainImgUploading: false,
@@ -429,7 +436,7 @@
                                         productId: '', productName: '', categoryId: 1, productType: 'RENTAL',
                                         price: 0, deposit: 0, description: '', imgUrl: '',
                                         capacity: '', size: '', weight: '', material: '', origin: '',
-                                        featureTitle: '', featureContent: ''
+                                        featureTitle: '', featureContent: '', brandId: ''
                                     }
                                 };
                             },
@@ -467,11 +474,21 @@
                                     this.page--;
                                     this.fnLoad();
                                 },
+                                fnLoadBrands() {
+                                    $.ajax({
+                                        url: '/admin/brand/list.dox',
+                                        type: 'POST',
+                                        success: (res) => {
+                                            const data = typeof res === 'string' ? JSON.parse(res) : res;
+                                            if (data.result === 'success') this.brandList = data.list || [];
+                                        }
+                                    });
+                                },
                                 /* ══ 모달 열기 ══ */
                                 fnOpenAdd() {
                                     this.isEdit = false;
                                     this.activeTab = 'basic';
-                                    this.form = { productId: '', productName: '', categoryId: 1, productType: 'RENTAL', price: 0, deposit: 0, description: '', imgUrl: '', capacity: '', size: '', weight: '', material: '', origin: '', featureTitle: '', featureContent: '' };
+                                    this.form = { productId: '', productName: '', categoryId: 1, productType: 'RENTAL', price: 0, deposit: 0, description: '', imgUrl: '', capacity: '', size: '', weight: '', material: '', origin: '', featureTitle: '', featureContent: '', brandId: ''   };
                                     this.mainImgPreview = '';
                                     this.detailImages = [];
                                     this.stockList = [];
@@ -480,6 +497,7 @@
                                     this.newStock = { totalQty: 0, optionId: '' };
                                     this.modalOpen = true;
                                     this.descImgPreview = '';
+                                    
                                 },
                                 fnTriggerDescImg() {
                                     document.getElementById('descImgInput').click();
@@ -518,7 +536,7 @@
                                         imgUrl: p.IMG_URL || '',
                                         capacity: p.CAPACITY || '', size: p.SIZE || '', weight: p.WEIGHT || '',
                                         material: p.MATERIAL || '', origin: p.ORIGIN || '',
-                                        featureTitle: p.FEATURE_TITLE || '', featureContent: p.FEATURE_CONTENT || ''
+                                        featureTitle: p.FEATURE_TITLE || '', featureContent: p.FEATURE_CONTENT || '', brandId: p.BRAND_ID || ''
                                     };
                                     this.mainImgPreview = p.IMG_URL || '';
                                     this.detailImages = [];
@@ -534,6 +552,7 @@
                                 /* ══ 기본 정보 저장 ══ */
                                 fnSave() {
                                     if (!this.form.productName) { alert('상품명을 입력하세요.'); return; }
+                                    if (!this.form.brandId)     { alert('브랜드를 선택하세요.'); return; }
                                     const url = this.isEdit ? '/admin/product/update.dox' : '/admin/product/insertFull.dox';
                                     $.ajax({
                                         url: '${pageContext.request.contextPath}' + url,
@@ -789,7 +808,7 @@
 
                             mounted() {
                                 this.fnLoad();
-
+                                this.fnLoadBrands();
                                 // 메인 이미지 선택 이벤트
                                 document.getElementById('mainImgInput').addEventListener('change', (e) => {
                                     const file = e.target.files[0];

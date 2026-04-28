@@ -1,16 +1,22 @@
 package com.example.modak.order.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.modak.common.Message;
+import com.example.modak.delivery.dao.DeliveryService;
+import com.example.modak.delivery.model.DeliveryDetail;
+import com.example.modak.delivery.model.DeliveryTrackingEvent;
 import com.example.modak.order.dao.OrderService;
 import com.google.gson.Gson;
 
@@ -101,5 +107,50 @@ public class OrderController {
         }
 
         return new Gson().toJson(resultMap);
+    }
+    @Autowired
+    private DeliveryService deliveryService;  // 기존 서비스 주입
+
+    @PostMapping(value = "/delivery/info.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String getDeliveryInfo(@RequestParam HashMap<String, Object> map, HttpSession session) {
+        String userId = (String) session.getAttribute("sessionId");
+        if (userId == null) return "{\"result\":\"fail\",\"message\":\"로그인 필요\"}";
+
+        try {
+            // orderId로 deliveryId 먼저 조회
+            Integer deliveryId = orderService.getDeliveryIdByOrderId(
+                Integer.parseInt(String.valueOf(map.get("orderId")))
+            );
+
+            if (deliveryId == null) {
+                return new Gson().toJson(Map.of("result", "success", "trackingNo", "", "trackingList", new ArrayList<>()));
+            }
+
+            // 기존 DeliveryService 활용
+            DeliveryDetail detail = deliveryService.getDeliveryDetail(deliveryId, userId);
+
+            HashMap<String, Object> result = new HashMap<>();
+            result.put("result", "success");
+            result.put("trackingNo", detail.getTrackingNo() != null ? detail.getTrackingNo() : "");
+
+            // TrackingResult의 eventList를 JSP용 포맷으로 변환
+            List<Map<String, Object>> trackingList = new ArrayList<>();
+            if (detail.getTrackingResult() != null && detail.getTrackingResult().getEventList() != null) {
+                for (DeliveryTrackingEvent e : detail.getTrackingResult().getEventList()) {
+                    Map<String, Object> ev = new HashMap<>();
+                    ev.put("time",     e.getTime());
+                    ev.put("status",   e.getStatus());
+                    ev.put("location", e.getLocation());
+                    trackingList.add(ev);
+                }
+            }
+            result.put("trackingList", trackingList);
+            return new Gson().toJson(result);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Gson().toJson(Map.of("result", "fail", "message", e.getMessage()));
+        }
     }
 }

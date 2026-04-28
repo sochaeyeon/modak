@@ -82,7 +82,7 @@
                                                     <option value="PAID">✅ 결제완료</option>
                                                     <option value="READY">📦 상품준비중</option>
                                                     <option value="SHIPPING">🚚 배송중</option>
-                                                    <option value="DELIVERED">🚩 배송완료</option>
+                                                    <option value="DONE">🚩 배송완료</option>
                                                     <option value="CANCELLED">❌ 주문취소</option>
                                                 </select>
                                             </td>

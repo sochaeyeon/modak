@@ -14,7 +14,7 @@
 
             OI.PRODUCT_ID AS productId,
             P.PRODUCT_NAME AS productName,
-            OI.COUNT AS count,
+            OI.QUANTITY AS count,
 
             (
                 SELECT PI.IMG_URL

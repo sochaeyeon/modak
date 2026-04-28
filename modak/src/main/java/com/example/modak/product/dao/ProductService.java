@@ -106,9 +106,9 @@ public class ProductService {
 	        resultMap.put("message",    Message.SUCCESS_SELECT);
 
 	    } catch (Exception e) {
-	        System.out.println(e.getMessage());
+	    	e.printStackTrace();
 	        resultMap.put("result",  "fail");
-	        resultMap.put("message", Message.FAIL_SELECT);
+	        resultMap.put("message", e.getMessage()); 
 	    }
 	    return resultMap;
 	}

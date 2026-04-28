@@ -100,4 +100,8 @@ public class OrderService {
 
         return resultMap;
     }
+    public Integer getDeliveryIdByOrderId(Integer orderId) {
+        return orderMapper.selectDeliveryIdByOrderId(orderId);
+    }
+    
 }

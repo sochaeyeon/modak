@@ -213,6 +213,10 @@
 		)
 	</insert>
 	
+	<select id="selectDeliveryIdByOrderId" parameterType="int" resultType="Integer">
+    SELECT DELIVERY_ID FROM DELIVERY WHERE ORDER_ID = #{orderId} LIMIT 1
+</select>
+	
 
 
 </mapper>

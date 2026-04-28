@@ -216,7 +216,7 @@
                     <li><span class="safety-num">3</span>취침 전 화롯대 완전 소화 확인</li>
                     <li><span class="safety-num">4</span>쓰레기 분리수거 및 흔적 남기지 않기</li>
                   </ul>
-                  <div class="co-banner" onclick="location.href='/product/product-detail.do?no=10'">
+                  <div class="co-banner" onclick="location.href='/product/detail.do?productId=12'">
                     <span style="font-size:28px">🚨</span>
                     <div class="co-text">
                       <p class="co-title">일산화탄소 경보기 대여</p>

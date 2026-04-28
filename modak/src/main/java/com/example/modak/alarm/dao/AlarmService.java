@@ -32,4 +32,16 @@ public class AlarmService {
     public void removeAllAlarms(String userId) {
         alarmMapper.deleteAllAlarms(userId);
     }
+    public void createAlarm(String userId, String type, String title, String content, Object linkId) {
+        if (userId == null || userId.isBlank()) return;
+
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("userId", userId);
+        map.put("type", type);
+        map.put("title", title);
+        map.put("content", content);
+        map.put("linkId", linkId);
+
+        alarmMapper.insertAlarm(map);
+    }
 }

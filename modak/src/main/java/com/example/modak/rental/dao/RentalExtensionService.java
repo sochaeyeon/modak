@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.modak.alarm.mapper.AlarmMapper;
 import com.example.modak.rental.mapper.RentalExtensionMapper;
 import com.example.modak.rental.model.RentalExtension;
 
@@ -24,6 +25,9 @@ public class RentalExtensionService {
 
     @Autowired
     private RentalExtensionMapper mapper;
+    
+    @Autowired
+    private AlarmMapper alarmMapper;
 
     @Value("${toss.secret-key}")
     private String tossSecretKey;
@@ -466,7 +470,10 @@ public class RentalExtensionService {
             // 6. 결제 주문 상태 PAID
             orderMap.put("status", "PAID");
             mapper.updateExtensionOrderStatus(orderMap);
-
+            
+            String userId = String.valueOf(extOrder.get("USER_ID"));
+            
+            
             result.put("result",   "success");
             result.put("rentalId", rentalId);
 

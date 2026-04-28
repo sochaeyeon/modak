@@ -260,20 +260,26 @@ public class AdminService {
 
 	// 관리자용 상품 목록 조회 (재고 및 노출 상태 포함)
 	public HashMap<String, Object> getAdminProductList(HashMap<String, Object> map) {
-		HashMap<String, Object> result = new HashMap<>();
-		try {
-			int page = Integer.parseInt(String.valueOf(map.getOrDefault("page", "1")));
-			int pageSize = Integer.parseInt(String.valueOf(map.getOrDefault("pageSize", "15")));
-			map.put("offset", (page - 1) * pageSize);
-			map.put("pageSize", pageSize);
-			result.put("result", "success");
-			result.put("list", mapper.selectAdminProductList(map));
-			result.put("totalCount", mapper.selectAdminProductCount(map));
-		} catch (Exception e) {
-			e.printStackTrace();
-			result.put("result", "fail");
-		}
-		return result;
+	    HashMap<String, Object> result = new HashMap<>();
+	    try {
+	        if (map.get("offset") == null) {
+	            int page     = Integer.parseInt(String.valueOf(map.getOrDefault("page",     "1")));
+	            int pageSize = Integer.parseInt(String.valueOf(map.getOrDefault("pageSize", "20")));
+	            map.put("offset",   (page - 1) * pageSize);
+	            map.put("pageSize", pageSize);
+	        } else {
+	            // ★ 문자열로 넘어온 경우 int로 변환
+	            map.put("offset",   Integer.parseInt(String.valueOf(map.get("offset"))));
+	            map.put("pageSize", Integer.parseInt(String.valueOf(map.get("pageSize"))));
+	        }
+	        result.put("result",     "success");
+	        result.put("list",       mapper.selectAdminProductList(map));
+	        result.put("totalCount", mapper.selectAdminProductCount(map));
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	    }
+	    return result;
 	}
 
 	// 상품 통합 등록 (기본 정보 + 상세 사양 + 주요 특징 일괄 처리)
@@ -390,6 +396,95 @@ public class AdminService {
 	    try { mapper.insertProductStock(map); r.put("result", "success"); }
 	    catch (Exception e) { e.printStackTrace(); r.put("result", "fail"); }
 	    return r;
+	}
+	// 상세 이미지 목록
+	public HashMap<String, Object> getDetailImages(HashMap<String, Object> map) {
+	    HashMap<String, Object> r = new HashMap<>();
+	    try { r.put("result","success"); r.put("list", mapper.selectDetailImages(map)); }
+	    catch (Exception e) { e.printStackTrace(); r.put("result","fail"); }
+	    return r;
+	}
+	 
+	// 상세 이미지 삭제
+	public HashMap<String, Object> removeDetailImage(HashMap<String, Object> map) {
+	    HashMap<String, Object> r = new HashMap<>();
+	    try { mapper.deleteDetailImage(map); r.put("result","success"); }
+	    catch (Exception e) { e.printStackTrace(); r.put("result","fail"); }
+	    return r;
+	}
+	 
+	// 옵션 전체 조회 (그룹 + 값 + 아이템)
+	public HashMap<String, Object> getOptionList(HashMap<String, Object> map) {
+	    HashMap<String, Object> r = new HashMap<>();
+	    try {
+	        List<Map<String, Object>> groups = mapper.selectOptionGroups(map);
+	        for (Map<String, Object> g : groups) {
+	            HashMap<String, Object> param = new HashMap<>();
+	            param.put("optionGroupId", g.get("optionGroupId"));
+	            g.put("values", mapper.selectOptionValues(param));
+	        }
+	        r.put("result", "success");
+	        r.put("groups", groups);
+	        r.put("items",  mapper.selectOptionItems(map));
+	    } catch (Exception e) {
+	        e.printStackTrace(); r.put("result","fail");
+	    }
+	    return r;
+	}
+	 
+	// 옵션 그룹 추가
+	public HashMap<String, Object> addOptionGroup(HashMap<String, Object> map) {
+	    HashMap<String, Object> r = new HashMap<>();
+	    try { mapper.insertOptionGroup(map); r.put("result","success"); }
+	    catch (Exception e) { e.printStackTrace(); r.put("result","fail"); r.put("message", e.getMessage()); }
+	    return r;
+	}
+	 
+	// 옵션 그룹 삭제 (값도 같이 삭제 — ON DELETE CASCADE 설정 필요)
+	@Transactional
+	public HashMap<String, Object> removeOptionGroup(HashMap<String, Object> map) {
+	    HashMap<String, Object> r = new HashMap<>();
+	    try {
+	        // 값 먼저 삭제
+	        HashMap<String, Object> param = new HashMap<>();
+	        param.put("optionGroupId", map.get("optionGroupId"));
+	        List<Map<String, Object>> vals = mapper.selectOptionValues(param);
+	        for (Map<String, Object> v : vals) {
+	            HashMap<String, Object> vp = new HashMap<>();
+	            vp.put("optionValueId", v.get("optionValueId"));
+	            mapper.deleteOptionValue(vp);
+	        }
+	        mapper.deleteOptionGroup(map);
+	        r.put("result","success");
+	    } catch (Exception e) { e.printStackTrace(); r.put("result","fail"); }
+	    return r;
+	}
+	 
+	// 옵션 값 추가
+	public HashMap<String, Object> addOptionValue(HashMap<String, Object> map) {
+	    HashMap<String, Object> r = new HashMap<>();
+	    try { mapper.insertOptionValue(map); r.put("result","success"); }
+	    catch (Exception e) { e.printStackTrace(); r.put("result","fail"); r.put("message", e.getMessage()); }
+	    return r;
+	}
+	 
+	// 옵션 값 삭제
+	public HashMap<String, Object> removeOptionValue(HashMap<String, Object> map) {
+	    HashMap<String, Object> r = new HashMap<>();
+	    try { mapper.deleteOptionValue(map); r.put("result","success"); }
+	    catch (Exception e) { e.printStackTrace(); r.put("result","fail"); }
+	    return r;
+	}
+	 
+	// 옵션 아이템 판매 상태 변경
+	public HashMap<String, Object> updateOptionItemAvail(HashMap<String, Object> map) {
+	    HashMap<String, Object> r = new HashMap<>();
+	    try { mapper.updateOptionItemAvail(map); r.put("result","success"); }
+	    catch (Exception e) { e.printStackTrace(); r.put("result","fail"); }
+	    return r;
+	}
+	public void insertDetailImage(HashMap<String, Object> map) {
+	    mapper.insertDetailImage(map);
 	}
 
 	/* ==========================================================
@@ -905,6 +1000,35 @@ public class AdminService {
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        result.put("result", "fail");
+	    }
+	    return result;
+	}
+	// AdminService.java 추가
+	@Transactional
+	public HashMap<String, Object> registerDelivery(HashMap<String, Object> map) {
+	    HashMap<String, Object> result = new HashMap<>();
+	    try {
+	        // 1. DELIVERY 테이블에 운송장 INSERT (이미 있으면 UPDATE)
+	        mapper.upsertDelivery(map);
+	        // 2. 주문 상태 → SHIPPING 으로 변경
+	        map.put("status", "SHIPPING");
+	        mapper.updateOrderStatus(map);
+	        result.put("result", "success");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	        result.put("message", e.getMessage());
+	    }
+	    return result;
+	}
+
+	public HashMap<String, Object> getDeliveryList(HashMap<String, Object> map) {
+	    HashMap<String, Object> result = new HashMap<>();
+	    try {
+	        result.put("result", "success");
+	        result.put("list", mapper.selectDeliveryList(map));
+	    } catch (Exception e) {
+	        e.printStackTrace(); result.put("result", "fail");
 	    }
 	    return result;
 	}

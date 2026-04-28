@@ -224,39 +224,58 @@
     <!-- ════════════════════════════════════════
          상품 관리
     ════════════════════════════════════════ -->
-    <select id="selectAdminProductList" parameterType="hashmap" resultType="map">
-        SELECT p.PRODUCT_ID, p.PRODUCT_NAME, p.PRODUCT_TYPE, p.PRICE, p.DEPOSIT,
-               p.DESCRIPTION, p.VIEW_COUNT, p.IS_AVAILABLE,
-               DATE_FORMAT(p.CREATED_AT, '%Y-%m-%d') AS CREATED_AT,
-               (SELECT IMG_URL FROM product_img pi WHERE pi.PRODUCT_ID = p.PRODUCT_ID LIMIT 1) AS IMG_URL,
-               s.CAPACITY, s.SIZE, s.WEIGHT, s.MATERIAL, s.ORIGIN,
-               f.TITLE AS FEATURE_TITLE, f.CONTENT AS FEATURE_CONTENT
-        FROM product p
-        LEFT JOIN product_spec    s ON p.PRODUCT_ID = s.PRODUCT_ID
-        LEFT JOIN product_feature f ON p.PRODUCT_ID = f.PRODUCT_ID
-        <where>
-            <if test="keyword != null and keyword != ''">
-                AND p.PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
-            </if>
-        </where>
-        ORDER BY p.CREATED_AT DESC
-        LIMIT #{offset}, #{pageSize}
-    </select>
+ <select id="selectAdminProductList" parameterType="hashmap" resultType="map">
+    SELECT p.PRODUCT_ID, p.PRODUCT_NAME, p.PRODUCT_TYPE, p.PRICE, p.DEPOSIT,
+           p.DESCRIPTION, p.VIEW_COUNT, p.IS_AVAILABLE,
+           DATE_FORMAT(p.CREATED_AT, '%Y-%m-%d') AS CREATED_AT,
+           (SELECT IMG_URL FROM product_img pi
+            WHERE pi.PRODUCT_ID = p.PRODUCT_ID LIMIT 1) AS IMG_URL,
+           (SELECT CAPACITY FROM product_spec ps
+            WHERE ps.PRODUCT_ID = p.PRODUCT_ID LIMIT 1) AS CAPACITY,
+           (SELECT SIZE FROM product_spec ps
+            WHERE ps.PRODUCT_ID = p.PRODUCT_ID LIMIT 1) AS SIZE,
+           (SELECT WEIGHT FROM product_spec ps
+            WHERE ps.PRODUCT_ID = p.PRODUCT_ID LIMIT 1) AS WEIGHT,
+           (SELECT MATERIAL FROM product_spec ps
+            WHERE ps.PRODUCT_ID = p.PRODUCT_ID LIMIT 1) AS MATERIAL,
+           (SELECT ORIGIN FROM product_spec ps
+            WHERE ps.PRODUCT_ID = p.PRODUCT_ID LIMIT 1) AS ORIGIN,
+           (SELECT TITLE FROM product_feature pf
+            WHERE pf.PRODUCT_ID = p.PRODUCT_ID LIMIT 1) AS FEATURE_TITLE,
+           (SELECT CONTENT FROM product_feature pf
+            WHERE pf.PRODUCT_ID = p.PRODUCT_ID LIMIT 1) AS FEATURE_CONTENT
+    FROM product p
+    <where>
+        <if test="keyword != null and keyword != ''">
+            AND p.PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        <if test="productType != null and productType != ''">
+            AND p.PRODUCT_TYPE = #{productType}
+        </if>
+    </where>
+    ORDER BY p.PRODUCT_ID DESC
+    LIMIT #{offset}, #{pageSize}
+</select>
 
-    <select id="selectAdminProductCount" parameterType="hashmap" resultType="int">
-        SELECT COUNT(*) FROM product
-        <where>
-            <if test="keyword != null and keyword != ''">
-                AND PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
-            </if>
-        </where>
-    </select>
+<select id="selectAdminProductCount" parameterType="hashmap" resultType="int">
+    SELECT COUNT(*) FROM product
+    <where>
+        <if test="keyword != null and keyword != ''">
+            AND PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        <if test="productType != null and productType != ''">
+            AND PRODUCT_TYPE = #{productType}
+        </if>
+    </where>
+</select>
 
     <insert id="insertProduct" parameterType="hashmap" useGeneratedKeys="true"
-            keyProperty="productId" keyColumn="PRODUCT_ID">
-        INSERT INTO product (PRODUCT_NAME, PRODUCT_TYPE, CATEGORY_ID, PRICE, DEPOSIT, DESCRIPTION, IS_AVAILABLE, CREATED_AT)
-        VALUES (#{productName}, #{productType}, #{categoryId}, #{price}, #{deposit}, #{description}, 'Y', NOW())
-    </insert>
+        keyProperty="productId" keyColumn="PRODUCT_ID">
+    INSERT INTO product (PRODUCT_NAME, PRODUCT_TYPE, CATEGORY_ID, PRICE, DEPOSIT, DESCRIPTION, IS_AVAILABLE, CREATED_AT)
+    VALUES (#{productName}, #{productType}, #{categoryId},
+            NULLIF(#{price}, ''), NULLIF(#{deposit}, ''),
+            #{description}, 'Y', NOW())
+</insert>
 
     <insert id="insertProductImg" parameterType="hashmap">
         INSERT INTO product_img (PRODUCT_ID, IMG_URL, IS_MAIN, SORT_ORDER)
@@ -274,15 +293,15 @@
     </insert>
 
     <update id="updateProduct" parameterType="hashmap">
-        UPDATE product
-        SET PRODUCT_NAME = #{productName},
-            PRODUCT_TYPE = #{productType},
-            CATEGORY_ID  = #{categoryId},
-            PRICE        = #{price},
-            DEPOSIT      = #{deposit},
-            DESCRIPTION  = #{description}
-        WHERE PRODUCT_ID = #{productId}
-    </update>
+    UPDATE product
+    SET PRODUCT_NAME = #{productName},
+        PRODUCT_TYPE = #{productType},
+        CATEGORY_ID  = #{categoryId},
+        PRICE        = NULLIF(#{price}, ''),
+        DEPOSIT      = NULLIF(#{deposit}, ''),
+        DESCRIPTION  = #{description}
+    WHERE PRODUCT_ID = #{productId}
+</update>
 
     <insert id="updateProductImg" parameterType="hashmap">
         INSERT INTO product_img (PRODUCT_ID, IMG_URL, IS_MAIN, SORT_ORDER)
@@ -324,13 +343,13 @@
         WHERE p.IS_AVAILABLE = 'Y'
         ORDER BY p.VIEW_COUNT DESC LIMIT 10
     </select>
-    <select id="selectProductStockList" parameterType="hashmap" resultType="hashmap">
-    SELECT STOCK_ID       AS stockId,
-           TOTAL_QTY      AS totalQty,
-           RESERVED_QTY   AS reservedQty,
-           AVAILABLE_QTY  AS availableQty,
-           OPTION_ID      AS optionId,
-           PRODUCT_ID     AS productId,
+<select id="selectProductStockList" parameterType="hashmap" resultType="hashmap">
+    SELECT STOCK_ID         AS stockId,
+           TOTAL_QTY        AS totalQty,
+           RESERVED_QTY     AS reservedQty,
+           AVAILABLE_QTY    AS availableQty,
+           OPTION_ITEM_ID   AS optionId,
+           PRODUCT_ID       AS productId,
            DATE_FORMAT(STOCK_DATE, '%Y-%m-%d') AS stockDate
     FROM PRODUCT_STOCK
     WHERE PRODUCT_ID = #{productId}
@@ -347,9 +366,95 @@
 </update>
 
 <insert id="insertProductStock" parameterType="hashmap">
-    INSERT INTO PRODUCT_STOCK (PRODUCT_ID, OPTION_ID, TOTAL_QTY, RESERVED_QTY, AVAILABLE_QTY, STOCK_DATE)
-    VALUES (#{productId}, NULLIF(#{optionId},''), #{totalQty}, #{reservedQty}, #{availableQty}, NOW())
+    INSERT INTO PRODUCT_STOCK (PRODUCT_ID, OPTION_ITEM_ID, TOTAL_QTY, RESERVED_QTY, AVAILABLE_QTY, STOCK_DATE)
+    VALUES (#{productId}, NULLIF(#{optionId}, ''), #{totalQty}, #{reservedQty}, #{availableQty}, NOW())
 </insert>
+<select id="selectDetailImages" parameterType="hashmap" resultType="map">
+    SELECT IMAGE_ID  AS imageId,
+           IMG_URL   AS imgUrl,
+           SORT_ORDER AS sortOrder
+    FROM PRODUCT_IMG
+    WHERE PRODUCT_ID = #{productId}
+      AND IS_MAIN    = 'N'
+    ORDER BY SORT_ORDER ASC
+</select>
+ 
+<!-- 상세 이미지 INSERT -->
+<insert id="insertDetailImage" parameterType="hashmap">
+    INSERT INTO PRODUCT_IMG (PRODUCT_ID, IMG_URL, IS_MAIN, SORT_ORDER)
+    VALUES (#{productId}, #{imgUrl}, 'N',
+        COALESCE((SELECT MAX(SORT_ORDER) FROM PRODUCT_IMG P2 WHERE P2.PRODUCT_ID = #{productId} AND IS_MAIN = 'N'), 0) + 1
+    )
+</insert>
+ 
+<!-- 상세 이미지 삭제 -->
+<delete id="deleteDetailImage" parameterType="hashmap">
+    DELETE FROM PRODUCT_IMG WHERE IMAGE_ID = #{imageId} AND IS_MAIN = 'N'
+</delete>
+ 
+<!-- ── 옵션 그룹 ── -->
+<select id="selectOptionGroups" parameterType="hashmap" resultType="map">
+    SELECT OPTION_GROUP_ID AS optionGroupId,
+           PRODUCT_ID      AS productId,
+           OPTION_NAME     AS optionName,
+           SORT_ORDER      AS sortOrder
+    FROM PRODUCT_OPTION_GROUP
+    WHERE PRODUCT_ID = #{productId}
+    ORDER BY SORT_ORDER ASC
+</select>
+ 
+<insert id="insertOptionGroup" parameterType="hashmap" useGeneratedKeys="true"
+        keyProperty="optionGroupId" keyColumn="OPTION_GROUP_ID">
+    INSERT INTO PRODUCT_OPTION_GROUP (PRODUCT_ID, OPTION_NAME, SORT_ORDER)
+    VALUES (#{productId}, #{optionName},
+        COALESCE((SELECT MAX(G2.SORT_ORDER) FROM PRODUCT_OPTION_GROUP G2 WHERE G2.PRODUCT_ID = #{productId}), 0) + 1
+    )
+</insert>
+ 
+<delete id="deleteOptionGroup" parameterType="hashmap">
+    DELETE FROM PRODUCT_OPTION_GROUP WHERE OPTION_GROUP_ID = #{optionGroupId}
+</delete>
+ 
+<!-- ── 옵션 값 ── -->
+<select id="selectOptionValues" parameterType="hashmap" resultType="map">
+    SELECT OPTION_VALUE_ID  AS optionValueId,
+           OPTION_GROUP_ID  AS optionGroupId,
+           OPTION_VALUE     AS optionValue,
+           ADD_PRICE        AS addPrice,
+           SORT_ORDER       AS sortOrder
+    FROM PRODUCT_OPTION_VALUE
+    WHERE OPTION_GROUP_ID = #{optionGroupId}
+    ORDER BY SORT_ORDER ASC
+</select>
+ 
+<insert id="insertOptionValue" parameterType="hashmap">
+    INSERT INTO PRODUCT_OPTION_VALUE (OPTION_GROUP_ID, OPTION_VALUE, ADD_PRICE, SORT_ORDER)
+    VALUES (#{optionGroupId}, #{optionValue}, #{addPrice},
+        COALESCE((SELECT MAX(V2.SORT_ORDER) FROM PRODUCT_OPTION_VALUE V2 WHERE V2.OPTION_GROUP_ID = #{optionGroupId}), 0) + 1
+    )
+</insert>
+ 
+<delete id="deleteOptionValue" parameterType="hashmap">
+    DELETE FROM PRODUCT_OPTION_VALUE WHERE OPTION_VALUE_ID = #{optionValueId}
+</delete>
+ 
+<!-- ── 옵션 아이템 ── -->
+<select id="selectOptionItems" parameterType="hashmap" resultType="map">
+    SELECT OI.OPTION_ITEM_ID AS optionItemId,
+           OI.PRODUCT_ID     AS productId,
+           OI.ITEM_NAME      AS itemName,
+           OI.EXTRA_PRICE    AS extraPrice,
+           OI.IS_AVAILABLE   AS isAvailable
+    FROM PRODUCT_OPTION_ITEM OI
+    WHERE OI.PRODUCT_ID = #{productId}
+    ORDER BY OI.OPTION_ITEM_ID ASC
+</select>
+ 
+<update id="updateOptionItemAvail" parameterType="hashmap">
+    UPDATE PRODUCT_OPTION_ITEM
+    SET IS_AVAILABLE = #{isAvailable}
+    WHERE OPTION_ITEM_ID = #{optionItemId}
+</update>
 
     <!-- ════════════════════════════════════════
          주문 관리
@@ -793,5 +898,43 @@
     FROM USER
     WHERE USER_ID = #{userId}
 </select>
+<insert id="upsertDelivery" parameterType="hashmap">
+    INSERT INTO DELIVERY (ORDER_ID, TRACKING_NO, DELIVERY_STATUS, SHIPPED_AT, RECEIVER_NAME, ADDRESS, ZIPCODE, DETAILED_ADDRESS)
+    SELECT
+        O.ORDER_ID,
+        #{trackingNo},
+        'SHIPPING',
+        NOW(),
+        COALESCE(D_OLD.RECEIVER_NAME, U.USER_NAME, O.GUEST_NAME, '수령인'),
+        COALESCE(D_OLD.ADDRESS, UA.ADDRESS, ''),
+        COALESCE(D_OLD.ZIPCODE, UA.ZIPCODE, ''),
+        COALESCE(D_OLD.DETAILED_ADDRESS, UA.DETAILED_ADDRESS, '')
+    FROM ORDERS O
+    LEFT JOIN USER          U    ON O.USER_ID    = U.USER_ID
+    LEFT JOIN USER_ADDRESS  UA   ON U.USER_ID    = UA.USER_ID AND UA.DEFAULT_YN = 'Y'
+    LEFT JOIN DELIVERY      D_OLD ON O.ORDER_ID  = D_OLD.ORDER_ID
+    WHERE O.ORDER_ID = #{orderId}
+    LIMIT 1
+    ON DUPLICATE KEY UPDATE
+        TRACKING_NO     = #{trackingNo},
+        DELIVERY_STATUS = 'SHIPPING',
+        SHIPPED_AT      = NOW()
+</insert>
+
+<select id="selectDeliveryList" resultType="map">
+    SELECT D.DELIVERY_ID, D.ORDER_ID, D.TRACKING_NO,
+           DATE_FORMAT(D.SHIPPED_AT, '%Y-%m-%d %H:%i') AS SHIPPED_AT,
+           D.DELIVERY_STATUS,
+           O.USER_ID,
+           (SELECT GROUP_CONCAT(P.PRODUCT_NAME)
+            FROM ORDER_ITEM OI JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+            WHERE OI.ORDER_ID = O.ORDER_ID) AS PRODUCT_NAME
+    FROM DELIVERY D
+    JOIN ORDERS O ON D.ORDER_ID = O.ORDER_ID
+    WHERE D.TRACKING_NO IS NOT NULL
+    ORDER BY D.SHIPPED_AT DESC
+    LIMIT 20
+</select>
+
 
 </mapper>

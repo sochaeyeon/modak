@@ -15,7 +15,11 @@
     <body>
 
         <div id="app" v-cloak>
-            <div class="sidebar">
+            <button class="sidebar-toggle-btn" @click="fnToggleSidebar">
+                <i :class="sidebarOpen ? 'ri-arrow-left-s-line' : 'ri-menu-line'"></i>
+            </button>
+
+            <div :class="['sidebar', { closed: !sidebarOpen }]">
                 <div class="sidebar-logo" onclick="location.href='/main.do'">
                     <i class="ri-fire-fill"></i>
                     <span class="logo">모닥모닥</span>
@@ -184,6 +188,7 @@
                         messages: [],   /* ★ 빈 배열로 시작 — 웰컴 메시지는 v-if 로 처리 */
                         history: [],
                         recommends: [],
+                        sidebarOpen: true,
                         mainModalOpen: false,
                         deleteModalOpen: false,
                         deleteTargetRoomId: null,
@@ -225,6 +230,9 @@
                                 }
                             }
                         });
+                    },
+                    fnToggleSidebar() {
+                        this.sidebarOpen = !this.sidebarOpen;
                     },
 
                     /* ★ 방 전환 — 메시지 사라짐 버그 수정

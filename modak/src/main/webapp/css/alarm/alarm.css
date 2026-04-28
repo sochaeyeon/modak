@@ -3,6 +3,7 @@ html {
     overflow-y: scroll;
     scrollbar-gutter: stable;
 }
+
 * {
     margin: 0;
     padding: 0;
@@ -12,11 +13,12 @@ html {
 body {
     margin: 0;
 }
+
 .alarm-page {
     max-width: 800px;
     margin: 80px auto;
     padding: 0 20px;
-    
+
 }
 
 /* 헤더 영역 */
@@ -42,7 +44,8 @@ body {
     color: #B89A7A;
     font-size: 14px;
     cursor: pointer;
-    text-decoration: none; /* 기존 밑줄 제거 */
+    text-decoration: none;
+    /* 기존 밑줄 제거 */
 }
 
 /* 기본 얇은 밑줄 */
@@ -54,7 +57,7 @@ body {
 
     width: 100%;
     height: 1px;
-    background: rgba(184,154,122,0.5);
+    background: rgba(184, 154, 122, 0.5);
 
     transition: all 0.25s ease;
 }
@@ -69,6 +72,7 @@ body {
 .all-remove-btn:hover {
     color: #E8732A;
 }
+
 .all-remove-btn::after {
     width: 0;
 }
@@ -112,15 +116,22 @@ body {
 }
 
 .count-badge {
-    font-size: 11px; background: #E2D8C3; color: #fff;
-    padding: 2px 8px; border-radius: 10px; margin-left: 4px;
+    font-size: 11px;
+    background: #E2D8C3;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 4px;
 }
 
-.unread-bg { background: #E8732A !important; }
+.unread-bg {
+    background: #E8732A !important;
+}
 
 /* 알림 아이템 카드 (핵심 수정) */
 .alarm-item {
-    display: flex; /* 가로 배치 */
+    display: flex;
+    /* 가로 배치 */
     background: #fff;
     border-radius: 20px;
     padding: 24px;
@@ -158,17 +169,21 @@ body {
     justify-content: center;
 
     font-size: 22px;
-    color: #E8732A; /* 포인트 색 */
+    color: #E8732A;
+    /* 포인트 색 */
 }
+
 .alarm-title-main i {
     margin-right: 6px;
     color: #E8732A;
 }
+
 .no-alarm-icon {
     font-size: 32px;
     color: #E2D8C3;
     margin-bottom: 10px;
 }
+
 .unread-dot {
     width: 8px;
     height: 8px;
@@ -177,6 +192,7 @@ body {
     display: inline-block;
     margin-right: 8px;
 }
+
 .alarm-item:hover .alarm-icon {
     background: #FFEFE4;
     transform: scale(1.05);
@@ -184,8 +200,9 @@ body {
 
 /* 텍스트 정보 */
 .alarm-info {
-    flex: 1; /* 남은 공간 모두 차지 */
+    flex: 1;
     min-width: 0;
+    margin-left: 25px;
 }
 
 .alarm-subject {
@@ -242,8 +259,10 @@ body {
 
 /* 텅! */
 .no-alarm {
-    text-align: center; padding: 80px 0;
-    border: 2px dashed #E2D8C3; border-radius: 20px;
+    text-align: center;
+    padding: 80px 0;
+    border: 2px dashed #E2D8C3;
+    border-radius: 20px;
 }
 
 .toast {
@@ -351,6 +370,7 @@ body {
         opacity: 0;
         transform: translateY(10px) scale(0.97);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -358,6 +378,11 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }

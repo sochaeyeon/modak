@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 	<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 		<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
-			<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 			<!DOCTYPE html>
 			<html lang="ko">
 
@@ -9,140 +9,143 @@
 				<meta charset="UTF-8">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<title>공지사항 상세 - 모닥모닥</title>
+
+				<link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
 				<link rel="stylesheet" href="${pageContext.request.contextPath}/css/cs/notification-detail.css">
-				 <link rel="stylesheet" href="/css/common/font.css">
+				<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 			</head>
 
 			<body>
 
 				<%@ include file="/WEB-INF/common/header.jsp" %>
 
-					<div class="browser-bar">
-						<div class="b-dots">
-							<div class="b-dot"></div>
-							<div class="b-dot"></div>
-							<div class="b-dot"></div>
-						</div>
+					<div class="notice-detail-page">
 
-						<div class="page">
-							<div class="content">
+						<section class="detail-hero">
+							<div class="detail-inner">
+								<div class="detail-hero-box">
+									<div>
+										<div class="page-kicker">MODAK NOTICE</div>
+										<h1 class="page-title">공지사항</h1>
+										<p class="page-desc">모닥모닥의 서비스 안내, 점검, 이벤트 소식을 확인하세요.</p>
+									</div>
 
-								<!-- BREADCRUMB -->
-								<div class="breadcrumb">
-									<a href="${pageContext.request.contextPath}/main.do">홈</a>
-									<span>›</span>
-									<a href="${pageContext.request.contextPath}/cs/center.do">고객센터</a>
-									<span>›</span>
-									<a href="${pageContext.request.contextPath}/notification/list.do">공지사항</a>
-									<span>›</span>
-									<span class="cur">상세</span>
 								</div>
+							</div>
+						</section>
 
-								<div class="page-title">공지사항</div>
-								<div class="page-desc">서비스 관련 안내 및 업데이트 소식을 확인하세요.</div>
+						<main class="detail-main">
+							<div class="detail-inner">
 
 								<c:choose>
 									<c:when test="${not empty noti}">
 
-										<!-- ARTICLE HEADER -->
-										<div class="article-header">
-											<div class="ah-badges">
-												<span class="ah-badge">${typeLabel}</span>
-											</div>
-											<div class="ah-title">
-												<c:out value="${noti.title}" />
-											</div>
-										</div>
+										<article class="detail-card">
 
-										<!-- META ROW -->
-										<div class="meta-row">
-											<div class="meta-left">
-												<div class="meta-item"><strong>카테고리</strong>&nbsp;${typeLabel}</div>
-												<div class="meta-item">
-													<strong>등록일자</strong>&nbsp;${fn:substring(noti.createdAt, 0, 10)}
+											<header class="article-head">
+												<div class="article-meta-top">
+													<span class="type-badge">${typeLabel}</span>
+													<span class="notice-date">${fn:substring(noti.createdAt, 0,
+														10)}</span>
 												</div>
-												<div class="meta-item"><strong>조회수</strong>&nbsp;${noti.viewCount}</div>
-											</div>
-											<div class="meta-actions">
-												<button class="meta-btn" onclick="window.print()">인쇄하기</button>
-											</div>
-										</div>
 
-										<!-- ARTICLE BODY -->
-										<div class="article-body">
-											<div class="a-section">
-												<p class="a-text" style="white-space:pre-line;">
+												<h2 class="article-title">
+													<c:out value="${noti.title}" />
+												</h2>
+
+												<div class="article-info">
+													<div class="info-item">
+														<span>카테고리</span>
+														<strong>${typeLabel}</strong>
+													</div>
+													<div class="info-item">
+														<span>등록일자</span>
+														<strong>${fn:substring(noti.createdAt, 0, 10)}</strong>
+													</div>
+													<div class="info-item">
+														<span>조회수</span>
+														<strong>${noti.viewCount}</strong>
+													</div>
+
+													<button type="button" class="print-btn" onclick="window.print()">
+														인쇄하기
+													</button>
+												</div>
+											</header>
+
+											<div class="article-body">
+												<p class="article-text">
 													<c:out value="${noti.content}" />
 												</p>
 											</div>
-										</div>
 
-										<!-- PREV / NEXT NAV -->
-										<div class="article-nav">
+										</article>
+
+										<section class="article-nav">
 											<c:choose>
 												<c:when test="${not empty prevNoti}">
 													<div class="nav-row"
-														onclick="location.href='${pageContext.request.contextPath}/notification/detail.do?notificationId=${prevNoti.notificationId}'"
-														style="cursor:pointer;">
-														<span class="nav-label">이전 글</span>
-														<span class="nav-arrow">∧</span>
-														<span class="nav-title">
+														onclick="location.href='${pageContext.request.contextPath}/notification/detail.do?notificationId=${prevNoti.notificationId}'">
+														<div class="nav-label">이전 글</div>
+														<div class="nav-title">
 															<c:out value="${prevNoti.title}" />
-														</span>
-														<span class="nav-date">${fn:substring(prevNoti.createdAt, 0,
-															10)}</span>
+														</div>
+														<div class="nav-date">${fn:substring(prevNoti.createdAt, 0, 10)}
+														</div>
 													</div>
 												</c:when>
 												<c:otherwise>
 													<div class="nav-row nav-disabled">
-														<span class="nav-label">이전 글</span>
-														<span class="nav-arrow">∧</span>
-														<span class="nav-title" style="color:#bbb;">이전 글이 없습니다.</span>
+														<div class="nav-label">이전 글</div>
+														<div class="nav-title">이전 글이 없습니다.</div>
+														<div class="nav-date"></div>
 													</div>
 												</c:otherwise>
 											</c:choose>
+
 											<c:choose>
 												<c:when test="${not empty nextNoti}">
 													<div class="nav-row"
-														onclick="location.href='${pageContext.request.contextPath}/notification/detail.do?notificationId=${nextNoti.notificationId}'"
-														style="cursor:pointer;">
-														<span class="nav-label">다음 글</span>
-														<span class="nav-arrow">∨</span>
-														<span class="nav-title">
+														onclick="location.href='${pageContext.request.contextPath}/notification/detail.do?notificationId=${nextNoti.notificationId}'">
+														<div class="nav-label">다음 글</div>
+														<div class="nav-title">
 															<c:out value="${nextNoti.title}" />
-														</span>
-														<span class="nav-date">${fn:substring(nextNoti.createdAt, 0,
-															10)}</span>
+														</div>
+														<div class="nav-date">${fn:substring(nextNoti.createdAt, 0, 10)}
+														</div>
 													</div>
 												</c:when>
 												<c:otherwise>
 													<div class="nav-row nav-disabled">
-														<span class="nav-label">다음 글</span>
-														<span class="nav-arrow">∨</span>
-														<span class="nav-title" style="color:#bbb;">다음 글이 없습니다.</span>
+														<div class="nav-label">다음 글</div>
+														<div class="nav-title">다음 글이 없습니다.</div>
+														<div class="nav-date"></div>
 													</div>
 												</c:otherwise>
 											</c:choose>
-										</div>
+										</section>
 
 									</c:when>
+
 									<c:otherwise>
-										<div style="text-align:center;padding:60px;color:#999;">
-											존재하지 않거나 삭제된 공지사항입니다.
+										<div class="detail-card empty-card">
+											<div class="empty-title">존재하지 않거나 삭제된 공지사항입니다.</div>
+											<div class="empty-desc">목록으로 돌아가 다른 공지사항을 확인해 주세요.</div>
 										</div>
 									</c:otherwise>
 								</c:choose>
 
-								<!-- BACK BUTTON -->
-								<div class="back-wrap">
-									<button class="back-btn"
-										onclick="location.href='${pageContext.request.contextPath}/notification/list.do'">목록으로
-										</button>
+								<div class="bottom-actions">
+									<button type="button" class="back-btn"
+										onclick="location.href='${pageContext.request.contextPath}/notification/list.do'">
+										목록으로
+									</button>
 								</div>
 
-							</div><!-- /content -->
-						</div><!-- /page -->
-					</div><!-- /browser-bar -->
+							</div>
+						</main>
+
+					</div>
 
 					<%@ include file="/WEB-INF/common/footer.jsp" %>
 

@@ -23,4 +23,7 @@ public class Wishlist {
     
     // 브랜드 .............
     private String brandName;
+    
+    private Double avgRating;
+    private Integer reviewCount;
 }

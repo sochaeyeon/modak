@@ -35,23 +35,26 @@
 
                                         <div class="avatar-wrap profile-avatar-wrap">
                                             <div class="avatar-ring profile-avatar-new" @click="fnTriggerProfileFile">
-                                                <img :src="profileImageSrc"
-                                                    alt="프로필 이미지"
-                                                    class="profile-avatar-img">
+                                                <img :src="profileImageSrc" alt="프로필 이미지" class="profile-avatar-img">
 
                                                 <div class="profile-overlay">
                                                     <div class="overlay-content">
-                                                        <span class="overlay-icon">📷</span>
+                                                        <span class="overlay-icon" aria-hidden="true"><svg width="18"
+                                                                height="18" viewBox="0 0 24 24" fill="none">
+                                                                <path
+                                                                    d="M4 8.5A2.5 2.5 0 0 1 6.5 6H8l1.4-1.8A2 2 0 0 1 11 3.5h2a2 2 0 0 1 1.6.7L16 6h1.5A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-8Z"
+                                                                    stroke="currentColor" stroke-width="1.6"
+                                                                    stroke-linejoin="round" />
+                                                                <circle cx="12" cy="12.5" r="3" stroke="currentColor"
+                                                                    stroke-width="1.6" />
+                                                            </svg></span>
                                                         <span>사진 변경</span>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            <input type="file"
-                                                ref="profileFileInput"
-                                                accept="image/*"
-                                                style="display:none;"
-                                                @change="fnProfileImageChange">
+                                            <input type="file" ref="profileFileInput" accept="image/*"
+                                                style="display:none;" @change="fnProfileImageChange">
                                         </div>
 
                                         <div class="profile-user-block">
@@ -68,16 +71,19 @@
                                             grade-${empty user.gradeName ? 'default' : fn:toLowerCase(user.gradeName)}"
                                             @click="fnGoMembershipInfo">
                                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                                <path d="M6 1L7.5 4.5H11L8.5 7L9.5 10.5L6 8.5L2.5 10.5L3.5 7L1 4.5H4.5Z" />
+                                                <path
+                                                    d="M6 1L7.5 4.5H11L8.5 7L9.5 10.5L6 8.5L2.5 10.5L3.5 7L1 4.5H4.5Z" />
                                             </svg>
                                             ${empty user.gradeName ? '일반 회원' : user.gradeName}
                                         </div>
 
                                         <div class="profile-action-row">
-                                            <button type="button" class="profile-action-btn change" @click="fnTriggerProfileFile">
+                                            <button type="button" class="profile-action-btn change"
+                                                @click="fnTriggerProfileFile">
                                                 사진 변경
                                             </button>
-                                            <button type="button" class="profile-action-btn delete" @click="fnDeleteProfile">
+                                            <button type="button" class="profile-action-btn delete"
+                                                @click="fnDeleteProfile">
                                                 삭제
                                             </button>
                                         </div>
@@ -274,18 +280,18 @@
                                                 <div class="flow-arrow">›</div>
 
                                                 <div class="flow-step"
-    :class="{ 'has-count': statusSummary.done > 0, 'is-selected': selectedOrderStatus === 'DONE' }"
-    @click="fnFilterByStatus('DONE')">
-    <div class="flow-circle">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M5 10l3.5 3.5L15 7" stroke="#b09070"
-                stroke-width="1.6" stroke-linecap="round"
-                stroke-linejoin="round" />
-        </svg>
-    </div>
-    <div class="flow-count">{{ statusSummary.done }}</div>
-    <div class="flow-name">배송/반납 완료</div>
-</div>
+                                                    :class="{ 'has-count': statusSummary.done > 0, 'is-selected': selectedOrderStatus === 'DONE' }"
+                                                    @click="fnFilterByStatus('DONE')">
+                                                    <div class="flow-circle">
+                                                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                                            <path d="M5 10l3.5 3.5L15 7" stroke="#b09070"
+                                                                stroke-width="1.6" stroke-linecap="round"
+                                                                stroke-linejoin="round" />
+                                                        </svg>
+                                                    </div>
+                                                    <div class="flow-count">{{ statusSummary.done }}</div>
+                                                    <div class="flow-name">배송/반납 완료</div>
+                                                </div>
                                                 <div class="flow-arrow">›</div>
 
                                                 <div class="flow-step"
@@ -310,68 +316,64 @@
                                                     <a href="/order/history.do">전체보기 →</a>
                                                 </div>
                                             </div>
-                                           <div class="order-list">
-    <div v-if="filteredOrderList.length === 0" class="empty-state">
-        <p>해당 상태의 주문내역이 없습니다.</p>
-    </div>
+                                            <div class="order-list">
+                                                <div v-if="filteredOrderList.length === 0" class="empty-state">
+                                                    <p>해당 상태의 주문내역이 없습니다.</p>
+                                                </div>
 
-    <div v-for="item in limitedOrderList"
-     :key="item.orderId"
-     class="order-item order-item-clickable"
-     @click="fnGoOrderDetail(item.orderId)">
-        <div class="order-thumb">
-            <img
-                v-if="item.itemList && item.itemList.length > 0 && item.itemList[0].imgUrl"
-                :src="item.itemList[0].imgUrl"
-                :alt="item.itemList[0].productName"
-                class="order-thumb-img"
-            >
-            <span v-else-if="item.orderType === 'PURCHASE'">🛒</span>
-            <span v-else-if="item.orderType === 'RENTAL'">⛺</span>
-            <span v-else>📦</span>
-        </div>
+                                                <div v-for="item in limitedOrderList" :key="item.orderId"
+                                                    class="order-item order-item-clickable"
+                                                    @click="fnGoOrderDetail(item.orderId)">
+                                                    <div class="order-thumb">
+                                                        <img v-if="item.itemList && item.itemList.length > 0 && item.itemList[0].imgUrl"
+                                                            :src="item.itemList[0].imgUrl"
+                                                            :alt="item.itemList[0].productName" class="order-thumb-img">
+                                                        <span v-else-if="item.orderType === 'PURCHASE'">🛒</span>
+                                                        <span v-else-if="item.orderType === 'RENTAL'">⛺</span>
+                                                        <span v-else>📦</span>
+                                                    </div>
 
-        <div class="order-info">
-            <div class="order-name">
-                {{ item.itemList && item.itemList.length > 0 ? item.itemList[0].productName : '상품명 없음' }}
-                {{ item.itemList && item.itemList.length > 1 ? ' 외 ' + (item.itemList.length - 1) + '건' : '' }}
-            </div>
+                                                    <div class="order-info">
+                                                        <div class="order-name">
+                                                            {{ item.itemList && item.itemList.length > 0 ?
+                                                            item.itemList[0].productName : '상품명 없음' }}
+                                                            {{ item.itemList && item.itemList.length > 1 ? ' 외 ' +
+                                                            (item.itemList.length - 1) + '건' : '' }}
+                                                        </div>
 
-            <div class="order-meta">
-                <span class="order-number">주문번호 {{ item.orderId }}</span>
-                <span class="dot">·</span>
-                <span class="order-date">{{ item.createdAt }}</span>
-                <span class="dot">·</span>
-                <span class="order-type-badge"
-                    :class="item.orderType === 'PURCHASE' ? 'purchase' : 'rental'">
-                    {{ item.orderType === 'PURCHASE' ? '구매' : '대여' }}
-                </span>
-            </div>
-        </div>
+                                                        <div class="order-meta">
+                                                            <span class="order-number">주문번호 {{ item.orderId }}</span>
+                                                            <span class="dot">·</span>
+                                                            <span class="order-date">{{ item.createdAt }}</span>
+                                                            <span class="dot">·</span>
+                                                            <span class="order-type-badge"
+                                                                :class="item.orderType === 'PURCHASE' ? 'purchase' : 'rental'">
+                                                                {{ item.orderType === 'PURCHASE' ? '구매' : '대여' }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
 
-        <div class="order-side">
-            <div class="order-status" :class="'status-' + item.orderStatus">
-                {{ fnGetStatusText(item.orderStatus) }}
-            </div>
+                                                    <div class="order-side">
+                                                        <div class="order-status" :class="'status-' + item.orderStatus">
+                                                            {{ fnGetStatusText(item.orderStatus) }}
+                                                        </div>
 
-            <div class="order-price">
-                {{ Number(item.totalPrice || 0).toLocaleString() }}원
-            </div>
+                                                        <div class="order-price">
+                                                            {{ Number(item.totalPrice || 0).toLocaleString() }}원
+                                                        </div>
 
-            <div class="order-action-wrap" v-if="fnGetOrderActions(item).length > 0">
-               <button
-    type="button"
-    class="btn-order-action"
-    :class="fnGetActionClass(action)"
-    v-for="action in fnGetOrderActions(item)"
-    :key="action"
-    @click.stop="fnHandleOrderAction(item, action)">
-    {{ action }}
-</button>
-            </div>
-        </div>
-    </div>
-</div>
+                                                        <div class="order-action-wrap"
+                                                            v-if="fnGetOrderActions(item).length > 0">
+                                                            <button type="button" class="btn-order-action"
+                                                                :class="fnGetActionClass(action)"
+                                                                v-for="action in fnGetOrderActions(item)" :key="action"
+                                                                @click.stop="fnHandleOrderAction(item, action)">
+                                                                {{ action }}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -387,19 +389,16 @@
                                                     <p>찜한 상품이 없습니다.</p>
                                                 </div>
 
-                                               <div class="wish-item" v-for="item in limitedWishlist"
-                                                :key="item.productId"
-                                                @click="fnGoProductDetail(item.productId)">
+                                                <div class="wish-item" v-for="item in limitedWishlist"
+                                                    :key="item.productId" @click="fnGoProductDetail(item.productId)">
 
                                                     <div class="wish-thumb">
-                                                        <img v-if="item.imgUrl"
-                                                            :src="item.imgUrl"
+                                                        <img v-if="item.imgUrl" :src="item.imgUrl"
                                                             style="width:100%; height:100%; object-fit:cover;">
                                                         <span v-else>🛒</span>
                                                     </div>
 
-                                                    <button type="button" class="wish-remove-icon on"
-                                                        title="찜 해제"
+                                                    <button type="button" class="wish-remove-icon on" title="찜 해제"
                                                         @click.stop="fnRemoveWishlist(item.wishId)">
                                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                             stroke-width="2">
@@ -409,19 +408,32 @@
                                                     </button>
 
                                                     <div class="wish-body">
-                                                    <div class="wish-name-wrap">
-                                                    <span class="wish-name">
-                                                        {{ item.productName }}
-                                                        <span v-if="item.brandName" class="wish-brand-inline">
-                                                            · {{ item.brandName }}
-                                                        </span>
-                                                    </span>
-                                                </div>
+                                                        <div class="wish-name-wrap">
+                                                            <span class="wish-name">
+                                                                {{ item.productName }}
+                                                                <span v-if="item.brandName" class="wish-brand-inline">
+                                                                    · {{ item.brandName }}
+                                                                </span>
+                                                            </span>
+                                                        </div>
 
-                                                <div v-if="item.categoryName" class="wish-category-pill">
-    {{ item.categoryName }}
-</div>
+                                                        <div v-if="item.categoryName" class="wish-category-pill">
+                                                            {{ item.categoryName }}
+                                                        </div>
 
+                                                        <div class="wish-rating-row">
+                                                            <span class="wish-stars">
+                                                                <span v-for="n in 5" :key="n" class="wish-star"
+                                                                    :class="{ filled: n <= Math.floor(Number(item.avgRating || 0)) }">
+                                                                    ★
+                                                                </span>
+                                                            </span>
+
+                                                            <span class="wish-rating-text">
+                                                                {{ Number(item.avgRating || 0).toFixed(1) }}
+                                                                ({{ item.reviewCount || 0 }})
+                                                            </span>
+                                                        </div>
                                                         <div class="wish-price">
                                                             {{ Number(item.price || 0).toLocaleString() }}원
                                                         </div>
@@ -443,28 +455,22 @@
                                                     <p>최근 본 상품이 없습니다.</p>
                                                 </div>
 
-                                               <div class="wish-item"
-                                                    v-for="item in recentList"
-                                                    :key="item.productId"
+                                                <div class="wish-item" v-for="item in recentList" :key="item.productId"
                                                     @click="fnGoProductDetail(item.productId)">
 
                                                     <div class="wish-thumb">
-                                                        <img v-if="item.imgUrl"
-                                                            :src="item.imgUrl"
+                                                        <img v-if="item.imgUrl" :src="item.imgUrl"
                                                             style="width:100%; height:100%; object-fit:cover;">
                                                         <span v-else>🛒</span>
                                                     </div>
 
-                                                    <button type="button"
-                                                            class="wish-remove-icon"
-                                                            :class="{ on: fnIsWished(item.productId) }"
-                                                            title="찜하기"
-                                                            @click.stop="fnToggleWishlist(item)">
-                                                        <svg viewBox="0 0 24 24"
-                                                            fill="none"
-                                                            stroke="currentColor"
+                                                    <button type="button" class="wish-remove-icon"
+                                                        :class="{ on: fnIsWished(item.productId) }" title="찜하기"
+                                                        @click.stop="fnToggleWishlist(item)">
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                             stroke-width="2">
-                                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                                            <path
+                                                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                                                         </svg>
                                                     </button>
 
@@ -481,7 +487,19 @@
                                                         <div v-if="item.categoryName" class="wish-category-pill">
                                                             {{ item.categoryName }}
                                                         </div>
+                                                        <div class="wish-rating-row">
+                                                            <span class="wish-stars">
+                                                                <span v-for="n in 5" :key="n" class="wish-star"
+                                                                    :class="{ filled: n <= Math.round(Number(item.avgRating || 0)) }">
+                                                                    ★
+                                                                </span>
+                                                            </span>
 
+                                                            <span class="wish-rating-text">
+                                                                {{ Number(item.avgRating || 0).toFixed(1) }}
+                                                                ({{ item.reviewCount || 0 }})
+                                                            </span>
+                                                        </div>
                                                         <div class="wish-price">
                                                             {{ Number(item.price || 0).toLocaleString() }}원
                                                         </div>
@@ -662,11 +680,15 @@
 
                                                                         <div
                                                                             style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-                                                                         <div class="ph-point ${item.amount >= 0 ? 'plus' : 'minus'}">
-    <c:if test="${item.amount >= 0}">+</c:if>
-    <c:if test="${item.amount < 0}">-</c:if>
-    <fmt:formatNumber value="${item.amount < 0 ? item.amount * -1 : item.amount}" pattern="#,###" />P
-</div>
+                                                                            <div
+                                                                                class="ph-point ${item.amount >= 0 ? 'plus' : 'minus'}">
+                                                                                <c:if test="${item.amount >= 0}">+
+                                                                                </c:if>
+                                                                                <c:if test="${item.amount < 0}">-</c:if>
+                                                                                <fmt:formatNumber
+                                                                                    value="${item.amount < 0 ? item.amount * -1 : item.amount}"
+                                                                                    pattern="#,###" />P
+                                                                            </div>
                                                                             <div class="ph-balance">
                                                                                 잔액
                                                                                 <fmt:formatNumber
@@ -694,13 +716,14 @@
                                                     </div>
 
                                                     <div class="coupon-history mini-history">
-                                                        <div v-if="couponList.length === 0" class="empty-state small-empty">
+                                                        <div v-if="couponList.length === 0"
+                                                            class="empty-state small-empty">
                                                             <p>보유 쿠폰이 없습니다.</p>
                                                         </div>
 
-                                                        <template v-for="(item, index) in couponList" :key="item.userCouponId">
-                                                            <div v-if="index < 3"
-                                                                class="coupon-ticket"
+                                                        <template v-for="(item, index) in couponList"
+                                                            :key="item.userCouponId">
+                                                            <div v-if="index < 3" class="coupon-ticket"
                                                                 :class="(item.status || '').toLowerCase()">
                                                                 <div class="coupon-ticket-left">
                                                                     <div class="coupon-ticket-label">MODAK</div>
@@ -709,7 +732,7 @@
                                                                         {{ item.couponName }}
                                                                     </div>
 
-                                                                   <div class="coupon-ticket-benefit">
+                                                                    <div class="coupon-ticket-benefit">
                                                                         {{ fnCouponBenefitText(item) }}
 
                                                                         <span class="coupon-ticket-condition-inline">
@@ -1071,13 +1094,10 @@
                                                     </div>
 
                                                     <div class="settings-actions">
-                                                       <button
-    type="button"
-    class="btn-save"
-    :disabled="!isSettingsChanged"
-    @click="fnSaveSettings">
-    저장
-</button>
+                                                        <button type="button" class="btn-save"
+                                                            :disabled="!isSettingsChanged" @click="fnSaveSettings">
+                                                            저장
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1161,35 +1181,30 @@
                                         </div>
 
 
+                                    </div>
+                                </main>
                             </div>
-                                                </main>
-                    </div>
 
-                    <div class="toast" id="toast"></div>
+                            <div class="toast" id="toast"></div>
 
-                    <div v-if="modal.show" class="delete-modal-backdrop" @click.self="fnCloseModal">
-                        <div
-                            class="delete-modal-box"
-                            ref="confirmModal"
-                            tabindex="0"
-                            @keydown.enter.prevent="fnModalConfirm"
-                            @keydown.esc.prevent="fnCloseModal"
-                        >
-                            <div class="delete-modal-title">{{ modal.title }}</div>
-                            <div class="delete-modal-desc" v-html="modal.message"></div>
+                            <div v-if="modal.show" class="delete-modal-backdrop" @click.self="fnCloseModal">
+                                <div class="delete-modal-box" ref="confirmModal" tabindex="0"
+                                    @keydown.enter.prevent="fnModalConfirm" @keydown.esc.prevent="fnCloseModal">
+                                    <div class="delete-modal-title">{{ modal.title }}</div>
+                                    <div class="delete-modal-desc" v-html="modal.message"></div>
 
-                            <div class="delete-modal-actions">
-                                <button type="button" class="delete-confirm-btn" @click="fnModalConfirm">
-                                    {{ modal.confirmText }}
-                                </button>
-                                <button type="button" class="delete-cancel-btn" @click="fnCloseModal">
-                                    취소
-                                </button>
+                                    <div class="delete-modal-actions">
+                                        <button type="button" class="delete-confirm-btn" @click="fnModalConfirm">
+                                            {{ modal.confirmText }}
+                                        </button>
+                                        <button type="button" class="delete-cancel-btn" @click="fnCloseModal">
+                                            취소
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
 
-                </div> <!-- id="app" 끝 -->
+                        </div> <!-- id="app" 끝 -->
                         <%@ include file="/WEB-INF/common/footer.jsp" %>
                 </body>
 
@@ -1197,37 +1212,37 @@
 
                 <script>
                     function switchTab(tabName, el) {
-        // 모든 탭 숨김
-        document.querySelectorAll('.tab-panel').forEach(function (panel) {
-            panel.classList.remove('active');
-        });
+                        // 모든 탭 숨김
+                        document.querySelectorAll('.tab-panel').forEach(function (panel) {
+                            panel.classList.remove('active');
+                        });
 
-        // 선택 탭 표시
-        const target = document.getElementById('tab-' + tabName);
-        if (target) {
-            target.classList.add('active');
-        }
+                        // 선택 탭 표시
+                        const target = document.getElementById('tab-' + tabName);
+                        if (target) {
+                            target.classList.add('active');
+                        }
 
-        // 사이드바 active 처리
-        document.querySelectorAll('.nav-card .nav-item').forEach(function (item) {
-            item.classList.remove('active');
-        });
+                        // 사이드바 active 처리
+                        document.querySelectorAll('.nav-card .nav-item').forEach(function (item) {
+                            item.classList.remove('active');
+                        });
 
-        if (el) {
-            el.classList.add('active');
-        } else {
-            const navItems = document.querySelectorAll('.nav-card .nav-item');
-            navItems.forEach(function (item) {
-                const onclickText = item.getAttribute('onclick') || '';
-                if (onclickText.indexOf("'" + tabName + "'") > -1 || onclickText.indexOf('"' + tabName + '"') > -1) {
-                    item.classList.add('active');
-                }
-            });
-        }
+                        if (el) {
+                            el.classList.add('active');
+                        } else {
+                            const navItems = document.querySelectorAll('.nav-card .nav-item');
+                            navItems.forEach(function (item) {
+                                const onclickText = item.getAttribute('onclick') || '';
+                                if (onclickText.indexOf("'" + tabName + "'") > -1 || onclickText.indexOf('"' + tabName + '"') > -1) {
+                                    item.classList.add('active');
+                                }
+                            });
+                        }
 
-        // 현재 탭 저장
-        sessionStorage.setItem('activeTab', tabName);
-    }
+                        // 현재 탭 저장
+                        sessionStorage.setItem('activeTab', tabName);
+                    }
 
                     const app = Vue.createApp({
                         data() {
@@ -1291,31 +1306,31 @@
                                     nickName: "${user.nickName}",
                                     profileImgUrl: "${empty user.profileImgUrl ? '' : user.profileImgUrl}"
                                 },
-                                 profileImageVersion: Date.now(),
-                                    modal: {
-                                        show: false,
-                                        title: '',
-                                        message: '',
-                                        confirmText: '확인',
-                                        onConfirm: null
-                                    },
-                                        originalSettingsForm: {
-                                        userName: "",
-                                        nickName: "",
-                                        userPhone: ""
-                                    },
+                                profileImageVersion: Date.now(),
+                                modal: {
+                                    show: false,
+                                    title: '',
+                                    message: '',
+                                    confirmText: '확인',
+                                    onConfirm: null
+                                },
+                                originalSettingsForm: {
+                                    userName: "",
+                                    nickName: "",
+                                    userPhone: ""
+                                },
                                 couponList: [],
                             };
                         },
                         computed: {
                             isSettingsChanged() {
-    return this.settingsForm.userName !== this.originalSettingsForm.userName
-        || this.settingsForm.nickName !== this.originalSettingsForm.nickName
-        || this.settingsForm.userPhone !== this.originalSettingsForm.userPhone;
-},
+                                return this.settingsForm.userName !== this.originalSettingsForm.userName
+                                    || this.settingsForm.nickName !== this.originalSettingsForm.nickName
+                                    || this.settingsForm.userPhone !== this.originalSettingsForm.userPhone;
+                            },
                             limitedOrderList() {
-    return this.filteredOrderList.slice(0, 5);
-},
+                                return this.filteredOrderList.slice(0, 5);
+                            },
                             passwordStrengthScore() {
                                 let pwd = this.passwordForm.newPwd || "";
                                 let score = 0;
@@ -1328,23 +1343,23 @@
                                 return score;
                             },
                             profileImageSrc() {
-        let url = this.displayUser.profileImgUrl;
+                                let url = this.displayUser.profileImgUrl;
 
-        if (!url || url === "null" || url === "undefined") {
-            return "/img/profile/default-profile.png";
-        }
+                                if (!url || url === "null" || url === "undefined") {
+                                    return "/img/profile/default-profile.png";
+                                }
 
-        url = String(url).trim();
+                                url = String(url).trim();
 
-        if (
-            !url.startsWith("/img/profile/") &&
-            !url.startsWith("/upload/profile/")
-        ) {
-            return "/img/profile/default-profile.png";
-        }
+                                if (
+                                    !url.startsWith("/img/profile/") &&
+                                    !url.startsWith("/upload/profile/")
+                                ) {
+                                    return "/img/profile/default-profile.png";
+                                }
 
-        return url + "?v=" + this.profileImageVersion;
-    },
+                                return url + "?v=" + this.profileImageVersion;
+                            },
                             passwordStrengthText() {
                                 let pwd = this.passwordForm.newPwd || "";
 
@@ -1379,35 +1394,35 @@
                                     this.passwordForm.newPwd === this.passwordForm.newPwdConfirm;
                             },
                             statusSummary() {
-    const summary = {
-        paid: 0,
-        ready: 0,
-        shipping: 0,
-        done: 0,
-        cancelled: 0
-    };
+                                const summary = {
+                                    paid: 0,
+                                    ready: 0,
+                                    shipping: 0,
+                                    done: 0,
+                                    cancelled: 0
+                                };
 
-    this.orderList.forEach(function (item) {
-        const status = (item.orderStatus || "").toUpperCase();
-        const orderType = (item.orderType || "").toUpperCase();
+                                this.orderList.forEach(function (item) {
+                                    const status = (item.orderStatus || "").toUpperCase();
+                                    const orderType = (item.orderType || "").toUpperCase();
 
-        if (status === "PAID") {
-            summary.paid++;
-        } else if (status === "READY") {
-            if (orderType === "PURCHASE") {
-                summary.ready++;
-            }
-        } else if (status === "SHIPPING") {
-            summary.shipping++;
-        } else if (status === "DONE" || status === "RETURNED") {
-            summary.done++;
-        } else if (status === "CANCELLED") {
-            summary.cancelled++;
-        }
-    });
+                                    if (status === "PAID") {
+                                        summary.paid++;
+                                    } else if (status === "READY") {
+                                        if (orderType === "PURCHASE") {
+                                            summary.ready++;
+                                        }
+                                    } else if (status === "SHIPPING") {
+                                        summary.shipping++;
+                                    } else if (status === "DONE" || status === "RETURNED") {
+                                        summary.done++;
+                                    } else if (status === "CANCELLED") {
+                                        summary.cancelled++;
+                                    }
+                                });
 
-    return summary;
-},
+                                return summary;
+                            },
                             formattedSmsTime() {
                                 const minutes = Math.floor(this.smsTimeLeft / 60);
                                 const seconds = this.smsTimeLeft % 60;
@@ -1421,69 +1436,69 @@
                             limitedWishlist() {
                                 return this.wishlist.slice(0, 9);
                             },
-                           filteredOrderList() {
-    if (this.selectedOrderStatus === "ALL") {
-        return this.orderList;
-    }
+                            filteredOrderList() {
+                                if (this.selectedOrderStatus === "ALL") {
+                                    return this.orderList;
+                                }
 
-    return this.orderList.filter(item => {
-        const status = (item.orderStatus || "").toUpperCase();
-        const orderType = (item.orderType || "").toUpperCase();
+                                return this.orderList.filter(item => {
+                                    const status = (item.orderStatus || "").toUpperCase();
+                                    const orderType = (item.orderType || "").toUpperCase();
 
-        if (this.selectedOrderStatus === "DONE") {
-            return status === "DONE" || status === "RETURNED";
-        }
+                                    if (this.selectedOrderStatus === "DONE") {
+                                        return status === "DONE" || status === "RETURNED";
+                                    }
 
-        if (this.selectedOrderStatus === "READY") {
-            return orderType === "PURCHASE" && status === "READY";
-        }
+                                    if (this.selectedOrderStatus === "READY") {
+                                        return orderType === "PURCHASE" && status === "READY";
+                                    }
 
-        return status === this.selectedOrderStatus;
-    });
-},
+                                    return status === this.selectedOrderStatus;
+                                });
+                            },
                         },
                         methods: {
                             showToast: function (msg) {
-    var t = document.getElementById("toast");
-    if (!t) return;
+                                var t = document.getElementById("toast");
+                                if (!t) return;
 
-    t.textContent = msg;
-    t.classList.add("show");
+                                t.textContent = msg;
+                                t.classList.add("show");
 
-    setTimeout(function () {
-        t.classList.remove("show");
-    }, 2300);
-},
+                                setTimeout(function () {
+                                    t.classList.remove("show");
+                                }, 2300);
+                            },
 
-fnOpenModal: function (option) {
-    var self = this;
+                            fnOpenModal: function (option) {
+                                var self = this;
 
-    self.modal.show = true;
-    self.modal.title = option.title || "확인";
-    self.modal.message = option.message || "";
-    self.modal.confirmText = option.confirmText || "확인";
-    self.modal.onConfirm = option.onConfirm || null;
+                                self.modal.show = true;
+                                self.modal.title = option.title || "확인";
+                                self.modal.message = option.message || "";
+                                self.modal.confirmText = option.confirmText || "확인";
+                                self.modal.onConfirm = option.onConfirm || null;
 
-    self.$nextTick(function () {
-        if (self.$refs.confirmModal) {
-            self.$refs.confirmModal.focus();
-        }
-    });
-},
+                                self.$nextTick(function () {
+                                    if (self.$refs.confirmModal) {
+                                        self.$refs.confirmModal.focus();
+                                    }
+                                });
+                            },
 
-fnCloseModal: function () {
-    this.modal.show = false;
-    this.modal.onConfirm = null;
-},
+                            fnCloseModal: function () {
+                                this.modal.show = false;
+                                this.modal.onConfirm = null;
+                            },
 
-fnModalConfirm: function () {
-    var callback = this.modal.onConfirm;
-    this.fnCloseModal();
+                            fnModalConfirm: function () {
+                                var callback = this.modal.onConfirm;
+                                this.fnCloseModal();
 
-    if (typeof callback === "function") {
-        callback();
-    }
-},
+                                if (typeof callback === "function") {
+                                    callback();
+                                }
+                            },
                             // 함수(메소드) - (key : function())
                             fnGetOrderList: function () {
                                 let self = this;
@@ -1497,14 +1512,14 @@ fnModalConfirm: function () {
                                         if (data.result === "success") {
                                             self.orderList = data.list;
                                             console.log(self.orderList);
-                                            data.list.forEach(function(item) {
-            if (item.orderStatus === "SHIPPING" || item.orderStatus === "READY" || item.orderStatus === "DONE") {
-                console.log("주문번호:", item.orderId);
-                console.log("전체 item:", item);
-                console.log("deliveryId:", item.deliveryId);
-                console.log("deliveryStatus:", item.deliveryStatus);
-            }
-        });
+                                            data.list.forEach(function (item) {
+                                                if (item.orderStatus === "SHIPPING" || item.orderStatus === "READY" || item.orderStatus === "DONE") {
+                                                    console.log("주문번호:", item.orderId);
+                                                    console.log("전체 item:", item);
+                                                    console.log("deliveryId:", item.deliveryId);
+                                                    console.log("deliveryStatus:", item.deliveryStatus);
+                                                }
+                                            });
                                         } else {
                                             self.orderList = [];
                                         }
@@ -1512,15 +1527,15 @@ fnModalConfirm: function () {
                                     }
                                 });
                             },
-                        fnGetStatusText: function (status) {
-    if (status === "PAID") return "결제완료";
-    if (status === "READY") return "배송준비";
-    if (status === "SHIPPING") return "배송중";
-    if (status === "DONE") return "배송완료";
-    if (status === "RETURNED") return "반납완료";
-    if (status === "CANCELLED") return "취소됨";
-    return "-";
-},
+                            fnGetStatusText: function (status) {
+                                if (status === "PAID") return "결제완료";
+                                if (status === "READY") return "배송준비";
+                                if (status === "SHIPPING") return "배송중";
+                                if (status === "DONE") return "배송완료";
+                                if (status === "RETURNED") return "반납완료";
+                                if (status === "CANCELLED") return "취소됨";
+                                return "-";
+                            },
                             fnFilterByStatus: function (status) {
                                 if (this.selectedOrderStatus === status) {
                                     // 같은 거 다시 누르면 전체로
@@ -2170,9 +2185,9 @@ fnModalConfirm: function () {
                                     },
                                     success: function (data) {
                                         if (data.result === "success") {
-                                              self.showToast(data.message || "회원정보가 수정되었습니다.");
+                                            self.showToast(data.message || "회원정보가 수정되었습니다.");
                                             self.settingsMsgType = "success";
-                                             self.originalSettingsForm = {
+                                            self.originalSettingsForm = {
                                                 userName: self.settingsForm.userName,
                                                 nickName: self.settingsForm.nickName,
                                                 userPhone: self.settingsForm.userPhone
@@ -2219,7 +2234,7 @@ fnModalConfirm: function () {
                                     }
                                 });
                             },
-                           fnToggleInquiry: function (item) {
+                            fnToggleInquiry: function (item) {
                                 let self = this;
 
                                 if (self.openInquiryId === item.inquiryId) {
@@ -2321,7 +2336,7 @@ fnModalConfirm: function () {
                                 });
                             },
 
-                          fnProfileImageChange: function (event) {
+                            fnProfileImageChange: function (event) {
                                 let self = this;
                                 let file = event.target.files[0];
 
@@ -2340,14 +2355,14 @@ fnModalConfirm: function () {
                                     contentType: false,
                                     dataType: "json",
                                     success: function (data) {
-                                self.$refs.profileFileInput.value = "";
+                                        self.$refs.profileFileInput.value = "";
 
-                                if (data.result === "success") {
-                                    location.href = location.pathname + "?profileRefresh=" + new Date().getTime();
-                                } else {
-                                    alert(data.message || "프로필 사진 변경에 실패했습니다.");
-                                }
-                            },
+                                        if (data.result === "success") {
+                                            location.href = location.pathname + "?profileRefresh=" + new Date().getTime();
+                                        } else {
+                                            alert(data.message || "프로필 사진 변경에 실패했습니다.");
+                                        }
+                                    },
                                     error: function () {
                                         self.$refs.profileFileInput.value = "";
                                         alert("서버 오류가 발생했습니다.");
@@ -2355,277 +2370,291 @@ fnModalConfirm: function () {
                                 });
                             },
                             fnGetOrderActions: function (item) {
-                                        const actions = [];
-                                        const status = (item.orderStatus || "").toUpperCase();
-                                        const type = (item.orderType || "").toUpperCase();
+                                const actions = [];
+                                const status = (item.orderStatus || "").toUpperCase();
+                                const type = (item.orderType || "").toUpperCase();
 
-                                        if (type === "PURCHASE") {
-                                            if (status === "DONE") {
-                                                actions.push("환불 신청");
-                                                actions.push("리뷰 작성");
-                                            }
-                                        }
+                                actions.push("주문상세");
 
-                                        if (type === "RENTAL") {
-                                            if (status === "IN_USE") {
-                                                actions.push("반납 신청");
-                                                actions.push("연장 신청");
-                                            }
+                                if (status === "SHIPPING") {
+                                    actions.push("배송조회");
+                                }
 
-                                            if (status === "DONE" || status === "RETURNED" || status === "RETURN_COMPLETED" || status === "COMPLETED") {
-                                                actions.push("리뷰 작성");
-                                            }
-                                        }
+                                if (type === "PURCHASE") {
+                                    if (status === "DONE") {
+                                        actions.push("환불 신청");
+                                        actions.push("리뷰 작성");
+                                    }
+                                }
 
-                                        return actions;
-                                    },
-                                    fnHandleOrderAction: function (item, action) {
-
-                                        if (action === "환불 신청") {
-                                            pageChange("/order/refund/request.do", {
-                                                orderId: item.orderId
-                                            });
-                                            return;
-                                        }
-
-                                        if (action === "배송조회") {
-                                            if (!item.deliveryId) {
-                                                alert("배송 정보가 없습니다.");
-                                                return;
-                                            }
-
-                                            pageChange("/user/delivery/detail.do", {
-                                                deliveryId: item.deliveryId
-                                            });
-                                            return;
-                                        }
-
-                                       // 수정 후 — 둘 다 연장/반납 통합 페이지로 이동
-                                        if (action === "반납 신청") {
-                                            location.href = "/rental/extension/main.do?tab=return";
-                                            return;
-                                        }
-
-                                        if (action === "연장 신청") {
-                                            location.href = "/rental/extension/main.do?tab=extension";
-                                             return;
-                                        }
-
-                                        if (action === "리뷰 작성") {
-                                            pageChange("/user/review/add.do", {
-                                                orderId: item.orderId
-                                            });
-                                            return;
-                                        }
-                                    },
-                                    fnGoTracking: function (item) {
-                                        // trackingNo, carrierCode가 있다고 가정
-                                        pageChange("/order/tracking.do", {
-                                            orderId: item.orderId,
-                                            trackingNo: item.trackingNo,
-                                            carrierCode: item.carrierCode
-                                        });
-                                    },
-
-                                    fnGoRefund: function (item) {
-                                        pageChange("/refund/request.do", {
-                                            orderId: item.orderId
-                                        });
-                                    },
-
-                                    fnGoWriteReview: function (item) {
-                                        pageChange("/user/review/edit.do", {
-                                            orderId: item.orderId,
-                                            productId: item.productId,
-                                            itemId: item.itemId
-                                        });
-                                    },
-
-                                    fnGoMyReview: function (item) {
-                                        pageChange("/user/review/history.do", {
-                                            orderId: item.orderId,
-                                            reviewId: item.reviewId
-                                        });
-                                    },
-
-                                    fnGoReturnRequest: function (item) {
-                                        pageChange("/rental/return/request.do", {
-                                            orderId: item.orderId,
-                                            rentalId: item.rentalId
-                                        });
-                                    },
-                                    fnGoMembershipInfo: function () {
-                                        pageChange("/user/membership/info.do", {});
-                                    },
-                                   fnGetActionClass: function (action) {
-                                        if (action === "환불 신청") return "refund";
-                                        if (action === "배송조회") return "tracking";
-                                        if (action === "반납 신청") return "return";
-                                        if (action === "연장 신청") return "extend";
-                                        if (action === "리뷰 작성") return "review";
-                                        return "";
-                                    },
-                                    fnGoOrderDetail: function (orderId) {
-                                        pageChange("/order/detail.do", { orderId: orderId });
-                                    },
-                                   fnRemoveWishlist: function (wishId) {
-                                    let self =   this;
-
-                                    $.ajax({
-                                        url: "/user/wishlist/remove.dox",
-                                        type: "POST",
-                                        dataType: "json",
-                                        data: { wishId: wishId },
-                                        success: function (data) {
-                                            if (data.result === "success") {
-                                                self.wishlist = self.wishlist.filter(function (wish) {
-                                                    return Number(wish.wishId) !== Number(wishId);
-                                                });
-
-                                                self.showToast("위시리스트에서 제거되었어요");
-                                            } else {
-                                                self.showToast(data.message || "찜 해제에 실패했습니다.");
-                                            }
-                                        },
-                                        error: function () {
-                                            self.showToast("서버 오류가 발생했습니다.");
-                                        }
-                                    });
-                                },
-                                    fnFindWish: function (productId) {
-                                        return this.wishlist.find(function (wish) {
-                                            return Number(wish.productId) === Number(productId);
-                                        });
-                                    },
-
-                                    fnIsWished: function (productId) {
-                                        return !!this.fnFindWish(productId);
-                                    },
-
-                                    fnToggleWishlist: function (item) {
-                                        let self = this;
-
-                                        $.ajax({
-                                            url: "/user/wishlist/toggle.dox",
-                                            type: "POST",
-                                            dataType: "json",
-                                            data: {
-                                                productId: item.productId
-                                            },
-                                            success: function (data) {
-                                                if (data.result === "success") {
-
-                                                    if (data.action === "added") {
-                                                        self.showToast("❤️ 위시리스트에 추가했어요! ");
-                                                    }
-
-                                                    if (data.action === "removed") {
-                                                        self.showToast("위시리스트에서 제거했어요");
-                                                    }
-
-                                                    self.fnGetWishlist();
-                                                    return;
-                                                }
-
-                                                self.showToast(data.message || "찜 처리에 실패했습니다.");
-                                            },
-                                            error: function () {
-                                                self.showToast("서버 오류가 발생했습니다.");
-                                            }
-                                        });
-                                    },
-                                    fnGetCouponList: function () {
-                                        let self = this;
-
-                                        $.ajax({
-                                            url: "/user/coupon/list.dox",
-                                            type: "POST",
-                                            dataType: "json",
-                                            data: {
-                                                page: 1,
-                                                pageSize: 5
-                                            },
-                                            success: function (data) {
-                                                if (data.result === "success") {
-                                                    self.couponList = data.list || [];
-                                                } else {
-                                                    self.couponList = [];
-                                                }
-                                            },
-                                            error: function () {
-                                                self.couponList = [];
-                                            }
-                                        });
-                                    },
-
-                                    fnCouponBenefitText: function (item) {
-                                        if (item.couponType === "AMOUNT") {
-                                            return Number(item.discountAmt || 0).toLocaleString() + "원 할인";
-                                        }
-
-                                        if (item.couponType === "RATE") {
-                                            let text = Number(item.discountRate || 0) + "% 할인";
-
-                                            if (Number(item.maxDiscountAmt || 0) > 0) {
-                                                text += " · 최대 " + Number(item.maxDiscountAmt).toLocaleString() + "원";
-                                            }
-
-                                            return text;
-                                        }
-
-                                        return "할인 쿠폰";
-                                    },
-
-                                    fnCouponConditionText: function (item) {
-                                        if (Number(item.minOrderAmt || 0) > 0) {
-                                            return "최소 주문금액 " + Number(item.minOrderAmt).toLocaleString() + "원";
-                                        }
-
-                                        return "최소 주문금액 없이 사용 가능";
-                                    },
-
-                                    fnCouponStatusText: function (status) {
-                                        if (status === "AVAILABLE") return "사용 가능";
-                                        if (status === "USED") return "사용 완료";
-                                        if (status === "EXPIRED") return "만료";
-                                        return status || "-";
-                                    },
-                                    fnEditReview: function (reviewId) {
-                                        pageChange("/user/review/edit.do", { reviewId: reviewId });
-                                    },
-                                }, // methods
-                                    mounted() {
-                                    let profileUrl = String(this.displayUser.profileImgUrl || "").trim();
+                                if (type === "RENTAL") {
+                                    if (status === "IN_USE") {
+                                        actions.push("반납 신청");
+                                        actions.push("연장 신청");
+                                    }
 
                                     if (
-                                        !profileUrl ||
-                                        (
-                                            !profileUrl.startsWith("/img/profile/") &&
-                                            !profileUrl.startsWith("/upload/profile/")
-                                        )
+                                        status === "DONE" ||
+                                        status === "RETURNED" ||
+                                        status === "RETURN_COMPLETED" ||
+                                        status === "COMPLETED"
                                     ) {
-                                        this.displayUser.profileImgUrl = "";
+                                        actions.push("리뷰 작성");
                                     }
-                                                                    let self = this;
-                                                                    this.fnGetOrderList();
-                                        this.fnGetAddressList();
-                                        this.fnGetWishlist();
-                                        this.fnGetRecentList();
-                                        this.fnGetChatbotList();
-                                        this.fnGetUserSettings();
-                                        this.fnGetInquiryList();
-                                        this.fnGetCouponList();
+                                }
 
-                                        const savedTab = sessionStorage.getItem("activeTab");
+                                return actions;
+                            },
+                            fnHandleOrderAction: function (item, action) {
 
-                                        this.$nextTick(function () {
-                                            switchTab(savedTab || "orders", null);
+                                if (action === "환불 신청") {
+                                    pageChange("/order/refund/request.do", {
+                                        orderId: item.orderId
+                                    });
+                                    return;
+                                }
+                                if (action === "주문상세") {
+                                    this.fnGoOrderDetail(item.orderId);
+                                    return;
+                                }
+                                if (action === "배송조회") {
+                                    if (!item.deliveryId) {
+                                        alert("배송 정보가 없습니다.");
+                                        return;
+                                    }
 
-                                            this.showDeleteModal = false;
-                                            this.deleteTargetId = null;
-                                        });
-                                     }
-                             });
+                                    pageChange("/user/delivery/detail.do", {
+                                        deliveryId: item.deliveryId
+                                    });
+                                    return;
+                                }
+
+                                // 수정 후 — 둘 다 연장/반납 통합 페이지로 이동
+                                if (action === "반납 신청") {
+                                    location.href = "/rental/extension/main.do?tab=return";
+                                    return;
+                                }
+
+                                if (action === "연장 신청") {
+                                    location.href = "/rental/extension/main.do?tab=extension";
+                                    return;
+                                }
+
+                                if (action === "리뷰 작성") {
+                                    pageChange("/user/review/add.do", {
+                                        orderId: item.orderId
+                                    });
+                                    return;
+                                }
+                            },
+                            fnGoTracking: function (item) {
+                                // trackingNo, carrierCode가 있다고 가정
+                                pageChange("/order/tracking.do", {
+                                    orderId: item.orderId,
+                                    trackingNo: item.trackingNo,
+                                    carrierCode: item.carrierCode
+                                });
+                            },
+
+                            fnGoRefund: function (item) {
+                                pageChange("/refund/request.do", {
+                                    orderId: item.orderId
+                                });
+                            },
+
+                            fnGoWriteReview: function (item) {
+                                pageChange("/user/review/edit.do", {
+                                    orderId: item.orderId,
+                                    productId: item.productId,
+                                    itemId: item.itemId
+                                });
+                            },
+
+                            fnGoMyReview: function (item) {
+                                pageChange("/user/review/history.do", {
+                                    orderId: item.orderId,
+                                    reviewId: item.reviewId
+                                });
+                            },
+
+                            fnGoReturnRequest: function (item) {
+                                pageChange("/rental/return/request.do", {
+                                    orderId: item.orderId,
+                                    rentalId: item.rentalId
+                                });
+                            },
+                            fnGoMembershipInfo: function () {
+                                pageChange("/user/membership/info.do", {});
+                            },
+                            fnGetActionClass: function (action) {
+                                if (action === "환불 신청") return "refund";
+                                if (action === "배송조회") return "tracking";
+                                if (action === "반납 신청") return "return";
+                                if (action === "연장 신청") return "extend";
+                                if (action === "리뷰 작성") return "review";
+                                return "";
+                            },
+                            fnGoOrderDetail: function (orderId) {
+                                pageChange("/order/detail.do", { orderId: orderId });
+                            },
+                            fnRemoveWishlist: function (wishId) {
+                                let self = this;
+
+                                $.ajax({
+                                    url: "/user/wishlist/remove.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: { wishId: wishId },
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.wishlist = self.wishlist.filter(function (wish) {
+                                                return Number(wish.wishId) !== Number(wishId);
+                                            });
+
+                                            self.showToast("위시리스트에서 제거되었어요");
+                                        } else {
+                                            self.showToast(data.message || "찜 해제에 실패했습니다.");
+                                        }
+                                    },
+                                    error: function () {
+                                        self.showToast("서버 오류가 발생했습니다.");
+                                    }
+                                });
+                            },
+                            fnFindWish: function (productId) {
+                                return this.wishlist.find(function (wish) {
+                                    return Number(wish.productId) === Number(productId);
+                                });
+                            },
+
+                            fnIsWished: function (productId) {
+                                return !!this.fnFindWish(productId);
+                            },
+
+                            fnToggleWishlist: function (item) {
+                                let self = this;
+
+                                $.ajax({
+                                    url: "/user/wishlist/toggle.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {
+                                        productId: item.productId
+                                    },
+                                    success: function (data) {
+                                        if (data.result === "success") {
+
+                                            if (data.action === "added") {
+                                                self.showToast("❤️ 위시리스트에 추가했어요! ");
+                                            }
+
+                                            if (data.action === "removed") {
+                                                self.showToast("위시리스트에서 제거했어요");
+                                            }
+
+                                            self.fnGetWishlist();
+                                            return;
+                                        }
+
+                                        self.showToast(data.message || "찜 처리에 실패했습니다.");
+                                    },
+                                    error: function () {
+                                        self.showToast("서버 오류가 발생했습니다.");
+                                    }
+                                });
+                            },
+                            fnGetCouponList: function () {
+                                let self = this;
+
+                                $.ajax({
+                                    url: "/user/coupon/list.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {
+                                        page: 1,
+                                        pageSize: 5
+                                    },
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.couponList = data.list || [];
+                                        } else {
+                                            self.couponList = [];
+                                        }
+                                    },
+                                    error: function () {
+                                        self.couponList = [];
+                                    }
+                                });
+                            },
+
+                            fnCouponBenefitText: function (item) {
+                                if (item.couponType === "AMOUNT") {
+                                    return Number(item.discountAmt || 0).toLocaleString() + "원 할인";
+                                }
+
+                                if (item.couponType === "RATE") {
+                                    let text = Number(item.discountRate || 0) + "% 할인";
+
+                                    if (Number(item.maxDiscountAmt || 0) > 0) {
+                                        text += " · 최대 " + Number(item.maxDiscountAmt).toLocaleString() + "원";
+                                    }
+
+                                    return text;
+                                }
+
+                                return "할인 쿠폰";
+                            },
+
+                            fnCouponConditionText: function (item) {
+                                if (Number(item.minOrderAmt || 0) > 0) {
+                                    return "최소 주문금액 " + Number(item.minOrderAmt).toLocaleString() + "원";
+                                }
+
+                                return "최소 주문금액 없이 사용 가능";
+                            },
+
+                            fnCouponStatusText: function (status) {
+                                if (status === "AVAILABLE") return "사용 가능";
+                                if (status === "USED") return "사용 완료";
+                                if (status === "EXPIRED") return "만료";
+                                return status || "-";
+                            },
+                            fnEditReview: function (reviewId) {
+                                pageChange("/user/review/edit.do", { reviewId: reviewId });
+                            },
+                        }, // methods
+                        mounted() {
+                            let profileUrl = String(this.displayUser.profileImgUrl || "").trim();
+
+                            if (
+                                !profileUrl ||
+                                (
+                                    !profileUrl.startsWith("/img/profile/") &&
+                                    !profileUrl.startsWith("/upload/profile/")
+                                )
+                            ) {
+                                this.displayUser.profileImgUrl = "";
+                            }
+                            let self = this;
+                            this.fnGetOrderList();
+                            this.fnGetAddressList();
+                            this.fnGetWishlist();
+                            this.fnGetRecentList();
+                            this.fnGetChatbotList();
+                            this.fnGetUserSettings();
+                            this.fnGetInquiryList();
+                            this.fnGetCouponList();
+
+                            const savedTab = sessionStorage.getItem("activeTab");
+
+                            this.$nextTick(function () {
+                                switchTab(savedTab || "orders", null);
+
+                                this.showDeleteModal = false;
+                                this.deleteTargetId = null;
+                            });
+                        }
+                    });
 
                     app.mount('#app');
                 </script>

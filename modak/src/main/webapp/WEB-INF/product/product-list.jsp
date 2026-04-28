@@ -202,12 +202,36 @@
                   </button>
 
                   <div class="pcard-body">
-                    <template v-if="currentView === 'list'">
-                      <div class="pcard-main">
+                    <div class="pcard-top">
+                      <template v-if="currentView === 'list'">
+                        <div class="pcard-main">
+                          <div class="pcard-cat">{{ product.categoryName }}</div>
+                          <div class="pcard-name">
+                            {{ product.productName }}
+                            <span class="brand">· {{ product.brandName }}</span>
+                          </div>
+
+                          <div class="stars">
+                            <span v-html="starsHTML(product.rating)"></span>
+                            <span class="star-count">
+                              {{ formatRating(product.rating) }} ({{ product.rCount || 0 }})
+                            </span>
+                          </div>
+                        </div>
+
+                        <div class="pcard-price-wrap">
+                          <div class="price-row" style="justify-content:flex-end">
+                            <span class="price-main">{{ (product.price || 0).toLocaleString() }}원</span>
+                            <span class="price-unit" v-if="product.productType !== 'PURCHASE'">/ 1박</span>
+                          </div>
+                        </div>
+                      </template>
+
+                      <template v-else>
                         <div class="pcard-cat">{{ product.categoryName }}</div>
                         <div class="pcard-name">
                           {{ product.productName }}
-                          <span class="brand">· {{ product.brandName }}</span>
+                          <span v-if="product.brandName" class="pcard-brand">· {{ product.brandName }}</span>
                         </div>
 
                         <div class="stars">
@@ -216,36 +240,13 @@
                             {{ formatRating(product.rating) }} ({{ product.rCount || 0 }})
                           </span>
                         </div>
-                      </div>
 
-                      <div class="pcard-price-wrap">
-                        <div class="price-row" style="justify-content:flex-end">
+                        <div class="price-row">
                           <span class="price-main">{{ (product.price || 0).toLocaleString() }}원</span>
                           <span class="price-unit" v-if="product.productType !== 'PURCHASE'">/ 1박</span>
                         </div>
-                      </div>
-                    </template>
-
-                    <template v-else>
-                      <div class="pcard-cat">{{ product.categoryName }}</div>
-                      <div class="pcard-name">
-                        {{ product.productName }}
-                        <span v-if="product.brandName" class="pcard-brand">· {{ product.brandName }}</span>
-                      </div>
-
-                      <div class="stars">
-                        <span v-html="starsHTML(product.rating)"></span>
-                        <span class="star-count">
-                          {{ formatRating(product.rating) }} ({{ product.rCount || 0 }})
-                        </span>
-                      </div>
-
-                      <div class="price-row">
-                        <span class="price-main">{{ (product.price || 0).toLocaleString() }}원</span>
-                        <span class="price-unit" v-if="product.productType !== 'PURCHASE'">/ 1박</span>
-                      </div>
-                    </template>
-
+                      </template>
+                    </div>
                     <div class="btn-row">
                       <button v-if="product.productType !== 'PURCHASE'" type="button" class="btn-rent"
                         @click.stop="fnView(product.productId)">

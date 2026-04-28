@@ -22,266 +22,270 @@ public class PaymentService {
 
 	@Autowired
 	PaymentMapper paymentMapper;
-	
+
 	@Value("${toss.secret-key}")
-    private String tossSecretKey;
-	
+	private String tossSecretKey;
+
 	// 배송지 목록 조회
-    public HashMap<String, Object> getAddressList(HashMap<String, Object> map) {
-        HashMap<String, Object> resultMap = new HashMap<String, Object>();
+	public HashMap<String, Object> getAddressList(HashMap<String, Object> map) {
+		HashMap<String, Object> resultMap = new HashMap<String, Object>();
 
-        try {
-            List<HashMap<String, Object>> list = paymentMapper.selectAddressList(map);
+		try {
+			List<HashMap<String, Object>> list = paymentMapper.selectAddressList(map);
 
-            resultMap.put("result", "success");
-            resultMap.put("list", list);
+			resultMap.put("result", "success");
+			resultMap.put("list", list);
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            resultMap.put("result", "fail");
-            resultMap.put("message", "배송지 목록 조회 실패");
-        }
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			resultMap.put("result", "fail");
+			resultMap.put("message", "배송지 목록 조회 실패");
+		}
 
-        return resultMap;
-    }
-    // cart 
-    public HashMap<String, Object> getCheckoutItems(HashMap<String, Object> map) {
-        HashMap<String, Object> resultMap = new HashMap<>();
+		return resultMap;
+	}
 
-        try {
-            List<HashMap<String, Object>> list = paymentMapper.selectCheckoutItems(map);
+	// cart
+	public HashMap<String, Object> getCheckoutItems(HashMap<String, Object> map) {
+		HashMap<String, Object> resultMap = new HashMap<>();
 
-            resultMap.put("result", "success");
-            resultMap.put("list", list);
+		try {
+			List<HashMap<String, Object>> list = paymentMapper.selectCheckoutItems(map);
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-            resultMap.put("result", "fail");
-            resultMap.put("message", e.getMessage());
-        }
+			resultMap.put("result", "success");
+			resultMap.put("list", list);
 
-        return resultMap;
-    }
-    
- // 임시 주문 저장 → ORDER_ID를 프론트에 반환
-    public HashMap<String, Object> readyPayment(HashMap<String, Object> map) {
-        HashMap<String, Object> resultMap = new HashMap<>();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+			resultMap.put("result", "fail");
+			resultMap.put("message", e.getMessage());
+		}
 
-        try {
-            // 1. ORDERS 테이블에 READY 상태 주문 먼저 생성
-            paymentMapper.insertTempOrder(map);
+		return resultMap;
+	}
 
-            // 2. INSERT 후 생성된 ORDER_ID 꺼내기
-            Object orderId = map.get("orderId");
+	// 임시 주문 저장 → ORDER_ID를 프론트에 반환
+	public HashMap<String, Object> readyPayment(HashMap<String, Object> map) {
+		HashMap<String, Object> resultMap = new HashMap<>();
+		try {
+			paymentMapper.insertTempOrder(map);
 
-            // 3. 회원 / 비회원에 따라 주문상품 가져오는 방식 분리
-            List<HashMap<String, Object>> items;
+			// ✅ INSERT 후 생성된 ORDER_ID를 map에서 꺼내서 반환
+			Object orderId = map.get("orderId");
+			List<HashMap<String, Object>> items = paymentMapper.selectCheckoutItems(map);
 
-            if ("GUEST".equals(map.get("userId"))) {
-                // 비회원: 장바구니 DB가 아니라 프론트에서 보낸 sessionStorage 상품 사용
-                String guestOrderItems = (String) map.get("guestOrderItems");
+			for (HashMap<String, Object> item : items) {
+				item.put("orderId", orderId);
+				paymentMapper.insertOrderItem(item);
+			}
 
-                items = new Gson().fromJson(
-                    guestOrderItems,
-                    new TypeToken<List<HashMap<String, Object>>>() {}.getType()
-                );
-            } else {
-                // 회원: cartIds 기준으로 CART 테이블에서 주문상품 조회
-                items = paymentMapper.selectCheckoutItems(map);
-            }
+			resultMap.put("result", "success");
+			resultMap.put("orderId", orderId); // 프론트로 ORDER_ID 전달
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMap.put("result", "fail");
+			resultMap.put("message", "주문 준비 실패: " + e.getMessage());
+		}
+		return resultMap;
+	}
 
-            // 4. ORDER_ITEM 테이블에 주문상품 저장
-            for (HashMap<String, Object> item : items) {
-                item.put("orderId", orderId);
-                paymentMapper.insertOrderItem(item);
-            }
+	// 토스 API 승인 - 트랜잭션 없음
+	public HashMap<String, Object> confirmPayment(String paymentKey, String orderId, Long amount) {
 
-            // 5. 프론트에 orderId 반환 → Toss orderId 생성에 사용
-            resultMap.put("result", "success");
-            resultMap.put("orderId", orderId);
+		// 1. 토스 API 승인 요청 (트랜잭션 밖)
+		HttpResponse<String> response = callTossApi(paymentKey, orderId, amount);
+		Long orderIdLong = Long.parseLong(orderId.replace("modak-", ""));
+		if (response != null && response.statusCode() == 200) {
+			return processAfterPayment(orderIdLong, amount);
+		} else {
+			// 실패 처리
+			HashMap<String, Object> failMap = new HashMap<>();
+			failMap.put("orderId", orderIdLong);
+			failMap.put("orderStatus", "CANCELLED");
+			paymentMapper.updateOrderStatus(failMap);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            resultMap.put("result", "fail");
-            resultMap.put("message", "주문 준비 실패: " + e.getMessage());
-        }
+			HashMap<String, Object> resultMap = new HashMap<>();
+			resultMap.put("result", "fail");
+			resultMap.put("message", "토스 승인 실패: " + response.body());
+			return resultMap;
+		}
 
-        return resultMap;
-    }
-    
- // 토스 API 승인 - 외부 호출 + DB 처리 분리 구조
-    public HashMap<String, Object> confirmPayment(String paymentKey, String orderId, Long amount) {
+	}
 
-        // 1. 외부 API 호출 (트랜잭션 밖에서 처리 → 롤백 영향 X)
-        HttpResponse<String> response = callTossApi(paymentKey, orderId, amount);
+	private HttpResponse<String> callTossApi(String paymentKey, String orderId, Long amount) {
+		try {
+			String auth = Base64.getEncoder().encodeToString((tossSecretKey + ":").getBytes());
 
-        // 2. API 호출 실패 (네트워크/서버 문제)
-        if (response == null) {
-            HashMap<String, Object> resultMap = new HashMap<>();
-            resultMap.put("result", "fail");
-            resultMap.put("message", "결제 서버 연결에 실패했습니다.");
-            return resultMap;
-        }
+			String body = String.format("{\"paymentKey\":\"%s\",\"orderId\":\"%s\",\"amount\":%d}", paymentKey, orderId,
+					amount);
 
-        // 3. 주문번호 파싱 (modak-123 → 123)
-        Long orderIdLong;
-        try {
-            orderIdLong = Long.parseLong(orderId.replace("modak-", ""));
-        } catch (Exception e) {
-            HashMap<String, Object> resultMap = new HashMap<>();
-            resultMap.put("result", "fail");
-            resultMap.put("message", "주문번호 형식 오류");
-            return resultMap;
-        }
+			HttpClient client = HttpClient.newHttpClient();
+			HttpRequest request = HttpRequest.newBuilder()
+					.uri(URI.create("https://api.tosspayments.com/v1/payments/confirm"))
+					.header("Authorization", "Basic " + auth).header("Content-Type", "application/json")
+					.POST(HttpRequest.BodyPublishers.ofString(body)).build();
 
-        // 4. 토스 승인 성공 → DB 처리 (별도 트랜잭션)
-        if (response.statusCode() == 200) {
-            return processAfterPayment(orderIdLong, amount);
-        }
+			return client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        // 5. 토스 승인 실패 → 주문 취소 처리
-        HashMap<String, Object> failMap = new HashMap<>();
-        failMap.put("orderId", orderIdLong);
-        failMap.put("orderStatus", "CANCELLED");
-        paymentMapper.updateOrderStatus(failMap);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
-        HashMap<String, Object> resultMap = new HashMap<>();
-        resultMap.put("result", "fail");
-        resultMap.put("message", "토스 승인 실패: " + response.body());
-        return resultMap;
-    }
-    
-    private HttpResponse<String> callTossApi(String paymentKey, String orderId, Long amount) {
-        try {
-            String auth = Base64.getEncoder()
-                    .encodeToString((tossSecretKey + ":").getBytes());
-
-            String body = String.format(
-                "{\"paymentKey\":\"%s\",\"orderId\":\"%s\",\"amount\":%d}",
-                paymentKey, orderId, amount
-            );
-
-            HttpClient client = HttpClient.newHttpClient();
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.tosspayments.com/v1/payments/confirm"))
-                .header("Authorization", "Basic " + auth)
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(body))
-                .build();
-
-            return client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-    
-    
 	// DB 처리 전용 - 트랜잭션 적용
-    @Transactional
-    public HashMap<String, Object> processAfterPayment(Long orderIdLong, Long amount) {
-        HashMap<String, Object> resultMap = new HashMap<>();
-        
-        HashMap<String, Object> baseMap = new HashMap<>();
-        baseMap.put("orderId", orderIdLong);
+	@Transactional
+	public HashMap<String, Object> processAfterPayment(Long orderIdLong, Long amount) {
+		HashMap<String, Object> resultMap = new HashMap<>();
 
-        // 주문 정보 조회
-        HashMap<String, Object> orderInfo = paymentMapper.selectOrderById(baseMap);
-        System.out.println("orderInfo: " + orderInfo); 
-        // String userId  = (String) orderInfo.get("userId");
-        String userId  = (String) orderInfo.get("USER_ID");
-        System.out.println("userId: " + userId);      
-        boolean isGuest = "GUEST".equals(userId);
+		HashMap<String, Object> baseMap = new HashMap<>();
+		baseMap.put("orderId", orderIdLong);
 
-        // 1. ORDERS → PAID
-        baseMap.put("orderStatus", "PAID");
-        paymentMapper.updateOrderStatus(baseMap);
+		HashMap<String, Object> orderInfo = paymentMapper.selectOrderById(baseMap);
+		if (orderInfo == null) {
+			throw new RuntimeException("주문 정보를 찾을 수 없습니다.");
+		}
 
-        // 2. PAYMENT INSERT
-        baseMap.put("amount", amount);
-        paymentMapper.insertPayment(baseMap);
+		String userId = String.valueOf(orderInfo.get("userId"));
+		if (userId == null || "null".equals(userId)) {
+			userId = String.valueOf(orderInfo.get("USER_ID"));
+		}
 
-        // 3. CART DELETE (회원만)
-        if (!isGuest) {
-        	baseMap.put("userId", userId);
-            paymentMapper.deleteCartByOrderId(baseMap);
-        }
+		boolean isGuest = "GUEST".equals(userId);
 
-        // 4. 쿠폰 처리 (회원 + 쿠폰 있을 때만)
-//        Object userCouponId = orderInfo.get("userCouponId");
-        Object userCouponId = orderInfo.get("USER_COUPON_ID");
+		// 1. 주문 상태 PAID
+		baseMap.put("orderStatus", "PAID");
+		paymentMapper.updateOrderStatus(baseMap);
 
-        if (!isGuest && userCouponId != null) {
-//        	long totalPrice = ((Number) orderInfo.get("totalPrice")).longValue();
-        	long totalPrice = ((Number) orderInfo.get("TOTAL_PRICE")).longValue();
-        	long discountAmt = totalPrice - amount;
+		// 2. 결제 INSERT
+		baseMap.put("amount", amount);
+		paymentMapper.insertPayment(baseMap);
 
-        	HashMap<String, Object> couponMap = new HashMap<>();
-        	couponMap.put("userCouponId", userCouponId);
-        	couponMap.put("userId",       userId);
-        	couponMap.put("orderId",      orderIdLong);
-        	couponMap.put("discountAmt",  discountAmt);
+		// 3. 결제 이력 INSERT
+		baseMap.put("payType", "PURCHASE");
+		paymentMapper.insertPaymentHistory(baseMap);
 
-            paymentMapper.updateCouponUsed(couponMap);
-            paymentMapper.insertCouponUseLog(couponMap);
-        }
+		// 4. 장바구니 삭제
+		if (!isGuest) {
+			baseMap.put("userId", userId);
+			paymentMapper.deleteCartByOrderId(baseMap);
+		}
 
-        // 5 & 6. 포인트 적립 + TOTAL_AMOUNT (회원만)
-        if (!isGuest) {
-            long earnedPoint = amount / 100;
+		// 5. 쿠폰 사용 처리
+		Object userCouponId = orderInfo.get("userCouponId");
+		if (userCouponId == null) {
+			userCouponId = orderInfo.get("USER_COUPON_ID");
+		}
 
-            String orderName   = (String) orderInfo.get("orderName");
-//          Long   itemCount   = (Long)   orderInfo.get("itemCount");
-            long itemCount = ((Number) orderInfo.get("itemCount")).longValue();
-            String description = "상품 구매 적립 포인트 지급";
-            if (orderName != null) {
-                description += " - " + orderName;
-                if (itemCount > 1) {
-                    description += " 외 " + (itemCount - 1) + "건";
-                }
-            }
+		if (!isGuest && userCouponId != null && !"".equals(String.valueOf(userCouponId))) {
+			long totalPrice = getLongValue(orderInfo, "totalPrice", "TOTAL_PRICE");
+			long discountAmt = Math.max(0, totalPrice - amount);
 
-            HashMap<String, Object> userUpdateMap = new HashMap<>();
-            userUpdateMap.put("userId",      userId);
-            userUpdateMap.put("earnedPoint", earnedPoint);
-            userUpdateMap.put("amount",      amount);
-            userUpdateMap.put("description", description);
+			HashMap<String, Object> couponMap = new HashMap<>();
+			couponMap.put("userCouponId", userCouponId);
+			couponMap.put("userId", userId);
+			couponMap.put("orderId", orderIdLong);
+			couponMap.put("discountAmt", discountAmt);
 
-            if (earnedPoint > 0) {
-                paymentMapper.insertPointHistory(userUpdateMap);
-            }
-            paymentMapper.updateUserPointAndAmount(userUpdateMap);
-        }
+			paymentMapper.updateCouponUsed(couponMap);
+			paymentMapper.insertCouponUseLog(couponMap);
+		}
 
-        // 7. 재고 차감
-        List<HashMap<String, Object>> orderItems = paymentMapper.selectOrderItemsForStock(baseMap);
-        for (HashMap<String, Object> item : orderItems) {
-            String orderType = (String) item.get("orderType");
+		// 6. 포인트 적립
+		if (!isGuest) {
+			long earnedPoint = amount / 100;
 
-            HashMap<String, Object> stockMap = new HashMap<>();
-            stockMap.put("productId", item.get("productId"));
-            stockMap.put("optionId",  item.get("optionId"));
-            stockMap.put("quantity",  item.get("quantity"));
+			String orderName = getStringValue(orderInfo, "orderName", "ORDER_NAME");
+			long itemCount = getLongValue(orderInfo, "itemCount", "ITEM_COUNT");
 
-            if ("PURCHASE".equals(orderType)) {
-                int updated = paymentMapper.decreaseStockForPurchase(stockMap);
-                if (updated == 0) {
-                    throw new RuntimeException("재고 부족 - PRODUCT_ID: " + item.get("productId"));
-                }
-            } else if ("RENTAL".equals(orderType)) {
-                stockMap.put("startDate", item.get("startDate"));
-                stockMap.put("endDate",   item.get("endDate"));
-                int updated = paymentMapper.decreaseStockForRental(stockMap);
-                if (updated == 0) {
-                    throw new RuntimeException("대여 재고 부족 - PRODUCT_ID: " + item.get("productId"));
-                }
-            }
-        }
+			String description = "구매 적립";
+			if (orderName != null && !"".equals(orderName)) {
+				description += " - " + orderName;
+				if (itemCount > 1) {
+					description += " 외 " + (itemCount - 1) + "건";
+				}
+			}
 
-        resultMap.put("result", "success");
-        return resultMap;
-    }
-    
+			HashMap<String, Object> userUpdateMap = new HashMap<>();
+			userUpdateMap.put("userId", userId);
+			userUpdateMap.put("earnedPoint", earnedPoint);
+			userUpdateMap.put("amount", amount);
+			userUpdateMap.put("description", description);
+
+			if (earnedPoint > 0) {
+				paymentMapper.insertPointHistory(userUpdateMap);
+			}
+
+			paymentMapper.updateUserPointAndAmount(userUpdateMap);
+		}
+
+		// 7. 재고 차감
+		List<HashMap<String, Object>> orderItems = paymentMapper.selectOrderItemsForStock(baseMap);
+
+		for (HashMap<String, Object> item : orderItems) {
+			String orderType = getStringValue(item, "orderType", "ORDER_TYPE");
+
+			HashMap<String, Object> stockMap = new HashMap<>();
+			stockMap.put("productId", getValue(item, "productId", "PRODUCT_ID"));
+			stockMap.put("optionItemId", getValue(item, "optionItemId", "OPTION_ITEM_ID"));
+			stockMap.put("quantity", getValue(item, "quantity", "QUANTITY"));
+
+			if ("PURCHASE".equals(orderType)) {
+				int updated = paymentMapper.decreaseStockForPurchase(stockMap);
+				if (updated == 0) {
+					throw new RuntimeException("재고 부족 - PRODUCT_ID: " + stockMap.get("productId"));
+				}
+			} else if ("RENTAL".equals(orderType)) {
+			    stockMap.put("startDate", getValue(item, "startDate", "START_DATE"));
+			    stockMap.put("endDate", getValue(item, "endDate", "END_DATE"));
+
+			    int updated = paymentMapper.decreaseStockForRental(stockMap);
+			    if (updated == 0) {
+			        throw new RuntimeException("대여 재고 부족 - PRODUCT_ID: " + stockMap.get("productId"));
+			    }
+
+			    int quantity = Integer.parseInt(String.valueOf(getValue(item, "quantity", "QUANTITY")));
+
+			    for (int i = 0; i < quantity; i++) {
+			        HashMap<String, Object> rentalMap = new HashMap<>();
+
+			        rentalMap.put("itemId", getValue(item, "optionItemId", "OPTION_ITEM_ID"));
+			        rentalMap.put("userId", userId); // 회원ID 또는 GUEST
+			        rentalMap.put("startDate", getValue(item, "startDate", "START_DATE"));
+			        rentalMap.put("returnDate", getValue(item, "endDate", "END_DATE"));
+			        rentalMap.put("guestName", getValue(orderInfo, "guestName", "GUEST_NAME"));
+			        rentalMap.put("guestPhone", getValue(orderInfo, "guestPhone", "GUEST_PHONE"));
+
+			        paymentMapper.insertRental(rentalMap);
+			    }
+			}
+		}
+	
+
+		resultMap.put("result", "success");
+		return resultMap;
+	}
+
+	private Object getValue(HashMap<String, Object> map, String camelKey, String upperKey) {
+		Object value = map.get(camelKey);
+		if (value == null) {
+			value = map.get(upperKey);
+		}
+		return value;
+	}
+
+	private String getStringValue(HashMap<String, Object> map, String camelKey, String upperKey) {
+		Object value = getValue(map, camelKey, upperKey);
+		return value == null ? null : String.valueOf(value);
+	}
+
+	private long getLongValue(HashMap<String, Object> map, String camelKey, String upperKey) {
+		Object value = getValue(map, camelKey, upperKey);
+		if (value == null || "".equals(String.valueOf(value))) {
+			return 0L;
+		}
+		return Long.parseLong(String.valueOf(value));
+	}
+
 }

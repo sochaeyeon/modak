@@ -16,8 +16,10 @@
 
         <div id="app" v-cloak>
             <div class="sidebar">
-                <div class="sidebar-logo" onclick="location.href='/main.do'">🔥 모닥모닥</div>
-                <button class="new-chat-btn" @click="fnNewChat">+ 새 대화 시작</button>
+                <div class="sidebar-logo" onclick="location.href='/main.do'">
+                    <i class="ri-fire-fill"></i>
+                    <span class="logo">모닥모닥</span>
+                </div> <button class="new-chat-btn" @click="fnNewChat">+ 새 대화 시작</button>
                 <p style="font-size:11px;color:var(--gray);margin-bottom:15px;font-weight:800;padding-left:5px;">
                     나의 캠핑 기록
                 </p>
@@ -48,7 +50,9 @@
 
             <div class="chat-main">
                 <header class="chat-header">
-                    <div class="bot-avatar">🔥</div>
+                    <div class="bot-avatar">
+                        <i class="ri-fire-fill"></i>
+                    </div>
                     <div>
                         <p><b>모닥이</b> (캠핑 가이드)</p>
                         <span style="font-size:11px;color:var(--orange);">무엇이든 물어봐라닥!</span>
@@ -57,7 +61,9 @@
 
                 <div class="message-area" id="msgArea">
                     <div v-if="messages.length === 0" style="text-align:center;padding:60px 0;">
-                        <div style="font-size:50px;margin-bottom:20px;">🔥</div>
+                        <div class="welcome-icon">
+                            <i class="ri-fire-fill"></i>
+                        </div>
                         <h3>모닥불 앞에 오신 걸 환영한다닥!</h3>
                         <p style="font-size:14px;color:var(--gray);margin-top:10px;">
                             장작 타는 소리와 함께 편하게 질문해라닥.<br>캠핑이 처음이어도 모닥이가 다 알려주겠다닥!
@@ -66,8 +72,9 @@
 
                     <div v-for="(msg, idx) in messages" :key="idx" :class="['msg', msg.role]">
                         <!-- 봇 아바타 (왼쪽) -->
-                        <div v-if="msg.role === 'bot'" class="bot-avatar"
-                            style="width:32px;height:32px;font-size:16px;flex-shrink:0;">🔥</div>
+                        <div v-if="msg.role === 'bot'" class="bot-avatar small-avatar">
+                            <i class="ri-fire-fill"></i>
+                        </div>
                         <!-- 유저 시간 (오른쪽) -->
                         <span v-if="msg.role === 'user'" class="msg-time">{{ msg.time }}</span>
 
@@ -91,14 +98,22 @@
                 <!-- 추천 질문 -->
                 <div class="faq-section" v-if="recommends.length > 0">
                     <button class="faq-chip" v-for="q in recommends" :key="q" @click="fnFaq(q)">{{ q }}</button>
-                    <button class="faq-chip home-btn" @click="fnGoMain">🏠 메인 홈으로</button>
+                    <button class="faq-chip home-btn" @click="fnGoMain">
+                        <i class="ri-home-5-line"></i>
+                        메인 홈으로
+                    </button>
                 </div>
 
                 <div class="input-area">
                     <div class="input-wrap">
+                        <i class="ri-chat-1-line input-icon"></i> <!-- ⭐ 여기 -->
+
                         <input type="text" class="input-box" v-model="userInput" ref="userInput"
                             @keyup.enter="fnSendMessage" :disabled="isLoading" placeholder="모닥이에게 물어봐라닥...">
-                        <button class="send-btn" @click="fnSendMessage" :disabled="isLoading">➤</button>
+
+                        <button class="send-btn" @click="fnSendMessage" :disabled="isLoading">
+                            <i class="ri-send-plane-2-fill"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -123,6 +138,32 @@
                     </div>
                 </div>
             </div>
+            <!-- 삭제 확인 모달 -->
+            <div v-if="deleteModalOpen" class="main-modal-backdrop" @click.self="fnCloseDeleteModal"
+                @keydown.enter.prevent="fnConfirmDeleteRoom" @keydown.esc.prevent="fnCloseDeleteModal" tabindex="0"
+                ref="deleteModal">
+
+                <div class="main-modal-box">
+                    <div class="main-modal-title">대화를 삭제하시겠닥?</div>
+                    <div class="main-modal-desc">
+                        삭제한 대화 기록은 다시 복구할 수 없습니다.
+                    </div>
+
+                    <div class="main-modal-actions">
+                        <button type="button" class="main-confirm-btn" @click="fnConfirmDeleteRoom">
+                            삭제
+                        </button>
+                        <button type="button" class="main-cancel-btn" @click="fnCloseDeleteModal">
+                            취소
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 토스트 -->
+            <div v-if="toastOpen" class="chat-toast">
+                {{ toastMessage }}
+            </div>
         </div>
 
         <script>
@@ -143,7 +184,11 @@
                         messages: [],   /* ★ 빈 배열로 시작 — 웰컴 메시지는 v-if 로 처리 */
                         history: [],
                         recommends: [],
-                       mainModalOpen: false,
+                        mainModalOpen: false,
+                        deleteModalOpen: false,
+                        deleteTargetRoomId: null,
+                        toastMessage: '',
+                        toastOpen: false,
                     };
 
                 },
@@ -169,7 +214,7 @@
                             success: (res) => {
                                 this.history = res.map(i => ({
                                     roomId: i.roomId,
-                                    title: (i.message || '').substring(0, 14) + ((i.message || '').length > 14 ? '…' : ''),
+                                    title: i.message || '새 대화',
                                 }));
 
                                 /* URL로 들어온 방 자동 선택 */
@@ -261,20 +306,6 @@
                     },
 
                     fnFaq(q) { this.userInput = q; this.fnSendMessage(); },
-                    fnGoMain() {
-                        this.showMainModal = true;
-
-                        // 엔터 누르면 이동
-                        setTimeout(() => {
-                            window.addEventListener('keydown', this.fnEnterMain);
-                        }, 0);
-                    },
-
-                    fnEnterMain(e) {
-                        if (e.key === 'Enter') {
-                            this.fnConfirmMain();
-                        }
-                    },
 
                     fnConfirmMain() {
                         window.removeEventListener('keydown', this.fnEnterMain);
@@ -307,14 +338,53 @@
                     },
                     /* 방 삭제 */
                     fnDeleteRoom(roomId) {
-                        if (!confirm('삭제하시겠닥?')) return;
+                        this.deleteTargetRoomId = roomId;
+                        this.deleteModalOpen = true;
+
+                        this.$nextTick(() => {
+                            this.$refs.deleteModal.focus();
+                        });
+                    },
+
+                    fnCloseDeleteModal() {
+                        this.deleteModalOpen = false;
+                        this.deleteTargetRoomId = null;
+                    },
+
+                    fnConfirmDeleteRoom() {
+                        if (!this.deleteTargetRoomId) return;
+
+                        const roomId = this.deleteTargetRoomId;
+
                         $.ajax({
                             url: '/api/chat/deleteRoom.dox',
                             type: 'POST',
                             contentType: 'application/json',
-                            data: JSON.stringify({ roomId }),
-                            success: () => { this.fnLoadSidebar(); this.fnNewChat(); }
+                            data: JSON.stringify({ roomId: roomId }),
+                            success: () => {
+                                this.fnCloseDeleteModal();
+                                this.fnLoadSidebar();
+
+                                if (this.currentRoomId === roomId) {
+                                    this.fnNewChat();
+                                }
+
+                                this.fnShowToast('대화가 삭제되었어요.');
+                            },
+                            error: () => {
+                                this.fnCloseDeleteModal();
+                                this.fnShowToast('삭제 중 오류가 발생했어요.');
+                            }
                         });
+                    },
+
+                    fnShowToast(message) {
+                        this.toastMessage = message;
+                        this.toastOpen = true;
+
+                        setTimeout(() => {
+                            this.toastOpen = false;
+                        }, 1800);
                     },
 
                     /* 스크롤 하단 이동 */
@@ -336,15 +406,11 @@
                         this.mainModalOpen = false;
                     },
 
-                    fnConfirmMain() {
-                        location.href = "/main.do";
-                    },
                 },
 
                 mounted() {
                     this.fnLoadSidebar();
                     this.fnGetRecommend('START');
-                    window.removeEventListener('keydown', this.fnEnterMain);
 
                 }
             }).mount('#app');

@@ -48,4 +48,9 @@ public interface PaymentMapper {
 
     // 대여 재고 차감
     public int decreaseStockForRental(HashMap<String, Object> map);
+    
+    // 결제 내역 생성
+    public int insertPaymentHistory(HashMap<String, Object> map);
+    
+    public int insertRental(HashMap<String, Object> map);
 }

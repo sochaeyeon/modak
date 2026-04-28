@@ -27,7 +27,9 @@
 
             <div id="noticeApp" class="alarm-page" v-cloak>
                 <div class="alarm-header-flex">
-                    <h2 class="alarm-title-main">🔔 활동 알림</h2>
+                    <h2 class="alarm-title-main">
+                        <i class="fa-regular fa-bell"></i> 활동 알림
+                    </h2>
                     <button v-if="alarmList.length > 0" @click="fnRemoveAll" class="all-remove-btn">전체 삭제</button>
                 </div>
 
@@ -52,14 +54,14 @@
                         @click="fnGoDetail(item.ALARM_ID)">
 
                         <div class="alarm-icon">
-                            <span v-if="item.TYPE === 'DELIVERY'">🚚</span>
-                            <span v-else-if="item.TYPE === 'EVENT'">🎁</span>
-                            <span v-else>📢</span>
+                            <i v-if="item.TYPE === 'DELIVERY'" class="fa-solid fa-truck"></i>
+                            <i v-else-if="item.TYPE === 'EVENT'" class="fa-solid fa-gift"></i>
+                            <i v-else class="fa-solid fa-bullhorn"></i>
                         </div>
 
                         <div class="alarm-info">
                             <div class="alarm-subject">
-                                <span v-if="item.IS_READ === 'N'" class="unread-dot">●</span>
+                                <span v-if="item.IS_READ === 'N'" class="unread-dot"></span>
                                 {{ item.TITLE }}
                             </div>
                             <div class="alarm-text">{{ item.CONTENT }}</div>
@@ -75,7 +77,6 @@
                 </div>
 
                 <div v-if="filteredList.length === 0" class="no-alarm">
-                    <div class="no-alarm-icon">⛺</div>
                     <p class="no-alarm-text">아직 새로운 소식이 없다닥!</p>
                 </div>
 

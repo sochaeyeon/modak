@@ -572,3 +572,232 @@ body { background: var(--bg); color: var(--text); font-family: 'Apple SD Gothic 
     .card-select-box { flex-direction: column; }
     .card-install-select { width: 100%; }
 }
+/* ================================
+   Checkout UI - 장바구니와 톤 통일
+================================ */
+
+:root {
+    --orange: #E8732A;
+    --orange-hover: #D9641F;
+    --orange-light: #FFF4EC;
+    --orange-line: #F2C7AE;
+    --brown-text: #3A2A22;
+    --soft-border: #EEE2DA;
+    --soft-bg: #FFF9F5;
+}
+
+/* 상단 단계 */
+.breadcrumb {
+    display: none !important;
+}
+
+.step-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 22px 0 34px;
+}
+
+.step {
+    min-width: 92px;
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #E7D8CF;
+    color: #B2A29A;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step.active {
+    background: var(--orange-light);
+    border-color: var(--orange);
+    color: var(--orange);
+}
+
+.step-line {
+    width: 44px;
+    height: 1px;
+    background: #E2D5CE;
+    margin: 0 8px;
+}
+
+.step-line.active {
+    background: var(--orange-line);
+}
+
+/* 전체 레이아웃 */
+.checkout-wrap {
+    max-width: 1200px;
+}
+
+.co-section,
+.summary-box,
+.order-brand-group {
+    border: 1px solid var(--soft-border);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(30, 20, 10, 0.05);
+}
+
+.co-section-title,
+.summary-title {
+    color: var(--brown-text);
+    font-weight: 800;
+}
+
+/* 배송지/비회원 입력 */
+.guest-addr-form,
+.addr-box,
+.order-brand-header,
+.order-brand-subtotal {
+    background: var(--soft-bg);
+    border-color: var(--soft-border);
+}
+
+.addr-default-badge,
+.nights-badge {
+    background: var(--orange-light);
+    color: var(--orange);
+    border: 1px solid var(--orange-line);
+}
+
+/* 버튼 */
+.addr-change-btn,
+.modal-btn-cancel {
+    border: 1px solid #DDD0C8;
+    background: #fff;
+    color: #5C4A40;
+    transition: all .18s ease;
+}
+
+.addr-change-btn:hover,
+.modal-btn-cancel:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+    background: #fff;
+}
+
+/* 입력/셀렉트 */
+.delivery-memo-select,
+.delivery-memo-input,
+.guest-input,
+.coupon-select {
+    border-color: #E2D4CC;
+    border-radius: 10px;
+}
+
+.delivery-memo-select:hover,
+.delivery-memo-input:hover,
+.guest-input:hover,
+.coupon-select:hover {
+    border-color: var(--orange-line);
+}
+
+.delivery-memo-select:focus,
+.delivery-memo-input:focus,
+.guest-input:focus,
+.coupon-select:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(232, 115, 42, 0.12);
+}
+
+/* 주문 상품 */
+.order-brand-name,
+.order-item-name {
+    color: var(--brown-text);
+    font-weight: 800;
+}
+
+.order-ship-badge {
+    background: #F0F7F1;
+    color: #4B8B57;
+    border: 1px solid #D8E9DB;
+    border-radius: 999px;
+}
+
+.order-item-option,
+.summary-item-opt {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: #FFF5EF;
+    border: 1px solid #EDD2C2;
+    color: #9A5C36;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.order-rental-dates {
+    background: #FFF5EF;
+    border-color: #EDD2C2;
+    color: #9A5C36;
+}
+
+/* 금액 */
+.order-total-price,
+.summary-row.total .s-val,
+.s-val.orange {
+    color: var(--orange) !important;
+}
+
+.discount-amount,
+.s-val.red {
+    color: var(--orange) !important;
+}
+
+/* 체크박스 */
+.chk {
+    border-color: #DDD0C8;
+}
+
+.chk:hover {
+    border-color: var(--orange);
+}
+
+.chk.on {
+    background: var(--orange);
+    border-color: var(--orange);
+}
+
+/* 결제 버튼 */
+.pay-btn {
+    background: var(--orange) !important;
+    border: none;
+    transition: background .18s ease;
+}
+
+.pay-btn:hover:not(:disabled) {
+    background: var(--orange-hover) !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.pay-btn:disabled {
+    background: #D6CDC7 !important;
+}
+
+/* 모달 */
+.modal-overlay {
+    background: rgba(20, 14, 10, .48);
+    backdrop-filter: blur(5px);
+}
+
+.modal-box {
+    border-radius: 18px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .2);
+}
+
+.modal-btn-ok {
+    background: var(--orange);
+}
+
+.modal-btn-ok:hover {
+    background: var(--orange-hover);
+    box-shadow: none;
+}

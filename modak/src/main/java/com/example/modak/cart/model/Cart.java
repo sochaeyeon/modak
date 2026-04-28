@@ -15,7 +15,6 @@ public class Cart {
 	
 	private String userId; // 회원 id
 	private int productId; // 상품 id
-	private int optionId; // 옵션 id
 	
 	private String productName;
     private int price;
@@ -23,6 +22,12 @@ public class Cart {
     private String brandName;    
     private String categoryName;  
     private int stock;           
+    
+    private Integer optionItemId;
     private String optionName;
+    private Integer extraPrice;
+    private Integer unitPrice;
+    private Integer deposit;
+    private String optionValueIds;
 
 }

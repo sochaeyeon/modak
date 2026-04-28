@@ -23,7 +23,7 @@ public class PointHistoryController {
 
     @Autowired
     private HttpSession session;
-
+    
     // 포인트 내역 전체보기 페이지
     @RequestMapping("/user/benefit/history.do")
     public String pointHistoryPage(HttpServletRequest request) {
@@ -58,6 +58,29 @@ public class PointHistoryController {
 
         return new Gson().toJson(resultMap);
     }
-    
+    @RequestMapping(value = "/user/point.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String getUserPoint() {
+        HashMap<String, Object> resultMap = new HashMap<>();
+
+        try {
+            String sessionId = (String) session.getAttribute("sessionId");
+
+            if (sessionId == null) {
+                resultMap.put("result", "fail");
+                resultMap.put("message", "로그인이 필요합니다.");
+                return new Gson().toJson(resultMap);
+            }
+
+            resultMap = pointHistoryService.getUserPoint(sessionId);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultMap.put("result", "fail");
+            resultMap.put("message", "포인트 조회 중 오류가 발생했습니다.");
+        }
+
+        return new Gson().toJson(resultMap);
+    }
     
 }

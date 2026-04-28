@@ -1,32 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.modak.user.mapper.PointHistoryMapper">
 
-   <select id="selectPointHistoryList"
-        parameterType="hashmap"
-        resultType="com.example.modak.user.model.PointHistory">
-    SELECT
-        HISTORY_ID,
-        USER_ID,
-        DESCRIPTION,
-        AMOUNT,
-        TYPE,
-        DATE_FORMAT(CREATED_AT, '%Y-%m-%d %H:%i') AS createdAt,
-        BALANCE_AFTER
-    FROM point_history
-    WHERE USER_ID = #{userId}
-    ORDER BY CREATED_AT DESC, HISTORY_ID DESC
-    LIMIT ${pageSize} OFFSET ${offset}
-</select>
+	<select id="selectPointHistoryList"
+		parameterType="hashmap"
+		resultType="com.example.modak.user.model.PointHistory">
+		SELECT
+		HISTORY_ID,
+		USER_ID,
+		DESCRIPTION,
+		AMOUNT,
+		TYPE,
+		DATE_FORMAT(CREATED_AT, '%Y-%m-%d %H:%i') AS createdAt,
+		BALANCE_AFTER
+		FROM point_history
+		WHERE USER_ID = #{userId}
+		ORDER BY CREATED_AT DESC, HISTORY_ID DESC
+		LIMIT ${pageSize} OFFSET ${offset}
+	</select>
 
-<select id="selectPointHistoryCount"
-        parameterType="hashmap"
-        resultType="int">
-    SELECT COUNT(*)
-    FROM point_history
-    WHERE USER_ID = #{userId}
-</select>
-
+	<select id="selectPointHistoryCount"
+		parameterType="hashmap"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM point_history
+		WHERE USER_ID = #{userId}
+	</select>
+	<select id="selectUserPoint" parameterType="string" resultType="int">
+		SELECT POINT
+		FROM USER
+		WHERE USER_ID = #{userId}
+	</select>
 </mapper>

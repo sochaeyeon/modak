@@ -146,18 +146,40 @@ body {
     opacity: 0.8;
 }
 
-/* 아이콘 */
 .alarm-icon {
     width: 56px;
     height: 56px;
-    flex-shrink: 0; /* 크기 고정 */
+    flex-shrink: 0;
     background: #F6F0E6;
     border-radius: 15px;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 26px;
-    margin-right: 20px;
+
+    font-size: 22px;
+    color: #E8732A; /* 포인트 색 */
+}
+.alarm-title-main i {
+    margin-right: 6px;
+    color: #E8732A;
+}
+.no-alarm-icon {
+    font-size: 32px;
+    color: #E2D8C3;
+    margin-bottom: 10px;
+}
+.unread-dot {
+    width: 8px;
+    height: 8px;
+    background: #E8732A;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+.alarm-item:hover .alarm-icon {
+    background: #FFEFE4;
+    transform: scale(1.05);
 }
 
 /* 텍스트 정보 */

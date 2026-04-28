@@ -1122,10 +1122,44 @@ nav {
   .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .breadcrumb-inner { padding: 0 16px; }
 }
-.grid-wrap {
-  min-height: 720px;
+
+.pcard {
+  display: flex;
+  flex-direction: column;
 }
 
-.product-grid {
-  min-height: 720px;
+.pcard-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.btn-row {
+  margin-top: auto;
+}
+.pcard {
+  display: flex;
+  flex-direction: column;
+}
+
+.pcard-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.pcard-top {
+  min-height: 120px;  /* 여기만 조절 */
+  display: flex;
+  flex-direction: column;
+}
+
+/* 버튼은 무조건 아래 */
+.btn-row {
+  margin-top: auto;
+}
+.pcard-cat {
+  align-self: flex-start;
+  width: auto;
+  max-width: max-content;
 }

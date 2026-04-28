@@ -36,4 +36,21 @@ public class PointHistoryService {
 
         return resultMap;
     }
+    public HashMap<String, Object> getUserPoint(String userId) {
+        HashMap<String, Object> resultMap = new HashMap<>();
+
+        try {
+            int point = pointHistoryMapper.selectUserPoint(userId);
+
+            resultMap.put("result", "success");
+            resultMap.put("point", point);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            resultMap.put("result", "fail");
+            resultMap.put("message", "포인트 조회에 실패했습니다.");
+        }
+
+        return resultMap;
+    }
 }

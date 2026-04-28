@@ -62,7 +62,10 @@
             <div class="category-menu" id="categoryMenu">
                 <div class="menu-header">
                     <h3>CATEGORY</h3>
-                    <div class="welcome-msg">반갑닥! 모닥러님 🔥</div>
+                    <div class="welcome-msg">
+                        반갑닥! 모닥러님
+                        <i class="fa-solid fa-fire flame-icon"></i>
+                    </div>
                     <button class="close-btn" onclick="toggleCategory()">&times;</button>
                     <form class="menu-search-box" action="/search/integrated.do" method="POST">
                         <input type="text" name="keyword" placeholder="어떤 캠핑용품을 찾고 계신가요?">
@@ -178,7 +181,11 @@
                             const previewData = res.list.slice(0, 5);
 
                             previewData.forEach(item => {
-                                const icon = item.TYPE === 'DELIVERY' ? '🚚' : (item.TYPE === 'EVENT' ? '🎁' : '📢');
+                                const icon = item.TYPE === 'DELIVERY'
+                                    ? '<i class="fa-solid fa-truck"></i>'
+                                    : (item.TYPE === 'EVENT'
+                                        ? '<i class="fa-solid fa-gift"></i>'
+                                        : '<i class="fa-solid fa-bullhorn"></i>');
                                 const unreadClass = item.IS_READ === 'N' ? 'unread' : '';
 
                                 html += '<div class="alarm-preview-item ' + unreadClass + '" onclick="location.href=\'/alarm/notice-detail.do?alarmId=' + item.ALARM_ID + '\'">' +
@@ -190,7 +197,7 @@
                                     '</div>';
                             });
                         } else {
-                            html = '<div class="empty-alarm">새로운 소식이 없다닥! ⛺</div>';
+                            html = '<div class="empty-alarm">새로운 소식이 없습니다.</div>';
                         }
 
                         listBody.innerHTML = html;
@@ -235,8 +242,35 @@
 
             document.addEventListener('DOMContentLoaded', function () {
                 fnCheckAlarm();
+                fnCheckCartCount();
+
                 const title = document.title.split(' - ')[0];
                 const pageNameEl = document.getElementById('currentPageName');
                 if (pageNameEl) pageNameEl.innerText = title;
             });
+            function fnCheckCartCount() {
+                const cartCountEl = document.getElementById('cartCount');
+
+                if (!cartCountEl) return;
+
+                $.ajax({
+                    url: "/cart/count.dox",
+                    type: "POST",
+                    dataType: "json",
+                    success: function (res) {
+                        console.log("장바구니 개수 응답:", res);
+
+                        const count = Number(res.count || 0);
+
+                        cartCountEl.innerText = count;
+                        cartCountEl.style.display = 'flex';
+                    },
+                    error: function (xhr) {
+                        console.log("장바구니 개수 오류:", xhr.responseText);
+
+                        cartCountEl.innerText = '0';
+                        cartCountEl.style.display = 'flex';
+                    }
+                });
+            }
         </script>

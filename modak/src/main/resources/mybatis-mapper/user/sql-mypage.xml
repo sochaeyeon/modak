@@ -199,4 +199,16 @@
 		FROM USER_COUPON
 		WHERE USER_ID = #{userId}
 	</select>
+	
+	<select id="selectBookmarkList" parameterType="string" resultType="map">
+    SELECT b.BOARD_ID,
+           b.TITLE,
+           b.USER_ID,
+           b.CREATED_AT,
+           b.VIEW_COUNT
+    FROM BOARD_BOOKMARK bb
+    JOIN BOARD b ON bb.BOARD_ID = b.BOARD_ID
+    WHERE bb.USER_ID = #{userId}
+    ORDER BY bb.CREATED_AT DESC
+</select>
 </mapper>

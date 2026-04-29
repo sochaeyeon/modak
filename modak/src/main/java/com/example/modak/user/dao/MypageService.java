@@ -2,6 +2,7 @@ package com.example.modak.user.dao;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -63,5 +64,22 @@ public class MypageService {
 	public int getAvailableCouponCount(String userId) {
 		MypageSummary summary = mypageMapper.selectMypageSummary(userId);
 		return summary != null ? summary.getCouponCount() : 0;
+	}
+	
+	public HashMap<String, Object> getBookmarkList(String userId) {
+	    HashMap<String, Object> result = new HashMap<>();
+
+	    if (userId == null || userId.isBlank()) {
+	        result.put("result", "fail");
+	        result.put("message", "로그인이 필요합니다.");
+	        return result;
+	    }
+
+	    List<Map<String, Object>> list = mypageMapper.selectBookmarkList(userId);
+
+	    result.put("result", "success");
+	    result.put("list", list);
+
+	    return result;
 	}
 }

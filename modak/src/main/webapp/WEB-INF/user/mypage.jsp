@@ -153,6 +153,9 @@
                                             </svg>
                                             내 리뷰
                                         </div>
+                                        <div class="nav-item" onclick="switchTab('bookmarks', this)">
+                                            ⭐ 스크랩한 글
+                                        </div>
 
                                         <div class="nav-item" onclick="switchTab('chatbot', this)">
                                             <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -859,6 +862,42 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="tab-panel" id="tab-bookmarks">
+                                    <div class="section-card">
+                                        <div class="section-head">
+                                            <h3>스크랩한 글</h3>
+                                        </div>
+
+                                        <div class="review-list">
+                                            <div v-if="bookmarkList.length === 0" class="empty-state">
+                                                <p>스크랩한 게시글이 없습니다.</p>
+                                            </div>
+
+                                            <div class="review-item"
+                                                v-for="item in bookmarkList"
+                                                :key="item.BOARD_ID"
+                                                @click="fnGoBoardDetail(item.BOARD_ID)"
+                                                style="cursor:pointer;">
+
+                                                <div class="review-head">
+                                                    <div class="review-title">
+                                                        {{ item.TITLE }}
+                                                    </div>
+                                                </div>
+
+                                                <div class="review-bottom">
+                                                    <div class="review-date">
+                                                        {{ item.CREATED_AT }}
+                                                    </div>
+
+                                                    <div style="font-size:12px;color:#8B6B4A;">
+                                                        👁 {{ item.VIEW_COUNT }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                     <!-- ── 내 문의 목록 탭 ── -->
                                     <div class="tab-panel" id="tab-inquiries">
                                         <div class="section-card">
@@ -1270,7 +1309,7 @@
                                 wishlist: [],
                                 recentList: [],
                                 chatbotList: [],
-
+                                bookmarkList: [],
                                 settingsForm: {
                                     userName: "",
                                     nickName: "",
@@ -1490,7 +1529,30 @@
                                 this.modal.show = false;
                                 this.modal.onConfirm = null;
                             },
+                            fnGetBookmarkList: function () {
+                            let self = this;
 
+                            $.ajax({
+                                url: "/bookmark/list.dox",
+                                type: "POST",
+                                dataType: "json",
+                                data: {},
+                                success: function (data) {
+                                    if (data.result === "success") {
+                                        self.bookmarkList = data.list || [];
+                                    } else {
+                                        self.bookmarkList = [];
+                                    }
+                                },
+                                error: function () {
+                                    self.bookmarkList = [];
+                                }
+                            });
+                        },
+
+                        fnGoBoardDetail: function (boardId) {
+                            location.href = "/board/detail.do?boardId=" + boardId;
+                        },
                             fnModalConfirm: function () {
                                 var callback = this.modal.onConfirm;
                                 this.fnCloseModal();
@@ -2644,6 +2706,7 @@
                             this.fnGetUserSettings();
                             this.fnGetInquiryList();
                             this.fnGetCouponList();
+                            this.fnGetBookmarkList();
 
                             const savedTab = sessionStorage.getItem("activeTab");
 

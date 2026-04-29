@@ -62,7 +62,11 @@
 
                                 <!-- 본문 -->
                                 <div class="post-content">{{ board.CONTENT }}</div>
-
+                                <div class="tag-wrap" v-if="tagList.length > 0">
+                                    <span class="board-tag" v-for="tag in tagList" :key="tag" @click="fnTagSearch(tag)">
+                                        #{{ tag }}
+                                    </span>
+                                </div>
                                 <!-- 이미지 갤러리 -->
                                 <div v-if="imgList.length > 0" class="img-gallery"
                                     :class="imgList.length === 1 ? 'one' : imgList.length === 2 ? 'two' : 'many'">
@@ -114,6 +118,9 @@
                                     <button class="react-btn" :class="{ liked: myLiked }"
                                         @click="fnReact('LIKE', 'BOARD')">
                                         ❤️ 추천 {{ board.LIKE_COUNT }}
+                                    </button>
+                                    <button class="bookmark-btn" :class="{ active: bookmarked }" @click="fnBookmark">
+                                        {{ bookmarked ? '⭐ 스크랩됨' : '☆ 스크랩' }}
                                     </button>
                                     <button class="react-btn" :class="{ disliked: myDisliked }"
                                         @click="fnReact('DISLIKE', 'BOARD')">
@@ -294,7 +301,9 @@
                                     reportTarget: 'BOARD', reportCommentId: null,
                                     toastVisible: false, toastMsg: '',
                                     currentUserId: '${sessionScope.sessionId}' || null,
-                                    openReplies: {}
+                                    openReplies: {},
+                                    tagList: [],
+                                    bookmarked: false,
                                 };
                             },
                             computed: {
@@ -316,8 +325,10 @@
                                                 this.imgList = res.imgList || [];
                                                 this.commentList = res.commentList || [];
                                                 this.poll = res.poll;
+                                                this.tagList = res.tagList || [];
                                                 this.pollOptions = res.pollOptions || [];
                                                 this.myReactions = res.myReactions || [];
+                                                this.bookmarked = res.bookmarked === true;
                                             }
                                         },
 
@@ -330,6 +341,24 @@
                                 },
                                 fnToggleReplies(commentId) {
                                     this.openReplies[commentId] = !this.openReplies[commentId];
+                                },
+                                fnTagSearch(tag) {
+                                    location.href = "/board/list.do?tag=" + encodeURIComponent(tag);
+                                },
+                                fnBookmark() {
+                                    $.ajax({
+                                        url: '/board/bookmark.dox',
+                                        type: 'POST',
+                                        data: { boardId: this.boardId },
+                                        success: (res) => {
+                                            if (res.result === 'success') {
+                                                this.bookmarked = res.bookmarked;
+                                                this.showToast(this.bookmarked ? '스크랩 완료 ⭐' : '스크랩 해제');
+                                            } else {
+                                                this.showToast(res.message || '로그인이 필요합니다.');
+                                            }
+                                        }
+                                    });
                                 },
 
                                 getReplies(parentId) {

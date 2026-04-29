@@ -6,11 +6,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-
+import com.example.modak.board.dao.BoardService;
 import com.example.modak.review.dao.ReviewService;
 import com.example.modak.user.dao.MypageService;
 import com.example.modak.user.mapper.CouponMapper;
@@ -36,6 +37,9 @@ public class MypageController {
 
 	@Autowired
 	ReviewService reviewService;
+	
+	@Autowired
+	BoardService boardService;
 
 	@RequestMapping("/user/mypage.do")
 	public String myPage(Model model) {
@@ -95,5 +99,16 @@ public class MypageController {
 		}
 
 		return new Gson().toJson(resultMap);
+	}
+	
+	
+	@PostMapping(value = "/bookmark/list.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getBookmarkList() {
+
+		String userId = (String) session.getAttribute("sessionId");
+		
+
+	    return new Gson().toJson(boardService.getBookmarkList(userId));
 	}
 }

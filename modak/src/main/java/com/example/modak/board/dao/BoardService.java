@@ -6,7 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,29 +80,33 @@ public class BoardService {
 
             // 댓글
             List<Map<String, Object>> commentList = mapper.selectCommentList(param);
+         // 태그
+            List<String> tagList = mapper.selectTagsByBoardId(boardId);
 
             // 투표
             Map<String, Object> poll = null;
             List<Map<String, Object>> pollOptions = null;
-         // BoardService.java getBoardDetail - poll 처리 부분 수정
+
             if ("Y".equals(String.valueOf(board.get("HAS_POLL")))) {
                 poll = mapper.selectPollByBoardId(param);
-                if (poll != null) {  // ★ null 체크가 있는지 확인
+
+                if (poll != null) {
                     HashMap<String, Object> pollParam = new HashMap<>();
                     pollParam.put("pollId", poll.get("POLL_ID"));
                     pollOptions = mapper.selectPollOptions(pollParam);
-                    
+
                     if (userId != null) {
                         pollParam.put("userId", userId);
+
                         int voted = mapper.selectVoteExists(pollParam);
                         poll.put("myVoted", voted > 0);
+
                         if (voted > 0) {
                             Map<String, Object> myVote = mapper.selectMyVote(pollParam);
                             poll.put("myOptionId", myVote != null ? myVote.get("optionId") : null);
                         }
                     }
                 } else {
-                    // ★ poll 데이터 없으면 HAS_POLL 강제 N 처리
                     board.put("HAS_POLL", "N");
                 }
             }
@@ -110,28 +115,39 @@ public class BoardService {
             List<Map<String, Object>> myReactions = new ArrayList<>();
             if (userId != null) {
                 HashMap<String, Object> reactionParam = new HashMap<>();
-                reactionParam.put("userId",  userId);
+                reactionParam.put("userId", userId);
                 reactionParam.put("boardId", boardId);
                 myReactions = mapper.selectMyReactions(reactionParam);
             }
 
-            result.put("result",      "success");
-            result.put("board",       board);
-            result.put("imgList",     imgList);
+            // 북마크 여부
+            boolean bookmarked = false;
+            if (userId != null) {
+                HashMap<String, Object> bookmarkParam = new HashMap<>();
+                bookmarkParam.put("userId", userId);
+                bookmarkParam.put("boardId", boardId);
+                bookmarked = mapper.selectBookmarkExists(bookmarkParam) > 0;
+            }
+
+            result.put("result", "success");
+            result.put("board", board);
+            result.put("imgList", imgList);
             result.put("commentList", commentList);
-            result.put("poll",        poll);
+            result.put("tagList", tagList);
+            result.put("poll", poll);
             result.put("pollOptions", pollOptions);
             result.put("myReactions", myReactions);
+            result.put("bookmarked", bookmarked);
 
         } catch (Exception e) {
-            e.printStackTrace(); // ★ 이미 있는지 확인 - 없으면 추가
+            e.printStackTrace();
             System.out.println("getBoardDetail 오류: " + e.getMessage());
             result.put("result", "fail");
-            result.put("message", e.getMessage()); // ★ 추가
+            result.put("message", e.getMessage());
         }
+
         return result;
     }
-
     // ═══════════════════════ 작성 ═══════════════════════
 
     @Transactional
@@ -156,6 +172,26 @@ public class BoardService {
 
             mapper.insertBoard(map);
             Long boardId = Long.parseLong(String.valueOf(map.get("boardId")));
+         // 태그 저장
+            String content = String.valueOf(map.get("content"));
+            Matcher matcher = Pattern.compile("#([가-힣a-zA-Z0-9_]+)").matcher(content);
+
+            List<String> tagList = new ArrayList<>();
+
+            while (matcher.find()) {
+                String tag = matcher.group(1).trim();
+
+                if (!tag.isEmpty() && !tagList.contains(tag)) {
+                    tagList.add(tag);
+                }
+            }
+
+            for (String tag : tagList) {
+                HashMap<String, Object> tagMap = new HashMap<>();
+                tagMap.put("boardId", boardId);
+                tagMap.put("tagName", tag);
+                mapper.insertBoardTag(tagMap);
+            }
 
             // 이미지 저장
             if (files != null) {
@@ -507,5 +543,76 @@ public class BoardService {
         file.transferTo(new File(dir, saveName));
 
         return "/img/board/" + saveName;
+    }
+    
+    @Transactional
+    public HashMap<String, Object> toggleBookmark(HashMap<String, Object> map) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            String userId = getUserId();
+
+            if (userId == null) {
+                result.put("result", "fail");
+                result.put("message", "로그인이 필요합니다.");
+                return result;
+            }
+
+            map.put("userId", userId);
+
+            int exists = mapper.selectBookmarkExists(map);
+
+            if (exists > 0) {
+                mapper.deleteBookmark(map);
+                result.put("bookmarked", false);
+            } else {
+                mapper.insertBookmark(map);
+                result.put("bookmarked", true);
+            }
+
+            result.put("result", "success");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+            result.put("message", e.getMessage());
+        }
+
+        return result;
+    }
+    
+    public HashMap<String, Object> getBookmarkList(String userId) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        if (userId == null || userId.isBlank()) {
+            result.put("result", "fail");
+            result.put("message", "로그인이 필요합니다.");
+            return result;
+        }
+
+        List<Map<String, Object>> list = mapper.selectBookmarkList(userId);
+
+        result.put("result", "success");
+        result.put("list", list);
+
+        return result;
+    }
+    public HashMap<String, Object> getBoardListByTag(String tag) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            List<Map<String, Object>> list = mapper.selectBoardListByTag(tag);
+
+            result.put("result", "success");
+            result.put("list", list);
+            result.put("tag", tag);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+            result.put("message", e.getMessage());
+        }
+
+        return result;
     }
 }

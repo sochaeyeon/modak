@@ -307,7 +307,7 @@
 									sendCategory = currentSubTab;
 								} else {
 									var subTabs = SUB_TABS[currentCat] || [];
-									var subs = subTabs.filter(function (t) { return t !== '전체'; });
+									var subs = subTabs.filter(function (t) {return t !== '전체';});
 									sendCategory = subs.join(',');
 								}
 							}
@@ -362,10 +362,10 @@
 								var $answer = $item.find('.faq-answer');
 								var wasOpen = $item.hasClass('open');
 
-								// 열려있는 항목 모두 닫기 (동시에 하나만 열리게)
-								$wrap.find('.faq-item.open').removeClass('open').find('.faq-answer').stop(true, true).slideUp(160);
-
-								if (!wasOpen) {
+								if ($item.hasClass('open')) {
+									$item.removeClass('open');
+									$answer.stop(true, true).slideUp(160);
+								} else {
 									$item.addClass('open');
 									$answer.stop(true, true).slideDown(160);
 								}
@@ -381,7 +381,7 @@
 								url: CTX + '/cs/center.dox',
 								type: 'POST',
 								dataType: 'json',
-								data: { action: 'notificationList', limit: 4 },
+								data: {action: 'notificationList', limit: 4},
 								success: function (data) {
 									if (data.result === 'success') {
 										renderNotificationList(data.list);
@@ -417,11 +417,11 @@
 						}
 
 						function getBadgeClass(type) {
-							var map = { ORDER: '', SYSTEM: 'blue', EVENT: 'blue', POLICY: 'gray', RENTAL: '', INQUIRY: 'gray' };
+							var map = {ORDER: '', SYSTEM: 'blue', EVENT: 'blue', POLICY: 'gray', RENTAL: '', INQUIRY: 'gray'};
 							return map[type] !== undefined ? map[type] : 'gray';
 						}
 						function getBadgeLabel(type) {
-							var map = { ORDER: '공지', SYSTEM: '업데이트', EVENT: '이벤트', POLICY: '안내', RENTAL: '공지', INQUIRY: '일반' };
+							var map = {ORDER: '공지', SYSTEM: '업데이트', EVENT: '이벤트', POLICY: '안내', RENTAL: '공지', INQUIRY: '일반'};
 							return map[type] || '공지';
 						}
 
@@ -471,7 +471,7 @@
 							currentKeyword = '';
 							renderSubTabs(cat);
 							fnGetFaqList();
-							$('html, body').animate({ scrollTop: $('.faq-section').offset().top - 80 }, 400);
+							$('html, body').animate({scrollTop: $('.faq-section').offset().top - 80}, 400);
 						}
 
 						/* ════════════════════════════
@@ -531,7 +531,7 @@
 								$('#faqSidebarList li').removeClass('active').filter('[data-cat="전체"]').addClass('active');
 								renderSubTabs('전체');
 								fnGetFaqList();
-								$('html, body').animate({ scrollTop: $('.faq-section').offset().top - 80 }, 400);
+								$('html, body').animate({scrollTop: $('.faq-section').offset().top - 80}, 400);
 							});
 						}
 
@@ -539,7 +539,7 @@
 						   유틸
 						════════════════════════════ */
 						function escapeRegex(str) {
-							return str.replace(/[.*+?^$()|[\]\\]/g, function (m) { return '\\' + m; });
+							return str.replace(/[.*+?^$()|[\]\\]/g, function (m) {return '\\' + m;});
 						}
 						function escHtml(str) {
 							if (!str) return '';
@@ -589,8 +589,8 @@
 							'예약': '예약 관련 문의는 예약 내역에서 확인하실 수 있습니다.',
 							'대여': '대여 관련 문의는 예약 내역 > 대여 현황에서 확인하실 수 있습니다.'
 						};
-						function openChatbot() { $('#chatbotModal').fadeIn(200); $('#chatbotInput').focus(); }
-						function closeChatbot() { $('#chatbotModal').fadeOut(200); }
+						function openChatbot() {$('#chatbotModal').fadeIn(200); $('#chatbotInput').focus();}
+						function closeChatbot() {$('#chatbotModal').fadeOut(200);}
 						function sendChat() {
 							var msg = $('#chatbotInput').val().trim();
 							if (!msg) return;
@@ -598,7 +598,7 @@
 							$('#chatbotBody').append('<div class="chat-msg user">' + escHtml(msg) + '</div>');
 							var reply = '죄송합니다. 해당 내용은 1:1 문의나 전화 상담을 이용해주세요.';
 							$.each(chatBotAnswers, function (keyword, answer) {
-								if (msg.indexOf(keyword) >= 0) { reply = answer; return false; }
+								if (msg.indexOf(keyword) >= 0) {reply = answer; return false;}
 							});
 							setTimeout(function () {
 								$('#chatbotBody').append('<div class="chat-msg bot">' + reply + '</div>');

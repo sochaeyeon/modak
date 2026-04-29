@@ -30,18 +30,16 @@ public class MypageController {
 
 	@Autowired
 	HttpSession session;
-	
+
 	@Autowired
 	CouponMapper couponMapper;
-	
+
 	@Autowired
 	ReviewService reviewService;
 
 	@RequestMapping("/user/mypage.do")
 	public String myPage(Model model) {
-
 		String sessionId = (String) session.getAttribute("sessionId");
-
 		if (sessionId == null || sessionId.equals("")) {
 			return "redirect:/user/login.do";
 		}
@@ -51,19 +49,19 @@ public class MypageController {
 		List<PointHistory> pointHistoryList = mypageService.getPointHistory(sessionId);
 		List<UserCoupon> couponList = mypageService.getCouponList(sessionId);
 
+		// ★ reviewService.getReviewList 대신 직접 이미지 포함 조회
 		HashMap<String, Object> reviewMap = new HashMap<>();
 		reviewMap.put("page", 1);
 		reviewMap.put("pageSize", 5);
 		reviewMap.put("userId", sessionId);
 
 		HashMap<String, Object> reviewResult = reviewService.getReviewList(reviewMap);
-		model.addAttribute("reviewList", reviewResult.get("list"));
 
+		model.addAttribute("reviewList", reviewResult.get("list")); // imageList 포함된 list
 		model.addAttribute("user", user);
 		model.addAttribute("summary", summary);
 		model.addAttribute("pointHistoryList", pointHistoryList);
 		model.addAttribute("couponList", couponList);
-
 		return "user/mypage";
 	}
 
@@ -71,31 +69,31 @@ public class MypageController {
 	@ResponseBody
 	public String getCouponList(@RequestParam HashMap<String, Object> map) {
 
-	    HashMap<String, Object> resultMap = new HashMap<>();
+		HashMap<String, Object> resultMap = new HashMap<>();
 
-	    try {
-	        String sessionId = (String) session.getAttribute("sessionId");
+		try {
+			String sessionId = (String) session.getAttribute("sessionId");
 
-	        int page = Integer.parseInt(String.valueOf(map.getOrDefault("page", "1")));
-	        int pageSize = Integer.parseInt(String.valueOf(map.getOrDefault("pageSize", "10")));
-	        int start = (page - 1) * pageSize;
+			int page = Integer.parseInt(String.valueOf(map.getOrDefault("page", "1")));
+			int pageSize = Integer.parseInt(String.valueOf(map.getOrDefault("pageSize", "10")));
+			int start = (page - 1) * pageSize;
 
-	        map.put("userId", sessionId);
-	        map.put("start", start);
-	        map.put("pageSize", pageSize);
+			map.put("userId", sessionId);
+			map.put("start", start);
+			map.put("pageSize", pageSize);
 
-	        List<UserCoupon> list = couponMapper.selectUserCouponList(map);
+			List<UserCoupon> list = couponMapper.selectUserCouponList(map);
 
-	        resultMap.put("result", "success");
-	        resultMap.put("list", list);
-	        resultMap.put("totalCount", couponMapper.selectUserCouponCount(map));
-	        resultMap.put("availableCouponCount", couponMapper.selectAvailableCouponCount(map));
+			resultMap.put("result", "success");
+			resultMap.put("list", list);
+			resultMap.put("totalCount", couponMapper.selectUserCouponCount(map));
+			resultMap.put("availableCouponCount", couponMapper.selectAvailableCouponCount(map));
 
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        resultMap.put("result", "fail");
-	    }
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMap.put("result", "fail");
+		}
 
-	    return new Gson().toJson(resultMap);
+		return new Gson().toJson(resultMap);
 	}
 }

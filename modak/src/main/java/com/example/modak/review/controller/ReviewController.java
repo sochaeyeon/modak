@@ -160,4 +160,12 @@ public class ReviewController {
 
 		return reviewService.reportReview(map);
 	}
+
+	// 리뷰 전체보기 목록 (페이징 Ajax)
+	@RequestMapping(value = "/user/review/history.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getReviewHistory(@RequestParam HashMap<String, Object> map) throws Exception {
+		HashMap<String, Object> resultMap = reviewService.getReviewList(map);
+		return new Gson().toJson(resultMap);
+	}
 }

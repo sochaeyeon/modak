@@ -16,68 +16,59 @@
 
         <%@ include file="/WEB-INF/common/header.jsp" %>
 
-            <div class="page-wrap">
-                <div class="inquiry-card">
+            <div class="guest-inquiry-page">
 
-                    <div class="card-icon">📦</div>
-                    <p class="card-eyebrow">GUEST ORDER</p>
-                    <h1 class="card-title">비회원 주문조회</h1>
-                    <p class="card-desc">주문 시 입력하신 정보로<br>주문 내역을 확인하실 수 있습니다.</p>
-                    <div class="divider"></div>
+                <section class="inquiry-hero">
+                    <p class="hero-kicker">GUEST ORDER</p>
+                    <h1>비회원 주문조회</h1>
+                    <p class="hero-desc">
+                        주문 시 입력한 정보로 주문 내역을 확인할 수 있습니다.
+                    </p>
+                </section>
 
-                    <!-- 주문번호 -->
-                    <div class="form-group">
-                        <label class="form-label" for="orderId">주문번호 <span class="req">*</span></label>
-                        <input type="text" id="orderId" class="form-input" placeholder="주문번호를 입력해주세요" maxlength="30">
-                        <span class="err-msg" id="errOrderId">주문번호를 입력해주세요.</span>
-                    </div>
+                <section class="inquiry-card-new">
 
-                    <!-- 이름 -->
-                    <div class="form-group">
-                        <label class="form-label" for="guestName">주문자 이름 <span class="req">*</span></label>
-                        <input type="text" id="guestName" class="form-input" placeholder="이름을 입력해주세요" maxlength="20">
-                        <span class="err-msg" id="errGuestName">이름을 입력해주세요.</span>
-                    </div>
+                    <div class="form-grid">
 
-                    <!-- 전화번호 -->
-                    <div class="form-group">
-                        <label class="form-label" for="guestPhone">전화번호 <span class="req">*</span></label>
-                        <input type="tel" id="guestPhone" class="form-input" placeholder="숫자만 입력해주세요 (예: 01012345678)"
-                            maxlength="11">
-                        <span class="err-msg" id="errGuestPhone">올바른 전화번호를 입력해주세요.</span>
+                        <div class="form-group">
+                            <label>주문번호</label>
+                            <input type="text" id="orderId" placeholder="주문번호 입력">
+                            <span class="err-msg" id="errOrderId">주문번호를 입력해주세요.</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>주문자 이름</label>
+                            <input type="text" id="guestName" placeholder="이름 입력">
+                            <span class="err-msg" id="errGuestName">이름을 입력해주세요.</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>전화번호</label>
+                            <input type="tel" id="guestPhone" placeholder="01012345678">
+                            <span class="err-msg" id="errGuestPhone">올바른 번호 입력</span>
+                        </div>
+
                     </div>
 
                     <div class="alert-box" id="alertBox">
-                        입력하신 정보와 일치하는 주문을 찾을 수 없습니다.<br>
-                        주문번호, 이름, 전화번호를 다시 확인해주세요.
+                        입력 정보와 일치하는 주문이 없습니다.
                     </div>
 
                     <button class="btn-submit" id="btnSubmit" onclick="fnSubmit()">
-                        <span class="btn-text">주문 조회하기</span>
-                        <span class="spinner"></span>
+                        주문 조회하기
                     </button>
-
                     <div class="signup-promo">
                         <p class="promo-text">
-                            아직 <strong>모닥모닥</strong> 회원이 아니신가요?<br>
-                            회원가입 시 쿠폰 혜택과 간편한 주문 관리가 가능합니다.
+                            회원으로 가입하면 <strong>간편한 주문내역 조회</strong>와<br>
+                            다양한 혜택을 받을 수 있어요.
                         </p>
-                        <a href="/user/login.do" class="btn-signup-link">
-                            <span>🔥</span>
-                            <span>3초만에 회원가입하고 혜택받기</span>
+                        <a href="/user/join.do" class="btn-signup-link">
+                            👉 회원가입 하고 더 편하게 이용하기
                         </a>
                     </div>
+                </section>
 
-                    <div class="info-box">
-                        <p>주문번호는 주문 완료 시 발송된 SMS 또는 이메일에서 확인하실 수 있습니다.</p>
-                    </div>
-
-                    <div class="card-footer">
-                        회원이신가요? <a href="/user/login.do">로그인하기</a>
-                    </div>
-                </div>
             </div>
-
             <%@ include file="/WEB-INF/common/footer.jsp" %>
 
                 <script>

@@ -678,4 +678,41 @@ public class AdminController {
 	    if (!isAdmin()) return noAuth();
 	    return new Gson().toJson(adminService.getDeliveryList(map));
 	}
+	
+	@PostMapping(value = "/inspection/list.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getInspectionList() {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.getInspectionList());
+	}
+
+	@PostMapping(value = "/inspection/save.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String saveInspection(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    String adminId = (String) session.getAttribute("sessionId");
+	    map.put("adminId", adminId);
+	    return new Gson().toJson(adminService.saveInspection(map));
+	}
+
+	@PostMapping(value = "/refund/list.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getRefundList() {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.getRefundList());
+	}
+
+	@PostMapping(value = "/exchange/list.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getExchangeList() {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.getExchangeList());
+	}
+
+	@PostMapping(value = "/exchange/update-status.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String updateExchangeStatus(@RequestParam HashMap<String, Object> map) {
+	    if (!isAdmin()) return noAuth();
+	    return new Gson().toJson(adminService.updateExchangeStatus(map));
+	}
 }

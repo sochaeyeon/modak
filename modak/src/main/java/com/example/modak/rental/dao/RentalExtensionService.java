@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.modak.alarm.mapper.AlarmMapper;
+import com.example.modak.alarm.dao.AlarmService;
 import com.example.modak.rental.mapper.RentalExtensionMapper;
 import com.example.modak.rental.model.RentalExtension;
 
@@ -27,7 +27,7 @@ public class RentalExtensionService {
     private RentalExtensionMapper mapper;
     
     @Autowired
-    private AlarmMapper alarmMapper;
+    private AlarmService alarmService;
 
     @Value("${toss.secret-key}")
     private String tossSecretKey;
@@ -472,8 +472,13 @@ public class RentalExtensionService {
             mapper.updateExtensionOrderStatus(orderMap);
             
             String userId = String.valueOf(extOrder.get("USER_ID"));
-            
-            
+           
+            if (!"GUEST".equals(savedUserId)) {
+                alarmService.createAlarm(savedUserId, "NOTICE",
+                    "대여 연장이 완료되었습니다 📅",
+                    extensionDays + "일 연장되었습니다. 추가 요금: "
+                        + String.format("%,d", price) + "원", rentalId);
+            }
             result.put("result",   "success");
             result.put("rentalId", rentalId);
 

@@ -226,6 +226,13 @@ public interface AdminMapper {
  // ★ 캠핑장 신규 등록
     void insertCamp(HashMap<String, Object> map);
     void insertCampImg(HashMap<String, Object> map);
+    
+    int insertReturnInspection(HashMap<String, Object> map);
+    List<Map<String, Object>> selectInspectionList();
+    List<Map<String, Object>> selectRefundList();
+    List<Map<String, Object>> selectExchangeList();
+    int updateExchangeStatus(HashMap<String, Object> map);
+    List<HashMap<String, Object>> selectRentalsReturnTomorrow();
 
 
     /* ==========================================================
@@ -296,4 +303,8 @@ void upsertDelivery(HashMap<String, Object> map);
 //최근 배송 목록 조회
 List<Map<String, Object>> selectDeliveryList(HashMap<String, Object> map);
     
+
+HashMap<String, Object> selectRentalByRentalId(HashMap<String, Object> map);
+
+HashMap<String, Object> selectOrderById(HashMap<String, Object> map);
 }

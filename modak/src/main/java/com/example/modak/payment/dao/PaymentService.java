@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.modak.alarm.dao.AlarmService;
 import com.example.modak.payment.mapper.PaymentMapper;
 import com.google.gson.Gson;
 
@@ -21,7 +22,8 @@ public class PaymentService {
 
 	@Autowired
 	PaymentMapper paymentMapper;
-
+	@Autowired
+	private AlarmService alarmService;
 	@Value("${toss.secret-key}")
 	private String tossSecretKey;
 
@@ -244,6 +246,10 @@ public class PaymentService {
 
 			paymentMapper.updateCouponUsed(couponMap);
 			paymentMapper.insertCouponUseLog(couponMap);
+			 alarmService.createAlarm(userId, "EVENT",
+				        "쿠폰이 사용되었습니다 🎫",
+				        "보유 쿠폰이 결제에 적용되었습니다.",
+				        orderIdLong);
 		}
 
 		// 6. 포인트 적립
@@ -326,7 +332,13 @@ public class PaymentService {
 		    }
 		}
 	
-
+		if (!isGuest) {
+		    String orderName = getStringValue(orderInfo, "orderName", "ORDER_NAME");
+		    alarmService.createAlarm(userId, "NOTICE",
+		        "결제가 완료되었습니다 🛒",
+		        (orderName != null ? orderName : "주문") + "의 결제가 완료되었습니다.",
+		        orderIdLong);
+		}
 		resultMap.put("result", "success");
 		return resultMap;
 	}

@@ -145,6 +145,12 @@ public class CartService {
 
 	        // 2. optionValueIds로 OPTION_ITEM_ID 찾기
 	        String optionValueIds = String.valueOf(map.get("optionValueIds"));
+	        
+	        if (map.get("optionValueIds") == null 
+	                || "".equals(String.valueOf(map.get("optionValueIds"))) 
+	                || "null".equals(String.valueOf(map.get("optionValueIds")))) {
+	            map.put("optionItemId", target.getOptionItemId());
+	        }
 
 	        if (optionValueIds != null
 	                && !"".equals(optionValueIds)

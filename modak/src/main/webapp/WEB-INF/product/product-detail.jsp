@@ -14,6 +14,7 @@
 
     <body>
         <%@ include file="/WEB-INF/common/header.jsp" %>
+
             <div id="app" v-cloak>
                 <div class="wrap">
                     <div class="ptop">
@@ -64,7 +65,7 @@
                                     </div>
 
                                     <span class="top-rating">{{ Number(avgRating).toFixed(1) }}</span>
-                                    <span class="top-review-count">리뷰 {{ reviewList.length }}개</span>
+                                    <span class="top-review-count">리뷰 {{ reviewTotalCount }}개</span>
                                     <span class="top-order-count">구매·대여 {{ orderCount }}회</span>
                                 </div>
                             </div>
@@ -318,7 +319,7 @@
                     <div>
                         <div class="tnav">
                             <button class="tbtn on" @click="stab('det', $event)">상품 정보</button>
-                            <button class="tbtn" @click="stab('rev', $event)">리뷰 ({{ reviewList.length }})</button>
+                            <button class="tbtn" @click="stab('rev', $event)">리뷰 ({{ reviewTotalCount }})</button>
                             <button class="tbtn" @click="stab('qna', $event)">Q&A</button>
                             <button class="tbtn" @click="stab('shp', $event)">배송/대여 안내</button>
 
@@ -382,11 +383,16 @@
                                 <div class="rsum2">
                                     <div class="rbig">
                                         <div class="rn">{{ Number(avgRating).toFixed(1) }}</div>
-                                        <div class="stars" style="justify-content:center;display:flex;margin:5px 0">
-                                            <span v-for="(star, i) in avgStars" :key="i" class="st"
-                                                :style="{ color: star === '★' ? '' : '#ddd' }">{{ star }}</span>
+                                        <div class="stars review-summary-stars">
+                                            <span class="rating-stars">
+                                                <span v-for="i in 5" :key="i" class="rating-star">
+                                                    <span class="rating-star-fill"
+                                                        :style="{ width: getStarFill(avgRating, i) + '%' }">★</span>
+                                                    <span class="rating-star-empty">★</span>
+                                                </span>
+                                            </span>
                                         </div>
-                                        <div class="ro">{{ reviewList.length }}개 리뷰</div>
+                                        <div class="ro">{{ reviewTotalCount }}개 리뷰</div>
                                     </div>
                                     <div class="rbars">
                                         <div class="bbar" v-for="d in ratingDist" :key="d.score">
@@ -425,7 +431,33 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="rdate">{{ review.createdAt }}</div>
+                                        <div class="review-menu-wrap">
+                                            <button type="button" class="review-more-btn"
+                                                @click.stop="toggleReviewMenu(review.reviewId)">
+                                                <i class="ri-more-2-fill"></i>
+                                            </button>
+
+                                            <div class="review-dropdown" v-if="openReviewMenuId === review.reviewId">
+                                                <button
+                                                    v-if="loginUserId && String(review.userId) === String(loginUserId)"
+                                                    type="button" @click="goReviewEdit(review.reviewId)">
+                                                    수정
+                                                </button>
+
+                                                <button
+                                                    v-if="loginUserId && String(review.userId) === String(loginUserId)"
+                                                    type="button" class="danger"
+                                                    @click="confirmDeleteReview(review.reviewId)">
+                                                    삭제
+                                                </button>
+
+                                                <button
+                                                    v-if="!loginUserId || String(review.userId) !== String(loginUserId)"
+                                                    type="button" class="danger" @click="reportReview(review.reviewId)">
+                                                    신고
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="rtext" style="font-weight:600;margin-bottom:4px">{{ review.title }}
                                     </div>
@@ -446,31 +478,39 @@
                                                 :class="review.helpfulYn === 'Y' ? 'ri-thumb-up-fill' : 'ri-thumb-up-line'"></i>
                                             도움돼요 {{ review.helpfulCount || 0 }}
                                         </button>
-                                        <button v-if="loginUserId && String(review.userId) !== String(loginUserId)"
-                                            class="report-btn" @click="reportReview(review.reviewId)">
-
-                                            🚨 신고
-                                        </button>
-
-                                        <button v-if="loginUserId && String(review.userId) === String(loginUserId)"
-                                            class="review-edit-btn" @click="goReviewEdit(review.reviewId)">
-                                            수정
-                                        </button>
                                     </div>
+                                </div>
+                                <div class="review-paging" v-if="reviewTotalPage > 1">
+                                    <button type="button" class="review-page-btn" :disabled="reviewPage === 1"
+                                        @click="changeReviewPage(reviewPage - 1)">
+                                        이전
+                                    </button>
+
+                                    <button type="button" v-for="page in reviewTotalPage" :key="page"
+                                        class="review-page-num" :class="{ active: reviewPage === page }"
+                                        @click="changeReviewPage(page)">
+                                        {{ page }}
+                                    </button>
+
+                                    <button type="button" class="review-page-btn"
+                                        :disabled="reviewPage === reviewTotalPage"
+                                        @click="changeReviewPage(reviewPage + 1)">
+                                        다음
+                                    </button>
                                 </div>
                             </div>
 
                             <div class="tpane" id="tp-qna">
                                 <div class="qna-list" v-if="faqList.length > 0">
-                                    <div class="qna-item" v-for="f in faqList" :key="f.faqId">
-                                        <button type="button" class="qna-question"
-                                            @click="openFaqId = openFaqId === f.faqId ? null : f.faqId">
+                                    <div class="qna-item" v-for="(f, idx) in faqList" :key="f.faqId || idx">
+                                        <button type="button" class="qna-question" @click="toggleFaq(idx)">
+
                                             <span><b>Q.</b> {{ f.question }}</span>
-                                            <i :class="openFaqId === f.faqId ? 'ri-subtract-line' : 'ri-add-line'"></i>
+                                            <i :class="openFaqIndex === idx ? 'ri-subtract-line' : 'ri-add-line'"></i>
                                         </button>
 
                                         <transition name="qna-slide">
-                                            <div v-show="openFaqId === f.faqId" class="qna-answer">
+                                            <div v-show="openFaqIndex === idx" class="qna-answer">
                                                 <span>A.</span>
                                                 <p>{{ f.answer }}</p>
                                             </div>
@@ -589,9 +629,12 @@
                                 <div class="confirm-title">알림</div>
                                 <div class="confirm-message">{{ confirmModal.message }}</div>
                                 <div class="confirm-btns">
-                                    <button class="confirm-cancel" @click="confirmCancel">{{ confirmModal.cancelText
-                                        }}</button>
-                                    <button class="confirm-ok" @click="confirmOk">{{ confirmModal.okText }}</button>
+                                    <button class="confirm-ok" @click="confirmOk">
+                                        {{ confirmModal.okText }}
+                                    </button>
+                                    <button class="confirm-cancel" @click="confirmCancel">
+                                        {{ confirmModal.cancelText }}
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -621,9 +664,13 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- TOP 버튼 -->
+                <button v-show="showTopBtn" class="scroll-top-btn" @click="scrollToTop">
+                    <i class="ri-arrow-up-line"></i>
+                </button>
             </div><!-- /#app -->
             <script>
+                const BUY_NOW_KEY = 'modak_guest_buy_now';
                 const loginUserId = '${sessionScope.sessionId}' || '';
                 const LS_KEY = 'modak_guest_cart'; // 장바구니 localStorage 키
 
@@ -682,7 +729,7 @@
                             productSpec: {},
                             productFeatures: [],
                             faqList: [],
-                            openFaqId: null,
+                            openFaqIndex: null,
                             calOpen: false,
                             productOptions: [],
                             selectedOptions: {},
@@ -696,10 +743,19 @@
                                 content: ''
                             },
                             loginUserId: loginUserId,
+                            showTopBtn: false,
+                            reviewPage: 1,
+                            reviewPageSize: 10,
+                            reviewTotalCount: 0,
+                            openReviewMenuId: null,
+
                         };
                     },
 
                     computed: {
+                        reviewTotalPage() {
+                            return Math.ceil(this.reviewTotalCount / this.reviewPageSize);
+                        },
                         rewardPoint() {
                             return Math.round(Number(this.totalPrice || 0) * 0.01);
                         },
@@ -861,7 +917,17 @@
                             });
                         },
                         setMainImg(imgUrl) { this.mainImgUrl = imgUrl; },
+                        changeMainImg(dir) {
+                            if (!this.productImages || this.productImages.length === 0) {
+                                return;
+                            }
 
+                            const currentIndex = this.productImages.findIndex(img => img.imgUrl === this.mainImgUrl);
+                            const safeIndex = currentIndex === -1 ? 0 : currentIndex;
+                            const nextIndex = (safeIndex + dir + this.productImages.length) % this.productImages.length;
+
+                            this.mainImgUrl = this.productImages[nextIndex].imgUrl;
+                        },
                         fnGetReviews() {
                             let self = this;
 
@@ -870,13 +936,14 @@
                                 type: 'POST',
                                 data: {
                                     productId: self.productId,
-                                    page: 1,
-                                    pageSize: 10,
-                                    loginUserId: loginUserId
+                                    page: self.reviewPage,
+                                    pageSize: self.reviewPageSize,
+                                    loginUserId: self.loginUserId
                                 },
                                 dataType: 'json',
                                 success(data) {
                                     self.reviewList = data.list || [];
+                                    self.reviewTotalCount = data.totalCount || 0;
                                 },
                                 error() {
                                     self.reviewList = [];
@@ -1070,31 +1137,70 @@
                             });
                         },
                         fnRent() {
-                            if (!this.startDate || !this.endDate) { showToast('날짜를 선택해주세요.'); return; }
-                            this.openConfirm('대여 신청하시겠습니까?', function () {
-                                const self = window.__vueApp;
-                                $.ajax({
-                                    url: '/rental/apply.dox', type: 'POST',
-                                    contentType: 'application/json',
-                                    data: JSON.stringify({ itemId: self.productId, startDate: self.startDate, endDate: self.endDate }),
-                                    success(res) { if (res.result === 'success') { showToast('신청 완료!'); location.reload(); } }
-                                });
-                            }, '신청하기');
+                            if (!this.startDate || !this.endDate) {
+                                showToast('날짜를 선택해주세요.');
+                                return;
+                            }
+
+                            // 옵션 검증
+                            if (this.productOptions.length > 0) {
+                                const optionGroupCount = Object.keys(this.groupedOptions).length;
+                                const selectedCount = Object.keys(this.selectedOptions).length;
+
+                                if (selectedCount < optionGroupCount) {
+                                    showToast('옵션을 선택해주세요.');
+                                    return;
+                                }
+                            }
+
+                            const selectedOptionValues = Object.values(this.selectedOptions);
+
+                            const buyNowItem = {
+                                cartId: Date.now(),
+                                cartType: 'RENTAL', // 👈 핵심
+                                productId: parseInt(this.productId),
+                                productName: this.productInfo.productName || '',
+                                price: this.unitPrice,
+                                quantity: 1,
+                                imgUrl: this.mainImgUrl || '',
+                                brandName: this.productInfo.brandName || '',
+                                optionValueIds: selectedOptionValues.map(opt => opt.optionValueId).join(','),
+                                optionName: selectedOptionValues.map(opt => opt.optionValue).join(' / '),
+                                rentalStart: this.startDate,
+                                rentalEnd: this.endDate,
+                                deposit: this.productInfo.deposit || 0
+                            };
+
+                            localStorage.setItem(BUY_NOW_KEY, JSON.stringify([buyNowItem]));
+
+                            location.href =
+                                '/payment/checkout.do?cartType=RENTAL&isGuest=true&buyNow=true';
                         },
                         fnWish(e) {
                             e.stopPropagation();
+
+                            if (!this.isLogin) {
+                                this.openConfirm('찜하려면 로그인이 필요해요!🔥 \n 로그인하고 마음에 드는 상품을 저장해보세요!', function () {
+                                    location.href = '/user/login.do';
+                                }, '로그인', '닫기');
+                                return;
+                            }
+
                             let self = this;
+
                             $.ajax({
-                                url: '/user/wishlist/toggle.dox', type: 'POST',
-                                data: { productId: self.productId }, dataType: 'json',
+                                url: '/user/wishlist/toggle.dox',
+                                type: 'POST',
+                                data: { productId: self.productId },
+                                dataType: 'json',
                                 success(res) {
                                     if (res.result === 'success') {
                                         self.isWished = !self.isWished;
-                                        showToast(self.isWished ? '❤️ 위시리스트에 추가됐어요' : '위시리스트에서 제거됐어요');
+                                        showToast(self.isWished ? '❤️ 위시리스트에 추가했어요!' : '위시리스트에서 제거했어요');
                                     } else {
-                                        self.openConfirm('로그인이 필요합니다. 로그인하시겠습니까?', function () {
+                                        self.openConfirm('로그인이 필요한 기능입니다. 로그인 페이지로 이동하시겠습니까?', function () {
                                             location.href = '/user/login.do';
-                                        }, '로그인하기');
+                                        }, '확인', '취소');
                                     }
                                 }
                             });
@@ -1129,6 +1235,18 @@
                             };
                         },
                         reportReview(reviewId) {
+                            if (!this.loginUserId) {
+                                this.openConfirm(
+                                    '로그인이 필요한 기능입니다. 로그인 페이지로 이동하시겠습니까?',
+                                    function () {
+                                        location.href = '/user/login.do';
+                                    },
+                                    '확인',
+                                    '취소'
+                                );
+                                return;
+                            }
+
                             this.reportModal.reviewId = reviewId;
                             this.reportModal.content = '';
                             this.reportModal.open = true;
@@ -1244,11 +1362,36 @@
                                 return;
                             }
 
-                            this.fnAddToCart();
+                            const selectedOptionValues = Object.values(this.selectedOptions);
+
+                            const buyNowItem = {
+                                cartId: Date.now(),
+                                cartType: this.productType,
+                                productId: parseInt(this.productId),
+                                productName: this.productInfo.productName || '',
+                                price: this.unitPrice,
+                                quantity: this.qty,
+                                imgUrl: this.mainImgUrl || '',
+                                brandName: this.productInfo.brandName || '',
+                                optionValueIds: selectedOptionValues.map(opt => opt.optionValueId).join(','),
+                                optionName: selectedOptionValues.map(opt => opt.optionValue).join(' / '),
+                                rentalStart: this.productType === 'RENTAL' ? this.startDate : null,
+                                rentalEnd: this.productType === 'RENTAL' ? this.endDate : null,
+                                deposit: this.productInfo.deposit || 0
+                            };
+
+                            localStorage.setItem(BUY_NOW_KEY, JSON.stringify([buyNowItem]));
+
+                            location.href = '/payment/checkout.do?cartType=' + this.productType + '&isGuest=true&buyNow=true';
                         },
                         fnRelatedWish(item) {
                             let self = this;
-
+                            if (!this.isLogin) {
+                                this.openConfirm('찜하려면 로그인이 필요해요!🔥 \n 로그인하고 마음에 드는 상품을 저장해보세요!', function () {
+                                    location.href = '/user/login.do';
+                                }, '로그인', '닫기');
+                                return;
+                            }
                             $.ajax({
                                 url: '/user/wishlist/toggle.dox',
                                 type: 'POST',
@@ -1257,9 +1400,9 @@
                                 success(res) {
                                     if (res.result === 'success') {
                                         item.isWished = !item.isWished;
-                                        showToast(item.isWished ? '위시리스트에 추가됐어요.' : '위시리스트에서 제거됐어요.');
+                                        showToast(item.isWished ? '❤️ 위시리스트에 추가했어요!' : '위시리스트에서 제거했어요.');
                                     } else {
-                                        self.openConfirm('로그인이 필요합니다. 로그인하시겠습니까?', function () {
+                                        self.openConfirm('찜하려면 로그인이 필요해요!🔥 \n 로그인하고 마음에 드는 상품을 저장해보세요!', function () {
                                             location.href = '/user/login.do';
                                         }, '로그인하기');
                                     }
@@ -1313,6 +1456,47 @@
                                 }
                             });
                         },
+                        toggleReviewMenu(reviewId) {
+                            this.openReviewMenuId = this.openReviewMenuId === reviewId ? null : reviewId;
+                        },
+
+                        confirmDeleteReview(reviewId) {
+                            this.openReviewMenuId = null;
+
+                            this.openConfirm('리뷰를 삭제하시겠습니까?', () => {
+                                $.ajax({
+                                    url: '/user/review/remove.dox',
+                                    type: 'POST',
+                                    data: { reviewId: reviewId },
+                                    dataType: 'json',
+                                    success: (res) => {
+                                        if (res.result === 'success') {
+                                            showToast('리뷰가 삭제되었습니다.');
+                                            this.fnGetReviews();
+                                        } else {
+                                            showToast(res.message || '리뷰 삭제에 실패했습니다.');
+                                        }
+                                    },
+                                    error: () => {
+                                        showToast('리뷰 삭제 중 오류가 발생했습니다.');
+                                    }
+                                });
+                            }, '삭제', '취소');
+                        },
+                        changeReviewPage(page) {
+                            if (page < 1 || page > this.reviewTotalPage) {
+                                return;
+                            }
+
+                            this.reviewPage = page;
+                            this.fnGetReviews();
+                            this.$nextTick(() => {
+                                document.getElementById('tp-rev')?.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'start'
+                                });
+                            });
+                        },
                         getRatingStars(rating) {
                             const num = Number(rating || 0);
 
@@ -1337,10 +1521,34 @@
                         },
                         goReviewEdit(reviewId) {
                             location.href = '/user/review/edit.do?reviewId=' + reviewId;
+                        }, handleScroll() {
+                            this.showTopBtn = window.scrollY > 300;
                         },
+
+                        scrollToTop() {
+                            window.scrollTo({
+                                top: 0,
+                                behavior: 'smooth'
+                            });
+                        },
+                        handleConfirmEnter(e) {
+                            if (!this.confirmModal.open) {
+                                return;
+                            }
+
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                this.confirmOk();
+                            }
+                        },
+                        toggleFaq(idx) {
+                            this.openFaqIndex = this.openFaqIndex === idx ? null : idx;
+                        },
+
                     },
 
                     mounted() {
+                        window.addEventListener('keydown', this.handleConfirmEnter);
                         window.scrollTo(0, 0);
                         window.__vueApp = this;
                         this.checkLogin();      // ← 로그인 체크 먼저
@@ -1351,7 +1559,13 @@
                             const active = document.querySelector('.tbtn.on');
                             if (active) this.moveUnderline(active);
                         });
-                    }
+                        window.addEventListener('scroll', this.handleScroll);
+
+                    },
+                    beforeUnmount() {
+                        window.removeEventListener('scroll', this.handleScroll);
+                        window.removeEventListener('keydown', this.handleConfirmEnter);
+                    },
                 });
 
                 app.mount('#app');

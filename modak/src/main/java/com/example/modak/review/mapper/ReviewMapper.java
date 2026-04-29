@@ -49,6 +49,7 @@ public interface ReviewMapper {
     int selectReviewExists(HashMap<String, Object> map);
     
     HashMap<String, Object> selectReviewOrderInfo(HashMap<String, Object> map);
+    
     List<HashMap<String, Object>> selectReviewOrderItemList(HashMap<String, Object> map);
     int updateUserPoint(HashMap<String, Object> map);
     
@@ -67,4 +68,6 @@ public interface ReviewMapper {
     int existsReport(HashMap<String, Object> map);
 
     int insertReport(HashMap<String, Object> map);
+    
+    int selectProductReviewCount(HashMap<String, Object> map);
 }

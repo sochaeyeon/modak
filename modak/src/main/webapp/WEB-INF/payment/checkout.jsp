@@ -36,6 +36,7 @@
 
                             <!-- ── 배송지 ── -->
                             <section class="co-section">
+
                                 <div class="co-section-title">배송지</div>
 
                                 <!-- ✅ 회원일 때 - 기존 주소록 -->
@@ -44,11 +45,13 @@
                                         <div class="addr-info-content">
                                             <div class="addr-name">
                                                 {{ addrForm.receiverName || addrForm.addressAlias || '배송지' }}
-                                                <span class="addr-default-badge" v-if="addrForm.defaultYn === 'Y'">기본배송지</span>
+                                                <span class="addr-default-badge"
+                                                    v-if="addrForm.defaultYn === 'Y'">기본배송지</span>
                                             </div>
                                             <div class="addr-phone">{{ addrForm.receiverPhone || '연락처 없음' }}</div>
                                             <div class="addr-full">
-                                                [{{ addrForm.zipcode }}] {{ addrForm.address }} {{ addrForm.detailedAddress }}
+                                                [{{ addrForm.zipcode }}] {{ addrForm.address }} {{
+                                                addrForm.detailedAddress }}
                                             </div>
                                         </div>
                                         <button class="addr-change-btn" @click="addrModal.open = true">변경</button>
@@ -117,7 +120,7 @@
                                         <div class="order-item-info">
                                             <div class="order-item-name">{{ item.productName }}</div>
                                             <div class="order-item-option" v-if="item.optionName">
-                                               {{ item.optionName }}
+                                                {{ item.optionName }}
                                             </div>
                                             <!-- 대여 날짜 -->
                                             <div v-if="cartType === 'RENTAL' && item.rentalStart"
@@ -172,7 +175,8 @@
                                     <span class="discount-label">포인트</span>
                                     <div class="discount-right">
                                         <input type="number" class="coupon-select" v-model.number="usePoint"
-                                            :max="maxUsePoint" min="0" :placeholder="'보유 ' + formatPrice(userPoint)" style="background-image: none;" />
+                                            :max="maxUsePoint" min="0" :placeholder="'보유 ' + formatPrice(userPoint)"
+                                            style="background-image: none;" />
                                         <button type="button" class="addr-change-btn" @click="useAllPoint">전액사용</button>
                                         <span class="discount-amount" v-if="validUsePoint > 0">
                                             -{{ formatPrice(validUsePoint) }}
@@ -180,8 +184,8 @@
                                     </div>
                                 </div>
                             </section>
-                            
-                                
+
+
 
                             <!-- ── 동의 ── -->
                             <section class="co-section agree-section">
@@ -216,14 +220,14 @@
                                             <span>배송비</span>
                                             <span class="s-val">0원</span>
                                         </div>
-                                        
+
                                         <div class="summary-row total">
                                             <span>최종 결제금액</span>
                                             <span class="s-val orange">{{ formatPrice(finalTotal) }}</span>
                                         </div>
                                     </div>
 
-     
+
 
                                     <button class="pay-btn" :disabled="!agreeAll || orderItems.length === 0"
                                         @click="fnPay">
@@ -384,7 +388,7 @@
                                 if (!this.guestKey) {
                                     this.guestKey = 'GUEST_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
                                     localStorage.setItem('guestKey', this.guestKey);
-                                }   
+                                }
                             },
 
                             // ── 로그인 & 데이터 로드 ──
@@ -411,9 +415,17 @@
                                 let self = this;
                                 if (!self.isLogin) {
                                     try {
-                                        const raw = localStorage.getItem('checkout_items');
-                                        self.orderItems = raw ? JSON.parse(raw) : [];
-                                    } catch(e) { self.orderItems = []; }
+                                        const params = new URLSearchParams(location.search);
+                                        const isBuyNow = params.get('buyNow') === 'true';
+
+                                        if (isBuyNow) {
+                                            const raw = localStorage.getItem('modak_guest_buy_now');
+                                            self.orderItems = raw ? JSON.parse(raw) : [];
+                                        } else {
+                                            const raw = localStorage.getItem('modak_guest_cart');
+                                            self.orderItems = raw ? JSON.parse(raw) : [];
+                                        }
+                                    } catch (e) { self.orderItems = []; }
                                     return;
                                 }
 
@@ -537,11 +549,13 @@
                                         const tossPayments = TossPayments(TOSS_CLIENT_KEY);
 
                                         tossPayments.requestPayment('카드', {
-                                            amount: res.amount, 
+                                            amount: res.amount,
                                             orderId: orderId,
                                             orderName: orderName,
                                             customerName: self.isLogin ? self.addrForm.receiverName : self.guestName,
-                                            successUrl: window.location.origin + '/payment/success.do',
+                                            successUrl: window.location.origin
+                                                + '/payment/success.do?buyNow='
+                                                + (new URLSearchParams(location.search).get('buyNow') === 'true'),
                                             failUrl: window.location.origin + '/payment/fail.do'
                                         }).catch(() => {
                                             self.isPaying = false;  // ✅ 토스 창 닫거나 취소 시 해제

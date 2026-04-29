@@ -7,6 +7,9 @@
 
         <header class="site-header">
             <div class="header-left">
+                <button class="icon-btn" onclick="location.href='/board/list.do'" title="커뮤니티">
+                    <i class="fa-solid fa-fire"></i>
+                </button>
                 <button class="icon-btn" onclick="fnMove('mypage')" title="마이페이지">
                     <i class="fa-regular fa-user"></i>
                 </button>
@@ -21,6 +24,7 @@
                     <button class="icon-btn" title="알림" onclick="toggleAlarm(event)">
                         <i class="fa-regular fa-bell"></i>
                     </button>
+
                     <span class="alarm-dot" id="alarmDot" style="display:none;"></span>
                     <div class="alarm-dropdown" id="alarmDropdown">
                         <div class="alarm-dropdown-header">

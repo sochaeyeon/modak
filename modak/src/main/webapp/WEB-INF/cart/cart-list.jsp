@@ -92,7 +92,9 @@
 
                                         <div class="cart-item-info">
                                             <div class="cart-item-badge">배송무료</div>
-                                            <div class="cart-item-name">
+                                            <div class="cart-item-name"
+                                                @click="toggleItem(item.cartId)"
+                                                style="cursor:pointer;">
                                                 {{ item.productName }}
                                                 <span class="cart-item-option">
                                                     {{ item.optionName }}
@@ -200,7 +202,7 @@
                                     <div v-if="!isLogin"
                                         style="padding:10px 0;font-size:12px;color:#999;text-align:center;">
                                         <a href="/user/login.do" style="color:var(--orange);font-weight:700;">로그인</a> 후
-                                        쿠폰을 사용할 수 있습니다.
+                                        쿠폰·포인트를 사용할 수 있습니다.
                                     </div>
 
                                     <div class="aside-row" v-if="isLogin">

@@ -139,6 +139,15 @@ public class PaymentController {
         return "payment/fail"; // /WEB-INF/views/payment/fail.jsp
     }
     
+ // ✅ 임시 - UI 확인용 (작업 후 삭제)
+    @RequestMapping("/payment/complete.do")
+    public String orderCompletePreview(
+            @RequestParam(required = false, defaultValue = "TEST-20260429-001") String orderId,
+            Model model) {
+        model.addAttribute("orderId", orderId);
+        return "payment/order-complete";
+    }
+    
 
 
 }

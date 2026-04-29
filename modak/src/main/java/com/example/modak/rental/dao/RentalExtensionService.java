@@ -500,6 +500,23 @@ public class RentalExtensionService {
             return mapper.selectRentalById(rentalId);
         return null;
     }
+    
+    public HashMap<String, Object> getGuestRentalListByOrder(String orderId, String token) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            List<RentalExtension> list = mapper.selectGuestRentalListByOrder(orderId);
+
+            result.put("result", "success");
+            result.put("list", list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+            result.put("message", "대여 목록 조회 중 오류가 발생했습니다.");
+        }
+
+        return result;
+    }
 
     private boolean validateToken(String token, Long rentalId) {
         if (token == null || rentalId == null) return false;

@@ -134,6 +134,11 @@
                                         <p class="card-kicker">DELIVERY</p>
                                         <h2>배송지 정보</h2>
                                     </div>
+
+                                    <a class="outline-link" v-if="order.delivery && order.delivery.deliveryId"
+                                        :href="fnDeliveryUrl()">
+                                        배송조회
+                                    </a>
                                 </div>
 
                                 <div class="info-list">
@@ -223,61 +228,17 @@
 
                             <!-- 대여 연장 -->
                             <section class="rental-link-card" v-if="order.orderType === 'RENTAL'">
-                                <a href="/rental/extension/inquiry.do">
+                                <a :href="fnRentalManageUrl()">
                                     <div>
-                                        <p>대여 연장/조회</p>
-                                        <span>대여 기간 확인과 연장 신청을 진행할 수 있습니다.</span>
+                                        <p>대여 연장 / 반납 신청</p>
+                                        <span>이 주문의 대여 상품을 선택해 연장 또는 반납 신청할 수 있습니다.</span>
                                     </div>
                                     <b>→</b>
                                 </a>
                             </section>
-
                         </aside>
 
                     </main>
-
-                    <!-- 배송 조회 -->
-                    <section class="detail-card tracking-card">
-                        <div class="card-head">
-                            <div>
-                                <p class="card-kicker">TRACKING</p>
-                                <h2>배송 조회</h2>
-                            </div>
-                            <span v-if="order.delivery && order.delivery.trackingNo" class="tracking-no">
-                                {{ order.delivery.trackingNo }}
-                            </span>
-                        </div>
-
-                        <div class="empty-box"
-                            v-if="!order.delivery || !order.delivery.deliveryId || order.orderStatus === 'PAID' || order.orderStatus === 'READY'">
-                            아직 배송이 시작되지 않았습니다.<br>
-                            배송 준비가 완료되면 운송장 번호가 등록됩니다.
-                        </div>
-
-                        <div class="empty-box" v-else-if="order.orderStatus === 'CANCELLED'">
-                            취소 처리된 주문입니다.
-                        </div>
-
-                        <div class="track-list" v-else>
-                            <div v-if="!trackHistory || trackHistory.length === 0" class="empty-box">
-                                배송 조회 정보가 없습니다.
-                            </div>
-
-                            <div v-for="(t, i) in trackHistory" :key="i" class="track-item"
-                                :class="{ current: i === 0 }">
-                                <div class="track-mark">
-                                    <span></span>
-                                    <i v-if="i < trackHistory.length - 1"></i>
-                                </div>
-                                <div class="track-body">
-                                    <strong>{{ t.status }}</strong>
-                                    <p>{{ t.location }}</p>
-                                </div>
-                                <time>{{ t.time }}</time>
-                            </div>
-                        </div>
-                    </section>
-
                     <!-- 모달 -->
                     <div class="modal-overlay" :class="{ open: modalOpen }" @click.self="closeModal">
                         <div class="modal-box">
@@ -498,7 +459,21 @@
                             },
                             fnGoProduct: function (productId) {
                                 location.href = '/product/detail.do?productId=' + productId;
-                            }
+                            },
+                            fnRentalManageUrl: function () {
+                                var p = new URLSearchParams(location.search);
+
+                                return '/rental/extension/main.do'
+                                    + '?orderId=' + encodeURIComponent(this.order.orderId)
+                                    + '&token=' + encodeURIComponent(p.get('token'));
+                            },
+                            fnDeliveryUrl: function () {
+                                var p = new URLSearchParams(location.search);
+
+                                return '/delivery/tracking.do'
+                                    + '?orderId=' + this.order.orderId
+                                    + '&token=' + p.get('token');
+                            },
                         },
 
                         mounted: function () {

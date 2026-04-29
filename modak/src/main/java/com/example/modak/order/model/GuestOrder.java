@@ -26,4 +26,6 @@ public class GuestOrder {
 
     // ORDER_ITEM + PRODUCT 조인
     private List<GuestOrderItem> items;
+    
+    private Integer rentalId;
 }

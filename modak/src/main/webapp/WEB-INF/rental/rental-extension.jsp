@@ -30,7 +30,7 @@
                         </p>
 
                         <!-- ══ 회원 대여 목록 ══ -->
-                        <div class="section-card" v-if="!isGuest">
+                        <div class="section-card" v-if="!isGuest || guestOrderId">
                             <div class="section-head">
                                 <h3>내 대여 목록</h3>
                                 <span style="font-size:12px;color:var(--brown4)">{{ rentalList.length }}건</span>
@@ -47,7 +47,7 @@
                                 <div class="rental-list" v-else>
                                     <div v-for="rental in rentalList" :key="rental.rentalId" class="rental-card"
                                         :class="{ active: selectedRental && selectedRental.rentalId === rental.rentalId }"
-                                        @click="fnSelectRental(rental)">
+                                        @click="isGuest ? fnSelectGuestRental(rental) : fnSelectRental(rental)">
                                         <div class="rental-icon">
                                             <img v-if="rental.imgUrl" :src="rental.imgUrl"
                                                 style="width:100%;height:100%;object-fit:cover;border-radius:12px;"
@@ -66,13 +66,16 @@
                                         <div class="rental-card-actions">
                                             <button type="button" class="mini-action-btn"
                                                 v-if="['RESERVED','IN_USE'].includes(rental.rentalStatus)"
-                                                @click.stop="fnOpenExtension(rental)">연장 신청</button>
+                                                @click.stop="isGuest ? (activeTab = 'extension', fnSelectGuestRental(rental)) : fnOpenExtension(rental)">연장
+                                                신청</button>
                                             <button type="button" class="mini-action-btn return"
                                                 v-if="['RESERVED','IN_USE'].includes(rental.rentalStatus)"
-                                                @click.stop="fnOpenReturn(rental)">반납 신청</button>
+                                                @click.stop="isGuest ? (activeTab = 'return', fnSelectGuestRental(rental)) : fnOpenReturn(rental)">반납
+                                                신청</button>
                                             <button type="button" class="mini-action-btn return-cancel"
                                                 v-if="rental.rentalStatus === 'RETURN_REQUESTED'"
-                                                @click.stop="fnOpenReturn(rental)">반납 요청 취소</button>
+                                                @click.stop="isGuest ? (activeTab = 'return', fnSelectGuestRental(rental)) : fnOpenReturn(rental)">반납
+                                                요청 취소</button>
                                         </div>
                                     </div>
                                 </div>
@@ -319,7 +322,8 @@
                                 extensionDays: 1,
                                 returnHistory: [],   // ← 반납 신청 내역
                                 pickup: { zipcode: '', address: '', detailedAddress: '' },
-                                modal: { show: false, eyebrow: '', title: '', message: '', confirmText: '확인', onConfirm: null }
+                                modal: { show: false, eyebrow: '', title: '', message: '', confirmText: '확인', onConfirm: null },
+                                guestOrderId: null,
                             };
                         },
 
@@ -328,15 +332,23 @@
                                 var self = this;
                                 var params = new URLSearchParams(location.search);
                                 var rid = params.get('rentalId');
+                                var orderId = params.get('orderId');
                                 var token = params.get('token');
                                 var tab = params.get('tab');
-
+                                console.log('orderId=', orderId);
+                                console.log('token=', token);
+                                console.log('rid=', rid);
                                 // ★ 이 줄이 빠져 있었음
                                 if (tab === 'return' || tab === 'extension') {
                                     self.activeTab = tab;
                                 }
 
-                                if (rid && token) {
+                                if (orderId && token) {
+                                    self.isGuest = true;
+                                    self.guestOrderId = orderId;
+                                    self.guestToken = token;
+                                    self.fnLoadGuestOrderRentals();
+                                } else if (rid && token) {
                                     self.isGuest = true;
                                     self.guestRentalId = rid;
                                     self.guestToken = token;
@@ -644,6 +656,72 @@
                                 var callback = this.modal.onConfirm;
                                 this.fnCloseModal();
                                 if (typeof callback === 'function') callback();
+                            },
+                            fnLoadGuestOrderRentals: function () {
+                                var self = this;
+                                self.isLoading = true;
+
+                                $.ajax({
+                                    url: '/rental/extension/guest/order-list.dox',
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    data: {
+                                        orderId: self.guestOrderId,
+                                        token: self.guestToken
+                                    },
+                                    success: function (res) {
+                                        self.isLoading = false;
+
+                                        if (res.result === 'success') {
+                                            self.rentalList = res.list || [];
+
+                                            if (self.rentalList.length > 0) {
+                                                self.fnSelectGuestRental(self.rentalList[0]);
+                                            }
+                                        } else {
+                                            self.showToast(res.message || '대여 목록을 불러오지 못했습니다.');
+                                        }
+                                    },
+                                    error: function () {
+                                        self.isLoading = false;
+                                        self.showToast('서버 오류가 발생했습니다.');
+                                    }
+                                });
+                            },
+
+                            fnSelectGuestRental: function (rental) {
+                                var self = this;
+
+                                self.selectedRental = rental;
+                                self.guestRentalId = rental.rentalId;
+                                self.fnLoadGuestAddress();
+                                self.extensions = [];
+                                self.returnHistory = [];
+                                self.extensionDays = 1;
+                                self.isDetailLoading = true;
+
+                                $.ajax({
+                                    url: '/rental/extension/guest/detail.dox',
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    data: {
+                                        rentalId: rental.rentalId,
+                                        token: self.guestToken
+                                    },
+                                    success: function (res) {
+                                        self.isDetailLoading = false;
+
+                                        if (res.result === 'success') {
+                                            self.selectedRental = res.rental || rental;
+                                            self.extensions = res.extensions || [];
+                                            self.returnHistory = res.returnHistory || [];
+                                        }
+                                    },
+                                    error: function () {
+                                        self.isDetailLoading = false;
+                                        self.showToast('대여 상세를 불러오지 못했습니다.');
+                                    }
+                                });
                             }
                         },
 

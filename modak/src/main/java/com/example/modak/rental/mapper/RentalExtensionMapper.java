@@ -96,4 +96,6 @@ public interface RentalExtensionMapper {
 
     /** 연장 결제 주문 상태 업데이트 (PENDING → PAID / FAILED) */
     int updateExtensionOrderStatus(HashMap<String, Object> map);
+    
+    List<RentalExtension> selectGuestRentalListByOrder(@Param("orderId") String orderId);
 }

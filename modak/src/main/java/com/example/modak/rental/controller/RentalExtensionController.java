@@ -270,4 +270,15 @@ public class RentalExtensionController {
         model.addAttribute("message", message);
         return "payment/fail";
     }
+    
+    @PostMapping("/guest/order-list.dox")
+    @ResponseBody
+    public Map<String, Object> guestOrderList(@RequestParam String orderId,
+                                               @RequestParam String token) {
+        if (isBlank(orderId) || isBlank(token)) {
+            return fail("잘못된 요청입니다.");
+        }
+
+        return service.getGuestRentalListByOrder(orderId.trim(), token.trim());
+    }
 }

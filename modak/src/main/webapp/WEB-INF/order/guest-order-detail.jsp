@@ -474,7 +474,7 @@
                                     + '?orderId=' + this.order.orderId
                                     + '&token=' + p.get('token');
                             },
-                        },
+						},	
 
                         mounted: function () {
                             this.fnLoad();

@@ -82,7 +82,7 @@
 		WHERE R.RENTAL_ID = #{rentalId}
 		AND R.GUEST_NAME = #{guestName}
 		AND R.GUEST_PHONE = #{guestPhone}
-		AND R.USER_ID = 'GUEST'
+		AND R.USER_ID LIKE 'GUEST%'  -- 'GUEST' → LIKE 'GUEST%'
 	</select>
 
 	<!-- 토큰 통과 후 단건 조회 -->
@@ -200,18 +200,18 @@
 
 	<!-- 비회원 반납 신청 -->
 	<update id="updateGuestReturnRequest" parameterType="hashmap">
-		UPDATE RENTALS
-		SET RENTAL_STATUS = 'RETURN_REQUESTED',
-		RETURN_ZIPCODE = #{zipcode},
-		RETURN_ADDRESS = #{address},
-		RETURN_DETAILED_ADDRESS = #{detailedAddress},
-		RETURN_REQUESTED_AT = NOW()
-		WHERE RENTAL_ID = #{rentalId}
-		AND GUEST_NAME = #{guestName}
-		AND GUEST_PHONE = #{guestPhone}
-		AND USER_ID = 'GUEST'
-		AND RENTAL_STATUS IN ('IN_USE', 'RESERVED')
-	</update>
+    UPDATE RENTALS
+    SET RENTAL_STATUS = 'RETURN_REQUESTED',
+        RETURN_ZIPCODE = #{zipcode},
+        RETURN_ADDRESS = #{address},
+        RETURN_DETAILED_ADDRESS = #{detailedAddress},
+        RETURN_REQUESTED_AT = NOW()
+    WHERE RENTAL_ID = #{rentalId}
+      AND GUEST_NAME = #{guestName}
+      AND GUEST_PHONE = #{guestPhone}
+      AND USER_ID LIKE 'GUEST%'
+      AND RENTAL_STATUS IN ('IN_USE', 'RESERVED')
+</update>
 
 	<!-- 배송 상태 반납요청으로 변경 -->
 	<update id="updateDeliveryReturnRequest" parameterType="hashmap">
@@ -240,19 +240,19 @@
 	</update>
 
 	<!-- 비회원 반납 취소 -->
-	<update id="cancelGuestReturnRequest" parameterType="hashmap">
-		UPDATE RENTALS
-		SET RENTAL_STATUS = 'IN_USE',
-		RETURN_ZIPCODE = NULL,
-		RETURN_ADDRESS = NULL,
-		RETURN_DETAILED_ADDRESS = NULL,
-		RETURN_REQUESTED_AT = NULL
-		WHERE RENTAL_ID = #{rentalId}
-		AND GUEST_NAME = #{guestName}
-		AND GUEST_PHONE = #{guestPhone}
-		AND USER_ID = 'GUEST'
-		AND RENTAL_STATUS = 'RETURN_REQUESTED'
-	</update>
+<update id="cancelGuestReturnRequest" parameterType="hashmap">
+    UPDATE RENTALS
+    SET RENTAL_STATUS = 'IN_USE',
+        RETURN_ZIPCODE = NULL,
+        RETURN_ADDRESS = NULL,
+        RETURN_DETAILED_ADDRESS = NULL,
+        RETURN_REQUESTED_AT = NULL
+    WHERE RENTAL_ID = #{rentalId}
+      AND GUEST_NAME = #{guestName}
+      AND GUEST_PHONE = #{guestPhone}
+      AND USER_ID LIKE 'GUEST%'
+      AND RENTAL_STATUS = 'RETURN_REQUESTED'
+</update>
 
 	<!-- 배송 상태 원복 -->
 	<update id="cancelDeliveryReturnRequest" parameterType="hashmap">
@@ -335,32 +335,34 @@
     SET STATUS = #{status}
     WHERE EXTENSION_ORDER_ID = #{extensionOrderId}
 </update>
-<select id="selectGuestRentalListByOrder"
-        resultType="com.example.modak.rental.model.RentalExtension">
+<select id="selectGuestRentalListByOrder" parameterType="string" resultType="com.example.modak.rental.model.RentalExtension">
     SELECT
-        R.RENTAL_ID AS rentalId,
-        R.ITEM_ID AS itemId,
-        R.USER_ID AS userId,
-        R.START_DATE AS startDate,
-        R.RETURN_DATE AS returnDate,
-        R.RENTAL_STATUS AS rentalStatus,
-        R.GUEST_NAME AS guestName,
-        R.GUEST_PHONE AS guestPhone,
-        P.PRODUCT_NAME AS productName,
-        P.PRICE AS pricePerDay,
-        (
-            SELECT PI.IMG_URL
-            FROM PRODUCT_IMG PI
-            WHERE PI.PRODUCT_ID = P.PRODUCT_ID
-              AND PI.IS_MAIN = 'Y'
-            LIMIT 1
-        ) AS imgUrl
-    FROM ORDERS O
-    JOIN ORDER_ITEM OI ON O.ORDER_ID = OI.ORDER_ID
-    JOIN RENTALS R ON R.ITEM_ID = OI.ITEM_ID
-    LEFT JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
-    WHERE O.ORDER_ID = #{orderId}
-      AND O.ORDER_TYPE = 'RENTAL'
-    ORDER BY R.RENTAL_ID DESC
+        R.RENTAL_ID        AS rentalId,
+        R.ITEM_ID          AS itemId,
+        R.USER_ID          AS userId,
+        R.RENTAL_STATUS    AS rentalStatus,
+        R.START_DATE       AS startDate,
+        R.RETURN_DATE      AS returnDate,
+        R.GUEST_NAME       AS guestName,
+        R.GUEST_PHONE      AS guestPhone,
+        R.RETURN_ZIPCODE        AS returnZipcode,
+        R.RETURN_ADDRESS        AS returnAddress,
+        R.RETURN_DETAILED_ADDRESS AS returnDetailedAddress,
+        P.PRODUCT_NAME     AS productName,
+        P.PRICE            AS pricePerDay,
+        (SELECT PI.IMG_URL FROM PRODUCT_IMG PI
+         WHERE PI.PRODUCT_ID = P.PRODUCT_ID AND PI.IS_MAIN = 'Y'
+         LIMIT 1)          AS imgUrl
+    FROM RENTALS R
+    JOIN ORDER_ITEM OI ON R.ITEM_ID = OI.ITEM_ID
+    JOIN PRODUCT P     ON OI.PRODUCT_ID = P.PRODUCT_ID
+    WHERE OI.ORDER_ID = #{orderId}
+</select>
+<select id="selectGuestRentalByPhone" parameterType="hashmap"
+        resultType="com.example.modak.rental.model.RentalExtension">
+    SELECT RENTAL_ID AS rentalId
+    FROM RENTALS
+    WHERE RENTAL_ID   = #{rentalId}
+      AND GUEST_PHONE = #{guestPhone}
 </select>
 </mapper>

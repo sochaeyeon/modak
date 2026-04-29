@@ -226,17 +226,17 @@
 	<!-- 재고 차감용 주문 아이템 조회 -->
 	<select id="selectOrderItemsForStock" parameterType="hashmap"
 		resultType="hashmap">
-		SELECT
-		oi.PRODUCT_ID AS productId,
-		oi.OPTION_ITEM_ID AS optionItemId,
-		oi.QUANTITY AS quantity,
-		oi.START_DATE AS startDate,
-		oi.END_DATE AS endDate,
-		o.ORDER_TYPE AS orderType
-		FROM order_item oi
-		JOIN orders o
-		ON oi.ORDER_ID = o.ORDER_ID
-		WHERE oi.ORDER_ID = #{orderId}
+		 SELECT
+        OI.ITEM_ID,           
+        OI.PRODUCT_ID,
+        OI.OPTION_ITEM_ID,
+        OI.QUANTITY,
+        OI.START_DATE,
+        OI.END_DATE,
+        O.ORDER_TYPE
+    FROM ORDER_ITEM OI
+    JOIN ORDERS O ON OI.ORDER_ID = O.ORDER_ID
+    WHERE OI.ORDER_ID = #{orderId}
 	</select>
 
 	<!-- 구매 재고 차감 -->

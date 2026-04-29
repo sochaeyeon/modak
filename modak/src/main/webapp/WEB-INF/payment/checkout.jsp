@@ -571,6 +571,12 @@
                                     ? this.orderItems[0].productName
                                     : this.orderItems[0].productName + ' 외 ' + (this.orderItems.length - 1) + '건';
 
+                                const isBuyNow = new URLSearchParams(location.search).get('buyNow') === 'true';
+                                // 콘솔 테스트용
+                                console.log("amount:", this.finalTotal, typeof this.finalTotal);
+                                console.log("orderName:", orderName);
+                                console.log("customerName:", this.isLogin ? this.addrForm.receiverName : this.guestName);
+
                                 let self = this;
                                 $.ajax({
                                     url: '/payment/ready.dox',
@@ -580,7 +586,10 @@
                                         cartIds: self.cartIds.join(','),
                                         cartType: self.cartType,
                                         guestKey: self.guestKey,
-                                        guestItems: !self.isLogin ? JSON.stringify(self.orderItems) : '',
+                                        //guestItems: !self.isLogin ? JSON.stringify(self.orderItems) : '',
+                                        guestItems: (isBuyNow || !self.isLogin)
+                                            ? JSON.stringify(self.orderItems)
+                                            : '',
                                         userCouponId: self.selectedUserCouponId || '',
                                         discountAmt: self.couponDiscount,
                                         receiverName: self.isLogin ? self.addrForm.receiverName : self.guestName,
@@ -607,7 +616,8 @@
                                         const tossPayments = TossPayments(TOSS_CLIENT_KEY);
 
                                         tossPayments.requestPayment('카드', {
-                                            amount: res.amount,
+                                            //amount: res.amount,
+                                            amount: Number(res.amount),
                                             orderId: orderId,
                                             orderName: orderName,
                                             customerName: self.isLogin ? self.addrForm.receiverName : self.guestName,

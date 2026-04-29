@@ -1,11 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%
+<!-- <%
     String orderId = request.getParameter("orderId");
     if (orderId == null || orderId.isEmpty()) {
         orderId = "TEST-20260429-001";
     }
     request.setAttribute("orderId", orderId);
-%>
+%> -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -18,10 +18,10 @@
     <%@ include file="/WEB-INF/common/header.jsp" %>
 
     <div class="step-wrap">
-        <div class="step done">장바구니</div>
-        <div class="step-line done"></div>
-        <div class="step done">주문결제</div>
-        <div class="step-line done"></div>
+        <div class="step active">장바구니</div>
+        <div class="step-line"></div>
+        <div class="step active">주문결제</div>
+        <div class="step-line"></div>
         <div class="step active">완료</div>
     </div>
 
@@ -58,8 +58,8 @@
             </div>
 
             <div class="complete-btns">
-                <a class="complete-btn primary">주문 내역 보기</a>
-                <a class="complete-btn secondary">쇼핑 계속하기</a>
+                <a href="/order/history.do" class="complete-btn primary">주문 내역 보기</a>
+                <a href="/product/list.do" class="complete-btn secondary">쇼핑 계속하기</a>
             </div>
         </section>
     </main>

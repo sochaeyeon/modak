@@ -199,6 +199,7 @@
     font-weight: 700;
 }
 
+
 /* 비활성 */
 .page-btn:disabled {
     opacity: 0.4;

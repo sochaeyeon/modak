@@ -36,66 +36,63 @@
 
                             <!-- ── 배송지 ── -->
                             <section class="co-section">
-
                                 <div class="co-section-title">배송지</div>
 
-                                <!-- ✅ 회원일 때 - 기존 주소록 -->
-                                <template v-if="isLogin">
-                                    <div class="addr-info-box">
-                                        <div class="addr-info-content">
-                                            <div class="addr-name">
-                                                {{ addrForm.receiverName || addrForm.addressAlias || '배송지' }}
-                                                <span class="addr-default-badge"
-                                                    v-if="addrForm.defaultYn === 'Y'">기본배송지</span>
+                                        <!-- 회원 -->
+                                        <template v-if="isLogin">
+                                            <div class="addr-info-box">
+                                                <div class="addr-info-content">
+                                                    <div class="addr-name">
+                                                        {{ addrForm.receiverName || addrForm.addressAlias || '배송지' }}
+                                                        <span class="addr-default-badge" v-if="addrForm.defaultYn === 'Y'">기본배송지</span>
+                                                    </div>
+                                                    <div class="addr-phone">{{ addrForm.receiverPhone || '연락처 없음' }}</div>
+                                                    <div class="addr-full">
+                                                        [{{ addrForm.zipcode }}] {{ addrForm.address }} {{ addrForm.detailedAddress }}
+                                                    </div>
+                                                </div>
+                                                <button class="addr-change-btn" @click="addrModal.open = true">변경</button>
                                             </div>
-                                            <div class="addr-phone">{{ addrForm.receiverPhone || '연락처 없음' }}</div>
-                                            <div class="addr-full">
-                                                [{{ addrForm.zipcode }}] {{ addrForm.address }} {{
-                                                addrForm.detailedAddress }}
+                                        </template>
+
+                                        <!-- 비회원 -->
+                                        <template v-else>
+                                            <div class="guest-addr-form">
+                                                <div class="guest-field-wrap">
+                                                    <span class="guest-field-label">수령인 이름 *</span>
+                                                    <input class="guest-input" v-model="guestName" placeholder="홍길동" />
+                                                </div>
+                                                <div class="guest-field-wrap">
+                                                    <span class="guest-field-label">연락처 *</span>
+                                                    <input class="guest-input" v-model="guestPhone" placeholder="01012345678" />
+                                                </div>
+                                                <div class="guest-addr-row">
+                                                    <div class="guest-field-wrap zip">
+                                                        <span class="guest-field-label">우편번호 *</span>
+                                                        <input class="guest-input" v-model="guestZipcode" placeholder="06234" />
+                                                    </div>
+                                                    <div class="guest-field-wrap">
+                                                        <span class="guest-field-label">주소 *</span>
+                                                        <input class="guest-input" v-model="guestAddress" placeholder="서울시 강남구 테헤란로 123" />
+                                                    </div>
+                                                </div>
+                                                <div class="guest-field-wrap">
+                                                    <span class="guest-field-label">상세주소</span>
+                                                    <input class="guest-input optional" v-model="guestDetailAddress" placeholder="101동 202호" />
+                                                </div>
                                             </div>
-                                        </div>
-                                        <button class="addr-change-btn" @click="addrModal.open = true">변경</button>
-                                    </div>
-                                </template>
+                                        </template>
 
-                                <!-- ✅ 비회원일 때 - 직접 입력 폼 -->
-                                <div v-else class="guest-addr-form">
-                                    <div class="guest-field-wrap">
-                                        <span class="guest-field-label">수령인 이름 *</span>
-                                        <input class="guest-input" v-model="guestName" placeholder="홍길동" />
-                                    </div>
-                                    <div class="guest-field-wrap">
-                                        <span class="guest-field-label">연락처 *</span>
-                                        <input class="guest-input" v-model="guestPhone" placeholder="01012345678" />
-                                    </div>
-                                    <div class="guest-addr-row">
-                                        <div class="guest-field-wrap zip">
-                                            <span class="guest-field-label">우편번호 *</span>
-                                            <input class="guest-input" v-model="guestZipcode" placeholder="06234" />
-                                        </div>
-                                        <div class="guest-field-wrap">
-                                            <span class="guest-field-label">주소 *</span>
-                                            <input class="guest-input" v-model="guestAddress"
-                                                placeholder="서울시 강남구 테헤란로 123" />
-                                        </div>
-                                    </div>
-                                    <div class="guest-field-wrap">
-                                        <span class="guest-field-label">상세주소</span>
-                                        <input class="guest-input optional" v-model="guestDetailAddress"
-                                            placeholder="101동 202호" />
-                                    </div>
-                                </div>
-
-                                <!-- 배송 메모 (공통) -->
-                                <select class="delivery-memo-select" v-model="deliveryMemo">
-                                    <option value="">배송메모를 선택해주세요</option>
-                                    <option>문 앞에 놓아주세요</option>
-                                    <option>경비실에 맡겨주세요</option>
-                                    <option>벨 누르지 말아주세요</option>
-                                    <option>직접 입력</option>
-                                </select>
-                                <input v-if="deliveryMemo === '직접 입력'" class="delivery-memo-input"
-                                    v-model="deliveryMemoCustom" placeholder="배송 메모를 입력해주세요">
+                                        <!-- 배송 메모 (공통) -->
+                                        <select class="delivery-memo-select" v-model="deliveryMemo">
+                                            <option value="">배송메모를 선택해주세요</option>
+                                            <option>문 앞에 놓아주세요</option>
+                                            <option>경비실에 맡겨주세요</option>
+                                            <option>벨 누르지 말아주세요</option>
+                                            <option>직접 입력</option>
+                                        </select>
+                                        <input v-if="deliveryMemo === '직접 입력'" class="delivery-memo-input"
+                                            v-model="deliveryMemoCustom" placeholder="배송 메모를 입력해주세요">
                             </section>
 
                             <!-- ── 주문 상품 ── -->
@@ -185,8 +182,6 @@
                                 </div>
                             </section>
 
-
-
                             <!-- ── 동의 ── -->
                             <section class="co-section agree-section">
                                 <label class="agree-all" @click="toggleAgreeAll">
@@ -194,6 +189,51 @@
                                     <span>약관 및 주문 내용을 확인하였으며, 정보 제공 등에 동의합니다.</span>
                                 </label>
                             </section>
+
+                            <!-- ══════════ 배송지 없음 → 신규 등록 모달 ══════════ -->
+                            <div v-if="addrAddModal.open" class="modal-overlay" @click.self="addrAddModal.open = false">
+                                <div class="modal-box addr-modal-box">
+                                    <div class="modal-header">
+                                        <span class="modal-title">배송지 등록</span>
+                                        <button class="modal-close" @click="addrAddModal.open = false">✕</button>
+                                    </div>
+
+                                    <p style="font-size:13px;color:#E8732A;font-weight:700;margin-bottom:16px;">
+                                        📦 등록된 배송지가 없습니다. 배송지를 등록해주세요.
+                                    </p>
+
+                                    <div class="guest-addr-form">
+                                        <div class="guest-field-wrap">
+                                            <span class="guest-field-label">별칭 *</span>
+                                            <input class="guest-input" v-model="newAddr.addressAlias" placeholder="집, 회사 등" />
+                                        </div>
+                                        <div class="guest-addr-row">
+                                            <div class="guest-field-wrap zip">
+                                                <span class="guest-field-label">우편번호 *</span>
+                                                <input class="guest-input" v-model="newAddr.zipCode" placeholder="06234" />
+                                            </div>
+                                            <div class="guest-field-wrap">
+                                                <span class="guest-field-label">주소 *</span>
+                                                <input class="guest-input" v-model="newAddr.address" placeholder="서울시 강남구 테헤란로 123" />
+                                            </div>
+                                        </div>
+                                        <div class="guest-field-wrap">
+                                            <span class="guest-field-label">상세주소</span>
+                                            <input class="guest-input optional" v-model="newAddr.detailedAddress" placeholder="101동 202호" />
+                                        </div>
+                                        <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;cursor:pointer;">
+                                            <input type="checkbox" v-model="newAddr.defaultYn"> 기본 배송지로 설정
+                                        </label>
+                                    </div>
+
+                                    <p v-if="addrAddMsg" style="color:#e74c3c;font-size:12px;margin-top:8px;">{{ addrAddMsg }}</p>
+
+                                    <div class="modal-btns" style="margin-top:16px;">
+                                        <button class="modal-btn-cancel" @click="addrAddModal.open = false">취소</button>
+                                        <button class="modal-btn-ok" @click="saveNewAddress">저장하기</button>
+                                    </div>
+                                </div>
+                            </div>
 
                         </div><!-- /checkout-main -->
 
@@ -311,6 +351,15 @@
                                     receiverName: '',
                                     receiverPhone: ''
                                 },
+                                addrAddModal: { open: false },
+                                newAddr: {
+                                    addressAlias: '',
+                                    zipCode: '',
+                                    address: '',
+                                    detailedAddress: '',
+                                    defaultYn: false
+                                },
+                                addrAddMsg: '',
                                 // 비회원 정보
                                 guestName: '',
                                 guestPhone: '',
@@ -402,8 +451,9 @@
                                         self.isLogin = res.isLogin === true;
                                         // ✅ 비회원도 그냥 통과 (redirect 제거)
                                         self.fetchOrderItems();
-                                        self.fetchAddressList();
+                                        //self.fetchAddressList();
                                         if (self.isLogin) {
+                                            self.fetchAddressList(); // ✅ 회원만 호출
                                             self.fetchCouponList(); // 쿠폰조회
                                             self.fetchUserPoint(); // 포인트조회
                                         }
@@ -618,6 +668,9 @@
                                             } else if (self.addressList.length > 0) {
                                                 self.addrForm = { ...self.addressList[0] };
                                                 self.selectedAddressId = self.addressList[0].addressId;
+                                            } else if (self.isLogin) {
+                                                // ✅ 등록된 배송지 없으면 모달 오픈
+                                                self.addrAddModal.open = true;
                                             }
                                         } else {
                                             self.showToast(res.message || '배송지 조회에 실패했습니다.');
@@ -668,6 +721,37 @@
                             },
                             useAllPoint() {
                                 this.usePoint = this.maxUsePoint;
+                            },
+                            saveNewAddress() {
+                                let self = this;
+                                self.addrAddMsg = '';
+
+                                if (!self.newAddr.addressAlias.trim()) { self.addrAddMsg = '배송지 별칭을 입력해주세요.'; return; }
+                                if (!self.newAddr.zipCode.trim())      { self.addrAddMsg = '우편번호를 입력해주세요.'; return; }
+                                if (!self.newAddr.address.trim())      { self.addrAddMsg = '주소를 입력해주세요.'; return; }
+
+                                $.ajax({
+                                    url: '/user/address/add.dox',
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    data: {
+                                        addressAlias:    self.newAddr.addressAlias,
+                                        zipCode:         self.newAddr.zipCode,
+                                        address:         self.newAddr.address,
+                                        detailedAddress: self.newAddr.detailedAddress,
+                                        defaultYn:       self.newAddr.defaultYn ? 'Y' : 'N'
+                                    },
+                                    success(res) {
+                                        if (res.result === 'success') {
+                                            self.addrAddModal.open = false;
+                                            self.fetchAddressList(); // 저장 후 목록 다시 불러와서 addrForm 세팅
+                                            self.showToast('배송지가 저장됐어요.');
+                                        } else {
+                                            self.addrAddMsg = res.message || '저장에 실패했습니다.';
+                                        }
+                                    },
+                                    error() { self.addrAddMsg = '서버 오류가 발생했습니다.'; }
+                                });
                             },
                         },
                         mounted() {

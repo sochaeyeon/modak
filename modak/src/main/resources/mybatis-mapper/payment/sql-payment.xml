@@ -69,33 +69,18 @@
 	<!-- 임시 주문 INSERT (STATUS = READY) -->
 	<insert id="insertTempOrder" parameterType="hashmap" useGeneratedKeys="true" keyProperty="orderId">
 	    INSERT INTO ORDERS (
-	        ORDER_TYPE,
-	        ORDER_STATUS,
-	        TOTAL_PRICE,
-	        DISCOUNT_AMT,
-	        CREATED_AT,
-	        USER_ID,
-	        USER_COUPON_ID,
-	        GUEST_NAME,
-	        GUEST_PHONE,
-	        CART_IDS
-	    ) VALUES (
-	        #{cartType},
-	        'READY',
-	        #{amount},
-	        #{discountAmt},
-	        NOW(),
-	        #{userId},
-	        <choose>
-	            <when test="userCouponId != null and userCouponId != ''">
-	                #{userCouponId}
-	            </when>
-	            <otherwise>NULL</otherwise>
-	        </choose>,
-	        #{guestName},
-	        #{guestPhone},
-	        #{cartIds}
-	    )
+		    ORDER_TYPE, ORDER_STATUS, TOTAL_PRICE, DISCOUNT_AMT,
+		    CREATED_AT, USER_ID, USER_COUPON_ID, GUEST_NAME, GUEST_PHONE, CART_IDS,
+		    USE_POINT
+		) VALUES (
+		    #{cartType}, 'READY', #{amount}, #{discountAmt},
+		    NOW(), #{userId},
+		    <choose>
+		        <when test="userCouponId != null and userCouponId != ''">#{userCouponId}</when>
+		        <otherwise>NULL</otherwise>
+		    </choose>,
+		    #{guestName}, #{guestPhone}, #{cartIds}, #{usePoint}
+		)	
 	</insert>
 
 	<!-- 결제 성공 시 상태 업데이트 -->
@@ -161,6 +146,9 @@
 	        O.USER_COUPON_ID AS userCouponId,
 	        O.ORDER_TYPE AS orderType,
 	        O.TOTAL_PRICE AS totalPrice,
+	        O.DISCOUNT_AMT AS discountAmt,
+			O.USE_POINT AS usePoint,
+	        O.DISCOUNT_AMT AS discountAmt,
 	        O.GUEST_NAME AS guestName,
 	        O.GUEST_PHONE AS guestPhone,
 	        (
@@ -230,7 +218,7 @@
 	<!-- 누적금액 + 포인트 -->
 	<update id="updateUserPointAndAmount" parameterType="hashmap">
 		UPDATE USER
-		SET POINT = POINT + #{earnedPoint},
+		SET POINT = POINT + #{earnedPoint} - #{usePoint},
 		TOTAL_AMOUNT = TOTAL_AMOUNT + #{amount}
 		WHERE USER_ID = #{userId}
 	</update>
@@ -258,7 +246,6 @@
 	        AVAILABLE_QTY = AVAILABLE_QTY - #{quantity}
 	    WHERE PRODUCT_ID = #{productId}
 	    AND OPTION_ITEM_ID = #{optionItemId}
-	    AND STOCK_DATE = CURDATE()
 	    AND TOTAL_QTY >= #{quantity}
 	    AND AVAILABLE_QTY >= #{quantity}
 	</update>

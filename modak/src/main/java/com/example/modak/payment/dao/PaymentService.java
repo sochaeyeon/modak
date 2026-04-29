@@ -116,14 +116,19 @@ public class PaymentService {
 	            }
 	        }
 
-	        // 3. 쿠폰 할인 반영
+	     // 3. 쿠폰 할인 + 포인트 반영
 	        long discountAmt = 0;
 	        if (map.get("discountAmt") != null && !"".equals(String.valueOf(map.get("discountAmt")))) {
 	            discountAmt = Long.parseLong(String.valueOf(map.get("discountAmt")));
 	        }
 
-	        long finalAmount = Math.max(0, serverAmount - discountAmt);
+	        long usePoint = 0;
+	        if (map.get("usePoint") != null && !"".equals(String.valueOf(map.get("usePoint"))) && !"null".equals(String.valueOf(map.get("usePoint")))) {
+	            usePoint = Long.parseLong(String.valueOf(map.get("usePoint")));
+	        }
 
+	        map.put("usePoint", usePoint); // ← insertTempOrder에 넘기기 위해 필요
+	        long finalAmount = Math.max(0, serverAmount - discountAmt - usePoint);
 	        map.put("amount", finalAmount);
 
 	        // 4. 주문 생성
@@ -244,30 +249,35 @@ public class PaymentService {
 		// 5. 쿠폰 사용 처리
 		Object userCouponId = orderInfo.get("userCouponId");
 		if (userCouponId == null) {
-			userCouponId = orderInfo.get("USER_COUPON_ID");
+		    userCouponId = orderInfo.get("USER_COUPON_ID");
 		}
 
-		if (!isGuest && userCouponId != null && !"".equals(String.valueOf(userCouponId))) {
-			long totalPrice = getLongValue(orderInfo, "totalPrice", "TOTAL_PRICE");
-			long discountAmt = getLongValue(orderInfo, "discountAmt", "DISCOUNT_AMT");
+		// ✅ 1. "null" 문자열 체크 추가 (DB에서 null이 "null" 문자열로 올 때 방지)
+		if (!isGuest && userCouponId != null && !"".equals(String.valueOf(userCouponId)) && !"null".equals(String.valueOf(userCouponId))) {
+		    long totalPrice = getLongValue(orderInfo, "totalPrice", "TOTAL_PRICE");
+		    long discountAmt = getLongValue(orderInfo, "discountAmt", "DISCOUNT_AMT");
 
-			HashMap<String, Object> couponMap = new HashMap<>();
-			couponMap.put("userCouponId", userCouponId);
-			couponMap.put("userId", userId);
-			couponMap.put("orderId", orderIdLong);
-			couponMap.put("discountAmt", discountAmt);
+		    HashMap<String, Object> couponMap = new HashMap<>();
+		    couponMap.put("userCouponId", userCouponId);
+		    couponMap.put("userId", userId);
+		    couponMap.put("orderId", orderIdLong);
+		    couponMap.put("discountAmt", discountAmt);
 
-			paymentMapper.updateCouponUsed(couponMap);
-			paymentMapper.insertCouponUseLog(couponMap);
-			 alarmService.createAlarm(userId, "EVENT",
-				        "쿠폰이 사용되었습니다 🎫",
-				        "보유 쿠폰이 결제에 적용되었습니다.",
-				        orderIdLong);
+		    // ✅ 2. 결과값 확인용 로그 추가 (updateCouponUsed가 0이면 WHERE 조건 불일치)
+		    int updated = paymentMapper.updateCouponUsed(couponMap);
+		    System.out.println("=== 쿠폰 처리 결과: " + updated + " (0이면 DB 조건 확인 필요) ===");
+
+		    paymentMapper.insertCouponUseLog(couponMap);
+		    alarmService.createAlarm(userId, "EVENT",
+		            "쿠폰이 사용되었습니다 🎫",
+		            "보유 쿠폰이 결제에 적용되었습니다.",
+		            orderIdLong);
 		}
 
 		// 6. 포인트 적립
 		if (!isGuest) {
 			long earnedPoint = amount / 100;
+			long usePoint = getLongValue(orderInfo, "usePoint", "USE_POINT");
 
 			String orderName = getStringValue(orderInfo, "orderName", "ORDER_NAME");
 			long itemCount = getLongValue(orderInfo, "itemCount", "ITEM_COUNT");
@@ -283,6 +293,7 @@ public class PaymentService {
 			HashMap<String, Object> userUpdateMap = new HashMap<>();
 			userUpdateMap.put("userId", userId);
 			userUpdateMap.put("earnedPoint", earnedPoint);
+			userUpdateMap.put("usePoint", usePoint);
 			userUpdateMap.put("amount", amount);
 			userUpdateMap.put("description", description);
 

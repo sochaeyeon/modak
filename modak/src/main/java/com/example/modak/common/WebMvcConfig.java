@@ -39,6 +39,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     // ★ 여기에 추가
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    	
         registry.addResourceHandler("/upload/**")
                 .addResourceLocations("file:" + System.getProperty("user.home") + "/modak_uploads/");
     }

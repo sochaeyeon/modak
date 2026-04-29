@@ -1163,3 +1163,144 @@ nav {
   width: auto;
   max-width: max-content;
 }
+/* 리스트 보기 깨짐 방지 */
+.product-grid.view-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.product-grid.view-list .pcard.list-card {
+  width: 100%;
+  min-height: 150px;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch;
+}
+
+.product-grid.view-list .pcard.list-card .pcard-img {
+  width: 170px !important;
+  height: 150px !important;
+  min-height: 150px !important;
+  flex: 0 0 170px !important;
+}
+
+.product-grid.view-list .pcard.list-card .pcard-body {
+  min-width: 0;
+  flex: 1;
+}
+
+.product-grid.view-list .pcard.list-card .pcard-top {
+  min-height: auto !important;
+  flex: 1;
+}
+
+.product-grid.view-list .pcard.list-card .btn-row {
+  margin-left: auto;
+  min-width: 120px;
+}
+/* --- 리스트뷰 카드 정렬 재구성 */
+.product-grid.view-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+}
+
+.product-grid.view-list .pcard.list-card {
+  display: grid !important;
+  grid-template-columns: 170px 1fr 150px !important;
+  align-items: center !important;
+  min-height: 150px !important;
+  padding: 0 !important;
+}
+
+.product-grid.view-list .pcard.list-card .pcard-img {
+  width: 170px !important;
+  height: 150px !important;
+  min-height: 150px !important;
+  border-radius: 14px 0 0 14px !important;
+}
+
+.product-grid.view-list .pcard.list-card .pcard-body {
+  display: contents !important;
+}
+
+.product-grid.view-list .pcard.list-card .pcard-top {
+  display: block !important;
+  min-height: auto !important;
+  padding: 0 24px !important;
+}
+
+.product-grid.view-list .pcard.list-card .pcard-main {
+  min-width: 0 !important;
+}
+
+.product-grid.view-list .pcard.list-card .pcard-price-wrap {
+  margin-top: 8px !important;
+  text-align: left !important;
+}
+
+.product-grid.view-list .pcard.list-card .pcard-price-wrap .price-row {
+  justify-content: flex-start !important;
+}
+
+.product-grid.view-list .pcard.list-card .btn-row {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  width: 120px !important;
+  min-width: 120px !important;
+  margin: 0 20px -82px auto !important;
+}
+
+.product-grid.view-list .pcard.list-card .btn-rent,
+.product-grid.view-list .pcard.list-card .btn-buy {
+  width: 100% !important;
+  padding: 9px 0 !important;
+}
+
+.product-grid.view-list .pcard.list-card .wish-btn {
+  top: 18px !important;
+  right: 14px !important;
+}
+.price-guide-row{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.price-guide-row {
+  color: var(--brown3);
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.price-slider-box {
+  position: relative;
+}
+
+.price-bubble {
+  position: absolute;
+  top: -12px;
+  transform: translateX(-50%);
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: var(--orange);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.price-bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -4px;
+  width: 7px;
+  height: 7px;
+  background: var(--orange);
+  transform: translateX(-50%) rotate(45deg);
+}
+

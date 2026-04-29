@@ -92,4 +92,15 @@ public class BoardController {
     public String vote(@RequestParam HashMap<String, Object> map) {
         return new Gson().toJson(boardService.vote(map));
     }
+    
+    @PostMapping(value = "/bookmark.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String toggleBookmark(@RequestParam HashMap<String, Object> map) {
+        return new Gson().toJson(boardService.toggleBookmark(map));
+    }
+    @PostMapping(value = "/tag/list.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String getBoardListByTag(@RequestParam String tag) {
+        return new Gson().toJson(boardService.getBoardListByTag(tag));
+    }
 }

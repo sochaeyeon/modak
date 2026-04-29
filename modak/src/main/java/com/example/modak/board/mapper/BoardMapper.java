@@ -59,4 +59,17 @@ public interface BoardMapper {
     Map<String, Object> selectMyVote(HashMap<String, Object> map);
     int insertVote(HashMap<String, Object> map);
     int increaseVoteCount(HashMap<String, Object> map);
+    
+    //북마크
+    int selectBookmarkExists(HashMap<String, Object> map);
+    void insertBookmark(HashMap<String, Object> map);
+    void deleteBookmark(HashMap<String, Object> map);
+    List<Map<String, Object>> selectBookmarkList(String userId);
+    
+    //태그
+    void insertBoardTag(HashMap<String, Object> map);
+
+    List<String> selectTagsByBoardId(Long boardId);
+
+    List<Map<String, Object>> selectBoardListByTag(String tag);
 }

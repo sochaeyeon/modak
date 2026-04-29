@@ -2,6 +2,7 @@ package com.example.modak.user.mapper;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -39,4 +40,6 @@ public interface MypageMapper {
 	List<UserCoupon> selectCouponPagingList(HashMap<String, Object> map);
 
 	int selectCouponCount(@Param("userId") String userId);
+	
+	List<Map<String, Object>> selectBookmarkList(String userId);
 }

@@ -24,10 +24,15 @@
 		UPDATE ALARM SET IS_READ = 'Y' WHERE ALARM_ID = #{alarmId}
 	</update>
 
-	<insert id="insertAlarm">
-		INSERT INTO ALARM (USER_ID, TYPE, TITLE, CONTENT, LINK_ID)
-		VALUES (#{userId}, #{type}, #{title}, #{content}, #{linkId})
-	</insert>
+	<insert id="insertAlarm" parameterType="hashmap">
+    INSERT INTO alarm (USER_ID, TYPE, TITLE, CONTENT, LINK_ID, LINK_URL, IS_READ, CREATED_AT)
+    VALUES (
+        #{userId}, #{type}, #{title}, #{content},
+        NULLIF(#{linkId}, ''),
+        NULLIF(#{linkUrl}, ''),
+        'N', NOW()
+    )
+</insert>
 	<delete id="deleteAlarm" parameterType="int">
         DELETE FROM ALARM WHERE ALARM_ID = #{alarmId}
     </delete>

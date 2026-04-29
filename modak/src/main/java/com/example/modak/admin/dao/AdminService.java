@@ -8,8 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.example.modak.admin.mapper.AdminMapper;
-import com.google.gson.JsonElement;
+import com.example.modak.alarm.dao.AlarmService;
 
 @Service
 public class AdminService {
@@ -157,12 +158,30 @@ public class AdminService {
 	    try {
 	        int affected = mapper.updateReturnRequestStatus(map);
 	        if (affected > 0) {
-	            result.put("result", "success");
-	        } else {
+	            String status = String.valueOf(map.get("status"));
+	            HashMap<String, Object> rentalMap = new HashMap<>();
+	            rentalMap.put("rentalId", map.get("rentalId"));
+	            HashMap<String, Object> rental = mapper.selectRentalByRentalId(rentalMap);
+
+	            if (rental != null && !"GUEST".equals(String.valueOf(rental.get("userId")))) {
+	                String uid = String.valueOf(rental.get("userId"));
+
+	                if ("RETURN_PICKED".equals(status)) {
+	                    alarmService.createAlarm(uid, "DELIVERY",
+	                        "물품 수거가 시작되었습니다 🚚",
+	                        "반납 물품 수거가 시작되었습니다.", map.get("rentalId"));
+
+	                } else if ("RETURN_COMPLETED".equals(status)) {
+	                    alarmService.createAlarm(uid, "NOTICE",
+	                        "반납이 완료되었습니다 📦",
+	                        "반납이 정상 처리되었습니다. 보증금은 3~5일 내 환불됩니다.", map.get("rentalId"));
+	                }
+	            } else {
 	            result.put("result", "fail");
 	            result.put("message", "변경 가능한 상태가 아닙니다.");
 	        }
-	    } catch (Exception e) {
+	   } }
+	    catch (Exception e) {
 	        e.printStackTrace();
 	        result.put("result", "fail");
 	        result.put("message", e.getMessage());
@@ -843,6 +862,7 @@ public class AdminService {
  // --- [2] 유저 보유 쿠폰 관리 (User Coupon) ---
 
  // ✨ 모든 유저에게 쿠폰 일괄 발송 (전체 지급)
+ @Autowired AlarmService alarmService;
  public HashMap<String, Object> giveCouponToAll(HashMap<String, Object> map) {
      HashMap<String, Object> resultMap = new HashMap<>();
      try {
@@ -860,11 +880,15 @@ public class AdminService {
      HashMap<String, Object> resultMap = new HashMap<>();
      try {
          mapper.insertUserCoupon(map);
+         alarmService.createAlarm(
+        		    String.valueOf(map.get("userId")), "EVENT",
+        		    "쿠폰이 발급되었습니다 🎫",
+        		    "새로운 쿠폰이 지급되었습니다. 마이페이지에서 확인하세요.", null);
          resultMap.put("result", "success");
      } catch (Exception e) {
          e.printStackTrace();
          resultMap.put("result", "error");
-     }
+     }		
      return resultMap;
  }
 
@@ -1023,11 +1047,22 @@ public class AdminService {
 	public HashMap<String, Object> registerDelivery(HashMap<String, Object> map) {
 	    HashMap<String, Object> result = new HashMap<>();
 	    try {
-	        // 1. DELIVERY 테이블에 운송장 INSERT (이미 있으면 UPDATE)
 	        mapper.upsertDelivery(map);
-	        // 2. 주문 상태 → SHIPPING 으로 변경
 	        map.put("status", "SHIPPING");
 	        mapper.updateOrderStatus(map);
+
+	        // ★ orderInfo 조회 추가
+	        HashMap<String, Object> orderMap = new HashMap<>();
+	        orderMap.put("orderId", map.get("orderId"));
+	        HashMap<String, Object> orderInfo = mapper.selectOrderById(orderMap);
+
+	        if (orderInfo != null && orderInfo.get("userId") != null) {
+	            String uid = String.valueOf(orderInfo.get("userId"));
+	            alarmService.createAlarm(uid, "DELIVERY",
+	                "상품이 출발했습니다 🚚",
+	                "운송장 번호: " + map.get("trackingNo"), map.get("orderId"));
+	        }
+
 	        result.put("result", "success");
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -1046,6 +1081,66 @@ public class AdminService {
 	        e.printStackTrace(); result.put("result", "fail");
 	    }
 	    return result;
+	}
+	
+	public HashMap<String, Object> getInspectionList() {
+	    HashMap<String, Object> r = new HashMap<>();
+	    try { r.put("result","success"); r.put("list", mapper.selectInspectionList()); }
+	    catch (Exception e) { e.printStackTrace(); r.put("result","fail"); }
+	    return r;
+	}
+
+	public HashMap<String, Object> saveInspection(HashMap<String, Object> map) {
+	    HashMap<String, Object> r = new HashMap<>();
+	    try {
+	        mapper.insertReturnInspection(map);
+	        // 파손/분실 시 알람
+	        String userId = String.valueOf(map.get("userId"));
+	        String code   = String.valueOf(map.get("conditionCode"));
+	        if (!"GOOD".equals(code) && !"GUEST".equals(userId)) {
+	            String msg = "DAMAGED".equals(code)
+	                ? "반납 물품에 파손이 확인되어 " + map.get("deductionAmt") + "원이 공제됩니다."
+	                : "반납 물품 분실이 확인되어 배상금이 청구됩니다.";
+	            alarmService.createAlarm(userId, "NOTICE", "검수 결과 안내 📋", msg, map.get("rentalId"));
+	        }
+	        r.put("result","success");
+	    } catch (Exception e) { e.printStackTrace(); r.put("result","fail"); }
+	    return r;
+	}
+
+	public HashMap<String, Object> getRefundList() {
+	    HashMap<String, Object> r = new HashMap<>();
+	    try { r.put("result","success"); r.put("list", mapper.selectRefundList()); }
+	    catch (Exception e) { e.printStackTrace(); r.put("result","fail"); }
+	    return r;
+	}
+
+	public HashMap<String, Object> getExchangeList() {
+	    HashMap<String, Object> r = new HashMap<>();
+	    try { r.put("result","success"); r.put("list", mapper.selectExchangeList()); }
+	    catch (Exception e) { e.printStackTrace(); r.put("result","fail"); }
+	    return r;
+	}
+
+	public HashMap<String, Object> updateExchangeStatus(HashMap<String, Object> map) {
+	    HashMap<String, Object> r = new HashMap<>();
+	    try {
+	        mapper.updateExchangeStatus(map);
+	        // 교환 승인/거절 알람
+	        String userId = String.valueOf(map.get("userId"));
+	        String status = String.valueOf(map.get("status"));
+	        if (!"GUEST".equals(userId)) {
+	            if ("APPROVED".equals(status)) {
+	                alarmService.createAlarm(userId, "NOTICE", "교환 신청이 승인되었습니다 ✅",
+	                    "교환이 승인되었습니다. 새 상품이 곧 발송됩니다.", map.get("exchangeId"));
+	            } else if ("REJECTED".equals(status)) {
+	                alarmService.createAlarm(userId, "NOTICE", "교환 신청이 거절되었습니다 ❌",
+	                    "교환 신청이 거절되었습니다. 문의사항은 고객센터로 연락해주세요.", map.get("exchangeId"));
+	            }
+	        }
+	        r.put("result","success");
+	    } catch (Exception e) { e.printStackTrace(); r.put("result","fail"); }
+	    return r;
 	}
 	
 }

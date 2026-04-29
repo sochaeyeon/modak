@@ -365,33 +365,31 @@ public class ReviewService {
 
     // 리뷰 이미지 저장 공통 메서드
     private void saveReviewImages(Long reviewId, MultipartFile[] files, HttpServletRequest request) throws Exception {
-        if (files == null || files.length == 0) {
-            return;
-        }
+        if (files == null || files.length == 0) return;
 
-        String uploadPath = request.getServletContext().getRealPath("/upload/review");
+        // ★ 경로 변경: /upload/review → /img/review
+        String uploadPath = System.getProperty("user.home") + "/modak_uploads/review";
         File dir = new File(uploadPath);
         if (!dir.exists()) {
             dir.mkdirs();
         }
 
         for (MultipartFile file : files) {
-            if (file == null || file.isEmpty()) {
-                continue;
-            }
+            if (file == null || file.isEmpty()) continue;
 
             String originalName = file.getOriginalFilename();
-            String ext = originalName.substring(originalName.lastIndexOf("."));
-            String saveName = UUID.randomUUID().toString() + ext;
+            String ext          = originalName.substring(originalName.lastIndexOf("."));
+            String saveName     = UUID.randomUUID().toString() + ext;
 
             File dest = new File(dir, saveName);
             file.transferTo(dest);
 
+            // ★ URL 경로 변경
             String imgUrl = "/upload/review/" + saveName;
 
             HashMap<String, Object> imgMap = new HashMap<>();
             imgMap.put("reviewId", reviewId);
-            imgMap.put("imgUrl", imgUrl);
+            imgMap.put("imgUrl",   imgUrl);
 
             reviewMapper.insertReviewImage(imgMap);
         }

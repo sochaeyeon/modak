@@ -728,6 +728,66 @@ body {
     to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* 선택 대여 모달 배경 */
+.ext-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(32, 24, 18, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 28px;
+}
+
+/* 기존 ext-panel을 모달처럼 */
+.ext-modal-panel {
+    width: min(920px, 100%);
+    max-height: 86vh;
+    overflow-y: auto;
+    background: #fffaf3;
+    border-radius: 24px;
+    box-shadow: 0 24px 70px rgba(45, 32, 22, 0.28);
+    animation: extModalRise 0.22s ease-out;
+}
+
+/* 스크롤바 */
+.ext-modal-panel::-webkit-scrollbar {
+    width: 8px;
+}
+@media (max-width: 768px) {
+    .ext-modal-backdrop {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .ext-modal-panel {
+        width: 100%;
+        max-height: 90vh;
+        border-radius: 24px 24px 0 0;
+    }
+}
+
+
+.ext-modal-panel::-webkit-scrollbar-thumb {
+    background: rgba(132, 94, 62, 0.35);
+    border-radius: 999px;
+}
+
+@keyframes extModalRise {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 /* ── 반응형 ── */
 @media (max-width: 720px) {
     .ext-page { padding: 24px 16px 56px; }

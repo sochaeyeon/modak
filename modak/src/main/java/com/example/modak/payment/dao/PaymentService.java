@@ -166,25 +166,38 @@ public class PaymentService {
 	// 토스 API 승인 - 트랜잭션 없음
 	public HashMap<String, Object> confirmPayment(String paymentKey, String orderId, Long amount) {
 
-		// 1. 토스 API 승인 요청 (트랜잭션 밖)
-		HttpResponse<String> response = callTossApi(paymentKey, orderId, amount);
-		Long orderIdLong = Long.parseLong(orderId.replace("modak-", ""));
-		if (response != null && response.statusCode() == 200) {
-			return processAfterPayment(orderIdLong, amount, paymentKey);
-		} else {
-			// 실패 처리
-			HashMap<String, Object> failMap = new HashMap<>();
-			failMap.put("orderId", orderIdLong);
-			failMap.put("orderStatus", "CANCELLED");
-			paymentMapper.updateOrderStatus(failMap);
+	    HttpResponse<String> response = callTossApi(paymentKey, orderId, amount);
+	    Long orderIdLong = Long.parseLong(orderId.replace("modak-", ""));
 
-			HashMap<String, Object> resultMap = new HashMap<>();
-			resultMap.put("result", "fail");
-			String failMessage = response == null ? "토스 승인 요청 실패" : response.body();
-			resultMap.put("message", "토스 승인 실패: " + failMessage);
-			return resultMap;
-		}
+	    if (response != null && response.statusCode() == 200) {
+	        try {
+	            return processAfterPayment(orderIdLong, amount, paymentKey);
+	        } catch (Exception e) {
+	            // ✅ DB 처리 중 오류 → 주문 취소 처리 후 에러 페이지로
+	            e.printStackTrace();
+	            HashMap<String, Object> failMap = new HashMap<>();
+	            failMap.put("orderId", orderIdLong);
+	            failMap.put("orderStatus", "CANCELLED");
+	            paymentMapper.updateOrderStatus(failMap);
 
+	            HashMap<String, Object> resultMap = new HashMap<>();
+	            resultMap.put("result", "error");        // ← "fail"과 구분하기 위해 "error"
+	            resultMap.put("message", e.getMessage());
+	            return resultMap;
+	        }
+	    } else {
+	        // 토스 승인 실패 → 결제 실패 페이지
+	        HashMap<String, Object> failMap = new HashMap<>();
+	        failMap.put("orderId", orderIdLong);
+	        failMap.put("orderStatus", "CANCELLED");
+	        paymentMapper.updateOrderStatus(failMap);
+
+	        HashMap<String, Object> resultMap = new HashMap<>();
+	        resultMap.put("result", "fail");
+	        String failMessage = response == null ? "토스 승인 요청 실패" : response.body();
+	        resultMap.put("message", "토스 승인 실패: " + failMessage);
+	        return resultMap;
+	    }
 	}
 
 	private HttpResponse<String> callTossApi(String paymentKey, String orderId, Long amount) {

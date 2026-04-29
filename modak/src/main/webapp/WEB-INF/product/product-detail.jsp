@@ -1227,7 +1227,10 @@
 
 							localStorage.setItem(BUY_NOW_KEY, JSON.stringify([buyNowItem]));
 
-							location.href = '/payment/checkout.do?cartType=RENTAL&isGuest=true&buyNow=true';
+							//location.href = '/payment/checkout.do?cartType=RENTAL&isGuest=true&buyNow=true';
+                            location.href = '/payment/checkout.do?cartType=RENTAL&isGuest=' 
+                                        + (!this.isLogin) 
+                                        + '&buyNow=true';
 						},
 						fnWish(e) {
 							e.stopPropagation();
@@ -1462,7 +1465,11 @@
 
 							localStorage.setItem(BUY_NOW_KEY, JSON.stringify([buyNowItem]));
 
-							location.href = '/payment/checkout.do?cartType=' + this.productType + '&isGuest=true&buyNow=true';
+							//location.href = '/payment/checkout.do?cartType=' + this.productType + '&isGuest=true&buyNow=true';
+                            location.href = '/payment/checkout.do?cartType=' 
+                                        + this.productType 
+                                        + '&isGuest=' + (!this.isLogin)
+                                        + '&buyNow=true';
 						},
 						fnRelatedWish(item) {
 							let self = this;

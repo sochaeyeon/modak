@@ -46,18 +46,52 @@ body {
     justify-content: center;
 }
 
-/* 완료된 단계 (장바구니, 주문결제) */
-.step.done {
-    background: #fff;
-    border-color: #E7D8CF;
-    color: #B2A29A;
+/* ── 브레드크럼 ── */
+.breadcrumb {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px 20px 8px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.bc-done { color: var(--text); font-weight: 600; }
+.bc-cur  { color: var(--orange); font-weight: 700; }
+.bc-next { color: var(--muted); }
+.bc-arrow { color: #ccc; }
+
+/* 상단 단계 */
+.breadcrumb {
+    display: none !important;
 }
 
-/* 현재 단계 (완료) */
+.step-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 22px 0 34px;
+}
+
+.step {
+    min-width: 92px;
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #E7D8CF;
+    color: #B2A29A;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .step.active {
-    background: var(--orange-light, #FFF4EC);
-    border-color: var(--orange, #E8732A);
-    color: var(--orange, #E8732A);
+    background: var(--orange-light);
+    border-color: var(--orange);
+    color: var(--orange);
 }
 
 .step-line {
@@ -65,6 +99,10 @@ body {
     height: 1px;
     background: #E2D5CE;
     margin: 0 8px;
+}
+
+.step-line.active {
+    background: var(--orange-line);
 }
 
 /* 완료 화면 */

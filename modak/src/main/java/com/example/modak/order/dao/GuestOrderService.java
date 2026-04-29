@@ -75,6 +75,11 @@ public class GuestOrderService {
 			List<GuestOrderItem> items = guestOrderMapper.selectGuestOrderItems(orderId);
 			order.setItems(items);
 
+			Integer rentalId = guestOrderMapper.selectRentalIdByOrderId(orderId);
+			if (rentalId != null) {
+			    order.setRentalId(rentalId);
+			}
+
 			result.put("result", "success");
 			result.put("order", order);
 

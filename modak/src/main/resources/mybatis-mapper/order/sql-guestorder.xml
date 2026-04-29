@@ -111,5 +111,11 @@
     WHERE  ORDER_ID = #{orderId}
       AND USER_ID LIKE 'GUEST%'
 </update>
-
+<select id="selectRentalIdByOrderId" resultType="int">
+    SELECT R.RENTAL_ID
+    FROM RENTALS R
+    JOIN ORDER_ITEM OI ON R.ITEM_ID = OI.ITEM_ID
+    WHERE OI.ORDER_ID = #{orderId}
+    LIMIT 1
+</select>
 </mapper>

@@ -32,4 +32,6 @@ public interface GuestOrderMapper {
 
     /** 교환 신청 후 주문 상태 변경 */
     int updateOrderStatusToExchange(@Param("orderId") String orderId);
+    
+    Integer selectRentalIdByOrderId(@Param("orderId") String orderId);
 }

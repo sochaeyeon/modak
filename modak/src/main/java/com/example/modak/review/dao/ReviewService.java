@@ -338,6 +338,7 @@ public class ReviewService {
             map.put("offset", offset);
 
             List<Review> list = reviewMapper.selectProductReviewList(map);
+            int totalCount = reviewMapper.selectProductReviewCount(map);
 
             for (Review review : list) {
                 HashMap<String, Object> imgMap = new HashMap<>();
@@ -353,6 +354,7 @@ public class ReviewService {
 
             resultMap.put("result", "success");
             resultMap.put("list", list);
+            resultMap.put("totalCount", totalCount);
 
         } catch (Exception e) {
             e.printStackTrace();

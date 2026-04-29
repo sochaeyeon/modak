@@ -364,4 +364,11 @@ END AS reviewWrittenYn
         #{userId}
     )
 </insert>
+
+<select id="selectProductReviewCount" parameterType="hashmap" resultType="int">
+    SELECT COUNT(*)
+    FROM REVIEW
+    WHERE PRODUCT_ID = #{productId}
+      AND REVIEW_STATUS = 'ACTIVE'
+</select>
 </mapper>

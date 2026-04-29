@@ -121,13 +121,17 @@ public class PaymentController {
 
         if ("success".equals(resultMap.get("result"))) {
             model.addAttribute("orderId", orderId);
-            return "payment/order-complete"; // /WEB-INF/views/payment/success.jsp
+            return "payment/order-complete";
+        } else if ("error".equals(resultMap.get("result"))) {
+            // ✅ DB 처리 오류 → 404 에러 페이지
+            return "error/error";
         } else {
+            // 토스 결제 실패 → 결제 실패 페이지
             model.addAttribute("message", resultMap.get("message"));
             return "payment/fail";
         }
     }
-
+    
     // ✅ 토스 결제 실패 콜백 (failUrl로 리다이렉트됨)
     @RequestMapping("/payment/fail.do")
     public String payFail(

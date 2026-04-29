@@ -463,11 +463,12 @@
 
                             fetchOrderItems() {
                                 let self = this;
+                                const params = new URLSearchParams(location.search);
+                                const isBuyNow = params.get('buyNow') === 'true';
+
+                                // ── 비회원 ──
                                 if (!self.isLogin) {
                                     try {
-                                        const params = new URLSearchParams(location.search);
-                                        const isBuyNow = params.get('buyNow') === 'true';
-
                                         if (isBuyNow) {
                                             const raw = localStorage.getItem('modak_guest_buy_now');
                                             self.orderItems = raw ? JSON.parse(raw) : [];
@@ -479,6 +480,16 @@
                                     return;
                                 }
 
+                                // ── 회원 + 바로구매 ──
+                                if (isBuyNow) {
+                                    try {
+                                        const raw = localStorage.getItem('modak_guest_buy_now');
+                                        self.orderItems = raw ? JSON.parse(raw) : [];
+                                    } catch (e) { self.orderItems = []; }
+                                    return;
+                                }
+
+                                // ── 회원 + 장바구니 ──
                                 $.ajax({
                                     url: '/payment/checkoutItems.dox',
                                     type: 'POST',
@@ -489,8 +500,6 @@
                                     },
                                     dataType: 'json',
                                     success(res) {
-                                        console.log("주문상품 응답:", res);
-
                                         if (res.result === 'success') {
                                             self.orderItems = res.list || [];
                                         } else {
@@ -498,8 +507,7 @@
                                             self.showToast(res.message || '주문상품 조회 실패');
                                         }
                                     },
-                                    error(err) {
-                                        console.log("주문상품 조회 오류:", err);
+                                    error() {
                                         self.orderItems = [];
                                         self.showToast('주문상품 조회 중 오류가 발생했습니다.');
                                     }

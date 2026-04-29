@@ -79,8 +79,9 @@
                             </div>
                         </div>
 
-                        <!-- ══ 선택 대여 패널 ══ -->
-                        <div class="ext-panel" v-if="selectedRental">
+                        <!-- ══ 선택 대여 모달 ══ -->
+                        <div class="ext-modal-backdrop" v-if="selectedRental" @click.self="fnClosePanel">
+                        <div class="ext-panel ext-modal-panel">
 
                             <!-- 패널 헤더 -->
                             <div class="ext-panel-head">
@@ -97,8 +98,9 @@
                                         남은 시간: <strong>{{ fnRemainText(selectedRental.returnDate) }}</strong>
                                     </p>
                                 </div>
-                                <button type="button" class="btn-close-panel" v-if="!isGuest"
-                                    @click="fnClosePanel">✕</button>
+                                <!-- <button type="button" class="btn-close-panel" v-if="!isGuest"
+                                    @click="fnClosePanel">✕</button> -->
+                                <button type="button" class="btn-close-panel" @click="fnClosePanel">✕</button>
                                 <a href="/rental/extension/inquiry.do" class="btn-back" v-if="isGuest">← 다시 조회하기</a>
                             </div>
 
@@ -270,8 +272,8 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div><!-- /ext-panel -->
+                        </div><!-- /ext-modal-backdrop -->
 
                         <!-- 비회원 로딩 -->
                         <div class="section-card" v-if="isGuest && isLoading">

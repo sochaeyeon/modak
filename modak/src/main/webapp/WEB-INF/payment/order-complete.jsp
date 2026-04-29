@@ -58,8 +58,8 @@
             </div>
 
             <div class="complete-btns">
-                <a href="/order/history.do" class="complete-btn primary">주문 내역 보기</a>
-                <a href="/product/list.do" class="complete-btn secondary">쇼핑 계속하기</a>
+                <a class="complete-btn primary">주문 내역 보기</a>
+                <a class="complete-btn secondary">쇼핑 계속하기</a>
             </div>
         </section>
     </main>

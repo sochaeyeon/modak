@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.example.modak.cart.dao.CartService;
 import com.google.gson.Gson;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -27,17 +26,20 @@ public class CartController {
 	HttpSession session;
 
 	private String getCartUserId() {
-	    String loginUserId = (String) session.getAttribute("sessionId");
-	    if (loginUserId != null && !"".equals(loginUserId)) return loginUserId;
+		String loginUserId = (String) session.getAttribute("sessionId");
 
-	    // 프론트에서 guestKey를 request param으로 넘기는 방식으로 변경 필요
-	    // 또는 세션에 저장한 guestCartId를 localStorage에도 내려주는 방식 선택
-	    String guestCartId = (String) session.getAttribute("guestCartId");
-	    if (guestCartId == null || "".equals(guestCartId)) {
-	        guestCartId = "GUEST_" + session.getId().substring(0, 12);
-	        session.setAttribute("guestCartId", guestCartId);
-	    }
-	    return guestCartId;
+		if (loginUserId != null && !"".equals(loginUserId)) {
+			return loginUserId;
+		}
+
+		String guestCartId = (String) session.getAttribute("guestCartId");
+
+		if (guestCartId == null || "".equals(guestCartId)) {
+			guestCartId = "GUEST_" + session.getId().replace("-", "").substring(0, 12);
+			session.setAttribute("guestCartId", guestCartId);
+		}
+
+		return guestCartId;
 	}
 
 	@RequestMapping("/cart/list.do")

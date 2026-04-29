@@ -506,12 +506,12 @@
                                         <button type="button" class="qna-question" @click="toggleFaq(idx)">
 
                                             <span><b>Q.</b> {{ f.question }}</span>
-                                            <i :class="openFaqIndex === idx ? 'ri-subtract-line' : 'ri-add-line'"></i>
+                                            <i
+                                                :class="openFaqIndex.includes(idx) ? 'ri-subtract-line' : 'ri-add-line'"></i>
                                         </button>
 
                                         <transition name="qna-slide">
-                                            <div v-show="openFaqIndex === idx" class="qna-answer">
-                                                <span>A.</span>
+                                            <div v-show="openFaqIndex.includes(idx)" class="qna-answer"> <span>A.</span>
                                                 <p>{{ f.answer }}</p>
                                             </div>
                                         </transition>
@@ -729,7 +729,7 @@
                             productSpec: {},
                             productFeatures: [],
                             faqList: [],
-                            openFaqIndex: null,
+                            openFaqIndex: [],
                             calOpen: false,
                             productOptions: [],
                             selectedOptions: {},
@@ -1542,7 +1542,13 @@
                             }
                         },
                         toggleFaq(idx) {
-                            this.openFaqIndex = this.openFaqIndex === idx ? null : idx;
+                            const i = this.openFaqIndex.indexOf(idx);
+
+                            if (i > -1) {
+                                this.openFaqIndex.splice(i, 1);
+                            } else {
+                                this.openFaqIndex.push(idx);
+                            }
                         },
 
                     },

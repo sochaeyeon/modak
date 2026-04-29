@@ -23,6 +23,7 @@
 
         <!-- ════════════════ HERO ════════════════ -->
         <section class="hero">
+          <div class="scroll-progress"></div>
           <div class="hero-bg">
             <div class="aurora-layer aurora-1"></div>
             <div class="aurora-layer aurora-2"></div>
@@ -68,14 +69,6 @@
           <div class="hero-scroll">SCROLL<div class="scroll-line"></div>
           </div>
         </section>
-
-        <!-- ════════════════ EVENT BANNER ════════════════ -->
-        <div class="main-event-banner" id="heroBannerWrap">
-          <div class="heb-track" id="hebTrack"></div>
-          <div class="heb-dots" id="hebDots"></div>
-          <button class="heb-arrow heb-arrow--prev" id="hebPrev">&#8249;</button>
-          <button class="heb-arrow heb-arrow--next" id="hebNext">&#8250;</button>
-        </div>
 
         <!-- ════════════════ CATEGORIES ════════════════ -->
         <section class="section" style="text-align:center">
@@ -233,32 +226,59 @@
         <section class="guide-section">
           <div style="max-width:1200px;margin:0 auto">
             <p class="section-label">이용 가이드</p>
-            <h2 class="section-title">캠핑이 처음이신가요?</h2>
+            <h2 class="section-title">
+              모닥모닥과 함께 시작하는 첫 캠핑
+            </h2>
             <div class="guide-grid">
+
               <div class="guide-card fade-up" onclick="location.href='/guide/guide.do'">
                 <div class="guide-num">01</div>
-                <div class="guide-icon-row"><span class="guide-emoji">📹</span>
-                  <p class="guide-card-title">설치 가이드 영상</p>
+
+                <div class="guide-content">
+                  <i class="ri-video-line guide-icon icon-1"></i>
+
+                  <div class="guide-text">
+                    <p class="guide-card-title">설치 가이드 영상</p>
+                    <p class="guide-card-text">
+                      텐트, 타프, 취사도구 등 장비별 상세 설치 영상을 제공합니다. 초보 캠퍼도 쉽게 따라할 수 있어요.
+                    </p>
+                    <span class="guide-link">영상 보러가기</span>
+                  </div>
                 </div>
-                <p class="guide-card-text">텐트, 타프, 취사도구 등 장비별 상세 설치 영상을 제공합니다. 초보 캠퍼도 쉽게 따라할 수 있어요.</p>
-                <span class="guide-link">영상 보러가기</span>
               </div>
+
               <div class="guide-card fade-up" onclick="location.href='/guide/guide.do'">
                 <div class="guide-num">02</div>
-                <div class="guide-icon-row"><span class="guide-emoji">📱</span>
-                  <p class="guide-card-title">QR 코드 매뉴얼</p>
+
+                <div class="guide-content">
+                  <i class="ri-qr-code-line guide-icon icon-2"></i>
+
+                  <div class="guide-text">
+                    <p class="guide-card-title">QR 코드 매뉴얼</p>
+                    <p class="guide-card-text">
+                      장비 수령 시 QR코드를 스캔하면 해당 제품의 상세 매뉴얼을 즉시 확인할 수 있습니다.
+                    </p>
+                    <span class="guide-link">QR 사용법 보기</span>
+                  </div>
                 </div>
-                <p class="guide-card-text">장비 수령 시 QR코드를 스캔하면 해당 제품의 상세 매뉴얼을 즉시 확인할 수 있습니다.</p>
-                <span class="guide-link">QR 사용법 보기</span>
               </div>
+
               <div class="guide-card fade-up" onclick="location.href='/guide/guide.do'">
                 <div class="guide-num">03</div>
-                <div class="guide-icon-row"><span class="guide-emoji">♻️</span>
-                  <p class="guide-card-title">분리수거 가이드</p>
+
+                <div class="guide-content">
+                  <i class="ri-recycle-line guide-icon icon-3"></i>
+
+                  <div class="guide-text">
+                    <p class="guide-card-title">분리수거 가이드</p>
+                    <p class="guide-card-text">
+                      자연을 지키는 올바른 캠핑 문화. 캠핑장별 쓰레기 분리수거 규정과 방법을 안내해드립니다.
+                    </p>
+                    <span class="guide-link">가이드 확인하기</span>
+                  </div>
                 </div>
-                <p class="guide-card-text">자연을 지키는 올바른 캠핑 문화. 캠핑장별 쓰레기 분리수거 규정과 방법을 안내해드립니다.</p>
-                <span class="guide-link">가이드 확인하기</span>
               </div>
+
             </div>
           </div>
         </section>
@@ -278,12 +298,11 @@
           </div>
         </section>
 
-        <!-- 챗봇 FAB -->
         <div class="chatbot-fab">
           <span class="fab-label">챗봇 문의</span>
           <button class="fab-btn" onclick="location.href='/chat/bot.do'">💬</button>
-        </div>
 
+        </div>
         <!-- 최근 본 상품 바 -->
         <div class="recent-bar" id="recentBar">
           <span class="recent-label">최근 본 상품</span>
@@ -335,32 +354,62 @@
         <%@ include file="/WEB-INF/common/footer.jsp" %>
 
           <script>
+            window.addEventListener('scroll', function () {
+              const scrollTop = window.scrollY;
+              const docHeight = document.body.scrollHeight - window.innerHeight;
+              const progress = (scrollTop / docHeight) * 100;
+
+              document.querySelector('.scroll-progress').style.width = progress + '%';
+            });
             /* ── 1. 불씨 + 낙엽 ── */
+            /* ── 9. 최근 본 상품 바 - DB 연동 ── */
             (function () {
-              var ec = document.getElementById('embers');
-              var fireColors = ['rgba(255,120,20,.9)', 'rgba(255,80,0,.85)', 'rgba(255,180,30,.8)', 'rgba(220,60,0,.75)', 'rgba(255,140,40,.7)'];
-              function mkEmber() {
-                if (!ec) return;
-                var el = document.createElement('div'); el.className = 'ember';
-                var s = Math.random() * 4 + 1.5, l = Math.random() * (window.innerWidth * 0.6) + (window.innerWidth * 0.2),
-                  d = Math.random() * 3 + 2.5, dx = (Math.random() - .5) * 200, c = fireColors[Math.floor(Math.random() * fireColors.length)];
-                el.style.cssText = 'width:' + s + 'px;height:' + s + 'px;left:' + l + 'px;bottom:0;background:' + c + ';box-shadow:0 0 ' + (s * 2) + 'px ' + c + ';--dx:' + dx + 'px;animation-duration:' + d + 's;';
-                ec.appendChild(el);
-                setTimeout(function () { el.parentNode && el.parentNode.removeChild(el); }, d * 1000);
-              }
-              var leafColors = ['rgba(139,107,74,.5)', 'rgba(196,130,80,.45)', 'rgba(212,147,42,.4)', 'rgba(184,154,122,.4)'];
-              function mkLeaf() {
-                if (!ec) return;
-                var el = document.createElement('div'), size = Math.random() * 8 + 5, left = Math.random() * window.innerWidth,
-                  dur = Math.random() * 6 + 5, delay = Math.random() * 2, sway = (Math.random() - .5) * 180, rot = Math.random() * 360,
-                  color = leafColors[Math.floor(Math.random() * leafColors.length)];
-                el.style.cssText = 'position:absolute;font-size:' + size + 'px;left:' + left + 'px;top:-20px;color:' + color + ';pointer-events:none;--sway:' + sway + 'px;--rot:' + rot + 'deg;animation:leafFall ' + dur + 's ease-in ' + delay + 's both;';
-                el.textContent = '◆'; ec.appendChild(el);
-                setTimeout(function () { el.parentNode && el.parentNode.removeChild(el); }, (dur + delay) * 1000);
-              }
-              setInterval(mkEmber, 60); setInterval(mkLeaf, 600);
-              for (var i = 0; i < 36; i++) setTimeout(mkEmber, i * 60);
-              for (var j = 0; j < 15; j++) setTimeout(mkLeaf, j * 200);
+              $.ajax({
+                url: '/user/recent/list.dox',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                  page: 1,
+                  pageSize: 10
+                },
+                success: function (res) {
+                  if (res.result !== 'success' || !res.list || res.list.length === 0) {
+                    return;
+                  }
+
+                  var html = '';
+
+                  res.list.forEach(function (item) {
+                    var productId = item.productId;
+                    var productName = item.productName || '상품명 없음';
+                    var imgUrl = item.imgUrl || '';
+
+                    var imgHtml = imgUrl
+                      ? '<img src="' + imgUrl + '" style="width:24px;height:24px;object-fit:cover;border-radius:4px;">'
+                      : '<span>🏕️</span>';
+
+                    html += ''
+                      + '<div class="recent-item" data-pid="' + productId + '">'
+                      + imgHtml
+                      + '<span style="font-size:12px;color:var(--brown2)">'
+                      + productName
+                      + '</span>'
+                      + '</div>';
+                  });
+
+                  $('#recentItems').html(html);
+
+                  $('#recentBar').addClass('visible');
+
+                  $('#recentItems').off('click').on('click', '.recent-item', function () {
+                    var productId = $(this).data('pid');
+                    location.href = '/product/detail.do?productId=' + productId;
+                  });
+                },
+                error: function () {
+                  console.log('최근 본 상품 조회 실패');
+                }
+              });
             })();
 
             /* ── 2. 스크롤 리빌 ── */
@@ -830,6 +879,23 @@
                 error: function () { loadDefaultGrades(); }
               });
             })();
+            function scrollToTop() {
+              window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+              });
+            }
+
+            window.addEventListener('scroll', function () {
+              const btn = document.getElementById('topFabBtn');
+              if (!btn) return;
+
+              if (window.scrollY > 400) {
+                btn.classList.add('show');
+              } else {
+                btn.classList.remove('show');
+              }
+            });
           </script>
     </body>
 

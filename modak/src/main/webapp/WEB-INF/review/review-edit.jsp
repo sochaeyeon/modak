@@ -197,6 +197,7 @@
                             reviewErrorMsg: '',
 
                             ratingLabels: ['', '별로예요', '그럭저럭이에요', '보통이에요', '좋아요', '최고예요!'],
+                            returnUrl: '',
                         };
                     },
                     computed: {
@@ -367,7 +368,7 @@
                             });
 
                             formData.append("keepImgIds", JSON.stringify(keepIds));
-                            
+
                             for (let i = 0; i < self.photoFiles.length; i++) {
                                 formData.append("files", self.photoFiles[i]);
                             }
@@ -383,8 +384,8 @@
                                     if (data.result === "success") {
                                         self.showToast("리뷰가 수정되었습니다.");
                                         setTimeout(function () {
-                                            pageChange("/user/review/history.do", {});
-                                        }, 1000);
+                                            location.href = self.returnUrl || "/user/review/history.do";
+                                        }, 500);
                                     } else {
                                         alert(data.message || "리뷰 수정에 실패했습니다.");
                                     }
@@ -397,11 +398,13 @@
 
                         handleCancel: function () {
                             if (confirm("수정 중인 내용이 저장되지 않습니다. 취소하시겠어요?")) {
-                                pageChange("/user/review/history.do", {});
+                                location.href = self.returnUrl || "/user/review/history.do";
                             }
                         }
                     },
                     mounted() {
+                        this.fnGetReviewInfo();
+                        this.returnUrl = document.referrer || "/user/review/history.do";
                         this.fnGetReviewInfo();
                     }
                 });

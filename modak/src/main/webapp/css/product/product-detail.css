@@ -3354,10 +3354,8 @@
   .stock-text.danger {
       color: #e53935;
       font-weight: 700;
-  }
-
-  .hbtn.on {
-      background: var(--orange);
-      color: #fff;
-      border-color: var(--orange);
-  }
+  }.hbtn.on {
+    background: var(--orange);
+    color: #fff;
+    border-color: var(--orange);
+}

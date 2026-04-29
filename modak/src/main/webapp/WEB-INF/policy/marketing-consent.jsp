@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>마케팅 정보 수신 동의 — 모닥모닥</title>
+    <title>마케팅 정보 수신 동의 - 모닥모닥</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/policy/marketing-consent.css">
 </head>

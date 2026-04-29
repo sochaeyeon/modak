@@ -506,12 +506,12 @@
                                         <button type="button" class="qna-question" @click="toggleFaq(idx)">
 
                                             <span><b>Q.</b> {{ f.question }}</span>
-                                            <i :class="openFaqIndex === idx ? 'ri-subtract-line' : 'ri-add-line'"></i>
+                                            <i
+                                                :class="openFaqIndex.includes(idx) ? 'ri-subtract-line' : 'ri-add-line'"></i>
                                         </button>
 
                                         <transition name="qna-slide">
-                                            <div v-show="openFaqIndex === idx" class="qna-answer">
-                                                <span>A.</span>
+                                            <div v-show="openFaqIndex.includes(idx)" class="qna-answer"> <span>A.</span>
                                                 <p>{{ f.answer }}</p>
                                             </div>
                                         </transition>
@@ -729,7 +729,7 @@
                             productSpec: {},
                             productFeatures: [],
                             faqList: [],
-                            openFaqIndex: null,
+                            openFaqIndex: [],
                             calOpen: false,
                             productOptions: [],
                             selectedOptions: {},
@@ -977,7 +977,30 @@
 
                             const optionId = selectedOptionValues.map(opt => opt.optionValueId).join(',');
                             const optionName = selectedOptionValues.map(opt => opt.optionValue).join(' / ');
+                            let optionItemId = '';
 
+                            if (optionId) {
+                                $.ajax({
+                                    url: '/product/option/item/get.dox',
+                                    type: 'POST',
+                                    data: {
+                                        productId: self.productId,
+                                        optionValueIds: optionId
+                                    },
+                                    dataType: 'json',
+                                    async: false,
+                                    success(res) {
+                                        if (res.result === 'success') {
+                                            optionItemId = res.optionItemId;
+                                        }
+                                    }
+                                });
+
+                                if (!optionItemId) {
+                                    showToast('옵션 조합 정보를 찾을 수 없습니다.');
+                                    return;
+                                }
+                            }
                             console.log("선택 옵션:", selectedOptionValues);
                             console.log("optionValueIds:", optionId);
 
@@ -986,7 +1009,7 @@
                                 const cart = self.loadGuestCart();
 
                                 const newItem = {
-                                    cartId: Date.now(),           // 임시 고유 ID
+                                    cartId: Date.now(),
                                     cartType: self.productType,
                                     productId: parseInt(self.productId),
                                     productName: self.productInfo.productName || '',
@@ -994,8 +1017,11 @@
                                     quantity: self.qty,
                                     imgUrl: self.mainImgUrl || '',
                                     brandName: self.productInfo.brandName || '',
+
                                     optionValueIds: optionId,
+                                    optionItemId: optionItemId,   // 🔥 이거 하나만
                                     optionName: optionName,
+
                                     rentalStart: self.productType === 'RENTAL' ? self.startDate : null,
                                     rentalEnd: self.productType === 'RENTAL' ? self.endDate : null,
                                     deposit: self.productInfo.deposit || 0
@@ -1036,6 +1062,7 @@
                                 quantity: self.qty,
                                 cartType: self.productType,
                                 optionValueIds: optionId,
+                                optionItemId: optionItemId,
                                 rentalStart: self.productType === 'RENTAL' ? self.startDate : '',
                                 rentalEnd: self.productType === 'RENTAL' ? self.endDate : ''
                             };
@@ -1142,7 +1169,6 @@
                                 return;
                             }
 
-                            // 옵션 검증
                             if (this.productOptions.length > 0) {
                                 const optionGroupCount = Object.keys(this.groupedOptions).length;
                                 const selectedCount = Object.keys(this.selectedOptions).length;
@@ -1154,18 +1180,45 @@
                             }
 
                             const selectedOptionValues = Object.values(this.selectedOptions);
+                            const optionId = selectedOptionValues.map(opt => opt.optionValueId).join(',');
+                            const optionName = selectedOptionValues.map(opt => opt.optionValue).join(' / ');
+                            let optionItemId = '';
+
+                            if (optionId) {
+                                $.ajax({
+                                    url: '/product/option/item/get.dox',
+                                    type: 'POST',
+                                    data: {
+                                        productId: this.productId,
+                                        optionValueIds: optionId
+                                    },
+                                    dataType: 'json',
+                                    async: false,
+                                    success(res) {
+                                        if (res.result === 'success') {
+                                            optionItemId = res.optionItemId;
+                                        }
+                                    }
+                                });
+
+                                if (!optionItemId) {
+                                    showToast('옵션 조합 정보를 찾을 수 없습니다.');
+                                    return;
+                                }
+                            }
 
                             const buyNowItem = {
                                 cartId: Date.now(),
-                                cartType: 'RENTAL', // 👈 핵심
+                                cartType: 'RENTAL',
                                 productId: parseInt(this.productId),
                                 productName: this.productInfo.productName || '',
                                 price: this.unitPrice,
                                 quantity: 1,
                                 imgUrl: this.mainImgUrl || '',
                                 brandName: this.productInfo.brandName || '',
-                                optionValueIds: selectedOptionValues.map(opt => opt.optionValueId).join(','),
-                                optionName: selectedOptionValues.map(opt => opt.optionValue).join(' / '),
+                                optionValueIds: optionId,
+                                optionItemId: optionItemId,
+                                optionName: optionName,
                                 rentalStart: this.startDate,
                                 rentalEnd: this.endDate,
                                 deposit: this.productInfo.deposit || 0
@@ -1173,8 +1226,7 @@
 
                             localStorage.setItem(BUY_NOW_KEY, JSON.stringify([buyNowItem]));
 
-                            location.href =
-                                '/payment/checkout.do?cartType=RENTAL&isGuest=true&buyNow=true';
+                            location.href = '/payment/checkout.do?cartType=RENTAL&isGuest=true&buyNow=true';
                         },
                         fnWish(e) {
                             e.stopPropagation();
@@ -1363,6 +1415,32 @@
                             }
 
                             const selectedOptionValues = Object.values(this.selectedOptions);
+                            const optionId = selectedOptionValues.map(opt => opt.optionValueId).join(',');
+                            const optionName = selectedOptionValues.map(opt => opt.optionValue).join(' / ');
+                            let optionItemId = '';
+
+                            if (optionId) {
+                                $.ajax({
+                                    url: '/product/option/item/get.dox',
+                                    type: 'POST',
+                                    data: {
+                                        productId: this.productId,
+                                        optionValueIds: optionId
+                                    },
+                                    dataType: 'json',
+                                    async: false,
+                                    success(res) {
+                                        if (res.result === 'success') {
+                                            optionItemId = res.optionItemId;
+                                        }
+                                    }
+                                });
+
+                                if (!optionItemId) {
+                                    showToast('옵션 조합 정보를 찾을 수 없습니다.');
+                                    return;
+                                }
+                            }
 
                             const buyNowItem = {
                                 cartId: Date.now(),
@@ -1373,8 +1451,9 @@
                                 quantity: this.qty,
                                 imgUrl: this.mainImgUrl || '',
                                 brandName: this.productInfo.brandName || '',
-                                optionValueIds: selectedOptionValues.map(opt => opt.optionValueId).join(','),
-                                optionName: selectedOptionValues.map(opt => opt.optionValue).join(' / '),
+                                optionValueIds: optionId,
+                                optionItemId: optionItemId,
+                                optionName: optionName,
                                 rentalStart: this.productType === 'RENTAL' ? this.startDate : null,
                                 rentalEnd: this.productType === 'RENTAL' ? this.endDate : null,
                                 deposit: this.productInfo.deposit || 0
@@ -1542,7 +1621,13 @@
                             }
                         },
                         toggleFaq(idx) {
-                            this.openFaqIndex = this.openFaqIndex === idx ? null : idx;
+                            const i = this.openFaqIndex.indexOf(idx);
+
+                            if (i > -1) {
+                                this.openFaqIndex.splice(i, 1);
+                            } else {
+                                this.openFaqIndex.push(idx);
+                            }
                         },
 
                     },

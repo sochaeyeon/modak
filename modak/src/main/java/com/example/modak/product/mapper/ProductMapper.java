@@ -55,6 +55,8 @@ public interface ProductMapper {
 	// 상품옵션
 	public List<ProductOption> selectProductOptions(HashMap<String, Object> map);
 	
-	List<HashMap<String, Object>> selectAllCategoryList();
+	public List<HashMap<String, Object>> selectAllCategoryList();
+	
+	public Integer selectOptionItemId(HashMap<String, Object> map);
 	
 }

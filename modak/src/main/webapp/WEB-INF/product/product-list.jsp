@@ -420,17 +420,15 @@
 
                 // 별점
                 starsHTML(rating) {
-                  const score = Number(rating) || 0;
+                  const score = Math.floor(Number(rating) || 0);
                   let html = '';
+
                   for (let i = 1; i <= 5; i++) {
-                    if (score >= i) {
-                      html += '<span class="star on">★</span>';
-                    } else if (score >= i - 0.5) {
-                      html += '<span class="star half">★</span>';
-                    } else {
-                      html += '<span class="star off">☆</span>';
-                    }
+                    html += i <= score
+                      ? '<span class="star on">★</span>'
+                      : '<span class="star off">☆</span>';
                   }
+
                   return html;
                 },
 
@@ -779,10 +777,7 @@
                 var hasCategoryParam = catId || parId;
                 var rentalParam = params.get('rental') || '${param.rental}';
                 var purchaseParam = params.get('purchase') || '${param.purchase}';
-                var sortParam = params.get('sort');
-                if (sortParam) {
-                  self.sortKey = sortParam; // 'newest', 'best' 등
-                }
+
                 if (rentalParam === 'Y') {
                   self.filter.rentable = true;
                   self.filter.buyable = false;

@@ -266,12 +266,12 @@
 	<!-- 대여 재고 차감 (날짜 범위) -->
 	<update id="decreaseStockForRental" parameterType="hashmap"> UPDATE
 		product_stock SET RESERVED_QTY = RESERVED_QTY + #{quantity},
-		AVAILABLE_QTY = AVAILABLE_QTY - #{quantity} WHERE PRODUCT_ID =
-		#{productId} <if test="optionItemId != null">
+		AVAILABLE_QTY = AVAILABLE_QTY - #{quantity} WHERE PRODUCT_ID = #{productId} 
 			AND OPTION_ITEM_ID = #{optionItemId}
-		</if> AND STOCK_DATE
+			AND STOCK_DATE
 		BETWEEN #{startDate} AND DATE_SUB(#{endDate}, INTERVAL 1 DAY) AND
-		AVAILABLE_QTY >= #{quantity} </update>
+		AVAILABLE_QTY >= #{quantity} 
+	</update>
 
 
 	<!-- 결제 내역 -->
@@ -313,12 +313,19 @@
 
 	<!-- 날짜별 재고 레코드 없으면 자동 생성 (OPTION_ITEM_ID 기준 TOTAL_QTY 참조) -->
 	<insert id="insertStockIfNotExists" parameterType="map">
-	    INSERT INTO product_stock (STOCK_DATE, TOTAL_QTY, RESERVED_QTY, AVAILABLE_QTY, OPTION_ITEM_ID, PRODUCT_ID)
-	    SELECT 
+	    INSERT INTO product_stock (
+	        STOCK_DATE,
+	        TOTAL_QTY,
+	        RESERVED_QTY,
+	        AVAILABLE_QTY,
+	        OPTION_ITEM_ID,
+	        PRODUCT_ID
+	    )
+	    SELECT
 	        DATE_ADD(#{startDate}, INTERVAL seq DAY),
-	        COALESCE(ref.TOTAL_QTY, 10),
+	        COALESCE(ref.TOTAL_QTY, #{defaultQty}),
 	        0,
-	        COALESCE(ref.TOTAL_QTY, 10),
+	        COALESCE(ref.TOTAL_QTY, #{defaultQty}),
 	        #{optionItemId},
 	        #{productId}
 	    FROM (
@@ -330,9 +337,11 @@
 	        CROSS JOIN (SELECT 0 n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3) c
 	    ) nums
 	    LEFT JOIN (
-	        SELECT TOTAL_QTY FROM product_stock
+	        SELECT TOTAL_QTY
+	        FROM product_stock
 	        WHERE OPTION_ITEM_ID = #{optionItemId}
-	        ORDER BY STOCK_DATE DESC LIMIT 1
+	        ORDER BY STOCK_DATE DESC
+	        LIMIT 1
 	    ) ref ON 1=1
 	    WHERE DATE_ADD(#{startDate}, INTERVAL seq DAY) &lt; #{endDate}
 	    ON DUPLICATE KEY UPDATE STOCK_DATE = STOCK_DATE

@@ -101,6 +101,9 @@ public class PaymentService {
 
 	                String start = String.valueOf(item.get("rentalStart"));
 	                String end = String.valueOf(item.get("rentalEnd"));
+	                if (start == null || end == null || "null".equals(start) || "null".equals(end) || "".equals(start) || "".equals(end)) {
+	                    throw new RuntimeException("대여 날짜가 없습니다.");
+	                }
 
 	                long nights = java.time.temporal.ChronoUnit.DAYS.between(
 	                    java.time.LocalDate.parse(start),
@@ -131,9 +134,17 @@ public class PaymentService {
 	        // 5. 주문상품 생성
 	        for (HashMap<String, Object> item : items) {
 	            item.put("orderId", orderId);
+
+	            if (item.get("unitPrice") == null) {
+	                item.put("unitPrice", item.get("price"));
+	            }
+
+	            if (item.get("optionItemId") == null || "null".equals(String.valueOf(item.get("optionItemId")))) {
+	                throw new RuntimeException("optionItemId 없음 - 주문상품 저장 불가");
+	            }
+
 	            paymentMapper.insertOrderItem(item);
 	        }
-
 	        resultMap.put("result", "success");
 	        resultMap.put("orderId", orderId);
 	        resultMap.put("amount", finalAmount);
@@ -164,7 +175,8 @@ public class PaymentService {
 
 			HashMap<String, Object> resultMap = new HashMap<>();
 			resultMap.put("result", "fail");
-			resultMap.put("message", "토스 승인 실패: " + response.body());
+			String failMessage = response == null ? "토스 승인 요청 실패" : response.body();
+			resultMap.put("message", "토스 승인 실패: " + failMessage);
 			return resultMap;
 		}
 
@@ -221,7 +233,8 @@ public class PaymentService {
 		paymentMapper.insertPayment(baseMap);
 
 		// 3. 결제 이력 INSERT
-		baseMap.put("payType", "PURCHASE");
+		String orderType = getStringValue(orderInfo, "orderType", "ORDER_TYPE");
+		baseMap.put("payType", orderType);
 		paymentMapper.insertPaymentHistory(baseMap);
 
 		// 4. 장바구니 삭제
@@ -284,25 +297,30 @@ public class PaymentService {
 		List<HashMap<String, Object>> orderItems = paymentMapper.selectOrderItemsForStock(baseMap);
 
 		for (HashMap<String, Object> item : orderItems) {
-		    String orderType = getStringValue(item, "orderType", "ORDER_TYPE");
+		    String itemOrderType = getStringValue(item, "orderType", "ORDER_TYPE");
 
 		    HashMap<String, Object> stockMap = new HashMap<>();
 		    stockMap.put("productId", getValue(item, "productId", "PRODUCT_ID"));
 		    stockMap.put("optionItemId", getValue(item, "optionItemId", "OPTION_ITEM_ID"));
 		    stockMap.put("quantity", getValue(item, "quantity", "QUANTITY"));
+		    if (stockMap.get("optionItemId") == null || "null".equals(String.valueOf(stockMap.get("optionItemId")))) {
+		        throw new RuntimeException("optionItemId 없음 - 재고 처리 불가");
+		    }
 
-		    if ("PURCHASE".equals(orderType)) {
+		    if ("PURCHASE".equals(itemOrderType)) {
 		        int updated = paymentMapper.decreaseStockForPurchase(stockMap);
 		        if (updated == 0) {
 		            throw new RuntimeException("재고 부족 - PRODUCT_ID: " + stockMap.get("productId"));
 		        }
 
-		    } else if ("RENTAL".equals(orderType)) {
+		    } else if ("RENTAL".equals(itemOrderType)) {
 		        stockMap.put("startDate", getValue(item, "startDate", "START_DATE"));
 		        stockMap.put("endDate", getValue(item, "endDate", "END_DATE"));
 
 		        // 1. 날짜별 재고 레코드 없으면 자동 생성
+		        stockMap.put("defaultQty", 10);
 		        paymentMapper.insertStockIfNotExists(stockMap);
+		        System.out.println("재고 생성 완료: " + stockMap);
 
 		        // 2. 재고 차감
 		        int updatedRows = paymentMapper.decreaseStockForRental(stockMap);
@@ -312,8 +330,10 @@ public class PaymentService {
 		            java.time.LocalDate.parse(String.valueOf(stockMap.get("startDate"))),
 		            java.time.LocalDate.parse(String.valueOf(stockMap.get("endDate")))
 		        );
+		        
+		        long expectedRows = rentalDays;
 
-		        if (updatedRows < rentalDays) {
+		        if (updatedRows != expectedRows) {
 		            throw new RuntimeException("대여 재고 부족 - PRODUCT_ID: " + stockMap.get("productId"));
 		        }
 

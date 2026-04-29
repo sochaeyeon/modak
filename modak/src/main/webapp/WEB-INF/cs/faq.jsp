@@ -302,15 +302,11 @@
 							$wrap.find('.faq-question').off('click').on('click', function () {
 								var $item = $(this).closest('.faq-item');
 								var $answer = $item.find('.faq-answer');
-								var wasOpen = $item.hasClass('open');
 
-								$wrap.find('.faq-item.open')
-									.removeClass('open')
-									.find('.faq-answer')
-									.stop(true, true)
-									.slideUp(160);
-
-								if (!wasOpen) {
+								if ($item.hasClass('open')) {
+									$item.removeClass('open');
+									$answer.stop(true, true).slideUp(160);
+								} else {
 									$item.addClass('open');
 									$answer.stop(true, true).slideDown(160);
 								}

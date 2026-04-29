@@ -2790,6 +2790,29 @@
       font-size: 20px;
   }
 
+  /* 리뷰 이미지 목록 */
+  .review-img-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 6px;
+  }
+
+  .review-img-thumb {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: opacity .18s ease, border-color .18s ease;
+      background: #faf7f4;
+  }
+
+  .review-img-thumb:hover {
+      opacity: 0.85;
+      border-color: var(--orange);
+  }
   /* 상세 화면 전체 고도화 */
   .ptop {
       align-items: start;

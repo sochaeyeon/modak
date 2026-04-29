@@ -199,6 +199,7 @@ public class RentalExtensionController {
         return new Gson().toJson(service.getGuestPickupAddress(map));
     }
     
+    
     @Value("${toss.client-key}")
     private String tossClientKey;
 

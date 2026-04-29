@@ -44,7 +44,7 @@
         WHERE O.ORDER_ID    = #{orderId}
           AND O.GUEST_NAME  = #{guestName}
           AND O.GUEST_PHONE = #{guestPhone}
-          AND O.USER_ID LIKE 'GUEST_%'
+          AND O.USER_ID LIKE 'GUEST%'
     </select>
 
     <!-- 주문번호만으로 조회 (토큰 검증 통과 후) -->
@@ -59,14 +59,14 @@
         FROM ORDERS O
         LEFT JOIN DELIVERY D ON O.ORDER_ID = D.ORDER_ID
         WHERE O.ORDER_ID = #{orderId}
-          AND O.USER_ID  = 'GUEST'
+         AND O.USER_ID LIKE 'GUEST%'
     </select>
 
     <!-- ★ 주문 상품 목록 — PRODUCT_IMG 조인으로 이미지 추가 -->
 	 <select id="selectGuestOrderItems"
 	        resultType="com.example.modak.order.model.GuestOrderItem">
 	    SELECT
-	        OI.ORDER_ITEM_ID AS itemId,
+	        OI.ITEM_ID AS itemId,
 	        OI.ORDER_ID AS orderId,
 	        OI.PRODUCT_ID AS productId,
 	        P.PRODUCT_NAME AS productName,
@@ -82,7 +82,7 @@
 	    FROM ORDER_ITEM OI
 	    LEFT JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
 	    WHERE OI.ORDER_ID = #{orderId}
-	    ORDER BY OI.ORDER_ITEM_ID ASC
+	    ORDER BY OI.ITEM_ID ASC
 	</select>
 
     <!-- 주문 상태 업데이트 -->
@@ -90,7 +90,7 @@
         UPDATE ORDERS
         SET    ORDER_STATUS = #{orderStatus}
         WHERE  ORDER_ID     = #{orderId}
-        AND USER_ID LIKE 'GUEST_%'
+        AND USER_ID LIKE 'GUEST%'
     </update>
     
     <insert id="insertGuestExchange" parameterType="hashmap">
@@ -109,7 +109,7 @@
     UPDATE ORDERS
     SET    ORDER_STATUS = 'EXCHANGE_REQUESTED'
     WHERE  ORDER_ID = #{orderId}
-      AND USER_ID LIKE 'GUEST_%'
+      AND USER_ID LIKE 'GUEST%'
 </update>
 
 </mapper>

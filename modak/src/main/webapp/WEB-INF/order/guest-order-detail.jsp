@@ -219,206 +219,254 @@
                         </div>
                     </div>
 
-                    <!-- 취소/반품 -->
-                    <div class="action-section"
-                         v-if="order.orderStatus !== 'CANCELLED'">
+                    <!-- 주문 관리 -->
+                    <div class="action-section">
                         <p class="action-title">주문 관리</p>
-                        <div class="action-row">
-                            <button class="btn-cancel"
-                                v-if="order.orderStatus === 'PAID' || order.orderStatus === 'READY'"
+
+                        <div class="action-row" v-if="fnCanShowActions()">
+
+                            <button class="btn-action btn-cancel" v-if="order.orderStatus === 'PAID'"
                                 @click="openModal('cancel')">
-                                주문 취소 신청
+                                취소 신청
                             </button>
-                            <button class="btn-return"
-                                v-if="order.orderStatus === 'DONE' && order.orderType === 'PURCHASE'"
+
+                            <button class="btn-action btn-exchange" v-if="order.orderStatus === 'DONE'"
                                 @click="fnGoExchange">
                                 교환 신청
                             </button>
-                            <button class="btn-return" v-if="order.orderStatus === 'SHIPPING'"
-                                @click="openModal('return')">
-                                반품 신청
+
+                            <button class="btn-action btn-refund" v-if="order.orderStatus === 'DONE'"
+                                @click="openModal('refund')">
+                                반품/환불 신청
                             </button>
+
                         </div>
+
+                        <p class="action-done-text" v-if="!fnCanShowActions()">
+                            현재 주문 상태는 <strong>{{ fnStatusText(order.orderStatus) }}</strong>입니다.
+                        </p>
+
                         <p class="action-notice">
-                            · 취소는 배송 준비 전까지 가능합니다.<br>
-                            · 반품은 배송중 상태에서 신청 가능합니다.<br>
-                            · 대여 상품은 대여 시작 24시간 전까지 취소 가능합니다.
+                            · 결제완료 상태에서는 취소 신청이 가능합니다.<br>
+                            · 배송완료 상태에서는 교환 및 반품/환불 신청이 가능합니다.
                         </p>
                     </div>
 
-                    <!-- 이미 취소 -->
-                    <div class="action-section" v-if="order.orderStatus === 'CANCELLED'"
-                        style="text-align:center;color:var(--brown4)">
-                        <p style="font-size:14px">이미 취소 / 반품 처리된 주문입니다.</p>
+                    <!-- 대여 연장/조회 이동 -->
+                    <div class="rental-extension-link" v-if="order.orderType === 'RENTAL'">
+                        <a href="/rental/extension/inquiry.do">
+                            대여 연장/조회 페이지로 이동 <span>→</span>
+                        </a>
                     </div>
 
-                </div><!-- /detail-page -->
+                </div><!-- /#app -->
 
-                <!-- 모달 -->
-                <div class="modal-overlay" :class="{ open: modalOpen }" @click.self="closeModal">
-                    <div class="modal-box">
-                        <div class="modal-icon">{{ modalType === 'cancel' ? '🗑️' : '↩️' }}</div>
-                        <p class="modal-title">{{ modalType === 'cancel' ? '주문 취소' : '반품 신청' }}</p>
-                        <p class="modal-desc">
-                            {{ modalType === 'cancel'
-                            ? '주문을 취소하시겠습니까?\n취소 후에는 되돌릴 수 없습니다.'
-                            : '반품을 신청하시겠습니까?\n담당자 확인 후 처리됩니다.' }}
-                        </p>
-                        <div class="modal-btns">
-                            <button class="modal-btn-no" @click="closeModal">아니요</button>
-                            <button class="modal-btn-yes" @click="fnConfirm">
-                                {{ modalType === 'cancel' ? '취소하기' : '반품신청' }}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <%@ include file="/WEB-INF/common/footer.jsp" %>
 
-            </div><!-- /#app -->
+                    <script>
+                        var app = Vue.createApp({
+                            data: function () {
+                                return {
+                                    isLoading: true,
+                                    isError: false,
+                                    order: null,
+                                    trackHistory: [],
+                                    modalOpen: false,
+                                    modalType: '',
+                                    statusSteps: [
+                                        { code: 'PAID', name: '결제완료', icon: '💳' },
+                                        { code: 'READY', name: '배송준비', icon: '📦' },
+                                        { code: 'SHIPPING', name: '배송중', icon: '🚚' },
+                                        { code: 'DONE', name: '배송완료', icon: '✔' }
+                                    ]
+                                };
+                            },
 
-            <%@ include file="/WEB-INF/common/footer.jsp" %>
+                            methods: {
+                                /* ── 데이터 로드 ── */
+                                fnLoad: function () {
+                                    var self = this;
+                                    var p = new URLSearchParams(location.search);
+                                    var orderId = p.get('orderId');
+                                    var token = p.get('token');
 
-                <script>
-                    var app = Vue.createApp({
-                        data: function () {
-                            return {
-                                isLoading: true,
-                                isError: false,
-                                order: null,
-                                trackHistory: [],
-                                modalOpen: false,
-                                modalType: '',
-                                statusSteps: [
-                                    { code: 'PAID', name: '결제완료', icon: '💳' },
-                                    { code: 'READY', name: '배송준비', icon: '📦' },
-                                    { code: 'SHIPPING', name: '배송중', icon: '🚚' },
-                                    { code: 'DONE', name: '배송완료', icon: '✔' }
-                                ]
-                            };
-                        },
-
-                        methods: {
-                            /* ── 데이터 로드 ── */
-                            fnLoad: function () {
-                                var self = this;
-                                var p = new URLSearchParams(location.search);
-                                var orderId = p.get('orderId');
-                                var token = p.get('token');
-
-                                if (!orderId || !token) {
-                                    self.isLoading = false;
-                                    self.isError = true;
-                                    return;
-                                }
-
-                                $.ajax({
-                                    url: '/order/guest/detail.dox',
-                                    type: 'POST',
-                                    dataType: 'json',
-                                    data: { orderId: orderId, token: token },
-                                    success: function (res) {
-                                        self.isLoading = false;
-                                        if (res.result === 'success' && res.order) {
-                                            self.order = res.order;
-                                            self.trackHistory = res.trackingList || [];
-                                        } else {
-                                            self.isError = true;
-                                        }
-                                    },
-                                    error: function () {
+                                    if (!orderId || !token) {
                                         self.isLoading = false;
                                         self.isError = true;
+                                        return;
                                     }
-                                });
-                            },
-                            // methods 에 추가
-                            fnGoExchange: function () {
-                                var p = new URLSearchParams(location.search);
-                                location.href = '/order/guest/exchange.do'
-                                    + '?orderId=' + p.get('orderId')
-                                    + '&token=' + p.get('token');
-                            },
-                            /* ── 스텝 클래스 ── */
-                            stepClass: function (code) {
-                                var steps = this.statusSteps;
-                                var cur = -1;
-                                var idx = -1;
-                                for (var i = 0; i < steps.length; i++) {
-                                    if (steps[i].code === this.order.orderStatus) cur = i;
-                                    if (steps[i].code === code) idx = i;
-                                }
-                                if (idx < cur) return 'done';
-                                if (idx === cur) return 'done current';
-                                return '';
-                            },
 
-                            /* ── 모달 ── */
-                            openModal: function (type) { this.modalType = type; this.modalOpen = true; },
-                            closeModal: function () { this.modalOpen = false; },
-
-                            /* ── 취소/반품 실행 ── */
-                            fnConfirm: function () {
-                                var self = this;
-                                var url = self.modalType === 'cancel' ? '/order/guest/cancel.dox' : '/order/guest/return.dox';
-                                var token = new URLSearchParams(location.search).get('token');
-
-                                $.ajax({
-                                    url: url,
-                                    type: 'POST',
-                                    dataType: 'json',
-                                    data: { orderId: self.order.orderId, token: token },
-                                    success: function (res) {
-                                        self.closeModal();
-                                        if (res.result === 'success') {
-                                            alert(self.modalType === 'cancel'
-                                                ? '주문이 취소되었습니다.'
-                                                : '반품 신청이 완료되었습니다.');
-                                            self.order.orderStatus = 'CANCELLED';
-                                        } else {
-                                            alert(res.message || '처리 중 오류가 발생했습니다.');
+                                    $.ajax({
+                                        url: '/order/guest/detail.dox',
+                                        type: 'POST',
+                                        dataType: 'json',
+                                        data: { orderId: orderId, token: token },
+                                        success: function (res) {
+                                            self.isLoading = false;
+                                            if (res.result === 'success' && res.order) {
+                                                self.order = res.order;
+                                                self.trackHistory = res.trackingList || [];
+                                            } else {
+                                                self.isError = true;
+                                            }
+                                        },
+                                        error: function () {
+                                            self.isLoading = false;
+                                            self.isError = true;
                                         }
-                                    },
-                                    error: function () {
-                                        self.closeModal();
-                                        alert('서버 오류가 발생했습니다.');
+                                    });
+                                },
+                                // methods 에 추가
+                                fnGoExchange: function () {
+                                    var p = new URLSearchParams(location.search);
+                                    location.href = '/order/guest/exchange.do'
+                                        + '?orderId=' + p.get('orderId')
+                                        + '&token=' + p.get('token');
+                                },
+                                /* ── 스텝 클래스 ── */
+                                stepClass: function (code) {
+                                    var steps = this.statusSteps;
+                                    var cur = -1;
+                                    var idx = -1;
+                                    for (var i = 0; i < steps.length; i++) {
+                                        if (steps[i].code === this.order.orderStatus) cur = i;
+                                        if (steps[i].code === code) idx = i;
                                     }
-                                });
+                                    if (idx < cur) return 'done';
+                                    if (idx === cur) return 'done current';
+                                    return '';
+                                },
+
+                                /* ── 모달 ── */
+                                openModal: function (type) { this.modalType = type; this.modalOpen = true; },
+                                closeModal: function () { this.modalOpen = false; },
+
+                                fnConfirm: function () {
+                                    var self = this;
+                                    var token = new URLSearchParams(location.search).get('token');
+
+                                    var urlMap = {
+                                        cancel: '/order/guest/cancel.dox',
+                                        refund: '/order/guest/refund.dox'
+                                    };
+
+                                    var nextStatusMap = {
+                                        cancel: 'CANCEL_REQUESTED',
+                                        refund: 'REFUND_REQUESTED'
+                                    };
+
+                                    $.ajax({
+                                        url: urlMap[self.modalType],
+                                        type: 'POST',
+                                        dataType: 'json',
+                                        data: {
+                                            orderId: self.order.orderId,
+                                            token: token
+                                        },
+                                        success: function (res) {
+                                            self.closeModal();
+
+                                            if (res.result === 'success') {
+                                                self.order.orderStatus = nextStatusMap[self.modalType];
+                                            } else {
+                                                alert(res.message || '처리 중 오류가 발생했습니다.');
+                                            }
+                                        },
+                                        error: function () {
+                                            self.closeModal();
+                                            alert('서버 오류가 발생했습니다.');
+                                        }
+                                    });
+                                },
+                                /* ── 날짜 포맷 (템플릿 리터럴 제거 — JSP EL 충돌 방지) ── */
+                                fnDateTime: function (v) {
+                                    if (!v) return '-';
+                                    var d = new Date(String(v).replace(' ', 'T'));
+                                    if (isNaN(d.getTime())) return String(v);
+                                    var pad = function (n) { return String(n).padStart(2, '0'); };
+                                    return d.getFullYear() + '.' + pad(d.getMonth() + 1) + '.' + pad(d.getDate())
+                                        + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+                                },
+
+                                /* ── 가격 포맷 ── */
+                                fnPrice: function (v) {
+                                    return Number(v || 0).toLocaleString() + '원';
+                                },
+
+                                fnStatusText: function (s) {
+                                    var map = {
+                                        PAID: '결제완료',
+                                        READY: '배송준비',
+                                        SHIPPING: '배송중',
+                                        DONE: '배송완료',
+                                        IN_USE: '대여중',
+
+                                        CANCEL_REQUESTED: '취소신청',
+                                        CANCELLED: '취소완료',
+
+                                        EXCHANGE_REQUESTED: '교환신청',
+                                        EXCHANGE_APPROVED: '교환승인',
+                                        EXCHANGE_DONE: '교환완료',
+
+                                        REFUND_REQUESTED: '반품/환불신청',
+                                        REFUND_APPROVED: '환불승인',
+                                        REFUND_DONE: '환불완료',
+
+                                        RETURN_REQUESTED: '반납신청',
+                                        RETURNED: '반납완료'
+                                    };
+                                    return map[s] || s || '-';
+                                },
+                                fnCanShowActions: function () {
+                                    if (!this.order) return false;
+
+                                    var s = this.order.orderStatus;
+
+                                    return s === 'PAID' || s === 'DONE';
+                                }, fnModalIcon: function () {
+                                    var map = {
+                                        cancel: '✕',
+                                        refund: '↩',
+                                        rentalReturn: '⛺'
+                                    };
+                                    return map[this.modalType] || '!';
+                                },
+
+                                fnModalTitle: function () {
+                                    var map = {
+                                        cancel: '취소 신청',
+                                        refund: '반품/환불 신청',
+                                        rentalReturn: '반납 신청'
+                                    };
+                                    return map[this.modalType] || '주문 처리';
+                                },
+
+                                fnModalDesc: function () {
+                                    var map = {
+                                        cancel: '주문 취소를 신청하시겠습니까?\n관리자 확인 후 취소 처리됩니다.',
+                                        refund: '반품/환불을 신청하시겠습니까?\n담당자 확인 후 환불 절차가 진행됩니다.',
+                                        rentalReturn: '대여 상품 반납을 신청하시겠습니까?\n반납 확인 후 처리가 완료됩니다.'
+                                    };
+                                    return map[this.modalType] || '처리하시겠습니까?';
+                                },
+
+                                fnModalConfirmText: function () {
+                                    var map = {
+                                        cancel: '취소 신청',
+                                        refund: '환불 신청',
+                                        rentalReturn: '반납 신청'
+                                    };
+                                    return map[this.modalType] || '확인';
+                                },
                             },
 
-                            /* ── 날짜 포맷 (템플릿 리터럴 제거 — JSP EL 충돌 방지) ── */
-                            fnDateTime: function (v) {
-                                if (!v) return '-';
-                                var d = new Date(String(v).replace(' ', 'T'));
-                                if (isNaN(d.getTime())) return String(v);
-                                var pad = function (n) { return String(n).padStart(2, '0'); };
-                                return d.getFullYear() + '.' + pad(d.getMonth() + 1) + '.' + pad(d.getDate())
-                                    + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
-                            },
-
-                            /* ── 가격 포맷 ── */
-                            fnPrice: function (v) {
-                                return Number(v || 0).toLocaleString() + '원';
-                            },
-
-                            /* ── 상태 텍스트 ── */
-                            fnStatusText: function (s) {
-                                var map = {
-                                    PAID: '결제완료',
-                                    READY: '배송준비',
-                                    SHIPPING: '배송중',
-                                    DONE: '배송완료',
-                                    CANCELLED: '취소/반품'
-                                };
-                                return map[s] || s || '-';
+                            mounted: function () {
+                                this.fnLoad();
                             }
-                        },
+                        });
 
-                        mounted: function () {
-                            this.fnLoad();
-                        }
-                    });
-
-                    app.mount('#app');
-                </script>
+                        app.mount('#app');
+                    </script>
     </body>
 
     </html>

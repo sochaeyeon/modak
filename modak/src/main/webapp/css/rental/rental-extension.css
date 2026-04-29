@@ -2,111 +2,116 @@
     display: none;
 }
 
-*, *::before, *::after {
+/* =========================
+   RESET / VARIABLES
+========================= */
+*,
+*::before,
+*::after {
     box-sizing: border-box;
-    margin: 0;
-    padding: 0;
 }
 
 :root {
-    --cream:   #F6F0E6;
-    --cream2:  #EDE5D4;
-    --cream3:  #E2D8C3;
-    --orange:  #E8732A;
-    --orange2: #C4621E;
-    --amber:   #D4932A;
-    --brown:   #2C1E0F;
-    --brown2:  #5C4230;
-    --brown3:  #8B6B4A;
-    --brown4:  #B89A7A;
-    --white:   #FFFDF8;
+    --cream: #F6F0E6;
+    --cream2: #EDE5D4;
+    --cream3: #E2D8C3;
+    --white: #FFFDF8;
 
-    --border: rgba(92, 66, 48, .16);
-    --border2: rgba(92, 66, 48, .09);
-    --shadow: 0 18px 45px rgba(44, 30, 15, .10);
+    --orange: #E8732A;
+    --orange2: #C4621E;
+
+    --brown: #2C1E0F;
+    --brown2: #5C4230;
+    --brown3: #8B6B4A;
+    --brown4: #B89A7A;
+
+    --border: rgba(92, 66, 48, 0.18);
+    --border-strong: rgba(232, 115, 42, 0.45);
+    --shadow-soft: 0 16px 34px rgba(44, 30, 15, 0.08);
+    --shadow-modal: 0 22px 70px rgba(44, 30, 15, 0.28);
 }
 
 body {
-    background: linear-gradient(180deg, var(--white) 0%, var(--cream) 100%);
+    margin: 0;
+    background: #faf6f0;
     color: var(--brown);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
 }
 
+button,
+input {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+/* =========================
+   PAGE
+========================= */
 #app {
-    flex: 1;
+    width: 100%;
 }
 
 .ext-page {
-    max-width: 960px;
+    max-width: 1080px;
     margin: 0 auto;
-    padding: 40px 24px 72px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    animation: fadeUp .5s ease both;
+    padding: 44px 24px 80px;
 }
 
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── 헤더 ── */
 .page-eyebrow {
+    margin: 0 0 8px;
     font-size: 11px;
-    letter-spacing: 2px;
+    letter-spacing: 2.5px;
     color: var(--brown4);
-    margin-bottom: 6px;
+    font-weight: 700;
 }
 
 .page-title {
-    font-family: var(--font-title, serif);
-    font-size: 26px;
-    font-weight: 800;
+    margin: 0 0 8px;
+    font-size: 30px;
+    font-weight: 900;
     color: var(--brown);
-    margin-bottom: 4px;
 }
 
 .page-desc {
-    font-size: 13px;
+    margin: 0 0 24px;
+    font-size: 14px;
     color: var(--brown3);
-    font-weight: 300;
     line-height: 1.7;
 }
 
-/* ── 섹션 카드 ── */
-.section-card,
-.ext-panel {
-    background: rgba(255, 253, 248, .92);
+/* =========================
+   LIST CARD
+========================= */
+.section-card {
+    background: var(--white);
     border: 1px solid var(--border);
-    border-radius: 20px;
+    border-radius: 18px;
     overflow: hidden;
-    margin-top: 15px;
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-soft);
 }
 
 .section-head {
-    padding: 18px 24px 16px;
-    border-bottom: 1px solid var(--border2);
+    height: 58px;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
 .section-head h3 {
-    font-family: var(--font-title, serif);
-    font-size: 16px;
-    font-weight: 700;
+    margin: 0;
+    font-size: 17px;
+    font-weight: 900;
     color: var(--brown);
 }
 
 .section-body {
-    padding: 24px;
+    padding: 22px;
 }
 
-/* ── 대여 목록 ── */
 .rental-list {
     display: flex;
     flex-direction: column;
@@ -114,93 +119,92 @@ body {
 }
 
 .rental-card {
-    border: 1px solid var(--border2);
-    border-radius: 16px;
-    background: var(--cream);
-    padding: 18px 20px;
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr) auto;
     gap: 16px;
-    cursor: pointer;
-    transition: all .2s;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: #fffaf3;
+    transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
 }
 
 .rental-card:hover,
 .rental-card.active {
-    border-color: rgba(232, 115, 42, .55);
-    background: var(--white);
-    box-shadow: 0 12px 28px rgba(232, 115, 42, .12);
+    border-color: var(--border-strong);
+    background: #fffdf8;
 }
 
 .rental-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 12px;
+    width: 72px;
+    height: 72px;
+    border-radius: 14px;
+    overflow: hidden;
     background: var(--cream2);
     border: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
     flex-shrink: 0;
-    overflow: hidden;
+}
+
+.rental-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .rental-info {
-    flex: 1;
     min-width: 0;
 }
 
 .rental-name {
-    font-size: 14px;
-    font-weight: 700;
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 900;
     color: var(--brown);
-    margin-bottom: 4px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .rental-dates {
-    font-size: 12px;
+    margin: 0 0 8px;
+    font-size: 13px;
     color: var(--brown3);
-    margin-bottom: 4px;
-    font-weight: 600;
+    font-weight: 700;
 }
 
-/* ── 카드 안 버튼 ── */
 .rental-card-actions {
     display: flex;
     gap: 8px;
-    align-items: center;
-    flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .mini-action-btn {
-    height: 34px;
-    padding: 0 14px;
-    border-radius: 999px;
+    min-width: 78px;
+    height: 36px;
+    padding: 0 13px;
+    border-radius: 10px;
     border: 1px solid var(--border);
     background: var(--white);
     color: var(--brown2);
     font-size: 12px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: all .18s ease;
-    white-space: nowrap;
+    font-weight: 900;
+    transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
 }
 
 .mini-action-btn:hover {
     border-color: var(--orange);
     color: var(--orange2);
-    transform: translateY(-1px);
 }
 
 .mini-action-btn.return {
     background: var(--orange);
     border-color: var(--orange);
     color: #fff;
-    box-shadow: 0 6px 14px rgba(232, 115, 42, .18);
 }
 
 .mini-action-btn.return:hover {
@@ -210,82 +214,167 @@ body {
 }
 
 .mini-action-btn.return-cancel {
-    background: var(--brown);
-    border-color: var(--brown);
-    color: var(--white);
+    background: var(--orange);
+    border-color: var(--orange);
+    color: #fff;
 }
 
-.mini-action-btn.return-cancel:hover {
-    background: var(--orange2);
-    border-color: var(--orange2);
-}
-
-/* ── 상태 배지 ── */
+/* =========================
+   STATUS
+========================= */
 .status-badge {
-    display: inline-block;
-    padding: 3px 10px;
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 10px;
     border-radius: 999px;
     font-size: 11px;
-    font-weight: 800;
+    font-weight: 900;
 }
 
-.st-PAID, .st-RESERVED        { background: rgba(212,147,42,.16); color: var(--brown2); }
-.st-READY                      { background: rgba(184,154,122,.18); color: var(--brown2); }
-.st-SHIPPING                   { background: rgba(232,115,42,.15); color: var(--orange2); }
-.st-RENTING, .st-IN_USE        { background: rgba(232,115,42,.18); color: var(--orange2); }
-.st-RETURN_REQUESTED           { background: rgba(44,30,15,.12); color: var(--brown); }
-.st-RETURN_PICKED              { background: rgba(33,150,243,.12); color: #1565c0; }
-.st-DONE, .st-RETURNED,
-.st-RETURN_COMPLETED           { background: rgba(76,175,80,.12); color: #2e7d32; }
-.st-CANCELLED                  { background: rgba(44,30,15,.10); color: var(--brown3); }
-
-/* ── 선택 패널 헤더 ── */
-.ext-panel-head {
-    padding: 18px 24px;
-    border-bottom: 1px solid var(--border2);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    background: rgba(232, 115, 42, .04);
+.st-PAID,
+.st-RESERVED {
+    background: rgba(212, 147, 42, 0.16);
+    color: var(--brown2);
 }
 
-.ext-panel-img {
-    width: 72px;
-    height: 72px;
-    border-radius: 12px;
-    background: var(--cream2);
-    flex-shrink: 0;
+.st-READY {
+    background: rgba(184, 154, 122, 0.18);
+    color: var(--brown2);
+}
+
+.st-SHIPPING {
+    background: rgba(232, 115, 42, 0.15);
+    color: var(--orange2);
+}
+
+.st-RENTING,
+.st-IN_USE {
+    background: rgba(232, 115, 42, 0.18);
+    color: var(--orange2);
+}
+
+.st-RETURN_REQUESTED {
+    background: rgba(44, 30, 15, 0.12);
+    color: var(--brown);
+}
+
+.st-RETURN_PICKED {
+    background: rgba(33, 150, 243, 0.12);
+    color: #1565c0;
+}
+
+.st-DONE,
+.st-RETURNED,
+.st-RETURN_COMPLETED {
+    background: rgba(76, 175, 80, 0.12);
+    color: #2e7d32;
+}
+
+.st-CANCELLED {
+    background: rgba(44, 30, 15, 0.1);
+    color: var(--brown3);
+}
+
+/* =========================
+   SELECTED RENTAL MODAL
+========================= */
+.ext-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    padding: 32px 20px;
+    background: rgba(35, 24, 15, 0.46);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.ext-panel,
+.ext-modal-panel {
+    width: min(920px, 100%);
+    max-height: calc(100vh - 64px);
+    background: #fffaf3;
+    border: 1px solid rgba(232, 115, 42, 0.2);
+    border-radius: 20px;
+    overflow-y: auto;
+    box-shadow: var(--shadow-modal);
+    animation: modalFadeUp 0.25s cubic-bezier(.2, .8, .2, 1);
+}
+
+@keyframes modalUp {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ext-modal-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.ext-modal-panel::-webkit-scrollbar-thumb {
+    background: rgba(139, 107, 74, 0.35);
+    border-radius: 999px;
+}
+
+.ext-panel-head {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    background: #fff5ea;
+    display: grid;
+    grid-template-columns: 78px minmax(0, 1fr) auto auto;
+    gap: 14px;
+    align-items: center;
+}
+
+.ext-panel-img {
+    width: 78px;
+    height: 78px;
+    border-radius: 14px;
     overflow: hidden;
-    border: 1px solid var(--cream3);
+    background: var(--cream2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ext-panel-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .ext-panel-title {
-    font-family: var(--font-title, serif);
-    font-size: 16px;
-    font-weight: 700;
+    margin: 0;
+    font-size: 18px;
+    font-weight: 900;
     color: var(--brown);
 }
 
 .ext-panel-subtitle {
-    font-size: 12px;
+    margin: 4px 0 0;
+    font-size: 13px;
     color: var(--brown3);
-    margin-top: 2px;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .btn-close-panel {
-    width: 32px;
-    height: 32px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
+    border: 1px solid var(--border);
     background: var(--cream2);
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
     color: var(--brown3);
-    transition: all .2s;
+    font-size: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -296,43 +385,54 @@ body {
     color: var(--brown);
 }
 
-/* ════════════════════════════
-   ★ 탭 바 (연장 / 반납 전환)
-════════════════════════════ */
-.ext-tab-bar {
-    display: flex;
-    gap: 0;
-    border-bottom: 2px solid var(--border2);
-    padding: 0 24px;
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 0 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
     background: var(--white);
-}
-
-.ext-tab-btn {
-    padding: 12px 20px;
+    color: var(--brown3);
     font-size: 13px;
-    font-weight: 700;
-    color: var(--brown4);
-    background: none;
-    border: none;
-    border-bottom: 2.5px solid transparent;
-    margin-bottom: -2px;
-    cursor: pointer;
-    transition: color 0.15s;
-    font-family: var(--font-body, sans-serif);
+    font-weight: 800;
+    text-decoration: none;
     white-space: nowrap;
 }
 
-.ext-tab-btn:hover { color: var(--brown3); }
+/* =========================
+   TABS
+========================= */
+.ext-tab-bar {
+    display: flex;
+    padding: 0 22px;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+}
+
+.ext-tab-btn {
+    height: 50px;
+    padding: 0 18px;
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: var(--brown4);
+    font-size: 14px;
+    font-weight: 900;
+}
 
 .ext-tab-btn.active {
     color: var(--orange);
     border-bottom-color: var(--orange);
 }
 
-/* ── 폼 ── */
+/* =========================
+   FORM
+========================= */
 .ext-form {
     padding: 24px;
-    border-bottom: 1px solid var(--border2);
+    border-bottom: 1px solid var(--border);
 }
 
 .ext-form-row {
@@ -345,79 +445,48 @@ body {
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 7px;
 }
 
 .form-label {
-    font-size: 12px;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 900;
     color: var(--brown2);
 }
 
-.form-input {
-    padding: 11px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    background: var(--white);
-    font-family: var(--font-body, sans-serif);
-    font-size: 14px;
-    color: var(--brown);
-    outline: none;
-    transition: border-color .2s, box-shadow .2s;
-    width: 120px;
-}
-
-.form-input:focus {
-    border-color: var(--orange);
-    box-shadow: 0 0 0 3px rgba(232, 115, 42, .1);
-}
-
-.form-input[readonly] {
-    background: rgba(246, 240, 230, .45);
-    cursor: default;
-}
-
-/* ── 연장 일수 ── */
 .days-stepper {
-    display: flex;
-    align-items: center;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
+    width: 150px;
+    height: 46px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
     overflow: hidden;
     background: var(--white);
-    width: 140px;
+    display: grid;
+    grid-template-columns: 42px 1fr 42px;
 }
 
 .stepper-btn {
-    width: 40px;
-    height: 44px;
-    flex-shrink: 0;
-    background: var(--cream2);
     border: none;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: 600;
+    background: var(--cream2);
     color: var(--brown2);
-    transition: background .15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 18px;
+    font-weight: 900;
 }
 
-.stepper-btn:hover  { background: var(--cream3); color: var(--orange); }
-.stepper-btn:active { background: var(--orange);  color: #fff; }
+.stepper-btn:hover {
+    background: var(--cream3);
+    color: var(--orange2);
+}
 
 .stepper-input {
-    flex: 1;
-    height: 44px;
+    width: 100%;
     border: none;
     outline: none;
-    text-align: center;
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--brown);
     background: transparent;
-    font-family: inherit;
+    text-align: center;
+    color: var(--brown);
+    font-size: 17px;
+    font-weight: 900;
     -moz-appearance: textfield;
 }
 
@@ -428,76 +497,103 @@ body {
 }
 
 .price-preview {
+    min-width: 80px;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 4px;
 }
 
-.price-preview-label { font-size: 11px; color: var(--brown4); }
+.price-preview-label {
+    font-size: 11px;
+    color: var(--brown4);
+    font-weight: 800;
+}
 
 .price-preview-val {
-    font-family: var(--font-title, serif);
     font-size: 18px;
-    font-weight: 700;
+    font-weight: 900;
     color: var(--orange2);
 }
 
 .btn-apply,
 .btn-return {
-    padding: 10px 22px;
+    height: 46px;
+    padding: 0 24px;
+    border: none;
+    border-radius: 12px;
     background: var(--orange);
     color: #fff;
-    border: none;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 800;
-    font-family: var(--font-body, sans-serif);
-    cursor: pointer;
-    transition: background .2s, transform .15s;
-    box-shadow: 0 4px 14px rgba(232, 115, 42, .25);
-    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 900;
+    box-shadow: 0 8px 18px rgba(232, 115, 42, 0.2);
 }
 
-.btn-return { background: var(--brown); }
+.btn-return {
+    background: var(--orange);
+    border-color: var(--orange);
+}
 
 .btn-apply:hover,
 .btn-return:hover {
     background: var(--orange2);
-    transform: translateY(-1px);
 }
 
 .btn-apply:disabled,
 .btn-return:disabled {
-    opacity: .6;
+    opacity: 0.6;
     cursor: not-allowed;
-    transform: none;
 }
 
 .ext-notice {
-    margin-top: 12px;
-    font-size: 11.5px;
-    color: var(--brown3);
+    margin: 14px 0 0;
+    font-size: 12px;
     line-height: 1.8;
-    font-weight: 500;
+    color: var(--brown3);
+    font-weight: 600;
 }
 
-/* ── 회수 주소 영역 ── */
+/* =========================
+   RETURN ADDRESS
+========================= */
 .return-info-box {
-    margin-bottom: 16px;
     padding: 18px;
+    margin-bottom: 16px;
+    background: rgba(246, 240, 230, 0.65);
+    border: 1px solid var(--border);
     border-radius: 16px;
-    background: rgba(246, 240, 230, .55);
-    border: 1px solid var(--border2);
 }
 
-/* ── 연장 내역 ── */
-.ext-history { padding: 20px 24px; }
+.form-input {
+    min-height: 42px;
+    padding: 0 13px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--white);
+    color: var(--brown);
+    font-size: 14px;
+    outline: none;
+}
+
+.form-input:focus {
+    border-color: var(--orange);
+}
+
+.form-input[readonly] {
+    background: #f9f1e7;
+}
+
+/* =========================
+   HISTORY
+========================= */
+.ext-history {
+    padding: 22px 24px 26px;
+}
 
 .ext-history-title {
-    font-size: 13px;
-    font-weight: 700;
+    margin: 0 0 14px;
+    font-size: 14px;
+    font-weight: 900;
     color: var(--brown2);
-    margin-bottom: 14px;
 }
 
 .ext-items {
@@ -507,315 +603,307 @@ body {
 }
 
 .ext-item {
-    display: flex;
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto auto;
+    gap: 12px;
     align-items: center;
-    gap: 14px;
-    padding: 14px 16px;
-    background: var(--cream);
-    border: 1px solid var(--border2);
-    border-radius: 12px;
+    padding: 14px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
 }
 
 .ext-item-icon {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: rgba(76, 175, 80, .1);
-    border: 1px solid rgba(76, 175, 80, .25);
+    background: rgba(232, 115, 42, 0.1);
+    border: 1px solid rgba(232, 115, 42, 0.22);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
-    flex-shrink: 0;
 }
 
-.ext-item-body  { flex: 1; }
-.ext-item-days  { font-size: 14px; font-weight: 700; color: var(--brown); margin-bottom: 2px; }
-.ext-item-date  { font-size: 11px; color: var(--brown3); font-weight: 600; }
-
-.ext-item-price {
-    font-family: var(--font-title, serif);
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--orange2);
-    flex-shrink: 0;
-}
-
-.btn-ext-cancel {
-    padding: 6px 14px;
-    background: transparent;
-    border: 1.5px solid rgba(196, 98, 30, .28);
-    border-radius: 999px;
-    color: var(--orange2);
-    font-size: 12px;
-    font-weight: 700;
-    font-family: var(--font-body, sans-serif);
-    cursor: pointer;
-    transition: all .2s;
-    flex-shrink: 0;
-}
-
-.btn-ext-cancel:hover {
-    background: rgba(232, 115, 42, .09);
-    border-color: var(--orange);
-}
-
-.ext-empty {
-    text-align: center;
-    padding: 24px 16px;
-    color: var(--brown4);
-    font-size: 13px;
-    font-weight: 300;
-}
-
-/* ── 공통 버튼 ── */
-.btn-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    color: var(--brown3);
-    text-decoration: none;
-    padding: 8px 16px;
-    border: 1.5px solid var(--border);
-    border-radius: 10px;
-    background: var(--white);
-    cursor: pointer;
-    transition: all .2s;
-    white-space: nowrap;
-}
-
-.btn-back:hover {
-    border-color: var(--brown4);
+.ext-item-days {
+    margin: 0 0 3px;
+    font-size: 14px;
+    font-weight: 900;
     color: var(--brown);
 }
 
-/* ── 상태 박스 ── */
+.ext-item-date {
+    margin: 0;
+    font-size: 12px;
+    color: var(--brown3);
+    font-weight: 700;
+}
+
+.ext-item-price {
+    color: var(--orange2);
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.btn-ext-cancel {
+    height: 32px;
+    padding: 0 13px;
+    border-radius: 999px;
+    border: 1px solid rgba(232, 115, 42, 0.35);
+    background: transparent;
+    color: var(--orange2);
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.ext-empty {
+    padding: 30px 10px;
+    text-align: center;
+    color: var(--brown4);
+    font-size: 13px;
+}
+
+/* =========================
+   STATE / TOAST / CONFIRM MODAL
+========================= */
 .state-box {
+    min-height: 220px;
+    padding: 40px 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 14px;
-    padding: 60px 20px;
+    color: var(--brown3);
     text-align: center;
 }
 
 .spinner {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     border: 3px solid var(--cream3);
     border-top-color: var(--orange);
     border-radius: 50%;
-    animation: spin .8s linear infinite;
+    animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.state-box p {
-    font-size: 13px;
-    color: var(--brown3);
-    line-height: 1.8;
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }
 
-/* ── 토스트 ── */
 .toast {
     position: fixed;
-    bottom: 80px;
     left: 50%;
-    transform: translateX(-50%) translateY(60px);
+    bottom: 70px;
+    z-index: 12000;
+    transform: translateX(-50%) translateY(30px);
+    opacity: 0;
+    padding: 13px 24px;
+    border-radius: 999px;
     background: var(--brown);
     color: var(--white);
-    padding: 12px 24px;
-    border-radius: 50px;
     font-size: 13px;
-    white-space: nowrap;
-    box-shadow: 0 4px 20px rgba(0,0,0,.2);
-    z-index: 700;
-    opacity: 0;
-    transition: all .3s;
+    font-weight: 800;
+    box-shadow: 0 10px 24px rgba(44, 30, 15, 0.26);
+    transition: all 0.22s ease;
 }
 
 .toast.show {
-    transform: translateX(-50%) translateY(0);
     opacity: 1;
+    transform: translateX(-50%) translateY(0);
 }
 
-/* ── 모달 ── */
 .delete-modal-backdrop {
     position: fixed;
     inset: 0;
-    z-index: 9998;
-    background: rgba(35, 24, 15, 0.38);
+    z-index: 11000;
+    padding: 24px;
+    background: rgba(35, 24, 15, 0.42);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 24px;
-    animation: fadeIn .15s ease;
 }
 
 .delete-modal-box {
-    width: 100%;
-    max-width: 380px;
+    width: min(380px, 100%);
+    padding: 24px;
+    border-radius: 18px;
     background: var(--white);
-    border: 1px solid rgba(184, 154, 122, 0.28);
-    border-radius: 16px;
-    padding: 24px 24px 20px;
-    box-shadow: 0 18px 46px rgba(35, 24, 15, 0.20);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-modal);
     text-align: center;
-    animation: modalFadeUp .18s ease;
 }
 
 .delete-modal-title {
-    font-size: 17px;
-    font-weight: 800;
-    color: var(--brown);
     margin-bottom: 8px;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--brown);
 }
 
 .delete-modal-desc {
+    margin-bottom: 20px;
     font-size: 13px;
-    color: var(--brown3);
     line-height: 1.7;
-    margin-bottom: 22px;
+    color: var(--brown3);
 }
 
-.delete-modal-desc strong { color: var(--orange2); font-weight: 900; }
+.delete-modal-desc strong {
+    color: var(--orange2);
+}
 
-.delete-modal-actions { display: flex; gap: 10px; }
+.delete-modal-actions {
+    display: flex;
+    gap: 10px;
+}
 
-.delete-cancel-btn,
-.delete-confirm-btn {
+.delete-confirm-btn,
+.delete-cancel-btn {
     flex: 1;
     height: 42px;
     border-radius: 10px;
     font-size: 13px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: all .18s ease;
-}
-
-.delete-cancel-btn {
-    border: 1px solid rgba(184, 154, 122, 0.32);
-    background: var(--white);
-    color: var(--brown2);
-}
-
-.delete-cancel-btn:hover {
-    background: var(--cream);
-    border-color: rgba(232, 115, 42, 0.28);
-    color: var(--orange2);
-    transform: translateY(-1px);
+    font-weight: 900;
 }
 
 .delete-confirm-btn {
     border: none;
-    background: var(--orange2);
-    color: var(--white);
-}
-
-.delete-confirm-btn:hover {
     background: var(--orange);
-    box-shadow: 0 8px 18px rgba(232, 115, 42, 0.25);
-    transform: translateY(-1px);
+    color: #fff;
 }
 
-@keyframes fadeIn    { from { opacity: 0; } to { opacity: 1; } }
-@keyframes modalFadeUp {
-    from { opacity: 0; transform: translateY(18px) scale(.98); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
+.delete-cancel-btn {
+    border: 1px solid var(--border);
+    background: var(--white);
+    color: var(--brown2);
 }
 
-/* 선택 대여 모달 배경 */
-.ext-modal-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 2000;
-    background: rgba(32, 24, 18, 0.45);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 760px) {
+    .ext-page {
+        padding: 30px 16px 64px;
+    }
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 28px;
-}
+    .rental-card {
+        grid-template-columns: 64px minmax(0, 1fr);
+    }
 
-/* 기존 ext-panel을 모달처럼 */
-.ext-modal-panel {
-    width: min(920px, 100%);
-    max-height: 86vh;
-    overflow-y: auto;
-    background: #fffaf3;
-    border-radius: 24px;
-    box-shadow: 0 24px 70px rgba(45, 32, 22, 0.28);
-    animation: extModalRise 0.22s ease-out;
-}
+    .rental-card-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
 
-/* 스크롤바 */
-.ext-modal-panel::-webkit-scrollbar {
-    width: 8px;
-}
-@media (max-width: 768px) {
     .ext-modal-backdrop {
         align-items: flex-end;
         padding: 0;
     }
 
+    .ext-panel,
     .ext-modal-panel {
         width: 100%;
-        max-height: 90vh;
-        border-radius: 24px 24px 0 0;
+        max-height: 92vh;
+        border-radius: 22px 22px 0 0;
+    }
+
+    .ext-panel-head {
+        grid-template-columns: 64px minmax(0, 1fr) auto;
+    }
+
+    .ext-panel-img {
+        width: 64px;
+        height: 64px;
+    }
+
+    .btn-back {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .ext-form-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .days-stepper,
+    .btn-apply,
+    .btn-return {
+        width: 100%;
+    }
+
+    .ext-item {
+        grid-template-columns: 40px minmax(0, 1fr);
+    }
+
+    .ext-item-price,
+    .btn-ext-cancel {
+        grid-column: 2;
+        justify-self: start;
     }
 }
 
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 25px;
+    }
 
-.ext-modal-panel::-webkit-scrollbar-thumb {
-    background: rgba(132, 94, 62, 0.35);
-    border-radius: 999px;
+    .section-body {
+        padding: 16px;
+    }
+
+    .rental-card {
+        padding: 14px;
+    }
+
+    .mini-action-btn {
+        flex: 1;
+    }
+
+    .delete-modal-actions {
+        flex-direction: column;
+    }
 }
 
-@keyframes extModalRise {
+.ext-tab-bar {
+    position: relative;
+}
+
+.ext-tab-bar::after {
+    content: "";
+    position: absolute;
+    left: 22px;
+    bottom: -1px;
+    width: 120px;
+    height: 3px;
+    background: var(--orange);
+    transition: transform 0.25s ease;
+}
+
+.ext-tab-bar.is-extension::after {
+    transform: translateX(0);
+}
+
+.ext-tab-bar.is-return::after {
+    transform: translateX(120px);
+}
+
+.ext-tab-btn {
+    width: 120px;
+    border-bottom: none !important;
+}
+
+@keyframes modalFadeUp {
     from {
         opacity: 0;
-        transform: translateY(18px) scale(0.98);
+        transform: translateY(20px) scale(0.97);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
     }
-}
-
-/* ── 반응형 ── */
-@media (max-width: 720px) {
-    .ext-page { padding: 24px 16px 56px; }
-
-    .rental-card { align-items: flex-start; flex-wrap: wrap; }
-    .rental-info { flex: 1; }
-
-    .rental-card-actions {
-        width: 100%;
-        justify-content: flex-end;
-        padding-left: 68px;
-    }
-
-    .ext-tab-bar { padding: 0 16px; }
-    .ext-tab-btn { padding: 10px 14px; font-size: 12px; }
-
-    .ext-form-row { flex-direction: column; align-items: stretch; }
-    .form-input   { width: 100%; }
-
-    .btn-apply,
-    .btn-return { width: 100%; }
-}
-
-@media (max-width: 480px) {
-    .rental-card-actions { padding-left: 0; justify-content: stretch; }
-    .mini-action-btn     { flex: 1; padding: 0 8px; }
-
-    .delete-modal-actions      { flex-direction: column-reverse; }
-    .delete-cancel-btn,
-    .delete-confirm-btn        { width: 100%; }
 }

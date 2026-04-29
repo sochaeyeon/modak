@@ -58,5 +58,16 @@
     </main>
 
     <%@ include file="/WEB-INF/common/footer.jsp" %>
+
 </body>
 </html>
+<script>
+    const params = new URLSearchParams(location.search);
+    const isBuyNow = params.get('buyNow') === 'true';
+
+    if (isBuyNow) {
+        localStorage.removeItem('modak_guest_buy_now');
+    } else {
+        localStorage.removeItem('modak_guest_cart');
+    }
+</script>

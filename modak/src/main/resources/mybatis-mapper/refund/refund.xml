@@ -99,36 +99,40 @@
     </select>
     
     <!-- 환불 요청 데이터 저장 -->
-    <insert id="insertRefund" parameterType="map" useGeneratedKeys="true" keyProperty="refundId">
-        INSERT INTO refund (
-            AMOUNT, 
-            DEDUCT_AMOUNT, 
-            REASON, 
-            REFUND_STATUS,
-            CREATED_AT, 
-            PAY_ID, 
-            ORDER_ID, 
-            USER_ID, 
-            REFUND_TYPE
-        ) VALUES (
-            IFNULL(#{amount}, 0), 
-            IFNULL(#{deductAmount}, 0),
-            <choose>
-                <when test="reasonDetail != null and reasonDetail.trim() != ''">
-                    CONCAT('[', #{refundReason}, '] ', #{reasonDetail})
-                </when>
-                <otherwise>
-                    #{refundReason}
-                </otherwise>
-            </choose>,
-            'PENDING', 
-            NOW(), 
-            #{payId}, 
-            #{orderId}, 
-            #{userId}, 
-            #{refundType}
-        )
-    </insert>
+    <insert id="insertRefund" parameterType="map">
+	    INSERT INTO refund (
+	        AMOUNT, 
+	        DEDUCT_AMOUNT, 
+	        REASON, 
+	        REFUND_STATUS,
+	        CREATED_AT, 
+	        PAY_ID, 
+	        ORDER_ID, 
+	        USER_ID, 
+	        REFUND_TYPE
+	    ) VALUES (
+	        IFNULL(#{amount}, 0), 
+	        IFNULL(#{deductAmount}, 0),
+	        <choose>
+	            <when test="reasonDetail != null and reasonDetail.trim() != ''">
+	                CONCAT('[', #{refundReason}, '] ', #{reasonDetail})
+	            </when>
+	            <otherwise>
+	                #{refundReason}
+	            </otherwise>
+	        </choose>,
+	        'PENDING', 
+	        NOW(), 
+	        #{payId}, 
+	        #{orderId}, 
+	        #{userId}, 
+	        #{refundType}
+	    )
+	
+	    <selectKey keyProperty="refundId" resultType="int" order="AFTER">
+	        SELECT LAST_INSERT_ID()
+	    </selectKey>
+	</insert>
     
     <!-- 주문 상태를 환불 요청 상태로 변경 -->
     <update id="updateOrderStatus" parameterType="map">

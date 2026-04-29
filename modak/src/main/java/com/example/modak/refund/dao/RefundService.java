@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.modak.alarm.dao.AlarmService;
 import com.example.modak.refund.mapper.RefundMapper;
 
 @Service
@@ -23,6 +24,10 @@ public class RefundService {
 	
 	@Value("${toss.secret-key}")
 	private String tossSecretKey;
+	
+	@Autowired
+	private AlarmService alarmService;
+	
 		
 	// 환불 페이지 진입 시 데이터 조회
     public HashMap<String, Object> getRefundInfo(HashMap<String, Object> map) {
@@ -101,6 +106,7 @@ public class RefundService {
 
             Object totalPayObj = list.get(0).get("totalPayAmount");
             Object paymentKeyObj = list.get(0).get("paymentKey");
+            Object payIdObj = list.get(0).get("payId");
 
             if (totalPayObj == null || paymentKeyObj == null || "".equals(String.valueOf(paymentKeyObj))) {
                 resultMap.put("result", "fail");
@@ -112,6 +118,7 @@ public class RefundService {
             String paymentKey = String.valueOf(paymentKeyObj);
 
             map.put("paymentKey", paymentKey);
+            map.put("payId", payIdObj);
 
             // 4. 누적 환불 금액 조회
             int refundedAmount = refundMapper.selectRefundAmountSum(map);
@@ -129,8 +136,8 @@ public class RefundService {
 
             // 6. 환불 데이터 저장
             int insertResult = refundMapper.insertRefund(map);
-
             if (insertResult > 0) {
+            	System.out.println("refundId=" + map.get("refundId")); // 환불정보확인
 
             	// 7. 토스 환불 API 호출
                 boolean tossResult = callTossCancelApi(map, paymentKey, requestAmount);
@@ -139,23 +146,41 @@ public class RefundService {
                     throw new Exception("토스 환불 API 실패");
                 }
 
-                // 8. 주문 상태 변경
-                int updateResult = refundMapper.updateOrderStatus(map);
-
-                if (updateResult == 0) {
-                    throw new Exception("주문 상태 변경 실패");
-                }
-                // 환불 완료 후
+                // 8. 환불상태 완료 변경
                 int refundUpdateResult = refundMapper.updateRefundCompleted(map);
-
+                
                 if (refundUpdateResult == 0) {
-                    throw new Exception("환불 상태 변경 실패");
+                	throw new Exception("환불 상태 변경 실패");
                 }
-
+                
+                // 9. 결제 상태 환불 완료 처리
                 int paymentUpdateResult = refundMapper.updatePaymentRefunded(map);
-
+                
                 if (paymentUpdateResult == 0) {
-                    throw new Exception("결제 상태 변경 실패");
+                	throw new Exception("결제 상태 변경 실패");
+                }
+                
+                // 10. 주문 상태 변경
+                int updateResult = refundMapper.updateOrderStatus(map);
+                
+                if (updateResult == 0) {
+                	throw new Exception("주문 상태 변경 실패");
+                }
+                
+                try {
+                    String refundUserId = String.valueOf(map.get("userId"));
+                    if (refundUserId != null && !"null".equals(refundUserId)) {
+                        alarmService.createAlarm(
+                            refundUserId, 
+                            "NOTICE",
+                            "환불이 완료되었습니다 💸",
+                            requestAmount + "원 환불이 처리되었습니다. 3~5 영업일 내 입금됩니다.",
+                            String.valueOf(map.get("orderId"))
+                        );
+                    }
+                } catch (Exception e) {
+                    // 알림 발송 실패가 전체 환불 로직을 롤백시키지 않도록 예외 처리
+                    System.err.println("알림 발송 중 오류 발생: " + e.getMessage());
                 }
 
                 resultMap.put("result", "success");

@@ -410,7 +410,7 @@
                     const app = Vue.createApp({
                         data() {
                             return {
-                                activeTab: new URLSearchParams(location.search).get('cartType') || 'PURCHASE',
+                                activeTab: new URLSearchParams(location.search).get('cartType') || 'RENTAL',
                                 cartList: [],
                                 checkedIds: [],
                                 isLogin: false,

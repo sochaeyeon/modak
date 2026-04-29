@@ -2358,6 +2358,7 @@
                                         self.$refs.profileFileInput.value = "";
 
                                         if (data.result === "success") {
+                                            sessionStorage.setItem("profileToast", "✅ 프로필 사진이 변경되었습니다!");
                                             location.href = location.pathname + "?profileRefresh=" + new Date().getTime();
                                         } else {
                                             alert(data.message || "프로필 사진 변경에 실패했습니다.");
@@ -2624,6 +2625,11 @@
                             },
                         }, // methods
                         mounted() {
+                              const profileToast = sessionStorage.getItem("profileToast");
+                            if (profileToast) {
+                                    sessionStorage.removeItem("profileToast");
+                                    setTimeout(() => this.showToast(profileToast), 300);
+                            }
                             let profileUrl = String(this.displayUser.profileImgUrl || "").trim();
 
                             if (

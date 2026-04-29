@@ -38,8 +38,8 @@
 							<li><a href="/product/list.do">대여하기</a></li>
 							<li><a href="/product/list.do">구매하기</a></li>
 							<li><a href="/product/list.do">카테고리</a></li>
-							<li><a href="/product/list.do">신상품</a></li>
-							<li><a href="/product/list.do">베스트</a></li>
+							<li><a href="/product/list.do?sort=newest">신상품</a></li>
+							<li><a href="/product/list.do?sort=popular">베스트</a></li>
 						</ul>
 					</div>
 
@@ -49,8 +49,7 @@
 							<li><a href="/notification/list.do">공지사항</a></li>
 							<li><a href="/faq.do">자주 묻는 질문</a></li>
 							<li><a href="/inquiry.do">1:1 문의</a></li>
-							<li><a href="/deliveryTracking.do">배송조회</a></li>
-							<li><a href="/refund/request.do">반품/교환</a></li>
+
 						</ul>
 					</div>
 

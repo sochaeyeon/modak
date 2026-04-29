@@ -44,7 +44,7 @@
         WHERE O.ORDER_ID    = #{orderId}
           AND O.GUEST_NAME  = #{guestName}
           AND O.GUEST_PHONE = #{guestPhone}
-          AND O.USER_ID     = 'GUEST'
+          AND O.USER_ID LIKE 'GUEST_%'
     </select>
 
     <!-- 주문번호만으로 조회 (토큰 검증 통과 후) -->
@@ -63,34 +63,34 @@
     </select>
 
     <!-- ★ 주문 상품 목록 — PRODUCT_IMG 조인으로 이미지 추가 -->
-    <select id="selectGuestOrderItems"
-            resultType="com.example.modak.order.model.GuestOrderItem">
-        SELECT
-            OI.ITEM_ID,
-            OI.ORDER_ID,
-            OI.PRODUCT_ID,
-            P.PRODUCT_NAME,
-            OI.UNIT_PRICE,
-            OI.QUANTITY,
-            OI.START_DATE,
-            OI.END_DATE,
-            (SELECT PI.IMG_URL
-             FROM PRODUCT_IMG PI
-             WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
-               AND PI.IS_MAIN = 'Y'
-             LIMIT 1) AS imgUrl
-        FROM ORDER_ITEM OI
-        LEFT JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
-        WHERE OI.ORDER_ID = #{orderId}
-        ORDER BY OI.ITEM_ID ASC
-    </select>
+	 <select id="selectGuestOrderItems"
+	        resultType="com.example.modak.order.model.GuestOrderItem">
+	    SELECT
+	        OI.ORDER_ITEM_ID AS itemId,
+	        OI.ORDER_ID AS orderId,
+	        OI.PRODUCT_ID AS productId,
+	        P.PRODUCT_NAME AS productName,
+	        OI.UNIT_PRICE AS unitPrice,
+	        OI.QUANTITY AS quantity,
+	        OI.START_DATE AS startDate,
+	        OI.END_DATE AS endDate,
+	        (SELECT PI.IMG_URL
+	         FROM PRODUCT_IMG PI
+	         WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
+	           AND PI.IS_MAIN = 'Y'
+	         LIMIT 1) AS imgUrl
+	    FROM ORDER_ITEM OI
+	    LEFT JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+	    WHERE OI.ORDER_ID = #{orderId}
+	    ORDER BY OI.ORDER_ITEM_ID ASC
+	</select>
 
     <!-- 주문 상태 업데이트 -->
     <update id="updateOrderStatus">
         UPDATE ORDERS
         SET    ORDER_STATUS = #{orderStatus}
         WHERE  ORDER_ID     = #{orderId}
-          AND  USER_ID      = 'GUEST'
+        AND USER_ID LIKE 'GUEST_%'
     </update>
     
     <insert id="insertGuestExchange" parameterType="hashmap">
@@ -109,7 +109,7 @@
     UPDATE ORDERS
     SET    ORDER_STATUS = 'EXCHANGE_REQUESTED'
     WHERE  ORDER_ID = #{orderId}
-      AND  USER_ID  = 'GUEST'
+      AND USER_ID LIKE 'GUEST_%'
 </update>
 
 </mapper>

@@ -36,7 +36,7 @@ public interface BoardMapper {
     int selectReactionExists(HashMap<String, Object> map);
     int insertReaction(HashMap<String, Object> map);
     int deleteReaction(HashMap<String, Object> map);
- 
+    Map<String, Object> selectCommentById(Object commentId);
     int increaseBoardLikeCount(HashMap<String, Object> map);
     int decreaseBoardLikeCount(HashMap<String, Object> map);
     int increaseBoardDislikeCount(HashMap<String, Object> map);

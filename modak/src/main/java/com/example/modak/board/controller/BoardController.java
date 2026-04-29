@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpSession;
@@ -48,9 +49,12 @@ public class BoardController {
             @RequestParam(required = false) MultipartFile[] files,
             @RequestParam(required = false) String pollQuestion,
             @RequestParam(required = false) List<String> pollOptions,
-            @RequestParam(required = false) String pollEndDate) {
+            @RequestParam(required = false) String pollEndDate,
+            HttpServletRequest request) {
+
         return new Gson().toJson(
-            boardService.writeBoard(map, files, pollQuestion, pollOptions, pollEndDate));
+            boardService.writeBoard(map, files, pollQuestion, pollOptions, pollEndDate, request)
+        );
     }
 
     @PostMapping(value = "/delete.dox", produces = "application/json;charset=UTF-8")

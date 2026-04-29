@@ -7,714 +7,12 @@
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>게시글 - 모닥모닥</title>
-            <link rel="stylesheaet" href="/css/common/font.css">
+            <link rel="stylesheet" href="/css/common/font.css">
+            <link rel="stylesheet" href="${pageContext.request.contextPath}/css/board/board-detail.css">
             <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
             <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
             <script src="/js/page-change.js"></script>
-            <style>
-                :root {
-                    --cream: #F6F0E6;
-                    --cream2: #EDE5D4;
-                    --orange: #E8732A;
-                    --orange2: #C4621E;
-                    --brown: #2C1E0F;
-                    --brown2: #5C4230;
-                    --brown3: #8B6B4A;
-                    --brown4: #B89A7A;
-                    --white: #FFFDF8;
-                    --border: rgba(44, 30, 15, .1);
-                    --green: #2e7d32;
-                    --blue: #2f6fd8;
-                    --purple: #6f42c1;
-                }
 
-                * {
-                    margin: 0;
-                    padding: 0;
-                    box-sizing: border-box;
-                }
-
-                body {
-                    background: var(--cream);
-                    color: var(--brown);
-                    font-family: 'Apple SD Gothic Neo', sans-serif;
-                }
-
-                [v-cloak] {
-                    display: none;
-                }
-
-                .page-wrap {
-                    max-width: 800px;
-                    margin: 0 auto;
-                    padding: 32px 24px 80px;
-                }
-
-                /* 뒤로 */
-                .back-btn {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 6px;
-                    color: var(--brown3);
-                    font-size: 13px;
-                    font-weight: 700;
-                    cursor: pointer;
-                    margin-bottom: 20px;
-                    background: none;
-                    border: none;
-                    padding: 0;
-                    transition: color .18s;
-                }
-
-                .back-btn:hover {
-                    color: var(--orange);
-                }
-
-                /* 카드 */
-                .card {
-                    background: var(--white);
-                    border: 1.5px solid var(--border);
-                    border-radius: 18px;
-                    overflow: hidden;
-                    margin-bottom: 16px;
-                }
-
-                .card-body {
-                    padding: 28px;
-                }
-
-                /* 게시글 헤더 */
-                .post-cats {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    margin-bottom: 12px;
-                }
-
-                .cat-tag {
-                    padding: 3px 10px;
-                    border-radius: 999px;
-                    font-size: 11px;
-                    font-weight: 800;
-                }
-
-                .cat-FREE {
-                    background: rgba(92, 66, 48, .1);
-                    color: #5c4230;
-                }
-
-                .cat-REVIEW {
-                    background: rgba(46, 125, 50, .1);
-                    color: var(--green);
-                }
-
-                .cat-TIP {
-                    background: rgba(47, 111, 216, .1);
-                    color: var(--blue);
-                }
-
-                .cat-QNA {
-                    background: rgba(232, 115, 42, .12);
-                    color: var(--orange2);
-                }
-
-                .hot-badge {
-                    padding: 3px 10px;
-                    border-radius: 999px;
-                    font-size: 11px;
-                    font-weight: 800;
-                    background: var(--orange);
-                    color: #fff;
-                }
-
-                .poll-badge {
-                    padding: 3px 10px;
-                    border-radius: 999px;
-                    font-size: 11px;
-                    font-weight: 800;
-                    background: rgba(111, 66, 193, .12);
-                    color: var(--purple);
-                }
-
-                .post-title {
-                    font-size: 22px;
-                    font-weight: 800;
-                    color: var(--brown);
-                    line-height: 1.4;
-                    margin-bottom: 14px;
-                }
-
-                .post-meta {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    font-size: 12px;
-                    color: var(--brown3);
-                    margin-bottom: 20px;
-                    padding-bottom: 18px;
-                    border-bottom: 1px solid var(--border);
-                }
-
-                .post-meta .dot {
-                    color: var(--brown4);
-                }
-
-                .author-avatar {
-                    width: 30px;
-                    height: 30px;
-                    border-radius: 50%;
-                    background: var(--cream2);
-                    overflow: hidden;
-                    flex-shrink: 0;
-                }
-
-                .author-avatar img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-
-                .post-content {
-                    font-size: 15px;
-                    line-height: 1.85;
-                    color: var(--brown2);
-                    white-space: pre-wrap;
-                    min-height: 60px;
-                    margin-bottom: 20px;
-                }
-
-                /* 이미지 갤러리 */
-                .img-gallery {
-                    display: grid;
-                    gap: 8px;
-                    margin-bottom: 20px;
-                }
-
-                .img-gallery.one {
-                    grid-template-columns: 1fr;
-                }
-
-                .img-gallery.two {
-                    grid-template-columns: 1fr 1fr;
-                }
-
-                .img-gallery.many {
-                    grid-template-columns: repeat(3, 1fr);
-                }
-
-                .gallery-img {
-                    width: 100%;
-                    border-radius: 10px;
-                    overflow: hidden;
-                    aspect-ratio: 4/3;
-                    background: var(--cream2);
-                }
-
-                .gallery-img img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    cursor: pointer;
-                }
-
-                /* 제품 링크 */
-                .product-link {
-                    display: flex;
-                    align-items: center;
-                    gap: 14px;
-                    padding: 14px 16px;
-                    border: 1.5px solid rgba(232, 115, 42, .3);
-                    border-radius: 14px;
-                    background: rgba(232, 115, 42, .04);
-                    margin-bottom: 20px;
-                    cursor: pointer;
-                    transition: border-color .18s;
-                }
-
-                .product-link:hover {
-                    border-color: var(--orange);
-                }
-
-                .product-link img {
-                    width: 56px;
-                    height: 56px;
-                    border-radius: 10px;
-                    object-fit: cover;
-                }
-
-                .product-link-badge {
-                    display: inline-block;
-                    padding: 2px 7px;
-                    border-radius: 999px;
-                    background: var(--orange);
-                    color: #fff;
-                    font-size: 10px;
-                    font-weight: 800;
-                    margin-bottom: 4px;
-                }
-
-                /* 투표 */
-                .poll-card {
-                    border: 1.5px solid rgba(111, 66, 193, .2);
-                    border-radius: 14px;
-                    padding: 20px;
-                    background: rgba(111, 66, 193, .04);
-                    margin-bottom: 20px;
-                }
-
-                .poll-question {
-                    font-size: 15px;
-                    font-weight: 800;
-                    color: var(--brown);
-                    margin-bottom: 16px;
-                }
-
-                .poll-option {
-                    position: relative;
-                    margin-bottom: 10px;
-                    border-radius: 12px;
-                    overflow: hidden;
-                    cursor: pointer;
-                    border: 1.5px solid var(--border);
-                    background: #fff;
-                    transition: border-color .18s;
-                }
-
-                .poll-option:hover:not(.voted) {
-                    border-color: var(--purple);
-                }
-
-                .poll-option.selected {
-                    border-color: var(--purple);
-                }
-
-                .poll-bar {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    height: 100%;
-                    background: rgba(111, 66, 193, .1);
-                    border-radius: 12px;
-                    transition: width .5s ease;
-                }
-
-                .poll-option-inner {
-                    position: relative;
-                    z-index: 1;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 12px 16px;
-                }
-
-                .poll-option-text {
-                    font-size: 13px;
-                    font-weight: 700;
-                    color: var(--brown);
-                }
-
-                .poll-pct {
-                    font-size: 12px;
-                    font-weight: 800;
-                    color: var(--purple);
-                }
-
-                .poll-meta {
-                    font-size: 11px;
-                    color: var(--brown3);
-                    margin-top: 10px;
-                    text-align: right;
-                }
-
-                /* 반응 버튼 */
-                .reaction-bar {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    padding-top: 18px;
-                    border-top: 1px solid var(--border);
-                }
-
-                .react-btn {
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    height: 38px;
-                    padding: 0 16px;
-                    border-radius: 10px;
-                    border: 1.5px solid var(--border);
-                    background: #fff;
-                    color: var(--brown3);
-                    font-size: 13px;
-                    font-weight: 700;
-                    cursor: pointer;
-                    transition: all .18s;
-                }
-
-                .react-btn:hover {
-                    border-color: var(--orange);
-                    color: var(--orange);
-                }
-
-                .react-btn.liked {
-                    border-color: var(--orange);
-                    background: rgba(232, 115, 42, .1);
-                    color: var(--orange2);
-                }
-
-                .react-btn.disliked {
-                    border-color: #e74c3c;
-                    background: rgba(231, 76, 60, .08);
-                    color: #e74c3c;
-                }
-
-                .view-count {
-                    margin-left: auto;
-                    font-size: 12px;
-                    color: var(--brown4);
-                }
-
-                /* 신고/수정/삭제 */
-                .post-actions {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    margin-left: auto;
-                }
-
-                .action-btn {
-                    height: 32px;
-                    padding: 0 12px;
-                    border-radius: 8px;
-                    border: 1.5px solid var(--border);
-                    background: #fff;
-                    color: var(--brown3);
-                    font-size: 12px;
-                    font-weight: 700;
-                    cursor: pointer;
-                    transition: all .18s;
-                }
-
-                .action-btn:hover {
-                    border-color: var(--brown3);
-                    color: var(--brown);
-                }
-
-                .action-btn.danger:hover {
-                    border-color: #e74c3c;
-                    color: #e74c3c;
-                }
-
-                /* 댓글 */
-                .comments-head {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    font-size: 15px;
-                    font-weight: 800;
-                    color: var(--brown);
-                    padding: 18px 24px 0;
-                }
-
-                .comment-count-badge {
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 24px;
-                    height: 24px;
-                    border-radius: 50%;
-                    background: var(--orange);
-                    color: #fff;
-                    font-size: 12px;
-                    font-weight: 800;
-                }
-
-                .comment-list {
-                    padding: 12px 24px 8px;
-                }
-
-                .comment-item {
-                    padding: 16px 0;
-                    border-bottom: 1px solid var(--border);
-                }
-
-                .comment-item:last-child {
-                    border-bottom: none;
-                }
-
-                .comment-item.reply {
-                    padding-left: 32px;
-                    background: rgba(44, 30, 15, .02);
-                    border-radius: 10px;
-                    margin-top: 4px;
-                }
-
-                .comment-meta {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    margin-bottom: 8px;
-                    font-size: 12px;
-                    color: var(--brown3);
-                }
-
-                .comment-avatar {
-                    width: 28px;
-                    height: 28px;
-                    border-radius: 50%;
-                    background: var(--cream2);
-                    overflow: hidden;
-                    flex-shrink: 0;
-                }
-
-                .comment-avatar img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-
-                .comment-content {
-                    font-size: 14px;
-                    color: var(--brown2);
-                    line-height: 1.7;
-                    margin-bottom: 10px;
-                }
-
-                .comment-actions {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                }
-
-                .comment-like-btn {
-                    display: flex;
-                    align-items: center;
-                    gap: 4px;
-                    font-size: 12px;
-                    color: var(--brown3);
-                    background: none;
-                    border: none;
-                    cursor: pointer;
-                    padding: 0;
-                    transition: color .18s;
-                }
-
-                .comment-like-btn:hover,
-                .comment-like-btn.liked {
-                    color: var(--orange);
-                }
-
-                .reply-btn {
-                    font-size: 12px;
-                    color: var(--brown3);
-                    background: none;
-                    border: none;
-                    cursor: pointer;
-                    padding: 0;
-                    transition: color .18s;
-                }
-
-                .reply-btn:hover {
-                    color: var(--orange);
-                }
-
-                .comment-delete {
-                    font-size: 11px;
-                    color: var(--brown4);
-                    background: none;
-                    border: none;
-                    cursor: pointer;
-                    padding: 0;
-                    margin-left: auto;
-                    transition: color .18s;
-                }
-
-                .comment-delete:hover {
-                    color: #e74c3c;
-                }
-
-                /* 댓글 입력 */
-                .comment-write {
-                    padding: 16px 24px;
-                    border-top: 1px solid var(--border);
-                }
-
-                .reply-indicator {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    padding: 8px 12px;
-                    border-radius: 8px;
-                    background: rgba(232, 115, 42, .08);
-                    margin-bottom: 8px;
-                    font-size: 12px;
-                    color: var(--orange2);
-                    font-weight: 700;
-                }
-
-                .comment-input-row {
-                    display: flex;
-                    gap: 10px;
-                    align-items: flex-end;
-                }
-
-                .comment-textarea {
-                    flex: 1;
-                    padding: 12px 14px;
-                    border: 1.5px solid var(--border);
-                    border-radius: 12px;
-                    background: #fff;
-                    font-size: 14px;
-                    font-family: inherit;
-                    color: var(--brown);
-                    resize: none;
-                    outline: none;
-                    transition: border-color .18s;
-                    min-height: 56px;
-                }
-
-                .comment-textarea:focus {
-                    border-color: var(--orange);
-                    box-shadow: 0 0 0 3px rgba(232, 115, 42, .1);
-                }
-
-                .btn-comment-submit {
-                    height: 56px;
-                    padding: 0 20px;
-                    border: none;
-                    border-radius: 12px;
-                    background: var(--orange);
-                    color: #fff;
-                    font-size: 13px;
-                    font-weight: 800;
-                    cursor: pointer;
-                    flex-shrink: 0;
-                    transition: background .18s;
-                }
-
-                .btn-comment-submit:hover {
-                    background: var(--orange2);
-                }
-
-                /* 이미지 라이트박스 */
-                .lightbox {
-                    position: fixed;
-                    inset: 0;
-                    z-index: 9999;
-                    background: rgba(0, 0, 0, .88);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-
-                .lightbox img {
-                    max-width: 90vw;
-                    max-height: 88vh;
-                    border-radius: 12px;
-                }
-
-                .lightbox-close {
-                    position: fixed;
-                    top: 20px;
-                    right: 24px;
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 50%;
-                    background: rgba(255, 255, 255, .15);
-                    border: none;
-                    color: #fff;
-                    font-size: 20px;
-                    cursor: pointer;
-                }
-
-                /* 신고 모달 */
-                .modal-bg {
-                    position: fixed;
-                    inset: 0;
-                    z-index: 9000;
-                    background: rgba(0, 0, 0, .45);
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-
-                .modal-box {
-                    background: #fff;
-                    border-radius: 18px;
-                    padding: 28px;
-                    width: 360px;
-                    max-width: 90vw;
-                    box-shadow: 0 20px 50px rgba(0, 0, 0, .2);
-                }
-
-                .modal-title {
-                    font-size: 16px;
-                    font-weight: 800;
-                    color: var(--brown);
-                    margin-bottom: 14px;
-                }
-
-                .modal-select {
-                    width: 100%;
-                    padding: 12px 14px;
-                    border: 1.5px solid var(--border);
-                    border-radius: 10px;
-                    font-size: 13px;
-                    color: var(--brown);
-                    margin-bottom: 14px;
-                    outline: none;
-                }
-
-                .modal-actions {
-                    display: flex;
-                    gap: 10px;
-                    justify-content: flex-end;
-                }
-
-                .modal-cancel,
-                .modal-confirm {
-                    height: 38px;
-                    padding: 0 18px;
-                    border-radius: 10px;
-                    font-size: 13px;
-                    font-weight: 700;
-                    cursor: pointer;
-                }
-
-                .modal-cancel {
-                    border: 1.5px solid var(--border);
-                    background: #fff;
-                    color: var(--brown3);
-                }
-
-                .modal-confirm {
-                    border: none;
-                    background: var(--orange);
-                    color: #fff;
-                }
-
-                /* 토스트 */
-                .toast {
-                    position: fixed;
-                    left: 50%;
-                    bottom: 32px;
-                    transform: translateX(-50%) translateY(20px);
-                    padding: 12px 22px;
-                    border-radius: 999px;
-                    background: var(--brown);
-                    color: var(--white);
-                    font-size: 13px;
-                    opacity: 0;
-                    pointer-events: none;
-                    transition: .25s ease;
-                    z-index: 99999;
-                }
-
-                .toast.show {
-                    opacity: 1;
-                    transform: translateX(-50%) translateY(0);
-                }
-            </style>
         </head>
 
         <body>
@@ -844,50 +142,87 @@
                                                 <img v-if="comment.profileImg" :src="comment.profileImg">
                                                 <div v-else
                                                     style="width:100%;height:100%;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:12px;">
-                                                    🏕</div>
+                                                    🏕
+                                                </div>
                                             </div>
                                             <span style="font-weight:700;">{{ comment.nickName }}</span>
                                             <span style="color:var(--brown4);">·</span>
                                             <span>{{ fnFormatDate(comment.CREATED_AT) }}</span>
                                         </div>
+
                                         <div class="comment-content">{{ comment.CONTENT }}</div>
+
                                         <div class="comment-actions">
                                             <button class="comment-like-btn"
                                                 :class="{ liked: isCommentLiked(comment.COMMENT_ID) }"
                                                 @click="fnReact('LIKE', 'COMMENT', comment.COMMENT_ID)">
                                                 ❤️ {{ comment.LIKE_COUNT }}
                                             </button>
+
                                             <button class="reply-btn" @click="fnSetReply(comment)">↩ 답글</button>
+
+                                            <button class="reply-btn" v-if="getReplies(comment.COMMENT_ID).length > 0"
+                                                @click="fnToggleReplies(comment.COMMENT_ID)">
+                                                {{ openReplies[comment.COMMENT_ID] ? '대댓글 닫기 ▲' : '대댓글 보기 ▼' }}
+                                            </button>
+
                                             <button class="reply-btn" @click="fnReportComment(comment.COMMENT_ID)">🚩
                                                 신고</button>
+
                                             <button class="comment-delete" v-if="isMyComment(comment.USER_ID)"
-                                                @click="fnDeleteComment(comment.COMMENT_ID)">삭제</button>
+                                                @click="fnDeleteComment(comment.COMMENT_ID)">
+                                                삭제
+                                            </button>
+                                        </div>
+
+                                        <!-- 답글 입력창: 반드시 원댓글 안쪽, 대댓글 반복문 바깥 -->
+                                        <div class="inline-reply-box"
+                                            v-if="replyTarget && replyTarget.COMMENT_ID === comment.COMMENT_ID">
+                                            <textarea class="comment-textarea" v-model="commentContent"
+                                                placeholder="답글을 입력하세요..."
+                                                @keydown.ctrl.enter="fnSubmitComment"></textarea>
+
+                                            <div
+                                                style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+                                                <button class="reply-btn"
+                                                    @click="replyTarget = null; commentContent = ''">취소</button>
+                                                <button class="btn-comment-submit small" @click="fnSubmitComment">답글
+                                                    등록</button>
+                                            </div>
                                         </div>
                                     </div>
+
                                     <!-- 대댓글 -->
-                                    <div class="comment-item reply" v-for="reply in getReplies(comment.COMMENT_ID)"
-                                        :key="reply.COMMENT_ID">
+                                    <div v-if="openReplies[comment.COMMENT_ID]" class="comment-item reply"
+                                        v-for="reply in getReplies(comment.COMMENT_ID)" :key="reply.COMMENT_ID">
+
                                         <div class="comment-meta">
                                             <span style="color:var(--orange);margin-right:4px;">↩</span>
                                             <div class="comment-avatar">
                                                 <img v-if="reply.profileImg" :src="reply.profileImg">
                                                 <div v-else
                                                     style="width:100%;height:100%;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:12px;">
-                                                    🏕</div>
+                                                    🏕
+                                                </div>
                                             </div>
                                             <span style="font-weight:700;">{{ reply.nickName }}</span>
                                             <span style="color:var(--brown4);">·</span>
                                             <span>{{ fnFormatDate(reply.CREATED_AT) }}</span>
                                         </div>
+
                                         <div class="comment-content">{{ reply.CONTENT }}</div>
+
                                         <div class="comment-actions">
                                             <button class="comment-like-btn"
                                                 :class="{ liked: isCommentLiked(reply.COMMENT_ID) }"
                                                 @click="fnReact('LIKE', 'COMMENT', reply.COMMENT_ID)">
                                                 ❤️ {{ reply.LIKE_COUNT }}
                                             </button>
+
                                             <button class="comment-delete" v-if="isMyComment(reply.USER_ID)"
-                                                @click="fnDeleteComment(reply.COMMENT_ID)">삭제</button>
+                                                @click="fnDeleteComment(reply.COMMENT_ID)">
+                                                삭제
+                                            </button>
                                         </div>
                                     </div>
                                 </template>
@@ -895,7 +230,7 @@
 
                             <!-- 댓글 입력 -->
                             <div class="comment-write">
-                                <div class="reply-indicator" v-if="replyTarget">
+                                <div class="reply-indicator" v-if="replyTarget" style="display:none;">
                                     ↩ {{ replyTarget.nickName }}에게 답글
                                     <button @click="replyTarget = null"
                                         style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--orange2);">✕</button>
@@ -958,7 +293,8 @@
                                     showReportModal: false, reportReason: '',
                                     reportTarget: 'BOARD', reportCommentId: null,
                                     toastVisible: false, toastMsg: '',
-                                    currentUserId: '${sessionScope.sessionId}' || null
+                                    currentUserId: '${sessionScope.sessionId}' || null,
+                                    openReplies: {}
                                 };
                             },
                             computed: {
@@ -984,6 +320,7 @@
                                                 this.myReactions = res.myReactions || [];
                                             }
                                         },
+
                                         // ★ 추가
                                         error: (xhr) => {
                                             console.error('상세 로드 실패:', xhr.responseText);
@@ -991,9 +328,14 @@
                                         }
                                     });
                                 },
+                                fnToggleReplies(commentId) {
+                                    this.openReplies[commentId] = !this.openReplies[commentId];
+                                },
+
                                 getReplies(parentId) {
                                     return this.commentList.filter(c => c.PARENT_ID == parentId);
                                 },
+
                                 isCommentLiked(cid) {
                                     return this.myReactions.some(r => r.type === 'LIKE' && r.target === 'COMMENT' && r.commentId == cid);
                                 },
@@ -1064,20 +406,32 @@
                                 fnSetReply(comment) { this.replyTarget = comment; },
 
                                 fnSubmitComment() {
-                                    if (!this.commentContent.trim()) { this.showToast('댓글을 입력해주세요.'); return; }
+                                    if (!this.commentContent.trim()) {
+                                        this.showToast('댓글을 입력해주세요.');
+                                        return;
+                                    }
+
+                                    let data = {
+                                        boardId: this.boardId,
+                                        content: this.commentContent
+                                    };
+
+                                    if (this.replyTarget) {
+                                        data.parentId = this.replyTarget.COMMENT_ID;
+                                    }
+
                                     $.ajax({
-                                        url: '/board/comment/write.dox', type: 'POST',
-                                        data: {
-                                            boardId: this.boardId,
-                                            content: this.commentContent,
-                                            parentId: this.replyTarget ? this.replyTarget.COMMENT_ID : ''
-                                        },
+                                        url: '/board/comment/write.dox',
+                                        type: 'POST',
+                                        data: data,
                                         success: (res) => {
                                             if (res.result === 'success') {
                                                 this.commentContent = '';
                                                 this.replyTarget = null;
                                                 this.fnLoad();
-                                            } else this.showToast(res.message || '로그인이 필요합니다.');
+                                            } else {
+                                                this.showToast(res.message || '로그인이 필요합니다.');
+                                            }
                                         }
                                     });
                                 },

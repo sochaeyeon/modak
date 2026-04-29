@@ -133,7 +133,7 @@
 		ELSE 'N'
 		END
 		WHERE STATUS = 'ACTIVE'
-</update>
+	</update>
 
 	<!-- 댓글 수 증감 -->
 	<update id="increaseCommentCount" parameterType="hashmap">
@@ -310,7 +310,7 @@
 	<insert id="insertPoll" parameterType="hashmap"
 		useGeneratedKeys="true" keyProperty="pollId">
 		INSERT INTO BOARD_POLL (BOARD_ID, QUESTION, END_DATE, CREATED_AT)
-		VALUES (#{boardId}, #{question}, #{endDate}, NOW())
+		VALUES (#{boardId}, #{question}, NULLIF(#{endDate}, ''), NOW())
 	</insert>
 
 	<insert id="insertPollOption" parameterType="hashmap">
@@ -346,6 +346,11 @@
 		SELECT OPTION_ID AS optionId FROM BOARD_POLL_VOTE
 		WHERE POLL_ID = #{pollId} AND USER_ID = #{userId}
 	</select>
+	<select id="selectCommentById" parameterType="object" resultType="map">
+    SELECT COMMENT_ID, BOARD_ID, USER_ID, CONTENT
+    FROM BOARD_COMMENT
+    WHERE COMMENT_ID = #{commentId}
+</select>
 
 	<insert id="insertVote" parameterType="hashmap">
 		INSERT INTO BOARD_POLL_VOTE (POLL_ID, OPTION_ID, USER_ID, CREATED_AT)

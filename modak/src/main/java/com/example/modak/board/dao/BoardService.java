@@ -1,20 +1,33 @@
 package com.example.modak.board.dao;
 
-import com.example.modak.board.mapper.BoardMapper;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.modak.alarm.dao.AlarmService;
+import com.example.modak.board.mapper.BoardMapper;
+
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import java.io.File;
-import java.util.*;
 
 @Service
-public class BoardService {
 
+
+
+public class BoardService {
+	@Autowired
+	private AlarmService alarmService;
     @Autowired private BoardMapper mapper;
     @Autowired private HttpSession session;
+    
 
     private String getUserId() {
         return (String) session.getAttribute("sessionId");
@@ -126,7 +139,8 @@ public class BoardService {
                                                MultipartFile[] files,
                                                String question,
                                                List<String> options,
-                                               String endDate) {
+                                               String endDate,
+                                               HttpServletRequest request) {
         HashMap<String, Object> result = new HashMap<>();
         try {
             String userId = getUserId();
@@ -148,7 +162,7 @@ public class BoardService {
                 int order = 1;
                 for (MultipartFile file : files) {
                     if (file == null || file.isEmpty()) continue;
-                    String imgUrl = saveFile(file);
+                    String imgUrl = saveFile(file, request);
                     HashMap<String, Object> imgMap = new HashMap<>();
                     imgMap.put("boardId",   boardId);
                     imgMap.put("imgUrl",    imgUrl);
@@ -217,6 +231,54 @@ public class BoardService {
             }
             map.put("userId", userId);
             mapper.insertComment(map);
+         // 🔥 게시글 댓글 알람 (답글 아닐 때)
+            Object parentId = map.get("parentId");
+
+            if (parentId == null || "".equals(String.valueOf(parentId).trim())) {
+                Map<String, Object> boardInfo = mapper.selectBoardById(map);
+
+                if (boardInfo != null) {
+                    String receiverId = String.valueOf(boardInfo.get("USER_ID"));
+                    String senderId = userId;
+
+                    // 자기 글에는 알람 안 보내기
+                    if (!receiverId.equals(senderId)) {
+                        alarmService.createAlarm(
+                            receiverId,
+                            "BOARD_COMMENT",
+                            "게시글에 댓글이 달렸어요",
+                            "작성한 게시글에 새로운 댓글이 등록되었습니다.",
+                            map.get("boardId")
+                        );
+                    }
+                }
+            }
+            
+           parentId = map.get("parentId");
+            System.out.println("parentId = " + parentId);
+
+            if (parentId != null && !"".equals(String.valueOf(parentId).trim())) {
+                Map<String, Object> parentComment = mapper.selectCommentById(parentId);
+                System.out.println("parentComment = " + parentComment);
+
+                if (parentComment != null) {
+                    String receiverId = String.valueOf(parentComment.get("USER_ID"));
+                    String senderId = userId;
+
+                    System.out.println("receiverId = " + receiverId);
+                    System.out.println("senderId = " + senderId);
+
+                    if (!receiverId.equals(senderId)) {
+                        alarmService.createAlarm(
+                            receiverId,
+                            "BOARD_REPLY",
+                            "내 댓글에 답글이 달렸어요",
+                            "작성한 댓글에 새 답글이 등록되었습니다.",
+                            map.get("boardId")
+                        );
+                    }
+                }
+            }
 
             HashMap<String, Object> boardParam = new HashMap<>();
             boardParam.put("boardId", map.get("boardId"));
@@ -306,6 +368,37 @@ public class BoardService {
                 // ── 원래 타입으로 INSERT
                 map.put("type", type);
                 mapper.insertReaction(map);
+                if ("LIKE".equals(type)) {
+                    if (isBoard) {
+                        Map<String, Object> boardInfo = mapper.selectBoardById(map);
+                        if (boardInfo != null) {
+                            String receiverId = String.valueOf(boardInfo.get("USER_ID"));
+                            if (!receiverId.equals(userId)) {
+                                alarmService.createAlarm(
+                                    receiverId,
+                                    "BOARD_LIKE",
+                                    "게시글에 추천이 눌렸어요",
+                                    "작성한 게시글에 추천이 추가되었습니다.",
+                                    map.get("boardId")
+                                );
+                            }
+                        }
+                    } else {
+                        Map<String, Object> commentInfo = mapper.selectCommentById(map.get("commentId"));
+                        if (commentInfo != null) {
+                            String receiverId = String.valueOf(commentInfo.get("USER_ID"));
+                            if (!receiverId.equals(userId)) {
+                                alarmService.createAlarm(
+                                    receiverId,
+                                    "COMMENT_LIKE",
+                                    "댓글에 좋아요가 눌렸어요",
+                                    "작성한 댓글에 좋아요가 추가되었습니다.",
+                                    commentInfo.get("BOARD_ID")
+                                );
+                            }
+                        }
+                    }
+                }
                 if (isBoard) {
                     if ("LIKE".equals(type))    mapper.increaseBoardLikeCount(map);
                     else                        mapper.increaseBoardDislikeCount(map);
@@ -401,15 +494,18 @@ public class BoardService {
 
     // ═══════════════════════ 파일 저장 ═══════════════════════
 
-    private String saveFile(MultipartFile file) throws Exception {
-        String uploadPath = System.getProperty("user.home") + "/modak_uploads/board";
+    private String saveFile(MultipartFile file, HttpServletRequest request) throws Exception {
+        String uploadPath = request.getServletContext().getRealPath("/img/board");
+
         File dir = new File(uploadPath);
         if (!dir.exists()) dir.mkdirs();
 
-        String ext      = file.getOriginalFilename()
-                              .substring(file.getOriginalFilename().lastIndexOf("."));
+        String originalName = file.getOriginalFilename();
+        String ext = originalName.substring(originalName.lastIndexOf("."));
         String saveName = UUID.randomUUID().toString() + ext;
+
         file.transferTo(new File(dir, saveName));
-        return "/upload/board/" + saveName;
+
+        return "/img/board/" + saveName;
     }
 }

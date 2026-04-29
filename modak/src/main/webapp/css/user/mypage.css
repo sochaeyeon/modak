@@ -848,7 +848,84 @@ body {
     line-height: 1.7;
 }
 
+.grade-브론즈,
+.grade-bronze {
+    background: linear-gradient(135deg, #7a4b2a, #a97142);
+    color: #fff;
+    border: 1px solid rgba(122, 75, 42, 0.3);
+}
 
+.grade-브론즈 svg,
+.grade-bronze svg {
+    fill: #f2c29b;
+}
+
+.grade-실버,
+.grade-silver {
+    background: linear-gradient(135deg, #9aa0a6, #d3d6da);
+    color: #2f2f2f;
+    border: 1px solid rgba(150, 150, 150, 0.3);
+}
+
+.grade-실버 svg,
+.grade-silver svg {
+    fill: #ffffff;
+}
+
+.grade-골드,
+.grade-gold {
+    background: linear-gradient(135deg, #c9a23a, #f5d76e);
+    color: #3e2a1f;
+    border: 1px solid rgba(201, 162, 58, 0.4);
+}
+
+.grade-골드 svg,
+.grade-gold svg {
+    fill: #fff4c2;
+}
+
+.grade-vvip {
+    background: linear-gradient(135deg, #9559d4, #74a1ef);
+    color: #fff;
+    border: 1px solid rgba(101, 74, 255, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 반짝이는 효과 */
+.grade-vvip::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(120deg,
+            transparent,
+            rgba(255, 255, 255, 0.5),
+            transparent);
+    transform: skewX(-20deg);
+    animation: shine 2.5s infinite;
+}
+
+@keyframes shine {
+    0% {
+        left: -50%;
+    }
+
+    100% {
+        left: 120%;
+    }
+}
+
+.grade-vvip svg {
+    fill: #ffffff;
+}
+
+.level-badge:not([class*="grade-"]) {
+    background: #eee;
+    color: #555;
+}
 
 .status-PENDING {
     background: rgba(180, 140, 100, .12);
@@ -3404,209 +3481,8 @@ body { background: linear-gradient(180deg, #F8F1E7 0%, #F6F0E6 55%, #F3EAD9 100%
 .profile-user-block { margin: 0 0 10px !important; }
 .profile-card-new .profile-name, .profile-name { margin: 0 0 3px !important; color: var(--mp-text) !important; font-size: 16px !important; font-weight: 800 !important; line-height: 1.35 !important; }
 .profile-card-new .profile-nick, .profile-nick { margin: 0 !important; color: var(--mp-muted) !important; font-size: 12.5px !important; font-weight: 500 !important; }
-/* ── 등급 뱃지 공통 ── */
-.level-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 3px 11px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.3px;
-    cursor: pointer;
-    transition: filter .2s ease, box-shadow .2s ease, transform .2s ease;
-}
-
-.level-badge svg {
-    width: 12px;
-    height: 12px;
-}
-
-/* ── 등급 뱃지 공통 ── */
-.level-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 3px 11px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0.3px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    transition: filter .2s ease, box-shadow .2s ease, transform .2s ease;
-}
-
-.level-badge svg {
-    width: 12px;
-    height: 12px;
-    position: relative;
-    z-index: 1;
-}
-
-.level-badge span,
-.level-badge {
-    z-index: 1;
-}
-
-.level-badge svg path {
-    fill: currentColor;
-}
-
-/* 일반 */
-.grade-default {
-    color: #8b6b4a;
-    background: #fffaf3;
-    border: 1px solid #dec8ad;
-}
-
-/* 브론즈 */
-.grade-브론즈,
-.grade-bronze {
-    color: #7a4b2a;
-    background: linear-gradient(135deg, #fff3e8, #ffe3ca);
-    border: 1px solid #d39a6a;
-}
-
-/* 실버 */
-.grade-실버,
-.grade-silver {
-    color: #666;
-    background: linear-gradient(135deg, #f8f8f8, #e9e9e9);
-    border: 1px solid #cfcfcf;
-}
-
-/* 골드 */
-.grade-골드,
-.grade-gold {
-    color: #9a6a00;
-    background: linear-gradient(135deg, #fff8dc, #ffe8a3);
-    border: 1px solid #d4af37;
-    box-shadow: 0 2px 8px rgba(212, 175, 55, .12);
-}
-
-/* VVIP */
-.grade-vvip {
-    color: #6d4cff;
-    background: linear-gradient(135deg, #f5f3ff, #fff8e6);
-    border: 1px solid #dcd6ff;
-    box-shadow: 0 2px 10px rgba(123, 92, 255, .14);
-}
-
-/* 골드부터 은은한 빛 */
-.grade-골드::after,
-.grade-gold::after,
-.grade-vvip::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -70%;
-    width: 55%;
-    height: 100%;
-    background: linear-gradient(
-        120deg,
-        transparent,
-        rgba(255, 255, 255, .55),
-        transparent
-    );
-    transform: skewX(-20deg);
-    pointer-events: none;
-}
-
-/* 골드는 느리고 약하게 */
-.grade-골드::after,
-.grade-gold::after {
-    animation: grade-shine-soft 4.2s ease-in-out infinite;
-}
-
-/* VVIP는 조금 더 선명하게 */
-.grade-vvip::after {
-    background: linear-gradient(
-        120deg,
-        transparent,
-        rgba(255, 255, 255, .72),
-        transparent
-    );
-    animation: grade-shine-strong 3s ease-in-out infinite;
-}
-
-/* hover 공통 */
-.grade-default:hover,
-.grade-브론즈:hover,
-.grade-bronze:hover,
-.grade-실버:hover,
-.grade-silver:hover,
-.grade-골드:hover,
-.grade-gold:hover,
-.grade-vvip:hover {
-    filter: brightness(1.06);
-    transform: translateY(-1px);
-}
-
-/* 등급별 hover 강도 */
-.grade-default:hover {
-    box-shadow: 0 4px 12px rgba(139, 107, 74, .18);
-}
-
-.grade-브론즈:hover,
-.grade-bronze:hover {
-    box-shadow: 0 4px 14px rgba(122, 75, 42, .25);
-}
-
-.grade-실버:hover,
-.grade-silver:hover {
-    box-shadow: 0 4px 14px rgba(150, 150, 150, .28);
-}
-
-.grade-골드:hover,
-.grade-gold:hover {
-    box-shadow: 0 5px 16px rgba(212, 175, 55, .32);
-}
-
-.grade-vvip:hover {
-    filter: brightness(1.08);
-    box-shadow:
-        0 5px 18px rgba(123, 92, 255, .28),
-        0 0 14px rgba(123, 92, 255, .22);
-}
-
-/* fallback */
-.level-badge:not([class*="grade-"]) {
-    background: #eee;
-    color: #555;
-}
-
-@keyframes grade-shine-soft {
-    0% {
-        left: -70%;
-        opacity: 0;
-    }
-    35% {
-        opacity: .65;
-    }
-    100% {
-        left: 130%;
-        opacity: 0;
-    }
-}
-
-@keyframes grade-shine-strong {
-    0% {
-        left: -70%;
-        opacity: 0;
-    }
-    30% {
-        opacity: 1;
-    }
-    100% {
-        left: 135%;
-        opacity: 0;
-    }
-}
-
-
+.level-badge, .profile-card-new .level-badge, .grade-브론즈, .grade-bronze, .grade-실버, .grade-silver, .grade-골드, .grade-gold, .grade-vvip, .grade-default { display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 5px !important; min-height: 28px !important; margin: 10px auto 14px !important; padding: 5px 11px !important; border-radius: 999px !important; background: #FFF3E9 !important; border: 1px solid rgba(232,115,42,.28) !important; color: var(--mp-orange2) !important; box-shadow: none !important; filter: none !important; transform: none !important; font-size: 12px !important; font-weight: 700 !important; }
+.level-badge svg, .grade-브론즈 svg, .grade-bronze svg, .grade-실버 svg, .grade-silver svg, .grade-골드 svg, .grade-gold svg, .grade-vvip svg { fill: var(--mp-orange) !important; }
 .profile-action-row { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
 .profile-action-btn { height: 36px !important; border-radius: 10px !important; border: 1.4px solid var(--mp-line) !important; background: #fff !important; color: var(--mp-sub) !important; box-shadow: none !important; transform: none !important; font-size: 12.5px !important; font-weight: 700 !important; transition: border-color .18s ease, color .18s ease, background-color .18s ease !important; }
 .profile-action-btn.change, .profile-action-btn.change:hover, .profile-action-btn.delete, .profile-action-btn.delete:hover { box-shadow: none !important; transform: none !important; }

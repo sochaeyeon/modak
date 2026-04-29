@@ -56,6 +56,8 @@ public class GuestOrderService {
         HashMap<String, Object> result = new HashMap<>();
 
         try {
+        	orderId = orderId.trim();
+            token = token.trim();
             if (!validateToken(token, orderId)) {
                 result.put("result", "fail");
                 result.put("message", "유효하지 않은 접근입니다. 다시 조회해주세요.");
@@ -200,7 +202,7 @@ public class GuestOrderService {
         TokenEntry entry = TOKEN_STORE.get(token);
 
         if (entry == null) return false;
-        if (!entry.orderId.equals(orderId)) return false;
+        if (!entry.orderId.trim().equals(orderId.trim())) return false;
 
         if (System.currentTimeMillis() - entry.createdAt > TOKEN_TTL_MS) {
             TOKEN_STORE.remove(token);

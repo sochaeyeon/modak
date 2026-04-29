@@ -1,5 +1,6 @@
 package com.example.modak.product.dao;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -172,5 +173,47 @@ public class ProductService {
 	}
 	public List<HashMap<String, Object>> selectAllCategoryList() {
 	    return productMapper.selectAllCategoryList();
+	}
+	
+	public HashMap<String, Object> getOptionItemId(HashMap<String, Object> map) {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+
+	    try {
+	        String optionValueIds = String.valueOf(map.get("optionValueIds"));
+
+	        if (optionValueIds == null || optionValueIds.equals("") || optionValueIds.equals("null")) {
+	            resultMap.put("result", "fail");
+	            resultMap.put("message", "옵션값이 없습니다.");
+	            return resultMap;
+	        }
+
+	        String[] arr = optionValueIds.split(",");
+	        ArrayList<Integer> optionValueIdList = new ArrayList<>();
+
+	        for (String id : arr) {
+	            optionValueIdList.add(Integer.parseInt(id.trim()));
+	        }
+
+	        map.put("optionValueIdList", optionValueIdList);
+	        map.put("optionCount", optionValueIdList.size());
+
+	        Integer optionItemId = productMapper.selectOptionItemId(map);
+
+	        if (optionItemId == null) {
+	            resultMap.put("result", "fail");
+	            resultMap.put("message", "옵션 조합을 찾을 수 없습니다.");
+	            return resultMap;
+	        }
+
+	        resultMap.put("result", "success");
+	        resultMap.put("optionItemId", optionItemId);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result", "fail");
+	        resultMap.put("message", "옵션 조합 조회 중 오류");
+	    }
+
+	    return resultMap;
 	}
 }

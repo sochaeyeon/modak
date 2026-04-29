@@ -367,4 +367,20 @@
 		WHERE poi.PRODUCT_ID = #{productId}
 		ORDER BY poi.OPTION_ITEM_ID ASC
 	</select>
+	
+	<select id="selectOptionItemId" parameterType="hashmap" resultType="int">
+	    SELECT poi.OPTION_ITEM_ID
+	    FROM PRODUCT_OPTION_ITEM poi
+	    JOIN PRODUCT_OPTION_ITEM_VALUE poiv
+	      ON poi.OPTION_ITEM_ID = poiv.OPTION_ITEM_ID
+	    WHERE poi.PRODUCT_ID = #{productId}
+	      AND poi.IS_AVAILABLE = 'Y'
+	      AND poiv.OPTION_VALUE_ID IN
+	      <foreach item="id" collection="optionValueIdList" open="(" separator="," close=")">
+	          #{id}
+	      </foreach>
+	    GROUP BY poi.OPTION_ITEM_ID
+	    HAVING COUNT(DISTINCT poiv.OPTION_VALUE_ID) = #{optionCount}
+	    LIMIT 1
+	</select>
 </mapper>

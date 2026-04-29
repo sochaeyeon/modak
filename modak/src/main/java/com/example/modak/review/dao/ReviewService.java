@@ -23,458 +23,466 @@ import jakarta.servlet.http.HttpSession;
 @Service
 public class ReviewService {
 
-    @Autowired
-    ReviewMapper reviewMapper;
-
-    @Autowired
-    HttpSession session;
-
-    // 리뷰 작성 페이지 진입용 정보 조회
-    public HashMap<String, Object> getReviewWriteInfo(HashMap<String, Object> map) {
-        HashMap<String, Object> resultMap = new HashMap<>();
-
-        try {
-            String userId = (String) session.getAttribute("sessionId");
-
-            if (userId == null) {
-                resultMap.put("result", "fail");
-                resultMap.put("message", "로그인이 필요합니다.");
-                return resultMap;
-            }
-
-            map.put("userId", userId);
-
-            HashMap<String, Object> info = reviewMapper.selectReviewWriteInfo(map);
-
-            if (info == null) {
-                resultMap.put("result", "fail");
-                resultMap.put("message", "리뷰 작성 대상 주문 정보를 찾을 수 없습니다.");
-                return resultMap;
-            }
-
-            int exists = reviewMapper.selectReviewExists(info);
-            if (exists > 0) {
-                resultMap.put("result", "fail");
-                resultMap.put("message", "이미 리뷰를 작성한 주문입니다.");
-                return resultMap;
-            }
-
-            resultMap.put("result", "success");
-            resultMap.put("info", info);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            resultMap.put("result", "fail");
-            resultMap.put("message", "리뷰 작성 페이지 조회 중 오류가 발생했습니다.");
-        }
-
-        return resultMap;
-    }
-
-    // 리뷰 등록
-    public HashMap<String, Object> addReview(HashMap<String, Object> map, MultipartFile[] files, HttpServletRequest request) {
-        HashMap<String, Object> resultMap = new HashMap<>();
-
-        try {
-            String userId = (String) session.getAttribute("sessionId");
-
-            if (userId == null) {
-                resultMap.put("result", "fail");
-                resultMap.put("message", "로그인이 필요합니다.");
-                return resultMap;
-            }
-
-            map.put("userId", userId);
-
-            // 필수값 검증
-            if (map.get("productId") == null || map.get("itemId") == null) {
-                resultMap.put("result", "fail");
-                resultMap.put("message", "상품 정보가 없습니다.");
-                return resultMap;
-            }
+	@Autowired
+	ReviewMapper reviewMapper;
+
+	@Autowired
+	HttpSession session;
+
+	// 리뷰 작성 페이지 진입용 정보 조회
+	public HashMap<String, Object> getReviewWriteInfo(HashMap<String, Object> map) {
+		HashMap<String, Object> resultMap = new HashMap<>();
+
+		try {
+			String userId = (String) session.getAttribute("sessionId");
+
+			if (userId == null) {
+				resultMap.put("result", "fail");
+				resultMap.put("message", "로그인이 필요합니다.");
+				return resultMap;
+			}
+
+			map.put("userId", userId);
+
+			HashMap<String, Object> info = reviewMapper.selectReviewWriteInfo(map);
+
+			if (info == null) {
+				resultMap.put("result", "fail");
+				resultMap.put("message", "리뷰 작성 대상 주문 정보를 찾을 수 없습니다.");
+				return resultMap;
+			}
+
+			int exists = reviewMapper.selectReviewExists(info);
+			if (exists > 0) {
+				resultMap.put("result", "fail");
+				resultMap.put("message", "이미 리뷰를 작성한 주문입니다.");
+				return resultMap;
+			}
+
+			resultMap.put("result", "success");
+			resultMap.put("info", info);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMap.put("result", "fail");
+			resultMap.put("message", "리뷰 작성 페이지 조회 중 오류가 발생했습니다.");
+		}
+
+		return resultMap;
+	}
+
+	// 리뷰 등록
+	public HashMap<String, Object> addReview(HashMap<String, Object> map, MultipartFile[] files,
+			HttpServletRequest request) {
+		HashMap<String, Object> resultMap = new HashMap<>();
+
+		try {
+			String userId = (String) session.getAttribute("sessionId");
+
+			if (userId == null) {
+				resultMap.put("result", "fail");
+				resultMap.put("message", "로그인이 필요합니다.");
+				return resultMap;
+			}
+
+			map.put("userId", userId);
+
+			// 필수값 검증
+			if (map.get("productId") == null || map.get("itemId") == null) {
+				resultMap.put("result", "fail");
+				resultMap.put("message", "상품 정보가 없습니다.");
+				return resultMap;
+			}
 
-            if (map.get("rating") == null || map.get("content") == null || map.get("title") == null) {
-                resultMap.put("result", "fail");
-                resultMap.put("message", "필수 입력값이 누락되었습니다.");
-                return resultMap;
-            }
+			if (map.get("rating") == null || map.get("content") == null || map.get("title") == null) {
+				resultMap.put("result", "fail");
+				resultMap.put("message", "필수 입력값이 누락되었습니다.");
+				return resultMap;
+			}
 
-            // 중복 리뷰 방지
-            int exists = reviewMapper.selectReviewExists(map);
-            if (exists > 0) {
-                resultMap.put("result", "fail");
-                resultMap.put("message", "이미 리뷰를 작성한 상품입니다.");
-                return resultMap;
-            }
-
-            map.put("reviewStatus", "ACTIVE");
-
-            int result = reviewMapper.insertReview(map);
-
-            if (result <= 0) {
-                resultMap.put("result", "fail");
-                resultMap.put("message", Message.ERROR_COMMON);
-                return resultMap;
-            }
-
-            Long reviewId = Long.valueOf(String.valueOf(map.get("reviewId")));
+			// 중복 리뷰 방지
+			int exists = reviewMapper.selectReviewExists(map);
+			if (exists > 0) {
+				resultMap.put("result", "fail");
+				resultMap.put("message", "이미 리뷰를 작성한 상품입니다.");
+				return resultMap;
+			}
 
-            // 이미지 저장
-            saveReviewImages(reviewId, files, request);
+			map.put("reviewStatus", "ACTIVE");
+
+			int result = reviewMapper.insertReview(map);
 
-            // 포인트 지급
-            int basePoint = 500;
-            int extraPoint = 0;
+			if (result <= 0) {
+				resultMap.put("result", "fail");
+				resultMap.put("message", Message.ERROR_COMMON);
+				return resultMap;
+			}
 
-            // 사진 첨부 시 추가 300
-            if (files != null && files.length > 0) {
-                boolean hasRealFile = false;
+			Long reviewId = Long.valueOf(String.valueOf(map.get("reviewId")));
 
-                for (MultipartFile file : files) {
-                    if (file != null && !file.isEmpty()) {
-                        hasRealFile = true;
-                        break;
-                    }
-                }
+			// 이미지 저장
+			saveReviewImages(reviewId, files, request);
 
-                if (hasRealFile) {
-                    extraPoint = 300;
-                }
-            }
+			// 포인트 지급
+			int basePoint = 500;
+			int extraPoint = 0;
 
-            int totalPoint = basePoint + extraPoint;
+			// 사진 첨부 시 추가 300
+			if (files != null && files.length > 0) {
+				boolean hasRealFile = false;
 
-            HashMap<String, Object> pointMap = new HashMap<>();
-            pointMap.put("userId", userId);
-            pointMap.put("point", totalPoint);
+				for (MultipartFile file : files) {
+					if (file != null && !file.isEmpty()) {
+						hasRealFile = true;
+						break;
+					}
+				}
 
-            reviewMapper.updateUserPoint(pointMap);
-
-            resultMap.put("result", "success");
-            resultMap.put("message", Message.SUCCESS_ADD);
-            resultMap.put("reviewId", reviewId);
-            resultMap.put("point", totalPoint);
+				if (hasRealFile) {
+					extraPoint = 300;
+				}
+			}
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            resultMap.put("result", "fail");
-            resultMap.put("message", Message.ERROR_SERVER);
-        }
+			int totalPoint = basePoint + extraPoint;
 
-        return resultMap;
-    }
+			HashMap<String, Object> pointMap = new HashMap<>();
+			pointMap.put("userId", userId);
+			pointMap.put("point", totalPoint);
 
-    public HashMap<String, Object> getReviewList(HashMap<String, Object> map) {
-        HashMap<String, Object> resultMap = new HashMap<>();
+			reviewMapper.updateUserPoint(pointMap);
 
-        try {
-            String userId = (String) session.getAttribute("sessionId");
-            map.put("userId", userId);
+			resultMap.put("result", "success");
+			resultMap.put("message", Message.SUCCESS_ADD);
+			resultMap.put("reviewId", reviewId);
+			resultMap.put("point", totalPoint);
 
-            int page = Integer.parseInt(String.valueOf(map.get("page")));
-            int pageSize = Integer.parseInt(String.valueOf(map.get("pageSize")));
-            int offset = (page - 1) * pageSize;
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMap.put("result", "fail");
+			resultMap.put("message", Message.ERROR_SERVER);
+		}
 
-            map.put("offset", offset);
+		return resultMap;
+	}
 
-            List<Review> list = reviewMapper.selectReviewList(map);
-            int totalCount = reviewMapper.selectReviewCount(map);
+	public HashMap<String, Object> getReviewList(HashMap<String, Object> map) {
+		HashMap<String, Object> resultMap = new HashMap<>();
 
-            for (Review review : list) {
-                HashMap<String, Object> imgMap = new HashMap<>();
-                imgMap.put("reviewId", review.getReviewId());
+		try {
+			String userId = (String) session.getAttribute("sessionId");
+			map.put("userId", userId);
 
-                List<ReviewImage> imageList = reviewMapper.selectReviewImageList(imgMap);
+			int page = Integer.parseInt(String.valueOf(map.get("page")));
+			int pageSize = Integer.parseInt(String.valueOf(map.get("pageSize")));
+			int offset = (page - 1) * pageSize;
 
-                // 👉 리뷰 이미지만 세팅
-                review.setImageList(imageList);
-                review.setImageCount(imageList != null ? imageList.size() : 0);
+			map.put("offset", offset);
 
-            }
+			List<Review> list = reviewMapper.selectReviewList(map);
+			int totalCount = reviewMapper.selectReviewCount(map);
 
-            resultMap.put("result", "success");
-            resultMap.put("list", list);
-            resultMap.put("totalCount", totalCount);
+			for (Review review : list) {
+				HashMap<String, Object> imgMap = new HashMap<>();
+				imgMap.put("reviewId", review.getReviewId());
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            resultMap.put("result", "fail");
-            resultMap.put("message", "리뷰 목록 조회 실패");
-        }
+				List<ReviewImage> imageList = reviewMapper.selectReviewImageList(imgMap);
 
-        return resultMap;
-    }
-    // 리뷰 상세 조회
-    public HashMap<String, Object> getReviewInfo(HashMap<String, Object> map) {
-        HashMap<String, Object> resultMap = new HashMap<>();
+				// 👉 리뷰 이미지만 세팅
+				review.setImageList(imageList);
+				review.setImageCount(imageList != null ? imageList.size() : 0);
 
-        try {
-            String userId = (String) session.getAttribute("sessionId");
-            map.put("userId", userId);
+			}
 
-            Review info = reviewMapper.selectReviewInfo(map);
+			resultMap.put("result", "success");
+			resultMap.put("list", list);
+			resultMap.put("totalCount", totalCount);
 
-            if (info != null) {
-                HashMap<String, Object> imgMap = new HashMap<>();
-                imgMap.put("reviewId", info.getReviewId());
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMap.put("result", "fail");
+			resultMap.put("message", "리뷰 목록 조회 실패");
+		}
 
-                List<ReviewImage> imageList = reviewMapper.selectReviewImageList(imgMap);
+		return resultMap;
+	}
 
-                // 👉 리뷰 이미지 목록만 세팅
-                info.setImageList(imageList);
-                info.setImageCount(imageList != null ? imageList.size() : 0);
+	// 리뷰 상세 조회
+	public HashMap<String, Object> getReviewInfo(HashMap<String, Object> map) {
+		HashMap<String, Object> resultMap = new HashMap<>();
 
-                // ❌ 절대 넣지마 (상품 이미지 덮어씀)
-                // info.setImageUrl(...)
+		try {
+			String userId = (String) session.getAttribute("sessionId");
+			map.put("userId", userId);
 
-                resultMap.put("result", "success");
-                resultMap.put("info", info);
-            } else {
-                resultMap.put("result", "fail");
-                resultMap.put("message", Message.ERROR_COMMON);
-            }
+			Review info = reviewMapper.selectReviewInfo(map);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            resultMap.put("result", "fail");
-            resultMap.put("message", Message.ERROR_SERVER);
-        }
+			if (info != null) {
+				HashMap<String, Object> imgMap = new HashMap<>();
+				imgMap.put("reviewId", info.getReviewId());
 
-        return resultMap;
-    }
-    // 리뷰 수정
-    public HashMap<String, Object> editReview(HashMap<String, Object> map, MultipartFile[] files, HttpServletRequest request) {
-        HashMap<String, Object> resultMap = new HashMap<>();
+				List<ReviewImage> imageList = reviewMapper.selectReviewImageList(imgMap);
 
-        try {
-            String userId = (String) session.getAttribute("sessionId");
-            map.put("userId", userId);
+				// 👉 리뷰 이미지 목록만 세팅
+				info.setImageList(imageList);
+				info.setImageCount(imageList != null ? imageList.size() : 0);
 
-            int result = reviewMapper.updateReview(map);
+				// ❌ 절대 넣지마 (상품 이미지 덮어씀)
+				// info.setImageUrl(...)
 
-            if (result > 0) {
+				resultMap.put("result", "success");
+				resultMap.put("info", info);
+			} else {
+				resultMap.put("result", "fail");
+				resultMap.put("message", Message.ERROR_COMMON);
+			}
 
-            	Object keepObj = map.get("keepImgIds");
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMap.put("result", "fail");
+			resultMap.put("message", Message.ERROR_SERVER);
+		}
 
-            	if (keepObj == null) {
-            	    reviewMapper.deleteReviewImages(map);
+		return resultMap;
+	}
 
-            	} else {
-            	    List<Long> keepList = new ArrayList<>();
+	// 리뷰 수정
+	public HashMap<String, Object> editReview(HashMap<String, Object> map, MultipartFile[] files,
+			HttpServletRequest request) {
+		HashMap<String, Object> resultMap = new HashMap<>();
 
-            	    String json = String.valueOf(keepObj);
+		try {
+			String userId = (String) session.getAttribute("sessionId");
+			map.put("userId", userId);
 
-            	    json = json.replace("[", "")
-            	               .replace("]", "")
-            	               .replace(" ", "");
+			int result = reviewMapper.updateReview(map);
 
-            	    if (!json.isEmpty()) {
-            	        String[] arr = json.split(",");
-            	        for (String s : arr) {
-            	            keepList.add(Long.parseLong(s));
-            	        }
-            	    }
+			if (result > 0) {
 
-            	    map.put("keepImgIds", keepList);
+				Object keepObj = map.get("keepImgIds");
 
-            	    reviewMapper.deleteReviewImagesNotIn(map);
-            	}
-                Long reviewId = Long.valueOf(String.valueOf(map.get("reviewId")));
-                saveReviewImages(reviewId, files, request);
+				if (keepObj == null) {
+					reviewMapper.deleteReviewImages(map);
 
-                resultMap.put("result", "success");
-                resultMap.put("message", Message.SUCCESS_UPDATE);
+				} else {
+					List<Long> keepList = new ArrayList<>();
 
-            } else {
-                resultMap.put("result", "fail");
-                resultMap.put("message", Message.ERROR_COMMON);
-            }
+					String json = String.valueOf(keepObj);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            resultMap.put("result", "fail");
-            resultMap.put("message", Message.ERROR_SERVER);
-        }
+					json = json.replace("[", "").replace("]", "").replace(" ", "");
 
-        return resultMap;
-    }
+					if (!json.isEmpty()) {
+						String[] arr = json.split(",");
+						for (String s : arr) {
+							keepList.add(Long.parseLong(s));
+						}
+					}
 
-    // 리뷰 삭제
-    public HashMap<String, Object> removeReview(HashMap<String, Object> map) {
-        HashMap<String, Object> resultMap = new HashMap<>();
+					map.put("keepImgIds", keepList);
 
-        try {
-            String userId = (String) session.getAttribute("sessionId");
-            map.put("userId", userId);
+					reviewMapper.deleteReviewImagesNotIn(map);
+				}
+				Long reviewId = Long.valueOf(String.valueOf(map.get("reviewId")));
+				saveReviewImages(reviewId, files, request);
 
-            int result = reviewMapper.updateReviewStatusDeleted(map);
+				resultMap.put("result", "success");
+				resultMap.put("message", Message.SUCCESS_UPDATE);
 
-            if (result > 0) {
-                resultMap.put("result", "success");
-                resultMap.put("message", Message.SUCCESS_DELETE);
-            } else {
-                resultMap.put("result", "fail");
-                resultMap.put("message", Message.ERROR_COMMON);
-            }
+			} else {
+				resultMap.put("result", "fail");
+				resultMap.put("message", Message.ERROR_COMMON);
+			}
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            resultMap.put("result", "fail");
-            resultMap.put("message", Message.ERROR_SERVER);
-        }
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMap.put("result", "fail");
+			resultMap.put("message", Message.ERROR_SERVER);
+		}
 
-        return resultMap;
-    }
+		return resultMap;
+	}
 
-    // 상품 상세 리뷰 목록
-    public HashMap<String, Object> getProductReviewList(HashMap<String, Object> map) {
-        HashMap<String, Object> resultMap = new HashMap<>();
+	// 리뷰 삭제
+	public HashMap<String, Object> removeReview(HashMap<String, Object> map) {
+		HashMap<String, Object> resultMap = new HashMap<>();
 
-        try {
-            int page = map.get("page") != null ? Integer.parseInt(String.valueOf(map.get("page"))) : 1;
-            int pageSize = map.get("pageSize") != null ? Integer.parseInt(String.valueOf(map.get("pageSize"))) : 10;
-            int offset = (page - 1) * pageSize;
+		try {
+			String userId = (String) session.getAttribute("sessionId");
+			map.put("userId", userId);
 
-            map.put("offset", offset);
+			int result = reviewMapper.updateReviewStatusDeleted(map);
 
-            List<Review> list = reviewMapper.selectProductReviewList(map);
-            int totalCount = reviewMapper.selectProductReviewCount(map);
+			if (result > 0) {
+				resultMap.put("result", "success");
+				resultMap.put("message", Message.SUCCESS_DELETE);
+			} else {
+				resultMap.put("result", "fail");
+				resultMap.put("message", Message.ERROR_COMMON);
+			}
 
-            for (Review review : list) {
-                HashMap<String, Object> imgMap = new HashMap<>();
-                imgMap.put("reviewId", review.getReviewId());
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			resultMap.put("result", "fail");
+			resultMap.put("message", Message.ERROR_SERVER);
+		}
 
-                List<ReviewImage> imageList = reviewMapper.selectReviewImageList(imgMap);
+		return resultMap;
+	}
 
-                // 👉 리뷰 이미지만 세팅
-                review.setImageList(imageList);
-                review.setImageCount(imageList != null ? imageList.size() : 0);
+	// 상품 상세 리뷰 목록
+	public HashMap<String, Object> getProductReviewList(HashMap<String, Object> map) {
+		HashMap<String, Object> resultMap = new HashMap<>();
 
-            }
+		try {
+			int page = map.get("page") != null ? Integer.parseInt(String.valueOf(map.get("page"))) : 1;
+			int pageSize = map.get("pageSize") != null ? Integer.parseInt(String.valueOf(map.get("pageSize"))) : 10;
+			int offset = (page - 1) * pageSize;
 
-            resultMap.put("result", "success");
-            resultMap.put("list", list);
-            resultMap.put("totalCount", totalCount);
+			map.put("offset", offset);
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            resultMap.put("result", "fail");
-            resultMap.put("message", "리뷰 목록 조회 실패");
-        }
+			List<Review> list = reviewMapper.selectProductReviewList(map);
+			int totalCount = reviewMapper.selectProductReviewCount(map);
 
-        return resultMap;
-    }
+			for (Review review : list) {
+				HashMap<String, Object> imgMap = new HashMap<>();
+				imgMap.put("reviewId", review.getReviewId());
 
-    // 리뷰 이미지 저장 공통 메서드
-    private void saveReviewImages(Long reviewId, MultipartFile[] files, HttpServletRequest request) throws Exception {
-        if (files == null || files.length == 0) return;
+				List<ReviewImage> imageList = reviewMapper.selectReviewImageList(imgMap);
 
-        // ★ 경로 변경: /upload/review → /img/review
-        String uploadPath = System.getProperty("user.home") + "/modak_uploads/review";
-        File dir = new File(uploadPath);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
+				// 👉 리뷰 이미지만 세팅
+				review.setImageList(imageList);
+				review.setImageCount(imageList != null ? imageList.size() : 0);
 
-        for (MultipartFile file : files) {
-            if (file == null || file.isEmpty()) continue;
+			}
 
-            String originalName = file.getOriginalFilename();
-            String ext          = originalName.substring(originalName.lastIndexOf("."));
-            String saveName     = UUID.randomUUID().toString() + ext;
+			resultMap.put("result", "success");
+			resultMap.put("list", list);
+			resultMap.put("totalCount", totalCount);
 
-            File dest = new File(dir, saveName);
-            file.transferTo(dest);
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMap.put("result", "fail");
+			resultMap.put("message", "리뷰 목록 조회 실패");
+		}
 
-            // ★ URL 경로 변경
-            String imgUrl = "/upload/review/" + saveName;
+		return resultMap;
+	}
 
-            HashMap<String, Object> imgMap = new HashMap<>();
-            imgMap.put("reviewId", reviewId);
-            imgMap.put("imgUrl",   imgUrl);
+	// 리뷰 이미지 저장 공통 메서드
+	private void saveReviewImages(Long reviewId, MultipartFile[] files, HttpServletRequest request) throws Exception {
+		if (files == null || files.length == 0)
+			return;
 
-            reviewMapper.insertReviewImage(imgMap);
-        }
-    }
-    public HashMap<String, Object> getReviewOrderInfo(HashMap<String, Object> map) {
-        HashMap<String, Object> resultMap = new HashMap<>();
+		String uploadPath = System.getProperty("user.home") + "/modak_uploads/review";
+		File dir = new File(uploadPath);
+		if (!dir.exists())
+			dir.mkdirs();
 
-        try {
-            String userId = (String) session.getAttribute("sessionId");
-            map.put("userId", userId);
+		// ★ 이미지 목록을 모아서 한 번에 bulk insert
+		List<HashMap<String, Object>> imgList = new ArrayList<>();
 
-            HashMap<String, Object> orderInfo = reviewMapper.selectReviewOrderInfo(map);
-            List<HashMap<String, Object>> orderItemList = reviewMapper.selectReviewOrderItemList(map);
+		for (MultipartFile file : files) {
+			if (file == null || file.isEmpty())
+				continue;
 
-            if (orderInfo == null) {
-                resultMap.put("result", "fail");
-                resultMap.put("message", "주문 정보를 찾을 수 없습니다.");
-                return resultMap;
-            }
+			String originalName = file.getOriginalFilename();
+			String ext = originalName.substring(originalName.lastIndexOf("."));
+			String saveName = UUID.randomUUID().toString() + ext;
 
-            resultMap.put("result", "success");
-            resultMap.put("orderInfo", orderInfo);
-            resultMap.put("orderItemList", orderItemList);
+			file.transferTo(new File(dir, saveName));
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            resultMap.put("result", "fail");
-            resultMap.put("message", "주문 상세 조회 실패");
-        }
+			HashMap<String, Object> imgMap = new HashMap<>();
+			imgMap.put("reviewId", reviewId);
+			imgMap.put("imgUrl", "/upload/review/" + saveName);
+			imgList.add(imgMap);
+		}
 
-        return resultMap;
-    }
-    public Map<String, Object> addHelpful(ReviewHelpful helpful) {
-        Map<String, Object> result = new HashMap<>();
+		// 이미지가 있을 때만 bulk insert
+		if (!imgList.isEmpty()) {
+			reviewMapper.insertReviewImages(imgList);
+		}
+	}
 
-        int exists = reviewMapper.existsHelpful(helpful);
+	public HashMap<String, Object> getReviewOrderInfo(HashMap<String, Object> map) {
+		HashMap<String, Object> resultMap = new HashMap<>();
 
-        if (exists > 0) {
-            result.put("result", "duplicate");
-            return result;
-        }
+		try {
+			String userId = (String) session.getAttribute("sessionId");
+			map.put("userId", userId);
 
-        reviewMapper.insertHelpful(helpful);
-        reviewMapper.increaseHelpfulCount(helpful.getReviewId());
+			HashMap<String, Object> orderInfo = reviewMapper.selectReviewOrderInfo(map);
+			List<HashMap<String, Object>> orderItemList = reviewMapper.selectReviewOrderItemList(map);
 
-        result.put("result", "success");
-        return result;
-    }
-    public Map<String, Object> toggleHelpful(ReviewHelpful helpful) {
-        Map<String, Object> result = new HashMap<>();
+			if (orderInfo == null) {
+				resultMap.put("result", "fail");
+				resultMap.put("message", "주문 정보를 찾을 수 없습니다.");
+				return resultMap;
+			}
 
-        int exists = reviewMapper.existsHelpful(helpful);
+			resultMap.put("result", "success");
+			resultMap.put("orderInfo", orderInfo);
+			resultMap.put("orderItemList", orderItemList);
 
-        if (exists > 0) {
-            reviewMapper.deleteHelpful(helpful);
-            reviewMapper.decreaseHelpfulCount(helpful.getReviewId());
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultMap.put("result", "fail");
+			resultMap.put("message", "주문 상세 조회 실패");
+		}
 
-            result.put("result", "success");
-            result.put("helpfulYn", "N");
-            return result;
-        }
+		return resultMap;
+	}
 
-        reviewMapper.insertHelpful(helpful);
-        reviewMapper.increaseHelpfulCount(helpful.getReviewId());
+	public Map<String, Object> addHelpful(ReviewHelpful helpful) {
+		Map<String, Object> result = new HashMap<>();
 
-        result.put("result", "success");
-        result.put("helpfulYn", "Y");
-        return result;
-    }
+		int exists = reviewMapper.existsHelpful(helpful);
 
-    public HashMap<String, Object> reportReview(HashMap<String, Object> map) {
-        HashMap<String, Object> result = new HashMap<>();
+		if (exists > 0) {
+			result.put("result", "duplicate");
+			return result;
+		}
 
-        int exists = reviewMapper.existsReport(map);
+		reviewMapper.insertHelpful(helpful);
+		reviewMapper.increaseHelpfulCount(helpful.getReviewId());
 
-        if (exists > 0) {
-            result.put("result", "duplicate");
-            return result;
-        }
+		result.put("result", "success");
+		return result;
+	}
 
-        reviewMapper.insertReport(map);
-        result.put("result", "success");
+	public Map<String, Object> toggleHelpful(ReviewHelpful helpful) {
+		Map<String, Object> result = new HashMap<>();
 
-        return result;
-    }
+		int exists = reviewMapper.existsHelpful(helpful);
+
+		if (exists > 0) {
+			reviewMapper.deleteHelpful(helpful);
+			reviewMapper.decreaseHelpfulCount(helpful.getReviewId());
+
+			result.put("result", "success");
+			result.put("helpfulYn", "N");
+			return result;
+		}
+
+		reviewMapper.insertHelpful(helpful);
+		reviewMapper.increaseHelpfulCount(helpful.getReviewId());
+
+		result.put("result", "success");
+		result.put("helpfulYn", "Y");
+		return result;
+	}
+
+	public HashMap<String, Object> reportReview(HashMap<String, Object> map) {
+		HashMap<String, Object> result = new HashMap<>();
+
+		int exists = reviewMapper.existsReport(map);
+
+		if (exists > 0) {
+			result.put("result", "duplicate");
+			return result;
+		}
+
+		reviewMapper.insertReport(map);
+		result.put("result", "success");
+
+		return result;
+	}
 }

@@ -369,37 +369,33 @@ public class ReviewService {
 
 	// 리뷰 이미지 저장 공통 메서드
 	private void saveReviewImages(Long reviewId, MultipartFile[] files, HttpServletRequest request) throws Exception {
-		if (files == null || files.length == 0)
-			return;
+	    if (files == null || files.length == 0) return;
 
-		String uploadPath = System.getProperty("user.home") + "/modak_uploads/review";
-		File dir = new File(uploadPath);
-		if (!dir.exists())
-			dir.mkdirs();
+	    // ★ webapp 하위 경로로 저장
+	    String uploadPath = request.getServletContext().getRealPath("/") + "upload/review";
+	    File dir = new File(uploadPath);
+	    if (!dir.exists()) dir.mkdirs();
 
-		// ★ 이미지 목록을 모아서 한 번에 bulk insert
-		List<HashMap<String, Object>> imgList = new ArrayList<>();
+	    List<HashMap<String, Object>> imgList = new ArrayList<>();
 
-		for (MultipartFile file : files) {
-			if (file == null || file.isEmpty())
-				continue;
+	    for (MultipartFile file : files) {
+	        if (file == null || file.isEmpty()) continue;
 
-			String originalName = file.getOriginalFilename();
-			String ext = originalName.substring(originalName.lastIndexOf("."));
-			String saveName = UUID.randomUUID().toString() + ext;
+	        String originalName = file.getOriginalFilename();
+	        String ext = originalName.substring(originalName.lastIndexOf("."));
+	        String saveName = UUID.randomUUID().toString() + ext;
 
-			file.transferTo(new File(dir, saveName));
+	        file.transferTo(new File(dir, saveName));
 
-			HashMap<String, Object> imgMap = new HashMap<>();
-			imgMap.put("reviewId", reviewId);
-			imgMap.put("imgUrl", "/upload/review/" + saveName);
-			imgList.add(imgMap);
-		}
+	        HashMap<String, Object> imgMap = new HashMap<>();
+	        imgMap.put("reviewId", reviewId);
+	        imgMap.put("imgUrl", "/upload/review/" + saveName);
+	        imgList.add(imgMap);
+	    }
 
-		// 이미지가 있을 때만 bulk insert
-		if (!imgList.isEmpty()) {
-			reviewMapper.insertReviewImages(imgList);
-		}
+	    if (!imgList.isEmpty()) {
+	        reviewMapper.insertReviewImages(imgList);
+	    }
 	}
 
 	public HashMap<String, Object> getReviewOrderInfo(HashMap<String, Object> map) {

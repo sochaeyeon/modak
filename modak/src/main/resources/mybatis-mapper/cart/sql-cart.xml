@@ -185,11 +185,11 @@
 	      AND user_id = #{userId}
 	</update>
 	
-	<select id="selectCartCount" parameterType="hashmap" resultType="int">
-	    SELECT IFNULL(SUM(QUANTITY), 0)
-	    FROM CART
-	    WHERE USER_ID = #{userId}
-	</select>
+	<select id="selectCartCount" parameterType="map" resultType="int">
+    SELECT COUNT(*)
+    FROM cart
+    WHERE USER_ID = #{userId}
+</select>
 	
 	<!--장바구니에서 수량변경-->
 	<update id="updateCartQtyDirect">

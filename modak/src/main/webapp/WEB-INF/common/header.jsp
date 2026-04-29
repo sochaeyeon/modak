@@ -257,24 +257,36 @@
 
                 if (!cartCountEl) return;
 
+                // 비회원이면 localStorage 장바구니 개수 사용
+                if (!isLogin) {
+                    let guestCart = [];
+
+                    try {
+                        guestCart = JSON.parse(localStorage.getItem('modak_guest_cart')) || [];
+                    } catch (e) {
+                        guestCart = [];
+                    }
+
+                    cartCountEl.innerText = guestCart.length;
+                    cartCountEl.style.display = 'flex';
+                    return;
+                }
+
+                // 회원이면 서버 장바구니 개수 사용
                 $.ajax({
                     url: "/cart/count.dox",
                     type: "POST",
                     dataType: "json",
                     success: function (res) {
-                        console.log("장바구니 개수 응답:", res);
-
                         const count = Number(res.count || 0);
 
                         cartCountEl.innerText = count;
                         cartCountEl.style.display = 'flex';
                     },
-                    error: function (xhr) {
-                        console.log("장바구니 개수 오류:", xhr.responseText);
-
+                    error: function () {
                         cartCountEl.innerText = '0';
                         cartCountEl.style.display = 'flex';
                     }
                 });
-            }
+            }S
         </script>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.modak.review.mapper.ReviewSummaryMapper">
+
+    <select id="selectReviewSummary" parameterType="int"
+            resultType="com.example.modak.review.model.ReviewSummary">
+        SELECT
+            SUMMARY_ID AS summaryId,
+            PRODUCT_ID AS productId,
+            SUMMARY_TEXT AS summaryText,
+            REVIEW_COUNT AS reviewCount,
+            LAST_REVIEW_UPDATED_AT AS lastReviewUpdatedAt
+        FROM review_summary
+        WHERE PRODUCT_ID = #{productId}
+    </select>
+
+    <select id="selectReviewStat" parameterType="int"
+            resultType="com.example.modak.review.model.ReviewStat">
+        SELECT
+            COUNT(*) AS reviewCount,
+            MAX(UPDATED_AT) AS lastReviewUpdatedAt
+        FROM review
+        WHERE PRODUCT_ID = #{productId}
+    </select>
+
+    <select id="selectReviewContents" parameterType="int" resultType="string">
+        SELECT CONTENT
+        FROM review
+        WHERE PRODUCT_ID = #{productId}
+          AND CONTENT IS NOT NULL
+          AND TRIM(CONTENT) != ''
+        ORDER BY REVIEW_ID DESC
+        LIMIT 20
+    </select>
+
+    <insert id="insertReviewSummary"
+            parameterType="com.example.modak.review.model.ReviewSummary">
+        INSERT INTO review_summary (
+            PRODUCT_ID,
+            SUMMARY_TEXT,
+            REVIEW_COUNT,
+            LAST_REVIEW_UPDATED_AT
+        ) VALUES (
+            #{productId},
+            #{summaryText},
+            #{reviewCount},
+            #{lastReviewUpdatedAt}
+        )
+    </insert>
+
+    <update id="updateReviewSummary"
+            parameterType="com.example.modak.review.model.ReviewSummary">
+        UPDATE review_summary
+        SET
+            SUMMARY_TEXT = #{summaryText},
+            REVIEW_COUNT = #{reviewCount},
+            LAST_REVIEW_UPDATED_AT = #{lastReviewUpdatedAt},
+            UPDATED_AT = NOW()
+        WHERE PRODUCT_ID = #{productId}
+    </update>
+
+</mapper>

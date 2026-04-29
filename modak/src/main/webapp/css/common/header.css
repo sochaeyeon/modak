@@ -679,3 +679,9 @@
 .view-all-btn:focus {
     outline: none;
 }
+.icon-btn[title="커뮤니티"] {
+    color: #E8732A;
+}
+.icon-btn[title="커뮤니티"]:hover {
+    color: #C4621E;
+}

@@ -44,6 +44,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addResourceLocations("file:" + System.getProperty("user.home") + "/modak_uploads/");
         registry.addResourceHandler("/upload/**")
         .addResourceLocations("file:" + System.getProperty("user.home") + "/modak_uploads/");
+        registry.addResourceHandler("/upload/board/**")
+        .addResourceLocations("file:" + System.getProperty("user.home") + "/modak_uploads/board/");
     }
     
     

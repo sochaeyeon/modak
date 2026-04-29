@@ -1,4 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%
+    String orderId = request.getParameter("orderId");
+    if (orderId == null || orderId.isEmpty()) {
+        orderId = "TEST-20260429-001";
+    }
+    request.setAttribute("orderId", orderId);
+%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -10,12 +17,12 @@
 <body>
     <%@ include file="/WEB-INF/common/header.jsp" %>
 
-    <div class="breadcrumb">
-        <span class="bc-done">장바구니</span>
-        <span class="bc-arrow">›</span>
-        <span class="bc-done">주문/결제</span>
-        <span class="bc-arrow">›</span>
-        <span class="bc-cur">완료</span>
+    <div class="step-wrap">
+        <div class="step done">장바구니</div>
+        <div class="step-line done"></div>
+        <div class="step done">주문결제</div>
+        <div class="step-line done"></div>
+        <div class="step active">완료</div>
     </div>
 
     <main class="complete-wrap">

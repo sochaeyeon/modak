@@ -337,10 +337,12 @@
                             /* ── 초기 데이터 로드 ── */
                             fnInit: function () {
                                 var params = new URLSearchParams(location.search);
-                                this.orderId = params.get('orderId') || '';
+                                this.orderId = params.get('orderId') || '${map.orderId}' || '';
+
+                                console.log('환불 orderId:', this.orderId);
 
                                 if (!this.orderId) {
-                                    this.fnShowToast('잘못된 접근입니다.');
+                                    this.fnShowToast('잘못된 접근입니다. 주문번호가 전달되지 않았습니다.');
                                     return;
                                 }
 
@@ -348,7 +350,7 @@
                                 this.isLoading = true;
 
                                 $.ajax({
-                                    url: '/order/exchange/info.dox',
+                                    url: '/refund/info.dox',
                                     type: 'POST',
                                     dataType: 'json',
                                     data: { orderId: self.orderId },
@@ -356,15 +358,13 @@
                                         self.isLoading = false;
 
                                         if (res.result === 'success') {
-                                            self.orderInfo = res.orderInfo;
+                                            self.orderInfo = res.list && res.list.length > 0 ? res.list[0] : null;
 
-                                            // ⭐ 기본 주소 자동 세팅
-                                            if (res.defaultAddress) {
-                                                self.pickup.zipcode = res.defaultAddress.zipcode;
-                                                self.pickup.address = res.defaultAddress.address;
-                                                self.pickup.detailAddress = res.defaultAddress.detailedAddress;
+                                            if (res.address) {
+                                                self.pickup.zipcode = res.address.zipcode;
+                                                self.pickup.address = res.address.address;
+                                                self.pickup.detailAddress = res.address.detailedAddress;
                                             }
-
                                         } else {
                                             self.fnShowToast(res.message);
                                         }
@@ -375,18 +375,28 @@
                             fnSubmit: function () {
                                 if (this.isSubmitting) return;
 
+                                if (!this.orderInfo) {
+                                    this.fnShowToast('환불 상품 정보를 불러오지 못했습니다.');
+                                    return;
+                                }
+
+                                if (!this.orderInfo.payId) {
+                                    this.fnShowToast('결제 정보를 찾을 수 없습니다.');
+                                    return;
+                                }
+
                                 this.isSubmitting = true;
 
                                 var self = this;
-                                var isGuest = !!self.token;
-
-                                var url = isGuest
-                                    ? '/order/guest/exchange.dox'
-                                    : '/order/exchange/apply.dox';
 
                                 var data = {
                                     orderId: self.orderId,
-                                    exchangeMethod: self.exchangeMethod,
+                                    payId: self.orderInfo.payId,
+                                    amount: self.orderInfo.totalPayAmount,
+                                    deductAmount: 0,
+                                    refundReason: self.selectedReason,
+                                    reasonDetail: self.reasonDetail,
+                                    refundType: self.exchangeMethod,
                                     zipcode: self.pickup.zipcode,
                                     address: self.pickup.address,
                                     detailAddress: self.pickup.detailAddress,
@@ -394,12 +404,8 @@
                                     memo: self.pickup.memo
                                 };
 
-                                if (isGuest) {
-                                    data.token = self.token;
-                                }
-
                                 $.ajax({
-                                    url: url,
+                                    url: '/refund/add.dox',
                                     type: 'POST',
                                     dataType: 'json',
                                     data: data,

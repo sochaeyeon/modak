@@ -460,7 +460,7 @@
                     pageChange("/order/cancel/request.do", { orderId: item.orderId }); return;
                 }
                 if (action === "환불 신청") {
-                    pageChange("/order/refund/request.do", { orderId: item.orderId }); return;
+                    pageChange("/refund/request.do", { orderId: item.orderId }); return;
                 }
                 if (action === "교환 신청") {
                     location.href = "/order/exchange/request.do?orderId=" + item.orderId; return;

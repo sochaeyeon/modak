@@ -4,9 +4,161 @@
    
 <mapper namespace="com.example.modak.refund.mapper.RefundMapper">
 
-   <!-- 한 개 검색 -->
-<!--   <select id="selectRefund" parameterType="hashmap" resultType="com.example.modak.r	efund.model.Refund">
-
-   </select>
--->
+    <!-- 환불 요청 시 주문 + 상품 + 옵션 + 결제 정보 조회 -->
+	<select id="selectOrderInfoForRefund" parameterType="map" resultType="map">
+	    SELECT 
+	        o.ORDER_ID AS orderId,
+	        o.ORDER_STATUS AS orderStatus,
+	        oi.ITEM_ID AS orderItemId,
+	        oi.QUANTITY AS count,
+	        oi.UNIT_PRICE AS price,
+	        p.PRODUCT_NAME AS productName,
+	        pi.IMG_URL AS imgUrl,
+	
+	        GROUP_CONCAT(
+	            CONCAT(poi.ITEM_NAME, ': ', pov.OPTION_VALUE)
+	            ORDER BY pov.SORT_ORDER, pov.OPTION_VALUE_ID
+	            SEPARATOR ', '
+	        ) AS optionName,
+	
+	        pay.PAY_ID AS payId,
+	        pay.AMOUNT AS totalPayAmount,
+	        pay.PAYMENT_KEY AS paymentKey	        
+	
+	    FROM orders o
+	    JOIN order_item oi 
+	        ON o.ORDER_ID = oi.ORDER_ID
+	    JOIN product p 
+	        ON oi.PRODUCT_ID = p.PRODUCT_ID
+	
+	    LEFT JOIN product_option_item poi
+	        ON oi.OPTION_ITEM_ID = poi.OPTION_ITEM_ID
+	    LEFT JOIN product_option_item_value poiv 
+	        ON poi.OPTION_ITEM_ID = poiv.OPTION_ITEM_ID
+	    LEFT JOIN product_option_value pov 
+	        ON poiv.OPTION_VALUE_ID = pov.OPTION_VALUE_ID
+	
+	    LEFT JOIN (
+	        SELECT PRODUCT_ID, IMG_URL
+	        FROM product_img
+	        WHERE IS_MAIN = 'Y'
+	    ) pi ON p.PRODUCT_ID = pi.PRODUCT_ID
+	
+	    LEFT JOIN (
+	        SELECT *
+	        FROM payment
+	        WHERE ORDER_ID = #{orderId}
+	        ORDER BY PAY_ID DESC
+	        LIMIT 1
+	    ) pay ON o.ORDER_ID = pay.ORDER_ID
+	
+	    WHERE o.ORDER_ID = #{orderId}
+	      AND o.USER_ID = #{userId}
+	
+	    <if test="orderItemId != null">
+	      AND oi.ITEM_ID = #{orderItemId}
+	    </if>
+	
+	    GROUP BY 
+	        o.ORDER_ID,
+	        o.ORDER_STATUS,
+	        oi.ITEM_ID,
+	        oi.QUANTITY,
+	        oi.UNIT_PRICE,
+	        p.PRODUCT_NAME,
+	        pi.IMG_URL,
+	        pay.PAY_ID,
+	        pay.AMOUNT,
+	        pay.PAYMENT_KEY
+	</select>
+    
+    <!-- 사용자 기본 배송지 조회 -->
+    <select id="selectDefaultAddress" parameterType="map" resultType="map">
+        SELECT 
+            ZIPCODE AS zipcode, 
+            ADDRESS AS address, 
+            DETAILED_ADDRESS AS detailedAddress
+        FROM user_address
+        WHERE USER_ID = #{userId} 
+          AND DEFAULT_YN = 'Y'
+        LIMIT 1
+    </select>
+    
+    <!-- 환불 가능 여부 체크 (이미 환불 진행중인지 + 주문 상태 확인) -->
+    <select id="checkRefundAvailability" parameterType="map" resultType="map">
+        SELECT 
+            (SELECT COUNT(*) 
+             FROM refund 
+             WHERE ORDER_ID = #{orderId} 
+               AND REFUND_STATUS NOT IN ('CANCELLED', 'REJECTED')
+            ) AS refundCount,
+            (SELECT ORDER_STATUS 
+             FROM orders 
+             WHERE ORDER_ID = #{orderId}
+            ) AS currentStatus
+    </select>
+    
+    <!-- 환불 요청 데이터 저장 -->
+    <insert id="insertRefund" parameterType="map" useGeneratedKeys="true" keyProperty="refundId">
+        INSERT INTO refund (
+            AMOUNT, 
+            DEDUCT_AMOUNT, 
+            REASON, 
+            REFUND_STATUS,
+            CREATED_AT, 
+            PAY_ID, 
+            ORDER_ID, 
+            USER_ID, 
+            REFUND_TYPE
+        ) VALUES (
+            IFNULL(#{amount}, 0), 
+            IFNULL(#{deductAmount}, 0),
+            <choose>
+                <when test="reasonDetail != null and reasonDetail.trim() != ''">
+                    CONCAT('[', #{refundReason}, '] ', #{reasonDetail})
+                </when>
+                <otherwise>
+                    #{refundReason}
+                </otherwise>
+            </choose>,
+            'PENDING', 
+            NOW(), 
+            #{payId}, 
+            #{orderId}, 
+            #{userId}, 
+            #{refundType}
+        )
+    </insert>
+    
+    <!-- 주문 상태를 환불 요청 상태로 변경 -->
+    <update id="updateOrderStatus" parameterType="map">
+        UPDATE orders 
+        SET ORDER_STATUS = 'REFUND_REQUESTED'
+        WHERE ORDER_ID = #{orderId} 
+          AND USER_ID = #{userId}
+          AND ORDER_STATUS IN ('DONE', 'COMPLETED')
+    </update>
+	
+	<!-- 해당 주문의 누적 환불 금액 조회 (부분환불/전체환불 판단용) -->
+	<select id="selectRefundAmountSum" parameterType="map" resultType="int">
+	    SELECT IFNULL(SUM(AMOUNT), 0)
+	    FROM refund
+	    WHERE ORDER_ID = #{orderId}
+	      AND REFUND_STATUS NOT IN ('CANCELLED', 'REJECTED')
+	</select>
+	
+	<!--환불 성공 후--><!-- 토스 환불 성공 후 환불 상태 완료 처리 -->
+	<update id="updateRefundCompleted" parameterType="map">
+	    UPDATE refund
+	    SET REFUND_STATUS = 'COMPLETED',
+	        REFUNDED_AT = NOW()
+	    WHERE REFUND_ID = #{refundId}
+	</update>
+	
+	<!-- 토스 환불 성공 후 결제 상태 환불 완료 처리 -->
+	<update id="updatePaymentRefunded" parameterType="map">
+	    UPDATE payment
+	    SET PAY_STATUS = 'REFUNDED'
+	    WHERE PAY_ID = #{payId}
+	</update>
 </mapper>

@@ -12,6 +12,7 @@
             <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
             <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
             <script src="/js/page-change.js"></script>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
         </head>
 
         <body>
@@ -29,15 +30,39 @@
                                 <div class="post-cats">
                                     <span class="cat-tag" :class="'cat-' + board.CATEGORY">{{ fnCatLabel(board.CATEGORY)
                                         }}</span>
-                                    <span class="hot-badge" v-if="board.IS_HOT === 'Y'">🔥 HOT</span>
-                                    <span class="poll-badge" v-if="board.HAS_POLL === 'Y'">📊 투표</span>
-                                    <div class="post-actions">
-                                        <template v-if="isMyPost">
-                                            <button class="action-btn" @click="fnGoEdit">수정</button>
-                                            <button class="action-btn danger" @click="fnDeletePost">삭제</button>
-                                        </template>
-                                        <button class="action-btn danger" @click="showReportModal = true"
-                                            v-else>신고</button>
+                                    <span class="hot-badge" v-if="board.IS_HOT === 'Y'">
+                                        <i class="ri-fire-fill"></i>
+                                        HOT
+                                    </span>
+
+                                    <span class="poll-badge" v-if="board.HAS_POLL === 'Y'">
+                                        <i class="ri-bar-chart-box-fill"></i>
+                                        투표
+                                    </span>
+                                    <div class="post-menu-wrap">
+                                        <button class="more-btn" type="button"
+                                            @click.stop="postMenuOpen = !postMenuOpen">
+                                            <i class="ri-more-2-fill"></i>
+                                        </button>
+
+                                        <div class="more-menu" v-if="postMenuOpen" @click.stop>
+                                            <template v-if="isMyPost">
+                                                <button type="button" @click="postMenuOpen = false; fnGoEdit();">
+                                                    수정
+                                                </button>
+                                                <button type="button" class="danger"
+                                                    @click="postMenuOpen = false; fnDeletePost();">
+                                                    삭제
+                                                </button>
+                                            </template>
+
+                                            <template v-else>
+                                                <button type="button" class="danger"
+                                                    @click="postMenuOpen = false; showReportModal = true;">
+                                                    신고
+                                                </button>
+                                            </template>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -49,9 +74,9 @@
                                     <div class="author-avatar" @click="fnShowProfile($event, board.USER_ID)"
                                         style="cursor:pointer;">
                                         <img v-if="board.profileImg" :src="board.profileImg" alt="프로필">
-                                        <div v-else
-                                            style="width:100%;height:100%;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:14px;">
-                                            🏕</div>
+                                        <div v-else class="default-avatar">
+                                            <i class="ri-user-smile-line"></i>
+                                        </div>
                                     </div>
                                     <span style="font-weight:700;cursor:pointer;"
                                         @click="fnShowProfile($event, board.USER_ID)">
@@ -60,7 +85,10 @@
                                     <span class="dot">·</span>
                                     <span>{{ fnFormatDate(board.CREATED_AT) }}</span>
                                     <span class="dot">·</span>
-                                    <span>👁 {{ board.VIEW_COUNT }}</span>
+                                    <span class="meta-view">
+                                        <i class="ri-eye-line"></i>
+                                        {{ board.VIEW_COUNT }}
+                                    </span>
                                 </div>
 
                                 <!-- 본문 -->
@@ -84,11 +112,14 @@
                                 <div class="product-link" v-if="board.productName"
                                     @click="fnGoProduct(board.PRODUCT_ID)">
                                     <img v-if="board.productImg" :src="board.productImg" alt="제품">
-                                    <div v-else
-                                        style="width:56px;height:56px;border-radius:10px;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:22px;">
-                                        ⛺</div>
+                                    <div v-else class="product-empty-img">
+                                        <i class="ri-image-line"></i>
+                                    </div>
                                     <div>
-                                        <div class="product-link-badge">🔗 연관 제품</div>
+                                        <div class="product-link-badge">
+                                            <i class="ri-links-line"></i>
+                                            연관 제품
+                                        </div>
                                         <div style="font-size:14px;font-weight:700;color:var(--brown);">{{
                                             board.productName }}</div>
                                         <div style="font-size:12px;color:var(--brown3);">{{
@@ -98,7 +129,10 @@
 
                                 <!-- 투표 -->
                                 <div class="poll-card" v-if="poll">
-                                    <div class="poll-question">📊 {{ poll.QUESTION }}</div>
+                                    <div class="poll-question">
+                                        <i class="ri-bar-chart-box-fill"></i>
+                                        {{ poll.QUESTION }}
+                                    </div>
                                     <div v-for="opt in pollOptions" :key="opt.optionId" class="poll-option"
                                         :class="{ selected: poll.myOptionId == opt.optionId, voted: poll.myVoted }"
                                         @click="fnVote(opt.optionId)">
@@ -122,15 +156,17 @@
                                 <div class="reaction-bar">
                                     <button class="react-btn" :class="{ liked: myLiked }"
                                         @click="fnReact('LIKE', 'BOARD')">
-                                        ❤️ 추천 {{ board.LIKE_COUNT }}
+                                        <i class="ri-heart-3-fill"></i>
+                                        추천 {{ board.LIKE_COUNT }}
                                     </button>
                                     <button class="bookmark-btn" :class="{ active: bookmarked }" @click="fnBookmark">
-                                        {{ bookmarked ? '⭐ 스크랩됨' : '☆ 스크랩' }}
+                                        <i :class="bookmarked ? 'ri-star-fill' : 'ri-star-line'"></i>
+                                        {{ bookmarked ? '스크랩됨' : '스크랩' }}
                                     </button>
                                     <button class="react-btn" :class="{ disliked: myDisliked }"
                                         @click="fnReact('DISLIKE', 'BOARD')">
-                                        👎 싫어요 {{ board.DISLIKE_COUNT }}
-                                    </button>
+                                        <i class="ri-thumb-down-fill"></i>
+                                        싫어요 {{ board.DISLIKE_COUNT }} </button>
                                     <span class="view-count">조회 {{ board.VIEW_COUNT }}</span>
                                 </div>
                             </div>
@@ -144,7 +180,7 @@
                             <div class="comment-list">
                                 <div v-if="commentList.length === 0"
                                     style="padding:24px 0;text-align:center;color:var(--brown3);font-size:13px;">
-                                    첫 번째 댓글을 남겨보세요 🔥
+                                    첫 번째 댓글을 남겨보세요
                                 </div>
 
                                 <template v-for="comment in topComments" :key="comment.COMMENT_ID">
@@ -154,9 +190,9 @@
                                             <div class="comment-avatar" @click="fnShowProfile($event, comment.USER_ID)"
                                                 style="cursor:pointer;">
                                                 <img v-if="comment.profileImg" :src="comment.profileImg">
-                                                <div v-else
-                                                    style="width:100%;height:100%;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:12px;">
-                                                    🏕</div>
+                                                <div v-else class="default-avatar small">
+                                                    <i class="ri-user-smile-line"></i>
+                                                </div>
                                             </div>
                                             <span style="font-weight:700;">{{ comment.nickName }}</span>
                                             <span style="color:var(--brown4);">·</span>
@@ -167,20 +203,47 @@
                                             <button class="comment-like-btn"
                                                 :class="{ liked: isCommentLiked(comment.COMMENT_ID) }"
                                                 @click="fnReact('LIKE', 'COMMENT', comment.COMMENT_ID)">
-                                                ❤️ {{ comment.LIKE_COUNT }}
+                                                <i class="ri-heart-3-fill"></i>
+                                                {{ comment.LIKE_COUNT }}
                                             </button>
-                                            <button class="reply-btn" @click="fnSetReply(comment)">↩ 답글</button>
+
+                                            <button class="reply-btn" @click="fnSetReply(comment)">
+                                                <i class="ri-reply-line"></i>
+                                                답글
+                                            </button>
+
                                             <button class="reply-btn"
                                                 v-if="getAllDescendants(comment.COMMENT_ID).length > 0"
                                                 @click="fnToggleReplies(comment.COMMENT_ID)">
                                                 {{ openReplies[comment.COMMENT_ID]
-                                                ? '답글 닫기 ▲'
-                                                : '답글 ' + getAllDescendants(comment.COMMENT_ID).length + '개 ▼' }}
+                                                ? '답글 닫기'
+                                                : '답글 ' + getAllDescendants(comment.COMMENT_ID).length + '개' }}
+                                                <i
+                                                    :class="openReplies[comment.COMMENT_ID] ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>
                                             </button>
-                                            <button class="reply-btn" @click="fnReportComment(comment.COMMENT_ID)">🚩
-                                                신고</button>
-                                            <button class="comment-delete" v-if="isMyComment(comment.USER_ID)"
-                                                @click="fnDeleteComment(comment.COMMENT_ID)">삭제</button>
+
+                                            <div class="comment-menu-wrap">
+                                                <button class="comment-more-btn-icon" type="button"
+                                                    @click.stop="fnToggleCommentMenu(comment.COMMENT_ID)">
+                                                    <i class="ri-more-2-fill"></i>
+                                                </button>
+
+                                                <div class="comment-more-menu"
+                                                    v-if="openCommentMenuId === comment.COMMENT_ID" @click.stop>
+
+                                                    <button type="button" v-if="!isMyComment(comment.USER_ID)"
+                                                        class="danger"
+                                                        @click="openCommentMenuId = null; fnReportComment(comment.COMMENT_ID);">
+                                                        신고
+                                                    </button>
+
+                                                    <button type="button" v-if="isMyComment(comment.USER_ID)"
+                                                        class="danger"
+                                                        @click="openCommentMenuId = null; fnDeleteComment(comment.COMMENT_ID);">
+                                                        삭제
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                         <!-- 원댓글 답글 입력창 -->
                                         <div class="inline-reply-box"
@@ -206,9 +269,9 @@
                                                     @click="fnShowProfile($event, reply.USER_ID)"
                                                     style="cursor:pointer;">
                                                     <img v-if="reply.profileImg" :src="reply.profileImg">
-                                                    <div v-else
-                                                        style="width:100%;height:100%;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:12px;">
-                                                        🏕</div>
+                                                    <div v-else class="default-avatar small">
+                                                        <i class="ri-user-smile-line"></i>
+                                                    </div>
                                                 </div>
                                                 <span style="font-weight:700;">{{ reply.nickName }}</span>
                                                 <span style="color:var(--brown4);">·</span>
@@ -225,13 +288,37 @@
                                                 <button class="comment-like-btn"
                                                     :class="{ liked: isCommentLiked(reply.COMMENT_ID) }"
                                                     @click="fnReact('LIKE', 'COMMENT', reply.COMMENT_ID)">
-                                                    ❤️ {{ reply.LIKE_COUNT }}
+                                                    <i class="ri-heart-3-fill"></i>
+                                                    {{ reply.LIKE_COUNT }}
                                                 </button>
-                                                <button class="reply-btn" @click="fnSetReply(reply)">↩ 답글</button>
-                                                <button class="reply-btn" @click="fnReportComment(reply.COMMENT_ID)">🚩
-                                                    신고</button>
-                                                <button class="comment-delete" v-if="isMyComment(reply.USER_ID)"
-                                                    @click="fnDeleteComment(reply.COMMENT_ID)">삭제</button>
+
+                                                <button class="reply-btn" @click="fnSetReply(reply)">
+                                                    <i class="ri-reply-line"></i>
+                                                    답글
+                                                </button>
+
+                                                <div class="comment-menu-wrap">
+                                                    <button class="comment-more-btn-icon" type="button"
+                                                        @click.stop="fnToggleCommentMenu(reply.COMMENT_ID)">
+                                                        <i class="ri-more-2-fill"></i>
+                                                    </button>
+
+                                                    <div class="comment-more-menu"
+                                                        v-if="openCommentMenuId === reply.COMMENT_ID" @click.stop>
+
+                                                        <button type="button" v-if="!isMyComment(reply.USER_ID)"
+                                                            class="danger"
+                                                            @click="openCommentMenuId = null; fnReportComment(reply.COMMENT_ID);">
+                                                            신고
+                                                        </button>
+
+                                                        <button type="button" v-if="isMyComment(reply.USER_ID)"
+                                                            class="danger"
+                                                            @click="openCommentMenuId = null; fnDeleteComment(reply.COMMENT_ID);">
+                                                            삭제
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <!-- 대댓글 답글 입력창 -->
                                             <div class="inline-reply-box"
@@ -255,7 +342,7 @@
                                 <div class="comment-more-btn"
                                     v-if="!commentShowAll && topCommentsTotal > commentPageSize"
                                     @click="commentShowAll = true">
-                                    💬 댓글 {{ topCommentsTotal - commentPageSize }}개 더보기
+                                    댓글 {{ topCommentsTotal - commentPageSize }}개 더보기
                                 </div>
                                 <div class="comment-more-btn"
                                     v-if="commentShowAll && topCommentsTotal > commentPageSize"
@@ -291,7 +378,8 @@
                     <!-- 신고 모달 -->
                     <div class="modal-bg" v-if="showReportModal" @click.self="showReportModal = false">
                         <div class="modal-box">
-                            <div class="modal-title">🚩 신고하기</div>
+                            <div class="modal-title"><i class="ri-flag-line"></i>
+                                신고</div>
                             <select class="modal-select" v-model="reportReason">
                                 <option value="">신고 사유를 선택해주세요</option>
                                 <option value="스팸/광고">스팸/광고</option>
@@ -309,12 +397,14 @@
 
                     <!-- 미니 프로필 팝업 -->
                     <div v-if="profilePopup.show"
-                        :style="{ position:'fixed', top: profilePopup.y + 'px', left: profilePopup.x + 'px', zIndex:9000 }"
-                        class="mini-profile-popup" @mouseleave="fnCloseProfile">
+                        :style="{ position:'absolute', top: profilePopup.y + 'px', left: profilePopup.x + 'px' }"
+                        class="mini-profile-popup" @click.stop>
                         <div class="mp-header">
                             <div class="mp-avatar">
                                 <img v-if="profilePopup.user.profileImg" :src="profilePopup.user.profileImg">
-                                <span v-else>🏕</span>
+                                <div v-else class="default-avatar small">
+                                    <i class="ri-user-smile-line"></i>
+                                </div>
                             </div>
                             <div>
                                 <div class="mp-nickname">{{ profilePopup.user.nickname }}</div>
@@ -344,7 +434,7 @@
                                 transition:all .18s;font-family:inherit;"
                                 onmouseover="this.style.borderColor='var(--orange)';this.style.color='var(--orange2)'"
                                 onmouseout="this.style.borderColor='rgba(44,30,15,.1)';this.style.color='var(--brown3)'">
-                                👤 프로필 상세보기
+                                프로필 상세보기
                             </button>
                         </div>
 
@@ -383,6 +473,8 @@
                                         { code: 'FIRE_CAMPER', icon: '🔥⛺', name: '불꽃캠퍼', shortDesc: '글50+ 또는 추천200+' },
                                         { code: 'MODAK', icon: '🪵', name: '모닥불', shortDesc: '글100+ 또는 추천500+' },
                                     ],
+                                    postMenuOpen: false,
+                                    openCommentMenuId: null,
                                 };
                             },
                             computed: {
@@ -445,6 +537,9 @@
                                 },
                                 fnTagSearch(tag) { location.href = '/board/list.do?tag=' + encodeURIComponent(tag); },
                                 fnShowProfile(event, userId) {
+                                    if (event) {
+                                        event.stopPropagation();
+                                    }
                                     if (!userId) return;
                                     $.ajax({
                                         url: '/user/mini-profile.dox', type: 'POST',
@@ -456,10 +551,29 @@
                                                     || event.target.closest('.author-avatar')
                                                     || event.target;
                                                 const rect = el.getBoundingClientRect();
-                                                let x = rect.left, y = rect.bottom + 8;
-                                                if (x + 220 > window.innerWidth) x = window.innerWidth - 230;
-                                                if (y + 300 > window.innerHeight) y = rect.top - 310;
-                                                this.profilePopup = { show: true, user: res.user, x, y };
+
+                                                let x = rect.left + window.scrollX;
+                                                let y = rect.bottom + window.scrollY + 8;
+
+                                                const popupWidth = 236;
+                                                const popupHeight = 260;
+                                                const pageRight = window.scrollX + window.innerWidth;
+                                                const pageBottom = window.scrollY + window.innerHeight;
+
+                                                if (x + popupWidth > pageRight - 16) {
+                                                    x = pageRight - popupWidth - 16;
+                                                }
+
+                                                if (y + popupHeight > pageBottom - 16) {
+                                                    y = rect.top + window.scrollY - popupHeight - 8;
+                                                }
+
+                                                this.profilePopup = {
+                                                    show: true,
+                                                    user: res.user,
+                                                    x,
+                                                    y
+                                                };
                                             }
                                         }
                                     });
@@ -584,9 +698,29 @@
                                 showToast(msg) {
                                     this.toastMsg = msg; this.toastVisible = true;
                                     setTimeout(() => { this.toastVisible = false; }, 2500);
-                                }
+                                },
+                                fnHandleOutsideClick(event) {
+                                    const popup = event.target.closest('.mini-profile-popup');
+                                    const avatar = event.target.closest('.author-avatar, .comment-avatar');
+                                    const postMenu = event.target.closest('.post-menu-wrap');
+                                    const commentMenu = event.target.closest('.comment-menu-wrap');
+
+                                    if (popup || avatar || postMenu || commentMenu) return;
+
+                                    this.profilePopup.show = false;
+                                    this.postMenuOpen = false;
+                                    this.openCommentMenuId = null;
+                                }, fnToggleCommentMenu(commentId) {
+                                    this.openCommentMenuId = this.openCommentMenuId === commentId ? null : commentId;
+                                },
                             },
-                            mounted() { this.fnLoad(); }
+                            mounted() {
+                                this.fnLoad();
+                                document.addEventListener('click', this.fnHandleOutsideClick);
+                            }, unmounted() {
+                                document.removeEventListener('click', this.fnHandleOutsideClick);
+                            }
+
                         }).mount('#app');
                     </script>
         </body>

@@ -162,6 +162,8 @@
 
                         // 최초 진입 시 메시지 조회 + 읽음 처리
                         loadMessages(false);
+                        sendActive();
+                        checkActive();
 
                         startPolling();
 

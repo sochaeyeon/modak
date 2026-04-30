@@ -517,29 +517,51 @@ ON DUPLICATE KEY UPDATE
     <!-- ════════════════════════════════════════
          주문 관리
     ════════════════════════════════════════ -->
-    <select id="selectAdminOrderList" parameterType="hashmap" resultType="map">
-        SELECT O.ORDER_ID    AS ORDER_ID,
-               O.USER_ID     AS USER_ID,
-               DATE_FORMAT(O.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT,
-               O.TOTAL_PRICE AS TOTAL_PRICE,
-               O.ORDER_STATUS AS ORDER_STATUS,
-               (SELECT GROUP_CONCAT(P.PRODUCT_NAME SEPARATOR ', ')
-                FROM ORDER_ITEM OI JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
-                WHERE OI.ORDER_ID = O.ORDER_ID) AS PRODUCT_NAME,
-               (SELECT PI.IMG_URL FROM ORDER_ITEM OI
-                JOIN product_img PI ON OI.PRODUCT_ID = PI.PRODUCT_ID
-                WHERE OI.ORDER_ID = O.ORDER_ID ORDER BY PI.IS_MAIN DESC LIMIT 1) AS IMG_URL
-        FROM ORDERS O
-        <where>
-            <if test="keyword != null and keyword != ''">
-                AND (O.ORDER_ID LIKE CONCAT('%', #{keyword}, '%')
-                  OR O.USER_ID  LIKE CONCAT('%', #{keyword}, '%'))
-            </if>
-        </where>
-        ORDER BY O.CREATED_AT DESC
-        LIMIT #{offset}, #{pageSize}
-    </select>
+  <select id="selectAdminOrderList" parameterType="hashmap" resultType="map">
+    SELECT
+        O.ORDER_ID,
+        O.USER_ID,
+        DATE_FORMAT(O.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT,
+        O.TOTAL_PRICE,
+        O.ORDER_STATUS,
 
+        GROUP_CONCAT(P.PRODUCT_NAME ORDER BY OI.ITEM_ID ASC SEPARATOR ', ') AS PRODUCT_NAME,
+
+        (
+            SELECT PI.IMG_URL
+            FROM ORDER_ITEM OI2
+            JOIN PRODUCT_IMG PI
+              ON PI.PRODUCT_ID = OI2.PRODUCT_ID
+            WHERE OI2.ORDER_ID = O.ORDER_ID
+            ORDER BY PI.IS_MAIN DESC
+            LIMIT 1
+        ) AS IMG_URL
+
+    FROM ORDERS O
+    LEFT JOIN ORDER_ITEM OI
+        ON O.ORDER_ID = OI.ORDER_ID
+    LEFT JOIN PRODUCT P
+        ON OI.PRODUCT_ID = P.PRODUCT_ID
+
+    <where>
+        <if test="keyword != null and keyword != ''">
+            AND (
+                CAST(O.ORDER_ID AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+                OR O.USER_ID LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+    </where>
+
+    GROUP BY
+        O.ORDER_ID,
+        O.USER_ID,
+        O.CREATED_AT,
+        O.TOTAL_PRICE,
+        O.ORDER_STATUS
+
+    ORDER BY O.CREATED_AT DESC
+    LIMIT #{offset}, #{pageSize}
+</select>
     <select id="selectAdminOrderCount" parameterType="hashmap" resultType="int">
         SELECT COUNT(*) FROM ORDERS
         <where>
@@ -634,15 +656,30 @@ ON DUPLICATE KEY UPDATE
 
 <!-- 환불 목록 조회 -->
 <select id="selectRefundList" resultType="map">
-    SELECT RF.REFUND_ID, RF.ORDER_ID, RF.USER_ID, RF.REFUND_REASON AS refundReason,
-           RF.REFUND_AMOUNT AS refundAmount, RF.REFUND_STATUS AS refundStatus,
-           DATE_FORMAT(RF.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT,
-           P.PRODUCT_NAME,
-           (SELECT PI.IMG_URL FROM PRODUCT_IMG PI
-            WHERE PI.PRODUCT_ID = OI.PRODUCT_ID LIMIT 1) AS IMG_URL
+    SELECT 
+        RF.REFUND_ID,
+        RF.ORDER_ID,
+        RF.USER_ID,
+
+        RF.REASON AS REFUND_REASON,
+        RF.AMOUNT AS REFUND_AMOUNT,
+        RF.REFUND_STATUS AS REFUND_STATUS,
+
+        DATE_FORMAT(RF.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT,
+
+        P.PRODUCT_NAME,
+
+        (
+            SELECT PI.IMG_URL
+            FROM PRODUCT_IMG PI
+            WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
+            LIMIT 1
+        ) AS IMG_URL
+
     FROM REFUND RF
     LEFT JOIN ORDER_ITEM OI ON RF.ORDER_ID = OI.ORDER_ID
-    LEFT JOIN PRODUCT    P  ON OI.PRODUCT_ID = P.PRODUCT_ID
+    LEFT JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+
     GROUP BY RF.REFUND_ID
     ORDER BY RF.CREATED_AT DESC
     LIMIT 50
@@ -650,15 +687,34 @@ ON DUPLICATE KEY UPDATE
 
 <!-- 교환 목록 조회 -->
 <select id="selectExchangeList" resultType="map">
-    SELECT E.EXCHANGE_ID, E.ORDER_ID, E.USER_ID, E.REASON, E.STATUS,
-           DATE_FORMAT(E.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT,
-           E.ADDRESS, E.DETAILED_ADDRESS,
-           P.PRODUCT_NAME,
-           (SELECT PI.IMG_URL FROM PRODUCT_IMG PI
-            WHERE PI.PRODUCT_ID = OI.PRODUCT_ID LIMIT 1) AS IMG_URL
+    SELECT 
+        E.EXCHANGE_ID,
+        E.ORDER_ID,
+        E.USER_ID,
+
+        E.EXCHANGE_REASON AS REASON,
+        E.EXCHANGE_STATUS AS STATUS,
+
+        DATE_FORMAT(E.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT,
+
+        E.ADDRESS,
+        COALESCE(E.DETAILED_ADDRESS, E.DETAIL_ADDRESS) AS DETAILED_ADDRESS,
+
+        P.PRODUCT_NAME,
+
+        (
+            SELECT PI.IMG_URL
+            FROM PRODUCT_IMG PI
+            WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
+            LIMIT 1
+        ) AS IMG_URL
+
     FROM ORDER_EXCHANGE E
-    LEFT JOIN ORDER_ITEM OI ON E.ORDER_ID = OI.ORDER_ID
-    LEFT JOIN PRODUCT    P  ON OI.PRODUCT_ID = P.PRODUCT_ID
+    LEFT JOIN ORDER_ITEM OI 
+        ON E.ORDER_ID = OI.ORDER_ID
+    LEFT JOIN PRODUCT P 
+        ON OI.PRODUCT_ID = P.PRODUCT_ID
+
     GROUP BY E.EXCHANGE_ID
     ORDER BY E.CREATED_AT DESC
     LIMIT 50
@@ -666,7 +722,15 @@ ON DUPLICATE KEY UPDATE
 
 <!-- 교환 상태 변경 -->
 <update id="updateExchangeStatus" parameterType="hashmap">
-    UPDATE ORDER_EXCHANGE SET STATUS = #{status} WHERE EXCHANGE_ID = #{exchangeId}
+    UPDATE ORDER_EXCHANGE
+    SET EXCHANGE_STATUS = #{status},
+        UPDATED_AT = NOW()
+    WHERE EXCHANGE_ID = #{exchangeId}
+</update>
+<update id="updateRefundStatus" parameterType="map">
+    UPDATE refund
+    SET REFUND_STATUS = #{status}
+    WHERE REFUND_ID = #{refundId}
 </update>
 
 <!-- 반납 1일전 스케줄러용 -->

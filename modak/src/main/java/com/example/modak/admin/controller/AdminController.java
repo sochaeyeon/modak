@@ -715,4 +715,28 @@ public class AdminController {
 	    if (!isAdmin()) return noAuth();
 	    return new Gson().toJson(adminService.updateExchangeStatus(map));
 	}
+	@RequestMapping("/refund/update-status.dox")
+	@ResponseBody
+	public Map<String, Object> updateRefundStatus(
+	        @RequestParam("refundId") int refundId,
+	        @RequestParam("status") String status) {
+
+	    Map<String, Object> result = new HashMap<>();
+
+	    try {
+	        Map<String, Object> map = new HashMap<>();
+	        map.put("refundId", refundId);
+	        map.put("status", status);
+
+	        adminService.updateRefundStatus(map);
+
+	        result.put("result", "success");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	        result.put("message", "환불 상태 변경 실패");
+	    }
+
+	    return result;
+	}
 }

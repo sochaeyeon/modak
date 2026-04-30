@@ -377,8 +377,8 @@
                                                     <div style="display:flex;flex-direction:column;gap:6px">
                                                         <span
                                                             :style="{color: item.STATUS==='APPROVED'?'#58d68d': item.STATUS==='REJECTED'?'#e74c3c': item.STATUS==='COMPLETED'?'#3498db':'#f39c12',fontWeight:'700',fontSize:'12px'}">
-                                                            {{ {REQUESTED:'📋 신청',APPROVED:'✅ 승인',REJECTED:'❌
-                                                            거절',COMPLETED:'🏁 완료'}[item.STATUS] || item.STATUS }}
+                                                            {{ {REQUESTED:'📋 신청', APPROVED:'✅ 승인', REJECTED:'❌ 거절',
+                                                            COMPLETED:'🏁 완료'}[item.STATUS] || item.STATUS }}
                                                         </span>
                                                         <button v-if="item.STATUS==='REQUESTED'"
                                                             class="o-action-btn complete"

@@ -957,6 +957,16 @@ body {
     color: #c62828;
 }
 
+.status-REFUND_REQUESTED {
+    background: rgba(244, 67, 54, 0.12);
+    color: #ed1b1b;
+}
+
+.status-CANCEL_REQUESTED {
+    background: rgba(244, 67, 54, 0.12);
+    color: #df3b3b;
+}
+
 /* 전체 메타 영역 */
 .order-meta {
     font-size: 13px;

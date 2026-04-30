@@ -1515,7 +1515,7 @@
                                         summary.shipping++;
                                     } else if (status === "DONE" || status === "RETURNED") {
                                         summary.done++;
-                                    } else if (status === "CANCELLED") {
+                                    } else if (status === "CANCELLED" || status === "CANCEL_REQUESTED" || status === "REFUND_REQUESTED"){
                                         summary.cancelled++;
                                     }
                                 });
@@ -1550,6 +1550,12 @@
 
                                     if (this.selectedOrderStatus === "READY") {
                                         return orderType === "PURCHASE" && status === "READY";
+                                    }
+                                    // 취소,환불 상태
+                                    if (this.selectedOrderStatus === "CANCELLED") {
+                                        return status === "CANCELLED"
+                                            || status === "CANCEL_REQUESTED"
+                                            || status === "REFUND_REQUESTED";
                                     }
 
                                     return status === this.selectedOrderStatus;
@@ -1658,6 +1664,8 @@
                                 if (status === "DONE") return "배송완료";
                                 if (status === "RETURNED") return "반납완료";
                                 if (status === "CANCELLED") return "취소됨";
+                                if (status === "CANCEL_REQUESTED") return "취소요청";
+                                if (status === "REFUND_REQUESTED") return "환불요청";
                                 return "-";
                             },
                             fnFilterByStatus: function (status) {

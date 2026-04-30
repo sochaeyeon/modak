@@ -838,22 +838,31 @@
                                 }
 
                                 const usePoint = Number(this.validUsePoint || 0);
+                                const checkoutDiscount = {
+                                    cartType: this.activeTab,
+                                    usePoint: usePoint,
+                                    userCouponId: this.selectedUserCouponId || ''
+                                };
+
+                                localStorage.setItem('checkout_discount', JSON.stringify(checkoutDiscount));
 
                                 if (!this.isLogin) {
                                     const selected = this.filteredCart.filter(c => this.checkedIds.includes(c.cartId));
                                     localStorage.setItem('checkout_items', JSON.stringify(selected));
+                                    localStorage.setItem('usePoint', this.usePoint);
+                                    localStorage.setItem('userCouponId', this.selectedUserCouponId);
                                     location.href = '/payment/checkout.do?cartType=' + this.activeTab + '&isGuest=true';
                                     return;
                                 }
 
                                 let url =
                                     '/payment/checkout.do'
-                                    + '?cartIds=' + this.checkedIds.join(',')
-                                    + '&cartType=' + this.activeTab
-                                    + '&usePoint=' + usePoint;
+                                    + '?cartIds=' + encodeURIComponent(this.checkedIds.join(','))
+                                    + '&cartType=' + encodeURIComponent(this.activeTab)
+                                    + '&usePoint=' + encodeURIComponent(usePoint);
 
                                 if (this.selectedUserCouponId) {
-                                    url += '&userCouponId=' + this.selectedUserCouponId;
+                                    url += '&userCouponId=' + encodeURIComponent(this.selectedUserCouponId);
                                 }
 
                                 location.href = url;

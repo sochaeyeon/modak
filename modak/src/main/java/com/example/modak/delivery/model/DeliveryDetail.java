@@ -17,7 +17,7 @@ public class DeliveryDetail {
     private String receiverName;
     private String address;
     private Long orderId;
-
+    //...
     private String orderType;
     private String orderStatus;
     private String createdAt;

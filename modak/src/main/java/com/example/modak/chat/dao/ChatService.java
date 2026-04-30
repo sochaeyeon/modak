@@ -31,6 +31,7 @@ public class ChatService {
 
 	@Value("${gemini.api.key}")
 	private String apiKey;
+	
 
 	private final RestTemplate restTemplate = new RestTemplate();
 
@@ -71,9 +72,8 @@ public class ChatService {
 		    history.add(guestMsg);
 		}
 //		// 1순위 추천: 최신이면서 빠른 2.0 모델
+
 		String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey;
-
-
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -191,57 +191,35 @@ public class ChatService {
 
 	/* ── 추천 질문 생성 ── */
 	public List<String> getRecommendQuestions(String lastMessage) {
-		// "START" 이면 기본 추천 질문 반환
-		if ("START".equals(lastMessage)) {
-			List<String> defaults = new ArrayList<>();
-			defaults.add("⛺ 텐트 추천해줘");
-			defaults.add("🛏️ 침낭 종류 알려줘");
-			defaults.add("🎒 초보 캠퍼 필수 장비");
-			defaults.add("🚨 일산화탄소 경보기 필요해?");
-			defaults.add("❄️ 겨울 캠핑 준비물");
-			return defaults;
-		}
+	    List<String> result = new ArrayList<>();
 
-		String url = "https://generativelanguage.googleapis.com/v1beta/models/"
-				+ "gemini-2.5-flash:generateContent?key=" + apiKey;
+	    if (lastMessage == null) {
+	        lastMessage = "";
+	    }
 
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
+	    if (lastMessage.contains("텐트")) {
+	        result.add("⛺ 2인용 텐트 추천해줘");
+	        result.add("🏕️ 초보자용 텐트는 뭐가 좋아?");
+	        result.add("📦 텐트 대여 방법 알려줘");
+	    } else if (lastMessage.contains("침낭")) {
+	        result.add("🛏️ 겨울용 침낭 추천해줘");
+	        result.add("📦 침낭 대여 가능해?");
+	        result.add("🌡️ 침낭 고르는 기준 알려줘");
+	    } else if (lastMessage.contains("대여")) {
+	        result.add("📅 대여 기간은 어떻게 정해?");
+	        result.add("💰 보증금은 언제 환불돼?");
+	        result.add("📦 반납은 어떻게 해?");
+	    } else if (lastMessage.contains("배송")) {
+	        result.add("🚚 배송비는 얼마야?");
+	        result.add("📦 배송은 얼마나 걸려?");
+	        result.add("🏝️ 제주도 배송비 알려줘");
+	    } else {
+	        result.add("⛺ 텐트 추천해줘");
+	        result.add("🛏️ 침낭 종류 알려줘");
+	        result.add("🏕️ 초보 캠퍼 필수 장비 알려줘");
+	    }
 
-		String prompt = "다음 캠핑 대화 내용을 보고 사용자가 다음에 물어볼 법한 추천 질문 3개를 만들어줘. " + "반드시 아래 형식으로만 답해줘 (다른 말 없이 딱 3줄):\n"
-				+ "질문1\n질문2\n질문3\n\n대화 내용: " + lastMessage;
-
-		Map<String, Object> part = new HashMap<>();
-		part.put("text", prompt);
-		Map<String, Object> content = new HashMap<>();
-		content.put("role", "user");
-		content.put("parts", Collections.singletonList(part));
-
-		Map<String, Object> requestBody = new HashMap<>();
-		requestBody.put("contents", Collections.singletonList(content));
-
-		HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-
-		try {
-			ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
-			String raw = parseBotMessage(response);
-			List<String> result = new ArrayList<>();
-			for (String line : raw.split("\n")) {
-				String trimmed = line.trim();
-				if (!trimmed.isEmpty())
-					result.add(trimmed);
-				if (result.size() >= 3)
-					break;
-			}
-			return result;
-		} catch (Exception e) {
-			System.err.println("[추천질문] 오류: " + e.getMessage());
-			List<String> fallback = new ArrayList<>();
-			fallback.add("⛺ 텐트 추천해줘");
-			fallback.add("🛏️ 침낭 어떤 거 골라야 해?");
-			fallback.add("🏕️ 캠핑 초보 팁 알려줘");
-			return fallback;
-		}
+	    return result;
 	}
 
 	private void saveChat(String userId, String role, String message, String roomId) {

@@ -26,7 +26,7 @@
 }
 
 body {
-  
+
     background: var(--white);
     color: var(--brown);
     overflow: hidden;
@@ -39,6 +39,7 @@ body {
     width: 100vw;
     overflow: hidden;
 }
+
 #app:has(.sidebar.closed) .chat-header {
     padding-left: 64px;
 }
@@ -1211,11 +1212,9 @@ body {
 }
 
 .faq-section {
-    background: linear-gradient(
-        to top,
-        rgba(255, 255, 255, 0.426),
-        transparent
-    );
+    background: linear-gradient(to top,
+            rgba(255, 255, 255, 0.426),
+            transparent);
     border-top: 1px solid rgba(255, 213, 188, 0.329);
 }
 
@@ -1347,6 +1346,7 @@ body {
     border-color: var(--orange);
     color: var(--orange);
 }
+
 /* =========================
    Sidebar history 개선
 ========================= */
@@ -1356,7 +1356,7 @@ body {
     border-right: 1px solid rgba(44, 30, 15, .08);
 }
 
-.sidebar > p {
+.sidebar>p {
     margin-top: 4px;
     margin-bottom: 12px !important;
     padding: 0 4px 8px !important;
@@ -1398,17 +1398,16 @@ body {
     align-items: center;
     justify-content: center;
 }
+
 /* =========================
    Input Area 개선
 ========================= */
 
 .input-area {
     padding: 16px 50px 32px;
-    background: linear-gradient(
-        to top,
-        rgba(232,115,42,0.04),
-        transparent 60%
-    );
+    background: linear-gradient(to top,
+            rgba(232, 115, 42, 0.04),
+            transparent 60%);
 }
 
 /* 입력 박스 전체 */
@@ -1418,20 +1417,20 @@ body {
     border-radius: 18px;
 
     background: #fffdf8;
-    border: 1px solid rgba(44,30,15,.08);
+    border: 1px solid rgba(44, 30, 15, .08);
 
     display: flex;
     align-items: center;
     gap: 10px;
 
-    box-shadow: 0 10px 28px rgba(44,30,15,.08);
+    box-shadow: 0 10px 28px rgba(44, 30, 15, .08);
     transition: all .2s ease;
 }
 
 /* 포커스 시 강조 */
 .input-wrap:focus-within {
     border-color: var(--orange);
-    box-shadow: 0 12px 32px rgba(232,115,42,.15);
+    box-shadow: 0 12px 32px rgba(232, 115, 42, .15);
 }
 
 /* 입력 텍스트 */
@@ -1492,8 +1491,70 @@ body {
 .sidebar-logo:hover {
     color: var(--orange);
 }
+
 .input-icon {
     font-size: 16px;
     color: var(--brown4);
 }
 
+/* 새 채팅 버튼 찌그러짐 방지 */
+.new-chat-btn {
+    flex-shrink: 0;
+    height: 44px;
+    min-height: 44px;
+}
+
+/* 기존 둥둥 버튼 제거 */
+.sidebar-toggle-btn {
+    display: none;
+}
+
+/* 사이드바 상단 */
+.sidebar-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 42px;
+    margin-bottom: 26px;
+}
+
+.sidebar-top .sidebar-logo {
+    margin-bottom: 0;
+}
+
+.sidebar-close-btn,
+.sidebar-open-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    border: 1px solid rgba(44, 30, 15, .12);
+    background: #fffdf8;
+    color: var(--brown2);
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 18px;
+    transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+
+.sidebar-close-btn:hover,
+.sidebar-open-btn:hover {
+    background: var(--orange);
+    color: #fff;
+    border-color: var(--orange);
+}
+
+.sidebar-open-btn {
+    margin-right: 14px;
+    flex-shrink: 0;
+}
+#app:has(.sidebar.closed) .chat-header {
+    padding-left: 30px;
+}
+
+.sidebar-top {
+    flex-shrink: 0;
+}

@@ -31,6 +31,7 @@ public class CouponController {
             return resultMap;
         }
 
+        
         resultMap.put("result", "success");
         resultMap.put("list", couponService.selectMyCouponList(userId));
 

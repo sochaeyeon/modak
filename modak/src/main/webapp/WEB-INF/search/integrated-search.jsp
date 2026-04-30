@@ -63,6 +63,11 @@
 									<span class="switch-slider"></span>
 									<span class="switch-label">캠핑장</span>
 								</label>
+								<label class="switch-filter">
+									<input type="checkbox" v-model="filter.community">
+									<span class="switch-slider"></span>
+									<span class="switch-label">커뮤니티</span>
+								</label>
 							</div>
 						</div>
 
@@ -88,10 +93,11 @@
 									<div class="pagination" v-if="totalProductPage > 1">
 										<button class="page-btn"
 											@click="fnChangePage('product', page.product - 1)">이전</button>
-										<button v-for="n in totalProductPage" :key="'product-' + n" class="page-btn"
+										<button v-for="n in productPageNumbers" :key="'product-' + n" class="page-btn"
 											:class="{ active: page.product === n }" @click="fnChangePage('product', n)">
 											{{ n }}
 										</button>
+
 										<button class="page-btn"
 											@click="fnChangePage('product', page.product + 1)">다음</button>
 									</div>
@@ -121,7 +127,7 @@
 
 									<div class="pagination" v-if="totalFaqPage > 1">
 										<button class="page-btn" @click="fnChangePage('faq', page.faq - 1)">이전</button>
-										<button v-for="n in totalFaqPage" :key="'faq-' + n" class="page-btn"
+										<button v-for="n in faqPageNumbers" :key="'faq-' + n" class="page-btn"
 											:class="{ active: page.faq === n }" @click="fnChangePage('faq', n)">
 											{{ n }}
 										</button>
@@ -159,7 +165,7 @@
 									<div class="pagination" v-if="totalEventPage > 1">
 										<button class="page-btn"
 											@click="fnChangePage('event', page.event - 1)">이전</button>
-										<button v-for="n in totalEventPage" :key="'event-' + n" class="page-btn"
+										<button v-for="n in eventPageNumbers" :key="'event-' + n" class="page-btn"
 											:class="{ active: page.event === n }" @click="fnChangePage('event', n)">
 											{{ n }}
 										</button>
@@ -198,7 +204,7 @@
 									<div class="pagination" v-if="totalCampPage > 1">
 										<button class="page-btn"
 											@click="fnChangePage('camp', page.camp - 1)">이전</button>
-										<button v-for="n in totalCampPage" :key="'camp-' + n" class="page-btn"
+										<button v-for="n in campPageNumbers" :key="'camp-' + n" class="page-btn"
 											:class="{ active: page.camp === n }" @click="fnChangePage('camp', n)">
 											{{ n }}
 										</button>
@@ -208,6 +214,35 @@
 								</div>
 							</div>
 						</transition>
+						<transition name="filter-section">
+							<div v-show="filter.community" class="section-block">
+								<div class="search-section">
+									<div class="section-head">
+										<h3>커뮤니티 검색결과 <span class="count-em">{{ result.communityCount }}</span>건</h3>
+									</div>
+
+									<div v-if="result.communityList.length > 0" class="search-list">
+										<div v-for="item in result.communityList" :key="item.boardId"
+											class="search-list-item" @click="fnGoBoardDetail(item.boardId)">
+
+											<div class="search-list-content">
+												<div class="search-list-title">{{ item.title }}</div>
+												<div class="search-list-desc">
+													{{ item.content.replace(/\n/g, ' ') }}
+												</div>
+												<div class="search-list-meta">
+													{{ item.userId }} · {{ item.createdAt }}
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<div v-else class="empty-row">커뮤니티 검색 결과가 없습니다.</div>
+								</div>
+							</div>
+						</transition>
+
+
 					</template>
 				</div>
 			</div>
@@ -226,16 +261,19 @@
 									faqList: [],
 									eventList: [],
 									campList: [],
+									communityList: [],
 									productCount: 0,
 									faqCount: 0,
 									eventCount: 0,
-									campCount: 0
+									campCount: 0,
+									communityCount: 0
 								},
 								filter: {
 									product: true,
 									faq: true,
 									event: true,
-									camp: true
+									camp: true,
+									community: true
 								},
 								page: {
 									product: 1,
@@ -267,6 +305,18 @@
 							pagedCampList() {
 								const start = (this.page.camp - 1) * this.pageSize.camp;
 								return this.result.campList.slice(start, start + this.pageSize.camp);
+							},
+							productPageNumbers() {
+								return this.getPageNumbers(this.page.product, this.totalProductPage);
+							},
+							faqPageNumbers() {
+								return this.getPageNumbers(this.page.faq, this.totalFaqPage);
+							},
+							eventPageNumbers() {
+								return this.getPageNumbers(this.page.event, this.totalEventPage);
+							},
+							campPageNumbers() {
+								return this.getPageNumbers(this.page.camp, this.totalCampPage);
 							},
 
 							totalProductPage() {
@@ -332,6 +382,22 @@
 								pageChange("/product/detail.do", {
 									productId: productId
 								});
+							},
+							fnGoBoardDetail(boardId) {
+								pageChange("/board/detail.do", {
+									boardId: boardId
+								});
+							},
+							getPageNumbers(currentPage, totalPage) {
+								const blockSize = 5;
+								const startPage = Math.floor((currentPage - 1) / blockSize) * blockSize + 1;
+								const endPage = Math.min(startPage + blockSize - 1, totalPage);
+
+								const pages = [];
+								for (let i = startPage; i <= endPage; i++) {
+									pages.push(i);
+								}
+								return pages;
 							},
 
 							fnGoEventDetail: function (eventId) {

@@ -25,9 +25,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
 		// 리뷰 이미지
-		registry.addResourceHandler("/upload/review/**").addResourceLocations("classpath:/static/upload/review/");
+		 registry.addResourceHandler("/img/review/**")
+         .addResourceLocations("file:///C:/Users/TJ-BU-708-P04/git/modak/modak/src/main/webapp/img/review/");
 
 		// 프로필 이미지
-		registry.addResourceHandler("/upload/profile/**").addResourceLocations("classpath:/static/upload/profile/");
+		 registry.addResourceHandler("/upload/profile/**")
+         .addResourceLocations("classpath:/static/upload/profile/");
+
 	}
 }

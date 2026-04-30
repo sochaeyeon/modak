@@ -117,4 +117,23 @@
 		OR C.DESCRIPTION LIKE CONCAT('%', #{keyword}, '%')
 		OR C.INDUTY LIKE CONCAT('%', #{keyword}, '%')
 	</select>
+<select id="selectIntegratedCommunityList" parameterType="string" resultType="hashmap">
+    SELECT
+        BOARD_ID AS boardId,
+        TITLE AS title,
+        CONTENT AS content,
+        USER_ID AS userId,
+        DATE_FORMAT(CREATED_AT, '%Y.%m.%d') AS createdAt
+    FROM BOARD
+    WHERE TITLE LIKE CONCAT('%', #{keyword}, '%')
+       OR CONTENT LIKE CONCAT('%', #{keyword}, '%')
+    ORDER BY CREATED_AT DESC
+</select>
+
+<select id="selectIntegratedCommunityCount" parameterType="string" resultType="int">
+    SELECT COUNT(*)
+    FROM BOARD
+    WHERE TITLE LIKE CONCAT('%', #{keyword}, '%')
+       OR CONTENT LIKE CONCAT('%', #{keyword}, '%')
+</select>
 </mapper>

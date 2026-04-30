@@ -1,5 +1,6 @@
 package com.example.modak.search.mapper;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -23,4 +24,8 @@ public interface SearchMapper {
 
     List<SearchEvent> selectIntegratedEventList(String keyword);
     int selectIntegratedEventCount(String keyword);
+    
+    List<HashMap<String, Object>> selectIntegratedCommunityList(String keyword);
+
+    int selectIntegratedCommunityCount(String keyword);
 }

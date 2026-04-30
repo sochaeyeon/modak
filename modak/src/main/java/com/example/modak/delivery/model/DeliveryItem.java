@@ -11,4 +11,9 @@ public class DeliveryItem {
     private Integer unitPrice;
     private String startDate;
     private String endDate;
+
+    private String productType;
+    private String imgUrl;
+    private String brandName;
+    private String categoryName;
 }

@@ -320,3 +320,117 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* 주문번호 강조 */
+.order-id {
+    color: var(--orange);
+    font-size: 18px;
+    letter-spacing: .5px;
+}
+
+.order-guide {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--brown4);
+}
+
+/* 비회원 안내 */
+.guest-guide {
+    margin-top: 18px;
+    padding: 20px;
+    border-radius: 20px;
+    background: #FFF8F3;
+    border: 1.5px solid rgba(232, 115, 42, .25);
+}
+
+.guest-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    color: var(--brown);
+    font-weight: 900;
+}
+
+.guest-head i {
+    color: var(--orange);
+}
+
+.guest-guide ul {
+    margin: 10px 0;
+    padding-left: 16px;
+}
+
+.guest-guide li {
+    font-size: 13px;
+    color: var(--brown2);
+    margin-bottom: 4px;
+}
+
+.guest-desc {
+    font-size: 12px;
+    color: var(--brown3);
+}
+
+/* 버튼 3개용 */
+.complete-btns {
+    grid-template-columns: 1fr;
+}
+
+.complete-btn.ghost {
+    background: #FFF8F3;
+    border: 1.5px solid rgba(232, 115, 42, .3);
+    color: var(--orange);
+}
+
+.complete-btn.ghost:hover {
+    background: var(--orange-pale);
+}
+
+/* 비회원 주문 조회 안내 박스 강제 적용 */
+.guest-guide {
+    margin-top: 18px;
+    padding: 20px;
+    border-radius: 20px;
+    background: #FFF8F3;
+    border: 1.5px solid rgba(232, 115, 42, .28);
+}
+
+.guest-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    color: var(--brown);
+    font-weight: 900;
+}
+
+.guest-head i {
+    color: var(--orange);
+    font-size: 18px;
+}
+
+.guest-guide>p {
+    font-size: 13px;
+    color: var(--brown3);
+    font-weight: 700;
+    line-height: 1.7;
+}
+
+.guest-guide ul {
+    margin: 10px 0;
+    padding-left: 18px;
+}
+
+.guest-guide li {
+    font-size: 13px;
+    color: var(--brown2);
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.guest-desc {
+    margin-top: 8px;
+    font-size: 12px !important;
+    color: var(--brown3) !important;
+}

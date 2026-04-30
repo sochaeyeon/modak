@@ -33,4 +33,6 @@ public interface CouponMapper {
     int selectUserCouponCount(HashMap<String, Object> map);
 
     int selectAvailableCouponCount(HashMap<String, Object> map);	
+    
+    List<UserCoupon> selectAvailableUserCouponList(HashMap<String, Object> map);
 }

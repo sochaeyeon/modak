@@ -410,8 +410,6 @@ body {
 }
 
 .co-section > .addr-name {
-/* 세 요소를 하나의 박스처럼 묶기 */
-.co-section>.addr-name {
     border-bottom: none;
     border-radius: 12px 12px 0 0;
     padding-bottom: 4px;
@@ -1030,7 +1028,7 @@ body {
     color: #fff;
     font-size: 12px;
     font-weight: 700;
-
+}
 .chk.on {
     background: var(--orange);
     border-color: var(--orange);
@@ -1399,24 +1397,6 @@ body {
     }
 }
 
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(8px);
-    }
-
-    .checkout-aside {
-        position: static;
-    }
-
-    .aside-sticky {
-        position: static;
-    }
-
-    .pay-methods {
-        grid-template-columns: 1fr 1fr;
-    }
-}
 
 @media (max-width: 480px) {
     .pay-methods {
@@ -1548,12 +1528,6 @@ body {
 .coupon-select {
     border-color: #E2D4CC;
     border-radius: 10px;
-}
-
-    to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
 }
 
 /* 넘버 입력 */

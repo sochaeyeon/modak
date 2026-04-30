@@ -418,20 +418,26 @@
                   return '장비 목록';
                 },
 
-                // 별점
+                // 별점 - 소수점 비율만큼 채우기
                 starsHTML(rating) {
-                  const score = Math.floor(Number(rating) || 0);
-                  let html = '';
+                  let score = Number(rating) || 0;
 
-                  for (let i = 1; i <= 5; i++) {
-                    html += i <= score
-                      ? '<span class="star on">★</span>'
-                      : '<span class="star off">☆</span>';
+                  if (score < 0) {
+                    score = 0;
                   }
 
-                  return html;
-                },
+                  if (score > 5) {
+                    score = 5;
+                  }
 
+                  const percent = (score / 5) * 100;
+
+                  return ''
+                    + '<span class="star-layer-wrap" aria-label="' + score.toFixed(1) + '점">'
+                    + '  <span class="star-layer star-base">★★★★★</span>'
+                    + '  <span class="star-layer star-fill" style="width:' + percent + '%">★★★★★</span>'
+                    + '</span>';
+                },
                 formatRating(rating) {
                   return (Number(rating) || 0).toFixed(1);
                 },
@@ -630,7 +636,7 @@
                     success: function (res) {
                       if (!res || res.result !== 'success') {
                         self.openConfirm(
-                          '로그인하시면 찜할 수 있어요. 로그인 화면으로 이동할까요?',
+                          '찜하려면 로그인이 필요해요!🔥 \n 로그인하고 마음에 드는 상품을 저장해보세요!',
                           function () {
                             location.href = '/user/login.do';
                           },
@@ -644,7 +650,7 @@
 
                       if (newSet.has(productId)) {
                         newSet.delete(productId);
-                        showToast('위시리스트에서 제거됐어요');
+                        showToast('위시리스트에서 제거했어요');
                       } else {
                         newSet.add(productId);
                         showToast('❤️ 위시리스트에 추가했어요!');
@@ -654,7 +660,7 @@
                     },
                     error: function (xhr) {
                       self.openConfirm(
-                        '로그인하시면 찜할 수 있어요. 로그인 화면으로 이동할까요?',
+                        '찜하려면 로그인이 필요해요!🔥 \n 로그인하고 마음에 드는 상품을 저장해보세요!',
                         function () {
                           location.href = '/user/login.do';
                         },

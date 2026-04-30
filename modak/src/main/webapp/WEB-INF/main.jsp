@@ -509,16 +509,18 @@
             (function () {
 
               function makeStars(score) {
-                var n = Math.floor(Number(score) || 0);
-                var html = '';
+                var rating = Number(score) || 0;
 
-                for (var i = 1; i <= 5; i++) {
-                  html += i <= n
-                    ? '<span class="star on">★</span>'
-                    : '<span class="star off">☆</span>';
-                }
+                if (rating < 0) rating = 0;
+                if (rating > 5) rating = 5;
 
-                return html;
+                var percent = (rating / 5) * 100;
+
+                return ''
+                  + '<span class="star-layer-wrap" aria-label="' + rating.toFixed(1) + '점">'
+                  + '  <span class="star-layer star-base">★★★★★</span>'
+                  + '  <span class="star-layer star-fill" style="width:' + percent + '%">★★★★★</span>'
+                  + '</span>';
               }
 
               function renderPopular(list) {

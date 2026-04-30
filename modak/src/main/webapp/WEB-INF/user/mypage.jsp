@@ -17,6 +17,7 @@
                     <script src="//t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
                     <link rel="stylesheet" href="/css/user/mypage.css">
                     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
                 </head>
 
                 <body>
@@ -154,7 +155,8 @@
                                             내 리뷰
                                         </div>
                                         <div class="nav-item" onclick="switchTab('bookmarks', this)">
-                                            ⭐ 스크랩한 글
+                                            <i class="ri-bookmark-line nav-ri-icon"></i>
+                                            스크랩한 글
                                         </div>
 
                                         <div class="nav-item" onclick="switchTab('chatbot', this)">
@@ -862,42 +864,70 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="tab-panel" id="tab-bookmarks">
-                                    <div class="section-card">
-                                        <div class="section-head">
-                                            <h3>스크랩한 글</h3>
-                                        </div>
 
-                                        <div class="review-list">
-                                            <div v-if="bookmarkList.length === 0" class="empty-state">
-                                                <p>스크랩한 게시글이 없습니다.</p>
+                                    <div class="tab-panel" id="tab-bookmarks">
+                                        <div class="section-card bookmark-section-card">
+                                            <div class="section-head bookmark-section-head">
+                                                <div>
+                                                    <h3>스크랩한 글</h3>
+                                                    <p class="bookmark-section-sub">나중에 다시 보고 싶은 커뮤니티 글을 모아봤어요.</p>
+                                                </div>
                                             </div>
 
-                                            <div class="review-item"
-                                                v-for="item in bookmarkList"
-                                                :key="item.BOARD_ID"
-                                                @click="fnGoBoardDetail(item.BOARD_ID)"
-                                                style="cursor:pointer;">
-
-                                                <div class="review-head">
-                                                    <div class="review-title">
-                                                        {{ item.TITLE }}
-                                                    </div>
+                                            <div class="bookmark-card-list">
+                                                <div v-if="bookmarkList.length === 0" class="empty-state">
+                                                    <p>스크랩한 게시글이 없습니다.</p>
                                                 </div>
+                                                    <div class="bookmark-community-card" v-for="item in bookmarkList"
+                                                        :key="item.boardId"
+                                                        @click="fnGoBoardDetail(item.boardId)">
+                                                    <div class="bookmark-community-body">
+                                                        <div class="bookmark-category-pill">
+                                                           {{ fnBoardCategoryText(item.category) }}
+                                                        </div>
 
-                                                <div class="review-bottom">
-                                                    <div class="review-date">
-                                                        {{ item.CREATED_AT }}
+                                                        <div class="bookmark-community-title">
+                                                            {{ item.title }}
+                                                        </div>
+
+                                                      <div class="bookmark-community-content" v-if="item.content">
+                                                        {{ fnPlainText(item.content) }}
                                                     </div>
 
-                                                    <div style="font-size:12px;color:#8B6B4A;">
-                                                        👁 {{ item.VIEW_COUNT }}
+                                                        <div class="bookmark-community-meta">
+                                                           <span class="bookmark-writer">
+                                                                {{ fnBookmarkWriter(item) }}
+                                                            </span>
+                                                            <span class="bookmark-dot">·</span>
+
+                                                            <span>{{ item.createdAt }}</span>
+
+                                                            <span class="bookmark-dot">·</span>
+
+                                                            <span class="bookmark-meta-icon">
+                                                                <i class="ri-eye-line"></i>
+                                                                {{ item.viewCount || 0 }}
+                                                            </span>
+
+                                                            <span class="bookmark-meta-icon like">
+                                                                <i class="ri-heart-3-fill"></i>
+                                                                {{ item.likeCount || 0 }}
+                                                            </span>
+
+                                                            <span class="bookmark-meta-icon">
+                                                                <i class="ri-chat-3-line"></i>
+                                                                {{ item.commentCount || 0 }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                   <div class="bookmark-thumb-wrap" v-if="fnBookmarkThumb(item)">
+                                                        <img :src="fnBookmarkThumb(item)" alt="게시글 이미지">
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
                                     <!-- ── 내 문의 목록 탭 ── -->
                                     <div class="tab-panel" id="tab-inquiries">
                                         <div class="section-card">
@@ -1048,95 +1078,122 @@
                                         <!-- 일반 회원 -->
                                         <template v-if="!settingsForm.socialType">
                                             <!-- 기본 정보 -->
-                                            <div class="section-card">
-                                                <div class="section-head">
-                                                    <h3>기본 정보</h3>
+                                            <div class="section-card account-settings-card">
+                                                <div class="account-settings-hero">
+                                                    <div>
+                                                        <div class="account-kicker">ACCOUNT SETTINGS</div>
+                                                        <h3>계정 설정</h3>
+                                                        <p>아이디, 이름, 닉네임, 연락처 정보를 관리할 수 있습니다.</p>
+                                                    </div>
+
+                                                    <div class="account-status-chip"
+                                                        :class="settingsForm.phoneVerifyYn === 'Y' ? 'verified' : 'not-verified'">
+                                                        {{ settingsForm.phoneVerifyYn === 'Y' ? '휴대폰 인증 완료' : '휴대폰 인증 필요' }}
+                                                    </div>
                                                 </div>
 
-                                                <div class="settings-form">
-                                                    <div v-if="settingsMsg" class="settings-msg"
+                                                <div class="settings-form account-settings-form">
+                                                    <div v-if="settingsMsg" class="settings-msg account-settings-msg"
                                                         :class="settingsMsgType">
                                                         {{ settingsMsg }}
                                                     </div>
 
-                                                    <div class="setting-row">
-                                                        <div class="setting-field">
-                                                            <label>이름</label>
-                                                            <input type="text" v-model="settingsForm.userName">
+                                                    <div class="account-form-grid">
+                                                        <div class="setting-field account-field">
+                                                            <label>아이디</label>
+                                                            <input type="text" v-model="settingsForm.userId"
+                                                                placeholder="아이디를 입력하세요">
+                                                            <div class="account-field-help">
+                                                                영문, 숫자 조합을 권장합니다. 변경 후 다시 로그인해야 할 수 있습니다.
+                                                            </div>
                                                         </div>
 
-                                                        <div class="setting-field">
-                                                            <label>닉네임</label>
-                                                            <input type="text" v-model="settingsForm.nickName">
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="setting-row">
-                                                        <div class="setting-field">
+                                                        <div class="setting-field account-field">
                                                             <label>이메일</label>
                                                             <input type="text" v-model="settingsForm.email" readonly>
+                                                            <div class="account-field-help muted">
+                                                                이메일은 계정 확인용으로 사용됩니다.
+                                                            </div>
                                                         </div>
 
-                                                        <div class="setting-field">
+                                                        <div class="setting-field account-field">
+                                                            <label>이름</label>
+                                                            <input type="text" v-model="settingsForm.userName"
+                                                                placeholder="이름">
+                                                        </div>
+
+                                                        <div class="setting-field account-field">
+                                                            <label>닉네임</label>
+                                                            <input type="text" v-model="settingsForm.nickName"
+                                                                placeholder="닉네임">
+                                                        </div>
+
+                                                        <div class="setting-field account-field account-phone-field">
                                                             <label>연락처</label>
 
-                                                            <div class="phone-verify-wrap">
-                                                                <div class="phone-input-row">
+                                                            <div class="phone-verify-wrap account-phone-wrap">
+                                                                <div class="phone-input-row account-phone-row">
                                                                     <input type="text" v-model="settingsForm.userPhone"
-                                                                        placeholder="01012345678"
-                                                                        @input="fnHandlePhoneChanged">
+                                                                        placeholder="01012345678">
 
-                                                                    <button type="button" class="btn-outline"
-                                                                        @click="fnSendSmsCode">
-                                                                        인증번호 받기
+                                                                    <button type="button"
+                                                                        class="btn-outline account-mini-btn"
+                                                                        @click="fnSendSmsCode"
+                                                                        :disabled="!settingsForm.userPhone">
+                                                                        인증요청
                                                                     </button>
+                                                                </div>
+
+                                                                <div class="phone-input-row account-phone-row"
+                                                                    v-if="smsInputVisible">
+                                                                    <input type="text" v-model="smsAuthCode"
+                                                                        placeholder="인증번호 입력">
+
+                                                                    <button type="button"
+                                                                        class="btn-save account-mini-btn"
+                                                                        @click="fnVerifySmsCode" :disabled="smsExpired">
+                                                                        확인
+                                                                    </button>
+                                                                </div>
+
+                                                                <div class="phone-timer-wrap" v-if="smsInputVisible">
+                                                                    <span v-if="!smsExpired" class="phone-timer-text">
+                                                                        남은 시간 {{ smsTimeLeft }}초
+                                                                    </span>
+                                                                    <span v-else class="phone-timer-expired">
+                                                                        인증 시간이 만료되었습니다.
+                                                                    </span>
                                                                 </div>
 
                                                                 <div class="phone-verify-status">
                                                                     <span v-if="settingsForm.phoneVerifyYn === 'Y'"
                                                                         class="verify-success">
-                                                                        인증 완료
-                                                                        <span v-if="settingsForm.phoneVerifiedAt">
-                                                                            ({{ settingsForm.phoneVerifiedAt }})
-                                                                        </span>
+                                                                        인증된 연락처입니다.
                                                                     </span>
-                                                                    <span v-else-if="smsInputVisible"
-                                                                        class="verify-fail">미인증</span>
-                                                                </div>
-
-                                                                <div
-                                                                    v-if="smsInputVisible && settingsForm.phoneVerifyYn !== 'Y'">
-                                                                    <div class="phone-timer-wrap"
-                                                                        v-if="smsTimeLeft > 0">
-                                                                        <span class="phone-timer-text">남은 시간 {{
-                                                                            formattedSmsTime }}</span>
-                                                                    </div>
-
-                                                                    <div class="phone-timer-wrap" v-if="smsExpired">
-                                                                        <span class="phone-timer-expired">
-                                                                            인증번호가 만료되었습니다. 다시 발급해주세요.
-                                                                        </span>
-                                                                    </div>
-
-                                                                    <div class="phone-input-row">
-                                                                        <input type="text" v-model="smsAuthCode"
-                                                                            maxlength="6" placeholder="인증번호 6자리 입력">
-
-                                                                        <button type="button" class="btn-save"
-                                                                            @click="fnVerifySmsCode">
-                                                                            인증 확인
-                                                                        </button>
-                                                                    </div>
+                                                                    <span v-else class="verify-fail">
+                                                                        연락처 변경 시 인증이 필요합니다.
+                                                                    </span>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
 
-                                                    <div class="settings-actions">
-                                                        <button type="button" class="btn-save"
-                                                            :disabled="!isSettingsChanged" @click="fnSaveSettings">
-                                                            저장
-                                                        </button>
+                                                    <div class="account-settings-bottom">
+                                                        <div class="account-save-desc">
+                                                            변경사항을 저장하면 마이페이지 프로필 정보에도 바로 반영됩니다.
+                                                        </div>
+
+                                                        <div class="settings-actions account-actions">
+                                                            <button type="button" class="btn-save account-save-btn"
+                                                                @click="fnSaveSettings" :disabled="!isSettingsChanged">
+                                                                변경사항 저장
+                                                            </button>
+
+                                                            <button type="button" class="btn-outline account-reset-btn"
+                                                                @click="fnResetSettings">
+                                                                되돌리기
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -1168,7 +1225,7 @@
                                                                 placeholder="현재 비밀번호">
                                                         </div>
 
-                                                        <div style="display:flex;gap:14px;">
+                                                        <div class="password-pair-row">
                                                             <div class="setting-field" style="flex:1">
                                                                 <label>새 비밀번호</label>
                                                                 <input type="password" v-model="passwordForm.newPwd"
@@ -1311,6 +1368,7 @@
                                 chatbotList: [],
                                 bookmarkList: [],
                                 settingsForm: {
+                                    userId: "${user.userId}",
                                     userName: "",
                                     nickName: "",
                                     email: "",
@@ -1354,6 +1412,7 @@
                                     onConfirm: null
                                 },
                                 originalSettingsForm: {
+                                    userId: "",
                                     userName: "",
                                     nickName: "",
                                     userPhone: ""
@@ -1363,7 +1422,8 @@
                         },
                         computed: {
                             isSettingsChanged() {
-                                return this.settingsForm.userName !== this.originalSettingsForm.userName
+                                return this.settingsForm.userId !== this.originalSettingsForm.userId
+                                    || this.settingsForm.userName !== this.originalSettingsForm.userName
                                     || this.settingsForm.nickName !== this.originalSettingsForm.nickName
                                     || this.settingsForm.userPhone !== this.originalSettingsForm.userPhone;
                             },
@@ -1530,29 +1590,31 @@
                                 this.modal.onConfirm = null;
                             },
                             fnGetBookmarkList: function () {
-                            let self = this;
+                                let self = this;
 
-                            $.ajax({
-                                url: "/bookmark/list.dox",
-                                type: "POST",
-                                dataType: "json",
-                                data: {},
-                                success: function (data) {
-                                    if (data.result === "success") {
-                                        self.bookmarkList = data.list || [];
-                                    } else {
+                                $.ajax({
+                                    url: "/bookmark/list.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {},
+                                    success: function (data) {
+                                        console.log("스크랩 응답 전체:", data);
+    console.log("스크랩 첫 번째:", data.list && data.list.length > 0 ? data.list[0] : null);
+                                        if (data.result === "success") {
+                                            self.bookmarkList = data.list || [];
+                                        } else {
+                                            self.bookmarkList = [];
+                                        }
+                                    },
+                                    error: function () {
                                         self.bookmarkList = [];
                                     }
-                                },
-                                error: function () {
-                                    self.bookmarkList = [];
-                                }
-                            });
-                        },
+                                });
+                            },
 
-                        fnGoBoardDetail: function (boardId) {
-                            location.href = "/board/detail.do?boardId=" + boardId;
-                        },
+                            fnGoBoardDetail: function (boardId) {
+                                location.href = "/board/detail.do?boardId=" + boardId;
+                            },
                             fnModalConfirm: function () {
                                 var callback = this.modal.onConfirm;
                                 this.fnCloseModal();
@@ -2008,6 +2070,7 @@
 
                                             let info = data.info || {};
 
+                                            self.settingsForm.userId = info.userId || "${user.userId}";
                                             self.settingsForm.userName = info.userName || "";
                                             self.settingsForm.nickName = info.nickName || "";
                                             let profileImgUrl = info.profileImgUrl || "";
@@ -2027,6 +2090,7 @@
                                             self.settingsForm.phoneVerifiedAt = info.phoneVerifiedAt || "";
                                             self.settingsForm.socialType = info.socialType || "";
                                             self.originalSettingsForm = {
+                                                userId: self.settingsForm.userId,
                                                 userName: self.settingsForm.userName,
                                                 nickName: self.settingsForm.nickName,
                                                 userPhone: self.settingsForm.userPhone
@@ -2222,15 +2286,39 @@
                             fnSaveSettings: function () {
                                 let self = this;
                                 self.settingsMsg = "";
+                                self.settingsMsgType = "";
 
-                                if (!(self.settingsForm.userName || "").trim()) {
+                                let userId = (self.settingsForm.userId || "").trim();
+                                let userName = (self.settingsForm.userName || "").trim();
+                                let nickName = (self.settingsForm.nickName || "").trim();
+                                let userPhone = (self.settingsForm.userPhone || "").replace(/[^0-9]/g, "");
+
+                                if (!userId) {
+                                    self.settingsMsg = "아이디를 입력해주세요.";
+                                    self.settingsMsgType = "error";
+                                    return;
+                                }
+
+                                if (!/^[a-zA-Z0-9_]{4,20}$/.test(userId)) {
+                                    self.settingsMsg = "아이디는 영문, 숫자, 밑줄(_) 조합 4~20자로 입력해주세요.";
+                                    self.settingsMsgType = "error";
+                                    return;
+                                }
+
+                                if (!userName) {
                                     self.settingsMsg = "이름을 입력해주세요.";
                                     self.settingsMsgType = "error";
                                     return;
                                 }
 
-                                if (!(self.settingsForm.nickName || "").trim()) {
+                                if (!nickName) {
                                     self.settingsMsg = "닉네임을 입력해주세요.";
+                                    self.settingsMsgType = "error";
+                                    return;
+                                }
+
+                                if (!userPhone) {
+                                    self.settingsMsg = "연락처를 입력해주세요.";
                                     self.settingsMsgType = "error";
                                     return;
                                 }
@@ -2240,20 +2328,37 @@
                                     type: "POST",
                                     dataType: "json",
                                     data: {
-                                        userName: self.settingsForm.userName,
-                                        nickName: self.settingsForm.nickName,
-                                        userPhone: self.settingsForm.userPhone,
+                                        userId: userId,
+                                        userName: userName,
+                                        nickName: nickName,
+                                        userPhone: userPhone,
                                         originalPhone: self.originalPhone
                                     },
                                     success: function (data) {
                                         if (data.result === "success") {
                                             self.showToast(data.message || "회원정보가 수정되었습니다.");
-                                            self.settingsMsgType = "success";
+
+                                            self.settingsForm.userId = data.userId || userId;
+                                            self.settingsForm.userName = userName;
+                                            self.settingsForm.nickName = nickName;
+                                            self.settingsForm.userPhone = userPhone;
+
+                                            self.displayUser.userName = userName;
+                                            self.displayUser.nickName = nickName;
+
+                                            self.originalPhone = userPhone;
+                                            self.verifiedPhone = userPhone;
+
                                             self.originalSettingsForm = {
+                                                userId: self.settingsForm.userId,
                                                 userName: self.settingsForm.userName,
                                                 nickName: self.settingsForm.nickName,
                                                 userPhone: self.settingsForm.userPhone
                                             };
+
+                                            self.settingsMsg = data.message || "회원정보가 수정되었습니다.";
+                                            self.settingsMsgType = "success";
+
                                             self.fnGetUserSettings();
                                         } else {
                                             self.settingsMsg = data.message || "저장에 실패했습니다.";
@@ -2266,8 +2371,24 @@
                                     }
                                 });
                             },
+                            fnResetSettings: function () {
+                                this.settingsForm.userId = this.originalSettingsForm.userId;
+                                this.settingsForm.userName = this.originalSettingsForm.userName;
+                                this.settingsForm.nickName = this.originalSettingsForm.nickName;
+                                this.settingsForm.userPhone = this.originalSettingsForm.userPhone;
+
+                                this.settingsMsg = "";
+                                this.settingsMsgType = "";
+                                this.smsInputVisible = false;
+                                this.smsAuthCode = "";
+                                this.smsExpired = false;
+                                this.smsTimeLeft = 0;
+
+                                this.fnStopSmsTimer();
+                            },
+
                             fnResetSettingsForm: function () {
-                                this.fnGetUserSettings();
+                                this.fnResetSettings();
                             },
                             fnClearSettingsMsg: function () {
                                 this.settingsMsg = "";
@@ -2588,7 +2709,16 @@
                                     return Number(wish.productId) === Number(productId);
                                 });
                             },
-
+                               fnBookmarkWriter: function (item) {
+                                    return item.nickName
+                                        || item.nickname
+                                        || item.NICKNAME
+                                        || item.userName
+                                        || item.USER_NAME
+                                        || item.userId
+                                        || item.USER_ID
+                                        || "알 수 없음";
+                                },
                             fnIsWished: function (productId) {
                                 return !!this.fnFindWish(productId);
                             },
@@ -2684,6 +2814,38 @@
                             fnEditReview: function (reviewId) {
                                 pageChange("/user/review/edit.do", { reviewId: reviewId });
                             },
+                            fnResetSettings: function () {
+                                this.settingsForm.userId = this.originalSettingsForm.userId;
+                                this.settingsForm.userName = this.originalSettingsForm.userName;
+                                this.settingsForm.nickName = this.originalSettingsForm.nickName;
+                                this.settingsForm.userPhone = this.originalSettingsForm.userPhone;
+
+                                this.settingsMsg = "";
+                                this.settingsMsgType = "";
+                                this.smsInputVisible = false;
+                                this.smsAuthCode = "";
+                            }, fnBoardCategoryText: function (category) {
+                                const map = {
+                                    FREE: "자유",
+                                    REVIEW: "후기",
+                                    TIP: "꿀팁",
+                                    QNA: "Q&A"
+                                };
+
+                                return map[category] || category || "커뮤니티";
+                            },
+
+                            fnPlainText: function (text) {
+                                if (!text) {
+                                    return "";
+                                }
+
+                                return String(text).replace(/\n/g, " ").replace(/\s+/g, " ").trim();
+                            },
+
+                            fnBookmarkThumb: function (item) {
+                                return item.thumbImgUrl || "";
+                            },            
                         }, // methods
                         mounted() {
                             let profileUrl = String(this.displayUser.profileImgUrl || "").trim();

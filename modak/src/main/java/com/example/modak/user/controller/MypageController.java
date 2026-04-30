@@ -107,10 +107,9 @@ public class MypageController {
 	@ResponseBody
 	public String getBookmarkList() {
 
-		String userId = (String) session.getAttribute("sessionId");
-		
+	    String userId = (String) session.getAttribute("sessionId");
 
-	    return new Gson().toJson(boardService.getBookmarkList(userId));
+	    return new Gson().toJson(mypageService.getBookmarkList(userId));
 	}
 	@PostMapping(value="/user/mini-profile.dox", produces="application/json;charset=UTF-8")
 	@ResponseBody

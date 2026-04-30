@@ -1657,3 +1657,41 @@ select {
     border-radius: 9px;
     font-size: 12px;
 }
+.mp-chat-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            height: 36px;
+            margin-top: 8px;
+            border: none;
+            border-radius: 10px;
+            background: var(--orange, #E8732A);
+            color: #fff;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background .16s, transform .1s;
+        }
+        .mp-chat-btn:hover  { background: var(--brown2, #5C3D1E); }
+        .mp-chat-btn:active { transform: scale(.96); }
+        .mp-chat-btn:disabled {
+            background: #C4BAA8;
+            cursor: not-allowed;
+        }
+        /* 이미 채팅방 있음 */
+        .mp-chat-btn.exists {
+            background: var(--cream, #F6F0E6);
+            border: 1.5px solid var(--orange, #E8732A);
+            color: var(--orange, #E8732A);
+        }
+        /* 신청 중 */
+        .mp-chat-btn.pending {
+            background: transparent;
+            border: 1.5px solid #C4BAA8;
+            color: #8a8070;
+            cursor: default;
+            pointer-events: none;
+        }

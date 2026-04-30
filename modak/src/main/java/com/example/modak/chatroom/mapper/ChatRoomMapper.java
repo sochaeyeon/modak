@@ -30,4 +30,12 @@ public interface ChatRoomMapper {
     int deleteBlock(HashMap<String, Object> map);
     int selectBlockExists(HashMap<String, Object> map);
     List<String> selectBlockedIds(String userId);
+    
+    int insertImageMessage(HashMap<String, Object> map);
+ // 채팅방 나가기
+    int hideRoomForMe(HashMap<String, Object> map);
+
+    // 메시지 삭제
+    int hideMessageForMe(HashMap<String, Object> map);
+    int deleteMessageForAll(HashMap<String, Object> map);
 }

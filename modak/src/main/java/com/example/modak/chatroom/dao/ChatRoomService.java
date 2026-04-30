@@ -3,7 +3,10 @@ package com.example.modak.chatroom.dao;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.File;
+import java.util.UUID;
 
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -247,6 +250,106 @@ public class ChatRoomService {
             e.printStackTrace();
             result.put("result", "fail");
         }
+        return result;
+    }
+    
+    public HashMap<String, Object> sendImageMessage(Long roomId, String userId, MultipartFile image) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            if (image == null || image.isEmpty()) {
+                result.put("result", "fail");
+                result.put("message", "이미지가 없습니다.");
+                return result;
+            }
+
+            String originalName = image.getOriginalFilename();
+            String ext = originalName.substring(originalName.lastIndexOf("."));
+            String saveName = UUID.randomUUID().toString() + ext;
+
+            String uploadPath = "C:/Users/TJ-BU-708-P04/git/modak/modak/src/main/webapp/img/chat";
+
+            File dir = new File(uploadPath);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+
+            image.transferTo(new File(dir, saveName));
+
+            String imgUrl = "/img/chat/" + saveName;
+
+            HashMap<String, Object> param = new HashMap<>();
+            param.put("roomId", roomId);
+            param.put("senderId", userId);
+            param.put("content", imgUrl);
+
+            mapper.insertImageMessage(param);
+
+            result.put("result", "success");
+            result.put("messageId", param.get("messageId"));
+            result.put("imgUrl", imgUrl);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+            result.put("message", "이미지 전송 실패");
+        }
+
+        return result;
+    }
+    @Transactional
+    public void markRead(Long roomId, String userId) {
+        HashMap<String, Object> param = new HashMap<>();
+        param.put("roomId", roomId);
+        param.put("userId", userId);
+
+        mapper.markMessagesRead(param);
+    }
+    public HashMap<String, Object> leaveRoom(Long roomId, String userId) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            HashMap<String, Object> param = new HashMap<>();
+            param.put("roomId", roomId);
+            param.put("userId", userId);
+
+            mapper.hideRoomForMe(param);
+
+            result.put("result", "success");
+            result.put("message", "채팅방을 나갔습니다.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+            result.put("message", "채팅방 나가기 실패");
+        }
+
+        return result;
+    }
+
+    public HashMap<String, Object> deleteMessage(Long roomId, Long messageId, String userId, String type) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            HashMap<String, Object> param = new HashMap<>();
+            param.put("roomId", roomId);
+            param.put("messageId", messageId);
+            param.put("userId", userId);
+
+            if ("ALL".equals(type)) {
+                mapper.deleteMessageForAll(param);
+            } else {
+                mapper.hideMessageForMe(param);
+            }
+
+            result.put("result", "success");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+            result.put("message", "메시지 삭제 실패");
+        }
+
         return result;
     }
 }

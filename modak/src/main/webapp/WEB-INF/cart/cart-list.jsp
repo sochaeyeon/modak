@@ -235,9 +235,6 @@
                                                 전액사용
                                             </button>
                                         </div>
-
-                                        
-
                                         <div class="point-help">
                                             최대 {{ formatPrice(maxUsePoint) }} 사용 가능
                                         </div>
@@ -520,8 +517,10 @@
                                 const month = this.optModal.month;
                                 const firstDay = new Date(year, month, 1).getDay();
                                 const lastDate = new Date(year, month + 1, 0).getDate();
-                                const today = new Date();
-                                today.setHours(0, 0, 0, 0);
+
+                                const tomorrow = new Date();
+                                tomorrow.setDate(tomorrow.getDate() + 1);
+                                tomorrow.setHours(0, 0, 0, 0);
 
                                 const days = [];
 
@@ -537,7 +536,7 @@
                                     days.push({
                                         date: d,
                                         full: this.fmtDate(dateObj),
-                                        isPast: checkDate < today
+                                        isPast: checkDate < tomorrow
                                     });
                                 }
 

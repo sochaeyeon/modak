@@ -186,10 +186,10 @@
 
 							<!-- RENT CALENDAR -->
 							<div class="rent-only" style="max-width:700px;">
-								<button @click="calOpen = true" style="width:100%;display:flex;justify-content:space-between;align-items:center;
-                               padding:12px 16px;background:#f9f9f9;border:1px solid #eee;
-                               border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;
-                               font-family:inherit;margin-bottom:8px;">
+								<button @click="openCalendar" style="width:100%;display:flex;justify-content:space-between;align-items:center;
+									padding:12px 16px;background:#f9f9f9;border:1px solid #eee;
+									border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;
+									font-family:inherit;margin-bottom:8px;">
 									<span>📅 날짜 선택
 										<span v-if="startDate && endDate"
 											style="color:var(--orange);margin-left:8px;font-size:13px;">{{ startDate }}
@@ -223,7 +223,10 @@
 										<div class="cal-grid">
 											<div v-for="w in ['일','월','화','수','목','금','토']" :key="w" class="day-name">
 												{{w}}</div>
-											<div v-for="(day, idx) in calendarDays" :key="idx" :class="getDayClass(day)"
+											<div v-for="(day, idx) in calendarDays"
+												:key="idx"
+												:data-date="day ? day.full : ''"
+												:class="getDayClass(day)"
 												@click="onDayClick(day)">
 												<span v-if="day">{{ day.date }}</span>
 											</div>
@@ -799,13 +802,31 @@
 						calendarDays() {
 							const firstDay = new Date(this.currentYear, this.currentMonth, 1).getDay();
 							const lastDate = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
+
+							const tomorrow = new Date();
+							tomorrow.setDate(tomorrow.getDate() + 1);
+							tomorrow.setHours(0, 0, 0, 0);
+
 							const days = [];
-							for (let i = 0; i < firstDay; i++) days.push(null);
+
+							for (let i = 0; i < firstDay; i++) {
+								days.push(null);
+							}
+
 							for (let d = 1; d <= lastDate; d++) {
 								const dateObj = new Date(this.currentYear, this.currentMonth, d);
+								dateObj.setHours(0, 0, 0, 0);
+
 								const fullStr = this.formatDateCal(dateObj);
-								days.push({ date: d, full: fullStr, isRented: this.checkIsRented(fullStr), isPast: dateObj < new Date().setHours(0, 0, 0, 0) });
+
+								days.push({
+									date: d,
+									full: fullStr,
+									isRented: this.checkIsRented(fullStr),
+									isPast: dateObj < tomorrow
+								});
 							}
+
 							return days;
 						},
 						rentDays() {
@@ -857,6 +878,27 @@
 					},
 
 					methods: {
+						openCalendar() {
+							const tomorrow = new Date();
+							tomorrow.setDate(tomorrow.getDate() + 1);
+
+							this.currentYear = tomorrow.getFullYear();
+							this.currentMonth = tomorrow.getMonth();
+							this.calOpen = true;
+
+							this.$nextTick(() => {
+								const tomorrowStr = this.formatDateCal(tomorrow);
+								const target = document.querySelector(`[data-date="${tomorrowStr}"]`);
+
+								if (target) {
+									target.classList.add('focus-day');
+									target.scrollIntoView({
+										block: 'center',
+										behavior: 'smooth'
+									});
+								}
+							});
+						},
 						/* ── 로그인 체크 ── */
 						checkLogin() {
 							let self = this;

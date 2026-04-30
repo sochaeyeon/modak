@@ -21,12 +21,19 @@
             <div id="app" v-cloak>
 
                 <!-- 브레드크럼 -->
-                <div class="step-wrap">
-                    <div class="step active">장바구니</div>
-                    <div class="step-line active"></div>
-                    <div class="step active">주문결제</div>
+                <div class="step-wrap cart-step-switch-wrap">
+                    <div class="step" :class="{ active: currentStep === 1 }" @click="goCart">장바구니</div>
                     <div class="step-line"></div>
-                    <div class="step">완료</div>
+                    <div class="step step-cart-switch"
+                        :class="{ active: currentStep === 2 }">
+                        <span class="cart-step-main">주문/결제</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step"
+                        :class="{ active: currentStep === 3 }"
+                        @click="goOrderComplete">
+                        주문완료
+                    </div>
                 </div>
 
                 <div class="checkout-wrap">
@@ -417,6 +424,7 @@
 
                                 userPoint: 0,
                                 usePoint: 0,
+                                currentStep: 1
                             };
                         },
                         computed: {
@@ -869,6 +877,17 @@
                         mounted() {
                             this.init();
                             this.checkLogin();
+
+                            // 상단 진행바 자동감지
+                            const path = location.pathname;
+
+                            if (path.includes('/cart')) {
+                                this.currentStep = 1;
+                            } else if (path.includes('/payment/checkout')) {
+                                this.currentStep = 2;
+                            } else if (path.includes('/payment/success')) {
+                                this.currentStep = 3;
+                            }
                         }
                     });
 

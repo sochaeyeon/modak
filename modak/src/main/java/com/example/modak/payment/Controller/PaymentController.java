@@ -104,6 +104,16 @@ public class PaymentController {
         }
 
         map.put("userId", userId);
+        
+        if ("RENTAL".equals(String.valueOf(map.get("cartType")))
+                || "RENTAL".equals(String.valueOf(map.get("orderType")))) {
+
+            if (isInvalidRentalStart(map)) {
+                resultMap.put("result", "fail");
+                resultMap.put("message", "대여 시작일은 내일부터 선택할 수 있습니다.");
+                return new Gson().toJson(resultMap);
+            }
+        }
 
         resultMap = paymentService.readyPayment(map);
         return new Gson().toJson(resultMap);
@@ -144,14 +154,31 @@ public class PaymentController {
         return "payment/fail"; // /WEB-INF/views/payment/fail.jsp
     }
     
- // ✅ 임시 - UI 확인용 (작업 후 삭제)
-//    @RequestMapping("/payment/complete.do")
-//    public String orderCompletePreview(
-//            @RequestParam(required = false, defaultValue = "TEST-20260429-001") String orderId,
-//            Model model) {
-//        model.addAttribute("orderId", orderId);
-//        return "payment/order-complete";
-//    }
+//  ✅ 임시 - UI 확인용 (작업 후 삭제)
+    @RequestMapping("/payment/complete.do")
+    public String orderCompletePreview(
+            @RequestParam(required = false, defaultValue = "TEST-20260429-001") String orderId,
+            Model model) {
+        model.addAttribute("orderId", orderId);
+        return "payment/order-complete";
+    }
+    
+    private boolean isInvalidRentalStart(HashMap<String, Object> map) {
+        Object startObj = map.get("rentalStart");
+
+        if (startObj == null || "".equals(String.valueOf(startObj))) {
+            startObj = map.get("startDate");
+        }
+
+        if (startObj == null || "".equals(String.valueOf(startObj))) {
+            return false;
+        }
+
+        java.time.LocalDate startDate = java.time.LocalDate.parse(String.valueOf(startObj));
+        java.time.LocalDate today = java.time.LocalDate.now();
+
+        return !startDate.isAfter(today);
+    }
     
 
 

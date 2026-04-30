@@ -107,7 +107,9 @@
 
                 <!-- 추천 질문 -->
                 <div class="faq-section" v-if="recommends.length > 0">
-                    <button class="faq-chip" v-for="q in recommends" :key="q" @click="fnFaq(q)">{{ q }}</button>
+                    <button class="faq-chip" v-for="q in recommends" :key="q" @click="fnFaq(q)">
+                        {{ q }}
+                    </button>
                     <button class="faq-chip home-btn" @click="fnGoMain">
                         <i class="ri-home-5-line"></i>
                         메인 홈으로
@@ -119,60 +121,61 @@
                         <i class="ri-chat-1-line input-icon"></i> <!-- ⭐ 여기 -->
 
                         <input type="text" class="input-box" v-model="userInput" ref="userInput"
-                            @keyup.enter="fnSendMessage" :disabled="isLoading" placeholder="모닥이에게 물어봐라닥...">
+                            @keyup.enter="fnSendMessage" placeholder="모닥이에게 물어봐라닥...">
 
-                        <button class="send-btn" @click="fnSendMessage" :disabled="isLoading">
+                        <button class="send-btn" @click="fnSendMessage">
                             <i class="ri-send-plane-2-fill"></i>
                         </button>
                     </div>
                 </div>
-        </div><!-- /.chat-main -->
-        <!-- 메인 이동 모달 -->
-        <div v-if="mainModalOpen" class="main-modal-backdrop" @click.self="fnCloseMainModal"
-            @keydown.enter.prevent="fnConfirmMain" @keydown.esc.prevent="fnCloseMainModal" tabindex="0" ref="mainModal">
+            </div><!-- /.chat-main -->
+            <!-- 메인 이동 모달 -->
+            <div v-if="mainModalOpen" class="main-modal-backdrop" @click.self="fnCloseMainModal"
+                @keydown.enter.prevent="fnConfirmMain" @keydown.esc.prevent="fnCloseMainModal" tabindex="0"
+                ref="mainModal">
 
-            <div class="main-modal-box">
-                <div class="main-modal-title">메인으로 가시겠닥?</div>
-                <div class="main-modal-desc">
-                    현재 대화 화면을 벗어나 메인으로 이동합니다.
-                </div>
+                <div class="main-modal-box">
+                    <div class="main-modal-title">메인으로 가시겠닥?</div>
+                    <div class="main-modal-desc">
+                        현재 대화 화면을 벗어나 메인으로 이동합니다.
+                    </div>
 
-                <div class="main-modal-actions">
-                    <button type="button" class="main-confirm-btn" @click="fnConfirmMain">
-                        이동
-                    </button>
-                    <button type="button" class="main-cancel-btn" @click="fnCloseMainModal">
-                        취소
-                    </button>
-                </div>
-            </div>
-        </div>
-        <!-- 삭제 확인 모달 -->
-        <div v-if="deleteModalOpen" class="main-modal-backdrop" @click.self="fnCloseDeleteModal"
-            @keydown.enter.prevent="fnConfirmDeleteRoom" @keydown.esc.prevent="fnCloseDeleteModal" tabindex="0"
-            ref="deleteModal">
-
-            <div class="main-modal-box">
-                <div class="main-modal-title">대화를 삭제하시겠닥?</div>
-                <div class="main-modal-desc">
-                    삭제한 대화 기록은 다시 복구할 수 없습니다.
-                </div>
-
-                <div class="main-modal-actions">
-                    <button type="button" class="main-confirm-btn" @click="fnConfirmDeleteRoom">
-                        삭제
-                    </button>
-                    <button type="button" class="main-cancel-btn" @click="fnCloseDeleteModal">
-                        취소
-                    </button>
+                    <div class="main-modal-actions">
+                        <button type="button" class="main-confirm-btn" @click="fnConfirmMain">
+                            이동
+                        </button>
+                        <button type="button" class="main-cancel-btn" @click="fnCloseMainModal">
+                            취소
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+            <!-- 삭제 확인 모달 -->
+            <div v-if="deleteModalOpen" class="main-modal-backdrop" @click.self="fnCloseDeleteModal"
+                @keydown.enter.prevent="fnConfirmDeleteRoom" @keydown.esc.prevent="fnCloseDeleteModal" tabindex="0"
+                ref="deleteModal">
 
-        <!-- 토스트 -->
-        <div v-if="toastOpen" class="chat-toast">
-            {{ toastMessage }}
-        </div>
+                <div class="main-modal-box">
+                    <div class="main-modal-title">대화를 삭제하시겠닥?</div>
+                    <div class="main-modal-desc">
+                        삭제한 대화 기록은 다시 복구할 수 없습니다.
+                    </div>
+
+                    <div class="main-modal-actions">
+                        <button type="button" class="main-confirm-btn" @click="fnConfirmDeleteRoom">
+                            삭제
+                        </button>
+                        <button type="button" class="main-cancel-btn" @click="fnCloseDeleteModal">
+                            취소
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 토스트 -->
+            <div v-if="toastOpen" class="chat-toast">
+                {{ toastMessage }}
+            </div>
         </div>
 
         <script>
@@ -199,6 +202,10 @@
                         deleteTargetRoomId: null,
                         toastMessage: '',
                         toastOpen: false,
+
+                        sendLocked: false,
+                        lastSendAt: 0,
+                        sendCooldownMs: 1200
                     };
 
                 },
@@ -278,13 +285,31 @@
                         });
                     },
 
-                    /* 메시지 전송 */
                     fnSendMessage() {
                         const msg = this.userInput.trim();
-                        if (!msg || this.isLoading) return;
+
+                        if (!msg) {
+                            return;
+                        }
+
+                        if (this.isLoading || this.sendLocked) {
+                            this.fnShowToast('모닥이가 답변 중이에요. 잠시만 기다려달라닥!');
+                            return;
+                        }
+
+                        const now = Date.now();
+
+                        if (now - this.lastSendAt < this.sendCooldownMs) {
+                            this.fnShowToast('너무 빠르게 보내고 있어요. 잠깐만 기다려달라닥!');
+                            return;
+                        }
+
+                        this.lastSendAt = now;
+                        this.sendLocked = true;
                         this.userInput = '';
                         this.isLoading = true;
                         this.recommends = [];
+
                         const time = this.fnGetCurrentTime();
 
                         this.messages.push({ role: 'user', message: msg, time, isLoading: false });
@@ -295,12 +320,19 @@
                             url: '/api/chat/ask.dox',
                             type: 'POST',
                             contentType: 'application/json',
-                            data: JSON.stringify({ message: msg, roomId: this.currentRoomId }),
+                            data: JSON.stringify({
+                                message: msg,
+                                roomId: this.currentRoomId
+                            }),
                             success: (res) => {
                                 const last = this.messages[this.messages.length - 1];
+
                                 last.isLoading = false;
                                 last.message = res;
+
                                 this.isLoading = false;
+                                this.sendLocked = false;
+
                                 this.fnGetRecommend(msg);
 
                                 if (this.isLogin) {
@@ -311,15 +343,24 @@
                             },
                             error: () => {
                                 const last = this.messages[this.messages.length - 1];
+
                                 last.isLoading = false;
-                                last.message = '오류가 발생했다닥! 다시 시도해봐라닥. 🔥';
+                                last.message = '오류가 발생했다닥! 잠시 후 다시 시도해봐라닥. 🔥';
+
                                 this.isLoading = false;
+                                this.sendLocked = false;
                             }
                         });
                     },
+                    fnFaq(q) {
+                        if (this.isLoading || this.sendLocked) {
+                            this.fnShowToast('모닥이가 답변 중이에요. 잠시만 기다려달라닥!');
+                            return;
+                        }
 
-                    fnFaq(q) { this.userInput = q; this.fnSendMessage(); },
-
+                        this.userInput = q;
+                        this.fnSendMessage();
+                    },
                     fnConfirmMain() {
                         window.removeEventListener('keydown', this.fnEnterMain);
                         location.href = '/main.do';

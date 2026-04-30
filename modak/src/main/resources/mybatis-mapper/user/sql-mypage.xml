@@ -200,15 +200,46 @@
 		WHERE USER_ID = #{userId}
 	</select>
 	
-	<select id="selectBookmarkList" parameterType="string" resultType="map">
-    SELECT b.BOARD_ID,
-           b.TITLE,
-           b.USER_ID,
-           b.CREATED_AT,
-           b.VIEW_COUNT
+<select id="selectBookmarkList" parameterType="string" resultType="map">
+    SELECT
+        b.BOARD_ID AS boardId,
+        b.TITLE AS title,
+        b.CONTENT AS content,
+        b.CATEGORY AS category,
+        b.USER_ID AS userId,
+
+        u.USER_NAME AS userName,
+        u.NICKNAME AS nickName,
+
+        DATE_FORMAT(b.CREATED_AT, '%Y.%m.%d') AS createdAt,
+
+        b.VIEW_COUNT AS viewCount,
+        b.LIKE_COUNT AS likeCount,
+
+        (
+            SELECT COUNT(*)
+            FROM BOARD_COMMENT bc
+            WHERE bc.BOARD_ID = b.BOARD_ID
+              AND bc.STATUS = 'ACTIVE'
+        ) AS commentCount,
+
+        (
+            SELECT bi.IMG_URL
+            FROM BOARD_IMG bi
+            WHERE bi.BOARD_ID = b.BOARD_ID
+            ORDER BY bi.SORT_ORDER ASC, bi.IMG_ID ASC
+            LIMIT 1
+        ) AS thumbImgUrl
+
     FROM BOARD_BOOKMARK bb
-    JOIN BOARD b ON bb.BOARD_ID = b.BOARD_ID
+    JOIN BOARD b
+        ON bb.BOARD_ID = b.BOARD_ID
+    LEFT JOIN USER u
+        ON b.USER_ID = u.USER_ID
+
     WHERE bb.USER_ID = #{userId}
+      AND b.STATUS = 'ACTIVE'
+
     ORDER BY bb.CREATED_AT DESC
 </select>
 <select id="selectMiniProfile" parameterType="hashmap" resultType="hashmap">

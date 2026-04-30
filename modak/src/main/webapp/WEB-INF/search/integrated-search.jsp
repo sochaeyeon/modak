@@ -11,6 +11,7 @@
 		<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 		<script src="/js/page-change.js"></script>
 		<link rel="stylesheet" href="/css/search/search.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
 	</head>
 
 	<body>
@@ -70,179 +71,241 @@
 								</label>
 							</div>
 						</div>
+						<div class="result-section-wrap">
 
-						<!-- 상품 -->
-						<transition name="filter-section">
-							<div v-show="filter.product" class="section-block">
-								<div class="search-section">
-									<div class="section-head">
-										<h3>상품 검색결과 <span class="count-em">{{ result.productCount }}</span>건</h3>
-									</div>
+							<!-- 상품 -->
+							<transition name="filter-section">
+								<div v-show="filter.product" class="section-block"
+									:style="{ order: fnSectionOrder('product') }">
+									<div class="search-section">
+										<div class="section-head">
+											<h3>상품 검색결과 <span class="count-em">{{ result.productCount }}</span>건</h3>
+										</div>
 
-									<div v-if="result.productList.length > 0" class="product-card-grid">
-										<div v-for="item in pagedProductList" :key="item.productId" class="product-card"
-											@click="fnGoProductDetail(item.productId)">
-											<img :src="item.thumbImgUrl" alt="상품 이미지">
-											<div class="product-card-title">{{ item.productName }}</div>
-											<div class="product-card-desc">{{ item.description }}</div>
-											<div class="product-card-price">{{ fnFormatNumber(item.price) }}원</div>
+										<div v-if="result.productList.length > 0" class="product-card-grid">
+											<div v-for="item in pagedProductList" :key="item.productId"
+												class="product-card" @click="fnGoProductDetail(item.productId)">
+												<img :src="item.thumbImgUrl" alt="상품 이미지">
+												<div class="product-card-title">{{ item.productName }}</div>
+												<div class="product-card-desc">{{ item.description }}</div>
+												<div class="product-card-price">{{ fnFormatNumber(item.price) }}원</div>
+											</div>
+										</div>
+										<div v-else class="empty-row">상품 검색 결과가 없습니다.</div>
+
+										<div class="pagination" v-if="totalProductPage > 1">
+											<button class="page-btn"
+												@click="fnChangePage('product', page.product - 1)">이전</button>
+											<button v-for="n in productPageNumbers" :key="'product-' + n"
+												class="page-btn" :class="{ active: page.product === n }"
+												@click="fnChangePage('product', n)">
+												{{ n }}
+											</button>
+
+											<button class="page-btn"
+												@click="fnChangePage('product', page.product + 1)">다음</button>
 										</div>
 									</div>
-									<div v-else class="empty-row">상품 검색 결과가 없습니다.</div>
+								</div>
+							</transition>
 
-									<div class="pagination" v-if="totalProductPage > 1">
+							<!-- FAQ -->
+							<transition name="filter-section">
+								<div v-show="filter.faq" class="section-block"
+									:style="{ order: fnSectionOrder('faq') }">
+									<div class="search-section">
+										<div class="section-head">
+											<h3>FAQ 검색결과 <span class="count-em">{{ result.faqCount }}</span>건</h3>
+										</div>
+
+										<div v-if="result.faqList.length > 0" class="search-list">
+											<div v-for="item in pagedFaqList" :key="item.faqId"
+												class="search-list-item faq-item">
+												<div class="search-list-content">
+													<div class="faq-q">Q. {{ item.question }}</div>
+													<div class="faq-a">A. {{ item.answer }}</div>
+													<div class="search-list-meta">{{ item.category }}</div>
+												</div>
+											</div>
+										</div>
+										<div v-else class="empty-row">FAQ 검색 결과가 없습니다.</div>
+
+										<div class="pagination" v-if="totalFaqPage > 1">
+											<button class="page-btn"
+												@click="fnChangePage('faq', page.faq - 1)">이전</button>
+											<button v-for="n in faqPageNumbers" :key="'faq-' + n" class="page-btn"
+												:class="{ active: page.faq === n }" @click="fnChangePage('faq', n)">
+												{{ n }}
+											</button>
+											<button class="page-btn"
+												@click="fnChangePage('faq', page.faq + 1)">다음</button>
+										</div>
+									</div>
+								</div>
+							</transition>
+
+							<!-- 이벤트 -->
+							<transition name="filter-section">
+								<div v-show="filter.event" class="section-block"
+									:style="{ order: fnSectionOrder('event') }">
+									<div class="search-section">
+										<div class="section-head">
+											<h3>이벤트 검색결과 <span class="count-em">{{ result.eventCount }}</span>건</h3>
+										</div>
+
+										<div v-if="result.eventList.length > 0" class="search-list">
+											<div v-for="item in pagedEventList" :key="item.eventId"
+												class="search-list-item" @click="fnGoEventDetail(item.eventId)">
+												<img v-if="item.thumbImgUrl" :src="item.thumbImgUrl"
+													class="search-list-thumb">
+
+												<div class="search-list-content">
+													<div class="search-list-title">{{ item.title }}</div>
+													<div class="search-list-desc">{{ item.content }}</div>
+													<div class="search-list-meta">
+														{{ item.startAt }} ~ {{ item.endAt }}
+													</div>
+												</div>
+											</div>
+										</div>
+										<div v-else class="empty-row">이벤트 검색 결과가 없습니다.</div>
+
+										<div class="pagination" v-if="totalEventPage > 1">
+											<button class="page-btn"
+												@click="fnChangePage('event', page.event - 1)">이전</button>
+											<button v-for="n in eventPageNumbers" :key="'event-' + n" class="page-btn"
+												:class="{ active: page.event === n }" @click="fnChangePage('event', n)">
+												{{ n }}
+											</button>
+											<button class="page-btn"
+												@click="fnChangePage('event', page.event + 1)">다음</button>
+										</div>
+									</div>
+								</div>
+							</transition>
+
+							<!-- 캠핑장 -->
+							<transition name="filter-section">
+								<div v-show="filter.camp" class="section-block"
+									:style="{ order: fnSectionOrder('camp') }">
+									<div class="search-section">
+										<div class="section-head">
+											<h3>캠핑장 검색결과 <span class="count-em">{{ result.campCount }}</span>건</h3>
+										</div>
+
+										<div v-if="result.campList.length > 0" class="search-list">
+											<div v-for="item in pagedCampList" :key="item.campId"
+												class="search-list-item" @click="fnGoCampDetail(item.campId)">
+												<img v-if="item.thumbImgUrl" :src="item.thumbImgUrl"
+													class="search-list-thumb">
+
+												<div class="search-list-content">
+													<div class="search-list-title">{{ item.campName }}</div>
+													<div class="search-list-desc">{{ item.description }}</div>
+													<div class="search-list-meta">
+														{{ item.address }} · {{ item.induty }}
+													</div>
+												</div>
+											</div>
+										</div>
+										<div v-else class="empty-row">캠핑장 검색 결과가 없습니다.</div>
+
+										<div class="pagination" v-if="totalCampPage > 1">
+											<button class="page-btn"
+												@click="fnChangePage('camp', page.camp - 1)">이전</button>
+											<button v-for="n in campPageNumbers" :key="'camp-' + n" class="page-btn"
+												:class="{ active: page.camp === n }" @click="fnChangePage('camp', n)">
+												{{ n }}
+											</button>
+											<button class="page-btn"
+												@click="fnChangePage('camp', page.camp + 1)">다음</button>
+										</div>
+									</div>
+								</div>
+							</transition>
+							<transition name="filter-section">
+								<div v-show="filter.community" class="section-block"
+									:style="{ order: fnSectionOrder('community') }">
+									<div class="search-section">
+										<div class="section-head">
+											<h3>커뮤니티 검색결과 <span class="count-em">{{ result.communityCount }}</span>건
+											</h3>
+										</div>
+
+										<div v-if="result.communityList.length > 0" class="community-result-list">
+											<div v-for="item in pagedCommunityList" :key="item.boardId"
+												class="community-result-card" @click="fnGoBoardDetail(item.boardId)">
+
+												<div class="community-result-body">
+													<div class="community-category-pill">
+														{{ fnCommunityCategoryLabel(item.category) }}
+													</div>
+
+													<div class="community-result-title">
+														{{ item.title }}
+													</div>
+
+													<div class="community-result-desc" v-if="item.content">
+														{{ fnPlainText(item.content) }}
+													</div>
+
+													<div class="community-result-meta">
+														<span class="community-writer">
+															{{ fnCommunityWriter(item) }}
+														</span>
+
+														<span class="community-dot">·</span>
+
+														<span>
+															{{ fnFormatDate(item.createdAt) }}
+														</span>
+
+														<span class="community-dot">·</span>
+
+														<span class="community-icon-meta">
+															<i class="ri-eye-line"></i>
+															{{ item.viewCount || 0 }}
+														</span>
+
+														<span class="community-icon-meta like">
+															<i class="ri-heart-3-fill"></i>
+															{{ item.likeCount || 0 }}
+														</span>
+
+														<span class="community-icon-meta">
+															<i class="ri-chat-3-line"></i>
+															{{ item.commentCount || 0 }}
+														</span>
+													</div>
+												</div>
+												<div class="community-thumb-wrap" v-if="item.thumbImgUrl">
+													<img :src="item.thumbImgUrl" alt="커뮤니티 이미지">
+												</div>
+
+												<div class="community-thumb-empty" v-else>
+													<i class="ri-chat-smile-3-line"></i>
+												</div>
+											</div>
+										</div>
+										<div v-else class="empty-row">커뮤니티 검색 결과가 없습니다.</div>
+									</div>
+									<div class="pagination" v-if="totalCommunityPage > 1">
 										<button class="page-btn"
-											@click="fnChangePage('product', page.product - 1)">이전</button>
-										<button v-for="n in productPageNumbers" :key="'product-' + n" class="page-btn"
-											:class="{ active: page.product === n }" @click="fnChangePage('product', n)">
+											@click="fnChangePage('community', page.community - 1)">이전</button>
+
+										<button v-for="n in communityPageNumbers" :key="'community-' + n"
+											class="page-btn" :class="{ active: page.community === n }"
+											@click="fnChangePage('community', n)">
 											{{ n }}
 										</button>
 
 										<button class="page-btn"
-											@click="fnChangePage('product', page.product + 1)">다음</button>
+											@click="fnChangePage('community', page.community + 1)">다음</button>
 									</div>
 								</div>
-							</div>
-						</transition>
+							</transition>
 
-						<!-- FAQ -->
-						<transition name="filter-section">
-							<div v-show="filter.faq" class="section-block">
-								<div class="search-section">
-									<div class="section-head">
-										<h3>FAQ 검색결과 <span class="count-em">{{ result.faqCount }}</span>건</h3>
-									</div>
-
-									<div v-if="result.faqList.length > 0" class="search-list">
-										<div v-for="item in pagedFaqList" :key="item.faqId"
-											class="search-list-item faq-item">
-											<div class="search-list-content">
-												<div class="faq-q">Q. {{ item.question }}</div>
-												<div class="faq-a">A. {{ item.answer }}</div>
-												<div class="search-list-meta">{{ item.category }}</div>
-											</div>
-										</div>
-									</div>
-									<div v-else class="empty-row">FAQ 검색 결과가 없습니다.</div>
-
-									<div class="pagination" v-if="totalFaqPage > 1">
-										<button class="page-btn" @click="fnChangePage('faq', page.faq - 1)">이전</button>
-										<button v-for="n in faqPageNumbers" :key="'faq-' + n" class="page-btn"
-											:class="{ active: page.faq === n }" @click="fnChangePage('faq', n)">
-											{{ n }}
-										</button>
-										<button class="page-btn" @click="fnChangePage('faq', page.faq + 1)">다음</button>
-									</div>
-								</div>
-							</div>
-						</transition>
-
-						<!-- 이벤트 -->
-						<transition name="filter-section">
-							<div v-show="filter.event" class="section-block">
-								<div class="search-section">
-									<div class="section-head">
-										<h3>이벤트 검색결과 <span class="count-em">{{ result.eventCount }}</span>건</h3>
-									</div>
-
-									<div v-if="result.eventList.length > 0" class="search-list">
-										<div v-for="item in pagedEventList" :key="item.eventId" class="search-list-item"
-											@click="fnGoEventDetail(item.eventId)">
-											<img v-if="item.thumbImgUrl" :src="item.thumbImgUrl"
-												class="search-list-thumb">
-
-											<div class="search-list-content">
-												<div class="search-list-title">{{ item.title }}</div>
-												<div class="search-list-desc">{{ item.content }}</div>
-												<div class="search-list-meta">
-													{{ item.startAt }} ~ {{ item.endAt }}
-												</div>
-											</div>
-										</div>
-									</div>
-									<div v-else class="empty-row">이벤트 검색 결과가 없습니다.</div>
-
-									<div class="pagination" v-if="totalEventPage > 1">
-										<button class="page-btn"
-											@click="fnChangePage('event', page.event - 1)">이전</button>
-										<button v-for="n in eventPageNumbers" :key="'event-' + n" class="page-btn"
-											:class="{ active: page.event === n }" @click="fnChangePage('event', n)">
-											{{ n }}
-										</button>
-										<button class="page-btn"
-											@click="fnChangePage('event', page.event + 1)">다음</button>
-									</div>
-								</div>
-							</div>
-						</transition>
-
-						<!-- 캠핑장 -->
-						<transition name="filter-section">
-							<div v-show="filter.camp" class="section-block">
-								<div class="search-section">
-									<div class="section-head">
-										<h3>캠핑장 검색결과 <span class="count-em">{{ result.campCount }}</span>건</h3>
-									</div>
-
-									<div v-if="result.campList.length > 0" class="search-list">
-										<div v-for="item in pagedCampList" :key="item.campId" class="search-list-item"
-											@click="fnGoCampDetail(item.campId)">
-											<img v-if="item.thumbImgUrl" :src="item.thumbImgUrl"
-												class="search-list-thumb">
-
-											<div class="search-list-content">
-												<div class="search-list-title">{{ item.campName }}</div>
-												<div class="search-list-desc">{{ item.description }}</div>
-												<div class="search-list-meta">
-													{{ item.address }} · {{ item.induty }}
-												</div>
-											</div>
-										</div>
-									</div>
-									<div v-else class="empty-row">캠핑장 검색 결과가 없습니다.</div>
-
-									<div class="pagination" v-if="totalCampPage > 1">
-										<button class="page-btn"
-											@click="fnChangePage('camp', page.camp - 1)">이전</button>
-										<button v-for="n in campPageNumbers" :key="'camp-' + n" class="page-btn"
-											:class="{ active: page.camp === n }" @click="fnChangePage('camp', n)">
-											{{ n }}
-										</button>
-										<button class="page-btn"
-											@click="fnChangePage('camp', page.camp + 1)">다음</button>
-									</div>
-								</div>
-							</div>
-						</transition>
-						<transition name="filter-section">
-							<div v-show="filter.community" class="section-block">
-								<div class="search-section">
-									<div class="section-head">
-										<h3>커뮤니티 검색결과 <span class="count-em">{{ result.communityCount }}</span>건</h3>
-									</div>
-
-									<div v-if="result.communityList.length > 0" class="search-list">
-										<div v-for="item in result.communityList" :key="item.boardId"
-											class="search-list-item" @click="fnGoBoardDetail(item.boardId)">
-
-											<div class="search-list-content">
-												<div class="search-list-title">{{ item.title }}</div>
-												<div class="search-list-desc">
-													{{ item.content.replace(/\n/g, ' ') }}
-												</div>
-												<div class="search-list-meta">
-													{{ item.userId }} · {{ item.createdAt }}
-												</div>
-											</div>
-										</div>
-									</div>
-
-									<div v-else class="empty-row">커뮤니티 검색 결과가 없습니다.</div>
-								</div>
-							</div>
-						</transition>
-
-
+						</div>
 					</template>
 				</div>
 			</div>
@@ -279,17 +342,55 @@
 									product: 1,
 									faq: 1,
 									event: 1,
-									camp: 1
+									camp: 1,
+									community: 1
 								},
 								pageSize: {
 									product: 8,
 									faq: 5,
 									event: 5,
-									camp: 5
+									camp: 5,
+									community: 5
 								}
 							};
 						},
 						computed: {
+							orderedSectionKeys() {
+								const defaultOrder = ['product', 'faq', 'event', 'camp', 'community'];
+
+								const sections = [
+									{
+										key: 'product',
+										count: Number(this.result.productCount || 0)
+									},
+									{
+										key: 'faq',
+										count: Number(this.result.faqCount || 0)
+									},
+									{
+										key: 'event',
+										count: Number(this.result.eventCount || 0)
+									},
+									{
+										key: 'camp',
+										count: Number(this.result.campCount || 0)
+									},
+									{
+										key: 'community',
+										count: Number(this.result.communityCount || 0)
+									}
+								];
+
+								sections.sort((a, b) => {
+									if (b.count !== a.count) {
+										return b.count - a.count;
+									}
+
+									return defaultOrder.indexOf(a.key) - defaultOrder.indexOf(b.key);
+								});
+
+								return sections.map(section => section.key);
+							},
 							pagedProductList() {
 								const start = (this.page.product - 1) * this.pageSize.product;
 								return this.result.productList.slice(start, start + this.pageSize.product);
@@ -330,6 +431,18 @@
 							},
 							totalCampPage() {
 								return Math.ceil(this.result.campList.length / this.pageSize.camp) || 1;
+							},
+							pagedCommunityList() {
+								const start = (this.page.community - 1) * this.pageSize.community;
+								return this.result.communityList.slice(start, start + this.pageSize.community);
+							},
+
+							communityPageNumbers() {
+								return this.getPageNumbers(this.page.community, this.totalCommunityPage);
+							},
+
+							totalCommunityPage() {
+								return Math.ceil(this.result.communityList.length / this.pageSize.community) || 1;
 							}
 						},
 						methods: {
@@ -372,6 +485,9 @@
 										self.page.faq = 1;
 										self.page.event = 1;
 										self.page.camp = 1;
+										self.page.community = 1;
+										const newUrl = "/search/integrated.do?keyword=" + encodeURIComponent(requestKeyword);
+										history.replaceState(null, "", newUrl);
 									},
 									error: function () {
 										alert("검색 중 오류가 발생했습니다.");
@@ -384,9 +500,7 @@
 								});
 							},
 							fnGoBoardDetail(boardId) {
-								pageChange("/board/detail.do", {
-									boardId: boardId
-								});
+								location.href = "/board/detail.do?boardId=" + encodeURIComponent(boardId);
 							},
 							getPageNumbers(currentPage, totalPage) {
 								const blockSize = 5;
@@ -425,7 +539,8 @@
 									product: this.totalProductPage,
 									faq: this.totalFaqPage,
 									event: this.totalEventPage,
-									camp: this.totalCampPage
+									camp: this.totalCampPage,
+									community: this.totalCommunityPage
 								};
 
 								if (page > totalPageMap[type]) return;
@@ -439,7 +554,63 @@
 								this.filter.faq = !allOn;
 								this.filter.event = !allOn;
 								this.filter.camp = !allOn;
-							}
+							},
+							fnPlainText: function (text) {
+								if (!text) {
+									return "";
+								}
+								return text.replace(/\n/g, " ").replace(/\s+/g, " ").trim();
+							},
+
+							fnCommunityCategoryLabel: function (category) {
+								const map = {
+									FREE: "자유",
+									REVIEW: "후기",
+									TIP: "꿀팁",
+									QNA: "Q&A"
+								};
+								return map[category] || category || "커뮤니티";
+							},
+
+							fnFormatDate: function (value) {
+								if (!value) {
+									return "";
+								}
+
+								const date = new Date(value);
+								if (isNaN(date.getTime())) {
+									return String(value).slice(0, 10);
+								}
+
+								const now = new Date();
+								const diff = Math.floor((now - date) / 1000);
+
+								if (diff < 60) {
+									return "방금 전";
+								}
+
+								if (diff < 3600) {
+									return Math.floor(diff / 60) + "분 전";
+								}
+
+								if (diff < 86400) {
+									return Math.floor(diff / 3600) + "시간 전";
+								}
+
+								return String(value).slice(0, 10);
+							}, fnSectionOrder: function (type) {
+								const index = this.orderedSectionKeys.indexOf(type);
+								return index === -1 ? 99 : index + 1;
+							}, fnCommunityWriter: function (item) {
+								return item.userName
+									|| item.USER_NAME
+									|| item.nickname
+									|| item.NICKNAME
+									|| item.nickName
+									|| item.userId
+									|| item.USER_ID
+									|| '알 수 없음';
+							},
 						},
 						mounted() {
 							if (this.inputKeyword && this.inputKeyword.trim()) {

@@ -1551,10 +1551,31 @@ body {
     margin-right: 14px;
     flex-shrink: 0;
 }
+
 #app:has(.sidebar.closed) .chat-header {
     padding-left: 30px;
 }
 
 .sidebar-top {
     flex-shrink: 0;
+}
+
+.faq-chip:disabled,
+.send-btn:disabled,
+.input-box:disabled {
+    cursor: not-allowed;
+}
+
+.faq-chip:disabled {
+    opacity: .55;
+    background: #f3eadc;
+    color: var(--brown4);
+    border-color: var(--cream3);
+}
+
+.send-btn:disabled {
+    opacity: .55;
+    background: #ddd !important;
+    border-color: #ddd !important;
+    color: #aaa !important;
 }

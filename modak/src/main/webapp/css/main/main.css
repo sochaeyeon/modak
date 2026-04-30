@@ -1,4 +1,3 @@
-
 * {
     margin: 0;
     padding: 0;
@@ -1181,7 +1180,7 @@ a {
     background: #d45f1d;
     transform: scale(0.95);
     box-shadow: 0 4px 10px rgb(192, 192, 192) inset,
-        
+
         0 2px 8px rgb(192, 192, 192);
 }
 
@@ -1675,6 +1674,7 @@ a {
 }
 
 @media (max-width: 768px) {
+
     .section,
     .section-alt,
     .guide-section,
@@ -1762,204 +1762,211 @@ a {
 }
 
 @keyframes auroraWave1 {
+
     0%,
-        100% {
-            transform: translateY(0) scaleX(1) rotate(-3deg);
-        }
-    
-        50% {
-            transform: translateY(-40px) scaleX(1.1) rotate(3deg);
-        }
+    100% {
+        transform: translateY(0) scaleX(1) rotate(-3deg);
+    }
+
+    50% {
+        transform: translateY(-40px) scaleX(1.1) rotate(3deg);
+    }
 }
 
 @keyframes auroraWave2 {
+
     0%,
-        100% {
-            transform: translateY(0) scaleX(1) rotate(4deg);
-        }
-    
-        50% {
-            transform: translateY(35px) scaleX(.93) rotate(-4deg);
-        }
+    100% {
+        transform: translateY(0) scaleX(1) rotate(4deg);
+    }
+
+    50% {
+        transform: translateY(35px) scaleX(.93) rotate(-4deg);
+    }
 }
 
 @keyframes auroraWave3 {
+
     0%,
-        100% {
-            transform: translateY(0) scaleX(1) rotate(-2deg);
-        }
-    
-        33% {
-            transform: translateY(-25px) scaleX(1.06) rotate(2deg);
-        }
-    
-        66% {
-            transform: translateY(20px) scaleX(.96) rotate(-3deg);
-        }
+    100% {
+        transform: translateY(0) scaleX(1) rotate(-2deg);
+    }
+
+    33% {
+        transform: translateY(-25px) scaleX(1.06) rotate(2deg);
+    }
+
+    66% {
+        transform: translateY(20px) scaleX(.96) rotate(-3deg);
+    }
 }
 
 @keyframes auroraWave4 {
+
     0%,
-        100% {
-            transform: translateX(0) scaleY(1) rotate(5deg);
-        }
-    
-        50% {
-            transform: translateX(50px) scaleY(1.1) rotate(-5deg);
-        }
+    100% {
+        transform: translateX(0) scaleY(1) rotate(5deg);
+    }
+
+    50% {
+        transform: translateX(50px) scaleY(1.1) rotate(-5deg);
+    }
 }
 
 @keyframes smokeRise {
     0% {
-            transform: translateY(0) scale(1);
-            opacity: 0;
-        }
-    
-        10% {
-            opacity: .6;
-        }
-    
-        100% {
-            transform: translateY(-280px) scale(4);
-            opacity: 0;
-        }
+        transform: translateY(0) scale(1);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: .6;
+    }
+
+    100% {
+        transform: translateY(-280px) scale(4);
+        opacity: 0;
+    }
 }
 
 @keyframes leafFall {
     0% {
-            transform: translateY(0) translateX(0) rotate(0deg);
-            opacity: 0;
-        }
-    
-        10% {
-            opacity: 1;
-        }
-    
-        50% {
-            transform: translateY(40vh) translateX(calc(var(--sway)*.5)) rotate(calc(var(--rot)*.5));
-        }
-    
-        90% {
-            opacity: .6;
-        }
-    
-        100% {
-            transform: translateY(100vh) translateX(var(--sway)) rotate(var(--rot));
-            opacity: 0;
-        }
+        transform: translateY(0) translateX(0) rotate(0deg);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    50% {
+        transform: translateY(40vh) translateX(calc(var(--sway)*.5)) rotate(calc(var(--rot)*.5));
+    }
+
+    90% {
+        opacity: .6;
+    }
+
+    100% {
+        transform: translateY(100vh) translateX(var(--sway)) rotate(var(--rot));
+        opacity: 0;
+    }
 }
 
 @keyframes emberFloat {
     0% {
-            transform: translateY(0) translateX(0) scale(1);
-            opacity: 1;
-        }
-    
-        70% {
-            opacity: .8;
-        }
-    
-        100% {
-            transform: translateY(-380px) translateX(var(--dx)) scale(.2);
-            opacity: 0;
-        }
+        transform: translateY(0) translateX(0) scale(1);
+        opacity: 1;
+    }
+
+    70% {
+        opacity: .8;
+    }
+
+    100% {
+        transform: translateY(-380px) translateX(var(--dx)) scale(.2);
+        opacity: 0;
+    }
 }
 
 @keyframes glowPulse {
     from {
-            transform: translate(-50%, -55%) scale(1);
-            opacity: .8;
-        }
-    
-        to {
-            transform: translate(-50%, -55%) scale(1.15);
-            opacity: 1;
-        }
+        transform: translate(-50%, -55%) scale(1);
+        opacity: .8;
+    }
+
+    to {
+        transform: translate(-50%, -55%) scale(1.15);
+        opacity: 1;
+    }
 }
 
 @keyframes flicker {
     0% {
-            transform: scaleX(1) scaleY(1) rotate(-1deg);
-        }
-    
-        25% {
-            transform: scaleX(1.03) scaleY(.97) rotate(.5deg);
-        }
-    
-        50% {
-            transform: scaleX(.97) scaleY(1.03) rotate(-.5deg);
-        }
-    
-        75% {
-            transform: scaleX(1.02) scaleY(.98) rotate(1deg);
-        }
-    
-        100% {
-            transform: scaleX(.99) scaleY(1.02) rotate(-1.5deg);
-        }
+        transform: scaleX(1) scaleY(1) rotate(-1deg);
+    }
+
+    25% {
+        transform: scaleX(1.03) scaleY(.97) rotate(.5deg);
+    }
+
+    50% {
+        transform: scaleX(.97) scaleY(1.03) rotate(-.5deg);
+    }
+
+    75% {
+        transform: scaleX(1.02) scaleY(.98) rotate(1deg);
+    }
+
+    100% {
+        transform: scaleX(.99) scaleY(1.02) rotate(-1.5deg);
+    }
 }
 
 @keyframes emberPulse {
     from {
-            opacity: .7;
-            transform: scaleX(1);
-        }
-    
-        to {
-            opacity: 1;
-            transform: scaleX(1.1);
-        }
+        opacity: .7;
+        transform: scaleX(1);
+    }
+
+    to {
+        opacity: 1;
+        transform: scaleX(1.1);
+    }
 }
 
 @keyframes scrollBounce {
+
     0%,
-        100% {
-            transform: translateY(0);
-        }
-    
-        50% {
-            transform: translateY(6px);
-        }
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(6px);
+    }
 }
 
 @keyframes spin {
     to {
-            transform: rotate(360deg);
-        }
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes shimmer {
+
     0%,
-        100% {
-            opacity: .6;
-        }
-    
-        50% {
-            opacity: 1;
-        }
+    100% {
+        opacity: .6;
+    }
+
+    50% {
+        opacity: 1;
+    }
 }
 
 @keyframes fabPulse {
+
     0%,
-        100% {
-            box-shadow: 0 8px 24px rgba(232, 115, 42, .4);
-        }
-    
-        50% {
-            box-shadow: 0 8px 32px rgba(232, 115, 42, .65);
-        }
+    100% {
+        box-shadow: 0 8px 24px rgba(232, 115, 42, .4);
+    }
+
+    50% {
+        box-shadow: 0 8px 32px rgba(232, 115, 42, .65);
+    }
 }
 
 @keyframes modalFadeUp {
     from {
-            opacity: 0;
-            transform: translateY(18px);
-        }
-    
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        opacity: 0;
+        transform: translateY(18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .hero {
@@ -2274,15 +2281,54 @@ a {
 }
 
 .recent-bar {
-   z-index: 900 !important;
-}
-.scroll-progress{
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 1px;
-  width: 0;
-  background: var(--orange);
-  z-index: 9999;
+    z-index: 900 !important;
 }
 
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 1px;
+    width: 0;
+    background: var(--orange);
+    z-index: 9999;
+}
+
+/* 인기 장비 별점: 소수점 비율만큼 채우기 */
+#popularGrid .rating-stars {
+    display: inline-flex;
+    align-items: center;
+    color: inherit !important;
+}
+
+#popularGrid .star-layer-wrap {
+    position: relative;
+    display: inline-block;
+    width: 70px;
+    height: 16px;
+    line-height: 16px;
+    font-size: 14px;
+    letter-spacing: 0;
+    overflow: hidden;
+    vertical-align: middle;
+}
+
+#popularGrid .star-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    white-space: nowrap;
+    line-height: 16px;
+    font-size: 14px;
+    letter-spacing: 0;
+}
+
+#popularGrid .star-base {
+    color: #ddd;
+}
+
+#popularGrid .star-fill {
+    color: #f5b301;
+    overflow: hidden;
+    width: 0;
+}

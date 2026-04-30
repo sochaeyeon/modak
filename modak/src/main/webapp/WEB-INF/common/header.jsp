@@ -288,5 +288,5 @@
                         cartCountEl.style.display = 'flex';
                     }
                 });
-            }
+            }S
         </script>

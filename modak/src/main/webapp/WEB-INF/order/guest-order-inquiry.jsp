@@ -9,7 +9,6 @@
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <link rel="stylesheet" href="/css/order/guest-inquiry.css">
         <link rel="stylesheet" href="/css/common/font.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
 
     </head>
 
@@ -58,24 +57,31 @@
                     <button class="btn-submit" id="btnSubmit" onclick="fnSubmit()">
                         주문 조회하기
                     </button>
-                    <a href="/order/guest/orders.do" class="btn-guest-all">
-                        <i class="ri-file-list-3-line"></i>
-                        <span>전체 주문내역 조회하기</span>
-                        <em>SMS 인증 필요</em>
-                    </a>
+					<!-- btn-submit 버튼 아래에 추가 -->
+					<div style="text-align:center; margin:12px 0;">
+					    <a href="/order/guest/orders.do"
+					       style="font-size:13px; color:var(--orange); font-weight:700; text-decoration:none;">
+					        📋 전체 주문내역 조회하기 (SMS 인증)
+					    </a>
+					</div>
+					<!-- 기존 signup-promo 위에 추가 -->
+					<div style="margin-bottom:16px;text-align:center;">
+					    <a href="/order/guest/orders.do" 
+					       style="display:inline-block;padding:12px 24px;border:1.5px solid #E8732A;
+					              border-radius:10px;color:#E8732A;font-size:13px;font-weight:700;
+					              text-decoration:none;transition:all .18s;"
+					       onmouseover="this.style.background='#E8732A';this.style.color='#fff'"
+					       onmouseout="this.style.background='transparent';this.style.color='#E8732A'">
+					        📋 전체 주문내역 조회 (SMS 인증)
+					    </a>
+					</div>
                     <div class="signup-promo">
-                        <div class="coupon-badge">신규가입 혜택</div>
-
                         <p class="promo-text">
-                            지금 가입하면 <strong>3,000원 쿠폰</strong> 지급!
+                            회원으로 가입하면 <strong>간편한 주문내역 조회</strong>와<br>
+                            다양한 혜택을 받을 수 있어요.
                         </p>
-
-                        <p class="promo-sub">
-                            회원은 주문내역을 더 간편하게 확인할 수 있어요.
-                        </p>
-
                         <a href="/user/join.do" class="btn-signup-link">
-                            회원가입하고 쿠폰 받기
+                            👉 회원가입 하고 더 편하게 이용하기
                         </a>
                     </div>
                 </section>

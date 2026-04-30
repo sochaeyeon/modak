@@ -11,12 +11,10 @@ import com.example.modak.delivery.model.DeliveryItem;
 @Mapper
 public interface DeliveryMapper {
 
-	DeliveryDetail selectDeliveryDetail(@Param("deliveryId") Integer deliveryId, @Param("userId") String userId);
+    DeliveryDetail selectDeliveryDetail(@Param("deliveryId") Integer deliveryId,
+                                        @Param("userId") String userId);
 
-	List<DeliveryItem> selectDeliveryItemList(@Param("orderId") Long orderId);
-
-	int updateDeliveryTrackingSync(DeliveryDetail delivery);
-
-	DeliveryDetail selectDeliveryDetailByOrderId(@Param("orderId") Long orderId, @Param("userId") String userId,
-			@Param("token") String token);
+    List<DeliveryItem> selectDeliveryItemList(@Param("orderId") Long orderId);
+    
+    int updateDeliveryTrackingSync(DeliveryDetail delivery);
 }

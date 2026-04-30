@@ -24,34 +24,33 @@ public class DeliveryService {
 
 	public DeliveryDetail getDeliveryDetail(Integer deliveryId, String userId) {
 
-		DeliveryDetail delivery = deliveryMapper.selectDeliveryDetail(deliveryId, userId);
+	    DeliveryDetail delivery = deliveryMapper.selectDeliveryDetail(deliveryId, userId);
 
-		if (delivery == null) {
-			return null;
-		}
+	    if (delivery == null) {
+	        return null;
+	    }
 
-		List<DeliveryItem> itemList = deliveryMapper.selectDeliveryItemList(delivery.getOrderId());
-		delivery.setItemList(itemList);
+	    List<DeliveryItem> itemList = deliveryMapper.selectDeliveryItemList(delivery.getOrderId());
+	    delivery.setItemList(itemList);
 
-		// 1. API 조회
-		applyTrackingResult(delivery);
+	    // 1. API 조회
+	    applyTrackingResult(delivery);
 
-		// 2. API 결과를 DB에 반영
-		syncTrackingResultToDb(delivery);
+	    // 2. API 결과를 DB에 반영
+	    syncTrackingResultToDb(delivery);
 
-		// 3. DB 반영 후 다시 조회해서 최신값 사용
-		delivery = deliveryMapper.selectDeliveryDetail(deliveryId, userId);
-		delivery.setItemList(itemList);
+	    // 3. DB 반영 후 다시 조회해서 최신값 사용
+	    delivery = deliveryMapper.selectDeliveryDetail(deliveryId, userId);
+	    delivery.setItemList(itemList);
 
-		// 4. 화면 상태 계산
-		applyTrackingResult(delivery);
-		applyDeliveryStatusInfo(delivery);
-		applyDisplayInfo(delivery);
+	 // 4. 화면 상태 계산
+	    applyTrackingResult(delivery);
+	    applyDeliveryStatusInfo(delivery);
+	    applyDisplayInfo(delivery);
 
-		return delivery;
+	    return delivery;
 
 	}
-
 	private void applyTrackingResult(DeliveryDetail delivery) {
 
 		if (delivery.getTrackingNo() == null || delivery.getTrackingNo().equals("")) {
@@ -175,23 +174,26 @@ public class DeliveryService {
 	}
 
 	private String normalizeTrackingStatus(String apiStatus) {
-		if (apiStatus == null || apiStatus.equals("")) {
-			return "";
-		}
+	    if (apiStatus == null || apiStatus.equals("")) {
+	        return "";
+	    }
 
-		String upper = apiStatus.toUpperCase();
+	    String upper = apiStatus.toUpperCase();
 
-		if (apiStatus.contains("배송완료") || apiStatus.contains("배달완료") || upper.contains("DELIVERED")) {
-			return "DONE";
-		}
+	    if (apiStatus.contains("배송완료")
+	            || apiStatus.contains("배달완료")
+	            || upper.contains("DELIVERED")) {
+	        return "DONE";
+	    }
 
-		if (apiStatus.contains("배송중") || upper.contains("TRANSIT") || upper.contains("SHIPPING")) {
-			return "SHIPPING";
-		}
+	    if (apiStatus.contains("배송중")
+	            || upper.contains("TRANSIT")
+	            || upper.contains("SHIPPING")) {
+	        return "SHIPPING";
+	    }
 
-		return "";
+	    return "";
 	}
-
 	private void applyDisplayInfo(DeliveryDetail delivery) {
 
 		// 주문유형 한글화
@@ -227,127 +229,60 @@ public class DeliveryService {
 
 		// 주소 표시값
 		if (delivery.getAddress() == null || delivery.getAddress().trim().equals("")) {
-			delivery.setDisplayAddress("등록된 배송지 정보가 없습니다.");
+		    delivery.setDisplayAddress("등록된 배송지 정보가 없습니다.");
 		} else {
-			delivery.setDisplayAddress(delivery.getAddress());
+		    delivery.setDisplayAddress(delivery.getAddress());
 		}
 
 		// 배송완료일시 표시값
 		if (!"DONE".equalsIgnoreCase(delivery.getDeliveryStatus())) {
-			delivery.setDeliveredAtLabel("-");
+		    delivery.setDeliveredAtLabel("-");
 		} else if (delivery.getDeliveredAt() == null || delivery.getDeliveredAt().trim().equals("")) {
-			delivery.setDeliveredAtLabel("배송완료 처리되었으나 완료일시 정보가 없습니다.");
+		    delivery.setDeliveredAtLabel("배송완료 처리되었으나 완료일시 정보가 없습니다.");
 		} else {
-			delivery.setDeliveredAtLabel(delivery.getDeliveredAt());
+		    delivery.setDeliveredAtLabel(delivery.getDeliveredAt());
 		}
 	}
-
+	
 	private void syncTrackingResultToDb(DeliveryDetail delivery) {
 
-		if (delivery.getTrackingResult() == null || !delivery.getTrackingResult().isSuccess()) {
-			return;
-		}
+	    if (delivery.getTrackingResult() == null || !delivery.getTrackingResult().isSuccess()) {
+	        return;
+	    }
 
-		String apiStatus = delivery.getTrackingResult().getLastStatus();
-		String normalizedStatus = normalizeTrackingStatus(apiStatus);
+	    String apiStatus = delivery.getTrackingResult().getLastStatus();
+	    String normalizedStatus = normalizeTrackingStatus(apiStatus);
 
-		if ("DONE".equals(normalizedStatus)) {
-			delivery.setDeliveryStatus("DONE");
+	    if ("DONE".equals(normalizedStatus)) {
+	        delivery.setDeliveryStatus("DONE");
 
-			if (delivery.getTrackingResult().getLastTime() != null
-					&& !delivery.getTrackingResult().getLastTime().isBlank()) {
-				String lastTime = delivery.getTrackingResult().getLastTime();
+	        if (delivery.getTrackingResult().getLastTime() != null
+	                && !delivery.getTrackingResult().getLastTime().isBlank()) {
+	        	String lastTime = delivery.getTrackingResult().getLastTime();
 
-				String formattedTime = convertToMysqlDatetime(lastTime);
+	        	String formattedTime = convertToMysqlDatetime(lastTime);
 
-				delivery.setDeliveredAt(formattedTime);
-			}
-		} else if ("SHIPPING".equals(normalizedStatus)) {
-			delivery.setDeliveryStatus("SHIPPING");
-			delivery.setDeliveredAt(null);
-		} else {
-			return;
-		}
-
-		deliveryMapper.updateDeliveryTrackingSync(delivery);
+	        	delivery.setDeliveredAt(formattedTime);
+	        }
+	    } else if ("SHIPPING".equals(normalizedStatus)) {
+	        delivery.setDeliveryStatus("SHIPPING");
+	        delivery.setDeliveredAt(null);
+	    } else {
+	        return;
+	    }
+	    
+	    deliveryMapper.updateDeliveryTrackingSync(delivery);
 	}
 
 	private String convertToMysqlDatetime(String isoTime) {
 
-		if (isoTime == null || isoTime.isBlank()) {
-			return null;
-		}
+	    if (isoTime == null || isoTime.isBlank()) {
+	        return null;
+	    }
 
-		OffsetDateTime odt = OffsetDateTime.parse(isoTime);
+	    OffsetDateTime odt = OffsetDateTime.parse(isoTime);
 
-		return odt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+	    return odt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 	}
 
-	public DeliveryDetail getDeliveryDetailByOrderId(Long orderId, String userId, String token) {
-
-		DeliveryDetail delivery = deliveryMapper.selectDeliveryDetailByOrderId(orderId, userId, token);
-
-		// 👉 배송 등록 안된 상태
-		if (delivery == null || delivery.getDeliveryId() == null) {
-			return getReadyDeliveryDetail(orderId);
-		}
-
-		List<DeliveryItem> itemList = deliveryMapper.selectDeliveryItemList(orderId);
-		delivery.setItemList(itemList);
-
-		applyTrackingResult(delivery);
-		syncTrackingResultToDb(delivery);
-
-		delivery = deliveryMapper.selectDeliveryDetailByOrderId(orderId, userId, token);
-		delivery.setItemList(itemList);
-
-		applyTrackingResult(delivery);
-		applyDeliveryStatusInfo(delivery);
-		applyDisplayInfo(delivery);
-
-		return delivery;
-	}
-
-	public DeliveryDetail getReadyDeliveryDetail(Long orderId) {
-
-		DeliveryDetail delivery = new DeliveryDetail();
-
-		delivery.setOrderId(orderId);
-
-		// 주문 기본 정보는 최소값으로 세팅
-		delivery.setOrderType("PURCHASE"); // 필요하면 조회해서 세팅
-		delivery.setOrderStatus("READY");
-
-		// 배송 관련 값 없음
-		delivery.setDeliveryId(null);
-		delivery.setDeliveryStatus("PREPARING");
-		delivery.setTrackingNo(null);
-		delivery.setCarrierId(null);
-
-		// UI용 상태
-		delivery.setStatusLabel("배송 준비중");
-		delivery.setStatusMessage("아직 관리자가 배송 정보를 등록하지 않았습니다.");
-		delivery.setStepNo(1);
-		delivery.setProgressPercent(25);
-		delivery.setReturnFlow(false);
-
-		// 표시용
-		delivery.setOrderTypeLabel("구매");
-		delivery.setOrderStatusLabel("배송준비");
-		delivery.setCarrierName("미등록");
-		delivery.setDisplayAddress("배송 정보 등록 전");
-		delivery.setDeliveredAtLabel("-");
-
-		// 배송추적 결과
-		DeliveryTrackingResult result = new DeliveryTrackingResult();
-		result.setSuccess(false);
-		result.setErrorMessage("배송 정보가 아직 등록되지 않았습니다.");
-		delivery.setTrackingResult(result);
-
-		// 상품 목록은 보여줘야 하니까 조회
-		List<DeliveryItem> itemList = deliveryMapper.selectDeliveryItemList(orderId);
-		delivery.setItemList(itemList);
-
-		return delivery;
-	}
 }

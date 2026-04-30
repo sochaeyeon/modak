@@ -86,10 +86,4 @@ public class CouponService {
 
         return couponMapper.selectUserCouponList(map);
     }
-    public List<UserCoupon> selectAvailableCouponList(String userId) {
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("userId", userId);
-
-        return couponMapper.selectAvailableUserCouponList(map);
-    }
 }

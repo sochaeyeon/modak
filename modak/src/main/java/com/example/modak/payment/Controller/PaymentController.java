@@ -120,10 +120,9 @@ public class PaymentController {
         HashMap<String, Object> resultMap = paymentService.confirmPayment(paymentKey, orderId, amount);
 
         if ("success".equals(resultMap.get("result"))) {
-            String pureOrderId = orderId.replace("modak-", ""); 
-            model.addAttribute("orderId", pureOrderId); 
+            model.addAttribute("orderId", orderId);
             return "payment/order-complete";
-        }else if ("error".equals(resultMap.get("result"))) {
+        } else if ("error".equals(resultMap.get("result"))) {
             // ✅ DB 처리 오류 → 404 에러 페이지
             return "error/error";
         } else {

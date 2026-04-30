@@ -146,7 +146,9 @@
 
                             <div class="search-wrap">
                                 <input v-model="keyword" placeholder="검색어 입력" @keyup.enter="fnSearch">
-                                <button @click="fnSearch">🔍</button>
+                                <button type="button" @click="fnSearch" aria-label="검색">
+                                    <i class="ri-search-line"></i>
+                                </button>
                             </div>
                         </div>
 

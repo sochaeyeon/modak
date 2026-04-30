@@ -23,7 +23,7 @@ public interface AdminMapper {
        ========================================================== */
     // 당월(이번 달) 누적 매출액 조회
     long selectMonthSales(); 
-
+    void updateRefundStatus(Map<String, Object> map);
     // 전월(지난 달) 누적 매출액 조회 (매출 비교용)
     long selectLastMonthSales(); 
 

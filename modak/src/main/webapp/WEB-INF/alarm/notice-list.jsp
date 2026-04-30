@@ -53,9 +53,14 @@
                         :class="{ unread: item.IS_READ === 'N', read: item.IS_READ === 'Y' }"
                         @click="fnGoDetail(item.ALARM_ID)">
 
+                        <!-- 기존 아이콘 부분 교체 -->
                         <div class="alarm-icon">
                             <i v-if="item.TYPE === 'DELIVERY'" class="fa-solid fa-truck"></i>
                             <i v-else-if="item.TYPE === 'EVENT'" class="fa-solid fa-gift"></i>
+                            <i v-else-if="item.TYPE === 'BOARD_COMMENT'" class="fa-solid fa-comment"></i>
+                            <i v-else-if="item.TYPE === 'BOARD_REPLY'" class="fa-solid fa-reply"></i>
+                            <i v-else-if="item.TYPE === 'BOARD_LIKE'" class="fa-solid fa-heart"></i>
+                            <i v-else-if="item.TYPE === 'COMMENT_LIKE'" class="fa-regular fa-heart"></i>
                             <i v-else class="fa-solid fa-bullhorn"></i>
                         </div>
 
@@ -151,7 +156,29 @@
                                 }
                             });
                         },
-                        fnGoDetail(id) { location.href = "/alarm/notice-detail.do?alarmId=" + id; },
+                        fnGoDetail(id) {
+                            // ★ 먼저 읽음 처리 후 타입에 따라 이동
+                            const item = this.alarmList.find(a => a.ALARM_ID === id);
+
+                            $.ajax({
+                                url: '/alarm/read.dox', type: 'POST',
+                                data: { alarmId: id },
+                                complete: () => {
+                                    if (!item) {
+                                        location.href = '/alarm/notice-detail.do?alarmId=' + id;
+                                        return;
+                                    }
+
+                                    // 게시글/댓글 관련 알림 → 게시글로 바로 이동
+                                    const boardTypes = ['BOARD_COMMENT', 'BOARD_REPLY', 'BOARD_LIKE', 'COMMENT_LIKE'];
+                                    if (boardTypes.includes(item.TYPE) && item.LINK_ID) {
+                                        location.href = '/board/detail.do?boardId=' + item.LINK_ID;
+                                    } else {
+                                        location.href = '/alarm/notice-detail.do?alarmId=' + id;
+                                    }
+                                }
+                            });
+                        },
                         fnRemove(id) {
                             this.deleteMode = 'single';
                             this.deleteAlarmId = id;

@@ -211,4 +211,33 @@
     WHERE bb.USER_ID = #{userId}
     ORDER BY bb.CREATED_AT DESC
 </select>
+<select id="selectMiniProfile" parameterType="hashmap" resultType="hashmap">
+    SELECT
+        U.USER_ID         AS userId,   -- ★ 추가
+        U.NICKNAME        AS nickname,
+        U.PROFILE_IMG_URL AS profileImg,
+        (SELECT COUNT(*) FROM BOARD
+         WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') AS boardCount,
+        (SELECT COUNT(*) FROM BOARD_COMMENT
+         WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') AS commentCount,
+        (SELECT COALESCE(SUM(LIKE_COUNT), 0) FROM BOARD
+         WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') AS likeCount,
+        CASE
+            WHEN (SELECT COUNT(*) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') >= 100
+              OR (SELECT COALESCE(SUM(LIKE_COUNT),0) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') >= 500
+            THEN 'MODAK'
+            WHEN (SELECT COUNT(*) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') >= 50
+              OR (SELECT COALESCE(SUM(LIKE_COUNT),0) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') >= 200
+            THEN 'FIRE_CAMPER'
+            WHEN (SELECT COUNT(*) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') >= 20
+              OR (SELECT COALESCE(SUM(LIKE_COUNT),0) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') >= 50
+            THEN 'CAMPER'
+            WHEN (SELECT COUNT(*) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') >= 5
+              OR (SELECT COUNT(*) FROM BOARD_COMMENT WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') >= 10
+            THEN 'EMBER'
+            ELSE 'SPROUT'
+        END AS communityGrade
+    FROM USER U
+    WHERE U.USER_ID = #{userId}
+</select>
 </mapper>

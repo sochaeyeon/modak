@@ -42,4 +42,6 @@ public interface MypageMapper {
 	int selectCouponCount(@Param("userId") String userId);
 	
 	List<Map<String, Object>> selectBookmarkList(String userId);
+	
+	HashMap<String, Object> selectMiniProfile(HashMap<String, Object> map);
 }

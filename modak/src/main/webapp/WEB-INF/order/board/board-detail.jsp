@@ -12,6 +12,7 @@
             <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
             <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
             <script src="/js/page-change.js"></script>
+
         </head>
 
         <body>
@@ -46,17 +47,13 @@
 
                                 <!-- 메타 -->
                                 <div class="post-meta">
-                                    <div class="author-avatar" @click="fnShowProfile($event, board.USER_ID)"
-                                        style="cursor:pointer;">
+                                    <div class="author-avatar">
                                         <img v-if="board.profileImg" :src="board.profileImg" alt="프로필">
                                         <div v-else
                                             style="width:100%;height:100%;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:14px;">
                                             🏕</div>
                                     </div>
-                                    <span style="font-weight:700;cursor:pointer;"
-                                        @click="fnShowProfile($event, board.USER_ID)">
-                                        {{ board.nickName }}
-                                    </span>
+                                    <span style="font-weight:700;">{{ board.nickName }}</span>
                                     <span class="dot">·</span>
                                     <span>{{ fnFormatDate(board.CREATED_AT) }}</span>
                                     <span class="dot">·</span>
@@ -65,13 +62,11 @@
 
                                 <!-- 본문 -->
                                 <div class="post-content">{{ board.CONTENT }}</div>
-
-                                <!-- 태그 -->
                                 <div class="tag-wrap" v-if="tagList.length > 0">
-                                    <span class="board-tag" v-for="tag in tagList" :key="tag"
-                                        @click="fnTagSearch(tag)">#{{ tag }}</span>
+                                    <span class="board-tag" v-for="tag in tagList" :key="tag" @click="fnTagSearch(tag)">
+                                        #{{ tag }}
+                                    </span>
                                 </div>
-
                                 <!-- 이미지 갤러리 -->
                                 <div v-if="imgList.length > 0" class="img-gallery"
                                     :class="imgList.length === 1 ? 'one' : imgList.length === 2 ? 'two' : 'many'">
@@ -146,49 +141,56 @@
                                     style="padding:24px 0;text-align:center;color:var(--brown3);font-size:13px;">
                                     첫 번째 댓글을 남겨보세요 🔥
                                 </div>
-
                                 <template v-for="comment in topComments" :key="comment.COMMENT_ID">
-                                    <!-- ══ 원댓글 ══ -->
+                                    <!-- 원댓글 -->
                                     <div class="comment-item">
                                         <div class="comment-meta">
-                                            <div class="comment-avatar" @click="fnShowProfile($event, comment.USER_ID)"
-                                                style="cursor:pointer;">
+                                            <div class="comment-avatar">
                                                 <img v-if="comment.profileImg" :src="comment.profileImg">
                                                 <div v-else
                                                     style="width:100%;height:100%;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:12px;">
-                                                    🏕</div>
+                                                    🏕
+                                                </div>
                                             </div>
                                             <span style="font-weight:700;">{{ comment.nickName }}</span>
                                             <span style="color:var(--brown4);">·</span>
                                             <span>{{ fnFormatDate(comment.CREATED_AT) }}</span>
                                         </div>
+
                                         <div class="comment-content">{{ comment.CONTENT }}</div>
+
                                         <div class="comment-actions">
                                             <button class="comment-like-btn"
                                                 :class="{ liked: isCommentLiked(comment.COMMENT_ID) }"
                                                 @click="fnReact('LIKE', 'COMMENT', comment.COMMENT_ID)">
                                                 ❤️ {{ comment.LIKE_COUNT }}
                                             </button>
+
                                             <button class="reply-btn" @click="fnSetReply(comment)">↩ 답글</button>
-                                            <button class="reply-btn"
-                                                v-if="getAllDescendants(comment.COMMENT_ID).length > 0"
+
+                                            <button class="reply-btn" v-if="getReplies(comment.COMMENT_ID).length > 0"
                                                 @click="fnToggleReplies(comment.COMMENT_ID)">
-                                                {{ openReplies[comment.COMMENT_ID]
-                                                ? '답글 닫기 ▲'
-                                                : '답글 ' + getAllDescendants(comment.COMMENT_ID).length + '개 ▼' }}
+                                                {{ openReplies[comment.COMMENT_ID] ? '대댓글 닫기 ▲' : '대댓글 보기 ▼' }}
                                             </button>
+
                                             <button class="reply-btn" @click="fnReportComment(comment.COMMENT_ID)">🚩
                                                 신고</button>
+
                                             <button class="comment-delete" v-if="isMyComment(comment.USER_ID)"
-                                                @click="fnDeleteComment(comment.COMMENT_ID)">삭제</button>
+                                                @click="fnDeleteComment(comment.COMMENT_ID)">
+                                                삭제
+                                            </button>
                                         </div>
-                                        <!-- 원댓글 답글 입력창 -->
+
+                                        <!-- 답글 입력창: 반드시 원댓글 안쪽, 대댓글 반복문 바깥 -->
                                         <div class="inline-reply-box"
                                             v-if="replyTarget && replyTarget.COMMENT_ID === comment.COMMENT_ID">
                                             <textarea class="comment-textarea" v-model="commentContent"
                                                 placeholder="답글을 입력하세요..."
                                                 @keydown.ctrl.enter="fnSubmitComment"></textarea>
-                                            <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
+
+                                            <div
+                                                style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
                                                 <button class="reply-btn"
                                                     @click="replyTarget = null; commentContent = ''">취소</button>
                                                 <button class="btn-comment-submit small" @click="fnSubmitComment">답글
@@ -197,89 +199,61 @@
                                         </div>
                                     </div>
 
-                                    <!-- ══ 모든 대댓글 (flat + 무한깊이) ══ -->
-                                    <div class="reply-thread" v-if="openReplies[comment.COMMENT_ID]">
-                                        <div v-for="reply in getAllDescendants(comment.COMMENT_ID)"
-                                            :key="reply.COMMENT_ID" class="comment-item reply">
-                                            <div class="comment-meta">
-                                                <div class="comment-avatar"
-                                                    @click="fnShowProfile($event, reply.USER_ID)"
-                                                    style="cursor:pointer;">
-                                                    <img v-if="reply.profileImg" :src="reply.profileImg">
-                                                    <div v-else
-                                                        style="width:100%;height:100%;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:12px;">
-                                                        🏕</div>
-                                                </div>
-                                                <span style="font-weight:700;">{{ reply.nickName }}</span>
-                                                <span style="color:var(--brown4);">·</span>
-                                                <span>{{ fnFormatDate(reply.CREATED_AT) }}</span>
-                                            </div>
-                                            <div class="comment-content">
-                                                <!-- ★ 부모 닉네임 멘션 -->
-                                                <span class="reply-mention" v-if="getParentNick(reply)">
-                                                    @{{ getParentNick(reply) }}
-                                                </span>
-                                                {{ reply.CONTENT }}
-                                            </div>
-                                            <div class="comment-actions">
-                                                <button class="comment-like-btn"
-                                                    :class="{ liked: isCommentLiked(reply.COMMENT_ID) }"
-                                                    @click="fnReact('LIKE', 'COMMENT', reply.COMMENT_ID)">
-                                                    ❤️ {{ reply.LIKE_COUNT }}
-                                                </button>
-                                                <button class="reply-btn" @click="fnSetReply(reply)">↩ 답글</button>
-                                                <button class="reply-btn" @click="fnReportComment(reply.COMMENT_ID)">🚩
-                                                    신고</button>
-                                                <button class="comment-delete" v-if="isMyComment(reply.USER_ID)"
-                                                    @click="fnDeleteComment(reply.COMMENT_ID)">삭제</button>
-                                            </div>
-                                            <!-- 대댓글 답글 입력창 -->
-                                            <div class="inline-reply-box"
-                                                v-if="replyTarget && replyTarget.COMMENT_ID === reply.COMMENT_ID">
-                                                <textarea class="comment-textarea" v-model="commentContent"
-                                                    placeholder="답글을 입력하세요..."
-                                                    @keydown.ctrl.enter="fnSubmitComment"></textarea>
-                                                <div
-                                                    style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;">
-                                                    <button class="reply-btn"
-                                                        @click="replyTarget = null; commentContent = ''">취소</button>
-                                                    <button class="btn-comment-submit small" @click="fnSubmitComment">답글
-                                                        등록</button>
+                                    <!-- 대댓글 -->
+                                    <div v-if="openReplies[comment.COMMENT_ID]" class="comment-item reply"
+                                        v-for="reply in getReplies(comment.COMMENT_ID)" :key="reply.COMMENT_ID">
+
+                                        <div class="comment-meta">
+                                            <span style="color:var(--orange);margin-right:4px;">↩</span>
+                                            <div class="comment-avatar">
+                                                <img v-if="reply.profileImg" :src="reply.profileImg">
+                                                <div v-else
+                                                    style="width:100%;height:100%;background:var(--cream2);display:flex;align-items:center;justify-content:center;font-size:12px;">
+                                                    🏕
                                                 </div>
                                             </div>
+                                            <span style="font-weight:700;">{{ reply.nickName }}</span>
+                                            <span style="color:var(--brown4);">·</span>
+                                            <span>{{ fnFormatDate(reply.CREATED_AT) }}</span>
+                                        </div>
+
+                                        <div class="comment-content">{{ reply.CONTENT }}</div>
+
+                                        <div class="comment-actions">
+                                            <button class="comment-like-btn"
+                                                :class="{ liked: isCommentLiked(reply.COMMENT_ID) }"
+                                                @click="fnReact('LIKE', 'COMMENT', reply.COMMENT_ID)">
+                                                ❤️ {{ reply.LIKE_COUNT }}
+                                            </button>
+
+                                            <button class="comment-delete" v-if="isMyComment(reply.USER_ID)"
+                                                @click="fnDeleteComment(reply.COMMENT_ID)">
+                                                삭제
+                                            </button>
                                         </div>
                                     </div>
                                 </template>
-
-                                <!-- 댓글 더보기 -->
-                                <div class="comment-more-btn"
-                                    v-if="!commentShowAll && topCommentsTotal > commentPageSize"
-                                    @click="commentShowAll = true">
-                                    💬 댓글 {{ topCommentsTotal - commentPageSize }}개 더보기
-                                </div>
-                                <div class="comment-more-btn"
-                                    v-if="commentShowAll && topCommentsTotal > commentPageSize"
-                                    @click="commentShowAll = false">
-                                    ▲ 댓글 접기
-                                </div>
                             </div>
 
                             <!-- 댓글 입력 -->
                             <div class="comment-write">
-                                <div class="reply-indicator" v-if="replyTarget">
-                                    ↩ <strong>{{ replyTarget.nickName }}</strong>에게 답글
-                                    <button @click="replyTarget = null; commentContent = ''"
+                                <div class="reply-indicator" v-if="replyTarget" style="display:none;">
+                                    ↩ {{ replyTarget.nickName }}에게 답글
+                                    <button @click="replyTarget = null"
                                         style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--orange2);">✕</button>
                                 </div>
                                 <div class="comment-input-row">
                                     <textarea class="comment-textarea" v-model="commentContent"
-                                        :placeholder="replyTarget ? replyTarget.nickName + '에게 답글...' : '댓글을 입력하세요...'"
+                                        :placeholder="replyTarget ? '답글을 입력하세요...' : '댓글을 입력하세요...'"
                                         @keydown.ctrl.enter="fnSubmitComment"></textarea>
-                                    <button class="btn-comment-submit" @click="fnSubmitComment">등록</button>
+                                    <button class="btn-comment-submit" @click="fnSubmitComment">
+                                        등록
+                                    </button>
                                 </div>
                                 <div style="font-size:11px;color:var(--brown4);margin-top:6px;">Ctrl+Enter로도 등록 가능</div>
                             </div>
                         </div>
+
                     </div>
 
                     <!-- 이미지 라이트박스 -->
@@ -307,49 +281,6 @@
                         </div>
                     </div>
 
-                    <!-- 미니 프로필 팝업 -->
-                    <div v-if="profilePopup.show"
-                        :style="{ position:'fixed', top: profilePopup.y + 'px', left: profilePopup.x + 'px', zIndex:9000 }"
-                        class="mini-profile-popup" @mouseleave="fnCloseProfile">
-                        <div class="mp-header">
-                            <div class="mp-avatar">
-                                <img v-if="profilePopup.user.profileImg" :src="profilePopup.user.profileImg">
-                                <span v-else>🏕</span>
-                            </div>
-                            <div>
-                                <div class="mp-nickname">{{ profilePopup.user.nickname }}</div>
-                                <div class="mp-grade">{{ fnGradeLabel(profilePopup.user.communityGrade) }}</div>
-                            </div>
-                        </div>
-                        <div class="mp-stats">
-                            <div class="mp-stat">
-                                <span class="mp-stat-num">{{ profilePopup.user.boardCount }}</span>
-                                <span class="mp-stat-label">게시글</span>
-                            </div>
-                            <div class="mp-stat">
-                                <span class="mp-stat-num">{{ profilePopup.user.commentCount }}</span>
-                                <span class="mp-stat-label">댓글</span>
-                            </div>
-                            <div class="mp-stat">
-                                <span class="mp-stat-num">{{ profilePopup.user.likeCount }}</span>
-                                <span class="mp-stat-label">받은추천</span>
-                            </div>
-                        </div>
-
-                        <!-- 미니 프로필 팝업 mp-grade-tip 아래에 추가 -->
-                        <div style="margin-top:12px;">
-                            <button @click="fnGoProfile(profilePopup.user.userId)" style="width:100%;height:34px;border:1.5px solid var(--border);
-                                border-radius:10px;background:var(--cream);color:var(--brown3);
-                                font-size:12px;font-weight:700;cursor:pointer;
-                                transition:all .18s;font-family:inherit;"
-                                onmouseover="this.style.borderColor='var(--orange)';this.style.color='var(--orange2)'"
-                                onmouseout="this.style.borderColor='rgba(44,30,15,.1)';this.style.color='var(--brown3)'">
-                                👤 프로필 상세보기
-                            </button>
-                        </div>
-
-                    </div>
-
                     <div class="toast" :class="{ show: toastVisible }">{{ toastMsg }}</div>
                 </div>
 
@@ -373,29 +304,15 @@
                                     openReplies: {},
                                     tagList: [],
                                     bookmarked: false,
-                                    profilePopup: { show: false, user: null, x: 0, y: 0 },
-                                    commentPageSize: 5,
-                                    commentShowAll: false,
-                                    gradeList: [
-                                        { code: 'SPROUT', icon: '🌱', name: '새싹', shortDesc: '기본' },
-                                        { code: 'EMBER', icon: '🔥', name: '불씨', shortDesc: '글5+ 또는 댓글10+' },
-                                        { code: 'CAMPER', icon: '⛺', name: '캠퍼', shortDesc: '글20+ 또는 추천50+' },
-                                        { code: 'FIRE_CAMPER', icon: '🔥⛺', name: '불꽃캠퍼', shortDesc: '글50+ 또는 추천200+' },
-                                        { code: 'MODAK', icon: '🪵', name: '모닥불', shortDesc: '글100+ 또는 추천500+' },
-                                    ],
                                 };
                             },
                             computed: {
-                                topComments() {
-                                    const all = this.commentList.filter(c => !c.PARENT_ID);
-                                    return this.commentShowAll ? all : all.slice(0, this.commentPageSize);
-                                },
-                                topCommentsTotal() {
-                                    return this.commentList.filter(c => !c.PARENT_ID).length;
-                                },
+                                topComments() { return this.commentList.filter(c => !c.PARENT_ID); },
                                 myLiked() { return this.myReactions.some(r => r.type === 'LIKE' && r.target === 'BOARD'); },
                                 myDisliked() { return this.myReactions.some(r => r.type === 'DISLIKE' && r.target === 'BOARD'); },
-                                isMyPost() { return this.board && this.currentUserId && this.board.USER_ID === this.currentUserId; }
+                                isMyPost() {
+                                    return this.board && this.currentUserId && this.board.USER_ID === this.currentUserId;
+                                }
                             },
                             methods: {
                                 fnLoad() {
@@ -414,6 +331,8 @@
                                                 this.bookmarked = res.bookmarked === true;
                                             }
                                         },
+
+                                        // ★ 추가
                                         error: (xhr) => {
                                             console.error('상세 로드 실패:', xhr.responseText);
                                             this.showToast('데이터를 불러오지 못했습니다.');
@@ -423,54 +342,14 @@
                                 fnToggleReplies(commentId) {
                                     this.openReplies[commentId] = !this.openReplies[commentId];
                                 },
-                                // ★ 루트 댓글의 모든 자손을 BFS로 평탄화
-                                getAllDescendants(rootId) {
-                                    const result = [];
-                                    const queue = this.commentList.filter(c => c.PARENT_ID == rootId);
-                                    while (queue.length) {
-                                        const c = queue.shift();
-                                        result.push(c);
-                                        this.commentList
-                                            .filter(r => r.PARENT_ID == c.COMMENT_ID)
-                                            .forEach(r => queue.push(r));
-                                    }
-                                    return result;
-                                },
-
-                                // ★ 부모 닉네임 조회
-                                getParentNick(reply) {
-                                    if (!reply.PARENT_ID) return '';
-                                    const parent = this.commentList.find(c => c.COMMENT_ID == reply.PARENT_ID);
-                                    return parent ? parent.nickName : '';
-                                },
-                                fnTagSearch(tag) { location.href = '/board/list.do?tag=' + encodeURIComponent(tag); },
-                                fnShowProfile(event, userId) {
-                                    if (!userId) return;
-                                    $.ajax({
-                                        url: '/user/mini-profile.dox', type: 'POST',
-                                        data: { targetUserId: userId },
-                                        success: (res) => {
-                                            if (res.result === 'success') {
-                                                // ★ comment-avatar 또는 author-avatar 둘 다 처리
-                                                const el = event.target.closest('.comment-avatar')
-                                                    || event.target.closest('.author-avatar')
-                                                    || event.target;
-                                                const rect = el.getBoundingClientRect();
-                                                let x = rect.left, y = rect.bottom + 8;
-                                                if (x + 220 > window.innerWidth) x = window.innerWidth - 230;
-                                                if (y + 300 > window.innerHeight) y = rect.top - 310;
-                                                this.profilePopup = { show: true, user: res.user, x, y };
-                                            }
-                                        }
-                                    });
-                                },
-                                fnCloseProfile() { this.profilePopup.show = false; },
-                                fnGradeLabel(grade) {
-                                    return { SPROUT: '🌱 새싹', EMBER: '🔥 불씨', CAMPER: '⛺ 캠퍼', FIRE_CAMPER: '🔥⛺ 불꽃캠퍼', MODAK: '🪵 모닥불' }[grade] || '🌱 새싹';
+                                fnTagSearch(tag) {
+                                    location.href = "/board/list.do?tag=" + encodeURIComponent(tag);
                                 },
                                 fnBookmark() {
                                     $.ajax({
-                                        url: '/board/bookmark.dox', type: 'POST', data: { boardId: this.boardId },
+                                        url: '/board/bookmark.dox',
+                                        type: 'POST',
+                                        data: { boardId: this.boardId },
                                         success: (res) => {
                                             if (res.result === 'success') {
                                                 this.bookmarked = res.bookmarked;
@@ -481,13 +360,20 @@
                                         }
                                     });
                                 },
-                                getReplies(parentId) { return this.commentList.filter(c => c.PARENT_ID == parentId); },
-                                isCommentLiked(cid) { return this.myReactions.some(r => r.type === 'LIKE' && r.target === 'COMMENT' && r.commentId == cid); },
+
+                                getReplies(parentId) {
+                                    return this.commentList.filter(c => c.PARENT_ID == parentId);
+                                },
+
+                                isCommentLiked(cid) {
+                                    return this.myReactions.some(r => r.type === 'LIKE' && r.target === 'COMMENT' && r.commentId == cid);
+                                },
                                 isMyComment(userId) { return this.currentUserId && userId === this.currentUserId; },
                                 fnCatLabel(c) { return { FREE: '자유', REVIEW: '후기', TIP: '꿀팁', QNA: 'Q&A' }[c] || c; },
                                 fnFormatDate(dt) {
                                     if (!dt) return '';
-                                    const d = new Date(dt), now = new Date(), diff = (now - d) / 1000;
+                                    const d = new Date(dt), now = new Date();
+                                    const diff = (now - d) / 1000;
                                     if (diff < 60) return '방금 전';
                                     if (diff < 3600) return Math.floor(diff / 60) + '분 전';
                                     if (diff < 86400) return Math.floor(diff / 3600) + '시간 전';
@@ -495,26 +381,28 @@
                                 },
                                 fnPollPct(opt) {
                                     const total = Number(this.poll?.totalVotes || 0);
-                                    return total === 0 ? 0 : Math.round(Number(opt.voteCount) / total * 100);
+                                    if (total === 0) return 0;
+                                    return Math.round(Number(opt.voteCount) / total * 100);
                                 },
                                 fnOpenLightbox(url) { this.lightboxImg = url; },
                                 fnGoProduct(id) { location.href = '/product/detail.do?productId=' + id; },
                                 fnGoEdit() { location.href = '/board/write.do?boardId=' + this.boardId; },
-                                fnGoBack() { location.href = '/board/list.do'; },
-                                fnGoProfile(userId) {
-                                    if (!userId) return;
-                                    location.href = '/user/profile.do?userId=' + encodeURIComponent(userId);
-                                },
+
                                 fnDeletePost() {
                                     if (!confirm('게시글을 삭제하시겠습니까?')) return;
                                     $.ajax({
-                                        url: '/board/delete.dox', type: 'POST', data: { boardId: this.boardId },
+                                        url: '/board/delete.dox', type: 'POST',
+                                        data: { boardId: this.boardId },
                                         success: (res) => {
-                                            if (res.result === 'success') location.href = '/board/list.do';
+                                            if (res.result === 'success') { location.href = '/board/list.do'; }
                                             else this.showToast(res.message || '삭제 실패');
                                         }
                                     });
                                 },
+                                fnGoBack() {
+                                    location.href = '/board/list.do';
+                                },
+
                                 fnVote(optionId) {
                                     if (this.poll?.myVoted) { this.showToast('이미 투표하셨습니다.'); return; }
                                     $.ajax({
@@ -522,40 +410,61 @@
                                         data: { pollId: this.poll.POLL_ID, optionId },
                                         success: (res) => {
                                             if (res.result === 'success') {
-                                                this.poll.myVoted = true; this.poll.myOptionId = optionId;
+                                                this.poll.myVoted = true;
+                                                this.poll.myOptionId = optionId;
                                                 const opt = this.pollOptions.find(o => o.optionId == optionId);
-                                                if (opt) { opt.voteCount++; this.poll.totalVotes = Number(this.poll.totalVotes || 0) + 1; }
+                                                if (opt) { opt.voteCount++; this.poll.totalVotes = (Number(this.poll.totalVotes || 0) + 1); }
                                                 this.showToast('투표가 완료되었습니다! 🎉');
                                             } else this.showToast(res.message || '투표 실패');
                                         }
                                     });
                                 },
+
                                 fnReact(type, target, commentId) {
                                     $.ajax({
                                         url: '/board/reaction.dox', type: 'POST',
                                         data: { boardId: this.boardId, commentId: commentId || '', type, target },
                                         success: (res) => {
-                                            if (res.result === 'success') this.fnLoad();
-                                            else this.showToast(res.message || '로그인이 필요합니다.');
+                                            if (res.result === 'success') {
+                                                this.fnLoad(); // 간단히 재로드
+                                            } else this.showToast(res.message || '로그인이 필요합니다.');
                                         }
                                     });
                                 },
-                                fnSetReply(comment) { this.replyTarget = comment; this.commentContent = ''; },
+
+                                fnSetReply(comment) { this.replyTarget = comment; },
+
                                 fnSubmitComment() {
-                                    if (!this.commentContent.trim()) { this.showToast('댓글을 입력해주세요.'); return; }
-                                    const data = { boardId: this.boardId, content: this.commentContent };
-                                    if (this.replyTarget) data.parentId = this.replyTarget.COMMENT_ID;
+                                    if (!this.commentContent.trim()) {
+                                        this.showToast('댓글을 입력해주세요.');
+                                        return;
+                                    }
+
+                                    let data = {
+                                        boardId: this.boardId,
+                                        content: this.commentContent
+                                    };
+
+                                    if (this.replyTarget) {
+                                        data.parentId = this.replyTarget.COMMENT_ID;
+                                    }
+
                                     $.ajax({
-                                        url: '/board/comment/write.dox', type: 'POST', data,
+                                        url: '/board/comment/write.dox',
+                                        type: 'POST',
+                                        data: data,
                                         success: (res) => {
                                             if (res.result === 'success') {
-                                                this.commentContent = ''; this.replyTarget = null; this.fnLoad();
+                                                this.commentContent = '';
+                                                this.replyTarget = null;
+                                                this.fnLoad();
                                             } else {
                                                 this.showToast(res.message || '로그인이 필요합니다.');
                                             }
                                         }
                                     });
                                 },
+
                                 fnDeleteComment(commentId) {
                                     if (!confirm('댓글을 삭제하시겠습니까?')) return;
                                     $.ajax({
@@ -567,12 +476,23 @@
                                         }
                                     });
                                 },
-                                fnReportComment(commentId) { this.reportTarget = 'COMMENT'; this.reportCommentId = commentId; this.showReportModal = true; },
+
+                                fnReportComment(commentId) {
+                                    this.reportTarget = 'COMMENT';
+                                    this.reportCommentId = commentId;
+                                    this.showReportModal = true;
+                                },
+
                                 fnSubmitReport() {
                                     if (!this.reportReason) { this.showToast('신고 사유를 선택해주세요.'); return; }
                                     $.ajax({
                                         url: '/board/report.dox', type: 'POST',
-                                        data: { boardId: this.boardId, commentId: this.reportCommentId || '', target: this.reportTarget, reason: this.reportReason },
+                                        data: {
+                                            boardId: this.boardId,
+                                            commentId: this.reportCommentId || '',
+                                            target: this.reportTarget,
+                                            reason: this.reportReason
+                                        },
                                         success: (res) => {
                                             this.showReportModal = false;
                                             if (res.result === 'success') this.showToast('신고가 접수되었습니다.');
@@ -581,6 +501,7 @@
                                         }
                                     });
                                 },
+
                                 showToast(msg) {
                                     this.toastMsg = msg; this.toastVisible = true;
                                     setTimeout(() => { this.toastVisible = false; }, 2500);

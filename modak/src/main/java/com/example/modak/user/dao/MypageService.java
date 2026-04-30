@@ -82,4 +82,7 @@ public class MypageService {
 
 	    return result;
 	}
+	public HashMap<String, Object> getMiniProfile(HashMap<String, Object> map) {
+	    return mypageMapper.selectMiniProfile(map);
+	}
 }

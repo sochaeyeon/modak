@@ -20,6 +20,7 @@ import com.example.modak.user.model.PointHistory;
 import com.example.modak.user.model.User;
 import com.example.modak.user.model.UserCoupon;
 import com.google.gson.Gson;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -111,4 +112,62 @@ public class MypageController {
 
 	    return new Gson().toJson(boardService.getBookmarkList(userId));
 	}
+	@PostMapping(value="/user/mini-profile.dox", produces="application/json;charset=UTF-8")
+	@ResponseBody
+	public String getMiniProfile(@RequestParam String targetUserId) {
+	    HashMap<String, Object> result = new HashMap<>();
+	    try {
+	        HashMap<String, Object> map = new HashMap<>();
+	        map.put("userId", targetUserId);
+	        HashMap<String, Object> user = mypageService.getMiniProfile(map);
+	        if (user == null) {
+	            result.put("result", "fail");
+	            return new Gson().toJson(result);
+	        }
+	        result.put("result", "success");
+	        result.put("user", user);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	    }
+	    return new Gson().toJson(result);
+	}
+	@Autowired
+	private com.example.modak.board.mapper.BoardMapper boardMapper;
+
+	// 유저 프로필 페이지
+	@GetMapping("/user/profile.do")
+	public String profilePage() {
+	    return "user/user-profile";
+	}
+
+	// 유저 프로필 데이터 조회
+	@PostMapping(value="/user/profile.dox", produces="application/json;charset=UTF-8")
+	@ResponseBody
+	public String getUserProfile(@RequestParam String targetUserId) {
+	    HashMap<String, Object> result = new HashMap<>();
+	    try {
+	        HashMap<String, Object> map = new HashMap<>();
+	        map.put("userId", targetUserId);
+
+	        HashMap<String, Object> user = mypageService.getMiniProfile(map);
+	        if (user == null) {
+	            result.put("result", "fail");
+	            result.put("message", "유저를 찾을 수 없습니다.");
+	            return new Gson().toJson(result);
+	        }
+
+	        map.put("limit", 5);
+	        List<java.util.Map<String, Object>> recentBoards = boardMapper.selectRecentBoardsByUser(map);
+
+	        result.put("result", "success");
+	        result.put("user", user);
+	        result.put("recentBoards", recentBoards);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	    }
+	    return new Gson().toJson(result);
+	}
+	
 }

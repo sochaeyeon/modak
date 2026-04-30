@@ -72,4 +72,6 @@ public interface BoardMapper {
     List<String> selectTagsByBoardId(Long boardId);
 
     List<Map<String, Object>> selectBoardListByTag(String tag);
+    
+    List<Map<String, Object>> selectRecentBoardsByUser(HashMap<String, Object> map);
 }

@@ -696,17 +696,6 @@
                                 });
                             },
 
-                            /* switchTab(tab) {
-                                this.activeTab = tab;
-                                this.checkedIds = [];
-                                this.selectedUserCouponId = '';
-
-                                if (this.isLogin) {
-                                    this.fetchCartList();
-                                }
-                            },
-                            */
-
                             toggleAll() {
                                 const ids = this.filteredCart.map(c => c.cartId);
 
@@ -1100,7 +1089,13 @@
 
                             calcNights(s, e) {
                                 if (!s || !e) return 0;
-                                return Math.ceil((new Date(e) - new Date(s)) / (1000 * 60 * 60 * 24));
+
+                                const start = new Date(s);
+                                const end = new Date(e);
+
+                                if (isNaN(start) || isNaN(end)) return 0;
+
+                                return Math.ceil((end - start) / (1000 * 60 * 60 * 24));
                             },
 
                             groupTotal(group) {
@@ -1318,6 +1313,21 @@
                                 point = Math.max(point, 0);
 
                                 this.usePoint = point;
+                            },
+                            formatDate(date) {
+                                if (!date) return '';
+
+                                const d = new Date(date);
+                                if (isNaN(d)) return '';
+
+                                return d.getFullYear() + '-'
+                                    + String(d.getMonth() + 1).padStart(2, '0') + '-'
+                                    + String(d.getDate()).padStart(2, '0');
+                            },
+
+                            formatRentalRange(start, end) {
+                                if (!start || !end) return '';
+                                return this.formatDate(start) + ' ~ ' + this.formatDate(end);
                             },
                         },
 

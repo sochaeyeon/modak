@@ -688,7 +688,7 @@
 				</button>
 			</div><!-- /#app -->
 			<script>
-				const BUY_NOW_KEY = 'modak_guest_buy_now';
+				const BUY_NOW_KEY = 'checkout_items'; // 상품디테일>바로구매,대여할때필요
 				const loginUserId = '${sessionScope.sessionId}' || '';
 				const LS_KEY = 'modak_guest_cart'; // 장바구니 localStorage 키
 

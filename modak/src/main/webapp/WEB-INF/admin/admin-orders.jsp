@@ -27,7 +27,7 @@
                                 </button>
                             </div>
 
-                            <!-- ★ 탭 바 -->
+                            <!-- 탭 바 -->
                             <div class="o-tab-bar">
                                 <button class="o-tab-btn" :class="{ active: activeTab === 'orders' }"
                                     @click="switchTab('orders')">
@@ -56,7 +56,7 @@
                                 </button>
                             </div>
 
-                            <!-- ══ 주문 내역 탭 ══ -->
+                            <!-- 주문 내역 탭 -->
                             <div v-if="activeTab === 'orders'" class="order-card">
                                 <table class="order-table">
                                     <thead>
@@ -71,9 +71,11 @@
                                     </thead>
                                     <tbody>
                                         <tr v-if="orderList.length === 0">
-                                            <td colspan="6" style="padding:40px;color:var(--o-text-muted);">주문 내역이 없습니다.
+                                            <td colspan="6" style="padding:40px;color:var(--o-text-muted);">
+                                                주문 내역이 없습니다.
                                             </td>
                                         </tr>
+
                                         <tr v-for="order in orderList" :key="order.ORDER_ID">
                                             <td class="order-id">#{{ order.ORDER_ID }}</td>
                                             <td>{{ order.USER_ID }}</td>
@@ -82,7 +84,8 @@
                                                     <img v-if="order.IMG_URL" :src="order.IMG_URL">
                                                     <div v-else
                                                         style="display:flex;justify-content:center;align-items:center;height:100%;font-size:12px;">
-                                                        🏕️</div>
+                                                        🏕️
+                                                    </div>
                                                 </div>
                                                 <div style="font-weight:500;">{{ order.PRODUCT_NAME }}</div>
                                             </td>
@@ -101,7 +104,19 @@
                                         </tr>
                                     </tbody>
                                 </table>
+
+                                <div class="o-pagination" v-if="totalPage > 1">
+                                    <button @click="fnMovePage(page - 1)" :disabled="page === 1">이전</button>
+
+                                    <button v-for="p in pageList" :key="p" @click="fnMovePage(p)"
+                                        :class="{ active: page === p }">
+                                        {{ p }}
+                                    </button>
+
+                                    <button @click="fnMovePage(page + 1)" :disabled="page === totalPage">다음</button>
+                                </div>
                             </div>
+
                             <!-- 배송 등록 탭 -->
                             <div v-if="activeTab === 'delivery'" class="order-card" style="padding:28px;">
                                 <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:24px;">🚚 운송장 번호 등록
@@ -128,12 +143,10 @@
                                     </button>
                                 </div>
 
-                                <!-- 결과 표시 -->
                                 <div v-if="deliveryResult" class="delivery-result-box" :class="deliveryResult.type">
                                     <span>{{ deliveryResult.message }}</span>
                                 </div>
 
-                                <!-- 최근 등록 내역 -->
                                 <div style="margin-top:32px;">
                                     <div style="font-size:13px;color:var(--o-text-muted);margin-bottom:12px;">최근 배송 등록
                                         내역</div>
@@ -171,10 +184,9 @@
                                 </div>
                             </div>
 
-                            <!-- ══ 반납 요청 탭 ══ -->
+                            <!-- 반납 요청 탭 -->
                             <div v-if="activeTab === 'returns'" class="order-card">
 
-                                <!-- 필터 바 -->
                                 <div class="return-filter-bar">
                                     <button class="o-filter-btn" :class="{ active: returnFilter === 'ALL' }"
                                         @click="fnSetReturnFilter('ALL')">전체</button>
@@ -188,217 +200,6 @@
                                         @click="fnSetReturnFilter('RETURN_COMPLETED')">반납완료</button>
                                     <span class="return-total">총 <strong>{{ filteredReturnList.length
                                             }}</strong>건</span>
-                                </div>
-                                <!-- ══ 검수 관리 탭 ══ -->
-                                <div v-if="activeTab === 'inspection'" class="order-card">
-                                    <table class="order-table">
-                                        <thead>
-                                            <tr>
-                                                <th>대여번호</th>
-                                                <th>고객</th>
-                                                <th style="text-align:left">상품</th>
-                                                <th>반납일</th>
-                                                <th>검수상태</th>
-                                                <th>공제금액</th>
-                                                <th>메모</th>
-                                                <th>검수</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr v-if="inspectionList.length === 0">
-                                                <td colspan="8" style="padding:40px;color:var(--o-text-muted)">반납완료 내역이
-                                                    없습니다.</td>
-                                            </tr>
-                                            <tr v-for="item in inspectionList" :key="item.RENTAL_ID">
-                                                <td class="order-id">#{{ item.RENTAL_ID }}</td>
-                                                <td>{{ item.USER_ID }}</td>
-                                                <td class="prod-info-td">
-                                                    <div class="order-img-box">
-                                                        <img v-if="item.IMG_URL" :src="item.IMG_URL">
-                                                        <div v-else
-                                                            style="font-size:12px;display:flex;align-items:center;justify-content:center;height:100%">
-                                                            🏕️</div>
-                                                    </div>
-                                                    <div>{{ item.PRODUCT_NAME }}</div>
-                                                </td>
-                                                <td style="font-size:12px;color:var(--o-text-muted)">{{ item.RETURN_DATE
-                                                    }}</td>
-                                                <td>
-                                                    <span v-if="item.CONDITION_CODE === 'GOOD'"
-                                                        style="color:#58d68d;font-weight:700">✅ 양호</span>
-                                                    <span v-else-if="item.CONDITION_CODE === 'DAMAGED'"
-                                                        style="color:#f39c12;font-weight:700">⚠ 파손</span>
-                                                    <span v-else-if="item.CONDITION_CODE === 'LOST'"
-                                                        style="color:#e74c3c;font-weight:700">❌ 분실</span>
-                                                    <span v-else style="color:var(--o-text-muted)">미검수</span>
-                                                </td>
-                                                <td>{{ item.DEDUCTION_AMT ? Number(item.DEDUCTION_AMT).toLocaleString()
-                                                    + '원' : '-' }}</td>
-                                                <td style="font-size:12px;color:var(--o-text-muted);max-width:150px;">{{
-                                                    item.MEMO || '-' }}</td>
-                                                <td>
-                                                    <button class="o-action-btn pickup" @click="fnOpenInspection(item)">
-                                                        {{ item.INSPECTION_ID ? '재검수' : '검수 등록' }}
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <!-- 검수 모달 -->
-                                <div v-if="showInspectionModal"
-                                    style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center">
-                                    <div
-                                        style="background:#1e2130;border-radius:16px;padding:32px;width:440px;box-shadow:0 8px 32px rgba(0,0,0,.4)">
-                                        <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:20px">🔍 검수
-                                            등록</div>
-                                        <div style="margin-bottom:14px">
-                                            <label
-                                                style="font-size:12px;color:var(--o-text-muted);display:block;margin-bottom:6px">상품
-                                                상태</label>
-                                            <select class="o-select" v-model="inspectionForm.conditionCode"
-                                                style="width:100%">
-                                                <option value="GOOD">✅ 양호</option>
-                                                <option value="DAMAGED">⚠️ 파손</option>
-                                                <option value="LOST">❌ 분실</option>
-                                            </select>
-                                        </div>
-                                        <div style="margin-bottom:14px" v-if="inspectionForm.conditionCode !== 'GOOD'">
-                                            <label
-                                                style="font-size:12px;color:var(--o-text-muted);display:block;margin-bottom:6px">공제
-                                                금액 (원)</label>
-                                            <input class="o-input" type="number"
-                                                v-model.number="inspectionForm.deductionAmt" style="width:100%">
-                                        </div>
-                                        <div style="margin-bottom:20px">
-                                            <label
-                                                style="font-size:12px;color:var(--o-text-muted);display:block;margin-bottom:6px">메모</label>
-                                            <textarea class="o-input" v-model="inspectionForm.memo" rows="3"
-                                                style="width:100%;resize:vertical"></textarea>
-                                        </div>
-                                        <div style="display:flex;gap:10px;justify-content:flex-end">
-                                            <button class="o-action-btn cancel"
-                                                @click="showInspectionModal=false">취소</button>
-                                            <button class="o-action-btn complete" @click="fnSaveInspection">저장</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- ══ 환불 관리 탭 ══ -->
-                                <div v-if="activeTab === 'refunds'" class="order-card">
-                                    <table class="order-table">
-                                        <thead>
-                                            <tr>
-                                                <th>환불번호</th>
-                                                <th>주문번호</th>
-                                                <th>고객</th>
-                                                <th style="text-align:left">상품</th>
-                                                <th>환불금액</th>
-                                                <th>사유</th>
-                                                <th>상태</th>
-                                                <th>신청일</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr v-if="refundList.length === 0">
-                                                <td colspan="8" style="padding:40px;color:var(--o-text-muted)">환불 내역이
-                                                    없습니다.</td>
-                                            </tr>
-                                            <tr v-for="item in refundList" :key="item.REFUND_ID">
-                                                <td class="order-id">#{{ item.REFUND_ID }}</td>
-                                                <td class="order-id">#{{ item.ORDER_ID }}</td>
-                                                <td>{{ item.USER_ID }}</td>
-                                                <td class="prod-info-td">
-                                                    <div class="order-img-box">
-                                                        <img v-if="item.IMG_URL" :src="item.IMG_URL">
-                                                        <div v-else
-                                                            style="font-size:12px;display:flex;align-items:center;justify-content:center;height:100%">
-                                                            🏕️</div>
-                                                    </div>
-                                                    <div>{{ item.PRODUCT_NAME }}</div>
-                                                </td>
-                                                <td style="color:var(--o-accent);font-weight:700">{{
-                                                    Number(item.REFUND_AMOUNT||0).toLocaleString() }}원</td>
-                                                <td style="font-size:12px;color:var(--o-text-muted)">{{
-                                                    item.REFUND_REASON }}</td>
-                                                <td>
-                                                    <span
-                                                        :style="{color: item.REFUND_STATUS==='COMPLETED'?'#58d68d': item.REFUND_STATUS==='PENDING'?'#f39c12':'#8a8f9d',fontWeight:'700',fontSize:'12px'}">
-                                                        {{ item.REFUND_STATUS==='COMPLETED'?'✅ 완료':
-                                                        item.REFUND_STATUS==='PENDING'?'⏳ 처리중':'❓'+item.REFUND_STATUS }}
-                                                    </span>
-                                                </td>
-                                                <td style="font-size:12px;color:var(--o-text-muted)">{{ item.CREATED_AT
-                                                    }}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                <!-- ══ 교환 관리 탭 ══ -->
-                                <div v-if="activeTab === 'exchanges'" class="order-card">
-                                    <table class="order-table">
-                                        <thead>
-                                            <tr>
-                                                <th>교환번호</th>
-                                                <th>주문번호</th>
-                                                <th>고객</th>
-                                                <th style="text-align:left">상품</th>
-                                                <th>사유</th>
-                                                <th>회수주소</th>
-                                                <th>상태</th>
-                                                <th>신청일</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr v-if="exchangeList.length === 0">
-                                                <td colspan="8" style="padding:40px;color:var(--o-text-muted)">교환 내역이
-                                                    없습니다.</td>
-                                            </tr>
-                                            <tr v-for="item in exchangeList" :key="item.EXCHANGE_ID">
-                                                <td class="order-id">#{{ item.EXCHANGE_ID }}</td>
-                                                <td class="order-id">#{{ item.ORDER_ID }}</td>
-                                                <td>{{ item.USER_ID }}</td>
-                                                <td class="prod-info-td">
-                                                    <div class="order-img-box">
-                                                        <img v-if="item.IMG_URL" :src="item.IMG_URL">
-                                                        <div v-else
-                                                            style="font-size:12px;display:flex;align-items:center;justify-content:center;height:100%">
-                                                            🏕️</div>
-                                                    </div>
-                                                    <div>{{ item.PRODUCT_NAME }}</div>
-                                                </td>
-                                                <td style="font-size:12px;color:var(--o-text-muted)">{{ item.REASON }}
-                                                </td>
-                                                <td style="font-size:12px;color:var(--o-text-muted)">{{ item.ADDRESS }}
-                                                    {{ item.DETAILED_ADDRESS }}</td>
-                                                <td>
-                                                    <div style="display:flex;flex-direction:column;gap:6px">
-                                                        <span
-                                                            :style="{color: item.STATUS==='APPROVED'?'#58d68d': item.STATUS==='REJECTED'?'#e74c3c': item.STATUS==='COMPLETED'?'#3498db':'#f39c12',fontWeight:'700',fontSize:'12px'}">
-                                                            {{ {REQUESTED:'📋 신청', APPROVED:'✅ 승인', REJECTED:'❌ 거절',
-                                                            COMPLETED:'🏁 완료'}[item.STATUS] || item.STATUS }}
-                                                        </span>
-                                                        <button v-if="item.STATUS==='REQUESTED'"
-                                                            class="o-action-btn complete"
-                                                            style="font-size:11px;padding:4px 8px"
-                                                            @click="fnUpdateExchangeStatus(item,'APPROVED')">승인</button>
-                                                        <button v-if="item.STATUS==='REQUESTED'"
-                                                            class="o-action-btn cancel"
-                                                            style="font-size:11px;padding:4px 8px"
-                                                            @click="fnUpdateExchangeStatus(item,'REJECTED')">거절</button>
-                                                        <button v-if="item.STATUS==='APPROVED'"
-                                                            class="o-action-btn pickup"
-                                                            style="font-size:11px;padding:4px 8px"
-                                                            @click="fnUpdateExchangeStatus(item,'COMPLETED')">처리완료</button>
-                                                    </div>
-                                                </td>
-                                                <td style="font-size:12px;color:var(--o-text-muted)">{{ item.CREATED_AT
-                                                    }}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
                                 </div>
 
                                 <table class="order-table">
@@ -463,19 +264,16 @@
                                                     <span class="o-status-badge" :class="'rs-' + item.RENTAL_STATUS">
                                                         {{ fnReturnStatusText(item.RENTAL_STATUS) }}
                                                     </span>
-                                                    <!-- RETURN_REQUESTED → 수거중 -->
                                                     <button v-if="item.RENTAL_STATUS === 'RETURN_REQUESTED'"
                                                         class="o-action-btn pickup"
                                                         @click="fnUpdateReturnStatus(item, 'RETURN_PICKED')">
                                                         🚚 수거 시작
                                                     </button>
-                                                    <!-- RETURN_PICKED → 반납 완료 -->
                                                     <button v-if="item.RENTAL_STATUS === 'RETURN_PICKED'"
                                                         class="o-action-btn complete"
                                                         @click="fnUpdateReturnStatus(item, 'RETURN_COMPLETED')">
                                                         ✅ 반납 완료
                                                     </button>
-                                                    <!-- 반납완료 → 되돌리기 (선택사항) -->
                                                     <button v-if="item.RENTAL_STATUS === 'RETURN_COMPLETED'"
                                                         class="o-action-btn cancel"
                                                         @click="fnUpdateReturnStatus(item, 'RETURN_PICKED')">
@@ -488,8 +286,251 @@
                                 </table>
                             </div>
 
-                        </div>
-                    </div>
+                            <!-- 검수 관리 탭 -->
+                            <div v-if="activeTab === 'inspection'" class="order-card">
+                                <table class="order-table">
+                                    <thead>
+                                        <tr>
+                                            <th>대여번호</th>
+                                            <th>고객</th>
+                                            <th style="text-align:left">상품</th>
+                                            <th>반납일</th>
+                                            <th>검수상태</th>
+                                            <th>공제금액</th>
+                                            <th>메모</th>
+                                            <th>검수</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-if="inspectionList.length === 0">
+                                            <td colspan="8" style="padding:40px;color:var(--o-text-muted)">반납완료 내역이
+                                                없습니다.</td>
+                                        </tr>
+                                        <tr v-for="item in inspectionList" :key="item.RENTAL_ID">
+                                            <td class="order-id">#{{ item.RENTAL_ID }}</td>
+                                            <td>{{ item.USER_ID }}</td>
+                                            <td class="prod-info-td">
+                                                <div class="order-img-box">
+                                                    <img v-if="item.IMG_URL" :src="item.IMG_URL">
+                                                    <div v-else
+                                                        style="font-size:12px;display:flex;align-items:center;justify-content:center;height:100%">
+                                                        🏕️</div>
+                                                </div>
+                                                <div>{{ item.PRODUCT_NAME }}</div>
+                                            </td>
+                                            <td style="font-size:12px;color:var(--o-text-muted)">{{ item.RETURN_DATE }}
+                                            </td>
+                                            <td>
+                                                <span v-if="item.CONDITION_CODE === 'GOOD'"
+                                                    style="color:#58d68d;font-weight:700">✅ 양호</span>
+                                                <span v-else-if="item.CONDITION_CODE === 'DAMAGED'"
+                                                    style="color:#f39c12;font-weight:700">⚠ 파손</span>
+                                                <span v-else-if="item.CONDITION_CODE === 'LOST'"
+                                                    style="color:#e74c3c;font-weight:700">❌ 분실</span>
+                                                <span v-else style="color:var(--o-text-muted)">미검수</span>
+                                            </td>
+                                            <td>{{ item.DEDUCTION_AMT ? Number(item.DEDUCTION_AMT).toLocaleString() +
+                                                '원' : '-' }}</td>
+                                            <td style="font-size:12px;color:var(--o-text-muted);max-width:150px;">{{
+                                                item.MEMO || '-' }}</td>
+                                            <td>
+                                                <button class="o-action-btn pickup" @click="fnOpenInspection(item)">
+                                                    {{ item.INSPECTION_ID ? '재검수' : '검수 등록' }}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- 환불 관리 탭 -->
+                            <div v-if="activeTab === 'refunds'" class="order-card">
+                                <table class="order-table">
+                                    <thead>
+                                        <tr>
+                                            <th>환불번호</th>
+                                            <th>주문번호</th>
+                                            <th>고객</th>
+                                            <th style="text-align:left">상품</th>
+                                            <th>환불금액</th>
+                                            <th>사유</th>
+                                            <th>상태</th>
+                                            <th>신청일</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-if="refundList.length === 0">
+                                            <td colspan="8" style="padding:40px;color:var(--o-text-muted)">환불 내역이 없습니다.
+                                            </td>
+                                        </tr>
+                                        <tr v-for="item in refundList" :key="item.REFUND_ID">
+                                            <td class="order-id">#{{ item.REFUND_ID }}</td>
+                                            <td class="order-id">#{{ item.ORDER_ID }}</td>
+                                            <td>{{ item.USER_ID }}</td>
+                                            <td class="prod-info-td">
+                                                <div class="order-img-box">
+                                                    <img v-if="item.IMG_URL" :src="item.IMG_URL">
+                                                    <div v-else
+                                                        style="font-size:12px;display:flex;align-items:center;justify-content:center;height:100%">
+                                                        🏕️</div>
+                                                </div>
+                                                <div>{{ item.PRODUCT_NAME }}</div>
+                                            </td>
+                                            <td style="color:var(--o-accent);font-weight:700">{{
+                                                Number(item.REFUND_AMOUNT||0).toLocaleString() }}원</td>
+                                            <td style="font-size:12px;color:var(--o-text-muted)">{{ item.REFUND_REASON
+                                                }}</td>
+                                            <td>
+                                                <div
+                                                    style="display:flex;flex-direction:column;gap:6px;align-items:center;">
+                                                    <span
+                                                        :style="{color: item.REFUND_STATUS==='COMPLETED'?'#58d68d': item.REFUND_STATUS==='REJECTED'?'#e74c3c': item.REFUND_STATUS==='PENDING'?'#f39c12':'#8a8f9d',fontWeight:'700',fontSize:'12px'}">
+                                                        {{
+                                                        item.REFUND_STATUS==='COMPLETED' ? '✅ 환불완료' :
+                                                        item.REFUND_STATUS==='REJECTED' ? '❌ 거절' :
+                                                        item.REFUND_STATUS==='PENDING' ? '⏳ 신청대기' :
+                                                        item.REFUND_STATUS
+                                                        }}
+                                                    </span>
+
+                                                    <button v-if="item.REFUND_STATUS === 'PENDING'"
+                                                        class="o-action-btn complete"
+                                                        style="font-size:11px;padding:4px 8px;"
+                                                        @click="fnUpdateRefundStatus(item, 'COMPLETED')">
+                                                        승인
+                                                    </button>
+
+                                                    <button v-if="item.REFUND_STATUS === 'PENDING'"
+                                                        class="o-action-btn cancel"
+                                                        style="font-size:11px;padding:4px 8px;"
+                                                        @click="fnUpdateRefundStatus(item, 'REJECTED')">
+                                                        거절
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td style="font-size:12px;color:var(--o-text-muted)">{{ item.CREATED_AT }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- 교환 관리 탭 -->
+                            <div v-if="activeTab === 'exchanges'" class="order-card">
+                                <table class="order-table">
+                                    <thead>
+                                        <tr>
+                                            <th>교환번호</th>
+                                            <th>주문번호</th>
+                                            <th>고객</th>
+                                            <th style="text-align:left">상품</th>
+                                            <th>사유</th>
+                                            <th>회수주소</th>
+                                            <th>상태</th>
+                                            <th>신청일</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-if="exchangeList.length === 0">
+                                            <td colspan="8" style="padding:40px;color:var(--o-text-muted)">교환 내역이 없습니다.
+                                            </td>
+                                        </tr>
+                                        <tr v-for="item in exchangeList" :key="item.EXCHANGE_ID">
+                                            <td class="order-id">#{{ item.EXCHANGE_ID }}</td>
+                                            <td class="order-id">#{{ item.ORDER_ID }}</td>
+                                            <td>{{ item.USER_ID }}</td>
+                                            <td class="prod-info-td">
+                                                <div class="order-img-box">
+                                                    <img v-if="item.IMG_URL" :src="item.IMG_URL">
+                                                    <div v-else
+                                                        style="font-size:12px;display:flex;align-items:center;justify-content:center;height:100%">
+                                                        🏕️</div>
+                                                </div>
+                                                <div>{{ item.PRODUCT_NAME }}</div>
+                                            </td>
+                                            <td style="font-size:12px;color:var(--o-text-muted)">
+                                                {{ item.EXCHANGE_REASON || item.REASON || '-' }}
+                                            </td>
+                                            <td style="font-size:12px;color:var(--o-text-muted)">
+                                                {{ item.ADDRESS }} {{ item.DETAILED_ADDRESS || item.DETAIL_ADDRESS }}
+                                            </td>
+                                            <td>
+                                                <div style="display:flex;flex-direction:column;gap:6px">
+                                                    <span
+                                                        :style="{color: (item.EXCHANGE_STATUS || item.STATUS)==='APPROVED'?'#58d68d': (item.EXCHANGE_STATUS || item.STATUS)==='REJECTED'?'#e74c3c': (item.EXCHANGE_STATUS || item.STATUS)==='COMPLETED'?'#3498db':'#f39c12',fontWeight:'700',fontSize:'12px'}">
+                                                        {{ {REQUESTED:'📋 신청', APPROVED:'✅ 승인', REJECTED:'❌ 거절',
+                                                        COMPLETED:'🏁 완료'}[item.EXCHANGE_STATUS || item.STATUS] ||
+                                                        (item.EXCHANGE_STATUS || item.STATUS) }}
+                                                    </span>
+                                                    <button v-if="(item.EXCHANGE_STATUS || item.STATUS)==='REQUESTED'"
+                                                        class="o-action-btn complete"
+                                                        style="font-size:11px;padding:4px 8px"
+                                                        @click="fnUpdateExchangeStatus(item,'APPROVED')">승인</button>
+                                                    <button v-if="(item.EXCHANGE_STATUS || item.STATUS)==='REQUESTED'"
+                                                        class="o-action-btn cancel"
+                                                        style="font-size:11px;padding:4px 8px"
+                                                        @click="fnUpdateExchangeStatus(item,'REJECTED')">거절</button>
+                                                    <button v-if="(item.EXCHANGE_STATUS || item.STATUS)==='APPROVED'"
+                                                        class="o-action-btn pickup"
+                                                        style="font-size:11px;padding:4px 8px"
+                                                        @click="fnUpdateExchangeStatus(item,'COMPLETED')">처리완료</button>
+                                                </div>
+                                            </td>
+                                            <td style="font-size:12px;color:var(--o-text-muted)">{{ item.CREATED_AT }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+
+
+
+                            <!-- 검수 모달 -->
+                            <div v-if="showInspectionModal"
+                                style="position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center">
+                                <div
+                                    style="background:#1e2130;border-radius:16px;padding:32px;width:440px;box-shadow:0 8px 32px rgba(0,0,0,.4)">
+                                    <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:20px">🔍 검수 등록
+                                    </div>
+
+                                    <div style="margin-bottom:14px">
+                                        <label
+                                            style="font-size:12px;color:var(--o-text-muted);display:block;margin-bottom:6px">상품
+                                            상태</label>
+                                        <select class="o-select" v-model="inspectionForm.conditionCode"
+                                            style="width:100%">
+                                            <option value="GOOD">✅ 양호</option>
+                                            <option value="DAMAGED">⚠️ 파손</option>
+                                            <option value="LOST">❌ 분실</option>
+                                        </select>
+                                    </div>
+
+                                    <div style="margin-bottom:14px" v-if="inspectionForm.conditionCode !== 'GOOD'">
+                                        <label
+                                            style="font-size:12px;color:var(--o-text-muted);display:block;margin-bottom:6px">공제
+                                            금액 (원)</label>
+                                        <input class="o-input" type="number"
+                                            v-model.number="inspectionForm.deductionAmt" style="width:100%">
+                                    </div>
+
+                                    <div style="margin-bottom:20px">
+                                        <label
+                                            style="font-size:12px;color:var(--o-text-muted);display:block;margin-bottom:6px">메모</label>
+                                        <textarea class="o-input" v-model="inspectionForm.memo" rows="3"
+                                            style="width:100%;resize:vertical"></textarea>
+                                    </div>
+
+                                    <div style="display:flex;gap:10px;justify-content:flex-end">
+                                        <button class="o-action-btn cancel"
+                                            @click="showInspectionModal=false">취소</button>
+                                        <button class="o-action-btn complete" @click="fnSaveInspection">저장</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div> <!-- order-page-container 닫기 -->
+                    </div> <!-- app 닫기 -->
 
                     <script>
                         const { createApp } = Vue;
@@ -499,7 +540,9 @@
                                     activeTab: 'orders',
                                     // 주문
                                     orderList: [],
-                                    page: 1, pageSize: 15,
+                                    page: 1,
+                                    pageSize: 15,
+                                    totalCount: 0,
                                     // 반납
                                     returnList: [],
                                     returnFilter: 'ALL',
@@ -521,7 +564,22 @@
                                 filteredReturnList() {
                                     if (this.returnFilter === 'ALL') return this.returnList;
                                     return this.returnList.filter(r => r.RENTAL_STATUS === this.returnFilter);
+                                },
+                                totalPage() {
+                                    return Math.ceil(this.totalCount / this.pageSize);
+                                },
+                                pageList() {
+                                    const blockSize = 5;
+                                    const start = Math.floor((this.page - 1) / blockSize) * blockSize + 1;
+                                    const end = Math.min(start + blockSize - 1, this.totalPage);
+
+                                    const list = [];
+                                    for (let i = start; i <= end; i++) {
+                                        list.push(i);
+                                    }
+                                    return list;
                                 }
+
                             },
                             methods: {
                                 /* ── 탭 전환 ── */
@@ -540,13 +598,28 @@
                                 /* ── 주문 목록 ── */
                                 fnGetList() {
                                     const self = this;
+
                                     $.ajax({
-                                        url: '/admin/order/list.dox', type: 'POST',
-                                        data: { page: self.page, pageSize: self.pageSize },
+                                        url: '/admin/order/list.dox',
+                                        type: 'POST',
+                                        data: {
+                                            page: self.page,
+                                            pageSize: self.pageSize
+                                        },
                                         success(data) {
-                                            if (data.result === 'success') self.orderList = data.list;
+                                            console.log(data);
+                                            if (data.result === 'success') {
+                                                self.orderList = data.list || [];
+                                                self.totalCount = data.totalCount || 0;
+                                            }
                                         }
                                     });
+                                },
+                                fnMovePage(p) {
+                                    if (p < 1 || p > this.totalPage) return;
+
+                                    this.page = p;
+                                    this.fnGetList();
                                 },
                                 fnGetInspectionList() {
                                     $.ajax({
@@ -618,24 +691,32 @@
                                 },
 
                                 /* ── 반납 상태 변경 ── */
-                                fnUpdateReturnStatus(item, newStatus) {
-                                    const self = this;
-                                    const labels = {
-                                        RETURN_PICKED: '수거를 시작하시겠습니까?',
-                                        RETURN_COMPLETED: '반납 완료 처리하시겠습니까?',
-                                        IN_USE: '반납 요청을 취소하시겠습니까?'
-                                    };
-                                    if (!confirm(labels[newStatus] || '상태를 변경하시겠습니까?')) return;
+                                fnUpdateRefundStatus(item, status) {
+                                    const msg = status === 'COMPLETED'
+                                        ? '환불을 승인 처리하시겠습니까?'
+                                        : '환불을 거절 처리하시겠습니까?';
+
+                                    if (!confirm(msg)) return;
 
                                     $.ajax({
-                                        url: '/admin/rental/return/update-status.dox', type: 'POST',
-                                        data: { rentalId: item.RENTAL_ID, status: newStatus },
-                                        success(res) {
+                                        url: '/admin/refund/update-status.dox',
+                                        type: 'POST',
+                                        data: {
+                                            refundId: item.REFUND_ID,
+                                            orderId: item.ORDER_ID,
+                                            userId: item.USER_ID,
+                                            status: status
+                                        },
+                                        success: (res) => {
                                             if (res.result === 'success') {
-                                                item.RENTAL_STATUS = newStatus;
+                                                item.REFUND_STATUS = status;
+                                                alert(status === 'COMPLETED' ? '환불 승인 완료' : '환불 거절 완료');
                                             } else {
-                                                alert(res.message || '상태 변경에 실패했습니다.');
+                                                alert(res.message || '환불 상태 변경 실패');
                                             }
+                                        },
+                                        error: () => {
+                                            alert('환불 상태 변경 중 서버 오류가 발생했습니다.');
                                         }
                                     });
                                 },

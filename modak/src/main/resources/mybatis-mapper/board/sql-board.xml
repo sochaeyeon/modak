@@ -7,10 +7,10 @@
          게시글 목록
     ════════════════════════════ -->
 	<select id="selectBoardList" parameterType="hashmap" resultType="map">
-		SELECT B.BOARD_ID, B.USER_ID, B.TITLE, B.CATEGORY, B.VIEW_COUNT,
-		B.LIKE_COUNT, B.DISLIKE_COUNT, B.COMMENT_COUNT, B.IS_HOT, B.HAS_POLL,
-		B.PRODUCT_ID, DATE_FORMAT(B.CREATED_AT, '%Y-%m-%d %H:%i:%s') AS
-		CREATED_AT, U.NICKNAME AS nickName, U.PROFILE_IMG_URL AS profileImg,
+		SELECT B.BOARD_ID, B.USER_ID, B.TITLE, B.CONTENT, B.CATEGORY,
+		B.VIEW_COUNT, B.LIKE_COUNT, B.DISLIKE_COUNT, B.COMMENT_COUNT, B.IS_HOT,
+		B.HAS_POLL, B.PRODUCT_ID,DATE_FORMAT(B.CREATED_AT, '%Y-%m-%d %H:%i:%s')
+		AS CREATED_AT, U.NICKNAME AS nickName, U.PROFILE_IMG_URL AS profileImg,
 		P.PRODUCT_NAME AS productName, (SELECT BI.IMG_URL FROM BOARD_IMG BI
 		WHERE BI.BOARD_ID = B.BOARD_ID ORDER BY BI.SORT_ORDER ASC LIMIT 1) AS
 		thumbUrl FROM BOARD B LEFT JOIN USER U ON B.USER_ID = U.USER_ID LEFT
@@ -51,7 +51,7 @@
 	<!-- HOT 게시글 (추천 10 이상, 최근 7일) -->
 	<select id="selectHotBoardList" resultType="map">
 		SELECT
-		B.BOARD_ID, B.TITLE, B.CATEGORY,
+		B.BOARD_ID, B.TITLE, B.CONTENT, B.CATEGORY,
 		B.VIEW_COUNT, B.LIKE_COUNT, B.COMMENT_COUNT,
 		DATE_FORMAT(B.CREATED_AT, '%Y-%m-%d %H:%i:%s') AS CREATED_AT,
 		U.NICKNAME AS nickName,
@@ -441,17 +441,18 @@
 		AND b.STATUS = 'ACTIVE'
 		ORDER BY b.CREATED_AT DESC
 	</select>
-	
-	<select id="selectRecentBoardsByUser" parameterType="hashmap" resultType="map">
-    SELECT
-        BOARD_ID, TITLE, CATEGORY,
-        LIKE_COUNT, COMMENT_COUNT, VIEW_COUNT,
-        DATE_FORMAT(CREATED_AT, '%Y-%m-%d %H:%i:%s') AS CREATED_AT
-    FROM BOARD
-    WHERE USER_ID = #{userId}
-      AND STATUS = 'ACTIVE'
-    ORDER BY CREATED_AT DESC
-    LIMIT #{limit}
-</select>
+
+	<select id="selectRecentBoardsByUser" parameterType="hashmap"
+		resultType="map">
+		SELECT
+		BOARD_ID, TITLE, CATEGORY,
+		LIKE_COUNT, COMMENT_COUNT, VIEW_COUNT,
+		DATE_FORMAT(CREATED_AT, '%Y-%m-%d %H:%i:%s') AS CREATED_AT
+		FROM BOARD
+		WHERE USER_ID = #{userId}
+		AND STATUS = 'ACTIVE'
+		ORDER BY CREATED_AT DESC
+		LIMIT #{limit}
+	</select>
 
 </mapper>

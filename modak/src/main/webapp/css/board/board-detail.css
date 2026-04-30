@@ -680,11 +680,7 @@ select {
    대댓글
 ========================= */
 
-.reply-thread {
-    margin-left: 18px;
-    padding-left: 16px;
-    border-left: 2.5px solid rgba(232, 115, 42, 0.22);
-}
+
 
 .comment-item.reply {
     padding: 15px 16px;
@@ -1657,41 +1653,361 @@ select {
     border-radius: 9px;
     font-size: 12px;
 }
+
 .mp-chat-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            width: 100%;
-            height: 36px;
-            margin-top: 8px;
-            border: none;
-            border-radius: 10px;
-            background: var(--orange, #E8732A);
-            color: #fff;
-            font-size: 13px;
-            font-weight: 700;
-            font-family: inherit;
-            cursor: pointer;
-            transition: background .16s, transform .1s;
-        }
-        .mp-chat-btn:hover  { background: var(--brown2, #5C3D1E); }
-        .mp-chat-btn:active { transform: scale(.96); }
-        .mp-chat-btn:disabled {
-            background: #C4BAA8;
-            cursor: not-allowed;
-        }
-        /* 이미 채팅방 있음 */
-        .mp-chat-btn.exists {
-            background: var(--cream, #F6F0E6);
-            border: 1.5px solid var(--orange, #E8732A);
-            color: var(--orange, #E8732A);
-        }
-        /* 신청 중 */
-        .mp-chat-btn.pending {
-            background: transparent;
-            border: 1.5px solid #C4BAA8;
-            color: #8a8070;
-            cursor: default;
-            pointer-events: none;
-        }
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    height: 36px;
+    margin-top: 8px;
+    border: none;
+    border-radius: 10px;
+    background: var(--orange, #E8732A);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background .16s, transform .1s;
+}
+
+.mp-chat-btn:hover {
+    background: var(--brown2, #5C3D1E);
+}
+
+.mp-chat-btn:active {
+    transform: scale(.96);
+}
+
+.mp-chat-btn:disabled {
+    background: #C4BAA8;
+    cursor: not-allowed;
+}
+
+/* 이미 채팅방 있음 */
+.mp-chat-btn.exists {
+    background: var(--cream, #F6F0E6);
+    border: 1.5px solid var(--orange, #E8732A);
+    color: var(--orange, #E8732A);
+}
+
+/* 신청 중 */
+.mp-chat-btn.pending {
+    background: transparent;
+    border: 1.5px solid #C4BAA8;
+    color: #8a8070;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* =========================
+   이모지 제거 후 아이콘 정리
+========================= */
+
+.back-btn i,
+.reply-indicator i,
+.comment-more-btn i,
+.mp-grade i {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.back-btn i {
+    font-size: 16px;
+    color: inherit;
+}
+
+.reply-indicator i {
+    font-size: 15px;
+    color: var(--orange2);
+}
+
+.reply-cancel-btn {
+    margin-left: auto;
+    width: 28px;
+    height: 28px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--orange2);
+
+    font-size: 17px;
+    cursor: pointer;
+    transition: background 0.16s ease, color 0.16s ease;
+}
+
+.reply-cancel-btn:hover {
+    background: rgba(232, 115, 42, 0.12);
+    color: var(--orange);
+}
+
+.lightbox-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-close i {
+    color: inherit;
+    font-size: 24px;
+    line-height: 1;
+}
+
+.mp-grade {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.mp-grade i {
+    font-size: 14px;
+    color: var(--orange2);
+}
+
+/* =========================
+   맨 위로 버튼
+========================= */
+
+.page-top-btn {
+    position: fixed;
+    right: 28px;
+    bottom: 28px;
+    z-index: 8000;
+
+    width: 46px;
+    height: 46px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 50%;
+    background: var(--orange);
+    color: #fff;
+
+    font-size: 22px;
+    cursor: pointer;
+
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+
+    transform: translateY(8px);
+    transition:
+        opacity 0.18s ease,
+        visibility 0.18s ease,
+        transform 0.18s ease,
+        background 0.16s ease;
+}
+
+.page-top-btn.show {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.page-top-btn:hover {
+    background: var(--orange2);
+}
+
+.page-top-btn i {
+    color: inherit;
+    line-height: 1;
+}
+
+@media (max-width: 720px) {
+    .page-top-btn {
+        right: 18px;
+        bottom: 20px;
+        width: 42px;
+        height: 42px;
+        font-size: 20px;
+    }
+}
+
+/* =========================
+   댓글 좋아요 버튼 클릭감 개선
+========================= */
+
+.comment-like-btn {
+    min-height: 28px;
+    padding: 0 9px;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    border: 1.5px solid rgba(229, 72, 63, 0.18);
+    border-radius: 999px;
+    background: rgba(229, 72, 63, 0.045);
+    color: var(--brown3);
+
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+
+    transition:
+        border-color 0.16s ease,
+        background 0.16s ease,
+        color 0.16s ease;
+}
+
+.comment-like-btn i {
+    color: var(--red);
+    font-size: 13px;
+    line-height: 1;
+}
+
+.comment-like-btn:hover {
+    border-color: rgba(229, 72, 63, 0.42);
+    background: rgba(229, 72, 63, 0.095);
+    color: var(--red);
+}
+
+.comment-like-btn.liked {
+    border-color: rgba(229, 72, 63, 0.48);
+    background: rgba(229, 72, 63, 0.12);
+    color: var(--red);
+}
+
+.comment-like-btn.liked i {
+    color: var(--red);
+}
+
+/* =========================
+   댓글 더보기 / 접기 버튼 개선
+========================= */
+
+.comment-more-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+
+    margin: 6px 0 2px;
+    border-radius: 13px;
+
+    color: var(--orange2);
+    font-size: 13px;
+    font-weight: 850;
+
+    cursor: pointer;
+    transition:
+        background 0.16s ease,
+        color 0.16s ease,
+        border-color 0.16s ease;
+}
+
+.comment-more-btn:hover {
+    background: var(--orange-pale);
+    color: var(--orange);
+}
+
+
+@keyframes replyThreadFade {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================
+   대댓글 돌돌 접힘 애니메이션
+========================= */
+
+.reply-thread-fold {
+    margin-left: 18px;
+    padding-left: 16px;
+    border-left: 2.5px solid rgba(232, 115, 42, 0.22);
+
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transform-origin: top;
+    transform: translateY(-4px) scaleY(0.98);
+
+    transition:
+        max-height 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.22s ease,
+        transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reply-thread-fold.open {
+    max-height: 1200px;
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+}
+
+.reply-thread-fold.closing {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-6px) scaleY(0.96);
+}
+
+.reply-thread-inner {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+/* =========================
+   Quill 본문 출력
+========================= */
+
+.editor-content {
+    white-space: normal;
+}
+
+.editor-content p {
+    margin: 0 0 14px;
+    line-height: 1.9;
+}
+
+.editor-content img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 18px auto;
+    border-radius: 14px;
+}
+
+.editor-content blockquote {
+    margin: 14px 0;
+    padding: 10px 14px;
+    border-left: 3px solid var(--orange);
+    background: #fffaf2;
+    color: var(--brown2);
+}
+
+.editor-content a {
+    color: var(--orange2);
+    text-decoration: underline;
+}
+
+.editor-content ul,
+.editor-content ol {
+    padding-left: 24px;
+    margin: 12px 0;
+}
+
+.editor-content h1,
+.editor-content h2,
+.editor-content h3 {
+    margin: 18px 0 12px;
+    color: var(--brown);
+    line-height: 1.45;
+}

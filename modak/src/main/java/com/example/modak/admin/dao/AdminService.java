@@ -1142,5 +1142,8 @@ public class AdminService {
 	    } catch (Exception e) { e.printStackTrace(); r.put("result","fail"); }
 	    return r;
 	}
+	public void updateRefundStatus(Map<String, Object> map) {
+	    mapper.updateRefundStatus(map);
+	}
 	
 }

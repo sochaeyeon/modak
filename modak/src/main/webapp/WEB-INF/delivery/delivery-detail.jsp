@@ -123,14 +123,50 @@
 									<c:when test="${not empty delivery.itemList}">
 										<div class="item-list">
 											<c:forEach var="item" items="${delivery.itemList}">
-												<div class="item-row">
-													<p class="item-name">${item.productName}</p>
-													<p class="item-meta">수량 ${item.quantity}개 · ${item.unitPrice}원</p>
+												<div class="item-row item-row-detail"
+													onclick="location.href='/product/detail.do?productId=${item.productId}'">
+													<div class="item-thumb">
+														<c:choose>
+															<c:when test="${not empty item.imgUrl}">
+																<img src="${item.imgUrl}" alt="${item.productName}">
+															</c:when>
+															<c:otherwise>
+																<span>상품</span>
+															</c:otherwise>
+														</c:choose>
+													</div>
 
-													<c:if test="${not empty item.startDate or not empty item.endDate}">
-														<p class="item-date">대여기간 : ${item.startDate} ~ ${item.endDate}
+													<div class="item-content">
+														<div class="item-tags">
+															<span>
+																<c:choose>
+																	<c:when test="${item.productType eq 'RENTAL'}">대여
+																	</c:when>
+																	<c:when test="${item.productType eq 'PURCHASE'}">구매
+																	</c:when>
+																	<c:otherwise>${item.productType}</c:otherwise>
+																</c:choose>
+															</span>
+														</div>
+														<p class="item-name">
+															${item.productName}
+
+															<c:if test="${not empty item.brandName}">
+																<span class="name-divider">·</span>
+																<span class="brand-name">${item.brandName}</span>
+															</c:if>
 														</p>
-													</c:if>
+
+														<p class="item-meta">
+															수량 ${item.quantity}개 · ${item.unitPrice}원
+														</p>
+
+														<c:if
+															test="${not empty item.startDate or not empty item.endDate}">
+															<p class="item-date">대여기간 : ${item.startDate} ~
+																${item.endDate}</p>
+														</c:if>
+													</div>
 												</div>
 											</c:forEach>
 										</div>

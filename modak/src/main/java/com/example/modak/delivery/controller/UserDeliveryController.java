@@ -21,23 +21,33 @@ public class UserDeliveryController {
     private HttpSession session;
 
     @RequestMapping("/user/delivery/detail.do")
-    public String deliveryDetail(@RequestParam("deliveryId") Integer deliveryId, Model model) {
+    public String deliveryDetail(
+            @RequestParam(value = "deliveryId", required = false) Integer deliveryId,
+            @RequestParam(value = "orderId", required = false) Long orderId,
+            @RequestParam(value = "token", required = false) String token,
+            Model model
+    ) {
 
         String sessionId = (String) session.getAttribute("sessionId");
 
-        if (sessionId == null || sessionId.equals("")) {
-            return "redirect:/user/login.do";
+        DeliveryDetail delivery = null;
+
+        // 회원
+        if (deliveryId != null && sessionId != null) {
+            delivery = deliveryService.getDeliveryDetail(deliveryId, sessionId);
         }
 
-        DeliveryDetail delivery = deliveryService.getDeliveryDetail(deliveryId, sessionId);
+        // 비회원 + fallback
+        if (delivery == null && orderId != null) {
+            delivery = deliveryService.getDeliveryDetailByOrderId(orderId, sessionId, token);
+        }
 
+        // 👉 이제 error 안 보냄
         if (delivery == null) {
-            model.addAttribute("msg", "배송 정보를 찾을 수 없습니다.");
-            return "common/error";
+            delivery = deliveryService.getReadyDeliveryDetail(orderId);
         }
 
         model.addAttribute("delivery", delivery);
-
         return "delivery/delivery-detail";
     }
 }

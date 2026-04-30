@@ -27,62 +27,100 @@
 	</resultMap>
 
 	<select id="selectDeliveryDetail" resultMap="deliveryDetailResultMap">
-    SELECT
-        d.DELIVERY_ID,
-        d.DELIVERY_STATUS,
-        d.TRACKING_NO,
-        d.CARRIER_ID,
-        DATE_FORMAT(d.SHIPPED_AT, '%Y-%m-%d %H:%i') AS SHIPPED_AT,
-        DATE_FORMAT(d.DELIVERED_AT, '%Y-%m-%d %H:%i') AS DELIVERED_AT,
-        DATE_FORMAT(d.PICKED_UP_AT, '%Y-%m-%d %H:%i') AS PICKED_UP_AT,
-        d.RECEIVER_NAME,
-        d.ADDRESS,
-        d.ORDER_ID,
+		SELECT
+		d.DELIVERY_ID,
+		d.DELIVERY_STATUS,
+		d.TRACKING_NO,
+		d.CARRIER_ID,
+		DATE_FORMAT(d.SHIPPED_AT, '%Y-%m-%d %H:%i') AS SHIPPED_AT,
+		DATE_FORMAT(d.DELIVERED_AT, '%Y-%m-%d %H:%i') AS DELIVERED_AT,
+		DATE_FORMAT(d.PICKED_UP_AT, '%Y-%m-%d %H:%i') AS PICKED_UP_AT,
+		d.RECEIVER_NAME,
+		d.ADDRESS,
+		d.ORDER_ID,
 
-        o.ORDER_TYPE,
-        o.ORDER_STATUS,
-        DATE_FORMAT(o.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT,
-        o.USER_ID,
-        o.GUEST_NAME,
-        o.GUEST_PHONE
-    FROM delivery d
-    INNER JOIN orders o
-        ON d.ORDER_ID = o.ORDER_ID
-    WHERE d.DELIVERY_ID = #{deliveryId}
-      AND o.USER_ID = #{userId}
+		o.ORDER_TYPE,
+		o.ORDER_STATUS,
+		DATE_FORMAT(o.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT,
+		o.USER_ID,
+		o.GUEST_NAME,
+		o.GUEST_PHONE
+		FROM delivery d
+		INNER JOIN orders o
+		ON d.ORDER_ID = o.ORDER_ID
+		WHERE d.DELIVERY_ID = #{deliveryId}
+		AND o.USER_ID = #{userId}
+	</select>
+
+<select id="selectDeliveryItemList"
+        resultType="com.example.modak.delivery.model.DeliveryItem">
+    SELECT
+        oi.ITEM_ID AS itemId,
+        oi.PRODUCT_ID AS productId,
+        p.PRODUCT_NAME AS productName,
+        p.PRODUCT_TYPE AS productType,
+        oi.QUANTITY AS quantity,
+        oi.UNIT_PRICE AS unitPrice,
+        DATE_FORMAT(oi.START_DATE, '%Y-%m-%d') AS startDate,
+        DATE_FORMAT(oi.END_DATE, '%Y-%m-%d') AS endDate,
+
+        pi.IMG_URL AS imgUrl,
+        b.BRAND_NAME AS brandName,
+        c.CATEGORY_NAME AS categoryName
+    FROM order_item oi
+    INNER JOIN product p
+        ON oi.PRODUCT_ID = p.PRODUCT_ID
+    LEFT JOIN product_img pi
+        ON p.PRODUCT_ID = pi.PRODUCT_ID
+       AND pi.IS_MAIN = 'Y'
+    LEFT JOIN brand b
+        ON p.BRAND_ID = b.BRAND_ID
+    LEFT JOIN product_category c
+        ON p.CATEGORY_ID = c.CATEGORY_ID
+    WHERE oi.ORDER_ID = #{orderId}
+    ORDER BY oi.ITEM_ID ASC
 </select>
 
-	<select id="selectDeliveryItemList"
-		resultType="com.example.modak.delivery.model.DeliveryItem">
+	<update id="updateDeliveryTrackingSync"
+		parameterType="com.example.modak.delivery.model.DeliveryDetail"> UPDATE
+		delivery SET DELIVERY_STATUS = #{deliveryStatus}, DELIVERED_AT = <choose>
+			<when test="deliveredAt != null and deliveredAt != ''">
+		STR_TO_DATE(#{deliveredAt}, '%Y-%m-%d %H:%i')
+			</when>
+			<otherwise>
+				NULL
+			</otherwise>
+		</choose>
+		WHERE DELIVERY_ID = #{deliveryId} </update>
+	<select id="selectDeliveryDetailByOrderId"
+		resultMap="deliveryDetailResultMap">
 		SELECT
-		oi.ITEM_ID AS itemId,
-		oi.PRODUCT_ID AS productId,
-		p.PRODUCT_NAME AS productName,
-		oi.QUANTITY AS quantity,
-		oi.UNIT_PRICE AS unitPrice,
-		DATE_FORMAT(oi.START_DATE, '%Y-%m-%d') AS startDate,
-		DATE_FORMAT(oi.END_DATE, '%Y-%m-%d') AS endDate
-		FROM order_item oi
-		INNER JOIN product p
-		ON oi.PRODUCT_ID = p.PRODUCT_ID
-		WHERE oi.ORDER_ID = #{orderId}
-		ORDER BY oi.ITEM_ID ASC
-	</select>
-	
-	<update id="updateDeliveryTrackingSync" parameterType="com.example.modak.delivery.model.DeliveryDetail">
-    UPDATE delivery
-    SET
-        DELIVERY_STATUS = #{deliveryStatus},
-        DELIVERED_AT = 
-            <choose>
-                <when test="deliveredAt != null and deliveredAt != ''">
-                    STR_TO_DATE(#{deliveredAt}, '%Y-%m-%d %H:%i')
-                </when>
-                <otherwise>
-                    NULL
-                </otherwise>
-            </choose>
-    WHERE DELIVERY_ID = #{deliveryId}
-</update>
+		d.DELIVERY_ID,
+		COALESCE(d.DELIVERY_STATUS, 'PREPARING') AS DELIVERY_STATUS,
+		d.TRACKING_NO,
+		d.CARRIER_ID,
+		DATE_FORMAT(d.SHIPPED_AT, '%Y-%m-%d %H:%i') AS SHIPPED_AT,
+		DATE_FORMAT(d.DELIVERED_AT, '%Y-%m-%d %H:%i') AS DELIVERED_AT,
+		DATE_FORMAT(d.PICKED_UP_AT, '%Y-%m-%d %H:%i') AS PICKED_UP_AT,
+		d.RECEIVER_NAME,
+		d.ZIPCODE,
+		d.ADDRESS,
+		d.DETAILED_ADDRESS,
 
+		o.ORDER_ID,
+		o.ORDER_TYPE,
+		o.ORDER_STATUS,
+		DATE_FORMAT(o.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT,
+		o.USER_ID,
+		o.GUEST_NAME,
+		o.GUEST_PHONE
+		FROM orders o
+		LEFT JOIN delivery d
+		ON o.ORDER_ID = d.ORDER_ID
+		WHERE o.ORDER_ID = #{orderId}
+		AND (
+		o.USER_ID = #{userId}
+		OR o.USER_ID IS NULL
+		)
+	</select>
 </mapper>

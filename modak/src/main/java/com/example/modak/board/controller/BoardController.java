@@ -1,15 +1,24 @@
 package com.example.modak.board.controller;
 
-import com.example.modak.board.dao.BoardService;
-import com.google.gson.Gson;
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.modak.board.dao.BoardService;
+import com.google.gson.Gson;
+
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import java.util.*;
 
 @Controller
 @RequestMapping("/board")
@@ -102,5 +111,60 @@ public class BoardController {
     @ResponseBody
     public String getBoardListByTag(@RequestParam String tag) {
         return new Gson().toJson(boardService.getBoardListByTag(tag));
+    }
+    
+    @PostMapping("/editor/image-upload.dox")
+    @ResponseBody
+    public HashMap<String, Object> uploadEditorImage(
+            @RequestParam("file") MultipartFile file,
+            HttpServletRequest request
+    ) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            if (file == null || file.isEmpty()) {
+                result.put("result", "fail");
+                result.put("message", "업로드할 이미지가 없습니다.");
+                return result;
+            }
+
+            String contentType = file.getContentType();
+
+            if (contentType == null || !contentType.startsWith("image/")) {
+                result.put("result", "fail");
+                result.put("message", "이미지 파일만 업로드할 수 있습니다.");
+                return result;
+            }
+
+            String uploadPath = request.getServletContext().getRealPath("/img/board");
+
+            File dir = new File(uploadPath);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+
+            String originalName = file.getOriginalFilename();
+            String ext = "";
+
+            if (originalName != null && originalName.lastIndexOf(".") != -1) {
+                ext = originalName.substring(originalName.lastIndexOf("."));
+            }
+
+            String saveName = UUID.randomUUID().toString() + ext;
+
+            File saveFile = new File(dir, saveName);
+            file.transferTo(saveFile);
+
+            String imgUrl = "/img/board/" + saveName;
+
+            result.put("result", "success");
+            result.put("imgUrl", imgUrl);
+
+        } catch (Exception e) {
+            result.put("result", "fail");
+            result.put("message", "이미지 업로드 중 오류가 발생했습니다.");
+        }
+
+        return result;
     }
 }

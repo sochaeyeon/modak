@@ -1,5 +1,4 @@
 package com.example.modak.board.dao;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,11 +16,10 @@ import com.example.modak.board.mapper.BoardMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
-
-
-
 public class BoardService {
 	@Autowired
 	private AlarmService alarmService;
@@ -43,10 +41,16 @@ public class BoardService {
             map.put("offset", (page - 1) * pageSize);
             map.put("pageSize", pageSize);
 
-            result.put("result",     "success");
-            result.put("list",       mapper.selectBoardList(map));
+            List<Map<String, Object>> list = mapper.selectBoardList(map);
+            List<Map<String, Object>> hotList = mapper.selectHotBoardList();
+
+            applyEditorThumbnail(list);
+            applyEditorThumbnail(hotList);
+
+            result.put("result", "success");
+            result.put("list", list);
             result.put("totalCount", mapper.selectBoardCount(map));
-            result.put("hotList",    mapper.selectHotBoardList());
+            result.put("hotList", hotList);
         } catch (Exception e) {
             e.printStackTrace();
             result.put("result", "fail");
@@ -596,6 +600,8 @@ public class BoardService {
         try {
             List<Map<String, Object>> list = mapper.selectBoardListByTag(tag);
 
+            applyEditorThumbnail(list);
+
             result.put("result", "success");
             result.put("list", list);
             result.put("tag", tag);
@@ -607,5 +613,51 @@ public class BoardService {
         }
 
         return result;
+    }
+    private String extractFirstImgUrl(String content) {
+        if (content == null || content.isBlank()) {
+            return null;
+        }
+
+        Pattern pattern = Pattern.compile(
+            "<img[^>]+src=[\"']([^\"']+)[\"']",
+            Pattern.CASE_INSENSITIVE
+        );
+
+        Matcher matcher = pattern.matcher(content);
+
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+
+        return null;
+    }
+
+    private void applyEditorThumbnail(List<Map<String, Object>> list) {
+        if (list == null) {
+            return;
+        }
+
+        for (Map<String, Object> item : list) {
+            Object thumbObj = item.get("thumbUrl");
+
+            if (thumbObj != null && !String.valueOf(thumbObj).isBlank()) {
+                continue;
+            }
+
+            Object contentObj = item.get("CONTENT");
+
+            if (contentObj == null) {
+                contentObj = item.get("content");
+            }
+
+            String editorImgUrl = extractFirstImgUrl(
+                contentObj != null ? String.valueOf(contentObj) : null
+            );
+
+            if (editorImgUrl != null) {
+                item.put("thumbUrl", editorImgUrl);
+            }
+        }
     }
 }

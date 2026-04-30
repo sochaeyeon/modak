@@ -543,12 +543,12 @@ body {
 }
 
 /* 1번 - 배송지 없을 때 뜨는 최초 등록 모달 */
-.addr-modal-box {
+/* .addr-modal-box {
     width: 560px;
     max-width: 95vw;
     max-height: 90vh;
     overflow-y: auto;
-}
+} */
 
 /* 2번 - 배송지 변경 > 새 배송지 추가 모달 */
 .addr-add-box {
@@ -1057,20 +1057,13 @@ body {
     background: #fff;
     border-radius: 16px;
     padding: 24px;
-    width: 420px;
-    max-width: 95vw;
+    width: 530px;
+    /* max-width: 95vw; */
     box-shadow: 0 8px 32px rgba(0, 0, 0, .2);
     max-height: 90vh;
     overflow-y: auto;
-}
-
-.modal-box {
     border-radius: 18px;
     box-shadow: 0 24px 70px rgba(0, 0, 0, .2);
-}
-
-.addr-modal-box {
-    width: 480px;
 }
 
 .modal-header {

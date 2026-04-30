@@ -589,15 +589,27 @@
                                 this.cartType = params.get('cartType') || 'RENTAL';
                                 const ids = params.get('cartIds');
                                 this.cartIds = ids ? ids.split(',').map(Number) : [];
-                                const couponId = params.get('userCouponId');
-                                if (couponId) {
-                                    this.selectedUserCouponId = couponId;
+                                let savedDiscount = {};
+                                try {
+                                    savedDiscount = JSON.parse(localStorage.getItem('checkout_discount') || '{}');
+                                } catch (e) {
+                                    savedDiscount = {};
                                 }
 
+                                const couponId = params.get('userCouponId') || savedDiscount.userCouponId || '';
+                                this.selectedUserCouponId = couponId;
+
                                 const usePoint = params.get('usePoint');
-                                if (usePoint) {
+
+                                if (usePoint !== null && usePoint !== '') {
                                     this.usePoint = Number(usePoint || 0);
+                                } else {
+                                    this.usePoint = Number(savedDiscount.usePoint || 0);
                                 }
+
+                                console.log("체크아웃 적용 쿠폰:", this.selectedUserCouponId);
+                                console.log("체크아웃 적용 포인트:", this.usePoint);
+                                
                                 if (!this.guestKey) {
                                     this.guestKey = 'GUEST_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
                                     localStorage.setItem('guestKey', this.guestKey);
@@ -727,6 +739,18 @@
                                     success(res) {
                                         if (res.result === 'success') {
                                             self.couponList = res.list || [];
+                                            if (self.selectedUserCouponId) {
+                                                const exists = self.couponList.some(c =>
+                                                    String(c.userCouponId) === String(self.selectedUserCouponId)
+                                                );
+
+                                                if (!exists) {
+                                                    console.log("선택 쿠폰이 체크아웃 쿠폰 목록에 없음:", self.selectedUserCouponId);
+                                                    self.selectedUserCouponId = '';
+                                                }
+                                            }
+
+                                            self.clampUsePoint();
                                         }
                                     }
                                 });

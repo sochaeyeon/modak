@@ -530,43 +530,44 @@
                                 });
                             },
 
-                            fnApplyReturn: function (rental) {
-                                var self = this;
-                                if (!rental) { self.showToast('대여 건을 선택해주세요.'); return; }
-                                if (!['RESERVED', 'IN_USE'].includes(rental.rentalStatus)) {
-                                    self.showToast('예약완료 또는 대여중 상태만 반납 신청 가능합니다.'); return;
-                                }
-                                if (!self.pickup.address) { self.showToast('회수 주소를 입력해주세요.'); return; }
-                                self.fnOpenModal({
-                                    title: '반납 신청하시겠습니까?',
-                                    message: '선택한 상품의 상태가<br><strong>반납 요청</strong>으로 변경됩니다.',
-                                    confirmText: '반납 신청',
-                                    onConfirm: function () {
-                                        self.isApplying = true;
-                                        var url = self.isGuest ? '/rental/extension/return/guest/apply.dox' : '/rental/extension/return/apply.dox';
-                                        var data = { rentalId: rental.rentalId, zipcode: self.pickup.zipcode, address: self.pickup.address, detailedAddress: self.pickup.detailedAddress };
-                                        if (self.isGuest) { data.token = self.guestToken; data.guestName = rental.guestName; data.guestPhone = rental.guestPhone; }
-                                        $.ajax({
-                                            url: url, type: 'POST', dataType: 'json', data: data,
-                                            success: function (res) {
-                                                self.isApplying = false;
-                                                if (res.result === 'success') {
-                                                    self.showToast(res.message || '반납 신청이 완료되었습니다.');
-
-                                                    self.fnClosePanel();
-
-                                                    if (self.isGuest) {
-                                                        self.fnLoadGuestOrderRentals();
-                                                    } else {
-                                                        self.fnLoadMemberList();
-                                                    }
-                                                } else { self.showToast(res.message || '반납 신청에 실패했습니다.'); }
-                                            },
-                                            error: function () { self.isApplying = false; self.showToast('서버 오류가 발생했습니다.'); }
-                                        });
-                                    }
-                                });
-                            },
+							fnApplyReturn: function (rental) {
+							    var self = this;
+							    console.log('fnApplyReturn 호출됨', rental);
+							    
+							    // ★ 모든 체크 제거하고 바로 모달
+							    self.fnOpenModal({
+							        title: '반납 신청하시겠습니까?',
+							        message: '테스트',
+							        confirmText: '반납 신청',
+							        onConfirm: function () {
+							            self.isApplying = true;
+							            var url = '/rental/extension/return/guest/apply.dox';
+							            var data = {
+							                rentalId:        rental.rentalId,
+							                zipcode:         self.pickup.zipcode,
+							                address:         self.pickup.address,
+							                detailedAddress: self.pickup.detailedAddress,
+							                token:           self.guestToken,
+							                orderId:         self.guestOrderId,
+							                guestName:       rental.guestName,
+							                guestPhone:      rental.guestPhone
+							            };
+							            console.log('전송 데이터:', data); // ★
+							            $.ajax({
+							                url: url, type: 'POST', dataType: 'json', data: data,
+							                success: function (res) {
+							                    console.log('반납 응답:', res); // ★
+							                    self.isApplying = false;
+							                    self.showToast(res.message || '완료');
+							                },
+							                error: function (xhr) {
+							                    console.error('에러:', xhr.responseText);
+							                    self.isApplying = false;
+							                }
+							            });
+							        }
+							    });
+							},
                             fnCancelReturn: function (rental) {
                                 var self = this;
 
@@ -680,34 +681,31 @@
                                 this.fnCloseModal();
                                 if (typeof callback === 'function') callback();
                             },
-                            fnLoadGuestOrderRentals: function () {
-                                var self = this;
-                                self.isLoading = true;
-
-                                $.ajax({
-                                    url: '/rental/extension/guest/order-list.dox',
-                                    type: 'POST',
-                                    dataType: 'json',
-                                    data: {
-                                        orderId: self.guestOrderId,
-                                        token: self.guestToken
-                                    },
-                                    success: function (res) {
-                                        self.isLoading = false;
-
-                                        if (res.result === 'success') {
-                                            self.rentalList = res.list || [];
-
-                                        } else {
-                                            self.showToast(res.message || '대여 목록을 불러오지 못했습니다.');
-                                        }
-                                    },
-                                    error: function () {
-                                        self.isLoading = false;
-                                        self.showToast('서버 오류가 발생했습니다.');
-                                    }
-                                });
-                            },
+							fnLoadGuestOrderRentals: function () {
+							    var self = this;
+							    console.log('orderId:', self.guestOrderId);  // ★
+							    console.log('token:', self.guestToken);       // ★
+							    self.isLoading = true;
+							    $.ajax({
+							        url: '/rental/extension/guest/order-list.dox',
+							        type: 'POST',
+							        dataType: 'json',
+							        data: { orderId: self.guestOrderId, token: self.guestToken },
+							        success: function (res) {
+							            console.log('order-list 응답:', res);  // ★
+							            self.isLoading = false;
+							            if (res.result === 'success') {
+							                self.rentalList = res.list || [];
+							            } else {
+							                self.showToast(res.message || '대여 목록을 불러오지 못했습니다.');
+							            }
+							        },
+							        error: function (xhr) {
+							            console.error('error:', xhr.responseText);  // ★
+							            self.isLoading = false;
+							        }
+							    });
+							},
 
                             fnSelectGuestRental: function (rental) {
                                 var self = this;
@@ -718,7 +716,9 @@
                                 self.pickup.zipcode = rental.returnZipcode || '';
                                 self.pickup.address = rental.returnAddress || '';
                                 self.pickup.detailedAddress = rental.returnDetailedAddress || '';
+								
 
+								console.log('pickup 주소:', self.pickup); 
                                 self.extensions = [];
                                 self.returnHistory = [];
 

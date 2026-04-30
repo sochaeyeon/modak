@@ -2,7 +2,6 @@
 	<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 		<!DOCTYPE html>
 		<html lang="ko">
-///////
 		<head>
 			<meta charset="UTF-8">
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,9 +11,7 @@
 			<link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
 			<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 		</head>
-
 		<body>
-
 			<%@ include file="/WEB-INF/common/header.jsp" %>
 
 				<!-- HERO -->

@@ -15,15 +15,18 @@
     <body>
 
         <div id="app" v-cloak>
-            <button class="sidebar-toggle-btn" @click="fnToggleSidebar">
-                <i :class="sidebarOpen ? 'ri-arrow-left-s-line' : 'ri-menu-line'"></i>
-            </button>
-
             <div :class="['sidebar', { closed: !sidebarOpen }]">
-                <div class="sidebar-logo" onclick="location.href='/main.do'">
-                    <i class="ri-fire-fill"></i>
-                    <span class="logo">모닥모닥</span>
-                </div> <button class="new-chat-btn" @click="fnNewChat">+ 새 대화 시작</button>
+                <div class="sidebar-top">
+                    <div class="sidebar-logo" onclick="location.href='/main.do'">
+                        <i class="ri-fire-fill"></i>
+                        <span class="logo">모닥모닥</span>
+                    </div>
+
+                    <button class="sidebar-close-btn" @click="fnToggleSidebar" title="사이드바 접기">
+                        <i class="ri-side-bar-line"></i>
+                    </button>
+                </div>
+                <button class="new-chat-btn" @click="fnNewChat">+ 새 대화 시작</button>
                 <p style="font-size:11px;color:var(--gray);margin-bottom:15px;font-weight:800;padding-left:5px;">
                     나의 캠핑 기록
                 </p>
@@ -51,9 +54,12 @@
                     </div>
                 </div>
             </div>
-
             <div class="chat-main">
                 <header class="chat-header">
+                    <button v-if="!sidebarOpen" class="sidebar-open-btn" @click="fnToggleSidebar">
+                        <i class="ri-menu-line"></i>
+                    </button>
+
                     <div class="bot-avatar">
                         <i class="ri-fire-fill"></i>
                     </div>
@@ -120,54 +126,53 @@
                         </button>
                     </div>
                 </div>
-            </div>
-            <!-- 메인 이동 모달 -->
-            <div v-if="mainModalOpen" class="main-modal-backdrop" @click.self="fnCloseMainModal"
-                @keydown.enter.prevent="fnConfirmMain" @keydown.esc.prevent="fnCloseMainModal" tabindex="0"
-                ref="mainModal">
+        </div><!-- /.chat-main -->
+        <!-- 메인 이동 모달 -->
+        <div v-if="mainModalOpen" class="main-modal-backdrop" @click.self="fnCloseMainModal"
+            @keydown.enter.prevent="fnConfirmMain" @keydown.esc.prevent="fnCloseMainModal" tabindex="0" ref="mainModal">
 
-                <div class="main-modal-box">
-                    <div class="main-modal-title">메인으로 가시겠닥?</div>
-                    <div class="main-modal-desc">
-                        현재 대화 화면을 벗어나 메인으로 이동합니다.
-                    </div>
+            <div class="main-modal-box">
+                <div class="main-modal-title">메인으로 가시겠닥?</div>
+                <div class="main-modal-desc">
+                    현재 대화 화면을 벗어나 메인으로 이동합니다.
+                </div>
 
-                    <div class="main-modal-actions">
-                        <button type="button" class="main-confirm-btn" @click="fnConfirmMain">
-                            이동
-                        </button>
-                        <button type="button" class="main-cancel-btn" @click="fnCloseMainModal">
-                            취소
-                        </button>
-                    </div>
+                <div class="main-modal-actions">
+                    <button type="button" class="main-confirm-btn" @click="fnConfirmMain">
+                        이동
+                    </button>
+                    <button type="button" class="main-cancel-btn" @click="fnCloseMainModal">
+                        취소
+                    </button>
                 </div>
             </div>
-            <!-- 삭제 확인 모달 -->
-            <div v-if="deleteModalOpen" class="main-modal-backdrop" @click.self="fnCloseDeleteModal"
-                @keydown.enter.prevent="fnConfirmDeleteRoom" @keydown.esc.prevent="fnCloseDeleteModal" tabindex="0"
-                ref="deleteModal">
+        </div>
+        <!-- 삭제 확인 모달 -->
+        <div v-if="deleteModalOpen" class="main-modal-backdrop" @click.self="fnCloseDeleteModal"
+            @keydown.enter.prevent="fnConfirmDeleteRoom" @keydown.esc.prevent="fnCloseDeleteModal" tabindex="0"
+            ref="deleteModal">
 
-                <div class="main-modal-box">
-                    <div class="main-modal-title">대화를 삭제하시겠닥?</div>
-                    <div class="main-modal-desc">
-                        삭제한 대화 기록은 다시 복구할 수 없습니다.
-                    </div>
+            <div class="main-modal-box">
+                <div class="main-modal-title">대화를 삭제하시겠닥?</div>
+                <div class="main-modal-desc">
+                    삭제한 대화 기록은 다시 복구할 수 없습니다.
+                </div>
 
-                    <div class="main-modal-actions">
-                        <button type="button" class="main-confirm-btn" @click="fnConfirmDeleteRoom">
-                            삭제
-                        </button>
-                        <button type="button" class="main-cancel-btn" @click="fnCloseDeleteModal">
-                            취소
-                        </button>
-                    </div>
+                <div class="main-modal-actions">
+                    <button type="button" class="main-confirm-btn" @click="fnConfirmDeleteRoom">
+                        삭제
+                    </button>
+                    <button type="button" class="main-cancel-btn" @click="fnCloseDeleteModal">
+                        취소
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <!-- 토스트 -->
-            <div v-if="toastOpen" class="chat-toast">
-                {{ toastMessage }}
-            </div>
+        <!-- 토스트 -->
+        <div v-if="toastOpen" class="chat-toast">
+            {{ toastMessage }}
+        </div>
         </div>
 
         <script>

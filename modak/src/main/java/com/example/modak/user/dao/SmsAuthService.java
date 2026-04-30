@@ -93,54 +93,61 @@ public class SmsAuthService {
 	}
 
 	public HashMap<String, Object> verifySmsCode(HashMap<String, Object> map) {
-		HashMap<String, Object> resultMap = new HashMap<>();
+	    HashMap<String, Object> resultMap = new HashMap<>();
 
-		try {
-			String sessionId = (String) session.getAttribute("sessionId");
-			map.put("sessionId", sessionId);
+	    try {
+	        String authPurpose = String.valueOf(map.getOrDefault("authPurpose", ""));
+	        
+	        // ★ 비회원 주문조회는 sessionId 없이 처리
+	        if (!"GUEST_ORDER".equals(authPurpose)) {
+	            String sessionId = (String) session.getAttribute("sessionId");
+	            map.put("sessionId", sessionId);
+	        }
 
-			HashMap<String, Object> authInfo = smsAuthMapper.selectLatestSmsAuth(map);
+	        HashMap<String, Object> authInfo = smsAuthMapper.selectLatestSmsAuth(map);
 
-			if (authInfo == null) {
-				resultMap.put("result", "fail");
-				resultMap.put("message", "인증번호를 다시 요청해주세요.");
-				return resultMap;
-			}
+	        if (authInfo == null) {
+	            resultMap.put("result", "fail");
+	            resultMap.put("message", "인증번호를 다시 요청해주세요.");
+	            return resultMap;
+	        }
 
-			String dbAuthCode = String.valueOf(authInfo.get("AUTH_CODE"));
-			String inputAuthCode = String.valueOf(map.get("authCode"));
-			String authYn = String.valueOf(authInfo.get("AUTH_YN"));
+	        String dbAuthCode    = String.valueOf(authInfo.get("AUTH_CODE"));
+	        String inputAuthCode = String.valueOf(map.get("authCode"));
+	        String authYn        = String.valueOf(authInfo.get("AUTH_YN"));
 
-			if ("Y".equals(authYn)) {
-				resultMap.put("result", "fail");
-				resultMap.put("message", "이미 인증 완료된 번호입니다.");
-				return resultMap;
-			}
+	        if ("Y".equals(authYn)) {
+	            resultMap.put("result", "fail");
+	            resultMap.put("message", "이미 인증 완료된 번호입니다.");
+	            return resultMap;
+	        }
 
-			if (!dbAuthCode.equals(inputAuthCode)) {
-				resultMap.put("result", "fail");
-				resultMap.put("message", "인증번호가 올바르지 않습니다.");
-				return resultMap;
-			}
+	        if (!dbAuthCode.equals(inputAuthCode)) {
+	            resultMap.put("result", "fail");
+	            resultMap.put("message", "인증번호가 올바르지 않습니다.");
+	            return resultMap;
+	        }
 
-			// 1. SMS_AUTH 인증 완료 처리
-			smsAuthMapper.updateSmsAuthVerified(map);
+	        // SMS_AUTH 인증 완료 처리
+	        smsAuthMapper.updateSmsAuthVerified(map);
 
-			// 2. USER 테이블 인증 완료 처리
-			userSettingsMapper.updatePhoneVerified(map);
+	        // ★ 비회원은 USER 테이블 업데이트 Skip
+	        if (!"GUEST_ORDER".equals(authPurpose)) {
+	            userSettingsMapper.updatePhoneVerified(map);
+	        }
 
-			resultMap.put("result", "success");
-			resultMap.put("message", "휴대폰 인증이 완료되었습니다.");
-			resultMap.put("phoneVerifiedAt",
-					LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+	        resultMap.put("result", "success");
+	        resultMap.put("message", "휴대폰 인증이 완료되었습니다.");
+	        resultMap.put("phoneVerifiedAt",
+	            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			resultMap.put("result", "fail");
-			resultMap.put("message", "서버 오류가 발생했습니다.");
-		}
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result", "fail");
+	        resultMap.put("message", "서버 오류가 발생했습니다.");
+	    }
 
-		return resultMap;
+	    return resultMap;
 	}
 
 	public HashMap<String, Object> selectVerifiedSmsAuth(HashMap<String, Object> map) {

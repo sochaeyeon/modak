@@ -113,7 +113,7 @@ public class CartController {
 		HashMap<String, Object> resultMap = cartService.updateCartOption(map);
 		return new Gson().toJson(resultMap);
 	}
-	// 장바구니에서 수량변경
+	// 장바구니에서 수량변경 
 	@RequestMapping("/cart/update.dox")
 	@ResponseBody
 	public String updateCartQty(@RequestParam HashMap<String, Object> map) throws Exception {

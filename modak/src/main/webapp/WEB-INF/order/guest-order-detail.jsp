@@ -18,7 +18,7 @@
 
         <%@ include file="/WEB-INF/common/header.jsp" %>
 
-            <div id="app">
+            <div id="app" v-cloak>
 
                 <!-- 로딩 -->
                 <div class="guest-detail-page" v-if="isLoading">
@@ -199,7 +199,11 @@
                                     </div>
                                     <span>{{ fnStatusText(order.orderStatus) }}</span>
                                 </div>
-
+                                <div class="action-row delivery-action-row">
+                                    <a class="action-btn delivery" :href="fnDeliveryUrl()">
+                                        배송조회
+                                    </a>
+                                </div>
                                 <div class="action-row" v-if="fnCanShowActions()">
                                     <button class="action-btn cancel" v-if="order.orderStatus === 'PAID'"
                                         @click="openModal('cancel')">
@@ -469,12 +473,18 @@
                             },
                             fnDeliveryUrl: function () {
                                 var p = new URLSearchParams(location.search);
+                                var token = p.get('token');
 
-                                return '/delivery/tracking.do'
-                                    + '?orderId=' + this.order.orderId
-                                    + '&token=' + p.get('token');
+                                var url = '/user/delivery/detail.do'
+                                    + '?orderId=' + encodeURIComponent(this.order.orderId);
+
+                                if (token) {
+                                    url += '&token=' + encodeURIComponent(token);
+                                }
+
+                                return url;
                             },
-						},	
+                        },
 
                         mounted: function () {
                             this.fnLoad();

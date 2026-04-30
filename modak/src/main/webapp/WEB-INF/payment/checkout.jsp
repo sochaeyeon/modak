@@ -519,6 +519,7 @@
 
                                 userPoint: 0,
                                 usePoint: 0,
+                                requestedUsePoint: 0,
                                 currentStep: 1
                             };
                         },
@@ -602,10 +603,12 @@
                                 const usePoint = params.get('usePoint');
 
                                 if (usePoint !== null && usePoint !== '') {
-                                    this.usePoint = Number(usePoint || 0);
+                                    this.requestedUsePoint = Number(usePoint || 0);
                                 } else {
-                                    this.usePoint = Number(savedDiscount.usePoint || 0);
+                                    this.requestedUsePoint = Number(savedDiscount.usePoint || 0);
                                 }
+
+                                this.usePoint = this.requestedUsePoint;
 
                                 console.log("체크아웃 적용 쿠폰:", this.selectedUserCouponId);
                                 console.log("체크아웃 적용 포인트:", this.usePoint);
@@ -695,6 +698,9 @@
 
                                         if (res.result === 'success') {
                                             self.orderItems = res.list || [];
+                                            self.$nextTick(function () {
+                                                self.applyRequestedPoint();
+                                            });
 
                                             console.log("회원 체크아웃 상품:", self.orderItems);
                                             console.log("체크아웃 날짜 확인:", self.orderItems.map(item => ({
@@ -733,7 +739,7 @@
                             fetchCouponList() {
                                 let self = this;
                                 $.ajax({
-                                    url: '/coupon/availableList.dox',
+                                    url: '/coupon/myCouponList.dox',
                                     type: 'POST',
                                     dataType: 'json',
                                     success(res) {
@@ -1030,6 +1036,10 @@
                                     success(res) {
                                         if (res.result === 'success') {
                                             self.userPoint = Number(res.point || 0);
+
+                                            self.$nextTick(function () {
+                                                self.applyRequestedPoint();
+                                            });
                                         }
                                     }
                                 });
@@ -1054,12 +1064,41 @@
                             },
 
                             clampUsePoint() {
+                                if (Number(this.itemTotal || 0) <= 0) {
+                                    return;
+                                }
+
+                                if (Number(this.userPoint || 0) <= 0 && Number(this.usePoint || 0) > 0) {
+                                    return;
+                                }
+
                                 let point = Number(this.usePoint || 0);
 
                                 if (point < 0) point = 0;
                                 if (point > this.maxUsePoint) point = this.maxUsePoint;
 
                                 this.usePoint = point;
+                            },
+                            applyRequestedPoint() {
+                                if (Number(this.requestedUsePoint || 0) <= 0) {
+                                    this.clampUsePoint();
+                                    return;
+                                }
+
+                                if (Number(this.itemTotal || 0) <= 0) {
+                                    return;
+                                }
+
+                                if (Number(this.userPoint || 0) <= 0) {
+                                    return;
+                                }
+
+                                this.usePoint = Math.min(
+                                    Number(this.requestedUsePoint || 0),
+                                    Number(this.maxUsePoint || 0)
+                                );
+
+                                this.clampUsePoint();
                             },
                             fnSearchAddress() {
                                 let self = this;

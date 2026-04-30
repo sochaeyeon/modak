@@ -98,4 +98,5 @@ public interface RentalExtensionMapper {
     int updateExtensionOrderStatus(HashMap<String, Object> map);
     
     List<RentalExtension> selectGuestRentalListByOrder(@Param("orderId") String orderId);
+    RentalExtension selectGuestRentalByPhone(HashMap<String, Object> map);
 }

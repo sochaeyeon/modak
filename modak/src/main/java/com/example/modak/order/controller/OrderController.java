@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,16 +18,24 @@ import com.example.modak.common.Message;
 import com.example.modak.delivery.dao.DeliveryService;
 import com.example.modak.delivery.model.DeliveryDetail;
 import com.example.modak.delivery.model.DeliveryTrackingEvent;
+import com.example.modak.order.dao.GuestOrderService;
 import com.example.modak.order.dao.OrderService;
+import com.example.modak.order.mapper.OrderMapper;
+import com.example.modak.user.dao.SmsAuthService;
 import com.google.gson.Gson;
 
 import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class OrderController {
+	
 
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private SmsAuthService smsAuthService;
+    
+    
 
     // 1. 전체 주문 내역 페이지 이동 (.do)
     @RequestMapping("/order/history.do")
@@ -152,5 +161,91 @@ public class OrderController {
             e.printStackTrace();
             return new Gson().toJson(Map.of("result", "fail", "message", e.getMessage()));
         }
+    }
+   
+
+
+    @Autowired
+    private OrderMapper orderMapper;
+    @Autowired
+    private GuestOrderService guestOrderService;
+    @PostMapping(value="/order/guest/list.dox", produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public String getGuestOrderList(@RequestParam HashMap<String, Object> map, HttpSession session) {
+        HashMap<String, Object> result = new HashMap<>();
+        try {
+            String verifiedPhone = (String) session.getAttribute("guestVerifiedPhone");
+            String verifiedName  = (String) session.getAttribute("guestVerifiedName");
+            String reqPhone      = String.valueOf(map.get("guestPhone"));
+            String reqName       = String.valueOf(map.get("guestName"));
+
+            if (verifiedPhone == null || !verifiedPhone.equals(reqPhone)
+                                      || !verifiedName.equals(reqName)) {
+                result.put("result",  "fail");
+                result.put("message", "SMS 인증이 필요합니다.");
+                return new Gson().toJson(result);
+            }
+
+            List<Map<String, Object>> list = orderMapper.selectGuestOrderListByPhone(map);
+
+            // ★ 각 주문에 토큰 새로 발급
+            for (Map<String, Object> order : list) {
+                String orderId = String.valueOf(order.get("ORDER_ID"));
+                // GuestOrderService의 inquireGuestOrder 대신 직접 토큰 생성
+                HashMap<String, Object> tokenResult = guestOrderService.inquireGuestOrder(
+                    orderId,
+                    reqName,
+                    reqPhone
+                );
+                if ("success".equals(tokenResult.get("result"))) {
+                    order.put("GUEST_TOKEN", tokenResult.get("token"));
+                }
+            }
+
+            result.put("result", "success");
+            result.put("list",   list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+        }
+        return new Gson().toJson(result);
+    }
+
+    // 세션 저장 엔드포인트
+    @PostMapping(value="/order/guest/verify.dox", produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public String saveGuestSession(@RequestParam HashMap<String, Object> map, HttpSession session) {
+        HashMap<String, Object> result = new HashMap<>();
+        try {
+            String phone    = String.valueOf(map.get("guestPhone"));
+            String name     = String.valueOf(map.get("guestName"));
+            String authCode = String.valueOf(map.get("authCode"));
+
+            HashMap<String, Object> verifyParam = new HashMap<>();
+            verifyParam.put("userPhone",   phone);
+            verifyParam.put("authCode",    authCode);
+            verifyParam.put("authPurpose", "GUEST_ORDER");
+
+            HashMap<String, Object> verifyResult = smsAuthService.verifySmsCode(verifyParam);
+
+            if ("success".equals(verifyResult.get("result"))) {
+                session.setAttribute("guestVerifiedPhone", phone);
+                session.setAttribute("guestVerifiedName",  name);
+                result.put("result", "success");
+            } else {
+                result.put("result",  "fail");
+                result.put("message", verifyResult.get("message"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+        }
+        return new Gson().toJson(result);
+    }
+
+    // 페이지 라우팅
+    @GetMapping("/order/guest/orders.do")
+    public String guestOrderListPage() {
+        return "order/guest-order-list";
     }
 }

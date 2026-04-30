@@ -1,5 +1,6 @@
 package com.example.modak.order.mapper;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,5 +25,6 @@ public interface OrderMapper {
     int insertOrderCancel(Map<String, Object> map);
     
     Integer selectDeliveryIdByOrderId(Integer orderId);
-
+ // selectGuestOrderListByPhone — xml에 쿼리 이미 있으니 인터페이스만 추가
+    List<Map<String, Object>> selectGuestOrderListByPhone(HashMap<String, Object> map);
 }

@@ -371,8 +371,8 @@ public class ReviewService {
 	private void saveReviewImages(Long reviewId, MultipartFile[] files, HttpServletRequest request) throws Exception {
 	    if (files == null || files.length == 0) return;
 
-	    // ★ webapp 하위 경로로 저장
-	    String uploadPath = request.getServletContext().getRealPath("/") + "upload/review";
+	    String uploadPath = "C:/Users/TJ-BU-708-P04/git/modak/modak/src/main/webapp/img/review";
+
 	    File dir = new File(uploadPath);
 	    if (!dir.exists()) dir.mkdirs();
 
@@ -389,7 +389,7 @@ public class ReviewService {
 
 	        HashMap<String, Object> imgMap = new HashMap<>();
 	        imgMap.put("reviewId", reviewId);
-	        imgMap.put("imgUrl", "/upload/review/" + saveName);
+	        imgMap.put("imgUrl", "/img/review/" + saveName);
 	        imgList.add(imgMap);
 	    }
 

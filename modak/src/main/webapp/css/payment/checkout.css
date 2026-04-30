@@ -2,6 +2,7 @@
     display: none !important;
 }
 
+/* 공통 */
 :root {
     --orange: #FF6B35;
     --orange-light: #fff7f0;
@@ -13,6 +14,16 @@
     --white: #fff;
     --red: #e74c3c;
     --green: #2ecc71;
+}
+
+:root {
+    --orange: #E8732A;
+    --orange-hover: #D9641F;
+    --orange-light: #FFF4EC;
+    --orange-line: #F2C7AE;
+    --brown-text: #3A2A22;
+    --soft-border: #EEE2DA;
+    --soft-bg: #FFF9F5;
 }
 
 * {
@@ -27,7 +38,7 @@ body {
     font-family: 'Apple SD Gothic Neo', '맑은 고딕', sans-serif;
 }
 
-/* ── 브레드크럼 ── */
+/* 브레드크럼 */
 .breadcrumb {
     max-width: 1100px;
     margin: 0 auto;
@@ -56,11 +67,77 @@ body {
     color: #ccc;
 }
 
-/* ── 전체 레이아웃 ── */
+.breadcrumb {
+    display: none !important;
+}
+
+.bc-done {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.bc-cur {
+    color: var(--orange);
+    font-weight: 700;
+}
+
+.bc-next {
+    color: var(--muted);
+}
+
+.bc-arrow {
+    color: #ccc;
+}
+
+/* 상단 단계 */
+.step-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 22px 0 34px;
+}
+
+.step {
+    min-width: 92px;
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #E7D8CF;
+    color: #B2A29A;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step.active {
+    background: var(--orange-light);
+    border-color: var(--orange);
+    color: var(--orange);
+}
+
+.step-line {
+    width: 44px;
+    height: 1px;
+    background: #E2D5CE;
+    margin: 0 8px;
+}
+
+.step-line.active {
+    background: var(--orange-line);
+}
+
+/* 전체 레이아웃 */
 .checkout-wrap {
     max-width: 1100px;
     margin: 0 auto;
     padding: 0 20px 80px;
+}
+
+.checkout-wrap {
+    max-width: 1200px;
 }
 
 .checkout-layout {
@@ -70,13 +147,31 @@ body {
     align-items: flex-start;
 }
 
-/* ── 섹션 공통 ── */
+.checkout-aside {
+    position: relative;
+}
+
+.aside-sticky {
+    position: sticky;
+    top: 20px;
+}
+
+/* 섹션 */
 .co-section {
     background: var(--white);
     border-radius: 14px;
     border: 1px solid var(--border);
     padding: 22px 22px 18px;
     margin-bottom: 14px;
+}
+
+.co-section,
+.summary-box,
+.order-brand-group {
+    border: 1px solid var(--soft-border);
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(30, 20, 10, 0.05);
 }
 
 .co-section-title {
@@ -86,6 +181,12 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.co-section-title,
+.summary-title {
+    color: var(--brown-text);
+    font-weight: 800;
 }
 
 .co-total-badge {
@@ -102,7 +203,14 @@ body {
     text-align: center;
 }
 
-/* ── 배송지 ── */
+.co-loading {
+    color: var(--muted);
+    font-size: 14px;
+    padding: 20px 0;
+    text-align: center;
+}
+
+/* 배송지 */
 .addr-box {
     display: flex;
     justify-content: space-between;
@@ -127,6 +235,16 @@ body {
     gap: 8px;
 }
 
+.addr-name {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--brown-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
 .addr-default-badge {
     font-size: 10px;
     background: var(--orange);
@@ -134,6 +252,13 @@ body {
     padding: 2px 7px;
     border-radius: 20px;
     font-weight: 600;
+}
+
+.addr-default-badge,
+.nights-badge {
+    background: var(--orange-light);
+    color: var(--orange);
+    border: 1px solid var(--orange-line);
 }
 
 .addr-phone {
@@ -201,15 +326,10 @@ body {
     margin-top: 8px;
 }
 
-/* ── 배송지 섹션 정보 표시 ── */
-.addr-name {
-    font-size: 15px;
-    font-weight: 800;
-    color: var(--brown-text);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
+.addr-phone {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 4px;
 }
 
 .addr-phone {
@@ -220,12 +340,35 @@ body {
 
 .addr-full {
     font-size: 13px;
+    color: #555;
+}
+
+.addr-full {
+    font-size: 13px;
     color: #5C4A40;
     margin-bottom: 12px;
     line-height: 1.5;
 }
 
-/* ── 배송지 정보 + 변경버튼 박스 ── */
+.addr-change-btn {
+    padding: 7px 14px;
+    border: 1px solid #ddd;
+    border-radius: 7px;
+    background: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .15s;
+    color: #555;
+    margin-left: 12px;
+    flex-shrink: 0;
+}
+
+.addr-change-btn:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+}
+
 .addr-info-box {
     display: flex;
     align-items: flex-start;
@@ -266,6 +409,7 @@ body {
     line-height: 1.5;
 }
 
+.co-section > .addr-name {
 /* 세 요소를 하나의 박스처럼 묶기 */
 .co-section>.addr-name {
     border-bottom: none;
@@ -290,7 +434,6 @@ body {
     margin-bottom: 12px;
 }
 
-/* ── 배송지 변경 모달 목록 ── */
 .addr-list {
     display: flex;
     flex-direction: column;
@@ -325,7 +468,6 @@ body {
     font-weight: 800;
     color: var(--brown-text);
     margin-bottom: 5px;
-    /* 모달 내부에서는 박스 스타일 오버라이드 */
     background: none !important;
     border: none !important;
     border-radius: 0 !important;
@@ -346,7 +488,43 @@ body {
     margin-bottom: 0;
 }
 
-/* ── 비회원 배송지 입력 폼 ── */
+/* 배송 메모 */
+.delivery-memo-select,
+.delivery-memo-input {
+    width: 100%;
+    height: 42px;
+    padding: 0 14px;
+    border: 1px solid #ddd;
+    border-radius: 9px;
+    font-size: 13px;
+    color: var(--text);
+    background: #fff;
+    outline: none;
+    margin-top: 4px;
+    transition: border .15s;
+}
+
+.delivery-memo-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+                      linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 16px) 17px, calc(100% - 11px) 17px;
+    background-size: 5px 5px;
+    background-repeat: no-repeat;
+}
+
+.delivery-memo-select:focus,
+.delivery-memo-input:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(255,107,53,.1);
+}
+
+.delivery-memo-input {
+    margin-top: 8px;
+}
+
+/* 비회원 배송지 */
 .guest-addr-form {
     display: flex;
     flex-direction: column;
@@ -356,6 +534,14 @@ body {
     background: #fafafa;
     border: 1px solid #f0f0f0;
     border-radius: 12px;
+}
+
+.guest-addr-form,
+.addr-box,
+.order-brand-header,
+.order-brand-subtotal {
+    background: var(--soft-bg);
+    border-color: var(--soft-border);
 }
 
 .guest-addr-row {
@@ -406,7 +592,6 @@ body {
     font-size: 13px;
 }
 
-/* 상세주소 - 선택사항 시각적 구분 */
 .guest-input.optional {
     border-style: dashed;
 }
@@ -415,6 +600,7 @@ body {
     border-style: solid;
 }
 
+/* 주문 상품 */
 @media (max-width: 480px) {
     .guest-addr-form {
         padding: 12px;
@@ -451,6 +637,12 @@ body {
     font-weight: 700;
 }
 
+.order-brand-name,
+.order-item-name {
+    color: var(--brown-text);
+    font-weight: 800;
+}
+
 .order-ship-badge {
     font-size: 11px;
     background: #e8f8f0;
@@ -460,6 +652,13 @@ body {
     font-weight: 600;
 }
 
+.order-ship-badge {
+    background: #F0F7F1;
+    color: #4B8B57;
+    border: 1px solid #D8E9DB;
+    border-radius: 999px;
+}
+
 .order-item {
     display: flex;
     align-items: flex-start;
@@ -467,6 +666,11 @@ body {
     padding: 14px;
     border-bottom: 1px solid #f8f8f8;
 }
+
+.order-item:last-of-type {
+    border-bottom: none;
+}
+
 
 .order-item:last-of-type {
     border-bottom: none;
@@ -515,6 +719,19 @@ body {
     margin-bottom: 4px;
 }
 
+.order-item-option,
+.summary-item-opt {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: #FFF5EF;
+    border: 1px solid #EDD2C2;
+    color: #9A5C36;
+    font-size: 11px;
+    font-weight: 700;
+}
+
 .order-item-qty {
     font-size: 12px;
     color: var(--muted);
@@ -533,6 +750,12 @@ body {
     color: var(--orange);
     font-weight: 600;
     margin: 4px 0;
+}
+
+.order-rental-dates {
+    background: #FFF5EF;
+    border-color: #EDD2C2;
+    color: #9A5C36;
 }
 
 .nights-badge {
@@ -583,7 +806,18 @@ body {
     font-size: 18px;
 }
 
-/* ── 할인 혜택 ── */
+.order-total-price {
+    color: var(--orange);
+    font-size: 18px;
+}
+
+.order-total-price,
+.summary-row.total .s-val,
+.s-val.orange {
+    color: var(--orange) !important;
+}
+
+/* 할인 혜택 */
 .discount-row {
     display: flex;
     align-items: center;
@@ -613,11 +847,30 @@ body {
     flex-shrink: 0;
 }
 
+.discount-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .discount-right1 {
     flex: 1;
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.discount-amount {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--red);
+    white-space: nowrap;
+}
+
+.discount-amount,
+.s-val.red {
+    color: var(--orange) !important;
 }
 
 .coupon-select {
@@ -638,6 +891,81 @@ body {
     background-size: 5px 5px;
     background-repeat: no-repeat;
 }
+
+.coupon-select:focus {
+    border-color: var(--orange);
+}
+
+/* 포인트 */
+.point-discount-row {
+    align-items: center;
+}
+
+.point-label {
+    width: 56px;
+    min-width: 56px;
+    flex: 0 0 56px;
+}
+
+.point-discount-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+}
+
+.point-input-wrap {
+    position: relative;
+    width: 150px;
+    flex-shrink: 0;
+}
+
+.point-input {
+    width: 100%;
+    padding-right: 34px !important;
+}
+
+.point-clear-btn {
+    position: absolute;
+    right: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 50%;
+    background: #EDE5D4;
+    color: #8B6B4A;
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 18px;
+    cursor: pointer;
+}
+
+.point-clear-btn:hover {
+    background: #E8732A;
+    color: #fff;
+}
+
+.point-own {
+    font-size: 12px;
+    font-weight: 800;
+    color: #8B6B4A;
+    white-space: nowrap;
+}
+
+.point-own em {
+    font-style: normal;
+    color: #E8732A;
+}
+
+.point-all-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* 동의 */
 
 .coupon-select:focus {
     border-color: var(--orange);
@@ -679,6 +1007,30 @@ body {
     background: #fff;
 }
 
+.chk {
+    border-color: #DDD0C8;
+}
+
+.chk:hover {
+    border-color: var(--orange);
+}
+
+.chk.on {
+    background: var(--orange);
+    border-color: var(--orange);
+}
+
+.chk.on {
+    background: var(--orange);
+    border-color: var(--orange);
+}
+
+.chk.on::after {
+    content: '✓';
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+
 .chk.on {
     background: var(--orange);
     border-color: var(--orange);
@@ -701,6 +1053,7 @@ body {
     top: 20px;
 }
 
+/* 요약 */
 .summary-box {
     background: var(--white);
     border-radius: 14px;
@@ -754,7 +1107,21 @@ body {
     margin-top: 2px;
 }
 
-/* 주문 상품 요약 */
+.s-val {
+    font-weight: 500;
+    color: var(--text);
+}
+
+.s-val.red {
+    color: var(--red);
+}
+
+.s-val.orange {
+    color: var(--orange);
+    font-size: 18px;
+    font-weight: 700;
+}
+
 .summary-items {
     padding: 12px 18px;
     border-bottom: 1px solid var(--border);
@@ -805,13 +1172,29 @@ body {
     letter-spacing: -0.3px;
 }
 
+.pay-btn {
+    background: var(--orange) !important;
+    border: none;
+    transition: background .18s ease;
+}
+
 .pay-btn:hover:not(:disabled) {
     background: var(--orange-hover);
+}
+
+.pay-btn:hover:not(:disabled) {
+    background: var(--orange-hover) !important;
+    box-shadow: none !important;
+    transform: none !important;
 }
 
 .pay-btn:disabled {
     background: #ccc;
     cursor: not-allowed;
+}
+
+.pay-btn:disabled {
+    background: #D6CDC7 !important;
 }
 
 .pay-info {
@@ -822,7 +1205,47 @@ body {
     background: #fafafa;
 }
 
-/* ── 모달 ── */
+/* 버튼 */
+.addr-change-btn,
+.modal-btn-cancel {
+    border: 1px solid #DDD0C8;
+    background: #fff;
+    color: #5C4A40;
+    transition: all .18s ease;
+}
+
+.addr-change-btn:hover,
+.modal-btn-cancel:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+    background: #fff;
+}
+
+/* 입력 */
+.delivery-memo-select,
+.delivery-memo-input,
+.guest-input,
+.coupon-select {
+    border-color: #E2D4CC;
+    border-radius: 10px;
+}
+
+.delivery-memo-select:hover,
+.delivery-memo-input:hover,
+.guest-input:hover,
+.coupon-select:hover {
+    border-color: var(--orange-line);
+}
+
+.delivery-memo-select:focus,
+.delivery-memo-input:focus,
+.guest-input:focus,
+.coupon-select:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(232, 115, 42, 0.12);
+}
+
+/* 모달 */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -831,6 +1254,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.modal-overlay {
+    background: rgba(20, 14, 10, .48);
+    backdrop-filter: blur(5px);
 }
 
 .modal-box {
@@ -842,6 +1270,11 @@ body {
     box-shadow: 0 8px 32px rgba(0, 0, 0, .2);
     max-height: 90vh;
     overflow-y: auto;
+}
+
+.modal-box {
+    border-radius: 18px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .2);
 }
 
 .addr-modal-box {
@@ -929,7 +1362,16 @@ body {
     font-weight: 700;
 }
 
-/* ── 토스트 ── */
+.modal-btn-ok {
+    background: var(--orange);
+}
+
+.modal-btn-ok:hover {
+    background: var(--orange-hover);
+    box-shadow: none;
+}
+
+/* 토스트 */
 .toast-msg {
     position: fixed;
     bottom: 30px;
@@ -957,10 +1399,10 @@ body {
     }
 }
 
-/* ── 반응형 ── */
-@media (max-width: 860px) {
-    .checkout-layout {
-        grid-template-columns: 1fr;
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(8px);
     }
 
     .checkout-aside {
@@ -992,7 +1434,6 @@ body {
 
 /* ================================
    Checkout UI - 장바구니와 톤 통일
-================================ */
 
 :root {
     --orange: #E8732A;
@@ -1109,112 +1550,68 @@ body {
     border-radius: 10px;
 }
 
-.delivery-memo-select:hover,
-.delivery-memo-input:hover,
-.guest-input:hover,
-.coupon-select:hover {
-    border-color: var(--orange-line);
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
 }
 
-.delivery-memo-select:focus,
-.delivery-memo-input:focus,
-.guest-input:focus,
-.coupon-select:focus {
-    border-color: var(--orange);
-    box-shadow: 0 0 0 3px rgba(232, 115, 42, 0.12);
+/* 넘버 입력 */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
-/* 주문 상품 */
-.order-brand-name,
-.order-item-name {
-    color: var(--brown-text);
-    font-weight: 800;
+input[type="number"] {
+    -moz-appearance: textfield;
 }
 
-.order-ship-badge {
-    background: #F0F7F1;
-    color: #4B8B57;
-    border: 1px solid #D8E9DB;
-    border-radius: 999px;
+/* 반응형 */
+@media (max-width: 860px) {
+    .checkout-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .checkout-aside {
+        position: static;
+    }
+
+    .aside-sticky {
+        position: static;
+    }
+
+    .pay-methods {
+        grid-template-columns: 1fr 1fr;
+    }
 }
 
-.order-item-option,
-.summary-item-opt {
-    display: inline-block;
-    margin-top: 4px;
-    padding: 3px 9px;
-    border-radius: 999px;
-    background: #FFF5EF;
-    border: 1px solid #EDD2C2;
-    color: #9A5C36;
-    font-size: 11px;
-    font-weight: 700;
+@media (max-width: 480px) {
+    .guest-addr-form {
+        padding: 12px;
+    }
+
+    .guest-addr-row {
+        flex-direction: column;
+    }
+
+    .guest-field-wrap.zip {
+        flex: 1;
+    }
 }
 
-.order-rental-dates {
-    background: #FFF5EF;
-    border-color: #EDD2C2;
-    color: #9A5C36;
-}
+@media (max-width: 480px) {
+    .pay-methods {
+        grid-template-columns: 1fr;
+    }
 
-/* 금액 */
-.order-total-price,
-.summary-row.total .s-val,
-.s-val.orange {
-    color: var(--orange) !important;
-}
+    .card-select-box {
+        flex-direction: column;
+    }
 
-.discount-amount,
-.s-val.red {
-    color: var(--orange) !important;
-}
-
-/* 체크박스 */
-.chk {
-    border-color: #DDD0C8;
-}
-
-.chk:hover {
-    border-color: var(--orange);
-}
-
-.chk.on {
-    background: var(--orange);
-    border-color: var(--orange);
-}
-
-/* 결제 버튼 */
-.pay-btn {
-    background: var(--orange) !important;
-    border: none;
-    transition: background .18s ease;
-}
-
-.pay-btn:hover:not(:disabled) {
-    background: var(--orange-hover) !important;
-    box-shadow: none !important;
-    transform: none !important;
-}
-
-.pay-btn:disabled {
-    background: #D6CDC7 !important;
-}
-
-/* 모달 */
-.modal-overlay {
-    background: rgba(20, 14, 10, .48);
-    backdrop-filter: blur(5px);
-}
-
-.modal-box {
-    border-radius: 18px;
-    box-shadow: 0 24px 70px rgba(0, 0, 0, .2);
-}
-
-.modal-btn-ok {
-    background: var(--orange);
-}
-
+    .card-install-select {
+        width: 100%;
+    }
 .modal-btn-ok:hover {
     background: var(--orange-hover);
     box-shadow: none;

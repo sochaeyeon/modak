@@ -68,7 +68,7 @@
                             </div>
 
                             <!-- 브랜드별 그룹 카드 -->
-                            <div v-for="group in groupedCart" :key="group.brandName" class="cart-card">
+                            <!-- <div v-for="group in groupedCart" :key="group.brandName" class="cart-card">
 
                                 <div class="cart-card-header">
                                     <div class="chk" :class="{ on: isBrandChecked(group) }" @click="toggleBrand(group)">
@@ -169,6 +169,117 @@
                                         <span style="color:var(--orange)">{{ formatPrice(groupTotal(group)) }}</span>
                                     </div>
                                 </div>
+                            </div> -->
+                            <!-- 장바구니 전체 카드 1개 -->
+                            <div class="cart-card">
+
+                                <template v-for="group in groupedCart" :key="group.brandName">
+
+                                    <!-- 브랜드 헤더 -->
+                                    <div class="cart-card-header">
+                                        <div class="chk" :class="{ on: isBrandChecked(group) }" @click="toggleBrand(group)"></div>
+                                        <span>{{ group.brandName || '모닥모닥' }}</span>
+                                    </div>
+
+                                    <!-- 상품 리스트 -->
+                                    <div v-for="item in group.items" :key="item.cartId" class="cart-item">
+
+                                        <div class="cart-item-top">
+                                            <div class="chk" style="margin-top:4px;"
+                                                :class="{ on: checkedIds.includes(item.cartId) }"
+                                                @click.stop="toggleItem(item.cartId)">
+                                            </div>
+
+                                            <div class="cart-item-img"
+                                                @click.stop="goDetail(item.productId)"
+                                                style="cursor:pointer;">
+                                                <img v-if="item.imgUrl" :src="item.imgUrl" :alt="item.productName">
+                                                <span v-else style="font-size:36px;display:flex;align-items:center;justify-content:center;height:100%;">🏕️</span>
+                                            </div>
+
+                                            <div class="cart-item-info">
+
+                                                <div class="cart-item-name"
+                                                    @click="toggleItem(item.cartId)"
+                                                    style="cursor:pointer;">
+                                                    {{ item.productName }}
+                                                    <span class="cart-item-option">
+                                                        {{ item.optionName }}
+                                                    </span>
+                                                </div>
+
+                                                <!-- 🔥 총액 표시 구조 -->
+                                                <div class="cart-item-price">
+                                                    <strong>{{ formatPrice(cartItemTotal(item)) }}</strong>
+                                                    <span class="cart-price-detail" v-if="item.cartType === 'RENTAL'">
+                                                        {{ formatPrice(item.unitPrice) }} × 
+                                                        {{ calcNights(item.rentalStart, item.rentalEnd) }}박
+                                                        <span v-if="item.deposit > 0">
+                                                            + 보증금 {{ formatPrice(item.deposit) }}
+                                                        </span>
+                                                    </span>
+                                                </div>
+
+                                                <!-- <div v-if="activeTab === 'RENTAL' && item.rentalStart" class="rental-dates"> -->
+                                                    <div v-if="activeTab === 'RENTAL' && item.rentalStart"
+                                                        class="rental-dates" @click.stop="openDateModal(item)" style="cursor:pointer;">
+                                                     {{ item.rentalStart }} ~ {{ item.rentalEnd }}
+                                                    <span style="background:var(--orange);color:#fff;border-radius:4px;padding:1px 6px;font-size:11px;">
+                                                        {{ calcNights(item.rentalStart, item.rentalEnd) }}박
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="cart-item-bottom">
+                                            <div class="qty-ctrl">
+                                                <button class="qty-btn" @click="chgItemQty(item, -1)">−</button>
+                                                <div class="qty-num">{{ item.quantity }}</div>
+                                                <button class="qty-btn" @click="chgItemQty(item, 1)">+</button>
+                                            </div>
+
+                                            <!-- 기존 total 숨김용 -->
+                                            <div class="item-total" style="display:none;"></div>
+                                        </div>
+
+                                        <button class="opt-change-btn" @click.stop="toggleInlineOption(item)">
+                                            {{ inlineOption.cartId === item.cartId ? '옵션 닫기' : '옵션 변경' }}
+                                        </button>
+
+                                        <!-- 옵션 박스 그대로 유지 -->
+                                        <div v-if="inlineOption.cartId === item.cartId"
+                                            class="inline-option-box"
+                                            @click.stop>
+
+                                            <div v-for="(opts, optionName) in inlineGroupedOptions"
+                                                :key="optionName"
+                                                class="inline-option-group">
+
+                                                <div class="inline-option-name">{{ optionName }}</div>
+
+                                                <div class="inline-option-list">
+                                                    <button type="button"
+                                                            v-for="opt in opts"
+                                                            :key="opt.optionValueId"
+                                                            class="inline-option-chip"
+                                                            :class="{ active: inlineOption.selectedOptions[optionName] && inlineOption.selectedOptions[optionName].optionValueId === opt.optionValueId }"
+                                                            @click="selectInlineOption(optionName, opt)">
+                                                        {{ opt.optionValue }}
+                                                        <span v-if="opt.addPrice > 0">+{{ formatPrice(opt.addPrice) }}</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="inline-option-actions">
+                                                <button type="button" class="inline-option-cancel" @click="closeInlineOption">취소</button>
+                                                <button type="button" class="inline-option-apply" @click="applyInlineOption(item)">변경 완료</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </template>
+
                             </div>
 
                         </div><!-- /cart-main -->
@@ -261,7 +372,9 @@
                 <div v-if="optModal.open" class="modal-overlay" @click.self="optModal.open = false">
                     <div class="modal-box">
                         <div class="modal-header">
-                            <span class="modal-title">옵션 변경</span>
+                             <span class="modal-title">
+                                {{ optModal.dateOnly ? '날짜 변경' : '옵션 변경' }}
+                            </span>
                             <button class="modal-close" @click="optModal.open = false">✕</button>
                         </div>
 
@@ -276,12 +389,6 @@
 
                         <!-- 대여: 캘린더 -->
                         <div v-if="activeTab === 'RENTAL'">
-                            <div class="modal-info-row">
-                                <span class="modal-info-label">배송방법</span><span>직접배송</span>
-                            </div>
-                            <div class="modal-info-row">
-                                <span class="modal-info-label">배송비</span><span>무료</span>
-                            </div>
 
                             <div style="border:1px solid #eee;border-radius:10px;padding:14px;margin:12px 0;">
                                 <div class="cal-nav">
@@ -300,8 +407,8 @@
                                     </div>
                                 </div>
 
-                                <div v-if="optModal.optionList && optModal.optionList.length > 0"
-                                    style="margin-top:10px;">
+                                    <div v-if="!optModal.dateOnly && optModal.optionList && optModal.optionList.length > 0"
+                                        style="margin-top:10px;">
                                     <div style="font-size:13px;color:var(--muted);margin-bottom:6px;">옵션 선택</div>
                                     <div class="opt-list">
                                         <div v-for="opt in optModal.optionList" :key="opt.optionId" class="opt-item"
@@ -363,9 +470,8 @@
 
                         <div class="modal-btns">
                             <button class="modal-btn-cancel" @click="optModal.open = false">취소</button>
-                            <button class="modal-btn-ok"
-                                :disabled="activeTab === 'RENTAL' && (!optModal.startDate || !optModal.endDate)"
-                                @click="applyOptChange">
+                            <button class="modal-btn-ok" :disabled="activeTab === 'RENTAL' && (!optModal.startDate || !optModal.endDate)"
+                                @click="optModal.dateOnly ? applyDateChange() : applyOptChange()">
                                 변경 완료
                             </button>
                         </div>
@@ -426,7 +532,8 @@
                                     year: new Date().getFullYear(),
                                     month: new Date().getMonth(),
                                     selectedOption: null,
-                                    optionList: []
+                                    optionList: [],
+                                    dateOnly: false
                                 },
 
                                 confirmModal: {
@@ -895,7 +1002,8 @@
                                     year: new Date().getFullYear(),
                                     month: new Date().getMonth(),
                                     selectedOption: Number(item.optionId) || null,
-                                    optionList: []
+                                    optionList: [],
+                                    dateOnly:false
                                 };
 
                                 $.ajax({
@@ -907,6 +1015,70 @@
                                         if (res.result === 'success') {
                                             self.optModal.optionList = res.list || [];
                                         }
+                                    }
+                                });
+                            },
+                            openDateModal(item) {
+                                this.optModal = {
+                                    open: true,
+                                    item: { ...item },
+                                    qty: Number(item.quantity || 1),
+                                    startDate: item.rentalStart || null,
+                                    endDate: item.rentalEnd || null,
+                                    year: item.rentalStart ? new Date(item.rentalStart).getFullYear() : new Date().getFullYear(),
+                                    month: item.rentalStart ? new Date(item.rentalStart).getMonth() : new Date().getMonth(),
+                                    selectedOption: null,
+                                    optionList: [],
+                                    dateOnly: true
+                                };
+                            },
+
+                            applyDateChange() {
+                                const m = this.optModal;
+
+                                if (!m.startDate || !m.endDate) {
+                                    showToast('날짜를 선택해주세요.');
+                                    return;
+                                }
+
+                                if (!this.isLogin) {
+                                    const target = this.cartList.find(c => c.cartId === m.item.cartId);
+
+                                    if (target) {
+                                        target.rentalStart = m.startDate;
+                                        target.rentalEnd = m.endDate;
+                                    }
+
+                                    this.saveGuestCart();
+                                    this.optModal.open = false;
+                                    showToast('날짜가 변경됐어요.');
+                                    return;
+                                }
+
+                                let self = this;
+
+                                $.ajax({
+                                    url: '/cart/updateOption.dox',
+                                    type: 'POST',
+                                    data: {
+                                        cartId: m.item.cartId,
+                                        quantity: m.item.quantity,
+                                        optionValueIds: m.item.optionValueIds || '',
+                                        rentalStart: m.startDate,
+                                        rentalEnd: m.endDate
+                                    },
+                                    dataType: 'json',
+                                    success(res) {
+                                        if (res.result === 'success') {
+                                            self.optModal.open = false;
+                                            self.fetchCartList();
+                                            showToast('날짜가 변경됐어요.');
+                                        } else {
+                                            showToast(res.message || '날짜 변경에 실패했습니다.');
+                                        }
+                                    },
+                                    error() {
+                                        showToast('서버 오류가 발생했습니다.');
                                     }
                                 });
                             },

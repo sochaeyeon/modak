@@ -150,11 +150,6 @@
                                         <span class="order-brand-subtotal-val">무료</span>
                                     </div>
                                 </div>
-
-                                <!-- <div class="order-total-row">
-                                    <span>총 주문금액</span>
-                                    <span class="order-total-price">{{ formatPrice(itemTotal) }}</span>
-                                </div> -->
                             </section>
 
                             <!-- ── 쿠폰 / 할인 ── -->
@@ -178,15 +173,37 @@
                                         </span>
                                     </div>
                                 </div>
-
                                 <!-- 포인트 -->
-                                <div class="discount-row" style="margin-top: 12px;">
-                                    <span class="discount-label">포인트</span>
-                                    <div class="discount-right">
-                                        <input type="number" class="coupon-select" v-model.number="usePoint"
-                                            :max="maxUsePoint" min="0" :placeholder="'보유 ' + formatPrice(userPoint)"
-                                            style="background-image: none;" />
-                                        <button type="button" class="addr-change-btn" @click="useAllPoint">전액사용</button>
+                                <div class="discount-row point-discount-row">
+                                    <span class="discount-label point-label">포인트</span>
+
+                                    <div class="discount-right point-discount-right">
+                                        <div class="point-input-wrap">
+                                            <input type="number"
+                                                class="coupon-select point-input"
+                                                v-model.number="usePoint"
+                                                :max="maxUsePoint"
+                                                min="0"
+                                                placeholder="0"
+                                                style="background-image: none;" />
+
+                                            <button type="button"
+                                                    class="point-clear-btn"
+                                                    v-if="validUsePoint > 0"
+                                                    @click="clearPoint">
+                                                ×
+                                            </button>
+                                        </div>
+
+                                        <span class="point-own">
+                                            보유 {{ formatPrice(userPoint) }}
+                                            <em>/ 사용가능 {{ formatPrice(maxUsePoint) }}</em>
+                                        </span>
+
+                                        <button type="button" class="addr-change-btn point-all-btn" @click="useAllPoint">
+                                            전액사용
+                                        </button>
+
                                         <span class="discount-amount" v-if="validUsePoint > 0">
                                             -{{ formatPrice(validUsePoint) }}
                                         </span>
@@ -226,14 +243,25 @@
                                                 <input class="guest-input" v-model="newAddr.zipCode"
                                                     placeholder="06234" />
                                             </div>
+
                                             <div class="guest-field-wrap">
                                                 <span class="guest-field-label">주소 *</span>
+                                                <div style="display:flex; gap:8px;">
+                                                    <input class="guest-input" v-model="newAddr.address" placeholder="주소검색을 눌러주세요" readonly />
+                                                    <button type="button" class="addr-change-btn" @click="fnSearchAddress">
+                                                        주소검색
+                                                    </button>
+                                                </div>
                                                 <input class="guest-input" v-model="newAddr.address"
                                                     placeholder="서울시 강남구 테헤란로 123" />
                                             </div>
                                         </div>
+
                                         <div class="guest-field-wrap">
                                             <span class="guest-field-label">상세주소</span>
+                                            <input class="guest-input optional"
+                                                ref="detailAddressInput"
+                                                v-model="newAddr.detailedAddress"
                                             <input class="guest-input optional" v-model="newAddr.detailedAddress"
                                                 placeholder="101동 202호" />
                                         </div>
@@ -576,6 +604,15 @@
                                     this.showToast('주문 상품이 없습니다.');
                                     return;
                                 }
+                                // 회원인데 배송지 등록 안되어있을때
+                                if (this.isLogin) {
+                                    if (!this.addrForm.addressId || !this.addrForm.zipcode || !this.addrForm.address) {
+                                        this.isPaying = false;
+                                        this.addrAddModal.open = true;
+                                        this.showToast('배송지를 등록해주세요.');
+                                        return;
+                                    }
+                                }
                                 // ✅ 비회원 검증
                                 if (!this.isLogin) {
                                     if (!this.guestName.trim()) { this.isPaying = false; this.showToast('수령인 이름을 입력해주세요.'); return; }
@@ -757,6 +794,33 @@
                             },
                             useAllPoint() {
                                 this.usePoint = this.maxUsePoint;
+                            },
+                            clearPoint() {
+                                this.usePoint = 0;
+                            },
+                            fnSearchAddress() {
+                                let self = this;
+
+                                new daum.Postcode({
+                                    oncomplete: function (data) {
+                                        let addr = "";
+
+                                        if (data.userSelectedType === "R") {
+                                            addr = data.roadAddress;
+                                        } else {
+                                            addr = data.jibunAddress;
+                                        }
+
+                                        self.newAddr.zipCode = data.zonecode;
+                                        self.newAddr.address = addr;
+
+                                        self.$nextTick(function () {
+                                            if (self.$refs.detailAddressInput) {
+                                                self.$refs.detailAddressInput.focus();
+                                            }
+                                        });
+                                    }
+                                }).open();
                             },
                             saveNewAddress() {
                                 let self = this;

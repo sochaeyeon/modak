@@ -1089,11 +1089,11 @@
 								success(res) {
 									if (res.result === 'duplicate') {
 										self.openConfirm('이미 같은 조건의 상품이 있습니다. 장바구니로 이동할까요?', function () {
-											location.href = '/cart/list.do';
+											location.href = '/cart/list.do?cartType=' + self.productType;
 										}, '이동하기');
 									} else if (res.result === 'success') {
 										self.openConfirm('장바구니에 담았습니다. 장바구니로 이동할까요?', function () {
-											location.href = '/cart/list.do';
+											location.href = '/cart/list.do?cartType=' + self.productType;
 										}, '이동하기');
 									} else {
 										showToast('장바구니 담기 실패');

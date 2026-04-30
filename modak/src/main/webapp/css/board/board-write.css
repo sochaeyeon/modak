@@ -307,6 +307,16 @@
                 opacity: .5;
                 cursor: not-allowed;
             }
+			.tag-chip {
+			    display:inline-flex; align-items:center; gap:4px;
+			    padding:4px 10px; border-radius:999px;
+			    background:rgba(232,115,42,.1); color:var(--orange2);
+			    font-size:12px; font-weight:700; margin:3px;
+			}
+			.tag-chip button {
+			    background:none; border:none; cursor:pointer;
+			    color:var(--orange2); font-size:11px; padding:0;
+			}
 
             /* 토스트 */
             .toast {

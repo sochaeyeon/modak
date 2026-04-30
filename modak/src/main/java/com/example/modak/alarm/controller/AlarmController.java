@@ -5,11 +5,13 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.modak.alarm.dao.AlarmService;
+import com.google.gson.Gson;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -125,5 +127,17 @@ public class AlarmController {
             resultMap.put("result", "error");
         }
         return resultMap;
+    }
+    @PostMapping(value="/alarm/read.dox", produces="application/json;charset=UTF-8")
+    @ResponseBody
+    public String readAlarm(@RequestParam int alarmId) {
+        HashMap<String, Object> result = new HashMap<>();
+        try {
+            alarmService.updateAlarmRead(alarmId);
+            result.put("result", "success");
+        } catch (Exception e) {
+            result.put("result", "fail");
+        }
+        return new Gson().toJson(result);
     }
 }

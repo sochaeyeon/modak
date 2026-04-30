@@ -6,8 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -156,6 +155,7 @@ public class BoardService {
                                                String question,
                                                List<String> options,
                                                String endDate,
+                                               List<String> tags,        // ★ 추가
                                                HttpServletRequest request) {
         HashMap<String, Object> result = new HashMap<>();
         try {
@@ -172,25 +172,18 @@ public class BoardService {
 
             mapper.insertBoard(map);
             Long boardId = Long.parseLong(String.valueOf(map.get("boardId")));
-         // 태그 저장
-            String content = String.valueOf(map.get("content"));
-            Matcher matcher = Pattern.compile("#([가-힣a-zA-Z0-9_]+)").matcher(content);
 
-            List<String> tagList = new ArrayList<>();
-
-            while (matcher.find()) {
-                String tag = matcher.group(1).trim();
-
-                if (!tag.isEmpty() && !tagList.contains(tag)) {
-                    tagList.add(tag);
+            // ★ 본문 추출 제거 → 태그 입력칸에서 받은 tags 사용
+            if (tags != null) {
+                for (String tag : tags) {
+                    if (tag == null || tag.isBlank()) continue;
+                    String cleanTag = tag.replace("#", "").trim();
+                    if (cleanTag.isEmpty()) continue;
+                    HashMap<String, Object> tagMap = new HashMap<>();
+                    tagMap.put("boardId", boardId);
+                    tagMap.put("tagName", cleanTag);
+                    mapper.insertBoardTag(tagMap);
                 }
-            }
-
-            for (String tag : tagList) {
-                HashMap<String, Object> tagMap = new HashMap<>();
-                tagMap.put("boardId", boardId);
-                tagMap.put("tagName", tag);
-                mapper.insertBoardTag(tagMap);
             }
 
             // 이미지 저장

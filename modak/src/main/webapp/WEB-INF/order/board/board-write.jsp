@@ -10,7 +10,7 @@
             <link rel="stylesheet" href="/css/common/font.css">
             <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
             <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-            <link rel="stylesheet" href="${pageContext.request.contextPath}/css/board/board-write.css">
+              <link rel="stylesheet" href="${pageContext.request.contextPath}/css/board/board-write.css">
         </head>
 
         <body>
@@ -97,23 +97,6 @@
                                     style="border:none;background:none;color:var(--brown3);cursor:pointer;font-size:16px;">✕</button>
                             </div>
                         </div>
-                        <!-- 투표 섹션 바로 위에 추가 -->
-                        <div class="form-section">
-                            <label class="form-label">🏷️ 태그 (선택, 최대 5개)</label>
-                            <div class="tag-input-wrap">
-                                <input class="form-input" v-model="tagInput" placeholder="#캠핑 #텐트 형식으로 입력 후 Enter"
-                                    @keydown.enter.prevent="fnAddTag" style="margin-bottom:8px;">
-                                <div class="tag-preview">
-                                    <span class="tag-chip" v-for="(tag, i) in tags" :key="i">
-                                        #{{ tag }}
-                                        <button @click="tags.splice(i, 1)" type="button">✕</button>
-                                    </span>
-                                </div>
-                            </div>
-                            <div style="font-size:11px;color:var(--brown4);margin-top:4px;">
-                                Enter로 태그 추가 · 최대 5개
-                            </div>
-                        </div>
 
                         <!-- 투표 -->
                         <div class="form-section">
@@ -174,9 +157,7 @@
                                     poll: { question: '', options: ['', ''], endDate: '' },
                                     isSubmitting: false,
                                     toastVisible: false, toastMsg: '',
-                                    productTimer: null,
-                                    tags: [],       // ★ 추가
-                                    tagInput: '',
+                                    productTimer: null
                                 };
                             },
                             methods: {
@@ -206,14 +187,6 @@
                                             }
                                         });
                                     }, 300);
-                                },
-                                fnAddTag() {
-                                    let tag = this.tagInput.replace(/^#/, '').trim();
-                                    if (!tag) return;
-                                    if (this.tags.length >= 5) { this.showToast('태그는 최대 5개입니다.'); return; }
-                                    if (this.tags.includes(tag)) { this.showToast('중복된 태그입니다.'); return; }
-                                    this.tags.push(tag);
-                                    this.tagInput = '';
                                 },
                                 fnCancel() {
                                     const hasInput =
@@ -286,8 +259,7 @@
                                     }
 
                                     this.images.forEach(img => fd.append('files', img.file));
-                                    // tags 배열 → FormData
-                                    this.tags.forEach(t => fd.append('tags', t));
+
                                     // 🔥 검증 끝나고 넣기
                                     if (this.showPoll) {
                                         fd.append('pollQuestion', this.poll.question);

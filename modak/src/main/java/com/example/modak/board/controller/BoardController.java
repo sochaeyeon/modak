@@ -50,13 +50,13 @@ public class BoardController {
             @RequestParam(required = false) String pollQuestion,
             @RequestParam(required = false) List<String> pollOptions,
             @RequestParam(required = false) String pollEndDate,
+            @RequestParam(required = false) List<String> tags,  // ★ 추가
             HttpServletRequest request) {
 
         return new Gson().toJson(
-            boardService.writeBoard(map, files, pollQuestion, pollOptions, pollEndDate, request)
+            boardService.writeBoard(map, files, pollQuestion, pollOptions, pollEndDate, tags, request) 
         );
     }
-
     @PostMapping(value = "/delete.dox", produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String deleteBoard(@RequestParam Long boardId) {

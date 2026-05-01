@@ -23,17 +23,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
 	// ★ 여기에 추가
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		String home = System.getProperty("user.home");
 
 		// 리뷰 이미지
-		 registry.addResourceHandler("/img/review/**")
-         .addResourceLocations("file:///C:/Users/TJ-BU-708-P04/git/modak/modak/src/main/webapp/img/review/");
+		registry.addResourceHandler("/upload/review/**")
+				.addResourceLocations("file:" + home + "/modak_uploads/review/");
 
 		// 프로필 이미지
-		 registry.addResourceHandler("/upload/profile/**")
-         .addResourceLocations("classpath:/static/upload/profile/");
-		 registry.addResourceHandler("/img/chat/**")
-	        .addResourceLocations("file:///C:/Users/TJ-BU-708-P04/git/modak/modak/src/main/webapp/img/chat/");
+		registry.addResourceHandler("/upload/profile/**").addResourceLocations("classpath:/static/upload/profile/");
+		registry.addResourceHandler("/img/chat/**")
+				.addResourceLocations("file:///C:/Users/TJ-BU-708-P04/git/modak/modak/src/main/webapp/img/chat/");
 
 	}
-	
+
 }

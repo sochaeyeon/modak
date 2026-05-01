@@ -78,6 +78,9 @@ public interface AdminMapper {
      
     // 반납 상태 변경
     int updateReturnRequestStatus(HashMap<String, Object> map);
+    
+    HashMap<String, Object> selectPaymentByOrderId(String orderId);
+    int updatePaymentRefunded(HashMap<String,Object> map);
 
 
     /* ==========================================================

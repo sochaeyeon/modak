@@ -79,7 +79,7 @@ public class PaymentController {
         }
 
         map.put("userId", userId);
-
+//
         resultMap = paymentService.getCheckoutItems(map);
 
         return new Gson().toJson(resultMap);

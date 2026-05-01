@@ -107,13 +107,20 @@
 
                                         <div class="product-info">
                                             <p class="product-name">{{ item.productName }}</p>
+                                        
                                             <div class="product-meta">
                                                 <span class="type-badge"
                                                     :class="order.orderType === 'PURCHASE' ? 'badge-purchase' : 'badge-rental'">
                                                     {{ order.orderType === 'PURCHASE' ? '구매' : '대여' }}
                                                 </span>
-                                                <span v-if="item.startDate && item.endDate">
+
+                                                <span v-if="item.optionName" class="option-chip">
+                                                    옵션 {{ item.optionName }}
+                                                </span>
+
+                                                <span v-if="item.startDate && item.endDate" class="date-chip">
                                                     {{ item.startDate }} ~ {{ item.endDate }}
+                                                    <b>{{ calcNights(item.startDate, item.endDate) }}박</b>
                                                 </span>
                                             </div>
                                         </div>
@@ -135,8 +142,10 @@
                                         <h2>배송지 정보</h2>
                                     </div>
 
-                                    <a class="outline-link" v-if="order.delivery && order.delivery.deliveryId"
-                                        :href="fnDeliveryUrl()">
+                                    <a class="action-btn delivery"
+                                    :href="order.orderStatus === 'CANCEL_REQUESTED' ? '#' : fnDeliveryUrl()"
+                                    :class="{ disabled: order.orderStatus === 'CANCEL_REQUESTED' }"
+                                    @click.prevent="order.orderStatus === 'CANCEL_REQUESTED'">
                                         배송조회
                                     </a>
                                 </div>
@@ -193,20 +202,32 @@
                             <!-- 주문 관리 -->
                             <section class="action-card">
                                 <div class="action-head">
-                                    <div>
-                                        <p class="card-kicker">ORDER ACTION</p>
-                                        <h2>주문 관리</h2>
-                                    </div>
-                                    <span>{{ fnStatusText(order.orderStatus) }}</span>
+                                <div>
+                                    <p class="card-kicker">ORDER ACTION</p>
+                                    <h2>주문 관리</h2>
                                 </div>
-                                <div class="action-row delivery-action-row">
+
+                                <span class="status-chip">
+                                    {{ fnStatusText(order.orderStatus) }}
+                                </span>
+                            </div>
+
+                            <!-- 🔥 상태 안내는 밖으로 분리 -->
+                            <p class="action-empty" v-if="order.orderStatus === 'CANCEL_REQUESTED'">
+                                현재 취소 처리중입니다.<br>
+                                관리자 승인 후 환불이 진행됩니다.
+                            </p>
+                                <!-- <div class="action-row delivery-action-row"> -->
+                                    <div class="action-row" v-if="fnCanShowActions() && order.orderStatus !== 'CANCEL_REQUESTED'">
                                     <a class="action-btn delivery" :href="fnDeliveryUrl()">
                                         배송조회
                                     </a>
                                 </div>
-                                <div class="action-row" v-if="fnCanShowActions()">
-                                    <button class="action-btn cancel" v-if="order.orderStatus === 'PAID'"
-                                        @click="openModal('cancel')">
+                                <!-- <div class="action-row" v-if="fnCanShowActions()"> -->
+                                        <div class="action-row" v-if="fnCanShowActions() && order.orderStatus !== 'CANCEL_REQUESTED'">
+                                    <button class="action-btn cancel"
+                                            v-if="order.orderStatus === 'PAID' || order.orderStatus === 'READY'"
+                                            @click="openModal('cancel')">
                                         취소신청
                                     </button>
 
@@ -221,7 +242,7 @@
                                     </button>
                                 </div>
 
-                                <p class="action-empty" v-if="!fnCanShowActions()">
+                                <p class="action-empty" v-if="!fnCanShowActions() && order.orderStatus !== 'CANCEL_REQUESTED'">
                                     현재 상태에서는 추가 신청 가능한 메뉴가 없습니다.
                                 </p>
 
@@ -274,11 +295,20 @@
                                 trackHistory: [],
                                 modalOpen: false,
                                 modalType: '',
-                                statusSteps: [
+                                successMessage: '',
+                                statusSteps: [],
+
+                                normalSteps: [
                                     { code: 'PAID', name: '결제완료' },
                                     { code: 'READY', name: '배송준비' },
                                     { code: 'SHIPPING', name: '배송중' },
                                     { code: 'DONE', name: '배송완료' }
+                                ],
+
+                                cancelSteps: [
+                                    { code: 'PAID', name: '결제완료' },
+                                    { code: 'CANCEL_REQUESTED', name: '취소진행' },
+                                    { code: 'CANCELLED', name: '취소완료' }
                                 ]
                             };
                         },
@@ -305,6 +335,15 @@
                                         self.isLoading = false;
                                         if (res.result === 'success' && res.order) {
                                             self.order = res.order;
+                                            // 🔥 상태 흐름 분기
+                                            if (
+                                                self.order.orderStatus === 'CANCEL_REQUESTED' ||
+                                                self.order.orderStatus === 'CANCELLED'
+                                            ) {
+                                                self.statusSteps = self.cancelSteps;
+                                            } else {
+                                                self.statusSteps = self.normalSteps;
+                                            }
                                             self.trackHistory = res.trackingList || [];
                                         } else {
                                             self.isError = true;
@@ -360,6 +399,11 @@
 
                             fnConfirm: function () {
                                 var self = this;
+                                // ✅ 성공 모달일 때는 그냥 닫기
+                                if (self.modalType === 'success') {
+                                    self.closeModal();
+                                    return;
+                                }
                                 var token = new URLSearchParams(location.search).get('token');
 
                                 var urlMap = {
@@ -383,6 +427,13 @@
 
                                         if (res.result === 'success') {
                                             self.order.orderStatus = nextStatusMap[self.modalType];
+                                            // 🔥 취소 흐름으로 전환
+                                            self.statusSteps = self.cancelSteps;
+
+                                            // ✅ 성공 모달로 전환
+                                            self.modalType = 'success';
+                                            self.successMessage = '주문취소 신청이 완료되었습니다.';
+                                            self.modalOpen = true;
                                         } else {
                                             alert(res.message || '처리 중 오류가 발생했습니다.');
                                         }
@@ -410,6 +461,18 @@
 
                             fnPrice: function (v) {
                                 return Number(v || 0).toLocaleString() + '원';
+                            },
+
+                            calcNights: function (start, end) {
+                                if (!start || !end) return 1;
+
+                                var s = new Date(String(start).replaceAll('.', '-'));
+                                var e = new Date(String(end).replaceAll('.', '-'));
+
+                                if (isNaN(s.getTime()) || isNaN(e.getTime())) return 1;
+
+                                var diff = Math.ceil((e - s) / (1000 * 60 * 60 * 24));
+                                return diff > 0 ? diff : 1;
                             },
 
                             fnStatusText: function (s) {
@@ -442,11 +505,12 @@
                                 if (!this.order) return false;
 
                                 var s = this.order.orderStatus;
-                                return s === 'PAID' || s === 'DONE';
+                                return s === 'PAID' || s === 'READY' || s === 'DONE';
                             },
 
                             fnModalTitle: function () {
                                 if (this.modalType === 'cancel') return '취소신청';
+                                if (this.modalType === 'success') return '처리 완료';
                                 return '주문 처리';
                             },
 
@@ -454,11 +518,15 @@
                                 if (this.modalType === 'cancel') {
                                     return '주문 취소를 신청하시겠습니까?\n관리자 확인 후 취소 처리됩니다.';
                                 }
+                                if (this.modalType === 'success') {
+                                    return this.successMessage;  
+                                }
                                 return '처리하시겠습니까?';
                             },
 
                             fnModalConfirmText: function () {
                                 if (this.modalType === 'cancel') return '취소신청';
+                                if (this.modalType === 'success') return '확인';
                                 return '확인';
                             },
                             fnGoProduct: function (productId) {

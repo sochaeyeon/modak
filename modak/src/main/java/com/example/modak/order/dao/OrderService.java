@@ -71,7 +71,7 @@ public class OrderService {
             // updateOrderStatus는 업데이트된 행(row)의 수를 반환합니다.
             int updateCount = orderMapper.updateOrderStatus(
                 Long.parseLong(String.valueOf(map.get("orderId"))), 
-                "CANCELLED"
+                "CANCEL_REQUESTED"
             );
 
             if (updateCount > 0) {

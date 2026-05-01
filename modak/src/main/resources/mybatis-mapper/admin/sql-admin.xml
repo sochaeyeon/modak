@@ -606,6 +606,25 @@ ON DUPLICATE KEY UPDATE
     WHERE RENTAL_ID = #{rentalId}
       AND RENTAL_STATUS IN ('RETURN_REQUESTED', 'RETURN_PICKED', 'RETURN_COMPLETED', 'IN_USE')
 </update>
+<!--비회원 주문취소 환불-->
+	<select id="selectPaymentByOrderId" parameterType="string" resultType="hashmap">
+	    SELECT
+	        PAY_ID AS payId,
+	        ORDER_ID AS orderId,
+	        AMOUNT AS amount,
+	        PAYMENT_KEY AS paymentKey,
+	        PAY_STATUS AS payStatus
+	    FROM PAYMENT
+	    WHERE ORDER_ID = #{orderId}
+	    ORDER BY PAY_ID DESC
+	    LIMIT 1
+	</select>
+	
+	<update id="updatePaymentRefunded" parameterType="hashmap">
+	    UPDATE PAYMENT
+	    SET PAY_STATUS = 'REFUNDED'
+	    WHERE ORDER_ID = #{orderId}
+	</update>
 
     <!-- ════════════════════════════════════════
          대여 관리

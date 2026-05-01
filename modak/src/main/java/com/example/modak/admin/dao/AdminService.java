@@ -11,12 +11,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.modak.admin.mapper.AdminMapper;
 import com.example.modak.alarm.dao.AlarmService;
+import com.example.modak.refund.dao.RefundService;
 
 @Service
 public class AdminService {
 
 	@Autowired
 	private AdminMapper mapper;
+	
+	@Autowired
+	private RefundService refundService;
 
 	// 비밀번호 암호화 및 매칭을 위한 시큐리티 인코더
 	private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -138,6 +142,56 @@ public class AdminService {
 		}
 		return result;
 	}
+//	비회원 주문취소 - 환불
+	@Transactional
+	public HashMap<String, Object> approveCancel(String orderId) {
+	    HashMap<String, Object> result = new HashMap<>();
+
+	    try {
+	        HashMap<String, Object> pay = mapper.selectPaymentByOrderId(orderId);
+
+	        if (pay == null) {
+	            result.put("result", "fail");
+	            result.put("message", "결제 정보를 찾을 수 없습니다.");
+	            return result;
+	        }
+
+	        String paymentKey = String.valueOf(pay.get("paymentKey"));
+	        int amount = Integer.parseInt(String.valueOf(pay.get("amount")));
+
+	        HashMap<String, Object> cancelMap = new HashMap<>();
+	        cancelMap.put("refundReason", "주문취소");
+	        cancelMap.put("reasonDetail", "관리자 취소 승인");
+
+	        boolean tossResult = refundService.callTossCancelApi(cancelMap, paymentKey, amount);
+
+	        if (!tossResult) {
+	            result.put("result", "fail");
+	            result.put("message", "토스 결제 취소에 실패했습니다.");
+	            return result;
+	        }
+
+	        HashMap<String, Object> statusMap = new HashMap<>();
+	        statusMap.put("orderId", orderId);
+	        statusMap.put("status", "CANCELLED");
+	        mapper.updateOrderStatus(statusMap);
+
+	        HashMap<String, Object> paymentMap = new HashMap<>();
+	        paymentMap.put("orderId", orderId);
+	        mapper.updatePaymentRefunded(paymentMap);
+
+	        result.put("result", "success");
+	        result.put("message", "주문취소 및 환불이 완료되었습니다.");
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	        result.put("message", "취소 승인 처리 중 오류가 발생했습니다.");
+	    }
+
+	    return result;
+	}
+	
 	// 반납 요청 목록 조회
 	public HashMap<String, Object> getReturnRequestList() {
 	    HashMap<String, Object> result = new HashMap<>();

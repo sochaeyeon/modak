@@ -195,7 +195,16 @@
                                     </div>
                                     <span>{{ fnStatusText(order.orderStatus) }}</span>
                                 </div>
-                                <div class="action-row delivery-action-row" v-if="fnHasDeliveryInfo()">
+                                <p class="action-empty" v-if="upperStatus === 'CANCEL_REQUESTED'">
+                                    현재 취소 처리중입니다.<br>
+                                    관리자 승인 후 환불이 진행됩니다.
+                                </p>
+
+                                <p class="action-empty" v-if="upperStatus === 'CANCELLED'">
+                                    주문취소가 완료되었습니다.
+                                </p>
+                                <div class="action-row delivery-action-row"
+                                    v-if="fnHasDeliveryInfo() && upperStatus !== 'CANCEL_REQUESTED' && upperStatus !== 'CANCELLED'">
                                     <button type="button" class="action-btn delivery" @click="fnGoDeliveryDetail">
                                         배송조회
                                     </button>
@@ -214,7 +223,7 @@
                                     </button>
                                 </div>
 
-                                <p class="action-empty" v-if="!fnCanShowActions()">
+                                <p class="action-empty" v-if="!fnCanShowActions() && upperStatus !== 'CANCEL_REQUESTED' && upperStatus !== 'CANCELLED'">
                                     현재 상태에서는 추가 신청 가능한 메뉴가 없습니다.
                                 </p>
 
@@ -287,11 +296,25 @@
                                 modalType: '',
                                 cancelReasonCode: '',
                                 cancelReasonText: '',
-                                statusSteps: [
+                                statusSteps: [],
+
+                                normalSteps: [
                                     { code: 'PAID', name: '결제완료' },
                                     { code: 'READY', name: '배송준비' },
                                     { code: 'SHIPPING', name: '배송중' },
                                     { code: 'DONE', name: '배송완료' }
+                                ],
+
+                                cancelSteps: [
+                                    { code: 'PAID', name: '결제완료' },
+                                    { code: 'CANCEL_REQUESTED', name: '취소진행' },
+                                    { code: 'CANCELLED', name: '취소완료' }
+                                ],
+
+                                refundSteps: [
+                                    { code: 'DONE', name: '배송완료' },
+                                    { code: 'REFUND_REQUESTED', name: '환불진행' },
+                                    { code: 'REFUND_DONE', name: '환불완료' }
                                 ]
                             };
                         },
@@ -359,6 +382,7 @@
 
                                         if (res.result === 'success' && res.order) {
                                             self.order = res.order;
+                                            self.setStatusSteps();
                                         } else {
                                             self.isError = true;
                                         }
@@ -422,7 +446,11 @@
                                     success: function (res) {
                                         if (res.result === 'success') {
                                             self.closeModal();
-                                            self.fnGetDetail();
+
+                                            self.order.orderStatus = 'CANCEL_REQUESTED';
+                                            self.setStatusSteps();
+
+                                            alert('주문취소 신청이 완료되었습니다.');
                                         } else {
                                             alert(res.message || '취소신청 처리 중 오류가 발생했습니다.');
                                         }
@@ -504,6 +532,21 @@
 
                             fnHasDeliveryInfo: function () {
                                 return this.order && (this.order.deliveryId || this.order.orderId);
+                            },
+                            setStatusSteps: function () {
+                                var s = this.upperStatus;
+
+                                if (s === 'CANCEL_REQUESTED' || s === 'CANCELLED') {
+                                    this.statusSteps = this.cancelSteps;
+                                    return;
+                                }
+
+                                if (s === 'REFUND_REQUESTED' || s === 'REFUND_APPROVED' || s === 'REFUND_DONE') {
+                                    this.statusSteps = this.refundSteps;
+                                    return;
+                                }
+
+                                this.statusSteps = this.normalSteps;
                             },
                         },
 

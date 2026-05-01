@@ -445,6 +445,13 @@ public class AdminController {
 		if (!isAdmin()) return noAuth();
 		return new Gson().toJson(adminService.updateOrderStatus(map));
 	}
+//	비회원 주문취소요청
+	@PostMapping("/order/cancel-approve.dox")
+	@ResponseBody
+	public Map<String, Object> approveCancel(@RequestParam String orderId) {
+	    if (!isAdmin()) return Map.of("result","fail","message","권한없음");
+	    return adminService.approveCancel(orderId);
+	}
 	
 	// 반납 요청 목록 조회
 	@PostMapping(value = "/rental/return/list.dox", produces = "application/json;charset=UTF-8")

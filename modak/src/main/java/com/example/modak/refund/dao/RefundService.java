@@ -202,7 +202,7 @@ public class RefundService {
     }
     
  // 토스 환불 API 호출
-    private boolean callTossCancelApi(HashMap<String, Object> map, String paymentKey, int cancelAmount) {
+    public boolean callTossCancelApi(HashMap<String, Object> map, String paymentKey, int cancelAmount) {
         try {
             String cancelReason = String.valueOf(map.get("refundReason"));
 

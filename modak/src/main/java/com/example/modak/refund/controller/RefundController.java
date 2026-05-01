@@ -87,8 +87,14 @@ public class RefundController {
             }
 
             map.put("userId", sessionId);
-
+            
+            System.out.println("===== 환불 신청 요청 =====");
+            System.out.println("sessionId = " + sessionId);
+            System.out.println("request map = " + map);
+            
             resultMap = refundService.addRefund(map);
+            
+            System.out.println("refund resultMap = " + resultMap);
 
         } catch (Exception e) {
             e.printStackTrace();

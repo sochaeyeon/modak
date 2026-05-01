@@ -47,7 +47,7 @@
                             <div class="select-bar">
                                 <div class="select-bar-left">
                                     <div class="chk" :class="{ on: isAllChecked }" @click="toggleAll"></div>
-                                    <span>전체 선택</span>
+                                    <span @click="toggleAll" style="cursor:pointer;">전체 선택</span>
                                 </div>
                                 <button class="del-btn" @click="deleteSelected">
                                     <span>✕</span> 선택 삭제
@@ -68,7 +68,7 @@
                                     <!-- 브랜드 헤더 -->
                                     <div class="cart-card-header">
                                         <div class="chk" :class="{ on: isBrandChecked(group) }" @click="toggleBrand(group)"></div>
-                                        <span>{{ group.brandName || '모닥모닥' }}</span>
+                                        <span @click="toggleBrand(group)" style="cursor:pointer;">{{ group.brandName || '모닥모닥' }}</span>
                                     </div>
 
                                     <!-- 상품 리스트 -->
@@ -212,7 +212,9 @@
                                     <div class="point-box" v-if="isLogin">
                                         <div class="point-title">
                                             <span>포인트 사용</span>
-                                            <span>보유 {{ formatPrice(userPoint) }}</span>
+                                            <span>
+                                                보유 {{ formatPrice(remainingPoint) }}
+                                            </span>
                                         </div>
 
                                         <div class="point-input-wrap">
@@ -584,6 +586,9 @@
 
                                 return point;
                             },
+                            remainingPoint() {
+                                return Math.max(0, Number(this.userPoint || 0) - Number(this.validUsePoint || 0));
+                            },
 
                             finalTotal() {
                                 return Math.max(
@@ -591,7 +596,8 @@
                                     this.selectedTotal - this.couponDiscount - this.validUsePoint
                                 );
                             }
-                        }, watch: {
+                        }, 
+                        watch: {
                             usableCouponList() {
                                 const exists = this.usableCouponList.some(c =>
                                     String(c.userCouponId) === String(this.selectedUserCouponId)
@@ -601,6 +607,7 @@
                                     this.selectedUserCouponId = '';
                                 }
                             },
+
                             activeTab() {
                                 this.selectedUserCouponId = '';
                                 this.usePoint = 0;
@@ -610,7 +617,18 @@
                                 this.clampUsePoint();
                             },
 
-                            checkedIds() {
+                            checkedIds: {
+                                handler() {
+                                    this.clampUsePoint();
+                                },
+                                deep: true
+                            },
+
+                            selectedTotal() {
+                                this.clampUsePoint();
+                            },
+
+                            couponDiscount() {
                                 this.clampUsePoint();
                             },
 
@@ -836,7 +854,7 @@
                                     showToast('상품을 선택해주세요.');
                                     return;
                                 }
-
+                                this.clampUsePoint();
                                 const usePoint = Number(this.validUsePoint || 0);
                                 const checkoutDiscount = {
                                     cartType: this.activeTab,

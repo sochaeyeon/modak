@@ -92,15 +92,38 @@
                                             <td class="order-price">{{ formatPrice(order.TOTAL_PRICE) }}원</td>
                                             <td class="order-date">{{ order.CREATED_AT }}</td>
                                             <td>
-                                                <select class="o-select" v-model="order.ORDER_STATUS"
+
+                                            <!-- 🔥 취소요청 상태 -->
+                                            <div v-if="order.ORDER_STATUS === 'CANCEL_REQUESTED'">
+
+                                                <span class="o-status-badge" style="background:#f39c12;">
+                                                    취소요청
+                                                </span>
+                                                <button class="o-action-btn cancel" style="margin-top:6px;" @click="fnApproveCancel(order)">
+                                                    취소 승인
+                                                </button>
+
+                                            </div>
+
+                                            <!-- 🔥 일반 상태 -->
+                                            <div v-else-if="order.ORDER_STATUS !== 'CANCELLED'">
+                                                <select class="o-select"
+                                                    v-model="order.ORDER_STATUS"
                                                     @change="fnUpdateStatus(order)">
+
                                                     <option value="PAID">✅ 결제완료</option>
                                                     <option value="READY">📦 상품준비중</option>
                                                     <option value="SHIPPING">🚚 배송중</option>
-                                                    <option value="DONE">🚩 배송완료</option>
-                                                    <option value="CANCELLED">❌ 주문취소</option>
+                                                    <option value="DONE">🚩 배송완료</option>                                                 
                                                 </select>
-                                            </td>
+                                            </div>
+                                            <!-- 취소완료 상태 -->
+                                            <div v-else>
+                                                <span class="o-status-badge" style="background:#e74c3c;">
+                                                    취소완료
+                                                </span>
+                                            </div>
+                                        </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -609,7 +632,12 @@
                                         success(data) {
                                             console.log(data);
                                             if (data.result === 'success') {
-                                                self.orderList = data.list || [];
+                                                 console.log('주문상태:', data.list);
+                                                // self.orderList = data.list || [];
+                                                self.orderList = (data.list || []).map(function (o) {
+                                                    o.ORDER_STATUS = String(o.ORDER_STATUS || '').toUpperCase();
+                                                    return o;
+                                                });
                                                 self.totalCount = data.totalCount || 0;
                                             }
                                         }
@@ -672,8 +700,14 @@
 
                                 /* ── 주문 상태 변경 ── */
                                 fnUpdateStatus(order) {
+                                    // 🔥 취소요청 상태는 절대 select로 변경 못하게 막기
+                                    if (order.ORDER_STATUS === 'CANCEL_REQUESTED') {
+                                        alert('취소요청 상태는 승인 버튼으로 처리하세요');
+                                        return;
+                                    }
                                     $.ajax({
-                                        url: '/admin/order/update-status.dox', type: 'POST',
+                                        url: '/admin/order/update-status.dox', 
+                                        type: 'POST',
                                         data: { orderId: order.ORDER_ID, status: order.ORDER_STATUS },
                                         success(res) { if (res.result !== 'success') alert('상태 변경 실패'); }
                                     });
@@ -769,7 +803,30 @@
                                     return map[s] || s || '-';
                                 },
 
-                                fnGoDashboard() { location.href = '/admin/dashboard.do'; }
+                                fnGoDashboard() { location.href = '/admin/dashboard.do'; },
+
+                                fnApproveCancel(order) {
+                                    if (!confirm('취소 승인하시겠습니까? (결제도 취소됩니다)')) return;
+
+                                    $.ajax({
+                                        url: '/admin/order/cancel-approve.dox',
+                                        type: 'POST',
+                                        data: { orderId: order.ORDER_ID },
+
+                                        success: (res) => {
+                                            if (res.result === 'success') {
+                                                order.ORDER_STATUS = 'CANCELLED';
+                                                alert('취소 완료 + 환불 처리됨');
+                                            } else {
+                                                alert(res.message || '취소 처리 실패');
+                                            }
+                                        },
+
+                                        error: () => {
+                                            alert('서버 오류');
+                                        }
+                                    });
+                                }
                             },
                             mounted() { this.fnGetList(); }
                         }).mount('#app');

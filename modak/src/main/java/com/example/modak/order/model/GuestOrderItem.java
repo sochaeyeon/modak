@@ -13,4 +13,5 @@ public class GuestOrderItem {
     private String startDate;    // START_DATE (대여 시작일)
     private String endDate;      // END_DATE   (대여 종료일)
     private String imgUrl;
+    private String optionName;
 }

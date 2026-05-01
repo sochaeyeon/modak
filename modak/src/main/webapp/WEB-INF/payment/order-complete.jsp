@@ -5,24 +5,30 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>결제 완료 - 모닥모닥</title>
+        <title>주문 완료 - 모닥모닥</title>
 
         <link rel="stylesheet" href="/css/common/font.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
-
+        <link rel="stylesheet" href="/css/cart/cart-list.css">
         <link rel="stylesheet" href="/css/payment/order-complete.css">
+        
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
     </head>
 
     <body>
         <%@ include file="/WEB-INF/common/header.jsp" %>
+        <div id="app">
+            <!-- 브레드크럼 -->
+                <div class="order-step-wrap">
+                    <div class="order-step" :class="{ active: currentStep === 1 }">장바구니</div>
+                    <div class="order-step-line"></div>
 
-            <div class="step-wrap">
-                <div class="step active">장바구니</div>
-                <div class="step-line"></div>
-                <div class="step active">주문결제</div>
-                <div class="step-line"></div>
-                <div class="step active">완료</div>
-            </div>
+                    <div class="order-step" :class="{ active: currentStep === 2 }">주문/결제</div>
+                    <div class="order-step-line"></div>
+
+                    <div class="order-step" :class="{ active: currentStep === 3 }">주문완료</div>
+                </div>
 
             <main class="complete-page">
                 <section class="complete-card">
@@ -84,8 +90,8 @@
                     </div>
                 </section>
             </main>
-
-            <%@ include file="/WEB-INF/common/footer.jsp" %>
+        </div><!-- app -->
+    <%@ include file="/WEB-INF/common/footer.jsp" %>
 
                 <script>
                     const params = new URLSearchParams(location.search);
@@ -96,6 +102,22 @@
                     } else {
                         localStorage.removeItem('modak_guest_cart');
                     }
+                    const app = Vue.createApp({
+                    data() {
+                        return {
+                            currentStep: 3
+                        };
+                    },
+                    methods: {
+
+                    }, // methods
+                    mounted() {
+                        let self = this;
+                        
+                    }
+                });
+
+                app.mount('#app');
                 </script>
     </body>
 

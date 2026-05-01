@@ -1032,3 +1032,30 @@ body {
     background: var(--orange-pale);
     border-color: var(--orange);
 }
+
+.action-btn.disabled {
+    pointer-events: none;
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* 상태 뱃지 */
+.status-chip {
+    background: #f1f1f1;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* 취소 진행 상태 박스 */
+.action-status-box {
+    margin-top: 14px;
+    padding: 16px;
+    border-radius: 12px;
+    background: #f9f6f2;
+    border: 1px solid #e6dccf;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #7a6f5a;
+}

@@ -67,9 +67,31 @@
                                 placeholder="메시지를 입력하세요" rows="1"></textarea>
                         </div>
                         <button class="btn-send" id="btnSend" disabled>&#10148;</button>
+						<button type="button" class="btn-emoji" id="btnEmoji">😊</button>
                     </div>
                 </div>
-
+				<div id="stickerPanel" class="sticker-panel">
+				    <img src="/img/sticker/modak1.png">
+				    <img src="/img/sticker/modak2.png">
+				    <img src="/img/sticker/modak3.png">
+				    <img src="/img/sticker/modak4.png">
+				    <img src="/img/sticker/modak5.png">
+				    <img src="/img/sticker/modak6.png">
+				    <img src="/img/sticker/modak7.png">
+				    <img src="/img/sticker/modak8.png">
+				    <img src="/img/sticker/modak9.png">
+				    <img src="/img/sticker/modak10.png">
+				    <img src="/img/sticker/modak11.png">
+				    <img src="/img/sticker/modak12.png">
+				    <img src="/img/sticker/modak13.png">
+				    <img src="/img/sticker/modak14.png">
+				    <img src="/img/sticker/modak15.png">
+				    <img src="/img/sticker/modak16.png">
+				    <img src="/img/sticker/modak17.png">
+				    <img src="/img/sticker/modak18.png">
+				    <img src="/img/sticker/modak19.png">
+				    <img src="/img/sticker/modak20.png">
+				</div>
                 <!-- 미니 프로필 팝업 -->
                 <div class="mini-profile" id="miniProfile" style="display:none;">
                     <div class="mp-header">
@@ -175,6 +197,20 @@
                             e.stopPropagation();
                             openMiniProfile(OTHER_ID, this);
                         });
+						$('#btnEmoji').on('click', function (e) {
+						    e.stopPropagation();
+						    $('#stickerPanel').toggle();
+						});
+
+						$(document).on('click', function () {
+						    $('#stickerPanel').hide();
+						});
+
+						$('#stickerPanel img').on('click', function () {
+						    var url = $(this).attr('src');
+						    sendSticker(url);
+						    $('#stickerPanel').hide();
+						});
 
                         $('#btnMore').on('click', function (e) {
                             e.stopPropagation();
@@ -186,33 +222,55 @@
                             openBlockModal();
                         });
 
-                        $('#menuLeave').on('click', function (e) {
-                            e.stopPropagation();
-                            $('#moreMenu').removeClass('open');
+						// ✅ 수정 — 버튼을 실수로 두 번 누르지 못하게 비활성화
+						$('#menuLeave').on('click', function(e) {
+						    e.stopPropagation();
+						    $('#moreMenu').removeClass('open');
+						    if (!confirm('채팅방을 나가시겠습니까? 나가면 대화 내역이 목록에서 사라집니다.')) return;
 
-                            if (!confirm('채팅방을 나가시겠습니까?')) {
-                                return;
-                            }
+						    var $btn = $(this);
+						    $btn.prop('disabled', true);  // ← 중복 호출 방지
 
-                            $.ajax({
-                                url: '/chat-room/leave.dox',
-                                type: 'POST',
-                                data: {
-                                    roomId: ROOM_ID
-                                },
-                                dataType: 'json',
-                                success: function (res) {
-                                    if (res.result === 'success') {
-                                        location.href = '/chat-room/list.do';
-                                    } else {
-                                        showToast(res.message || '채팅방 나가기 실패');
-                                    }
-                                },
-                                error: function () {
-                                    showToast('서버 오류가 발생했습니다.');
-                                }
-                            });
-                        });
+						    $.ajax({
+						        url: '/chat-room/leave.dox',
+						        type: 'POST',
+						        data: { roomId: ROOM_ID },
+						        dataType: 'json',
+						        success: function(res) {
+						            if (res.result === 'success') {
+						                location.href = '/chat-room/list.do';
+						            } else {
+						                showToast(res.message || '채팅방 나가기 실패');
+						                $btn.prop('disabled', false);
+						            }
+						        },
+						        error: function() {
+						            showToast('서버 오류가 발생했습니다.');
+						            $btn.prop('disabled', false);
+						        }
+						    });
+						});
+						function sendSticker(stickerUrl) {
+						    $.ajax({
+						        url: '/chat-room/send-sticker.dox',
+						        type: 'POST',
+						        data: {
+						            roomId: ROOM_ID,
+						            content: stickerUrl
+						        },
+						        dataType: 'json',
+						        success: function (res) {
+						            if (res.result === 'success') {
+						                loadMessages(false);
+						            } else {
+						                showToast(res.message || '이모티콘 전송 실패');
+						            }
+						        },
+						        error: function () {
+						            showToast('이모티콘 전송 중 오류가 발생했습니다.');
+						        }
+						    });
+						}
 
                         $('#btnImage').on('click', function () {
                             $('#chatImageInput').click();
@@ -545,14 +603,17 @@
                             ? '<div class="m-nick">' + escHtml(m.SENDER_NICK || OTHER_ID || '') + '</div>'
                             : '';
 
-                        var bubbleContent = '';
-                        var messageType = m.MESSAGE_TYPE || m.messageType || 'TEXT';
+							var bubbleContent = '';
+							var messageType = m.MESSAGE_TYPE || m.messageType || 'TEXT';
+							var content = m.CONTENT || '';
 
-                        if (messageType === 'IMAGE' || String(m.CONTENT).startsWith('/img/chat/')) {
-                            bubbleContent = '<img class="chat-img" src="' + escAttr(m.CONTENT) + '" alt="채팅 이미지">';
-                        } else {
-                            bubbleContent = escHtml(m.CONTENT);
-                        }
+							if (messageType === 'STICKER') {
+							    bubbleContent = '<img class="chat-sticker" src="' + escAttr(content) + '" alt="이모티콘">';
+							} else if (messageType === 'IMAGE' || String(content).startsWith('/img/chat/')) {
+							    bubbleContent = '<img class="chat-img" src="' + escAttr(content) + '" alt="채팅 이미지">';
+							} else {
+							    bubbleContent = escHtml(content);
+							}
 
                         var readStatus = '';
 

@@ -271,4 +271,49 @@
     FROM USER U
     WHERE U.USER_ID = #{userId}
 </select>
+<select id="selectMyChatRoomList" parameterType="string" resultType="map">
+    SELECT
+        R.ROOM_ID AS roomId,
+        CASE WHEN R.USER_A = #{userId} THEN R.USER_B ELSE R.USER_A END AS otherId,
+        U.NICKNAME AS otherNick,
+        U.PROFILE_IMG_URL AS otherImg,
+        (
+            SELECT M.CONTENT
+            FROM CHAT_MESSAGE M
+            WHERE M.ROOM_ID = R.ROOM_ID
+            ORDER BY M.CREATED_AT DESC
+            LIMIT 1
+        ) AS lastMsg,
+        (
+            SELECT DATE_FORMAT(M.CREATED_AT, '%Y-%m-%d %H:%i')
+            FROM CHAT_MESSAGE M
+            WHERE M.ROOM_ID = R.ROOM_ID
+            ORDER BY M.CREATED_AT DESC
+            LIMIT 1
+        ) AS lastAt
+    FROM CHAT_ROOM R
+    JOIN USER U
+        ON U.USER_ID = CASE WHEN R.USER_A = #{userId} THEN R.USER_B ELSE R.USER_A END
+    WHERE (R.USER_A = #{userId} OR R.USER_B = #{userId})
+      AND NOT EXISTS (
+          SELECT 1
+          FROM CHAT_ROOM_HIDE H
+          WHERE H.ROOM_ID = R.ROOM_ID
+            AND H.USER_ID = #{userId}
+      )
+    ORDER BY lastAt DESC
+</select>
+
+<insert id="hideMyChatRoom" parameterType="hashmap">
+    INSERT IGNORE INTO CHAT_ROOM_HIDE (
+        ROOM_ID,
+        USER_ID,
+        CREATED_AT
+    )
+    VALUES (
+        #{roomId},
+        #{userId},
+        NOW()
+    )
+</insert>
 </mapper>

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.example.modak.chatroom.dao.ChatRoomService;
 import com.google.gson.Gson;
 
@@ -266,5 +267,19 @@ public class ChatRoomController {
         }
 
         return new Gson().toJson(result);
+    }
+    @PostMapping(value = "/send-sticker.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String sendSticker(
+            @RequestParam("roomId") Long roomId,
+            @RequestParam("content") String content) {
+
+        String userId = (String) session.getAttribute("sessionId");
+
+        if (userId == null) {
+            return "{\"result\":\"fail\",\"message\":\"로그인이 필요합니다.\"}";
+        }
+
+        return new Gson().toJson(chatService.sendStickerMessage(roomId, userId, content));
     }
 }

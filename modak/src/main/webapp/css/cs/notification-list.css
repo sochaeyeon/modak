@@ -34,6 +34,9 @@ html,
 body {
 	background: var(--cream) !important;
 }
+[v-cloak] {
+    display: none;
+}
 
 body {
 	min-height: 100vh;
@@ -58,11 +61,18 @@ button {
 	cursor: pointer;
 }
 
+
 .notice-page {
 	min-height: 100vh;
 	background: var(--cream);
 }
-
+.notice-loading.small {
+    padding: 12px 20px;
+    text-align: center;
+    color: var(--brown4);
+    font-size: 12px;
+    font-weight: 700;
+}
 .notice-inner {
 	width: 100%;
 	max-width: 1200px;

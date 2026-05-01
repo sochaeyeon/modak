@@ -41,6 +41,22 @@ public class CartController {
 
 		return guestCartId;
 	}
+	private boolean isInvalidRentalStart(HashMap<String, Object> map) {
+	    Object startObj = map.get("rentalStart");
+
+	    if (startObj == null || "".equals(String.valueOf(startObj))) {
+	        startObj = map.get("startDate");
+	    }
+
+	    if (startObj == null || "".equals(String.valueOf(startObj))) {
+	        return false;
+	    }
+
+	    java.time.LocalDate startDate = java.time.LocalDate.parse(String.valueOf(startObj));
+	    java.time.LocalDate today = java.time.LocalDate.now();
+
+	    return !startDate.isAfter(today);
+	}
 
 	@RequestMapping("/cart/list.do")
 	public String cartListPage() {
@@ -55,6 +71,13 @@ public class CartController {
 
 		map.put("userId", cartUserId);
 
+		if ("RENTAL".equals(String.valueOf(map.get("cartType"))) && isInvalidRentalStart(map)) {
+		    HashMap<String, Object> resultMap = new HashMap<>();
+		    resultMap.put("result", "fail");
+		    resultMap.put("message", "대여 시작일은 내일부터 선택할 수 있습니다.");
+		    return new Gson().toJson(resultMap);
+		}
+		
 		HashMap<String, Object> resultMap = cartService.addCart(map);
 		return new Gson().toJson(resultMap);
 	}
@@ -109,11 +132,18 @@ public class CartController {
 		String cartUserId = getCartUserId();
 
 		map.put("userId", cartUserId);
+		
+		if (map.get("rentalStart") != null && isInvalidRentalStart(map)) {
+		    HashMap<String, Object> resultMap = new HashMap<>();
+		    resultMap.put("result", "fail");
+		    resultMap.put("message", "대여 시작일은 내일부터 선택할 수 있습니다.");
+		    return new Gson().toJson(resultMap);
+		}
 
 		HashMap<String, Object> resultMap = cartService.updateCartOption(map);
 		return new Gson().toJson(resultMap);
 	}
-	// 장바구니에서 수량변경
+	// 장바구니에서 수량변경 
 	@RequestMapping("/cart/update.dox")
 	@ResponseBody
 	public String updateCartQty(@RequestParam HashMap<String, Object> map) throws Exception {

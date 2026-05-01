@@ -162,7 +162,6 @@ public class PaymentService {
 
 	    return resultMap;
 	}
-	
 	// 토스 API 승인 - 트랜잭션 없음
 	public HashMap<String, Object> confirmPayment(String paymentKey, String orderId, Long amount) {
 
@@ -365,7 +364,7 @@ public class PaymentService {
 		        int quantity = Integer.parseInt(String.valueOf(getValue(item, "quantity", "QUANTITY")));
 		        for (int i = 0; i < quantity; i++) {
 		            HashMap<String, Object> rentalMap = new HashMap<>();
-		            rentalMap.put("itemId", getValue(item, "optionItemId", "OPTION_ITEM_ID"));
+		            rentalMap.put("itemId", getValue(item, "itemId", "ITEM_ID"));
 		            rentalMap.put("userId", userId);
 		            rentalMap.put("startDate", getValue(item, "startDate", "START_DATE"));
 		            rentalMap.put("returnDate", getValue(item, "endDate", "END_DATE"));

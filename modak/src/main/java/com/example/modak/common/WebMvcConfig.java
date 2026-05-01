@@ -20,9 +20,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 				.excludePathPatterns("/css/**", "/js/**", "/img/**", "/images/**", "/static/**", "/upload/**");
 	}
 
+	// ★ 여기에 추가
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-
 		String home = System.getProperty("user.home");
 
 		// 리뷰 이미지
@@ -30,7 +30,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
 				.addResourceLocations("file:" + home + "/modak_uploads/review/");
 
 		// 프로필 이미지
-		registry.addResourceHandler("/upload/profile/**")
-				.addResourceLocations("file:" + home + "/modak_uploads/profile/");
+		registry.addResourceHandler("/upload/profile/**").addResourceLocations("classpath:/static/upload/profile/");
+		registry.addResourceHandler("/img/chat/**")
+				.addResourceLocations("file:///C:/Users/TJ-BU-708-P04/git/modak/modak/src/main/webapp/img/chat/");
+
 	}
+
 }

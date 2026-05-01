@@ -15,15 +15,18 @@
     <body>
 
         <div id="app" v-cloak>
-            <button class="sidebar-toggle-btn" @click="fnToggleSidebar">
-                <i :class="sidebarOpen ? 'ri-arrow-left-s-line' : 'ri-menu-line'"></i>
-            </button>
-
             <div :class="['sidebar', { closed: !sidebarOpen }]">
-                <div class="sidebar-logo" onclick="location.href='/main.do'">
-                    <i class="ri-fire-fill"></i>
-                    <span class="logo">모닥모닥</span>
-                </div> <button class="new-chat-btn" @click="fnNewChat">+ 새 대화 시작</button>
+                <div class="sidebar-top">
+                    <div class="sidebar-logo" onclick="location.href='/main.do'">
+                        <i class="ri-fire-fill"></i>
+                        <span class="logo">모닥모닥</span>
+                    </div>
+
+                    <button class="sidebar-close-btn" @click="fnToggleSidebar" title="사이드바 접기">
+                        <i class="ri-side-bar-line"></i>
+                    </button>
+                </div>
+                <button class="new-chat-btn" @click="fnNewChat">+ 새 대화 시작</button>
                 <p style="font-size:11px;color:var(--gray);margin-bottom:15px;font-weight:800;padding-left:5px;">
                     나의 캠핑 기록
                 </p>
@@ -51,9 +54,12 @@
                     </div>
                 </div>
             </div>
-
             <div class="chat-main">
                 <header class="chat-header">
+                    <button v-if="!sidebarOpen" class="sidebar-open-btn" @click="fnToggleSidebar">
+                        <i class="ri-menu-line"></i>
+                    </button>
+
                     <div class="bot-avatar">
                         <i class="ri-fire-fill"></i>
                     </div>
@@ -101,7 +107,9 @@
 
                 <!-- 추천 질문 -->
                 <div class="faq-section" v-if="recommends.length > 0">
-                    <button class="faq-chip" v-for="q in recommends" :key="q" @click="fnFaq(q)">{{ q }}</button>
+                    <button class="faq-chip" v-for="q in recommends" :key="q" @click="fnFaq(q)">
+                        {{ q }}
+                    </button>
                     <button class="faq-chip home-btn" @click="fnGoMain">
                         <i class="ri-home-5-line"></i>
                         메인 홈으로
@@ -113,14 +121,14 @@
                         <i class="ri-chat-1-line input-icon"></i> <!-- ⭐ 여기 -->
 
                         <input type="text" class="input-box" v-model="userInput" ref="userInput"
-                            @keyup.enter="fnSendMessage" :disabled="isLoading" placeholder="모닥이에게 물어봐라닥...">
+                            @keyup.enter="fnSendMessage" placeholder="모닥이에게 물어봐라닥...">
 
-                        <button class="send-btn" @click="fnSendMessage" :disabled="isLoading">
+                        <button class="send-btn" @click="fnSendMessage">
                             <i class="ri-send-plane-2-fill"></i>
                         </button>
                     </div>
                 </div>
-            </div>
+            </div><!-- /.chat-main -->
             <!-- 메인 이동 모달 -->
             <div v-if="mainModalOpen" class="main-modal-backdrop" @click.self="fnCloseMainModal"
                 @keydown.enter.prevent="fnConfirmMain" @keydown.esc.prevent="fnCloseMainModal" tabindex="0"
@@ -194,6 +202,10 @@
                         deleteTargetRoomId: null,
                         toastMessage: '',
                         toastOpen: false,
+
+                        sendLocked: false,
+                        lastSendAt: 0,
+                        sendCooldownMs: 1200
                     };
 
                 },
@@ -273,13 +285,31 @@
                         });
                     },
 
-                    /* 메시지 전송 */
                     fnSendMessage() {
                         const msg = this.userInput.trim();
-                        if (!msg || this.isLoading) return;
+
+                        if (!msg) {
+                            return;
+                        }
+
+                        if (this.isLoading || this.sendLocked) {
+                            this.fnShowToast('모닥이가 답변 중이에요. 잠시만 기다려달라닥!');
+                            return;
+                        }
+
+                        const now = Date.now();
+
+                        if (now - this.lastSendAt < this.sendCooldownMs) {
+                            this.fnShowToast('너무 빠르게 보내고 있어요. 잠깐만 기다려달라닥!');
+                            return;
+                        }
+
+                        this.lastSendAt = now;
+                        this.sendLocked = true;
                         this.userInput = '';
                         this.isLoading = true;
                         this.recommends = [];
+
                         const time = this.fnGetCurrentTime();
 
                         this.messages.push({ role: 'user', message: msg, time, isLoading: false });
@@ -290,12 +320,19 @@
                             url: '/api/chat/ask.dox',
                             type: 'POST',
                             contentType: 'application/json',
-                            data: JSON.stringify({ message: msg, roomId: this.currentRoomId }),
+                            data: JSON.stringify({
+                                message: msg,
+                                roomId: this.currentRoomId
+                            }),
                             success: (res) => {
                                 const last = this.messages[this.messages.length - 1];
+
                                 last.isLoading = false;
                                 last.message = res;
+
                                 this.isLoading = false;
+                                this.sendLocked = false;
+
                                 this.fnGetRecommend(msg);
 
                                 if (this.isLogin) {
@@ -306,15 +343,24 @@
                             },
                             error: () => {
                                 const last = this.messages[this.messages.length - 1];
+
                                 last.isLoading = false;
-                                last.message = '오류가 발생했다닥! 다시 시도해봐라닥. 🔥';
+                                last.message = '오류가 발생했다닥! 잠시 후 다시 시도해봐라닥. 🔥';
+
                                 this.isLoading = false;
+                                this.sendLocked = false;
                             }
                         });
                     },
+                    fnFaq(q) {
+                        if (this.isLoading || this.sendLocked) {
+                            this.fnShowToast('모닥이가 답변 중이에요. 잠시만 기다려달라닥!');
+                            return;
+                        }
 
-                    fnFaq(q) { this.userInput = q; this.fnSendMessage(); },
-
+                        this.userInput = q;
+                        this.fnSendMessage();
+                    },
                     fnConfirmMain() {
                         window.removeEventListener('keydown', this.fnEnterMain);
                         location.href = '/main.do';

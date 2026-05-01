@@ -31,8 +31,26 @@ public class CouponController {
             return resultMap;
         }
 
+        
         resultMap.put("result", "success");
         resultMap.put("list", couponService.selectMyCouponList(userId));
+
+        return resultMap;
+    }
+    @PostMapping("/availableList.dox")
+    public HashMap<String, Object> availableList(HttpSession session) {
+        HashMap<String, Object> resultMap = new HashMap<>();
+
+        String userId = (String) session.getAttribute("sessionId");
+
+        if (userId == null || userId.equals("")) {
+            resultMap.put("result", "success");
+            resultMap.put("list", new ArrayList<>());
+            return resultMap;
+        }
+
+        resultMap.put("result", "success");
+        resultMap.put("list", couponService.selectAvailableCouponList(userId));
 
         return resultMap;
     }

@@ -27,11 +27,13 @@ public class SearchService {
         result.setCampList(searchMapper.selectIntegratedCampList(keyword));
         result.setFaqList(searchMapper.selectIntegratedFaqList(keyword));
         result.setEventList(searchMapper.selectIntegratedEventList(keyword));
+        result.setCommunityList(searchMapper.selectIntegratedCommunityList(keyword));
 
         result.setProductCount(searchMapper.selectIntegratedProductCount(keyword));
         result.setCampCount(searchMapper.selectIntegratedCampCount(keyword));
         result.setFaqCount(searchMapper.selectIntegratedFaqCount(keyword));
         result.setEventCount(searchMapper.selectIntegratedEventCount(keyword));
+        result.setCommunityCount(searchMapper.selectIntegratedCommunityCount(keyword));
 
         return result;
     }

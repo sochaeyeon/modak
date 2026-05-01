@@ -627,7 +627,7 @@ body {
     margin-bottom: 16px;
 }
 
-.action-head > span {
+.action-head>span {
     height: 28px;
     padding: 0 10px;
     border-radius: 999px;
@@ -959,4 +959,22 @@ body {
     .modal-btns {
         flex-direction: column;
     }
+}
+
+
+.delivery-action-row {
+    margin-bottom: 10px;
+}
+
+.action-btn.delivery {
+    border: 1.5px solid rgba(232, 115, 42, .45);
+    background: #FFF8F0;
+    color: #C4621E;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.action-btn.delivery:hover {
+    background: #c4631e1a;
+    border-color: #C4621E;
 }

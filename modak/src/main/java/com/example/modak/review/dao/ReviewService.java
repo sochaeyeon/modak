@@ -369,33 +369,36 @@ public class ReviewService {
 
 	// 리뷰 이미지 저장 공통 메서드
 	private void saveReviewImages(Long reviewId, MultipartFile[] files, HttpServletRequest request) throws Exception {
-	    if (files == null || files.length == 0) return;
+		if (files == null || files.length == 0)
+			return;
 
-	    // ★ 고정 경로 사용 (재시작해도 유지)
-	    String uploadPath = System.getProperty("user.home") + "/modak_uploads/review/";
-	    File dir = new File(uploadPath);
-	    if (!dir.exists()) dir.mkdirs();
+		String uploadPath = System.getProperty("user.home") + "/modak_uploads/review/";
 
-	    List<HashMap<String, Object>> imgList = new ArrayList<>();
+		File dir = new File(uploadPath);
+		if (!dir.exists())
+			dir.mkdirs();
 
-	    for (MultipartFile file : files) {
-	        if (file == null || file.isEmpty()) continue;
+		List<HashMap<String, Object>> imgList = new ArrayList<>();
 
-	        String originalName = file.getOriginalFilename();
-	        String ext = originalName.substring(originalName.lastIndexOf("."));
-	        String saveName = UUID.randomUUID().toString() + ext;
+		for (MultipartFile file : files) {
+			if (file == null || file.isEmpty())
+				continue;
 
-	        file.transferTo(new File(dir, saveName));
+			String originalName = file.getOriginalFilename();
+			String ext = originalName.substring(originalName.lastIndexOf("."));
+			String saveName = UUID.randomUUID().toString() + ext;
 
-	        HashMap<String, Object> imgMap = new HashMap<>();
-	        imgMap.put("reviewId", reviewId);
-	        imgMap.put("imgUrl", "/upload/review/" + saveName);
-	        imgList.add(imgMap);
-	    }
+			file.transferTo(new File(dir, saveName));
 
-	    if (!imgList.isEmpty()) {
-	        reviewMapper.insertReviewImages(imgList);
-	    }
+			HashMap<String, Object> imgMap = new HashMap<>();
+			imgMap.put("reviewId", reviewId);
+			imgMap.put("imgUrl", "/upload/review/" + saveName); // ✅ /img/review/ → /upload/review/ 로 변경
+			imgList.add(imgMap);
+		}
+
+		if (!imgList.isEmpty()) {
+			reviewMapper.insertReviewImages(imgList);
+		}
 	}
 
 	public HashMap<String, Object> getReviewOrderInfo(HashMap<String, Object> map) {

@@ -216,6 +216,36 @@
 	<select id="selectDeliveryIdByOrderId" parameterType="int" resultType="Integer">
     SELECT DELIVERY_ID FROM DELIVERY WHERE ORDER_ID = #{orderId} LIMIT 1
 </select>
+<!-- 비회원 전체 주문 목록 (휴대폰 번호 기준) -->
+<select id="selectGuestOrderListByPhone" parameterType="hashmap" resultType="map">
+    SELECT
+        O.ORDER_ID,
+        O.ORDER_TYPE,
+        O.ORDER_STATUS,
+        O.TOTAL_PRICE,
+        DATE_FORMAT(O.CREATED_AT, '%Y-%m-%d %H:%i:%s') AS CREATED_AT,
+        O.GUEST_NAME,
+        O.GUEST_PHONE,
+        (SELECT P.PRODUCT_NAME
+         FROM ORDER_ITEM OI
+         JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+         WHERE OI.ORDER_ID = O.ORDER_ID
+         LIMIT 1) AS firstProductName,
+        (SELECT COUNT(*) FROM ORDER_ITEM OI2
+         WHERE OI2.ORDER_ID = O.ORDER_ID) AS itemCount,
+        -- ★ 이미지 추가
+        (SELECT PI.IMG_URL
+         FROM ORDER_ITEM OI3
+         JOIN PRODUCT P2 ON OI3.PRODUCT_ID = P2.PRODUCT_ID
+         JOIN PRODUCT_IMG PI ON PI.PRODUCT_ID = P2.PRODUCT_ID AND PI.IS_MAIN = 'Y'
+         WHERE OI3.ORDER_ID = O.ORDER_ID
+         LIMIT 1) AS thumbUrl
+    FROM ORDERS O
+    WHERE O.USER_ID LIKE 'GUEST%'
+      AND O.GUEST_PHONE = #{guestPhone}
+      AND O.GUEST_NAME  = #{guestName}
+    ORDER BY O.CREATED_AT DESC
+</select>
 	
 
 

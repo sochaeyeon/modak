@@ -4,14 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.ui.Model;
 
 import com.example.modak.rental.dao.RentalExtensionService;
 import com.google.gson.Gson;
@@ -147,14 +147,58 @@ public class RentalExtensionController {
 		return new Gson().toJson(service.applyReturn(map));
 	}
 
-	// 비회원 반납 신청
-	@PostMapping(value = "/return/guest/apply.dox", produces = "application/json;charset=UTF-8")
+//	@PostMapping(value="/return/guest/apply.dox", produces="application/json;charset=UTF-8")
+//	@ResponseBody
+//	public String applyGuestReturn(@RequestParam HashMap<String, Object> map, HttpSession session) {
+//	    HashMap<String, Object> result = new HashMap<>();
+//	    try {
+//	        // ★ 전달된 값 전체 출력
+//	        System.out.println("=== 반납 신청 파라미터 ===");
+//	        map.forEach((k, v) -> System.out.println(k + " = " + v));
+//	        System.out.println("세션 verifiedPhone: " + session.getAttribute("guestVerifiedPhone"));
+//	        System.out.println("세션 verifiedName: " + session.getAttribute("guestVerifiedName"));
+//
+//	        String guestPhone = String.valueOf(map.get("guestPhone"));
+//	        String rentalId   = String.valueOf(map.get("rentalId"));
+//
+//	        System.out.println("guestPhone: " + guestPhone);
+//	        System.out.println("rentalId: " + rentalId);
+//
+//	        // 세션 검증
+//	        String verifiedPhone = (String) session.getAttribute("guestVerifiedPhone");
+//	        boolean ok = verifiedPhone != null && verifiedPhone.equals(guestPhone);
+//	        System.out.println("세션 검증 결과: " + ok);
+//
+//	        if (!ok) {
+//	            ok = service.validateGuestRental(rentalId, guestPhone, String.valueOf(map.get("guestName")));
+//	            System.out.println("DB 검증 결과: " + ok);
+//	        }
+//
+//	        if (!ok) {
+//	            result.put("result",  "fail");
+//	            result.put("message", "유효하지 않은 접근입니다.");
+//	            return new Gson().toJson(result);
+//	        }
+//
+//	        return new Gson().toJson(service.applyGuestReturn(map));
+//
+//	    } catch (Exception e) {
+//	        e.printStackTrace();
+//	        result.put("result", "fail");
+//	        result.put("message", "서버 오류: " + e.getMessage());
+//	        return new Gson().toJson(result);
+//	    }
+//	}
+	
+	// 검증 로직 전체 주석 처리하고 바로 실행
+	@PostMapping(value="/return/guest/apply.dox", produces="application/json;charset=UTF-8")
 	@ResponseBody
-	public String applyGuestReturn(@RequestParam HashMap<String, Object> map) {
-		String token = (String) map.get("token");
-		String rentalId = (String) map.get("rentalId");
-
-		return new Gson().toJson(service.applyGuestReturn(map));
+	public String applyGuestReturn(@RequestParam HashMap<String, Object> map, HttpSession session) {
+	    System.out.println("=== 반납 파라미터 ===");
+	    map.forEach((k, v) -> System.out.println(k + " = " + v));
+	    
+	    // ★ 검증 없이 바로 실행 (테스트용)
+	    return new Gson().toJson(service.applyGuestReturn(map));
 	}
 
 	@PostMapping(value = "/return/cancel.dox", produces = "application/json;charset=UTF-8")
@@ -273,6 +317,7 @@ public class RentalExtensionController {
 
 		return service.getGuestRentalListByOrder(orderId.trim(), token.trim());
 	}
+	
 	
 	
 }

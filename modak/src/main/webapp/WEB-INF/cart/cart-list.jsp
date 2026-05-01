@@ -18,31 +18,24 @@
 
             <div id="app" v-cloak>
 
-                <div class="step-wrap">
-                    <div class="step active">장바구니</div>
-                    <div class="step-line"></div>
-                    <div class="step">주문결제</div>
-                    <div class="step-line"></div>
-                    <div class="step">완료</div>
-                </div>
-
                 <div class="cart-wrap">
-
-                    <div class="cart-tabs">
-                        <div class="tab-menu">
-                            <div class="tab-item" :class="{ active: activeTab === 'RENTAL' }"
-                                @click="switchTab('RENTAL')">
-                                대여 장바구니
-                            </div>
-
-                            <div class="tab-item" :class="{ active: activeTab === 'PURCHASE' }"
-                                @click="switchTab('PURCHASE')">
-                                구매 장바구니
-                            </div>
-
-                            <!-- 움직이는 밑줄 -->
-                            <div class="tab-underline" :style="underlineStyle"></div>
+                    <!-- 움직이는 밑줄 -->
+                    <!-- <div class="tab-underline" :style="underlineStyle"></div> -->
+                    <div class="step-wrap cart-step-switch-wrap">
+                        <div class="step step-cart-switch active" @click="toggleCartType">
+                            <span class="cart-step-main">
+                                {{ activeTab === 'RENTAL' ? '대여 장바구니' : '구매 장바구니' }}
+                            </span>
+                            <span class="cart-step-divider">|</span>
+                            <span class="cart-step-sub">
+                                {{ activeTab === 'RENTAL' ? '구매' : '대여' }}
+                            </span>
+                            <span class="cart-step-swap">↻</span>
                         </div>
+                        <div class="step-line"></div>
+                        <div class="step">주문결제</div>
+                        <div class="step-line"></div>
+                        <div class="step">완료</div>
                     </div>
 
                     <div class="cart-layout">
@@ -67,108 +60,115 @@
                                 <div>장바구니가 비어있습니다.</div>
                             </div>
 
-                            <!-- 브랜드별 그룹 카드 -->
-                            <div v-for="group in groupedCart" :key="group.brandName" class="cart-card">
+                            <!-- 장바구니 전체 카드 1개 -->
+                            <div class="cart-card">
 
-                                <div class="cart-card-header">
-                                    <div class="chk" :class="{ on: isBrandChecked(group) }" @click="toggleBrand(group)">
+                                <template v-for="group in groupedCart" :key="group.brandName">
+
+                                    <!-- 브랜드 헤더 -->
+                                    <div class="cart-card-header">
+                                        <div class="chk" :class="{ on: isBrandChecked(group) }" @click="toggleBrand(group)"></div>
+                                        <span>{{ group.brandName || '모닥모닥' }}</span>
                                     </div>
-                                    <span>{{ group.brandName || '모닥모닥' }}</span>
-                                </div>
 
-                                <div v-for="item in group.items" :key="item.cartId" class="cart-item">
-                                    <div class="cart-item-top">
-                                        <div class="chk" style="margin-top:4px;"
-                                            :class="{ on: checkedIds.includes(item.cartId) }"
-                                            @click.stop="toggleItem(item.cartId)">
-                                        </div>
+                                    <!-- 상품 리스트 -->
+                                    <div v-for="item in group.items" :key="item.cartId" class="cart-item">
+                                        <div class="cart-item-top">
+                                            <div class="chk" style="margin-top:2px;"
+                                                :class="{ on: checkedIds.includes(item.cartId) }"
+                                                @click.stop="toggleItem(item.cartId)">
+                                            </div>
 
-                                        <div class="cart-item-img" @click.stop="goDetail(item.productId)"
-                                            style="cursor:pointer;">
-                                            <img v-if="item.imgUrl" :src="item.imgUrl" :alt="item.productName">
-                                            <span v-else
-                                                style="font-size:36px;display:flex;align-items:center;justify-content:center;height:100%;">🏕️</span>
-                                        </div>
-
-                                        <div class="cart-item-info">
-                                            <div class="cart-item-badge">배송무료</div>
-                                            <div class="cart-item-name"
-                                                @click="toggleItem(item.cartId)"
+                                            <div class="cart-item-img"
+                                                @click.stop="goDetail(item.productId)"
                                                 style="cursor:pointer;">
-                                                {{ item.productName }}
-                                                <span class="cart-item-option">
-                                                    {{ item.optionName }}
-                                                </span>
+                                                <img v-if="item.imgUrl" :src="item.imgUrl" :alt="item.productName">
+                                                <span v-else style="font-size:36px;display:flex;align-items:center;justify-content:center;height:100%;">🏕️</span>
                                             </div>
-                                            <div class="cart-item-price">
-                                                {{ formatPrice(item.unitPrice || item.price) }}
-                                                <span v-if="item.cartType === 'RENTAL'" class="rental-price-info">
-                                                    (대여료 {{ formatPrice(rentalFee(item)) }}<span v-if="item.deposit > 0"> / 보증금 {{ formatPrice(depositFee(item)) }}</span>)
-                                                </span>
-                                            </div>
-                                            <div v-if="activeTab === 'RENTAL' && item.rentalStart" class="rental-dates">
-                                                📅 {{ item.rentalStart }} ~ {{ item.rentalEnd }}
-                                                <span
-                                                    style="background:var(--orange);color:#fff;border-radius:4px;padding:1px 6px;font-size:11px;">
-                                                    {{ calcNights(item.rentalStart, item.rentalEnd) }}박
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    <div class="cart-item-bottom">
-                                        <div class="qty-ctrl">
-                                            <button class="qty-btn" @click="chgItemQty(item, -1)">−</button>
-                                            <div class="qty-num">{{ item.quantity }}</div>
-                                            <button class="qty-btn" @click="chgItemQty(item, 1)">+</button>
-                                        </div>
-                                        <div class="item-total">
-                                            {{ formatPrice(cartItemTotal(item)) }} <button
-                                                class="item-del-btn" @click.stop="deleteItem(item.cartId)"
-                                                title="삭제">✕</button>
-                                        </div>
-                                    </div>
+                                            <div class="cart-item-info">
+                                                <!-- 상품명 + 삭제 버튼 -->
+                                                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                                                    <div class="cart-item-name" @click="toggleItem(item.cartId)" style="cursor:pointer;">
+                                                        {{ item.productName }}
+                                                    </div>
+                                                    <button class="item-del-btn" @click.stop="deleteItem(item.cartId)" title="삭제">✕</button>
+                                                </div>
 
-                                    <button class="opt-change-btn" @click.stop="toggleInlineOption(item)">
-                                        {{ inlineOption.cartId === item.cartId ? '옵션 닫기' : '옵션 변경' }}
-                                    </button>
-                                    <div v-if="inlineOption.cartId === item.cartId" class="inline-option-box"
-                                        @click.stop>
-                                        <div v-for="(opts, optionName) in inlineGroupedOptions" :key="optionName"
-                                            class="inline-option-group">
-                                            <div class="inline-option-name">{{ optionName }}</div>
+                                                <!-- 옵션태그 + 옵션변경 버튼 한 줄 -->
+                                                <div style="display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap;">
+                                                    <span class="cart-item-option" v-if="item.optionName">{{ item.optionName }}</span>
+                                                    <button class="opt-change-btn" @click.stop="toggleInlineOption(item)">
+                                                        {{ inlineOption.cartId === item.cartId ? '옵션 닫기' : '옵션 변경' }}
+                                                    </button>
+                                                </div>
 
-                                            <div class="inline-option-list">
-                                                <button type="button" v-for="opt in opts" :key="opt.optionValueId"
-                                                    class="inline-option-chip"
-                                                    :class="{ active: inlineOption.selectedOptions[optionName] && inlineOption.selectedOptions[optionName].optionValueId === opt.optionValueId }"
-                                                    @click="selectInlineOption(optionName, opt)">
-                                                    {{ opt.optionValue }}
-                                                    <span v-if="opt.addPrice > 0">+{{ formatPrice(opt.addPrice)
-                                                        }}</span>
-                                                </button>
+                                                <!-- 대여일 때만 날짜 표시 -->
+                                                <div v-if="item.cartType === 'RENTAL' && item.rentalStart"
+                                                    class="rental-dates" @click.stop="openDateModal(item)" style="cursor:pointer;margin-top:8px;">
+                                                    {{ item.rentalStart }} ~ {{ item.rentalEnd }}
+                                                    <span style="background:var(--orange);color:#fff;border-radius:4px;padding:1px 6px;font-size:11px;">
+                                                        {{ calcNights(item.rentalStart, item.rentalEnd) }}박
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <div class="inline-option-actions">
-                                            <button type="button" class="inline-option-cancel"
-                                                @click="closeInlineOption">취소</button>
-                                            <button type="button" class="inline-option-apply"
-                                                @click="applyInlineOption(item)">변경 완료</button>
+                                        <!-- 하단 바: 수량 ←→ 가격 -->
+                                        <div class="cart-item-bottom">
+                                            <div class="qty-ctrl">
+                                                <button class="qty-btn" @click="chgItemQty(item, -1)">−</button>
+                                                <div class="qty-num">{{ item.quantity }}</div>
+                                                <button class="qty-btn" @click="chgItemQty(item, 1)">+</button>
+                                            </div>
+                                            <div class="item-price-block">
+                                                <div class="item-unit-price">
+                                                    <template v-if="item.cartType === 'RENTAL'">
+                                                        {{ formatPrice(item.unitPrice) }} × {{ calcNights(item.rentalStart, item.rentalEnd) }}박
+                                                        <span v-if="item.deposit > 0"> + 보증금 {{ formatPrice(item.deposit) }}</span>
+                                                    </template>
+                                                    <template v-else>
+                                                        {{ formatPrice(item.unitPrice || item.price) }} × {{ item.quantity }}개
+                                                    </template>
+                                                </div>
+                                                <div class="item-total-price">{{ formatPrice(cartItemTotal(item)) }}</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
 
-                                <div class="cart-subtotal">
-                                    <div class="row">
-                                        <span style="color:var(--muted)">총 배송비</span>
-                                        <span>0원</span>
+                                        <!-- 옵션 박스 그대로 유지 -->
+                                        <div v-if="inlineOption.cartId === item.cartId"
+                                            class="inline-option-box"
+                                            @click.stop>
+
+                                            <div v-for="(opts, optionName) in inlineGroupedOptions"
+                                                :key="optionName"
+                                                class="inline-option-group">
+
+                                                <div class="inline-option-name">{{ optionName }}</div>
+
+                                                <div class="inline-option-list">
+                                                    <button type="button"
+                                                            v-for="opt in opts"
+                                                            :key="opt.optionValueId"
+                                                            class="inline-option-chip"
+                                                            :class="{ active: inlineOption.selectedOptions[optionName] && inlineOption.selectedOptions[optionName].optionValueId === opt.optionValueId }"
+                                                            @click="selectInlineOption(optionName, opt)">
+                                                        {{ opt.optionValue }}
+                                                        <span v-if="opt.addPrice > 0">+{{ formatPrice(opt.addPrice) }}</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="inline-option-actions">
+                                                <button type="button" class="inline-option-cancel" @click="closeInlineOption">취소</button>
+                                                <button type="button" class="inline-option-apply" @click="applyInlineOption(item)">변경 완료</button>
+                                            </div>
+                                        </div>
+
                                     </div>
-                                    <div class="row total">
-                                        <span>예상 주문금액</span>
-                                        <span style="color:var(--orange)">{{ formatPrice(groupTotal(group)) }}</span>
-                                    </div>
-                                </div>
+
+                                </template>
+
                             </div>
 
                         </div><!-- /cart-main -->
@@ -215,15 +215,26 @@
                                             <span>보유 {{ formatPrice(userPoint) }}</span>
                                         </div>
 
-                                        <div class="point-input-row">
-                                            <input type="number" class="point-input" v-model.number="usePoint" min="0"
-                                                :max="maxUsePoint" placeholder="사용할 포인트">
+                                        <div class="point-input-wrap">
+                                            <div class="input-box">
+                                                <input type="text"
+                                                    class="point-input"
+                                                    :value="usePoint"
+                                                    @input="onPointInput"
+                                                    placeholder="사용할 포인트">
+
+                                                <button type="button"
+                                                    class="point-clear-btn"
+                                                    v-if="Number(usePoint || 0) > 0"
+                                                    @click="clearPoint">
+                                                    ✕
+                                                </button>
+                                            </div>
 
                                             <button type="button" class="point-use-btn" @click="useAllPoint">
                                                 전액사용
                                             </button>
                                         </div>
-
                                         <div class="point-help">
                                             최대 {{ formatPrice(maxUsePoint) }} 사용 가능
                                         </div>
@@ -261,7 +272,9 @@
                 <div v-if="optModal.open" class="modal-overlay" @click.self="optModal.open = false">
                     <div class="modal-box">
                         <div class="modal-header">
-                            <span class="modal-title">옵션 변경</span>
+                             <span class="modal-title">
+                                {{ optModal.dateOnly ? '날짜 변경' : '옵션 변경' }}
+                            </span>
                             <button class="modal-close" @click="optModal.open = false">✕</button>
                         </div>
 
@@ -276,12 +289,6 @@
 
                         <!-- 대여: 캘린더 -->
                         <div v-if="activeTab === 'RENTAL'">
-                            <div class="modal-info-row">
-                                <span class="modal-info-label">배송방법</span><span>직접배송</span>
-                            </div>
-                            <div class="modal-info-row">
-                                <span class="modal-info-label">배송비</span><span>무료</span>
-                            </div>
 
                             <div style="border:1px solid #eee;border-radius:10px;padding:14px;margin:12px 0;">
                                 <div class="cal-nav">
@@ -300,8 +307,8 @@
                                     </div>
                                 </div>
 
-                                <div v-if="optModal.optionList && optModal.optionList.length > 0"
-                                    style="margin-top:10px;">
+                                    <div v-if="!optModal.dateOnly && optModal.optionList && optModal.optionList.length > 0"
+                                        style="margin-top:10px;">
                                     <div style="font-size:13px;color:var(--muted);margin-bottom:6px;">옵션 선택</div>
                                     <div class="opt-list">
                                         <div v-for="opt in optModal.optionList" :key="opt.optionId" class="opt-item"
@@ -326,29 +333,6 @@
                             </div>
                         </div>
 
-                        <!-- 구매: 수량/옵션 -->
-                        <div v-else style="margin:16px 0;">
-                            <div v-if="optModal.optionList && optModal.optionList.length > 0">
-                                <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">옵션 선택</div>
-                                <div class="opt-list">
-                                    <div v-for="opt in optModal.optionList" :key="opt.optionId" class="opt-item"
-                                        :class="{ active: String(optModal.selectedOption) === String(opt.optionId) }"
-                                        @click="optModal.selectedOption = opt.optionId">
-                                        {{ opt.optionValue }}
-                                    </div>
-                                </div>
-                            </div>
-                            <div v-else>
-                                <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">수량</div>
-                                <div style="display:flex;align-items:center;">
-                                    <button class="qty-btn"
-                                        @click="optModal.qty = Math.max(1, optModal.qty - 1)">−</button>
-                                    <div class="qty-num">{{ optModal.qty }}</div>
-                                    <button class="qty-btn" @click="optModal.qty++">+</button>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="modal-price-row">
                             <span class="modal-price-label">상품금액</span>
                             <div>
@@ -363,9 +347,8 @@
 
                         <div class="modal-btns">
                             <button class="modal-btn-cancel" @click="optModal.open = false">취소</button>
-                            <button class="modal-btn-ok"
-                                :disabled="activeTab === 'RENTAL' && (!optModal.startDate || !optModal.endDate)"
-                                @click="applyOptChange">
+                            <button class="modal-btn-ok" :disabled="activeTab === 'RENTAL' && (!optModal.startDate || !optModal.endDate)"
+                                @click="optModal.dateOnly ? applyDateChange() : applyOptChange()">
                                 변경 완료
                             </button>
                         </div>
@@ -426,7 +409,8 @@
                                     year: new Date().getFullYear(),
                                     month: new Date().getMonth(),
                                     selectedOption: null,
-                                    optionList: []
+                                    optionList: [],
+                                    dateOnly: false
                                 },
 
                                 confirmModal: {
@@ -533,8 +517,10 @@
                                 const month = this.optModal.month;
                                 const firstDay = new Date(year, month, 1).getDay();
                                 const lastDate = new Date(year, month + 1, 0).getDate();
-                                const today = new Date();
-                                today.setHours(0, 0, 0, 0);
+
+                                const tomorrow = new Date();
+                                tomorrow.setDate(tomorrow.getDate() + 1);
+                                tomorrow.setHours(0, 0, 0, 0);
 
                                 const days = [];
 
@@ -550,7 +536,7 @@
                                     days.push({
                                         date: d,
                                         full: this.fmtDate(dateObj),
-                                        isPast: checkDate < today
+                                        isPast: checkDate < tomorrow
                                     });
                                 }
 
@@ -621,15 +607,15 @@
                             },
 
                             selectedUserCouponId() {
-                                if (this.usePoint > this.maxUsePoint) {
-                                    this.usePoint = this.maxUsePoint;
-                                }
+                                this.clampUsePoint();
                             },
 
                             checkedIds() {
-                                if (this.usePoint > this.maxUsePoint) {
-                                    this.usePoint = this.maxUsePoint;
-                                }
+                                this.clampUsePoint();
+                            },
+
+                            userPoint() {
+                                this.clampUsePoint();
                             }
                         },
 
@@ -708,16 +694,6 @@
                                         }
                                     }
                                 });
-                            },
-
-                            switchTab(tab) {
-                                this.activeTab = tab;
-                                this.checkedIds = [];
-                                this.selectedUserCouponId = '';
-
-                                if (this.isLogin) {
-                                    this.fetchCartList();
-                                }
                             },
 
                             toggleAll() {
@@ -862,22 +838,31 @@
                                 }
 
                                 const usePoint = Number(this.validUsePoint || 0);
+                                const checkoutDiscount = {
+                                    cartType: this.activeTab,
+                                    usePoint: usePoint,
+                                    userCouponId: this.selectedUserCouponId || ''
+                                };
+
+                                localStorage.setItem('checkout_discount', JSON.stringify(checkoutDiscount));
 
                                 if (!this.isLogin) {
                                     const selected = this.filteredCart.filter(c => this.checkedIds.includes(c.cartId));
                                     localStorage.setItem('checkout_items', JSON.stringify(selected));
+                                    localStorage.setItem('usePoint', this.usePoint);
+                                    localStorage.setItem('userCouponId', this.selectedUserCouponId);
                                     location.href = '/payment/checkout.do?cartType=' + this.activeTab + '&isGuest=true';
                                     return;
                                 }
 
                                 let url =
                                     '/payment/checkout.do'
-                                    + '?cartIds=' + this.checkedIds.join(',')
-                                    + '&cartType=' + this.activeTab
-                                    + '&usePoint=' + usePoint;
+                                    + '?cartIds=' + encodeURIComponent(this.checkedIds.join(','))
+                                    + '&cartType=' + encodeURIComponent(this.activeTab)
+                                    + '&usePoint=' + encodeURIComponent(usePoint);
 
                                 if (this.selectedUserCouponId) {
-                                    url += '&userCouponId=' + this.selectedUserCouponId;
+                                    url += '&userCouponId=' + encodeURIComponent(this.selectedUserCouponId);
                                 }
 
                                 location.href = url;
@@ -895,7 +880,8 @@
                                     year: new Date().getFullYear(),
                                     month: new Date().getMonth(),
                                     selectedOption: Number(item.optionId) || null,
-                                    optionList: []
+                                    optionList: [],
+                                    dateOnly:false
                                 };
 
                                 $.ajax({
@@ -907,6 +893,70 @@
                                         if (res.result === 'success') {
                                             self.optModal.optionList = res.list || [];
                                         }
+                                    }
+                                });
+                            },
+                            openDateModal(item) {
+                                this.optModal = {
+                                    open: true,
+                                    item: { ...item },
+                                    qty: Number(item.quantity || 1),
+                                    startDate: item.rentalStart || null,
+                                    endDate: item.rentalEnd || null,
+                                    year: item.rentalStart ? new Date(item.rentalStart).getFullYear() : new Date().getFullYear(),
+                                    month: item.rentalStart ? new Date(item.rentalStart).getMonth() : new Date().getMonth(),
+                                    selectedOption: null,
+                                    optionList: [],
+                                    dateOnly: true
+                                };
+                            },
+
+                            applyDateChange() {
+                                const m = this.optModal;
+
+                                if (!m.startDate || !m.endDate) {
+                                    showToast('날짜를 선택해주세요.');
+                                    return;
+                                }
+
+                                if (!this.isLogin) {
+                                    const target = this.cartList.find(c => c.cartId === m.item.cartId);
+
+                                    if (target) {
+                                        target.rentalStart = m.startDate;
+                                        target.rentalEnd = m.endDate;
+                                    }
+
+                                    this.saveGuestCart();
+                                    this.optModal.open = false;
+                                    showToast('날짜가 변경됐어요.');
+                                    return;
+                                }
+
+                                let self = this;
+
+                                $.ajax({
+                                    url: '/cart/updateOption.dox',
+                                    type: 'POST',
+                                    data: {
+                                        cartId: m.item.cartId,
+                                        quantity: m.item.quantity,
+                                        optionValueIds: m.item.optionValueIds || '',
+                                        rentalStart: m.startDate,
+                                        rentalEnd: m.endDate
+                                    },
+                                    dataType: 'json',
+                                    success(res) {
+                                        if (res.result === 'success') {
+                                            self.optModal.open = false;
+                                            self.fetchCartList();
+                                            showToast('날짜가 변경됐어요.');
+                                        } else {
+                                            showToast(res.message || '날짜 변경에 실패했습니다.');
+                                        }
+                                    },
+                                    error() {
+                                        showToast('서버 오류가 발생했습니다.');
                                     }
                                 });
                             },
@@ -1048,7 +1098,13 @@
 
                             calcNights(s, e) {
                                 if (!s || !e) return 0;
-                                return Math.ceil((new Date(e) - new Date(s)) / (1000 * 60 * 60 * 24));
+
+                                const start = new Date(s);
+                                const end = new Date(e);
+
+                                if (isNaN(start) || isNaN(end)) return 0;
+
+                                return Math.ceil((end - start) / (1000 * 60 * 60 * 24));
                             },
 
                             groupTotal(group) {
@@ -1194,9 +1250,6 @@
                                     }
                                 });
                             },
-                            useAllPoint() {
-                                this.usePoint = this.maxUsePoint;
-                            },
                             fetchUserPoint() {
                                 let self = this;
 
@@ -1232,6 +1285,58 @@
 
                             depositFee(item) {
                                 return Number(item.deposit || 0);  // ✅ 1개 기준 보증금
+                            },
+                            toggleCartType() {
+                                this.activeTab = this.activeTab === 'RENTAL' ? 'PURCHASE' : 'RENTAL';
+                                this.checkedIds = [];
+                                this.selectedUserCouponId = '';
+                                this.usePoint = 0;
+
+                                if (this.isLogin) {
+                                    this.fetchCartList();
+                                }
+                            },
+                            onPointInput(e) {
+                                let value = e.target.value.replace(/[^0-9]/g, '');
+                                let point = Number(value || 0);
+
+                                point = Math.min(point, Number(this.maxUsePoint || 0));
+                                point = Math.max(point, 0);
+
+                                this.usePoint = point;
+                                e.target.value = point === 0 ? '' : point;
+                            },
+
+                            useAllPoint() {
+                                this.usePoint = Number(this.maxUsePoint || 0);
+                            },
+
+                            clearPoint() {
+                                this.usePoint = 0;
+                            },
+
+                            clampUsePoint() {
+                                let point = Number(this.usePoint || 0);
+
+                                point = Math.min(point, Number(this.maxUsePoint || 0));
+                                point = Math.max(point, 0);
+
+                                this.usePoint = point;
+                            },
+                            formatDate(date) {
+                                if (!date) return '';
+
+                                const d = new Date(date);
+                                if (isNaN(d)) return '';
+
+                                return d.getFullYear() + '-'
+                                    + String(d.getMonth() + 1).padStart(2, '0') + '-'
+                                    + String(d.getDate()).padStart(2, '0');
+                            },
+
+                            formatRentalRange(start, end) {
+                                if (!start || !end) return '';
+                                return this.formatDate(start) + ' ~ ' + this.formatDate(end);
                             },
                         },
 

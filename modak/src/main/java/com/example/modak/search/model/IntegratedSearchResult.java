@@ -1,7 +1,9 @@
 package com.example.modak.search.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
 import lombok.Data;
 
 @Data
@@ -20,4 +22,7 @@ public class IntegratedSearchResult {
     private int eventCount;
 
     private boolean emptyKeyword;
+    
+    private List<HashMap<String, Object>> communityList;
+    private int communityCount;
 }

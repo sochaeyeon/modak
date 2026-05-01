@@ -9,6 +9,7 @@
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <link rel="stylesheet" href="/css/order/guest-inquiry.css">
         <link rel="stylesheet" href="/css/common/font.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
 
     </head>
 
@@ -57,13 +58,24 @@
                     <button class="btn-submit" id="btnSubmit" onclick="fnSubmit()">
                         주문 조회하기
                     </button>
+                    <a href="/order/guest/orders.do" class="btn-guest-all">
+                        <i class="ri-file-list-3-line"></i>
+                        <span>전체 주문내역 조회하기</span>
+                        <em>SMS 인증 필요</em>
+                    </a>
                     <div class="signup-promo">
+                        <div class="coupon-badge">신규가입 혜택</div>
+
                         <p class="promo-text">
-                            회원으로 가입하면 <strong>간편한 주문내역 조회</strong>와<br>
-                            다양한 혜택을 받을 수 있어요.
+                            지금 가입하면 <strong>3,000원 쿠폰</strong> 지급!
                         </p>
+
+                        <p class="promo-sub">
+                            회원은 주문내역을 더 간편하게 확인할 수 있어요.
+                        </p>
+
                         <a href="/user/join.do" class="btn-signup-link">
-                            👉 회원가입 하고 더 편하게 이용하기
+                            회원가입하고 쿠폰 받기
                         </a>
                     </div>
                 </section>

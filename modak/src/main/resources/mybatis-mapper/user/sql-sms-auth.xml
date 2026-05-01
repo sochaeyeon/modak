@@ -32,15 +32,20 @@
 	</insert>
 
 	<!-- 최신 인증번호 조회 -->
-	<select id="selectLatestSmsAuth" parameterType="hashmap"
-		resultType="hashmap">
-		SELECT AUTH_ID, AUTH_CODE, AUTH_YN, EXPIRE_AT, AUTH_PURPOSE, USER_PHONE
-		FROM SMS_AUTH
-		WHERE USER_PHONE = #{userPhone}
-		AND AUTH_PURPOSE = #{authPurpose}
-		ORDER BY AUTH_ID DESC
-		LIMIT 1
-	</select>
+	<select id="selectLatestSmsAuth" parameterType="hashmap" resultType="map">
+    SELECT AUTH_CODE, AUTH_YN, EXPIRE_AT
+    FROM SMS_AUTH
+    WHERE USER_PHONE   = #{userPhone}
+      AND AUTH_PURPOSE = #{authPurpose}
+      AND AUTH_YN      = 'N'
+      AND EXPIRE_AT    > NOW()
+      <!-- ★ GUEST_ORDER가 아닐 때만 세션 조건 추가 -->
+      <if test="authPurpose != 'GUEST_ORDER' and sessionId != null and sessionId != ''">
+          AND SESSION_ID = #{sessionId}
+      </if>
+    ORDER BY AUTH_ID DESC
+    LIMIT 1
+</select>
 
 	<!-- 인증 완료 처리 -->
 	<update id="updateSmsAuthVerified" parameterType="hashmap">

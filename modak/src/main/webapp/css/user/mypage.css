@@ -957,6 +957,16 @@ body {
     color: #c62828;
 }
 
+.status-REFUND_REQUESTED {
+    background: rgba(244, 67, 54, 0.12);
+    color: #ed1b1b;
+}
+
+.status-CANCEL_REQUESTED {
+    background: rgba(244, 67, 54, 0.12);
+    color: #df3b3b;
+}
+
 /* 전체 메타 영역 */
 .order-meta {
     font-size: 13px;
@@ -3216,6 +3226,7 @@ inquiry-detail-box .detail-value {
     opacity: 1;
     transform: scale(1);
 }
+
 /* 기존 ::after 방식 있으면 삭제하고 이걸로 교체 */
 
 /* 버튼 공통 */
@@ -3408,10 +3419,10 @@ inquiry-detail-box .detail-value {
 }
 
 .profile-avatar-img {
-    display: block;  
+    display: block;
 }
 
-    .review-actions .btn-sm {
+.review-actions .btn-sm {
     border-radius: 999px;
     border: 1px solid #eadfd3;
     background: #fffaf5;
@@ -3448,6 +3459,7 @@ inquiry-detail-box .detail-value {
 
     box-shadow: 0 0 0 3px rgba(201, 79, 30, .12);
 }
+
 /* =========================================================
    MODAK MYPAGE FINAL OVERRIDE 2026-04-28
    기능 유지 + 프로필 알록달록 제거 + 프로필 스크롤 따라오기 방지
@@ -3463,83 +3475,614 @@ inquiry-detail-box .detail-value {
     --mp-orange2: #C4621E;
     --mp-red: #C94B3F;
 }
-body { background: linear-gradient(180deg, #F8F1E7 0%, #F6F0E6 55%, #F3EAD9 100%) !important; }
-.page-wrap { max-width: 1220px !important; padding: 34px 30px 56px !important; gap: 24px !important; align-items: flex-start !important; animation: fadeUp .32s ease both !important; }
-.sidebar { width: 238px !important; position: static !important; top: auto !important; align-self: flex-start !important; }
-.sidebar, .profile-card, .profile-card-new, .nav-card { position: static !important; }
-.profile-card, .profile-card-new { background: var(--mp-card) !important; border: 1.5px solid var(--mp-line) !important; border-radius: 18px !important; padding: 20px 16px 16px !important; box-shadow: none !important; backdrop-filter: none !important; overflow: visible !important; text-align: center !important; }
-.profile-card-new::before, .profile-card-new::after, .grade-vvip::after, .profile-avatar-new::after, .avatar-ring::after { display: none !important; content: none !important; }
-.profile-top-label { margin: 0 0 12px !important; text-align: center !important; color: var(--mp-muted) !important; font-size: 10px !important; font-weight: 700 !important; letter-spacing: 1.2px !important; }
-.profile-avatar-wrap { display: flex !important; justify-content: center !important; margin-bottom: 12px !important; }
-.avatar-ring, .profile-avatar-new { width: 88px !important; height: 88px !important; margin: 0 auto !important; padding: 0 !important; border-radius: 50% !important; background: #FFF7EF !important; border: 2px solid rgba(139, 107, 74, .24) !important; box-shadow: none !important; cursor: pointer !important; overflow: hidden !important; transform: none !important; transition: border-color .18s ease, background-color .18s ease !important; }
-.profile-avatar-img { width: 100% !important; height: 100% !important; border-radius: 50% !important; object-fit: cover !important; background: #fff !important; }
-.profile-avatar-new:hover, .avatar-ring:hover { transform: none !important; box-shadow: none !important; border-color: var(--mp-orange) !important; background: #FFF3E9 !important; }
-.profile-overlay { inset: 0 !important; border-radius: 50% !important; background: rgba(44, 30, 15, .48) !important; opacity: 0 !important; transition: opacity .18s ease !important; }
-.profile-avatar-new:hover .profile-overlay, .avatar-ring:hover .profile-overlay { opacity: 1 !important; }
-.overlay-content { color: #fff !important; font-size: 11.5px !important; font-weight: 700 !important; gap: 4px !important; transform: none !important; }
-.overlay-icon { display: inline-flex !important; align-items: center !important; justify-content: center !important; font-size: 0 !important; }
-.profile-user-block { margin: 0 0 10px !important; }
-.profile-card-new .profile-name, .profile-name { margin: 0 0 3px !important; color: var(--mp-text) !important; font-size: 16px !important; font-weight: 800 !important; line-height: 1.35 !important; }
-.profile-card-new .profile-nick, .profile-nick { margin: 0 !important; color: var(--mp-muted) !important; font-size: 12.5px !important; font-weight: 500 !important; }
-.level-badge, .profile-card-new .level-badge, .grade-브론즈, .grade-bronze, .grade-실버, .grade-silver, .grade-골드, .grade-gold, .grade-vvip, .grade-default { display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 5px !important; min-height: 28px !important; margin: 10px auto 14px !important; padding: 5px 11px !important; border-radius: 999px !important; background: #FFF3E9 !important; border: 1px solid rgba(232,115,42,.28) !important; color: var(--mp-orange2) !important; box-shadow: none !important; filter: none !important; transform: none !important; font-size: 12px !important; font-weight: 700 !important; }
-.level-badge svg, .grade-브론즈 svg, .grade-bronze svg, .grade-실버 svg, .grade-silver svg, .grade-골드 svg, .grade-gold svg, .grade-vvip svg { fill: var(--mp-orange) !important; }
-.profile-action-row { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
-.profile-action-btn { height: 36px !important; border-radius: 10px !important; border: 1.4px solid var(--mp-line) !important; background: #fff !important; color: var(--mp-sub) !important; box-shadow: none !important; transform: none !important; font-size: 12.5px !important; font-weight: 700 !important; transition: border-color .18s ease, color .18s ease, background-color .18s ease !important; }
-.profile-action-btn.change, .profile-action-btn.change:hover, .profile-action-btn.delete, .profile-action-btn.delete:hover { box-shadow: none !important; transform: none !important; }
-.profile-action-btn.change:hover { background: #FFF7EF !important; border-color: var(--mp-orange) !important; color: var(--mp-orange2) !important; }
-.profile-action-btn.delete:hover { background: #FFF7EF !important; border-color: rgba(201,75,63,.48) !important; color: var(--mp-red) !important; }
-.nav-card { background: var(--mp-card) !important; border: 1.5px solid var(--mp-line) !important; border-radius: 18px !important; overflow: hidden !important; box-shadow: none !important; }
-.nav-section-title { padding: 15px 16px 7px !important; color: var(--mp-muted) !important; font-size: 10.5px !important; font-weight: 800 !important; letter-spacing: 1.35px !important; }
-.nav-item { margin: 0 9px 4px !important; padding: 10px 10px !important; border: 1.3px solid transparent !important; border-left: 1.3px solid transparent !important; border-radius: 11px !important; color: var(--mp-sub) !important; background: transparent !important; transform: none !important; box-shadow: none !important; transition: border-color .18s ease, background-color .18s ease, color .18s ease !important; }
-.nav-item:hover { background: #FFF7EF !important; border-color: rgba(232,115,42,.28) !important; color: var(--mp-orange2) !important; transform: none !important; }
-.nav-item.active { background: #FFF3E9 !important; border-color: rgba(232,115,42,.46) !important; color: var(--mp-orange2) !important; font-weight: 800 !important; }
-.nav-divider { margin: 9px 16px !important; background: rgba(139,107,74,.18) !important; }
-.stats-grid { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 12px !important; }
-.stat-card { min-height: 92px !important; padding: 18px 16px !important; background: var(--mp-card) !important; border: 1.5px solid var(--mp-line) !important; border-radius: 18px !important; box-shadow: none !important; backdrop-filter: none !important; transform: none !important; transition: border-color .18s ease, background-color .18s ease !important; }
-.stat-card:hover { border-color: var(--mp-orange) !important; background: #FFF9F2 !important; transform: none !important; box-shadow: none !important; }
-.stat-label { color: var(--mp-muted) !important; font-size: 12px !important; font-weight: 700 !important; }
-.stat-value { color: var(--mp-text) !important; font-size: 26px !important; font-weight: 500 !important; }
-.stat-card.accent .stat-value, .stat-value span { color: var(--mp-orange2) !important; }
-.section-card { background: var(--mp-card) !important; border: 1.5px solid var(--mp-line) !important; border-radius: 18px !important; box-shadow: none !important; backdrop-filter: none !important; overflow: hidden !important; }
-.section-head { padding: 18px 22px 15px !important; background: linear-gradient(180deg, #FFFDF8, #FFF9F2) !important; border-bottom: 1.5px solid rgba(139,107,74,.18) !important; }
-.section-head h3 { color: var(--mp-text) !important; font-size: 16px !important; font-weight: 850 !important; }
-.section-head a, .more-link { color: var(--mp-sub) !important; font-weight: 700 !important; text-decoration: none !important; }
-.section-head a:hover, .more-link:hover { color: var(--mp-orange2) !important; }
-.order-flow { padding: 22px 24px !important; }
-.flow-circle { width: 46px !important; height: 46px !important; background: #fff !important; border: 1.6px solid rgba(139,107,74,.25) !important; box-shadow: none !important; transition: border-color .18s ease, background-color .18s ease !important; }
-.flow-step:hover .flow-circle, .flow-step.has-count .flow-circle, .flow-step.is-selected .flow-circle { border-color: var(--mp-orange) !important; background: #FFF3E9 !important; box-shadow: none !important; }
-.flow-count { color: var(--mp-text) !important; font-weight: 850 !important; }
-.flow-name { color: var(--mp-sub) !important; font-weight: 700 !important; }
-.flow-step.is-selected .flow-count, .flow-step.is-selected .flow-name, .flow-step.has-count .flow-count { color: var(--mp-orange2) !important; }
-.order-item, .wish-item, .address-item, .review-item, .inquiry-item, .history-item, .chatbot-history-item, .coupon-ticket, .benefit-card { box-shadow: none !important; transform: none !important; }
-.order-item-clickable, .wish-item, .address-item, .inquiry-item, .history-item, .chatbot-history-item { border-color: rgba(139,107,74,.22) !important; transition: border-color .18s ease, background-color .18s ease !important; }
-.order-item-clickable:hover, .wish-item:hover, .address-item:hover, .inquiry-item:hover, .history-item:hover, .chatbot-history-item:hover { border-color: var(--mp-orange) !important; background: #FFF9F2 !important; transform: none !important; box-shadow: none !important; }
-.order-side { align-items: flex-end !important; gap: 7px !important; }
-.order-action-wrap { display: flex !important; justify-content: flex-end !important; flex-wrap: wrap !important; gap: 6px !important; margin-top: 12px !important; }
-.btn-order-action { min-height: 30px !important; padding: 6px 10px !important; border-radius: 9px !important; border: 1.4px solid rgba(139,107,74,.28) !important; background: #fff !important; color: var(--mp-sub) !important; box-shadow: none !important; font-size: 12px !important; font-weight: 800 !important; cursor: pointer !important; transform: none !important; transition: border-color .18s ease, color .18s ease, background-color .18s ease !important; }
-.btn-order-action:hover { background: #FFF3E9 !important; border-color: var(--mp-orange) !important; color: var(--mp-orange2) !important; transform: none !important; box-shadow: none !important; }
-.btn-order-action.tracking, .btn-order-action.delivery, .btn-order-action.btn-delivery, .btn-order-action.delivery-check { border-color: rgba(232,115,42,.55) !important; color: var(--mp-orange2) !important; background: #FFF7EF !important; }
-.btn-save, .btn-outline, .btn-danger, .btn-filter-reset { box-shadow: none !important; transform: none !important; font-weight: 800 !important; transition: border-color .18s ease, color .18s ease, background-color .18s ease !important; }
-.btn-save:hover, .btn-outline:hover, .btn-danger:hover, .btn-filter-reset:hover { transform: none !important; box-shadow: none !important; }
-.btn-save { background: var(--mp-orange) !important; border: 1.5px solid var(--mp-orange) !important; color: #fff !important; }
-.btn-save:hover { background: var(--mp-orange2) !important; border-color: var(--mp-orange2) !important; }
-.btn-outline { background: #fff !important; border: 1.5px solid var(--mp-line) !important; color: var(--mp-sub) !important; }
-.btn-outline:hover { background: #FFF7EF !important; border-color: var(--mp-orange) !important; color: var(--mp-orange2) !important; }
-.btn-outline.danger:hover, .btn-danger:hover { border-color: rgba(201,75,63,.56) !important; color: var(--mp-red) !important; background: #FFF7F5 !important; }
-.status-SHIPPING, .status-배송중 { background: #EEF6FF !important; color: #2F6FD8 !important; }
-.status-READY { background: #FFF7DF !important; color: #9B6A00 !important; }
-.status-PAID, .status-결제완료 { background: #FFF3E9 !important; color: var(--mp-orange2) !important; }
-.status-DONE, .status-배송완료 { background: #EEF8F0 !important; color: #2E7D32 !important; }
-.status-CANCELLED { background: #FFF0EF !important; color: #C62828 !important; }
-.wish-grid { gap: 16px !important; padding: 20px !important; }
-.wish-item { border: 1.5px solid rgba(139,107,74,.22) !important; border-radius: 16px !important; background: #fff !important; overflow: hidden !important; }
-.wish-thumb { background: #F8EFE4 !important; }
-.wish-remove-icon, .wish-remove-icon:hover { transform: none !important; box-shadow: none !important; }
-.empty-state { color: var(--mp-muted) !important; background: transparent !important; }
-.empty-state p { color: var(--mp-muted) !important; font-weight: 600 !important; }
-.toast { background: var(--mp-text) !important; color: #fff !important; box-shadow: 0 10px 25px rgba(44,30,15,.2) !important; }
-@media (max-width: 980px) { .page-wrap { flex-direction: column !important; padding: 24px 18px 44px !important; } .sidebar { width: 100% !important; } .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } .wish-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
-@media (max-width: 640px) { .stats-grid, .wish-grid, .benefit-grid, .setting-row { grid-template-columns: 1fr !important; } .order-item { align-items: flex-start !important; } }
+
+body {
+    background: linear-gradient(180deg, #F8F1E7 0%, #F6F0E6 55%, #F3EAD9 100%) !important;
+}
+
+.page-wrap {
+    max-width: 1220px !important;
+    padding: 34px 30px 56px !important;
+    gap: 24px !important;
+    align-items: flex-start !important;
+    animation: fadeUp .32s ease both !important;
+}
+
+.sidebar {
+    width: 238px !important;
+    position: static !important;
+    top: auto !important;
+    align-self: flex-start !important;
+}
+
+.sidebar,
+.profile-card,
+.profile-card-new,
+.nav-card {
+    position: static !important;
+}
+
+.profile-card,
+.profile-card-new {
+    background: var(--mp-card) !important;
+    border: 1.5px solid var(--mp-line) !important;
+    border-radius: 18px !important;
+    padding: 20px 16px 16px !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    overflow: visible !important;
+    text-align: center !important;
+}
+
+.profile-card-new::before,
+.profile-card-new::after,
+.grade-vvip::after,
+.profile-avatar-new::after,
+.avatar-ring::after {
+    display: none !important;
+    content: none !important;
+}
+
+.profile-top-label {
+    margin: 0 0 12px !important;
+    text-align: center !important;
+    color: var(--mp-muted) !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 1.2px !important;
+}
+
+.profile-avatar-wrap {
+    display: flex !important;
+    justify-content: center !important;
+    margin-bottom: 12px !important;
+}
+
+.avatar-ring,
+.profile-avatar-new {
+    width: 88px !important;
+    height: 88px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    background: #FFF7EF !important;
+    border: 2px solid rgba(139, 107, 74, .24) !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+    overflow: hidden !important;
+    transform: none !important;
+    transition: border-color .18s ease, background-color .18s ease !important;
+}
+
+.profile-avatar-img {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    background: #fff !important;
+}
+
+.profile-avatar-new:hover,
+.avatar-ring:hover {
+    transform: none !important;
+    box-shadow: none !important;
+    border-color: var(--mp-orange) !important;
+    background: #FFF3E9 !important;
+}
+
+.profile-overlay {
+    inset: 0 !important;
+    border-radius: 50% !important;
+    background: rgba(44, 30, 15, .48) !important;
+    opacity: 0 !important;
+    transition: opacity .18s ease !important;
+}
+
+.profile-avatar-new:hover .profile-overlay,
+.avatar-ring:hover .profile-overlay {
+    opacity: 1 !important;
+}
+
+.overlay-content {
+    color: #fff !important;
+    font-size: 11.5px !important;
+    font-weight: 700 !important;
+    gap: 4px !important;
+    transform: none !important;
+}
+
+.overlay-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0 !important;
+}
+
+.profile-user-block {
+    margin: 0 0 10px !important;
+}
+
+.profile-card-new .profile-name,
+.profile-name {
+    margin: 0 0 3px !important;
+    color: var(--mp-text) !important;
+    font-size: 16px !important;
+    font-weight: 800 !important;
+    line-height: 1.35 !important;
+}
+
+.profile-card-new .profile-nick,
+.profile-nick {
+    margin: 0 !important;
+    color: var(--mp-muted) !important;
+    font-size: 12.5px !important;
+    font-weight: 500 !important;
+}
+
+.level-badge,
+.profile-card-new .level-badge,
+.grade-브론즈,
+.grade-bronze,
+.grade-실버,
+.grade-silver,
+.grade-골드,
+.grade-gold,
+.grade-vvip,
+.grade-default {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    min-height: 28px !important;
+    margin: 10px auto 14px !important;
+    padding: 5px 11px !important;
+    border-radius: 999px !important;
+    background: #FFF3E9 !important;
+    border: 1px solid rgba(232, 115, 42, .28) !important;
+    color: var(--mp-orange2) !important;
+    box-shadow: none !important;
+    filter: none !important;
+    transform: none !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+}
+
+.level-badge svg,
+.grade-브론즈 svg,
+.grade-bronze svg,
+.grade-실버 svg,
+.grade-silver svg,
+.grade-골드 svg,
+.grade-gold svg,
+.grade-vvip svg {
+    fill: var(--mp-orange) !important;
+}
+
+.profile-action-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+}
+
+.profile-action-btn {
+    height: 36px !important;
+    border-radius: 10px !important;
+    border: 1.4px solid var(--mp-line) !important;
+    background: #fff !important;
+    color: var(--mp-sub) !important;
+    box-shadow: none !important;
+    transform: none !important;
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    transition: border-color .18s ease, color .18s ease, background-color .18s ease !important;
+}
+
+.profile-action-btn.change,
+.profile-action-btn.change:hover,
+.profile-action-btn.delete,
+.profile-action-btn.delete:hover {
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.profile-action-btn.change:hover {
+    background: #FFF7EF !important;
+    border-color: var(--mp-orange) !important;
+    color: var(--mp-orange2) !important;
+}
+
+.profile-action-btn.delete:hover {
+    background: #FFF7EF !important;
+    border-color: rgba(201, 75, 63, .48) !important;
+    color: var(--mp-red) !important;
+}
+
+.nav-card {
+    background: var(--mp-card) !important;
+    border: 1.5px solid var(--mp-line) !important;
+    border-radius: 18px !important;
+    overflow: hidden !important;
+    box-shadow: none !important;
+}
+
+.nav-section-title {
+    padding: 15px 16px 7px !important;
+    color: var(--mp-muted) !important;
+    font-size: 10.5px !important;
+    font-weight: 800 !important;
+    letter-spacing: 1.35px !important;
+}
+
+.nav-item {
+    margin: 0 9px 4px !important;
+    padding: 10px 10px !important;
+    border: 1.3px solid transparent !important;
+    border-left: 1.3px solid transparent !important;
+    border-radius: 11px !important;
+    color: var(--mp-sub) !important;
+    background: transparent !important;
+    transform: none !important;
+    box-shadow: none !important;
+    transition: border-color .18s ease, background-color .18s ease, color .18s ease !important;
+}
+
+.nav-item:hover {
+    background: #FFF7EF !important;
+    border-color: rgba(232, 115, 42, .28) !important;
+    color: var(--mp-orange2) !important;
+    transform: none !important;
+}
+
+.nav-item.active {
+    background: #FFF3E9 !important;
+    border-color: rgba(232, 115, 42, .46) !important;
+    color: var(--mp-orange2) !important;
+    font-weight: 800 !important;
+}
+
+.nav-divider {
+    margin: 9px 16px !important;
+    background: rgba(139, 107, 74, .18) !important;
+}
+
+.stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+}
+
+.stat-card {
+    min-height: 92px !important;
+    padding: 18px 16px !important;
+    background: var(--mp-card) !important;
+    border: 1.5px solid var(--mp-line) !important;
+    border-radius: 18px !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    transform: none !important;
+    transition: border-color .18s ease, background-color .18s ease !important;
+}
+
+.stat-card:hover {
+    border-color: var(--mp-orange) !important;
+    background: #FFF9F2 !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.stat-label {
+    color: var(--mp-muted) !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+}
+
+.stat-value {
+    color: var(--mp-text) !important;
+    font-size: 26px !important;
+    font-weight: 500 !important;
+}
+
+.stat-card.accent .stat-value,
+.stat-value span {
+    color: var(--mp-orange2) !important;
+}
+
+.section-card {
+    background: var(--mp-card) !important;
+    border: 1.5px solid var(--mp-line) !important;
+    border-radius: 18px !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    overflow: hidden !important;
+}
+
+.section-head {
+    padding: 18px 22px 15px !important;
+    background: linear-gradient(180deg, #FFFDF8, #FFF9F2) !important;
+    border-bottom: 1.5px solid rgba(139, 107, 74, .18) !important;
+}
+
+.section-head h3 {
+    color: var(--mp-text) !important;
+    font-size: 16px !important;
+    font-weight: 850 !important;
+}
+
+.section-head a,
+.more-link {
+    color: var(--mp-sub) !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+}
+
+.section-head a:hover,
+.more-link:hover {
+    color: var(--mp-orange2) !important;
+}
+
+.order-flow {
+    padding: 22px 24px !important;
+}
+
+.flow-circle {
+    width: 46px !important;
+    height: 46px !important;
+    background: #fff !important;
+    border: 1.6px solid rgba(139, 107, 74, .25) !important;
+    box-shadow: none !important;
+    transition: border-color .18s ease, background-color .18s ease !important;
+}
+
+.flow-step:hover .flow-circle,
+.flow-step.has-count .flow-circle,
+.flow-step.is-selected .flow-circle {
+    border-color: var(--mp-orange) !important;
+    background: #FFF3E9 !important;
+    box-shadow: none !important;
+}
+
+.flow-count {
+    color: var(--mp-text) !important;
+    font-weight: 850 !important;
+}
+
+.flow-name {
+    color: var(--mp-sub) !important;
+    font-weight: 700 !important;
+}
+
+.flow-step.is-selected .flow-count,
+.flow-step.is-selected .flow-name,
+.flow-step.has-count .flow-count {
+    color: var(--mp-orange2) !important;
+}
+
+.order-item,
+.wish-item,
+.address-item,
+.review-item,
+.inquiry-item,
+.history-item,
+.chatbot-history-item,
+.coupon-ticket,
+.benefit-card {
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.order-item-clickable,
+.wish-item,
+.address-item,
+.inquiry-item,
+.history-item,
+.chatbot-history-item {
+    border-color: rgba(139, 107, 74, .22) !important;
+    transition: border-color .18s ease, background-color .18s ease !important;
+}
+
+.order-item-clickable:hover,
+.wish-item:hover,
+.address-item:hover,
+.inquiry-item:hover,
+.history-item:hover,
+.chatbot-history-item:hover {
+    border-color: var(--mp-orange) !important;
+    background: #FFF9F2 !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.order-side {
+    align-items: flex-end !important;
+    gap: 7px !important;
+}
+
+.order-action-wrap {
+    display: flex !important;
+    justify-content: flex-end !important;
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    margin-top: 12px !important;
+}
+
+.btn-order-action {
+    min-height: 30px !important;
+    padding: 6px 10px !important;
+    border-radius: 9px !important;
+    border: 1.4px solid rgba(139, 107, 74, .28) !important;
+    background: #fff !important;
+    color: var(--mp-sub) !important;
+    box-shadow: none !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    cursor: pointer !important;
+    transform: none !important;
+    transition: border-color .18s ease, color .18s ease, background-color .18s ease !important;
+}
+
+.btn-order-action:hover {
+    background: #FFF3E9 !important;
+    border-color: var(--mp-orange) !important;
+    color: var(--mp-orange2) !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn-order-action.tracking,
+.btn-order-action.delivery,
+.btn-order-action.btn-delivery,
+.btn-order-action.delivery-check {
+    border-color: rgba(232, 115, 42, .55) !important;
+    color: var(--mp-orange2) !important;
+    background: #FFF7EF !important;
+}
+
+.btn-save,
+.btn-outline,
+.btn-danger,
+.btn-filter-reset {
+    box-shadow: none !important;
+    transform: none !important;
+    font-weight: 800 !important;
+    transition: border-color .18s ease, color .18s ease, background-color .18s ease !important;
+}
+
+.btn-save:hover,
+.btn-outline:hover,
+.btn-danger:hover,
+.btn-filter-reset:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn-save {
+    background: var(--mp-orange) !important;
+    border: 1.5px solid var(--mp-orange) !important;
+    color: #fff !important;
+}
+
+.btn-save:hover {
+    background: var(--mp-orange2) !important;
+    border-color: var(--mp-orange2) !important;
+}
+
+.btn-outline {
+    background: #fff !important;
+    border: 1.5px solid var(--mp-line) !important;
+    color: var(--mp-sub) !important;
+}
+
+.btn-outline:hover {
+    background: #FFF7EF !important;
+    border-color: var(--mp-orange) !important;
+    color: var(--mp-orange2) !important;
+}
+
+.btn-outline.danger:hover,
+.btn-danger:hover {
+    border-color: rgba(201, 75, 63, .56) !important;
+    color: var(--mp-red) !important;
+    background: #FFF7F5 !important;
+}
+
+.status-SHIPPING,
+.status-배송중 {
+    background: #EEF6FF !important;
+    color: #2F6FD8 !important;
+}
+
+.status-READY {
+    background: #FFF7DF !important;
+    color: #9B6A00 !important;
+}
+
+.status-PAID,
+.status-결제완료 {
+    background: #FFF3E9 !important;
+    color: var(--mp-orange2) !important;
+}
+
+.status-DONE,
+.status-배송완료 {
+    background: #EEF8F0 !important;
+    color: #2E7D32 !important;
+}
+
+.status-CANCELLED {
+    background: #FFF0EF !important;
+    color: #C62828 !important;
+}
+
+.wish-grid {
+    gap: 16px !important;
+    padding: 20px !important;
+}
+
+.wish-item {
+    border: 1.5px solid rgba(139, 107, 74, .22) !important;
+    border-radius: 16px !important;
+    background: #fff !important;
+    overflow: hidden !important;
+}
+
+.wish-thumb {
+    background: #F8EFE4 !important;
+}
+
+.wish-remove-icon,
+.wish-remove-icon:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.empty-state {
+    color: var(--mp-muted) !important;
+    background: transparent !important;
+}
+
+.empty-state p {
+    color: var(--mp-muted) !important;
+    font-weight: 600 !important;
+}
+
+.toast {
+    background: var(--mp-text) !important;
+    color: #fff !important;
+    box-shadow: 0 10px 25px rgba(44, 30, 15, .2) !important;
+}
+
+@media (max-width: 980px) {
+    .page-wrap {
+        flex-direction: column !important;
+        padding: 24px 18px 44px !important;
+    }
+
+    .sidebar {
+        width: 100% !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .wish-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 640px) {
+
+    .stats-grid,
+    .wish-grid,
+    .benefit-grid,
+    .setting-row {
+        grid-template-columns: 1fr !important;
+    }
+
+    .order-item {
+        align-items: flex-start !important;
+    }
+}
+
 .wish-rating-row {
     display: flex;
     align-items: center;
@@ -3586,4 +4129,816 @@ button,
     height: 20px;
     padding: 0 14px;
     font-size: 12px;
+}
+
+/* =========================================================
+   ACCOUNT SETTINGS RENEWAL
+   마이페이지 - 계정 설정 탭 전체 스타일 교체
+========================================================= */
+
+#tab-settings {
+    gap: 22px;
+}
+
+/* 계정 설정 메인 카드 */
+#tab-settings .account-settings-card {
+    border: 1.5px solid rgba(139, 107, 74, .32) !important;
+    border-radius: 22px !important;
+    background: #FFFDF8 !important;
+    overflow: hidden !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+}
+
+/* 상단 소개 영역 */
+#tab-settings .account-settings-hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 28px 30px 24px;
+    border-bottom: 1px solid rgba(139, 107, 74, .2);
+    background: #FFF8F0;
+}
+
+#tab-settings .account-kicker {
+    margin-bottom: 8px;
+    color: #B89A7A;
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 1.7px;
+}
+
+#tab-settings .account-settings-hero h3 {
+    margin: 0 0 8px;
+    color: #2C1E0F;
+    font-size: 24px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+}
+
+#tab-settings .account-settings-hero p {
+    margin: 0;
+    color: #7A5C3E;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* 인증 상태 뱃지 */
+#tab-settings .account-status-chip {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(139, 107, 74, .24);
+    background: #FFFDF8;
+    color: #8B6B4A;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+#tab-settings .account-status-chip.verified {
+    color: #2E7D32;
+    background: #F2FAF3;
+    border-color: #CFE9D4;
+}
+
+#tab-settings .account-status-chip.not-verified {
+    color: #C4621E;
+    background: #FFF3EA;
+    border-color: #F0CDB5;
+}
+
+/* 폼 전체 */
+#tab-settings .account-settings-form {
+    padding: 26px 30px 28px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 22px !important;
+}
+
+/* 메시지 */
+#tab-settings .account-settings-msg {
+    margin: 0 !important;
+    padding: 13px 15px !important;
+    border-radius: 14px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+}
+
+/* 입력 그리드 */
+#tab-settings .account-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+/* 필드 */
+#tab-settings .account-field {
+    min-width: 0;
+}
+
+#tab-settings .account-field label {
+    display: block !important;
+    margin-bottom: 8px !important;
+    color: #5C4230 !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.1px !important;
+}
+
+#tab-settings .account-field input {
+    width: 100% !important;
+    height: 46px !important;
+    padding: 0 14px !important;
+    border: 1.5px solid rgba(139, 107, 74, .3) !important;
+    border-radius: 14px !important;
+    background: #FFFDF8 !important;
+    color: #2C1E0F !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease !important;
+}
+
+#tab-settings .account-field input:focus {
+    border-color: #E8732A !important;
+    background: #FFFFFF !important;
+    box-shadow: 0 0 0 3px rgba(232, 115, 42, .09) !important;
+}
+
+#tab-settings .account-field input:read-only {
+    background: #F6F0E6 !important;
+    color: #8B6B4A !important;
+    cursor: default !important;
+}
+
+/* 도움말 */
+#tab-settings .account-field-help {
+    margin-top: 7px;
+    color: #9A826A;
+    font-size: 11.5px;
+    line-height: 1.45;
+}
+
+#tab-settings .account-field-help.muted {
+    color: #B89A7A;
+}
+
+/* 연락처는 한 줄 전체 */
+#tab-settings .account-phone-field {
+    grid-column: 1 / -1;
+}
+
+#tab-settings .account-phone-wrap {
+    gap: 9px !important;
+}
+
+#tab-settings .account-phone-row {
+    display: grid !important;
+    grid-template-columns: 1fr 108px;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+#tab-settings .account-phone-row input {
+    min-width: 0;
+}
+
+/* 연락처 인증 버튼 */
+#tab-settings .account-mini-btn {
+    height: 46px !important;
+    min-width: 108px !important;
+    padding: 0 14px !important;
+    border-radius: 14px !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+#tab-settings .account-mini-btn:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+#tab-settings .phone-verify-status {
+    margin-top: 2px;
+    font-size: 12.5px !important;
+}
+
+#tab-settings .verify-success {
+    color: #2E7D32 !important;
+    font-weight: 800 !important;
+}
+
+#tab-settings .verify-fail {
+    color: #C4621E !important;
+    font-weight: 800 !important;
+}
+
+#tab-settings .phone-timer-wrap {
+    margin-top: 0 !important;
+    font-size: 12.5px !important;
+}
+
+/* 하단 저장 영역 */
+#tab-settings .account-settings-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(139, 107, 74, .18);
+}
+
+#tab-settings .account-save-desc {
+    color: #8B6B4A;
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+#tab-settings .account-actions {
+    display: flex !important;
+    justify-content: flex-end;
+    gap: 10px !important;
+    flex-shrink: 0;
+}
+
+/* 버튼 */
+#tab-settings .account-save-btn,
+#tab-settings .account-reset-btn {
+    height: 42px !important;
+    padding: 0 18px !important;
+    border-radius: 14px !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+#tab-settings .account-save-btn {
+    background: #E8732A !important;
+    color: #fff !important;
+    border: none !important;
+}
+
+#tab-settings .account-save-btn:hover {
+    background: #C4621E !important;
+    transform: none !important;
+}
+
+#tab-settings .account-save-btn:disabled {
+    background: #D8C8B8 !important;
+    color: #FFFDF8 !important;
+    opacity: 1 !important;
+    cursor: not-allowed !important;
+}
+
+#tab-settings .account-reset-btn {
+    background: #FFFDF8 !important;
+    color: #6E563F !important;
+    border: 1.5px solid rgba(139, 107, 74, .3) !important;
+}
+
+#tab-settings .account-reset-btn:hover {
+    background: #FFF7EF !important;
+    color: #C4621E !important;
+    border-color: rgba(232, 115, 42, .42) !important;
+    transform: none !important;
+}
+
+/* 비밀번호 변경 카드도 톤 맞춤 */
+#tab-settings>.section-card:not(.account-settings-card) {
+    border: 1.5px solid rgba(139, 107, 74, .28) !important;
+    border-radius: 22px !important;
+    background: #FFFDF8 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    overflow: hidden !important;
+}
+
+#tab-settings .section-head {
+    padding: 18px 24px 15px !important;
+    border-bottom: 1px solid rgba(139, 107, 74, .2) !important;
+    background: #FFFDF8 !important;
+}
+
+#tab-settings .section-head h3 {
+    color: #2C1E0F !important;
+    font-size: 16px !important;
+    font-weight: 900 !important;
+}
+
+/* 비밀번호 잠금 안내 */
+#tab-settings .settings-lock-box {
+    margin: 22px 26px !important;
+    padding: 20px !important;
+    border: 1.5px dashed rgba(139, 107, 74, .36) !important;
+    border-radius: 18px !important;
+    background: #FFF8F0 !important;
+}
+
+#tab-settings .settings-lock-title {
+    margin-bottom: 6px !important;
+    color: #2C1E0F !important;
+    font-size: 15px !important;
+    font-weight: 900 !important;
+}
+
+#tab-settings .settings-lock-desc {
+    color: #7A5C3E !important;
+    font-size: 13px !important;
+    line-height: 1.6 !important;
+}
+
+/* 비밀번호 폼 */
+#tab-settings .section-card:not(.account-settings-card) .settings-form {
+    padding: 24px 26px !important;
+}
+
+#tab-settings .section-card:not(.account-settings-card) .setting-row {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+}
+
+#tab-settings .section-card:not(.account-settings-card) .setting-field input {
+    height: 44px !important;
+    border-radius: 14px !important;
+    box-shadow: none !important;
+}
+
+/* 탈퇴 영역 */
+#tab-settings .danger-zone {
+    padding: 22px 26px !important;
+}
+
+#tab-settings .danger-title {
+    margin-bottom: 12px !important;
+    color: #5C4230 !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+}
+
+#tab-settings .btn-danger {
+    height: 40px !important;
+    padding: 0 16px !important;
+    border-radius: 14px !important;
+    border: 1.5px solid rgba(201, 75, 63, .35) !important;
+    background: #FFF7F4 !important;
+    color: #C94B3F !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+#tab-settings .btn-danger:hover {
+    background: #FFF0EC !important;
+    border-color: #C94B3F !important;
+    transform: none !important;
+}
+
+/* 소셜 회원 안내 */
+#tab-settings .social-only-box {
+    padding: 26px !important;
+}
+
+#tab-settings .social-message {
+    padding: 18px 20px;
+    border: 1.5px dashed rgba(139, 107, 74, .32);
+    border-radius: 18px;
+    background: #FFF8F0;
+    color: #7A5C3E;
+    font-size: 14px;
+    font-weight: 800;
+    text-align: center;
+}
+
+/* 반응형 */
+@media (max-width: 900px) {
+    #tab-settings .account-settings-hero {
+        flex-direction: column;
+    }
+
+    #tab-settings .account-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #tab-settings .account-settings-bottom {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #tab-settings .account-actions {
+        justify-content: stretch !important;
+    }
+
+    #tab-settings .account-save-btn,
+    #tab-settings .account-reset-btn {
+        flex: 1;
+    }
+}
+
+@media (max-width: 560px) {
+    #tab-settings .account-settings-hero {
+        padding: 22px 20px 18px;
+    }
+
+    #tab-settings .account-settings-form {
+        padding: 22px 20px !important;
+    }
+
+    #tab-settings .account-phone-row {
+        grid-template-columns: 1fr;
+    }
+
+    #tab-settings .account-mini-btn {
+        width: 100% !important;
+    }
+
+    #tab-settings .account-actions {
+        flex-direction: column;
+    }
+}
+
+/* =========================================================
+   계정설정 안내문구 위치/톤 수정
+========================================================= */
+
+/* 연락처 인증 상태 문구 */
+#tab-settings .account-phone-wrap .phone-verify-status {
+    margin-top: 8px !important;
+    padding-left: 4px !important;
+    font-size: 12.5px !important;
+    line-height: 1.5 !important;
+}
+
+#tab-settings .account-phone-wrap .verify-success,
+#tab-settings .account-phone-wrap .verify-fail {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 6px 10px !important;
+    border-radius: 999px !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+}
+
+#tab-settings .account-phone-wrap .verify-success {
+    color: #2E7D32 !important;
+    background: #F2FAF3 !important;
+    border: 1px solid #CFE9D4 !important;
+}
+
+#tab-settings .account-phone-wrap .verify-fail {
+    color: #C4621E !important;
+    background: #FFF3EA !important;
+    border: 1px solid #F0CDB5 !important;
+}
+
+/* 비밀번호 안내 문구 */
+#tab-settings .password-guide {
+    margin-top: 8px !important;
+    padding-left: 4px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1.5 !important;
+}
+
+/* 비밀번호 입력칸 2개 묶음 정렬 */
+#tab-settings .settings-form .setting-field .password-guide {
+    display: block !important;
+}
+
+/* 기본 안내 문구 */
+#tab-settings .password-guide:not(.strength-weak):not(.strength-medium):not(.strength-strong):not(.match-ok):not(.match-fail) {
+    color: #9A826A !important;
+}
+
+/* 강도별 색상 톤 정리 */
+#tab-settings .strength-weak,
+#tab-settings .match-fail {
+    color: #C94B3F !important;
+}
+
+#tab-settings .strength-medium {
+    color: #C4621E !important;
+}
+
+#tab-settings .strength-strong,
+#tab-settings .match-ok {
+    color: #2E7D32 !important;
+}
+
+/* 비밀번호 변경 버튼 위치 */
+#tab-settings .section-card:not(.account-settings-card) .settings-actions {
+    justify-content: flex-end !important;
+    padding-top: 4px !important;
+}
+
+/* 비밀번호 변경 폼 안쪽 여백 정리 */
+#tab-settings .section-card:not(.account-settings-card) .settings-form {
+    padding: 24px 28px 28px !important;
+    gap: 18px !important;
+}
+
+/* 새 비밀번호 + 확인 묶음이 inline style 때문에 답답해 보이는 것 보정 */
+#tab-settings .section-card:not(.account-settings-card) .setting-row>div[style*="display:flex"] {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 14px !important;
+}
+
+@media (max-width: 700px) {
+    #tab-settings .section-card:not(.account-settings-card) .setting-row>div[style*="display:flex"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+#tab-settings .password-pair-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+@media (max-width: 700px) {
+    #tab-settings .password-pair-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 스크랩한 글 조회수 아이콘 */
+.bookmark-view-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #8B6B4A;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.bookmark-view-count svg {
+    flex-shrink: 0;
+    color: #8B6B4A;
+}
+
+/* =========================================================
+   BOOKMARK COMMUNITY CARD
+   마이페이지 - 스크랩한 커뮤니티 글 카드
+   사이드바 영향 없음
+========================================================= */
+
+#tab-bookmarks .bookmark-section-card {
+    background: #FFFDF8;
+    border: 1.5px solid rgba(184, 154, 122, .42);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: none;
+}
+
+#tab-bookmarks .bookmark-section-head {
+    padding: 20px 24px 16px;
+    background: #FFF8F0;
+    border-bottom: 1px solid rgba(184, 154, 122, .32);
+}
+
+#tab-bookmarks .bookmark-section-head h3 {
+    font-size: 17px;
+    font-weight: 800;
+    color: #2C1E0F;
+    letter-spacing: -0.3px;
+}
+
+#tab-bookmarks .bookmark-section-sub {
+    margin-top: 6px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #8B6B4A;
+    line-height: 1.5;
+}
+
+#tab-bookmarks .bookmark-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px 22px 24px;
+}
+
+/* 카드 */
+#tab-bookmarks .bookmark-community-card {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+
+    min-height: 132px;
+    padding: 20px 22px;
+
+    border: 1.5px solid #E5D3BE;
+    border-radius: 18px;
+    background: #FFFDF8;
+
+    cursor: pointer;
+    box-shadow: none;
+    transform: none;
+
+    transition:
+        border-color .18s ease,
+        background-color .18s ease,
+        box-shadow .18s ease;
+}
+
+#tab-bookmarks .bookmark-community-card:hover {
+    border-color: #E8732A;
+    background: #FFF8F0;
+    box-shadow:
+        0 0 0 3px rgba(232, 115, 42, .07),
+        0 8px 20px rgba(44, 30, 15, .045);
+}
+
+/* 왼쪽 내용 */
+#tab-bookmarks .bookmark-community-body {
+    flex: 1;
+    min-width: 0;
+}
+
+/* 카테고리 */
+#tab-bookmarks .bookmark-category-pill {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    margin-bottom: 12px;
+    padding: 0 10px;
+
+    border-radius: 999px;
+    background: #EEF8EE;
+    color: #43844A;
+
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+/* 제목 */
+#tab-bookmarks .bookmark-community-title {
+    margin-bottom: 8px;
+
+    color: #2C1E0F;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.45;
+    letter-spacing: -0.25px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#tab-bookmarks .bookmark-community-card:hover .bookmark-community-title {
+    color: #C4621E;
+}
+
+/* 본문 미리보기 */
+#tab-bookmarks .bookmark-community-content {
+    margin-bottom: 11px;
+
+    color: #6F5D4F;
+    font-size: 13px;
+    line-height: 1.55;
+
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* 메타 정보 */
+#tab-bookmarks .bookmark-community-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+
+    color: #8B6B4A;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+#tab-bookmarks .bookmark-writer {
+    color: #2C1E0F;
+    font-weight: 800;
+}
+
+#tab-bookmarks .bookmark-dot {
+    color: #C1A98F;
+}
+
+#tab-bookmarks .bookmark-meta-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    color: #8B6B4A;
+}
+
+#tab-bookmarks .bookmark-meta-icon i {
+    font-size: 14px;
+    line-height: 1;
+}
+
+#tab-bookmarks .bookmark-meta-icon.like {
+    color: #E14F3F;
+}
+
+/* 썸네일 */
+#tab-bookmarks .bookmark-thumb-wrap,
+#tab-bookmarks .bookmark-thumb-empty {
+    width: 92px;
+    height: 92px;
+    flex: 0 0 92px;
+    border-radius: 17px;
+    overflow: hidden;
+}
+
+#tab-bookmarks .bookmark-thumb-wrap {
+    border: 1px solid #EADFCC;
+    background: #F6F0E6;
+}
+
+#tab-bookmarks .bookmark-thumb-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* 이미지 없을 때 */
+#tab-bookmarks .bookmark-thumb-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #EADFCC;
+    background: #F8EFE5;
+    color: #C49A73;
+}
+
+#tab-bookmarks .bookmark-thumb-empty i {
+    font-size: 30px;
+    line-height: 1;
+}
+
+/* 빈 상태 */
+#tab-bookmarks .bookmark-card-list .empty-state {
+    height: auto;
+    min-height: 180px;
+    padding: 54px 20px;
+    border: 1.5px dashed rgba(184, 154, 122, .42);
+    border-radius: 18px;
+    background: #FFF8F0;
+}
+
+#tab-bookmarks .bookmark-card-list .empty-state p {
+    color: #8B6B4A;
+    font-size: 13.5px;
+    font-weight: 600;
+}
+
+/* 모바일 */
+@media (max-width: 768px) {
+    #tab-bookmarks .bookmark-community-card {
+        align-items: flex-start;
+        gap: 14px;
+        padding: 18px;
+    }
+
+    #tab-bookmarks .bookmark-thumb-wrap,
+    #tab-bookmarks .bookmark-thumb-empty {
+        width: 72px;
+        height: 72px;
+        flex-basis: 72px;
+        border-radius: 15px;
+    }
+
+    #tab-bookmarks .bookmark-community-title {
+        white-space: normal;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    #tab-bookmarks .bookmark-community-content {
+        -webkit-line-clamp: 2;
+    }
+}
+
+#tab-bookmarks .bookmark-community-card:not(:has(.bookmark-thumb-wrap)) {
+    padding-right: 22px;
+}
+
+#tab-bookmarks .bookmark-community-card:not(:has(.bookmark-thumb-wrap)) .bookmark-community-body {
+    max-width: 100%;
 }

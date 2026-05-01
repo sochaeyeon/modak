@@ -117,4 +117,53 @@
 		OR C.DESCRIPTION LIKE CONCAT('%', #{keyword}, '%')
 		OR C.INDUTY LIKE CONCAT('%', #{keyword}, '%')
 	</select>
+<select id="selectIntegratedCommunityList" parameterType="string" resultType="hashmap">
+    SELECT
+        B.BOARD_ID AS boardId,
+        B.TITLE AS title,
+        B.CONTENT AS content,
+        B.CATEGORY AS category,
+        B.USER_ID AS userId,
+
+        U.USER_NAME AS userName,
+
+        B.VIEW_COUNT AS viewCount,
+        B.LIKE_COUNT AS likeCount,
+        B.DISLIKE_COUNT AS dislikeCount,
+
+        DATE_FORMAT(B.CREATED_AT, '%Y.%m.%d') AS createdAt,
+
+        (
+            SELECT COUNT(*)
+            FROM BOARD_COMMENT BC
+            WHERE BC.BOARD_ID = B.BOARD_ID
+        ) AS commentCount,
+
+        (
+            SELECT BI.IMG_URL
+            FROM BOARD_IMG BI
+            WHERE BI.BOARD_ID = B.BOARD_ID
+            ORDER BY BI.IMG_ID ASC
+            LIMIT 1
+        ) AS thumbImgUrl
+
+    FROM BOARD B
+    LEFT JOIN USER U
+        ON B.USER_ID = U.USER_ID
+
+    WHERE B.TITLE LIKE CONCAT('%', #{keyword}, '%')
+       OR B.CONTENT LIKE CONCAT('%', #{keyword}, '%')
+       OR U.USER_NAME LIKE CONCAT('%', #{keyword}, '%')
+
+    ORDER BY B.CREATED_AT DESC
+</select>
+<select id="selectIntegratedCommunityCount" parameterType="string" resultType="int">
+    SELECT COUNT(*)
+    FROM BOARD B
+    LEFT JOIN USER U
+        ON B.USER_ID = U.USER_ID
+    WHERE B.TITLE LIKE CONCAT('%', #{keyword}, '%')
+       OR B.CONTENT LIKE CONCAT('%', #{keyword}, '%')
+       OR U.USER_NAME LIKE CONCAT('%', #{keyword}, '%')
+</select>
 </mapper>

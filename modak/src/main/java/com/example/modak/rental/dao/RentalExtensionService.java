@@ -16,9 +16,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import com.example.modak.alarm.dao.AlarmService;
+import com.example.modak.order.dao.GuestOrderService;
 import com.example.modak.rental.mapper.RentalExtensionMapper;
 import com.example.modak.rental.model.RentalExtension;
+
 
 @Service
 public class RentalExtensionService {
@@ -277,27 +280,31 @@ public class RentalExtensionService {
     // ════════════════════════════════════════
     // 비회원 반납 신청
     // ════════════════════════════════════════
-    @Transactional
-    public HashMap<String, Object> applyGuestReturn(HashMap<String, Object> map) {
-        HashMap<String, Object> result = new HashMap<>();
-        try {
-            int affected = mapper.updateGuestReturnRequest(map);
-            if (affected > 0) {
-                mapper.updateDeliveryReturnRequest(map);
-                result.put("result",  "success");
-                result.put("message", "반납 신청이 완료되었습니다.");
-            } else {
-                result.put("result",  "fail");
-                result.put("message", "반납 신청할 수 없는 상태입니다.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            result.put("result",  "fail");
-            result.put("message", "반납 신청 중 오류가 발생했습니다.");
-        }
-        return result;
-    }
+    
+ // ★ @PostMapping, @ResponseBody, @RequestParam 전부 제거
+ // ★ rentalExtensionService 자기 자신 참조 제거
+ // ★ GuestOrderService도 여기선 필요 없음 → Controller에서 처리
 
+ @Transactional
+ public HashMap<String, Object> applyGuestReturn(HashMap<String, Object> map) {
+     HashMap<String, Object> result = new HashMap<>();
+     try {
+         int affected = mapper.updateGuestReturnRequest(map);
+         if (affected > 0) {
+             mapper.updateDeliveryReturnRequest(map);
+             result.put("result",  "success");
+             result.put("message", "반납 신청이 완료되었습니다.");
+         } else {
+             result.put("result",  "fail");
+             result.put("message", "반납 신청할 수 없는 상태입니다.");
+         }
+     } catch (Exception e) {
+         e.printStackTrace();
+         result.put("result",  "fail");
+         result.put("message", "반납 신청 중 오류가 발생했습니다.");
+     }
+     return result;
+ }
     // ════════════════════════════════════════
     // 회원 반납 취소
     // ════════════════════════════════════════
@@ -542,5 +549,18 @@ public class RentalExtensionService {
     }
     public HashMap<String, Object> getExtensionOrder(HashMap<String, Object> map) {
         return mapper.selectExtensionOrder(map);
+    }
+    public boolean validateGuestRental(String rentalId, String guestPhone, String guestName) {
+        try {
+            if (rentalId == null || "null".equals(rentalId)) return false;
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("rentalId",   Long.parseLong(rentalId));
+            map.put("guestPhone", guestPhone);
+            map.put("guestName",  guestName);
+            RentalExtension rental = mapper.selectGuestRentalByPhone(map);
+            return rental != null;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

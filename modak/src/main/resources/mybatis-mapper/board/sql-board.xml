@@ -7,10 +7,10 @@
          게시글 목록
     ════════════════════════════ -->
 	<select id="selectBoardList" parameterType="hashmap" resultType="map">
-		SELECT B.BOARD_ID, B.USER_ID, B.TITLE, B.CATEGORY, B.VIEW_COUNT,
-		B.LIKE_COUNT, B.DISLIKE_COUNT, B.COMMENT_COUNT, B.IS_HOT, B.HAS_POLL,
-		B.PRODUCT_ID, DATE_FORMAT(B.CREATED_AT, '%Y-%m-%d %H:%i:%s') AS
-		CREATED_AT, U.NICKNAME AS nickName, U.PROFILE_IMG_URL AS profileImg,
+		SELECT B.BOARD_ID, B.USER_ID, B.TITLE, B.CONTENT, B.CATEGORY,
+		B.VIEW_COUNT, B.LIKE_COUNT, B.DISLIKE_COUNT, B.COMMENT_COUNT, B.IS_HOT,
+		B.HAS_POLL, B.PRODUCT_ID,DATE_FORMAT(B.CREATED_AT, '%Y-%m-%d %H:%i:%s')
+		AS CREATED_AT, U.NICKNAME AS nickName, U.PROFILE_IMG_URL AS profileImg,
 		P.PRODUCT_NAME AS productName, (SELECT BI.IMG_URL FROM BOARD_IMG BI
 		WHERE BI.BOARD_ID = B.BOARD_ID ORDER BY BI.SORT_ORDER ASC LIMIT 1) AS
 		thumbUrl FROM BOARD B LEFT JOIN USER U ON B.USER_ID = U.USER_ID LEFT
@@ -51,22 +51,23 @@
 	<!-- HOT 게시글 (추천 10 이상, 최근 7일) -->
 	<select id="selectHotBoardList" resultType="map">
 		SELECT
-		B.BOARD_ID, B.USER_ID, B.TITLE, B.CATEGORY,
+		B.BOARD_ID, B.TITLE, B.CONTENT, B.CATEGORY,
 		B.VIEW_COUNT, B.LIKE_COUNT, B.COMMENT_COUNT,
 		DATE_FORMAT(B.CREATED_AT, '%Y-%m-%d %H:%i:%s') AS CREATED_AT,
 		U.NICKNAME AS nickName,
+		-- ★ 점수 계산
+		(B.LIKE_COUNT * 3 + B.COMMENT_COUNT * 2 + B.VIEW_COUNT * 0.5) AS
+		hotScore,
 		(SELECT BI.IMG_URL FROM BOARD_IMG BI
 		WHERE BI.BOARD_ID = B.BOARD_ID
 		ORDER BY BI.SORT_ORDER ASC LIMIT 1) AS thumbUrl
 		FROM BOARD B
 		LEFT JOIN USER U ON B.USER_ID = U.USER_ID
 		WHERE B.STATUS = 'ACTIVE'
-		AND B.LIKE_COUNT >= 20
-		AND B.CREATED_AT >= DATE_SUB(NOW(), INTERVAL 3 DAY)
-		ORDER BY B.LIKE_COUNT DESC, B.VIEW_COUNT DESC
-		LIMIT 10
+		AND B.CREATED_AT >= DATE_SUB(NOW(), INTERVAL 1 DAY) -- ★ 오늘 기준
+		ORDER BY hotScore DESC
+		LIMIT 5
 	</select>
-
 	<!-- 게시글 단건 -->
 	<select id="selectBoardById" parameterType="hashmap" resultType="map">
 		SELECT
@@ -347,10 +348,10 @@
 		WHERE POLL_ID = #{pollId} AND USER_ID = #{userId}
 	</select>
 	<select id="selectCommentById" parameterType="object" resultType="map">
-    SELECT COMMENT_ID, BOARD_ID, USER_ID, CONTENT
-    FROM BOARD_COMMENT
-    WHERE COMMENT_ID = #{commentId}
-</select>
+		SELECT COMMENT_ID, BOARD_ID, USER_ID, CONTENT
+		FROM BOARD_COMMENT
+		WHERE COMMENT_ID = #{commentId}
+	</select>
 
 	<insert id="insertVote" parameterType="hashmap">
 		INSERT INTO BOARD_POLL_VOTE (POLL_ID, OPTION_ID, USER_ID, CREATED_AT)
@@ -363,82 +364,95 @@
 		WHERE OPTION_ID = #{optionId}
 	</update>
 	<select id="selectBookmarkExists" parameterType="hashmap" resultType="int">
-    SELECT COUNT(*)
-    FROM BOARD_BOOKMARK
-    WHERE USER_ID = #{userId}
-      AND BOARD_ID = #{boardId}
-</select>
+		SELECT COUNT(*)
+		FROM BOARD_BOOKMARK
+		WHERE USER_ID = #{userId}
+		AND BOARD_ID = #{boardId}
+	</select>
 
-<insert id="insertBookmark" parameterType="hashmap">
-    INSERT INTO BOARD_BOOKMARK
-    (USER_ID, BOARD_ID, CREATED_AT)
-    VALUES
-    (#{userId}, #{boardId}, NOW())
-</insert>
+	<insert id="insertBookmark" parameterType="hashmap">
+		INSERT INTO BOARD_BOOKMARK
+		(USER_ID, BOARD_ID, CREATED_AT)
+		VALUES
+		(#{userId}, #{boardId}, NOW())
+	</insert>
 
-<delete id="deleteBookmark" parameterType="hashmap">
-    DELETE FROM BOARD_BOOKMARK
-    WHERE USER_ID = #{userId}
-      AND BOARD_ID = #{boardId}
-</delete>
-<select id="selectBookmarkList" parameterType="string" resultType="map">
-    SELECT 
-        b.BOARD_ID,
-        b.TITLE,
-        b.CONTENT,
-        b.CATEGORY,
-        b.USER_ID,
-        DATE_FORMAT(b.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT,
-        b.VIEW_COUNT,
-        DATE_FORMAT(bb.CREATED_AT, '%Y-%m-%d %H:%i') AS BOOKMARKED_AT
-    FROM BOARD_BOOKMARK bb
-    JOIN BOARD b ON bb.BOARD_ID = b.BOARD_ID
-    WHERE bb.USER_ID = #{userId}
-    ORDER BY bb.CREATED_AT DESC
-</select>
+	<delete id="deleteBookmark" parameterType="hashmap">
+		DELETE FROM BOARD_BOOKMARK
+		WHERE USER_ID = #{userId}
+		AND BOARD_ID = #{boardId}
+	</delete>
+	<select id="selectBookmarkList" parameterType="string" resultType="map">
+		SELECT
+		b.BOARD_ID,
+		b.TITLE,
+		b.CONTENT,
+		b.CATEGORY,
+		b.USER_ID,
+		DATE_FORMAT(b.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT,
+		b.VIEW_COUNT,
+		DATE_FORMAT(bb.CREATED_AT, '%Y-%m-%d %H:%i') AS BOOKMARKED_AT
+		FROM BOARD_BOOKMARK bb
+		JOIN BOARD b ON bb.BOARD_ID = b.BOARD_ID
+		WHERE bb.USER_ID = #{userId}
+		ORDER BY bb.CREATED_AT DESC
+	</select>
 
-<!-- 태그 저장 -->
-<insert id="insertBoardTag" parameterType="hashmap">
-    INSERT INTO BOARD_TAG (
-        BOARD_ID,
-        TAG_NAME,
-        CREATED_AT
-    )
-    VALUES (
-        #{boardId},
-        #{tagName},
-        NOW()
-    )
-</insert>
+	<!-- 태그 저장 -->
+	<insert id="insertBoardTag" parameterType="hashmap">
+		INSERT INTO BOARD_TAG (
+		BOARD_ID,
+		TAG_NAME,
+		CREATED_AT
+		)
+		VALUES (
+		#{boardId},
+		#{tagName},
+		NOW()
+		)
+	</insert>
 
-<!-- 게시글 상세 태그 조회 -->
-<select id="selectTagsByBoardId" parameterType="long" resultType="string">
-    SELECT TAG_NAME
-    FROM BOARD_TAG
-    WHERE BOARD_ID = #{boardId}
-    ORDER BY TAG_ID ASC
-</select>
+	<!-- 게시글 상세 태그 조회 -->
+	<select id="selectTagsByBoardId" parameterType="long" resultType="string">
+		SELECT TAG_NAME
+		FROM BOARD_TAG
+		WHERE BOARD_ID = #{boardId}
+		ORDER BY TAG_ID ASC
+	</select>
 
-<!-- 태그로 게시글 목록 조회 -->
-<select id="selectBoardListByTag" parameterType="string" resultType="map">
-    SELECT 
-        b.BOARD_ID,
-        b.TITLE,
-        b.CONTENT,
-        b.CATEGORY,
-        b.USER_ID,
-        b.LIKE_COUNT,
-        b.DISLIKE_COUNT,
-        b.COMMENT_COUNT,
-        b.VIEW_COUNT,
-        b.IS_HOT,
-        b.HAS_POLL,
-        DATE_FORMAT(b.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT
-    FROM BOARD b
-    JOIN BOARD_TAG t ON b.BOARD_ID = t.BOARD_ID
-    WHERE t.TAG_NAME = #{tag}
-      AND b.STATUS = 'ACTIVE'
-    ORDER BY b.CREATED_AT DESC
-</select>
+	<!-- 태그로 게시글 목록 조회 -->
+	<select id="selectBoardListByTag" parameterType="string" resultType="map">
+		SELECT
+		b.BOARD_ID,
+		b.TITLE,
+		b.CONTENT,
+		b.CATEGORY,
+		b.USER_ID,
+		b.LIKE_COUNT,
+		b.DISLIKE_COUNT,
+		b.COMMENT_COUNT,
+		b.VIEW_COUNT,
+		b.IS_HOT,
+		b.HAS_POLL,
+		DATE_FORMAT(b.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT
+		FROM BOARD b
+		JOIN BOARD_TAG t ON b.BOARD_ID = t.BOARD_ID
+		WHERE t.TAG_NAME = #{tag}
+		AND b.STATUS = 'ACTIVE'
+		ORDER BY b.CREATED_AT DESC
+	</select>
+
+	<select id="selectRecentBoardsByUser" parameterType="hashmap"
+		resultType="map">
+		SELECT
+		BOARD_ID, TITLE, CATEGORY,
+		LIKE_COUNT, COMMENT_COUNT, VIEW_COUNT,
+		DATE_FORMAT(CREATED_AT, '%Y-%m-%d %H:%i:%s') AS CREATED_AT
+		FROM BOARD
+		WHERE USER_ID = #{userId}
+		AND STATUS = 'ACTIVE'
+		ORDER BY CREATED_AT DESC
+		LIMIT #{limit}
+	</select>
 
 </mapper>

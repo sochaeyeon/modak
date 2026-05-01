@@ -371,8 +371,8 @@ public class ReviewService {
 	private void saveReviewImages(Long reviewId, MultipartFile[] files, HttpServletRequest request) throws Exception {
 	    if (files == null || files.length == 0) return;
 
-	    // ★ webapp 하위 경로로 저장
-	    String uploadPath = request.getServletContext().getRealPath("/") + "upload/review";
+	    // ★ 고정 경로 사용 (재시작해도 유지)
+	    String uploadPath = System.getProperty("user.home") + "/modak_uploads/review/";
 	    File dir = new File(uploadPath);
 	    if (!dir.exists()) dir.mkdirs();
 

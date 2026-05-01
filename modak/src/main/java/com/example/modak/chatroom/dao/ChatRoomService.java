@@ -49,6 +49,12 @@ public class ChatRoomService {
             roomParam.put("otherId", toUser);
             Map<String, Object> room = mapper.selectChatRoom(roomParam);
             if (room != null) {
+                HashMap<String, Object> showParam = new HashMap<>();
+                showParam.put("roomId", room.get("ROOM_ID"));
+                showParam.put("userId", fromUser);
+
+                mapper.showRoomAgain(showParam);
+
                 result.put("result", "exists");
                 result.put("roomId", room.get("ROOM_ID"));
                 return result;
@@ -348,6 +354,28 @@ public class ChatRoomService {
             e.printStackTrace();
             result.put("result", "fail");
             result.put("message", "메시지 삭제 실패");
+        }
+
+        return result;
+    }
+    public HashMap<String, Object> sendStickerMessage(Long roomId, String userId, String content) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            HashMap<String, Object> param = new HashMap<>();
+            param.put("roomId", roomId);
+            param.put("senderId", userId);
+            param.put("content", content);
+            param.put("messageType", "STICKER");
+
+            mapper.insertStickerMessage(param);
+
+            result.put("result", "success");
+            result.put("messageId", param.get("messageId"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+            result.put("message", "이모티콘 전송 실패");
         }
 
         return result;

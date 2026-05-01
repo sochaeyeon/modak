@@ -44,4 +44,8 @@ public interface MypageMapper {
 	List<Map<String, Object>> selectBookmarkList(String userId);
 	
 	HashMap<String, Object> selectMiniProfile(HashMap<String, Object> map);
+	
+	List<Map<String, Object>> selectMyChatRoomList(String userId);
+
+	int hideMyChatRoom(HashMap<String, Object> map);
 }

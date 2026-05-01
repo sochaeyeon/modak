@@ -40,11 +40,20 @@
 	</insert>
 
 	<select id="selectChatRoom" parameterType="hashmap" resultType="map">
-		SELECT * FROM CHAT_ROOM
-		WHERE (USER_A = #{userId} AND USER_B = #{otherId})
-		OR (USER_A = #{otherId} AND USER_B = #{userId})
-		LIMIT 1
-	</select>
+    SELECT *
+    FROM CHAT_ROOM R
+    WHERE (
+        (USER_A = #{userId} AND USER_B = #{otherId})
+        OR (USER_A = #{otherId} AND USER_B = #{userId})
+    )
+    AND NOT EXISTS (
+        SELECT 1
+        FROM CHAT_ROOM_HIDE H
+        WHERE H.ROOM_ID = R.ROOM_ID
+        AND H.USER_ID = #{userId}
+    )
+    LIMIT 1
+</select>
 
 	<select id="selectMyRooms" parameterType="string" resultType="map">
     SELECT
@@ -209,6 +218,41 @@
       AND SENDER_ID = #{userId}
       AND IS_DELETED = 'N'
 </update>
+<insert id="sendMessage">
+    INSERT INTO chat_message (
+        ROOM_ID,
+        SENDER_ID,
+        CONTENT,
+        MESSAGE_TYPE,
+        CREATED_AT
+    ) VALUES (
+        #{roomId},
+        #{senderId},
+        #{content},
+        #{messageType},
+        NOW()
+    )
+</insert>
+<insert id="insertStickerMessage" parameterType="hashmap" useGeneratedKeys="true" keyProperty="messageId">
+    INSERT INTO chat_message (
+        ROOM_ID,
+        SENDER_ID,
+        CONTENT,
+        MESSAGE_TYPE,
+        CREATED_AT
+    ) VALUES (
+        #{roomId},
+        #{senderId},
+        #{content},
+        #{messageType},
+        NOW()
+    )
+</insert>
+<delete id="showRoomAgain" parameterType="hashmap">
+    DELETE FROM CHAT_ROOM_HIDE
+    WHERE ROOM_ID = #{roomId}
+    AND USER_ID = #{userId}
+</delete>
 
 
 </mapper>

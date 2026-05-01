@@ -168,5 +168,37 @@ public class MypageController {
 	    }
 	    return new Gson().toJson(result);
 	}
+	@PostMapping("/mypage/chat-room-list.dox")
+	@ResponseBody
+	public HashMap<String, Object> chatRoomList(HttpSession session) {
+	    String userId = (String) session.getAttribute("sessionId");
+
+	    if (userId == null) {
+	        HashMap<String, Object> result = new HashMap<>();
+	        result.put("result", "fail");
+	        result.put("message", "로그인이 필요합니다.");
+	        return result;
+	    }
+
+	    return mypageService.getMyChatRoomList(userId);
+	}
+
+	@PostMapping("/mypage/chat-room-delete.dox")
+	@ResponseBody
+	public HashMap<String, Object> deleteChatRooms(
+	        @RequestParam("roomIds") List<Long> roomIds,
+	        HttpSession session) {
+
+	    String userId = (String) session.getAttribute("sessionId");
+
+	    if (userId == null) {
+	        HashMap<String, Object> result = new HashMap<>();
+	        result.put("result", "fail");
+	        result.put("message", "로그인이 필요합니다.");
+	        return result;
+	    }
+
+	    return mypageService.deleteMyChatRooms(userId, roomIds);
+	}
 	
 }

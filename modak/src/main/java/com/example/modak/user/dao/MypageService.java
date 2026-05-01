@@ -85,4 +85,39 @@ public class MypageService {
 	public HashMap<String, Object> getMiniProfile(HashMap<String, Object> map) {
 	    return mypageMapper.selectMiniProfile(map);
 	}
+	
+	public HashMap<String, Object> getMyChatRoomList(String userId) {
+	    HashMap<String, Object> result = new HashMap<>();
+
+	    try {
+	        result.put("result", "success");
+	        result.put("list", mypageMapper.selectMyChatRoomList(userId));
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	    }
+
+	    return result;
+	}
+
+	public HashMap<String, Object> deleteMyChatRooms(String userId, List<Long> roomIds) {
+	    HashMap<String, Object> result = new HashMap<>();
+
+	    try {
+	        for (Long roomId : roomIds) {
+	            HashMap<String, Object> map = new HashMap<>();
+	            map.put("roomId", roomId);
+	            map.put("userId", userId);
+	            mypageMapper.hideMyChatRoom(map);
+	        }
+
+	        result.put("result", "success");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	        result.put("message", "채팅방 삭제 실패");
+	    }
+
+	    return result;
+	}
 }

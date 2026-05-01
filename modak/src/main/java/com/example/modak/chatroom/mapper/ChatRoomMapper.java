@@ -38,4 +38,7 @@ public interface ChatRoomMapper {
     // 메시지 삭제
     int hideMessageForMe(HashMap<String, Object> map);
     int deleteMessageForAll(HashMap<String, Object> map);
+    
+    int insertStickerMessage(HashMap<String, Object> map);
+    int showRoomAgain(HashMap<String, Object> map);
 }

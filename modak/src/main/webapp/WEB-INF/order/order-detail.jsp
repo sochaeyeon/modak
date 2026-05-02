@@ -97,7 +97,12 @@
                                         </div>
 
                                         <div class="product-info">
-                                            <p class="product-name">{{ item.productName }}</p>
+                                            <p class="product-name">
+                                                {{ item.productName }}
+                                                <span v-if="item.optionName" class="product-option-name">
+                                                    {{ item.optionName }}
+                                                </span>
+                                            </p>
                                             <div class="product-meta">
                                                 <span class="type-badge"
                                                     :class="fnItemType(item) === 'RENTAL' ? 'badge-rental' : 'badge-purchase'">
@@ -111,8 +116,19 @@
                                         </div>
 
                                         <div class="product-price-box">
-                                            <strong>{{ fnPrice(item.price || item.unitPrice) }}</strong>
-                                            <span>{{ item.count || item.quantity || 1 }}개</span>
+                                            <strong>{{ fnPrice(calcItemTotal(item)) }}</strong>
+
+                                            <span v-if="fnItemType(item) === 'RENTAL'">
+                                                {{ fnPrice(item.price || item.unitPrice) }}
+                                                × {{ calcNights(item.startDate, item.endDate) }}박
+                                                <template v-if="Number(item.deposit || 0) > 0">
+                                                    + 보증금 {{ fnPrice(item.deposit) }}
+                                                </template>
+                                            </span>
+
+                                            <span v-else>
+                                                {{ item.count || item.quantity || 1 }}개
+                                            </span>
                                         </div>
                                     </article>
                                 </div>
@@ -175,9 +191,16 @@
                                 </div>
 
                                 <div class="pay-row">
-                                    <span>할인 금액</span>
+                                    <span>쿠폰 할인</span>
                                     <strong class="discount">
-                                        {{ discountAmt > 0 ? '- ' + fnPrice(discountAmt) : '없음' }}
+                                        {{ couponDiscountAmt > 0 ? '- ' + fnPrice(couponDiscountAmt) : '없음' }}
+                                    </strong>
+                                </div>
+
+                                <div class="pay-row">
+                                    <span>포인트 사용</span>
+                                    <strong class="discount">
+                                        {{ usePoint > 0 ? '- ' + fnPrice(usePoint) : '없음' }}
                                     </strong>
                                 </div>
 
@@ -328,17 +351,18 @@
                                     ? String(this.order.orderStatus).toUpperCase()
                                     : '';
                             },
-                            discountAmt: function () {
+                            couponDiscountAmt: function () {
                                 return Number(this.order && this.order.discountAmt ? this.order.discountAmt : 0);
+                            },
+                            usePoint: function () {
+                                return Number(this.order && this.order.usePoint ? this.order.usePoint : 0);
                             },
                             calcSubTotal: function () {
                                 var list = this.itemList;
                                 var total = 0;
 
                                 for (var i = 0; i < list.length; i++) {
-                                    var price = Number(list[i].price || list[i].unitPrice || 0);
-                                    var count = Number(list[i].count || list[i].quantity || 1);
-                                    total += price * count;
+                                    total += this.calcItemTotal(list[i]);
                                 }
 
                                 return total;
@@ -347,7 +371,7 @@
                                 if (this.order && this.order.totalPrice) {
                                     return Number(this.order.totalPrice);
                                 }
-                                return this.calcSubTotal - this.discountAmt;
+                                return this.calcSubTotal - this.couponDiscountAmt - this.usePoint;
                             },
                             hasRental: function () {
                                 for (var i = 0; i < this.itemList.length; i++) {
@@ -547,6 +571,39 @@
                                 }
 
                                 this.statusSteps = this.normalSteps;
+                            },
+                            calcNights: function (start, end) {
+                                if (!start || !end) return 1;
+
+                                var s = new Date(String(start).substring(0, 10) + 'T00:00:00');
+                                var e = new Date(String(end).substring(0, 10) + 'T00:00:00');
+
+                                if (isNaN(s.getTime()) || isNaN(e.getTime())) return 1;
+
+                                return Math.max(1, Math.ceil((e - s) / (1000 * 60 * 60 * 24)));
+                            },
+                            calcNights: function (start, end) {
+                                if (!start || !end) return 1;
+
+                                var s = new Date(String(start).substring(0, 10) + 'T00:00:00');
+                                var e = new Date(String(end).substring(0, 10) + 'T00:00:00');
+
+                                if (isNaN(s.getTime()) || isNaN(e.getTime())) return 1;
+
+                                return Math.max(1, Math.ceil((e - s) / (1000 * 60 * 60 * 24)));
+                            },
+
+                            calcItemTotal: function (item) {
+                                var price = Number(item.price || item.unitPrice || 0);
+                                var count = Number(item.count || item.quantity || 1);
+
+                                if (this.fnItemType(item) === 'RENTAL') {
+                                    var nights = this.calcNights(item.startDate, item.endDate);
+                                    var deposit = Number(item.deposit || 0);
+                                    return (price * nights + deposit) * count;
+                                }
+
+                                return price * count;
                             },
                         },
 

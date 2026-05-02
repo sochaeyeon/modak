@@ -36,4 +36,6 @@ public class Order {
     private Integer deliveryId;
     private String deliveryStatus;
     private String trackingNo;
+    
+    private Integer usePoint;
 }

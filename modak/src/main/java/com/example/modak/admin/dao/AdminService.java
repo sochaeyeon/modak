@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.modak.admin.mapper.AdminMapper;
 import com.example.modak.alarm.dao.AlarmService;
+import com.example.modak.order.mapper.OrderMapper;
 import com.example.modak.refund.dao.RefundService;
 
 @Service
@@ -21,6 +22,9 @@ public class AdminService {
 	
 	@Autowired
 	private RefundService refundService;
+	
+	@Autowired
+	private OrderMapper orderMapper;
 
 	// 비밀번호 암호화 및 매칭을 위한 시큐리티 인코더
 	private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -142,14 +146,26 @@ public class AdminService {
 		}
 		return result;
 	}
-//	비회원 주문취소 - 환불
+
 	@Transactional
 	public HashMap<String, Object> approveCancel(String orderId) {
 	    HashMap<String, Object> result = new HashMap<>();
 
 	    try {
-	        HashMap<String, Object> pay = mapper.selectPaymentByOrderId(orderId);
+	    	    Long orderIdLong = Long.parseLong(orderId);
 
+	    	    HashMap<String, Object> orderInfo =
+	    	        orderMapper.selectOrderInfoForCancel(orderIdLong);
+	    	    
+	    	    if (orderInfo != null) {
+	    	        String status = String.valueOf(orderInfo.get("ORDER_STATUS"));
+
+	    	        if (!"CANCEL_REQUESTED".equals(status)) {
+	    	            throw new RuntimeException("취소 가능한 상태가 아닙니다.");
+	    	        }
+	    	    }
+
+	        HashMap<String, Object> pay = mapper.selectPaymentByOrderId(orderId);
 	        if (pay == null) {
 	            result.put("result", "fail");
 	            result.put("message", "결제 정보를 찾을 수 없습니다.");
@@ -164,7 +180,6 @@ public class AdminService {
 	        cancelMap.put("reasonDetail", "관리자 취소 승인");
 
 	        boolean tossResult = refundService.callTossCancelApi(cancelMap, paymentKey, amount);
-
 	        if (!tossResult) {
 	            result.put("result", "fail");
 	            result.put("message", "토스 결제 취소에 실패했습니다.");
@@ -180,11 +195,75 @@ public class AdminService {
 	        paymentMap.put("orderId", orderId);
 	        mapper.updatePaymentRefunded(paymentMap);
 
+	        // ★ 재고 복원 (비회원 취소 승인 시)
+	        List<HashMap<String, Object>> items =
+	            orderMapper.selectOrderItemsForCancel(orderIdLong);
+
+	        for (HashMap<String, Object> item : items) {
+	            String orderType = String.valueOf(item.get("ORDER_TYPE"));
+
+	            HashMap<String, Object> stockMap = new HashMap<>();
+	            stockMap.put("productId",    item.get("PRODUCT_ID"));
+	            stockMap.put("optionItemId", item.get("OPTION_ITEM_ID"));
+	            stockMap.put("quantity",     item.get("QUANTITY"));
+
+	            if ("PURCHASE".equals(orderType)) {
+	            	orderMapper.insertPurchaseStockIfNotExists(stockMap);
+	                orderMapper.increaseStockForPurchaseCancel(stockMap);
+	            } else if ("RENTAL".equals(orderType)) {
+	                stockMap.put("startDate", item.get("START_DATE"));
+	                stockMap.put("endDate",   item.get("END_DATE"));
+	                orderMapper.restoreStockForRentalCancel(stockMap);
+	            }
+	        }
+	        
+	     // ★ 포인트 복원 + 적립 포인트 회수
+	        orderInfo = orderMapper.selectOrderInfoForCancel(Long.parseLong(orderId));
+
+	        if (orderInfo != null) {
+	            String userId = String.valueOf(orderInfo.get("USER_ID"));
+	            boolean isGuest = userId != null && userId.startsWith("GUEST_");
+
+	            if (!isGuest) {
+	                long usePoint = 0;
+	                Object up = orderInfo.get("USE_POINT");
+	                if (up != null && !"".equals(String.valueOf(up))) {
+	                    usePoint = Long.parseLong(String.valueOf(up));
+	                }
+
+	                long totalPrice = 0;
+	                Object tp = orderInfo.get("TOTAL_PRICE");
+	                if (tp != null && !"".equals(String.valueOf(tp))) {
+	                    totalPrice = Long.parseLong(String.valueOf(tp));
+	                }
+	                long earnedPoint = totalPrice / 100;
+
+	                HashMap<String, Object> pointMap = new HashMap<>();
+	                pointMap.put("userId",      userId);
+	                pointMap.put("usePoint",    usePoint);
+	                pointMap.put("earnedPoint", earnedPoint);
+
+	                if (usePoint > 0) {
+	                    pointMap.put("description", "주문 취소 포인트 반환 - 주문번호 " + orderId);
+	                    orderMapper.insertPointRestoreHistory(pointMap);
+	                }
+	                if (earnedPoint > 0) {
+	                    pointMap.put("description", "주문 취소 적립 포인트 회수 - 주문번호 " + orderId);
+	                    orderMapper.insertPointCancelHistory(pointMap);
+	                }
+	                if (usePoint > 0 || earnedPoint > 0) {
+	                    orderMapper.restoreUserPoint(pointMap);
+	                }
+	            }
+	        }
+
 	        result.put("result", "success");
 	        result.put("message", "주문취소 및 환불이 완료되었습니다.");
 
 	    } catch (Exception e) {
 	        e.printStackTrace();
+	        // 토스 취소는 완료됐으나 DB 처리 실패 — 수동 확인 필요
+	        System.err.println("[CRITICAL] 토스 취소 완료 후 DB 실패 orderId=" + orderId);
 	        result.put("result", "fail");
 	        result.put("message", "취소 승인 처리 중 오류가 발생했습니다.");
 	    }
@@ -211,10 +290,13 @@ public class AdminService {
 	    HashMap<String, Object> result = new HashMap<>();
 	    try {
 	        int affected = mapper.updateReturnRequestStatus(map);
+
 	        if (affected > 0) {
 	            String status = String.valueOf(map.get("status"));
+
 	            HashMap<String, Object> rentalMap = new HashMap<>();
 	            rentalMap.put("rentalId", map.get("rentalId"));
+
 	            HashMap<String, Object> rental = mapper.selectRentalByRentalId(rentalMap);
 
 	            if (rental != null && !"GUEST".equals(String.valueOf(rental.get("userId")))) {
@@ -230,16 +312,21 @@ public class AdminService {
 	                        "반납이 완료되었습니다 📦",
 	                        "반납이 정상 처리되었습니다. 보증금은 3~5일 내 환불됩니다.", map.get("rentalId"));
 	                }
-	            } else {
+	            }
+
+	            result.put("result", "success");
+
+	        } else {
 	            result.put("result", "fail");
 	            result.put("message", "변경 가능한 상태가 아닙니다.");
 	        }
-	   } }
-	    catch (Exception e) {
+
+	    } catch (Exception e) {
 	        e.printStackTrace();
 	        result.put("result", "fail");
 	        result.put("message", e.getMessage());
 	    }
+
 	    return result;
 	}
 

@@ -48,6 +48,7 @@
 
     <result property="payMethod" column="PAY_METHOD"/>
     <result property="payDate" column="PAY_DATE"/>
+    <result property="usePoint" column="USE_POINT"/>
 
     <collection property="itemList" ofType="com.example.modak.order.model.OrderItem">
         <id property="itemId" column="ITEM_ID"/>
@@ -61,6 +62,8 @@
         <result property="startDate" column="START_DATE"/>
         <result property="endDate" column="END_DATE"/>
         <result property="imgUrl" column="IMG_URL"/>
+        <result property="optionName" column="OPTION_NAME"/>
+        <result property="deposit" column="DEPOSIT"/>
     </collection>
 </resultMap>
 <select id="selectOrderList" resultMap="orderListMap">
@@ -116,6 +119,7 @@
         O.ORDER_STATUS,
         O.TOTAL_PRICE,
         O.DISCOUNT_AMT,
+        O.USE_POINT,
         O.CREATED_AT,
         O.USER_ID,
 		OI.ITEM_ID,
@@ -128,6 +132,7 @@
         A.ZIPCODE,
         A.ADDRESS          AS DELIVERY_ADDR,
         A.DETAILED_ADDRESS AS DELIVERY_DETAIL_ADDR,
+        POI.ITEM_NAME AS OPTION_NAME,
 
         /* 결제 */
         COALESCE(PH.PAY_TYPE, 'CARD')      AS PAY_METHOD,
@@ -140,6 +145,7 @@
         C.CATEGORY_NAME AS CATEGORY_NAME,
 
         OI.UNIT_PRICE AS ITEM_PRICE,
+        P.DEPOSIT AS DEPOSIT,
         OI.QUANTITY   AS ITEM_COUNT,
         O.ORDER_TYPE  AS ITEM_TYPE,
         OI.START_DATE,
@@ -180,6 +186,9 @@
     LEFT JOIN PAYMENT_HISTORY PH  
         ON PM.PAY_ID = PH.TARGET_PAY_ID
         AND PH.NEW_STATUS = 'PAID'
+        
+    LEFT JOIN PRODUCT_OPTION_ITEM POI
+    ON OI.OPTION_ITEM_ID = POI.OPTION_ITEM_ID
 
     WHERE O.ORDER_ID = #{orderId}
 
@@ -247,6 +256,105 @@
     ORDER BY O.CREATED_AT DESC
 </select>
 	
-
+	<!-- 취소 재고 복원용 주문 아이템 조회 -->
+	<select id="selectOrderItemsForCancel" parameterType="long" resultType="hashmap">
+	    SELECT
+	        OI.PRODUCT_ID,
+	        OI.OPTION_ITEM_ID,
+	        OI.QUANTITY,
+	        OI.START_DATE,
+	        OI.END_DATE,
+	        O.ORDER_TYPE
+	    FROM ORDER_ITEM OI
+	    JOIN ORDERS O ON OI.ORDER_ID = O.ORDER_ID
+	    WHERE OI.ORDER_ID = #{orderId}
+	</select>
+	
+	<!-- 렌탈 취소 — RESERVED_QTY 감소, AVAILABLE_QTY 증가 -->
+	<update id="restoreStockForRentalCancel" parameterType="hashmap">
+	    UPDATE product_stock
+	    SET RESERVED_QTY  = RESERVED_QTY  - #{quantity},
+	        AVAILABLE_QTY = AVAILABLE_QTY + #{quantity}
+	    WHERE PRODUCT_ID    = #{productId}
+	      AND OPTION_ITEM_ID = #{optionItemId}
+	      AND STOCK_DATE BETWEEN #{startDate} AND DATE_SUB(#{endDate}, INTERVAL 1 DAY)
+	      AND RESERVED_QTY >= #{quantity}
+	</update>
+	
+	<!-- 구매 취소 — AVAILABLE_QTY 증가 (STOCK_DATE NULL 또는 0000-00-00) -->
+	<update id="increaseStockForPurchaseCancel" parameterType="hashmap">
+	    UPDATE product_stock
+	    SET AVAILABLE_QTY = LEAST(TOTAL_QTY, AVAILABLE_QTY + #{quantity})
+	    WHERE PRODUCT_ID     = #{productId}
+	      AND OPTION_ITEM_ID = #{optionItemId}
+	      AND STOCK_DATE IS NULL
+	</update>
+	
+	<!-- 취소용 주문 정보 조회 (USE_POINT, USER_ID) -->
+	<select id="selectOrderInfoForCancel" parameterType="long" resultType="hashmap">
+	    SELECT
+	        ORDER_ID,
+	        USER_ID,
+	        USE_POINT,
+	        ORDER_TYPE,
+	        TOTAL_PRICE,
+	        ORDER_STATUS
+	    FROM ORDERS
+	    WHERE ORDER_ID = #{orderId}
+	</select>
+	
+	<!-- 취소 시 포인트 반환 이력 INSERT -->
+	<insert id="insertPointRestoreHistory" parameterType="hashmap">
+	    INSERT INTO POINT_HISTORY (
+	        USER_ID, DESCRIPTION, AMOUNT, TYPE, CREATED_AT, BALANCE_AFTER
+	    ) VALUES (
+	        #{userId},
+	        #{description},
+	        #{usePoint},
+	        'RESTORE',
+	        NOW(),
+	        (SELECT COALESCE(POINT, 0) + #{usePoint}
+	         FROM USER
+	         WHERE USER_ID = #{userId})
+	    )
+	</insert>
+	
+	<!-- USE_POINT 반환 + EARN 포인트 회수 동시 처리 -->
+	<update id="restoreUserPoint" parameterType="hashmap">
+	    UPDATE USER
+	    SET POINT = POINT + #{usePoint} - #{earnedPoint}
+	    WHERE USER_ID = #{userId}
+	</update>
+	
+	<!-- 취소 시 적립 포인트 회수 이력 -->
+	<insert id="insertPointCancelHistory" parameterType="hashmap">
+	    INSERT INTO POINT_HISTORY (
+	        USER_ID, DESCRIPTION, AMOUNT, TYPE, CREATED_AT, BALANCE_AFTER
+	    ) VALUES (
+	        #{userId},
+	        #{description},
+	        #{earnedPoint},
+	        'CANCEL',
+	        NOW(),
+	        (SELECT COALESCE(POINT, 0) - #{earnedPoint}
+	         FROM USER
+	         WHERE USER_ID = #{userId})
+	    )
+	</insert>
+	
+	<insert id="insertPurchaseStockIfNotExists">
+		INSERT INTO product_stock (
+		    STOCK_DATE, PRODUCT_ID, OPTION_ITEM_ID,
+		    TOTAL_QTY, RESERVED_QTY, AVAILABLE_QTY
+		)
+		SELECT NULL, #{productId}, #{optionItemId}, 0, 0, 0
+		FROM dual
+		WHERE NOT EXISTS (
+		    SELECT 1 FROM product_stock
+		    WHERE PRODUCT_ID = #{productId}
+		    AND OPTION_ITEM_ID = #{optionItemId}
+		    AND STOCK_DATE IS NULL
+		)
+	</insert>
 
 </mapper>

@@ -242,12 +242,11 @@
 	<!-- 구매 재고 차감 -->
 	<update id="decreaseStockForPurchase" parameterType="hashmap">
 	    UPDATE product_stock
-	    SET TOTAL_QTY = TOTAL_QTY - #{quantity},
-	        AVAILABLE_QTY = AVAILABLE_QTY - #{quantity}
+	    SET AVAILABLE_QTY = AVAILABLE_QTY - #{quantity}
 	    WHERE PRODUCT_ID = #{productId}
-	    AND OPTION_ITEM_ID = #{optionItemId}
-	    AND TOTAL_QTY >= #{quantity}
-	    AND AVAILABLE_QTY >= #{quantity}
+	      AND OPTION_ITEM_ID = #{optionItemId}
+	      AND STOCK_DATE IS NULL
+	      AND AVAILABLE_QTY >= #{quantity}
 	</update>
 
 	<!-- 대여 재고 차감 (날짜 범위) -->
@@ -259,7 +258,14 @@
 		BETWEEN #{startDate} AND DATE_SUB(#{endDate}, INTERVAL 1 DAY) AND
 		AVAILABLE_QTY >= #{quantity} 
 	</update>
-
+	<!--주문취소시 재고업데이트-->
+	<update id="increaseStockForPurchase" parameterType="hashmap">
+	    UPDATE product_stock
+	    SET AVAILABLE_QTY = AVAILABLE_QTY + #{quantity}
+	    WHERE PRODUCT_ID = #{productId}
+	      AND OPTION_ITEM_ID = #{optionItemId}
+	      AND STOCK_DATE IS NULL
+	</update>
 
 	<!-- 결제 내역 -->
 	<insert id="insertPaymentHistory" parameterType="hashmap">
@@ -333,4 +339,17 @@
 	    WHERE DATE_ADD(#{startDate}, INTERVAL seq DAY) &lt; #{endDate}
 	    ON DUPLICATE KEY UPDATE STOCK_DATE = STOCK_DATE
 	</insert>
+	
+	<select id="selectValidCoupon" parameterType="hashmap" resultType="hashmap">
+	    SELECT *
+	    FROM USER_COUPON uc
+	    WHERE uc.USER_COUPON_ID = #{userCouponId}
+	      AND uc.USER_ID = #{userId}
+	      AND uc.STATUS = 'AVAILABLE'
+	      AND NOT EXISTS (
+	          SELECT 1
+	          FROM COUPON_USE_LOG cul
+	          WHERE cul.USER_COUPON_ID = uc.USER_COUPON_ID
+	      )
+	</select>
 </mapper>

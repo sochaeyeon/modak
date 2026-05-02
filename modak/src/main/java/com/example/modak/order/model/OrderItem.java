@@ -17,4 +17,16 @@ public class OrderItem {
     // 조인
     private String brandName;
     private String categoryName;
+    
+    private String optionName;
+    
+    private Integer deposit;
+
+    public Integer getDeposit() {
+        return deposit;
+    }
+
+    public void setDeposit(Integer deposit) {
+        this.deposit = deposit;
+    }
 }

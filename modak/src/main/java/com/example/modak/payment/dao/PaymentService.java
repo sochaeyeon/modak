@@ -126,10 +126,22 @@ public class PaymentService {
 	        if (map.get("usePoint") != null && !"".equals(String.valueOf(map.get("usePoint"))) && !"null".equals(String.valueOf(map.get("usePoint")))) {
 	            usePoint = Long.parseLong(String.valueOf(map.get("usePoint")));
 	        }
+	     // ✅ 쿠폰 검증
+	        if (map.get("userCouponId") != null 
+	                && !"".equals(String.valueOf(map.get("userCouponId")))
+	                && !"null".equals(String.valueOf(map.get("userCouponId")))) {
+
+	            HashMap<String, Object> coupon = paymentMapper.selectValidCoupon(map);
+
+	            if (coupon == null) {
+	                throw new RuntimeException("이미 사용된 쿠폰입니다.");
+	            }
+	        }
 
 	        map.put("usePoint", usePoint); // ← insertTempOrder에 넘기기 위해 필요
 	        long finalAmount = Math.max(0, serverAmount - discountAmt - usePoint);
 	        map.put("amount", finalAmount);
+	        
 
 	        // 4. 주문 생성
 	        paymentMapper.insertTempOrder(map);
@@ -277,7 +289,10 @@ public class PaymentService {
 
 		    // ✅ 2. 결과값 확인용 로그 추가 (updateCouponUsed가 0이면 WHERE 조건 불일치)
 		    int updated = paymentMapper.updateCouponUsed(couponMap);
-		    System.out.println("=== 쿠폰 처리 결과: " + updated + " (0이면 DB 조건 확인 필요) ===");
+
+		    if (updated == 0) {
+		        throw new RuntimeException("이미 사용된 쿠폰입니다.");
+		    }
 
 		    paymentMapper.insertCouponUseLog(couponMap);
 		    alarmService.createAlarm(userId, "EVENT",
@@ -333,7 +348,8 @@ public class PaymentService {
 		    if ("PURCHASE".equals(itemOrderType)) {
 		        int updated = paymentMapper.decreaseStockForPurchase(stockMap);
 		        if (updated == 0) {
-		            throw new RuntimeException("재고 부족 - PRODUCT_ID: " + stockMap.get("productId"));
+		        	throw new RuntimeException("구매 재고 부족 또는 재고 데이터 없음 - PRODUCT_ID: " + stockMap.get("productId")
+	                + ", OPTION_ITEM_ID: " + stockMap.get("optionItemId"));
 		        }
 
 		    } else if ("RENTAL".equals(itemOrderType)) {

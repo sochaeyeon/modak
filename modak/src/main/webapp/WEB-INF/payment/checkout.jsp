@@ -739,7 +739,7 @@
                             fetchCouponList() {
                                 let self = this;
                                 $.ajax({
-                                    url: '/coupon/myCouponList.dox',
+                                    url: '/coupon/availableList.dox',
                                     type: 'POST',
                                     dataType: 'json',
                                     success(res) {
@@ -753,6 +753,7 @@
                                                 if (!exists) {
                                                     console.log("선택 쿠폰이 체크아웃 쿠폰 목록에 없음:", self.selectedUserCouponId);
                                                     self.selectedUserCouponId = '';
+                                                    self.clearSavedDiscount();
                                                 }
                                             }
 
@@ -836,7 +837,14 @@
                                     dataType: 'json',
                                     success(res) {
                                         if (res.result !== 'success') {
-                                            self.isPaying = false;  // ✅ 추가
+                                            self.isPaying = false; 
+
+                                            if ((res.message || '').includes('쿠폰')) {
+                                                self.selectedUserCouponId = '';
+                                                self.clearSavedDiscount();
+                                                self.fetchCouponList();
+                                            }
+
                                             self.showToast(res.message || '주문 준비에 실패했습니다.');
                                             return;
                                         }
@@ -1236,6 +1244,15 @@
                                 this.addrAddMsg = '';
                                 this.addrModal.mode = 'list';
                                 this.addrModal.open = true;
+                            },
+                            clearSavedDiscount() {
+                                localStorage.removeItem('checkout_discount');
+
+                                const url = new URL(window.location.href);
+                                url.searchParams.delete('userCouponId');
+                                url.searchParams.delete('usePoint');
+
+                                window.history.replaceState({}, '', url.toString());
                             },
                         },
                         mounted() {

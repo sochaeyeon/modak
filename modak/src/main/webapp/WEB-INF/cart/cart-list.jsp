@@ -698,7 +698,7 @@
                                 let self = this;
 
                                 $.ajax({
-                                    url: '/coupon/myCouponList.dox',
+                                    url: '/coupon/availableList.dox',
                                     type: 'POST',
                                     data: {
                                         start: 0,

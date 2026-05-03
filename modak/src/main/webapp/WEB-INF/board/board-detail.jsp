@@ -420,7 +420,6 @@
                     </button>
 
                     <div class="toast" :class="{ show: toastVisible }">{{ toastMsg }}</div>
-                    <div class="toast" :class="{ show: toastVisible }">{{ toastMsg }}</div>
                 </div>
 
                 <%@ include file="/WEB-INF/common/footer.jsp" %>
@@ -517,16 +516,28 @@
                                                 pp.chatBtnState = 'pending';
                                                 pp.chatBtnLabel = '신청 완료';
                                                 this.showToast('대화 신청을 보냈어요!');
-                                            } else if (res.result === 'exists') {
+                                                return;
+                                            }
+
+                                            if (res.result === 'exists') {
                                                 pp.chatBtnState = 'exists';
                                                 pp.chatRoomId = res.roomId;
                                                 pp.chatBtnLabel = '채팅방 이동';
                                                 this.showToast('이미 대화 중인 상대예요!');
-
-                                            } else {
-                                                pp.chatBtnLabel = '대화 신청';
-                                                this.showToast(res.message || '신청할 수 없습니다.');
+                                                return;
                                             }
+
+                                            // 이미 신청만 되어 있고 아직 수락 전인 경우
+                                            if (res.result === 'pending' || res.message === '이미 신청 중입니다.') {
+                                                pp.chatBtnState = 'pending';
+                                                pp.chatBtnLabel = '신청 중';
+                                                this.showToast('이미 대화 신청을 보낸 상태예요.');
+                                                return;
+                                            }
+
+                                            pp.chatBtnState = '';
+                                            pp.chatBtnLabel = '대화 신청';
+                                            this.showToast(res.message || '신청할 수 없습니다.');
                                         },
                                         error: () => {
                                             pp.chatBtnLabel = '대화 신청';
@@ -672,7 +683,7 @@
                                 },
                                 fnOpenLightbox(url) { this.lightboxImg = url; },
                                 fnGoProduct(id) { location.href = '/product/detail.do?productId=' + id; },
-                                fnGoEdit() { location.href = '/board/write.do?boardId=' + this.boardId; },
+                                fnGoEdit() { location.href = '/board/edit.do?boardId=' + this.boardId; },
                                 fnGoBack() { location.href = '/board/list.do'; },
                                 fnGoProfile(userId) { if (userId) location.href = '/user/profile.do?userId=' + encodeURIComponent(userId); },
                                 fnDeletePost() {

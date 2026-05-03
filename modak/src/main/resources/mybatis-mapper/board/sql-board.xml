@@ -106,10 +106,12 @@
 		SET TITLE = #{title},
 		CONTENT = #{content},
 		CATEGORY = #{category},
+		HAS_POLL = #{hasPoll},
 		PRODUCT_ID = NULLIF(#{productId}, ''),
 		UPDATED_AT = NOW()
 		WHERE BOARD_ID = #{boardId}
 		AND USER_ID = #{userId}
+		AND STATUS = 'ACTIVE'
 	</update>
 
 	<!-- 게시글 삭제 (soft delete) -->
@@ -454,5 +456,59 @@
 		ORDER BY CREATED_AT DESC
 		LIMIT #{limit}
 	</select>
+	<!-- 수정 화면 게시글 조회 -->
+	<select id="selectBoardEditInfo" parameterType="hashmap"
+		resultType="hashmap">
+		SELECT
+		B.BOARD_ID AS boardId,
+		B.USER_ID AS userId,
+		B.TITLE AS title,
+		B.CONTENT AS content,
+		B.CATEGORY AS category,
+		B.HAS_POLL AS hasPoll,
+		B.PRODUCT_ID AS productId,
+		B.STATUS AS status,
+		P.PRODUCT_NAME AS productName,
+		P.PRICE AS productPrice,
+		(
+		SELECT PI.IMG_URL
+		FROM PRODUCT_IMG PI
+		WHERE PI.PRODUCT_ID = P.PRODUCT_ID
+		AND PI.IS_MAIN = 'Y'
+		LIMIT 1
+		) AS productImg
+		FROM BOARD B
+		LEFT JOIN PRODUCT P ON B.PRODUCT_ID = P.PRODUCT_ID
+		WHERE B.BOARD_ID = #{boardId}
+		AND B.USER_ID = #{userId}
+		AND B.STATUS = 'ACTIVE'
+	</select>
 
+	<!-- 게시글 태그 전체 삭제 -->
+	<delete id="deleteBoardTagAll" parameterType="hashmap">
+		DELETE FROM BOARD_TAG
+		WHERE BOARD_ID = #{boardId}
+	</delete>
+
+	<!-- 게시글 투표 기록 삭제 -->
+	<delete id="deletePollVoteByBoardId" parameterType="hashmap">
+		DELETE V
+		FROM BOARD_POLL_VOTE V
+		JOIN BOARD_POLL P ON V.POLL_ID = P.POLL_ID
+		WHERE P.BOARD_ID = #{boardId}
+	</delete>
+
+	<!-- 게시글 투표 선택지 삭제 -->
+	<delete id="deletePollOptionByBoardId" parameterType="hashmap">
+		DELETE O
+		FROM BOARD_POLL_OPTION O
+		JOIN BOARD_POLL P ON O.POLL_ID = P.POLL_ID
+		WHERE P.BOARD_ID = #{boardId}
+	</delete>
+
+	<!-- 게시글 투표 삭제 -->
+	<delete id="deletePollByBoardId" parameterType="hashmap">
+		DELETE FROM BOARD_POLL
+		WHERE BOARD_ID = #{boardId}
+	</delete>
 </mapper>

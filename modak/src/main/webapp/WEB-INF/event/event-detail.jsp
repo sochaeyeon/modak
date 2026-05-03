@@ -19,7 +19,7 @@
 	<body>
 		<%@ include file="/WEB-INF/common/header.jsp" %>
 
-			<div id="app">
+			<div id="app" v-cloak>
 				<div class="breadcrumb">
 					<a href="${pageContext.request.contextPath}/main.do">홈</a>
 					<span>›</span>
@@ -33,9 +33,9 @@
 						<div class="spin"></div>
 						<span>불러오는 중...</span>
 					</div>
-
 					<div v-else-if="errorMsg" class="error-box">
-						⚠️ {{ errorMsg }}
+						<i class="ri-error-warning-line"></i>
+						<span>{{ errorMsg }}</span>
 					</div>
 
 					<div v-else class="detail-card">
@@ -124,9 +124,14 @@
 							fnGetEventInfo: function () {
 								let self = this;
 
-								if (!self.eventId) {
-									self.errorMsg = "잘못된 접근입니다. eventId가 없습니다.";
+								if (!self.eventId || self.eventId === "null" || self.eventId === "undefined") {
+									self.errorMsg = "잘못된 접근입니다.";
 									self.isLoading = false;
+
+									setTimeout(function () {
+										location.href = self.contextPath + "/event/list.do";
+									}, 900);
+
 									return;
 								}
 
@@ -146,6 +151,10 @@
 											});
 										} else {
 											self.errorMsg = data.message || "이벤트 정보를 불러오지 못했습니다.";
+
+											setTimeout(function () {
+												location.href = self.contextPath + "/event/list.do";
+											}, 900);
 										}
 
 										self.isLoading = false;
@@ -153,9 +162,14 @@
 									error: function (xhr) {
 										self.errorMsg = "서버 연결 오류(" + xhr.status + ")";
 										self.isLoading = false;
+
+										setTimeout(function () {
+											location.href = self.contextPath + "/event/list.do";
+										}, 900);
 									}
 								});
 							},
+
 							fnMoveTop: function () {
 								window.scrollTo({
 									top: 0,
@@ -171,8 +185,8 @@
 						mounted() {
 							this.fnGetEventInfo();
 							window.addEventListener("scroll", this.fnHandleScroll);
-							this.fnGetEventInfo();
 						},
+
 						unmounted() {
 							window.removeEventListener("scroll", this.fnHandleScroll);
 						}

@@ -101,8 +101,6 @@
 								<li><a href="/rental/extension/main.do"><i class="fa-solid fa-rotate"></i> 대여연장</a></li>
 							</c:when>
 							<c:otherwise>
-								<li><a href="/rental/extension/inquiry.do"><i class="fa-solid fa-rotate"></i> 대여연장
-										조회</a></li>
 								<li><a href="/order/guest/inquiry.do"><i class="fa-solid fa-box"></i> 비회원 주문조회</a></li>
 							</c:otherwise>
 						</c:choose>
@@ -186,16 +184,16 @@
 
 							previewData.forEach(item => {
 								const icon = item.TYPE === 'DELIVERY'
-								    ? '<i class="fa-solid fa-truck"></i>'
-								    : item.TYPE === 'EVENT'
-								        ? '<i class="fa-solid fa-gift"></i>'
-								        : item.TYPE === 'CHAT_REQUEST'
-								            ? '<i class="fa-solid fa-comments"></i>'
-								            : item.TYPE === 'CHAT_ACCEPTED'
-								                ? '<i class="fa-solid fa-check"></i>'
-								                : item.TYPE === 'CHAT_REJECTED'
-								                    ? '<i class="fa-solid fa-xmark"></i>'
-								                    : '<i class="fa-solid fa-bullhorn"></i>';
+									? '<i class="fa-solid fa-truck"></i>'
+									: item.TYPE === 'EVENT'
+										? '<i class="fa-solid fa-gift"></i>'
+										: item.TYPE === 'CHAT_REQUEST'
+											? '<i class="fa-solid fa-comments"></i>'
+											: item.TYPE === 'CHAT_ACCEPTED'
+												? '<i class="fa-solid fa-check"></i>'
+												: item.TYPE === 'CHAT_REJECTED'
+													? '<i class="fa-solid fa-xmark"></i>'
+													: '<i class="fa-solid fa-bullhorn"></i>';
 								const unreadClass = item.IS_READ === 'N' ? 'unread' : '';
 
 								html += '<div class="alarm-preview-item ' + unreadClass + '" onclick="location.href=\'/alarm/notice-detail.do?alarmId=' + item.ALARM_ID + '\'">' +
@@ -251,17 +249,17 @@
 			});
 
 			document.addEventListener('DOMContentLoaded', function () {
-			    fnCheckAlarm();
-			    fnCheckCartCount();
+				fnCheckAlarm();
+				fnCheckCartCount();
 
-			    // 알림 실시간 갱신
-			    if (isLogin) {
-			        setInterval(fnCheckAlarm, 5000);
-			    }
+				// 알림 실시간 갱신
+				if (isLogin) {
+					setInterval(fnCheckAlarm, 5000);
+				}
 
-			    const title = document.title.split(' - ')[0];
-			    const pageNameEl = document.getElementById('currentPageName');
-			    if (pageNameEl) pageNameEl.innerText = title;
+				const title = document.title.split(' - ')[0];
+				const pageNameEl = document.getElementById('currentPageName');
+				if (pageNameEl) pageNameEl.innerText = title;
 			});
 			function fnCheckCartCount() {
 				const cartCountEl = document.getElementById('cartCount');

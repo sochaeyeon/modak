@@ -310,44 +310,46 @@ public class DeliveryService {
 
 	public DeliveryDetail getReadyDeliveryDetail(Long orderId) {
 
-		DeliveryDetail delivery = new DeliveryDetail();
+	    DeliveryDetail delivery = deliveryMapper.selectOrderDeliveryBaseByOrderId(orderId);
 
-		delivery.setOrderId(orderId);
+	    if (delivery == null) {
+	        delivery = new DeliveryDetail();
+	        delivery.setOrderId(orderId);
+	        delivery.setOrderType("-");
+	        delivery.setOrderStatus("READY");
+	    }
 
-		// 주문 기본 정보는 최소값으로 세팅
-		delivery.setOrderType("PURCHASE"); // 필요하면 조회해서 세팅
-		delivery.setOrderStatus("READY");
+	    // 배송 관련 값 없음
+	    delivery.setDeliveryId(null);
+	    delivery.setDeliveryStatus("PREPARING");
+	    delivery.setTrackingNo(null);
+	    delivery.setCarrierId(null);
 
-		// 배송 관련 값 없음
-		delivery.setDeliveryId(null);
-		delivery.setDeliveryStatus("PREPARING");
-		delivery.setTrackingNo(null);
-		delivery.setCarrierId(null);
+	    // UI용 상태
+	    delivery.setStatusLabel("배송 준비중");
+	    delivery.setStatusMessage("아직 관리자가 배송 정보를 등록하지 않았습니다.");
+	    delivery.setStepNo(1);
+	    delivery.setProgressPercent(25);
+	    delivery.setReturnFlow(false);
 
-		// UI용 상태
-		delivery.setStatusLabel("배송 준비중");
-		delivery.setStatusMessage("아직 관리자가 배송 정보를 등록하지 않았습니다.");
-		delivery.setStepNo(1);
-		delivery.setProgressPercent(25);
-		delivery.setReturnFlow(false);
+	    // 표시용 공통 변환
+	    applyDisplayInfo(delivery);
 
-		// 표시용
-		delivery.setOrderTypeLabel("구매");
-		delivery.setOrderStatusLabel("배송준비");
-		delivery.setCarrierName("미등록");
-		delivery.setDisplayAddress("배송 정보 등록 전");
-		delivery.setDeliveredAtLabel("-");
+	    // 배송 등록 전 표시값 보정
+	    delivery.setCarrierName("미등록");
+	    delivery.setDisplayAddress("배송 정보 등록 전");
+	    delivery.setDeliveredAtLabel("-");
 
-		// 배송추적 결과
-		DeliveryTrackingResult result = new DeliveryTrackingResult();
-		result.setSuccess(false);
-		result.setErrorMessage("배송 정보가 아직 등록되지 않았습니다.");
-		delivery.setTrackingResult(result);
+	    // 배송추적 결과
+	    DeliveryTrackingResult result = new DeliveryTrackingResult();
+	    result.setSuccess(false);
+	    result.setErrorMessage("배송 정보가 아직 등록되지 않았습니다.");
+	    delivery.setTrackingResult(result);
 
-		// 상품 목록은 보여줘야 하니까 조회
-		List<DeliveryItem> itemList = deliveryMapper.selectDeliveryItemList(orderId);
-		delivery.setItemList(itemList);
+	    // 상품 목록 조회
+	    List<DeliveryItem> itemList = deliveryMapper.selectDeliveryItemList(orderId);
+	    delivery.setItemList(itemList);
 
-		return delivery;
+	    return delivery;
 	}
 }

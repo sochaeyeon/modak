@@ -27,11 +27,17 @@ public class EventController {
         return "/event/event-list";
     }
 
-    /* ── 상세 페이지 ── */
     @RequestMapping("/event/detail.do")
     public String eventDetailPage(HttpServletRequest request, Model model,
             @RequestParam HashMap<String, Object> map) throws Exception {
-        System.out.println("detail param: " + map);
+
+        Object eventId = map.get("eventId");
+
+        // eventId 자체가 없으면 상세 페이지로 보내지 않고 목록으로 이동
+        if (eventId == null || String.valueOf(eventId).isBlank()) {
+            return "redirect:/event/list.do";
+        }
+
         request.setAttribute("map", map);
         return "/event/event-detail";
     }
@@ -45,12 +51,26 @@ public class EventController {
         return new Gson().toJson(resultMap);
     }
 
-    /* ── 상세 Ajax ── */
     @RequestMapping(value = "/event/info.dox", method = RequestMethod.POST,
             produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String eventInfo(Model model, @RequestParam HashMap<String, Object> map) throws Exception {
+
         HashMap<String, Object> resultMap = eventService.getEventInfo(map);
+
+        if (resultMap == null) {
+            resultMap = new HashMap<>();
+            resultMap.put("result", "fail");
+            resultMap.put("message", "존재하지 않는 이벤트입니다.");
+        }
+
+        Object info = resultMap.get("info");
+
+        if (info == null) {
+            resultMap.put("result", "fail");
+            resultMap.put("message", "존재하지 않는 이벤트입니다.");
+        }
+
         return new Gson().toJson(resultMap);
     }
 

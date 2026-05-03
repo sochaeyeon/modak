@@ -30,38 +30,45 @@
         </association>
     </resultMap>
 
-    <!-- 비회원 주문 조회 (3중 검증) -->
-    <select id="selectGuestOrder" resultMap="guestOrderResultMap">
-        SELECT
-            O.ORDER_ID, O.ORDER_TYPE, O.ORDER_STATUS,
-            O.TOTAL_PRICE, O.DISCOUNT_AMT, O.CREATED_AT,
-            O.USER_COUPON_ID, O.GUEST_NAME, O.GUEST_PHONE,
-            D.DELIVERY_ID, D.DELIVERY_STATUS, D.TRACKING_NO,
-            D.SHIPPED_AT, D.DELIVERED_AT, D.PICKED_UP_AT,
-            D.RECEIVER_NAME, D.ADDRESS, D.ORDER_ID AS D_ORDER_ID
-        FROM ORDERS O
-        LEFT JOIN DELIVERY D ON O.ORDER_ID = D.ORDER_ID
-        WHERE O.ORDER_ID    = #{orderId}
-          AND O.GUEST_NAME  = #{guestName}
-          AND O.GUEST_PHONE = #{guestPhone}
-          AND O.USER_ID LIKE 'GUEST%'
-    </select>
+<!-- 비회원 주문 조회 (3중 검증 + 결제완료 주문만 조회) -->
+<select id="selectGuestOrder" resultMap="guestOrderResultMap">
+    SELECT
+        O.ORDER_ID, O.ORDER_TYPE, O.ORDER_STATUS,
+        O.TOTAL_PRICE, O.DISCOUNT_AMT, O.CREATED_AT,
+        O.USER_COUPON_ID, O.GUEST_NAME, O.GUEST_PHONE,
+        D.DELIVERY_ID, D.DELIVERY_STATUS, D.TRACKING_NO,
+        D.SHIPPED_AT, D.DELIVERED_AT, D.PICKED_UP_AT,
+        D.RECEIVER_NAME, D.ADDRESS, D.ORDER_ID AS D_ORDER_ID
+    FROM ORDERS O
+    INNER JOIN PAYMENT PAY
+        ON PAY.ORDER_ID = O.ORDER_ID
+       AND PAY.PAY_STATUS = 'PAID'
+    LEFT JOIN DELIVERY D
+        ON O.ORDER_ID = D.ORDER_ID
+    WHERE O.ORDER_ID    = #{orderId}
+      AND O.GUEST_NAME  = #{guestName}
+      AND O.GUEST_PHONE = #{guestPhone}
+      AND O.USER_ID LIKE 'GUEST_%'
+</select>
 
-    <!-- 주문번호만으로 조회 (토큰 검증 통과 후) -->
-    <select id="selectGuestOrderById" resultMap="guestOrderResultMap">
-        SELECT
-            O.ORDER_ID, O.ORDER_TYPE, O.ORDER_STATUS,
-            O.TOTAL_PRICE, O.DISCOUNT_AMT, O.CREATED_AT,
-            O.USER_COUPON_ID, O.GUEST_NAME, O.GUEST_PHONE,
-            D.DELIVERY_ID, D.DELIVERY_STATUS, D.TRACKING_NO,
-            D.SHIPPED_AT, D.DELIVERED_AT, D.PICKED_UP_AT,
-            D.RECEIVER_NAME, D.ADDRESS, D.ORDER_ID AS D_ORDER_ID
-        FROM ORDERS O
-        LEFT JOIN DELIVERY D ON O.ORDER_ID = D.ORDER_ID
-        WHERE O.ORDER_ID = #{orderId}
-         AND O.USER_ID LIKE 'GUEST%'
-    </select>
-
+<!-- 주문번호만으로 조회 (토큰 검증 통과 후 + 결제완료 주문만 조회) -->
+<select id="selectGuestOrderById" resultMap="guestOrderResultMap">
+    SELECT
+        O.ORDER_ID, O.ORDER_TYPE, O.ORDER_STATUS,
+        O.TOTAL_PRICE, O.DISCOUNT_AMT, O.CREATED_AT,
+        O.USER_COUPON_ID, O.GUEST_NAME, O.GUEST_PHONE,
+        D.DELIVERY_ID, D.DELIVERY_STATUS, D.TRACKING_NO,
+        D.SHIPPED_AT, D.DELIVERED_AT, D.PICKED_UP_AT,
+        D.RECEIVER_NAME, D.ADDRESS, D.ORDER_ID AS D_ORDER_ID
+    FROM ORDERS O
+    INNER JOIN PAYMENT PAY
+        ON PAY.ORDER_ID = O.ORDER_ID
+       AND PAY.PAY_STATUS = 'PAID'
+    LEFT JOIN DELIVERY D
+        ON O.ORDER_ID = D.ORDER_ID
+    WHERE O.ORDER_ID = #{orderId}
+      AND O.USER_ID LIKE 'GUEST_%' 
+</select>
     <!-- ★ 주문 상품 목록 — PRODUCT_IMG 조인으로 이미지 추가 -->
 	<select id="selectGuestOrderItems" resultType="com.example.modak.order.model.GuestOrderItem">
 	    SELECT
@@ -107,31 +114,41 @@
 	    ORDER BY OI.ITEM_ID ASC
 	</select>
 
-    <!-- 주문 상태 업데이트 -->
-    <update id="updateOrderStatus">
-        UPDATE ORDERS
-        SET    ORDER_STATUS = #{orderStatus}
-        WHERE  ORDER_ID     = #{orderId}
-        AND USER_ID LIKE 'GUEST%'
-    </update>
-    
-    <insert id="insertGuestExchange" parameterType="hashmap">
+<!-- 주문 상태 업데이트 -->
+<update id="updateOrderStatus">
+    UPDATE ORDERS
+    SET    ORDER_STATUS = #{orderStatus}
+    WHERE  ORDER_ID     = #{orderId}
+      AND USER_ID LIKE 'GUEST_%' 
+</update>
+<insert id="insertGuestExchange" parameterType="hashmap">
     INSERT INTO ORDER_EXCHANGE (
         ORDER_ID, USER_ID, EXCHANGE_REASON, REASON_DETAIL,
         EXCHANGE_METHOD, ZIPCODE, ADDRESS, DETAIL_ADDRESS, MEMO,
         EXCHANGE_STATUS, CREATED_AT
-    ) VALUES (
-        #{orderId}, 'GUEST', #{exchangeReason}, #{reasonDetail},
-        #{exchangeMethod}, #{zipcode}, #{address}, #{detailAddress}, #{memo},
-        'REQUESTED', NOW()
     )
+    SELECT
+        O.ORDER_ID,
+        O.USER_ID,
+        #{exchangeReason},
+        #{reasonDetail},
+        #{exchangeMethod},
+        #{zipcode},
+        #{address},
+        #{detailAddress},
+        #{memo},
+        'REQUESTED',
+        NOW()
+    FROM ORDERS O
+    WHERE O.ORDER_ID = #{orderId}
+      AND O.USER_ID LIKE 'GUEST_%'
 </insert>
 
 <update id="updateOrderStatusToExchange">
     UPDATE ORDERS
     SET    ORDER_STATUS = 'EXCHANGE_REQUESTED'
     WHERE  ORDER_ID = #{orderId}
-      AND USER_ID LIKE 'GUEST%'
+      AND USER_ID LIKE 'GUEST_%' 
 </update>
 <select id="selectRentalIdByOrderId" resultType="int">
     SELECT R.RENTAL_ID
@@ -140,4 +157,6 @@
     WHERE OI.ORDER_ID = #{orderId}
     LIMIT 1
 </select>
+
+
 </mapper>

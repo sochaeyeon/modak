@@ -97,7 +97,7 @@
 
 				<div class="footer-policy">
 					<a href="/terms.do">이용약관</a>
-					<a href="/privacyPolicy.do" class="strong">개인정보처리방침</a>
+					<a href="/privacyPolicy.do">개인정보처리방침</a>
 					<a href="/marketingConsent.do">마케팅정보수신</a>
 				</div>
 			</div>

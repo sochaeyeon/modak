@@ -25,13 +25,11 @@
                 <div class="step-wrap cart-step-switch-wrap">
                     <div class="step" :class="{ active: currentStep === 1 }">장바구니</div>
                     <div class="step-line"></div>
-                    <div class="step step-cart-switch"
-                        :class="{ active: currentStep === 2 }">
+                    <div class="step step-cart-switch" :class="{ active: currentStep === 2 }">
                         <span class="cart-step-main">주문/결제</span>
                     </div>
                     <div class="step-line"></div>
-                    <div class="step"
-                        :class="{ active: currentStep === 3 }">
+                    <div class="step" :class="{ active: currentStep === 3 }">
                         주문완료
                     </div>
                 </div>
@@ -74,7 +72,9 @@
                                         </div>
                                         <div class="guest-field-wrap">
                                             <span class="guest-field-label">연락처 *</span>
-                                            <input class="guest-input" v-model="guestPhone" placeholder="01012345678" />
+                                            <input class="guest-input" v-model="guestPhone" placeholder="01012345678"
+                                                maxlength="11" inputmode="numeric"
+                                                @input="onPhoneInput('guestPhone')" />
                                         </div>
                                         <div class="guest-addr-row">
                                             <div class="guest-field-wrap zip">
@@ -216,15 +216,18 @@
                                     <div class="guest-addr-form">
                                         <div class="guest-field-wrap">
                                             <span class="guest-field-label">별칭 *</span>
-                                            <input class="guest-input" v-model="newAddr.addressAlias" placeholder="집, 회사 등" />
+                                            <input class="guest-input" v-model="newAddr.addressAlias"
+                                                placeholder="집, 회사 등" />
                                         </div>
                                         <div class="guest-field-wrap">
                                             <span class="guest-field-label">수령인 이름 *</span>
-                                            <input class="guest-input" v-model="newAddr.receiverName" placeholder="홍길동" />
+                                            <input class="guest-input" v-model="newAddr.receiverName"
+                                                placeholder="홍길동" />
                                         </div>
                                         <div class="guest-field-wrap">
                                             <span class="guest-field-label">연락처 *</span>
-                                            <input class="guest-input" v-model="newAddr.receiverPhone" placeholder="01012345678" />
+                                            <input class="guest-input" v-model="newAddr.receiverPhone"
+                                                placeholder="01012345678" />
                                         </div>
                                         <div class="guest-addr-row">
                                             <div class="guest-field-wrap zip">
@@ -232,7 +235,8 @@
                                                 <div class="zipcode-row">
                                                     <input class="guest-input" v-model="newAddr.zipCode"
                                                         placeholder="06234" readonly />
-                                                    <button type="button" class="addr-search-btn" @click="fnSearchAddress">
+                                                    <button type="button" class="addr-search-btn"
+                                                        @click="fnSearchAddress">
                                                         주소찾기
                                                     </button>
                                                 </div>
@@ -245,17 +249,17 @@
                                         </div>
                                         <div class="guest-field-wrap">
                                             <span class="guest-field-label">상세주소</span>
-                                            <input class="guest-input optional"
-                                                ref="detailAddressInput"
-                                                v-model="newAddr.detailedAddress"
-                                                placeholder="101동 202호" />
+                                            <input class="guest-input optional" ref="detailAddressInput"
+                                                v-model="newAddr.detailedAddress" placeholder="101동 202호" />
                                         </div>
-                                        <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;cursor:pointer;">
+                                        <label
+                                            style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;cursor:pointer;">
                                             <input type="checkbox" v-model="newAddr.defaultYn"> 기본 배송지로 설정
                                         </label>
                                     </div>
 
-                                    <p v-if="addrAddMsg" style="color:#e74c3c;font-size:12px;margin-top:8px;">{{ addrAddMsg }}</p>
+                                    <p v-if="addrAddMsg" style="color:#e74c3c;font-size:12px;margin-top:8px;">{{
+                                        addrAddMsg }}</p>
 
                                     <div class="modal-btns" style="margin-top:16px;">
                                         <!-- 버튼 기능은 기존 유지: 취소/저장하기(saveNewAddress) -->
@@ -268,97 +272,89 @@
                         </div><!-- /checkout-main -->
 
                         <!-- checkout 우측 사이드바 -->
-<div class="cart-aside checkout-aside">
-    <div class="aside-box">
-        <div class="aside-title">결제 예정 금액</div>
+                        <div class="cart-aside checkout-aside">
+                            <div class="aside-box">
+                                <div class="aside-title">결제 예정 금액</div>
 
-        <div class="aside-rows">
-            <div class="aside-row">
-                <span>총 선택상품금액</span>
-                <span class="val">{{ formatPrice(itemTotal) }}</span>
-            </div>
+                                <div class="aside-rows">
+                                    <div class="aside-row">
+                                        <span>총 선택상품금액</span>
+                                        <span class="val">{{ formatPrice(itemTotal) }}</span>
+                                    </div>
 
-            <div class="coupon-box" v-if="isLogin">
-                <div class="coupon-title">쿠폰 선택</div>
-                <select class="coupon-select" v-model="selectedUserCouponId">
-                    <option value="">쿠폰 사용 안함</option>
-                    <option v-for="coupon in couponList"
-                            :key="coupon.userCouponId"
-                            :value="coupon.userCouponId"
-                            :disabled="itemTotal < coupon.minOrderAmt">
-                        {{ coupon.couponName }}
-                        / {{ couponText(coupon) }}
-                        / {{ formatPrice(coupon.minOrderAmt) }} 이상
-                    </option>
-                </select>
-            </div>
+                                    <div class="coupon-box" v-if="isLogin">
+                                        <div class="coupon-title">쿠폰 선택</div>
+                                        <select class="coupon-select" v-model="selectedUserCouponId">
+                                            <option value="">쿠폰 사용 안함</option>
+                                            <option v-for="coupon in couponList" :key="coupon.userCouponId"
+                                                :value="coupon.userCouponId" :disabled="itemTotal < coupon.minOrderAmt">
+                                                {{ coupon.couponName }}
+                                                / {{ couponText(coupon) }}
+                                                / {{ formatPrice(coupon.minOrderAmt) }} 이상
+                                            </option>
+                                        </select>
+                                    </div>
 
-            <div v-if="!isLogin" class="aside-login-guide">
-                <a href="/user/login.do">로그인</a> 후 쿠폰·포인트를 사용할 수 있습니다.
-            </div>
+                                    <div v-if="!isLogin" class="aside-login-guide">
+                                        <a href="/user/login.do">로그인</a> 후 쿠폰·포인트를 사용할 수 있습니다.
+                                    </div>
 
-            <div class="aside-row" v-if="isLogin">
-                <span>쿠폰할인예상금액</span>
-                <span class="val red">-{{ formatPrice(couponDiscount) }}</span>
-            </div>
+                                    <div class="aside-row" v-if="isLogin">
+                                        <span>쿠폰할인예상금액</span>
+                                        <span class="val red">-{{ formatPrice(couponDiscount) }}</span>
+                                    </div>
 
-            <div class="point-box" v-if="isLogin">
-                <div class="point-title">
-                    <span>포인트 사용</span>
-                    <span>보유 {{ formatPrice(userPoint) }}</span>
-                </div>
+                                    <div class="point-box" v-if="isLogin">
+                                        <div class="point-title">
+                                            <span>포인트 사용</span>
+                                            <span>보유 {{ formatPrice(userPoint) }}</span>
+                                        </div>
 
-                <div class="point-input-wrap">
-                    <div class="input-box">
-                        <input type="text"
-                               class="point-input"
-                               :value="usePoint"
-                               @input="onPointInput"
-                               placeholder="사용할 포인트">
+                                        <div class="point-input-wrap">
+                                            <div class="input-box">
+                                                <input type="text" class="point-input" :value="usePoint"
+                                                    @input="onPointInput" placeholder="사용할 포인트">
 
-                        <button type="button"
-                                class="point-clear-btn"
-                                v-if="Number(usePoint || 0) > 0"
-                                @click="clearPoint">
-                            ✕
-                        </button>
-                    </div>
+                                                <button type="button" class="point-clear-btn"
+                                                    v-if="Number(usePoint || 0) > 0" @click="clearPoint">
+                                                    ✕
+                                                </button>
+                                            </div>
 
-                    <button type="button" class="point-use-btn" @click="useAllPoint">
-                        전액사용
-                    </button>
-                </div>
+                                            <button type="button" class="point-use-btn" @click="useAllPoint">
+                                                전액사용
+                                            </button>
+                                        </div>
 
-                <div class="point-help">
-                    최대 {{ formatPrice(maxUsePoint) }} 사용 가능
-                </div>
-            </div>
+                                        <div class="point-help">
+                                            최대 {{ formatPrice(maxUsePoint) }} 사용 가능
+                                        </div>
+                                    </div>
 
-            <div class="aside-row" v-if="isLogin">
-                <span>포인트 사용금액</span>
-                <span class="val red">-{{ formatPrice(validUsePoint) }}</span>
-            </div>
+                                    <div class="aside-row" v-if="isLogin">
+                                        <span>포인트 사용금액</span>
+                                        <span class="val red">-{{ formatPrice(validUsePoint) }}</span>
+                                    </div>
 
-            <div class="aside-row">
-                <span>총 배송비</span>
-                <span class="val">0원</span>
-            </div>
+                                    <div class="aside-row">
+                                        <span>총 배송비</span>
+                                        <span class="val">0원</span>
+                                    </div>
 
-            <div class="aside-row total">
-                <span>총 주문 예상 금액</span>
-                <span class="val">{{ formatPrice(finalTotal) }}</span>
-            </div>
-        </div>
+                                    <div class="aside-row total">
+                                        <span>총 주문 예상 금액</span>
+                                        <span class="val">{{ formatPrice(finalTotal) }}</span>
+                                    </div>
+                                </div>
 
-        <button class="order-btn"
-                :disabled="!agreeAll || orderItems.length === 0"
-                @click="fnPay">
-            {{ formatPrice(finalTotal) }} 결제하기
-        </button>
+                                <button class="order-btn" :disabled="!agreeAll || orderItems.length === 0"
+                                    @click="fnPay">
+                                    {{ formatPrice(finalTotal) }} 결제하기
+                                </button>
 
-        <div class="pay-info">결제 완료 후 취소/변경이 어려울 수 있습니다</div>
-    </div>
-</div>
+                                <div class="pay-info">결제 완료 후 취소/변경이 어려울 수 있습니다</div>
+                            </div>
+                        </div>
 
                     </div><!-- /checkout-layout -->
                 </div><!-- /checkout-wrap -->
@@ -375,8 +371,7 @@
                         <!-- ── 목록 모드 ── -->
                         <template v-if="addrModal.mode === 'list'">
                             <div class="addr-list">
-                                <div v-for="addr in addressList" :key="addr.addressId"
-                                    class="addr-select-item"
+                                <div v-for="addr in addressList" :key="addr.addressId" class="addr-select-item"
                                     :class="{ on: selectedAddressId === addr.addressId }"
                                     @click="selectedAddressId = addr.addressId">
                                     <div class="addr-name">
@@ -413,14 +408,15 @@
                                 </div>
                                 <div class="guest-field-wrap">
                                     <span class="guest-field-label">연락처 *</span>
-                                    <input class="guest-input" v-model="newAddr.receiverPhone" placeholder="01012345678" />
+                                    <input class="guest-input" v-model="newAddr.receiverPhone"
+                                        placeholder="01012345678" />
                                 </div>
                                 <div class="guest-addr-row">
                                     <div class="guest-field-wrap zip">
                                         <span class="guest-field-label">우편번호 *</span>
                                         <div class="zipcode-row">
-                                            <input class="guest-input" v-model="newAddr.zipCode"
-                                                placeholder="06234" readonly />
+                                            <input class="guest-input" v-model="newAddr.zipCode" placeholder="06234"
+                                                readonly />
                                             <button type="button" class="addr-search-btn" @click="fnSearchAddressNew">
                                                 주소찾기
                                             </button>
@@ -434,17 +430,17 @@
                                 </div>
                                 <div class="guest-field-wrap">
                                     <span class="guest-field-label">상세주소</span>
-                                    <input class="guest-input optional"
-                                        ref="newAddrDetailInput"
-                                        v-model="newAddr.detailedAddress"
-                                        placeholder="101동 202호" />
+                                    <input class="guest-input optional" ref="newAddrDetailInput"
+                                        v-model="newAddr.detailedAddress" placeholder="101동 202호" />
                                 </div>
-                                <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;cursor:pointer;">
+                                <label
+                                    style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;cursor:pointer;">
                                     <input type="checkbox" v-model="newAddr.defaultYn"> 기본 배송지로 설정
                                 </label>
                             </div>
 
-                            <p v-if="addrAddMsg" style="color:#e74c3c;font-size:12px;margin-top:8px;">{{ addrAddMsg }}</p>
+                            <p v-if="addrAddMsg" style="color:#e74c3c;font-size:12px;margin-top:8px;">{{ addrAddMsg }}
+                            </p>
 
                             <div class="modal-btns" style="margin-top:16px;">
                                 <button class="modal-btn-cancel" @click="addrModal.mode = 'list'">← 목록으로</button>
@@ -570,7 +566,7 @@
                             remainPoint() {
                                 return Math.max(0, Number(this.userPoint || 0) - Number(this.validUsePoint || 0));
                             }
-                            
+
                         },
                         watch: {
                             selectedUserCouponId() {
@@ -612,7 +608,7 @@
 
                                 console.log("체크아웃 적용 쿠폰:", this.selectedUserCouponId);
                                 console.log("체크아웃 적용 포인트:", this.usePoint);
-                                
+
                                 if (!this.guestKey) {
                                     this.guestKey = 'GUEST_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
                                     localStorage.setItem('guestKey', this.guestKey);
@@ -788,10 +784,19 @@
                                         return;
                                     }
                                 }
-                                // ✅ 비회원 검증
                                 if (!this.isLogin) {
                                     if (!this.guestName.trim()) { this.isPaying = false; this.showToast('수령인 이름을 입력해주세요.'); return; }
-                                    if (!this.guestPhone.trim()) { this.isPaying = false; this.showToast('연락처를 입력해주세요.'); return; }
+                                    if (!this.guestPhone.trim()) {
+                                        this.isPaying = false;
+                                        this.showToast('연락처를 입력해주세요.');
+                                        return;
+                                    }
+
+                                    if (!this.isValidPhone(this.guestPhone)) {
+                                        this.isPaying = false;
+                                        this.showToast('연락처는 010으로 시작하는 11자리 숫자로 입력해주세요.');
+                                        return;
+                                    }
                                     if (!this.guestZipcode.trim()) { this.isPaying = false; this.showToast('우편번호를 입력해주세요.'); return; }
                                     if (!this.guestAddress.trim()) { this.isPaying = false; this.showToast('주소를 입력해주세요.'); return; }
                                 }
@@ -837,7 +842,7 @@
                                     dataType: 'json',
                                     success(res) {
                                         if (res.result !== 'success') {
-                                            self.isPaying = false; 
+                                            self.isPaying = false;
 
                                             if ((res.message || '').includes('쿠폰')) {
                                                 self.selectedUserCouponId = '';
@@ -851,7 +856,26 @@
 
                                         const orderId = 'modak-' + String(res.orderId);
                                         const tossPayments = TossPayments(TOSS_CLIENT_KEY);
+                                        // 비회원 장바구니 정리를 위해 이번 결제 정보 저장
+                                        if (!self.isLogin) {
+                                            const clearInfo = {
+                                                buyNow: isBuyNow,
+                                                cartType: self.cartType,
+                                                cartIds: self.cartIds,
+                                                items: self.orderItems.map(function (item) {
+                                                    return {
+                                                        cartId: item.cartId,
+                                                        productId: item.productId,
+                                                        optionItemId: item.optionItemId,
+                                                        cartType: self.cartType,
+                                                        rentalStart: item.rentalStart,
+                                                        rentalEnd: item.rentalEnd
+                                                    };
+                                                })
+                                            };
 
+                                            localStorage.setItem('modak_paid_cart_info', JSON.stringify(clearInfo));
+                                        }
                                         tossPayments.requestPayment('카드', {
                                             //amount: res.amount,
                                             amount: Number(res.amount),
@@ -860,7 +884,9 @@
                                             customerName: self.isLogin ? self.addrForm.receiverName : self.guestName,
                                             successUrl: window.location.origin
                                                 + '/payment/success.do?buyNow='
-                                                + (new URLSearchParams(location.search).get('buyNow') === 'true'),
+                                                + (new URLSearchParams(location.search).get('buyNow') === 'true')
+                                                + '&cartType='
+                                                + encodeURIComponent(self.cartType),
                                             failUrl: window.location.origin + '/payment/fail.do'
                                         }).catch(() => {
                                             self.isPaying = false;  // ✅ 토스 창 닫거나 취소 시 해제
@@ -983,7 +1009,15 @@
 
                                 if (!self.newAddr.addressAlias.trim()) { self.addrAddMsg = '별칭을 입력해주세요.'; return; }
                                 if (!self.newAddr.receiverName.trim()) { self.addrAddMsg = '수령인 이름을 입력해주세요.'; return; }
-                                if (!self.newAddr.receiverPhone.trim()) { self.addrAddMsg = '연락처를 입력해주세요.'; return; }
+                                if (!self.newAddr.receiverPhone.trim()) {
+                                    self.addrAddMsg = '연락처를 입력해주세요.';
+                                    return;
+                                }
+
+                                if (!self.isValidPhone(self.newAddr.receiverPhone)) {
+                                    self.addrAddMsg = '연락처는 010으로 시작하는 11자리 숫자로 입력해주세요.';
+                                    return;
+                                }
                                 if (!self.newAddr.zipCode.trim()) { self.addrAddMsg = '우편번호를 입력해주세요.'; return; }
                                 if (!self.newAddr.address.trim()) { self.addrAddMsg = '주소를 입력해주세요.'; return; }
 
@@ -992,13 +1026,13 @@
                                     type: 'POST',
                                     dataType: 'json',
                                     data: {
-                                        addressAlias:    self.newAddr.addressAlias,
-                                        receiverName:    self.newAddr.receiverName,    
-                                        receiverPhone:   self.newAddr.receiverPhone,   
-                                        zipCode:         self.newAddr.zipCode,
-                                        address:         self.newAddr.address,
+                                        addressAlias: self.newAddr.addressAlias,
+                                        receiverName: self.newAddr.receiverName,
+                                        receiverPhone: self.newAddr.receiverPhone,
+                                        zipCode: self.newAddr.zipCode,
+                                        address: self.newAddr.address,
                                         detailedAddress: self.newAddr.detailedAddress,
-                                        defaultYn:       self.newAddr.defaultYn ? 'Y' : 'N'
+                                        defaultYn: self.newAddr.defaultYn ? 'Y' : 'N'
                                     },
                                     success(res) {
                                         if (res.result === 'success') {
@@ -1136,9 +1170,35 @@
                                 let self = this;
                                 self.addrAddMsg = '';
 
-                                if (!self.newAddr.addressAlias.trim()) { self.addrAddMsg = '배송지 별칭을 입력해주세요.'; return; }
-                                if (!self.newAddr.zipCode.trim()) { self.addrAddMsg = '우편번호를 입력해주세요.'; return; }
-                                if (!self.newAddr.address.trim()) { self.addrAddMsg = '주소를 입력해주세요.'; return; }
+                                if (!self.newAddr.addressAlias.trim()) {
+                                    self.addrAddMsg = '배송지 별칭을 입력해주세요.';
+                                    return;
+                                }
+
+                                if (!self.newAddr.receiverName.trim()) {
+                                    self.addrAddMsg = '수령인 이름을 입력해주세요.';
+                                    return;
+                                }
+
+                                if (!self.newAddr.receiverPhone.trim()) {
+                                    self.addrAddMsg = '연락처를 입력해주세요.';
+                                    return;
+                                }
+
+                                if (!self.isValidPhone(self.newAddr.receiverPhone)) {
+                                    self.addrAddMsg = '연락처는 010으로 시작하는 11자리 숫자로 입력해주세요.';
+                                    return;
+                                }
+
+                                if (!self.newAddr.zipCode.trim()) {
+                                    self.addrAddMsg = '우편번호를 입력해주세요.';
+                                    return;
+                                }
+
+                                if (!self.newAddr.address.trim()) {
+                                    self.addrAddMsg = '주소를 입력해주세요.';
+                                    return;
+                                }
 
                                 $.ajax({
                                     url: '/user/address/add.dox',
@@ -1146,6 +1206,8 @@
                                     dataType: 'json',
                                     data: {
                                         addressAlias: self.newAddr.addressAlias,
+                                        receiverName: self.newAddr.receiverName,
+                                        receiverPhone: self.newAddr.receiverPhone,
                                         zipCode: self.newAddr.zipCode,
                                         address: self.newAddr.address,
                                         detailedAddress: self.newAddr.detailedAddress,
@@ -1162,7 +1224,7 @@
                                     },
                                     error() { self.addrAddMsg = '서버 오류가 발생했습니다.'; }
                                 });
-                            }, 
+                            },
                             openGuestPostcode() {
                                 new daum.Postcode({
                                     oncomplete: (data) => {
@@ -1253,6 +1315,26 @@
                                 url.searchParams.delete('usePoint');
 
                                 window.history.replaceState({}, '', url.toString());
+                            },
+                            isValidPhone(phone) {
+                                const value = String(phone || '').trim();
+
+                                return /^010\d{8}$/.test(value);
+                            },
+
+                            onPhoneInput(target) {
+                                if (target === 'guestPhone') {
+                                    this.guestPhone = String(this.guestPhone || '')
+                                        .replace(/[^0-9]/g, '')
+                                        .slice(0, 11);
+                                    return;
+                                }
+
+                                if (target === 'newAddr.receiverPhone') {
+                                    this.newAddr.receiverPhone = String(this.newAddr.receiverPhone || '')
+                                        .replace(/[^0-9]/g, '')
+                                        .slice(0, 11);
+                                }
                             },
                         },
                         mounted() {

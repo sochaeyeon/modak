@@ -61,19 +61,31 @@ public class ProductController {
 
 	@RequestMapping("/product/detail.do")
 	public String view(HttpServletRequest request, @RequestParam HashMap<String, Object> map) throws Exception {
-		// System.out.println(map);
-		String userId = (String) request.getSession().getAttribute("sessionId");
 
-		if (userId != null && !userId.isBlank()) {
-		    HashMap<String, Object> viewMap = new HashMap<>();
-		    viewMap.put("userId", userId);
-		    viewMap.put("productId", map.get("productId"));
+	    Object productId = map.get("productId");
 
-		    viewService.addViewHistory(viewMap);
-		} 
-		// jsp에서 "${map.productId}"로 꺼내 쓸 수 있도록 전달
-		request.setAttribute("productId", map.get("productId"));
-		return "/product/product-detail";
+	    if (productId == null || String.valueOf(productId).isBlank()) {
+	        return "redirect:/product/list.do";
+	    }
+
+	    HashMap<String, Object> resultMap = productService.getProduct(map);
+
+	    if (!"success".equals(resultMap.get("result")) || resultMap.get("info") == null) {
+	        return "redirect:/product/list.do";
+	    }
+
+	    String userId = (String) request.getSession().getAttribute("sessionId");
+
+	    if (userId != null && !userId.isBlank()) {
+	        HashMap<String, Object> viewMap = new HashMap<>();
+	        viewMap.put("userId", userId);
+	        viewMap.put("productId", productId);
+
+	        viewService.addViewHistory(viewMap);
+	    }
+
+	    request.setAttribute("productId", productId);
+	    return "/product/product-detail";
 	}
 
 	// 2. 상품 상세 데이터 호출 (.dox)

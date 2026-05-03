@@ -67,48 +67,51 @@ public class PaymentService {
 	}
 
 	// 임시 주문 저장 → ORDER_ID를 프론트에 반환
+	@Transactional
 	public HashMap<String, Object> readyPayment(HashMap<String, Object> map) {
 	    HashMap<String, Object> resultMap = new HashMap<>();
 
 	    try {
-	        // 1. 주문 상품 먼저 조회
-	    	List<HashMap<String, Object>> items;
-	    	String guestItemsJson = String.valueOf(map.get("guestItems"));
+	        List<HashMap<String, Object>> items;
+	        String guestItemsJson = String.valueOf(map.get("guestItems"));
 
-	    	if (guestItemsJson != null && !"null".equals(guestItemsJson) && !"".equals(guestItemsJson)) {
-	    	    Gson gson = new Gson();
-	    	    items = gson.fromJson(guestItemsJson,
-	    	        new com.google.gson.reflect.TypeToken<List<HashMap<String, Object>>>(){}.getType());
-	    	} else {
-	    	    items = paymentMapper.selectCheckoutItems(map);
-	    	}
+	        if (guestItemsJson != null && !"null".equals(guestItemsJson) && !"".equals(guestItemsJson)) {
+	            Gson gson = new Gson();
+	            items = gson.fromJson(
+	                    guestItemsJson,
+	                    new com.google.gson.reflect.TypeToken<List<HashMap<String, Object>>>() {}.getType()
+	            );
+	        } else {
+	            items = paymentMapper.selectCheckoutItems(map);
+	        }
 
-	        // 2. 서버에서 총액 재계산
-	        long serverAmount = 0;
+	        if (items == null || items.isEmpty()) {
+	            throw new RuntimeException("주문 상품이 없습니다.");
+	        }
+
 	        String cartType = String.valueOf(map.get("cartType"));
+	        long serverAmount = 0;
 
 	        for (HashMap<String, Object> item : items) {
-	        	
-	        	long unitPrice = item.get("unitPrice") != null
-	        		    ? ((Number) item.get("unitPrice")).longValue()
-	        		    : ((Number) item.get("price")).longValue();
+	            normalizeOrderItem(item, cartType);
 
-	        	long quantity = ((Number) item.get("quantity")).longValue();
+	            long unitPrice = ((Number) item.get("unitPrice")).longValue();
+	            long quantity = ((Number) item.get("quantity")).longValue();
 
 	            if ("RENTAL".equals(cartType)) {
-	            	long deposit = item.get("deposit") == null ? 0
-	            		    : ((Number) item.get("deposit")).longValue();
+	                long deposit = item.get("deposit") == null ? 0 : ((Number) item.get("deposit")).longValue();
 
 	                String start = String.valueOf(item.get("rentalStart"));
 	                String end = String.valueOf(item.get("rentalEnd"));
-	                if (start == null || end == null || "null".equals(start) || "null".equals(end) || "".equals(start) || "".equals(end)) {
-	                    throw new RuntimeException("대여 날짜가 없습니다.");
-	                }
 
 	                long nights = java.time.temporal.ChronoUnit.DAYS.between(
-	                    java.time.LocalDate.parse(start),
-	                    java.time.LocalDate.parse(end)
+	                        java.time.LocalDate.parse(start),
+	                        java.time.LocalDate.parse(end)
 	                );
+
+	                if (nights <= 0) {
+	                    throw new RuntimeException("대여 기간이 올바르지 않습니다.");
+	                }
 
 	                serverAmount += (unitPrice * nights + deposit) * quantity;
 	            } else {
@@ -116,18 +119,21 @@ public class PaymentService {
 	            }
 	        }
 
-	     // 3. 쿠폰 할인 + 포인트 반영
 	        long discountAmt = 0;
-	        if (map.get("discountAmt") != null && !"".equals(String.valueOf(map.get("discountAmt")))) {
+	        if (map.get("discountAmt") != null
+	                && !"".equals(String.valueOf(map.get("discountAmt")))
+	                && !"null".equals(String.valueOf(map.get("discountAmt")))) {
 	            discountAmt = Long.parseLong(String.valueOf(map.get("discountAmt")));
 	        }
 
 	        long usePoint = 0;
-	        if (map.get("usePoint") != null && !"".equals(String.valueOf(map.get("usePoint"))) && !"null".equals(String.valueOf(map.get("usePoint")))) {
+	        if (map.get("usePoint") != null
+	                && !"".equals(String.valueOf(map.get("usePoint")))
+	                && !"null".equals(String.valueOf(map.get("usePoint")))) {
 	            usePoint = Long.parseLong(String.valueOf(map.get("usePoint")));
 	        }
-	     // ✅ 쿠폰 검증
-	        if (map.get("userCouponId") != null 
+
+	        if (map.get("userCouponId") != null
 	                && !"".equals(String.valueOf(map.get("userCouponId")))
 	                && !"null".equals(String.valueOf(map.get("userCouponId")))) {
 
@@ -138,30 +144,24 @@ public class PaymentService {
 	            }
 	        }
 
-	        map.put("usePoint", usePoint); // ← insertTempOrder에 넘기기 위해 필요
 	        long finalAmount = Math.max(0, serverAmount - discountAmt - usePoint);
-	        map.put("amount", finalAmount);
-	        
 
-	        // 4. 주문 생성
+	        map.put("amount", finalAmount);
+	        map.put("usePoint", usePoint);
+
 	        paymentMapper.insertTempOrder(map);
 
 	        Object orderId = map.get("orderId");
 
-	        // 5. 주문상품 생성
-//	        for (HashMap<String, Object> item : items) {
-//	            item.put("orderId", orderId);
-//
-//	            if (item.get("unitPrice") == null) {
-//	                item.put("unitPrice", item.get("price"));
-//	            }
-//
-//	            if (item.get("optionItemId") == null || "null".equals(String.valueOf(item.get("optionItemId")))) {
-//	                throw new RuntimeException("optionItemId 없음 - 주문상품 저장 불가");
-//	            }
-//
-//	            paymentMapper.insertOrderItem(item);
-//	        }
+	        if (orderId == null) {
+	            throw new RuntimeException("주문번호 생성에 실패했습니다.");
+	        }
+
+	        for (HashMap<String, Object> item : items) {
+	            item.put("orderId", orderId);
+	            paymentMapper.insertOrderItem(item);
+	        }
+
 	        resultMap.put("result", "success");
 	        resultMap.put("orderId", orderId);
 	        resultMap.put("amount", finalAmount);
@@ -174,31 +174,41 @@ public class PaymentService {
 
 	    return resultMap;
 	}
-	
 	// 토스 API 승인 - 트랜잭션 없음
 	public HashMap<String, Object> confirmPayment(String paymentKey, String orderId, Long amount) {
+	    Long orderIdLong = Long.parseLong(orderId.replace("modak-", ""));
+
+	    HashMap<String, Object> checkMap = new HashMap<>();
+	    checkMap.put("orderId", orderIdLong);
+
+	    int paidCount = paymentMapper.selectPaidPaymentCount(checkMap);
+
+	    if (paidCount > 0) {
+	        HashMap<String, Object> resultMap = new HashMap<>();
+	        resultMap.put("result", "success");
+	        resultMap.put("message", "이미 처리된 결제입니다.");
+	        return resultMap;
+	    }
 
 	    HttpResponse<String> response = callTossApi(paymentKey, orderId, amount);
-	    Long orderIdLong = Long.parseLong(orderId.replace("modak-", ""));
 
 	    if (response != null && response.statusCode() == 200) {
 	        try {
 	            return processAfterPayment(orderIdLong, amount, paymentKey);
 	        } catch (Exception e) {
-	            // ✅ DB 처리 중 오류 → 주문 취소 처리 후 에러 페이지로
 	            e.printStackTrace();
+
 	            HashMap<String, Object> failMap = new HashMap<>();
 	            failMap.put("orderId", orderIdLong);
 	            failMap.put("orderStatus", "CANCELLED");
 	            paymentMapper.updateOrderStatus(failMap);
 
 	            HashMap<String, Object> resultMap = new HashMap<>();
-	            resultMap.put("result", "error");        // ← "fail"과 구분하기 위해 "error"
+	            resultMap.put("result", "error");
 	            resultMap.put("message", e.getMessage());
 	            return resultMap;
 	        }
 	    } else {
-	        // 토스 승인 실패 → 결제 실패 페이지
 	        HashMap<String, Object> failMap = new HashMap<>();
 	        failMap.put("orderId", orderIdLong);
 	        failMap.put("orderStatus", "CANCELLED");
@@ -206,8 +216,10 @@ public class PaymentService {
 
 	        HashMap<String, Object> resultMap = new HashMap<>();
 	        resultMap.put("result", "fail");
+
 	        String failMessage = response == null ? "토스 승인 요청 실패" : response.body();
 	        resultMap.put("message", "토스 승인 실패: " + failMessage);
+
 	        return resultMap;
 	    }
 	}
@@ -216,23 +228,24 @@ public class PaymentService {
 		try {
 			String auth = Base64.getEncoder().encodeToString((tossSecretKey + ":").getBytes());
 
-			String body = String.format("{\"paymentKey\":\"%s\",\"orderId\":\"%s\",\"amount\":%d}", paymentKey, orderId, amount);
+			String body = String.format("{\"paymentKey\":\"%s\",\"orderId\":\"%s\",\"amount\":%d}", paymentKey, orderId,
+					amount);
 
 			HttpClient client = HttpClient.newHttpClient();
 			HttpRequest request = HttpRequest.newBuilder()
 					.uri(URI.create("https://api.tosspayments.com/v1/payments/confirm"))
 					.header("Authorization", "Basic " + auth).header("Content-Type", "application/json")
 					.POST(HttpRequest.BodyPublishers.ofString(body)).build();
-			
-			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-			
-			 System.out.println("=== 토스 결제 confirm 응답 ===");
-		        System.out.println("orderId : " + orderId);
-		        System.out.println("statusCode : " + response.statusCode());
-		        System.out.println("body : " + response.body());
-		        System.out.println("==============================");
 
-			return client.send(request, HttpResponse.BodyHandlers.ofString());
+			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+			System.out.println("=== 토스 결제 confirm 응답 ===");
+			System.out.println("orderId : " + orderId);
+			System.out.println("statusCode : " + response.statusCode());
+			System.out.println("body : " + response.body());
+			System.out.println("==============================");
+
+			return response;
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -243,191 +256,187 @@ public class PaymentService {
 	// DB 처리 전용 - 트랜잭션 적용
 	@Transactional
 	public HashMap<String, Object> processAfterPayment(Long orderIdLong, Long amount, String paymentKey) {
-		HashMap<String, Object> resultMap = new HashMap<>();
+	    HashMap<String, Object> resultMap = new HashMap<>();
 
-		HashMap<String, Object> baseMap = new HashMap<>();
-		baseMap.put("orderId", orderIdLong);
+	    HashMap<String, Object> baseMap = new HashMap<>();
+	    baseMap.put("orderId", orderIdLong);
 
-		HashMap<String, Object> orderInfo = paymentMapper.selectOrderById(baseMap);
-		if (orderInfo == null) {
-			throw new RuntimeException("주문 정보를 찾을 수 없습니다.");
-		}
+	    HashMap<String, Object> orderInfo = paymentMapper.selectOrderById(baseMap);
 
-		String userId = String.valueOf(orderInfo.get("userId"));
-		if (userId == null || "null".equals(userId)) {
-			userId = String.valueOf(orderInfo.get("USER_ID"));
-		}
+	    if (orderInfo == null) {
+	        throw new RuntimeException("주문 정보를 찾을 수 없습니다.");
+	    }
 
-		boolean isGuest = userId != null && userId.startsWith("GUEST_");
+	    int paidCount = paymentMapper.selectPaidPaymentCount(baseMap);
+	    if (paidCount > 0) {
+	        resultMap.put("result", "success");
+	        return resultMap;
+	    }
 
-		// 1. 주문 상태 PAID
-		baseMap.put("orderStatus", "PAID");
-		paymentMapper.updateOrderStatus(baseMap);
+	    String userId = String.valueOf(orderInfo.get("userId"));
+	    if (userId == null || "null".equals(userId)) {
+	        userId = String.valueOf(orderInfo.get("USER_ID"));
+	    }
 
-		// 2. 결제 INSERT
-		baseMap.put("amount", amount);
-		baseMap.put("paymentKey", paymentKey);
-		paymentMapper.insertPayment(baseMap);
+	    boolean isGuest = userId != null && userId.startsWith("GUEST_");
 
-		// 3. 결제 이력 INSERT
-		String orderType = getStringValue(orderInfo, "orderType", "ORDER_TYPE");
-		baseMap.put("payType", orderType);
-		paymentMapper.insertPaymentHistory(baseMap);
-		
-		// ✅ 4. ORDER_ITEM INSERT (결제 성공 후로 이동)
-		String cartIds = getStringValue(orderInfo, "cartIds", "CART_IDS");
-		if (cartIds != null && !"null".equals(cartIds)) {
-		    HashMap<String, Object> cartMap = new HashMap<>();
-		    cartMap.put("userId", userId);
-		    cartMap.put("cartIds", cartIds);
-		    cartMap.put("cartType", orderType);
-		    List<HashMap<String, Object>> items = paymentMapper.selectCheckoutItems(cartMap);
+	    baseMap.put("orderStatus", "PAID");
+	    paymentMapper.updateOrderStatus(baseMap);
 
-		    for (HashMap<String, Object> item : items) {
-		        item.put("orderId", orderIdLong);
-		        if (item.get("unitPrice") == null) {
-		            item.put("unitPrice", item.get("price"));
-		        }
-		        paymentMapper.insertOrderItem(item);
-		    }
-		}
+	    baseMap.put("amount", amount);
+	    baseMap.put("paymentKey", paymentKey);
+	    paymentMapper.insertPayment(baseMap);
 
-		// 5. 장바구니 삭제
-		baseMap.put("userId", userId);
-		paymentMapper.deleteCartByOrderId(baseMap);
+	    String orderType = getStringValue(orderInfo, "orderType", "ORDER_TYPE");
+	    baseMap.put("payType", orderType);
+	    paymentMapper.insertPaymentHistory(baseMap);
 
-		// 6. 쿠폰 사용 처리
-		Object userCouponId = orderInfo.get("userCouponId");
-		if (userCouponId == null) {
-		    userCouponId = orderInfo.get("USER_COUPON_ID");
-		}
+	    Object userCouponId = orderInfo.get("userCouponId");
+	    if (userCouponId == null) {
+	        userCouponId = orderInfo.get("USER_COUPON_ID");
+	    }
 
-		// ✅ 1. "null" 문자열 체크 추가 (DB에서 null이 "null" 문자열로 올 때 방지)
-		if (!isGuest && userCouponId != null && !"".equals(String.valueOf(userCouponId)) && !"null".equals(String.valueOf(userCouponId))) {
-		    long totalPrice = getLongValue(orderInfo, "totalPrice", "TOTAL_PRICE");
-		    long discountAmt = getLongValue(orderInfo, "discountAmt", "DISCOUNT_AMT");
+	    if (!isGuest && userCouponId != null
+	            && !"".equals(String.valueOf(userCouponId))
+	            && !"null".equals(String.valueOf(userCouponId))) {
 
-		    HashMap<String, Object> couponMap = new HashMap<>();
-		    couponMap.put("userCouponId", userCouponId);
-		    couponMap.put("userId", userId);
-		    couponMap.put("orderId", orderIdLong);
-		    couponMap.put("discountAmt", discountAmt);
+	        long discountAmt = getLongValue(orderInfo, "discountAmt", "DISCOUNT_AMT");
 
-		    // ✅ 2. 결과값 확인용 로그 추가 (updateCouponUsed가 0이면 WHERE 조건 불일치)
-		    int updated = paymentMapper.updateCouponUsed(couponMap);
+	        HashMap<String, Object> couponMap = new HashMap<>();
+	        couponMap.put("userCouponId", userCouponId);
+	        couponMap.put("userId", userId);
+	        couponMap.put("orderId", orderIdLong);
+	        couponMap.put("discountAmt", discountAmt);
 
-		    if (updated == 0) {
-		        throw new RuntimeException("이미 사용된 쿠폰입니다.");
-		    }
+	        int updated = paymentMapper.updateCouponUsed(couponMap);
 
-		    paymentMapper.insertCouponUseLog(couponMap);
-		    alarmService.createAlarm(userId, "EVENT",
-		            "쿠폰이 사용되었습니다 🎫",
-		            "보유 쿠폰이 결제에 적용되었습니다.",
-		            orderIdLong);
-		}
+	        if (updated == 0) {
+	            throw new RuntimeException("이미 사용된 쿠폰입니다.");
+	        }
 
-		// 7. 포인트 적립
-		if (!isGuest) {
-			long earnedPoint = amount / 100;
-			long usePoint = getLongValue(orderInfo, "usePoint", "USE_POINT");
+	        paymentMapper.insertCouponUseLog(couponMap);
 
-			String orderName = getStringValue(orderInfo, "orderName", "ORDER_NAME");
-			long itemCount = getLongValue(orderInfo, "itemCount", "ITEM_COUNT");
+	        alarmService.createAlarm(
+	                userId,
+	                "EVENT",
+	                "쿠폰이 사용되었습니다 🎫",
+	                "보유 쿠폰이 결제에 적용되었습니다.",
+	                orderIdLong
+	        );
+	    }
 
-			String description = "구매 적립";
-			if (orderName != null && !"".equals(orderName)) {
-				description += " - " + orderName;
-				if (itemCount > 1) {
-					description += " 외 " + (itemCount - 1) + "건";
-				}
-			}
+	    if (!isGuest) {
+	        long earnedPoint = amount / 100;
+	        long usePoint = getLongValue(orderInfo, "usePoint", "USE_POINT");
 
-			HashMap<String, Object> userUpdateMap = new HashMap<>();
-			userUpdateMap.put("userId", userId);
-			userUpdateMap.put("earnedPoint", earnedPoint);
-			userUpdateMap.put("usePoint", usePoint);
-			userUpdateMap.put("amount", amount);
-			userUpdateMap.put("description", description);
+	        String orderName = getStringValue(orderInfo, "orderName", "ORDER_NAME");
+	        long itemCount = getLongValue(orderInfo, "itemCount", "ITEM_COUNT");
 
-			if (earnedPoint > 0) {
-				paymentMapper.insertPointHistory(userUpdateMap);
-			}
+	        String description = "구매 적립";
 
-			paymentMapper.updateUserPointAndAmount(userUpdateMap);
-		}
+	        if (orderName != null && !"".equals(orderName)) {
+	            description += " - " + orderName;
 
-		// 8. 재고 차감
-		List<HashMap<String, Object>> orderItems = paymentMapper.selectOrderItemsForStock(baseMap);
+	            if (itemCount > 1) {
+	                description += " 외 " + (itemCount - 1) + "건";
+	            }
+	        }
 
-		for (HashMap<String, Object> item : orderItems) {
-		    String itemOrderType = getStringValue(item, "orderType", "ORDER_TYPE");
+	        HashMap<String, Object> userUpdateMap = new HashMap<>();
+	        userUpdateMap.put("userId", userId);
+	        userUpdateMap.put("earnedPoint", earnedPoint);
+	        userUpdateMap.put("usePoint", usePoint);
+	        userUpdateMap.put("amount", amount);
+	        userUpdateMap.put("description", description);
 
-		    HashMap<String, Object> stockMap = new HashMap<>();
-		    stockMap.put("productId", getValue(item, "productId", "PRODUCT_ID"));
-		    stockMap.put("optionItemId", getValue(item, "optionItemId", "OPTION_ITEM_ID"));
-		    stockMap.put("quantity", getValue(item, "quantity", "QUANTITY"));
-		    if (stockMap.get("optionItemId") == null || "null".equals(String.valueOf(stockMap.get("optionItemId")))) {
-		        throw new RuntimeException("optionItemId 없음 - 재고 처리 불가");
-		    }
+	        if (earnedPoint > 0) {
+	            paymentMapper.insertPointHistory(userUpdateMap);
+	        }
 
-		    if ("PURCHASE".equals(itemOrderType)) {
-		        int updated = paymentMapper.decreaseStockForPurchase(stockMap);
-		        if (updated == 0) {
-		        	throw new RuntimeException("구매 재고 부족 또는 재고 데이터 없음 - PRODUCT_ID: " + stockMap.get("productId")
-	                + ", OPTION_ITEM_ID: " + stockMap.get("optionItemId"));
-		        }
+	        paymentMapper.updateUserPointAndAmount(userUpdateMap);
+	    }
 
-		    } else if ("RENTAL".equals(itemOrderType)) {
-		        stockMap.put("startDate", getValue(item, "startDate", "START_DATE"));
-		        stockMap.put("endDate", getValue(item, "endDate", "END_DATE"));
+	    List<HashMap<String, Object>> orderItems = paymentMapper.selectOrderItemsForStock(baseMap);
 
-		        // 1. 날짜별 재고 레코드 없으면 자동 생성
-		        stockMap.put("defaultQty", 10);
-		        paymentMapper.insertStockIfNotExists(stockMap);
-		        System.out.println("재고 생성 완료: " + stockMap);
+	    if (orderItems == null || orderItems.isEmpty()) {
+	        throw new RuntimeException("주문상품 정보가 없습니다.");
+	    }
 
-		        // 2. 재고 차감
-		        int updatedRows = paymentMapper.decreaseStockForRental(stockMap);
+	    for (HashMap<String, Object> item : orderItems) {
+	        String itemOrderType = getStringValue(item, "orderType", "ORDER_TYPE");
 
-		        // 3. 차감된 rows가 대여 일수보다 적으면 재고 부족
-		        long rentalDays = java.time.temporal.ChronoUnit.DAYS.between(
-		            java.time.LocalDate.parse(String.valueOf(stockMap.get("startDate"))),
-		            java.time.LocalDate.parse(String.valueOf(stockMap.get("endDate")))
-		        );
-		        
-		        long expectedRows = rentalDays;
+	        HashMap<String, Object> stockMap = new HashMap<>();
+	        stockMap.put("productId", getValue(item, "productId", "PRODUCT_ID"));
+	        stockMap.put("optionItemId", getValue(item, "optionItemId", "OPTION_ITEM_ID"));
+	        stockMap.put("quantity", getValue(item, "quantity", "QUANTITY"));
 
-		        if (updatedRows != expectedRows) {
-		            throw new RuntimeException("대여 재고 부족 - PRODUCT_ID: " + stockMap.get("productId"));
-		        }
+	        if (stockMap.get("optionItemId") == null
+	                || "null".equals(String.valueOf(stockMap.get("optionItemId")))) {
+	            throw new RuntimeException("optionItemId 없음 - 재고 처리 불가");
+	        }
 
-		        // 4. rental 이력 INSERT
-		        int quantity = Integer.parseInt(String.valueOf(getValue(item, "quantity", "QUANTITY")));
-		        for (int i = 0; i < quantity; i++) {
-		            HashMap<String, Object> rentalMap = new HashMap<>();
-		            rentalMap.put("itemId", getValue(item, "itemId", "ITEM_ID"));
-		            rentalMap.put("userId", userId);
-		            rentalMap.put("startDate", getValue(item, "startDate", "START_DATE"));
-		            rentalMap.put("returnDate", getValue(item, "endDate", "END_DATE"));
-		            rentalMap.put("guestName", getValue(orderInfo, "guestName", "GUEST_NAME"));
-		            rentalMap.put("guestPhone", getValue(orderInfo, "guestPhone", "GUEST_PHONE"));
-		            paymentMapper.insertRental(rentalMap);
-		        }
-		    }
-		}
-	
-		if (!isGuest) {
-		    String orderName = getStringValue(orderInfo, "orderName", "ORDER_NAME");
-		    alarmService.createAlarm(userId, "NOTICE",
-		        "결제가 완료되었습니다 🛒",
-		        (orderName != null ? orderName : "주문") + "의 결제가 완료되었습니다.",
-		        orderIdLong);
-		}
-		resultMap.put("result", "success");
-		return resultMap;
+	        if ("PURCHASE".equals(itemOrderType)) {
+	            int updated = paymentMapper.decreaseStockForPurchase(stockMap);
+
+	            if (updated == 0) {
+	                throw new RuntimeException("구매 재고 부족 또는 재고 데이터 없음 - PRODUCT_ID: "
+	                        + stockMap.get("productId")
+	                        + ", OPTION_ITEM_ID: "
+	                        + stockMap.get("optionItemId"));
+	            }
+
+	        } else if ("RENTAL".equals(itemOrderType)) {
+	            stockMap.put("startDate", getValue(item, "startDate", "START_DATE"));
+	            stockMap.put("endDate", getValue(item, "endDate", "END_DATE"));
+	            stockMap.put("defaultQty", 10);
+
+	            paymentMapper.insertStockIfNotExists(stockMap);
+
+	            int updatedRows = paymentMapper.decreaseStockForRental(stockMap);
+
+	            long rentalDays = java.time.temporal.ChronoUnit.DAYS.between(
+	                    java.time.LocalDate.parse(String.valueOf(stockMap.get("startDate"))),
+	                    java.time.LocalDate.parse(String.valueOf(stockMap.get("endDate")))
+	            );
+
+	            if (updatedRows != rentalDays) {
+	                throw new RuntimeException("대여 재고 부족 - PRODUCT_ID: " + stockMap.get("productId"));
+	            }
+
+	            int quantity = Integer.parseInt(String.valueOf(getValue(item, "quantity", "QUANTITY")));
+
+	            for (int i = 0; i < quantity; i++) {
+	                HashMap<String, Object> rentalMap = new HashMap<>();
+	                rentalMap.put("itemId", getValue(item, "itemId", "ITEM_ID"));
+	                rentalMap.put("userId", userId);
+	                rentalMap.put("startDate", getValue(item, "startDate", "START_DATE"));
+	                rentalMap.put("returnDate", getValue(item, "endDate", "END_DATE"));
+	                rentalMap.put("guestName", getValue(orderInfo, "guestName", "GUEST_NAME"));
+	                rentalMap.put("guestPhone", getValue(orderInfo, "guestPhone", "GUEST_PHONE"));
+
+	                paymentMapper.insertRental(rentalMap);
+	            }
+	        }
+	    }
+
+	    baseMap.put("userId", userId);
+	    paymentMapper.deleteCartByOrderId(baseMap);
+
+	    if (!isGuest) {
+	        String orderName = getStringValue(orderInfo, "orderName", "ORDER_NAME");
+
+	        alarmService.createAlarm(
+	                userId,
+	                "NOTICE",
+	                "결제가 완료되었습니다 🛒",
+	                (orderName != null ? orderName : "주문") + "의 결제가 완료되었습니다.",
+	                orderIdLong
+	        );
+	    }
+
+	    resultMap.put("result", "success");
+	    return resultMap;
 	}
-
 	private Object getValue(HashMap<String, Object> map, String camelKey, String upperKey) {
 		Object value = map.get(camelKey);
 		if (value == null) {
@@ -442,13 +451,56 @@ public class PaymentService {
 	}
 
 	private long getLongValue(HashMap<String, Object> map, String camelKey, String upperKey) {
-	    Object value = getValue(map, camelKey, upperKey);
-	    if (value == null || "".equals(String.valueOf(value))) return 0L;
-	    
-	    if (value instanceof Number) {
-	        return ((Number) value).longValue();  // Gson Double이든 DB Integer든 전부 처리
+		Object value = getValue(map, camelKey, upperKey);
+		if (value == null || "".equals(String.valueOf(value)))
+			return 0L;
+
+		if (value instanceof Number) {
+			return ((Number) value).longValue(); // Gson Double이든 DB Integer든 전부 처리
+		}
+		return Long.parseLong(String.valueOf(value)); // 혹시 String으로 온 경우 폴백
+	}
+	private void normalizeOrderItem(HashMap<String, Object> item, String cartType) {
+	    if (item.get("productId") == null || "null".equals(String.valueOf(item.get("productId")))) {
+	        throw new RuntimeException("상품 정보가 없습니다.");
 	    }
-	    return Long.parseLong(String.valueOf(value));  // 혹시 String으로 온 경우 폴백
+
+	    if (item.get("optionItemId") == null || "null".equals(String.valueOf(item.get("optionItemId")))) {
+	        throw new RuntimeException("옵션 정보가 없습니다.");
+	    }
+
+	    if (item.get("quantity") == null || "null".equals(String.valueOf(item.get("quantity")))) {
+	        item.put("quantity", 1);
+	    }
+
+	    if (item.get("unitPrice") == null || "null".equals(String.valueOf(item.get("unitPrice")))) {
+	        item.put("unitPrice", item.get("price"));
+	    }
+
+	    if (item.get("unitPrice") == null || "null".equals(String.valueOf(item.get("unitPrice")))) {
+	        throw new RuntimeException("상품 가격 정보가 없습니다.");
+	    }
+
+	    if ("RENTAL".equals(cartType)) {
+	        if (item.get("rentalStart") == null || "null".equals(String.valueOf(item.get("rentalStart")))) {
+	            item.put("rentalStart", item.get("startDate"));
+	        }
+
+	        if (item.get("rentalEnd") == null || "null".equals(String.valueOf(item.get("rentalEnd")))) {
+	            item.put("rentalEnd", item.get("endDate"));
+	        }
+
+	        if (item.get("rentalStart") == null || item.get("rentalEnd") == null
+	                || "null".equals(String.valueOf(item.get("rentalStart")))
+	                || "null".equals(String.valueOf(item.get("rentalEnd")))
+	                || "".equals(String.valueOf(item.get("rentalStart")))
+	                || "".equals(String.valueOf(item.get("rentalEnd")))) {
+	            throw new RuntimeException("대여 날짜가 없습니다.");
+	        }
+	    } else {
+	        item.put("rentalStart", null);
+	        item.put("rentalEnd", null);
+	    }
 	}
 
 }

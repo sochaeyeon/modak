@@ -149,19 +149,19 @@ public class PaymentService {
 	        Object orderId = map.get("orderId");
 
 	        // 5. 주문상품 생성
-	        for (HashMap<String, Object> item : items) {
-	            item.put("orderId", orderId);
-
-	            if (item.get("unitPrice") == null) {
-	                item.put("unitPrice", item.get("price"));
-	            }
-
-	            if (item.get("optionItemId") == null || "null".equals(String.valueOf(item.get("optionItemId")))) {
-	                throw new RuntimeException("optionItemId 없음 - 주문상품 저장 불가");
-	            }
-
-	            paymentMapper.insertOrderItem(item);
-	        }
+//	        for (HashMap<String, Object> item : items) {
+//	            item.put("orderId", orderId);
+//
+//	            if (item.get("unitPrice") == null) {
+//	                item.put("unitPrice", item.get("price"));
+//	            }
+//
+//	            if (item.get("optionItemId") == null || "null".equals(String.valueOf(item.get("optionItemId")))) {
+//	                throw new RuntimeException("optionItemId 없음 - 주문상품 저장 불가");
+//	            }
+//
+//	            paymentMapper.insertOrderItem(item);
+//	        }
 	        resultMap.put("result", "success");
 	        resultMap.put("orderId", orderId);
 	        resultMap.put("amount", finalAmount);
@@ -174,6 +174,7 @@ public class PaymentService {
 
 	    return resultMap;
 	}
+	
 	// 토스 API 승인 - 트랜잭션 없음
 	public HashMap<String, Object> confirmPayment(String paymentKey, String orderId, Long amount) {
 
@@ -215,14 +216,21 @@ public class PaymentService {
 		try {
 			String auth = Base64.getEncoder().encodeToString((tossSecretKey + ":").getBytes());
 
-			String body = String.format("{\"paymentKey\":\"%s\",\"orderId\":\"%s\",\"amount\":%d}", paymentKey, orderId,
-					amount);
+			String body = String.format("{\"paymentKey\":\"%s\",\"orderId\":\"%s\",\"amount\":%d}", paymentKey, orderId, amount);
 
 			HttpClient client = HttpClient.newHttpClient();
 			HttpRequest request = HttpRequest.newBuilder()
 					.uri(URI.create("https://api.tosspayments.com/v1/payments/confirm"))
 					.header("Authorization", "Basic " + auth).header("Content-Type", "application/json")
 					.POST(HttpRequest.BodyPublishers.ofString(body)).build();
+			
+			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+			
+			 System.out.println("=== 토스 결제 confirm 응답 ===");
+		        System.out.println("orderId : " + orderId);
+		        System.out.println("statusCode : " + response.statusCode());
+		        System.out.println("body : " + response.body());
+		        System.out.println("==============================");
 
 			return client.send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -265,12 +273,30 @@ public class PaymentService {
 		String orderType = getStringValue(orderInfo, "orderType", "ORDER_TYPE");
 		baseMap.put("payType", orderType);
 		paymentMapper.insertPaymentHistory(baseMap);
+		
+		// ✅ 4. ORDER_ITEM INSERT (결제 성공 후로 이동)
+		String cartIds = getStringValue(orderInfo, "cartIds", "CART_IDS");
+		if (cartIds != null && !"null".equals(cartIds)) {
+		    HashMap<String, Object> cartMap = new HashMap<>();
+		    cartMap.put("userId", userId);
+		    cartMap.put("cartIds", cartIds);
+		    cartMap.put("cartType", orderType);
+		    List<HashMap<String, Object>> items = paymentMapper.selectCheckoutItems(cartMap);
 
-		// 4. 장바구니 삭제
+		    for (HashMap<String, Object> item : items) {
+		        item.put("orderId", orderIdLong);
+		        if (item.get("unitPrice") == null) {
+		            item.put("unitPrice", item.get("price"));
+		        }
+		        paymentMapper.insertOrderItem(item);
+		    }
+		}
+
+		// 5. 장바구니 삭제
 		baseMap.put("userId", userId);
 		paymentMapper.deleteCartByOrderId(baseMap);
 
-		// 5. 쿠폰 사용 처리
+		// 6. 쿠폰 사용 처리
 		Object userCouponId = orderInfo.get("userCouponId");
 		if (userCouponId == null) {
 		    userCouponId = orderInfo.get("USER_COUPON_ID");
@@ -301,7 +327,7 @@ public class PaymentService {
 		            orderIdLong);
 		}
 
-		// 6. 포인트 적립
+		// 7. 포인트 적립
 		if (!isGuest) {
 			long earnedPoint = amount / 100;
 			long usePoint = getLongValue(orderInfo, "usePoint", "USE_POINT");
@@ -331,7 +357,7 @@ public class PaymentService {
 			paymentMapper.updateUserPointAndAmount(userUpdateMap);
 		}
 
-		// 7. 재고 차감
+		// 8. 재고 차감
 		List<HashMap<String, Object>> orderItems = paymentMapper.selectOrderItemsForStock(baseMap);
 
 		for (HashMap<String, Object> item : orderItems) {

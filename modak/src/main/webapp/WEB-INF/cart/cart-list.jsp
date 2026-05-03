@@ -173,7 +173,7 @@
 
                         </div><!-- /cart-main -->
 
-                        <!-- 우측 사이드바 -->
+                        <!-- cart 우측 사이드바 -->
                         <div class="cart-aside">
                             <div class="aside-box">
                                 <div class="aside-title">주문 예상 금액</div>

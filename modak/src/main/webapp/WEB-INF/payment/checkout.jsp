@@ -267,98 +267,98 @@
 
                         </div><!-- /checkout-main -->
 
-                        <!-- ══════════ 우측 사이드바 ══════════ -->
-                        <div class="cart-aside checkout-aside">
-                            <div class="aside-box">
-                                <div class="aside-title">결제 예정 금액</div>
-                                <div class="aside-rows">
+                        <!-- checkout 우측 사이드바 -->
+<div class="cart-aside checkout-aside">
+    <div class="aside-box">
+        <div class="aside-title">결제 예정 금액</div>
 
-                                    <div class="aside-row">
-                                        <span>총 상품금액</span>
-                                        <span class="val">{{ formatPrice(itemTotal) }}</span>
-                                    </div>
+        <div class="aside-rows">
+            <div class="aside-row">
+                <span>총 선택상품금액</span>
+                <span class="val">{{ formatPrice(itemTotal) }}</span>
+            </div>
 
-                                    <!-- 쿠폰: 회원만 -->
-                                    <div class="coupon-box" v-if="isLogin">
-                                        <div class="coupon-title">쿠폰 선택</div>
-                                        <select class="coupon-select" v-model="selectedUserCouponId">
-                                            <option value="">쿠폰 사용 안함</option>
-                                            <option v-for="coupon in couponList" :key="coupon.userCouponId"
-                                                :value="coupon.userCouponId"
-                                                :disabled="itemTotal < coupon.minOrderAmt">
-                                                {{ coupon.couponName }}
-                                                / {{ couponText(coupon) }}
-                                                / {{ formatPrice(coupon.minOrderAmt) }} 이상
-                                            </option>
-                                        </select>
-                                    </div>
+            <div class="coupon-box" v-if="isLogin">
+                <div class="coupon-title">쿠폰 선택</div>
+                <select class="coupon-select" v-model="selectedUserCouponId">
+                    <option value="">쿠폰 사용 안함</option>
+                    <option v-for="coupon in couponList"
+                            :key="coupon.userCouponId"
+                            :value="coupon.userCouponId"
+                            :disabled="itemTotal < coupon.minOrderAmt">
+                        {{ coupon.couponName }}
+                        / {{ couponText(coupon) }}
+                        / {{ formatPrice(coupon.minOrderAmt) }} 이상
+                    </option>
+                </select>
+            </div>
 
-                                    <!-- 비회원: 쿠폰 안내 -->
-                                    <div v-if="!isLogin"
-                                        style="padding:10px 0;font-size:12px;color:#999;text-align:center;">
-                                        <a href="/user/login.do" style="color:var(--orange);font-weight:700;">로그인</a> 후
-                                        쿠폰·포인트를 사용할 수 있습니다.
-                                    </div>
+            <div v-if="!isLogin" class="aside-login-guide">
+                <a href="/user/login.do">로그인</a> 후 쿠폰·포인트를 사용할 수 있습니다.
+            </div>
 
-                                    <div class="aside-row" v-if="isLogin">
-                                        <span>쿠폰할인예상금액</span>
-                                        <span class="val red">-{{ formatPrice(couponDiscount) }}</span>
-                                    </div>
+            <div class="aside-row" v-if="isLogin">
+                <span>쿠폰할인예상금액</span>
+                <span class="val red">-{{ formatPrice(couponDiscount) }}</span>
+            </div>
 
-                                    <!-- 포인트: 회원만 -->
-                                    <div class="point-box" v-if="isLogin">
-                                        <div class="point-title">
-                                            <span>포인트 사용</span>
-                                            <span>보유 {{ formatPrice(userPoint) }}</span>
-                                        </div>
-                                        <div class="point-input-wrap">
-                                            <div class="input-box">
-                                                <input type="text"
-                                                    class="point-input"
-                                                    :value="usePoint"
-                                                    @input="onPointInput"
-                                                    placeholder="사용할 포인트">
-                                                <button type="button"
-                                                    class="point-clear-btn"
-                                                    v-if="Number(usePoint || 0) > 0"
-                                                    @click="clearPoint">
-                                                    ✕
-                                                </button>
-                                            </div>
-                                            <button type="button" class="point-use-btn" @click="useAllPoint">
-                                                전액사용
-                                            </button>
-                                        </div>
-                                        <div class="point-help">
-                                            최대 {{ formatPrice(maxUsePoint) }} 사용 가능
-                                        </div>
-                                    </div>
+            <div class="point-box" v-if="isLogin">
+                <div class="point-title">
+                    <span>포인트 사용</span>
+                    <span>보유 {{ formatPrice(userPoint) }}</span>
+                </div>
 
-                                    <div class="aside-row" v-if="isLogin">
-                                        <span>포인트 사용금액</span>
-                                        <span class="val red">-{{ formatPrice(validUsePoint) }}</span>
-                                    </div>
+                <div class="point-input-wrap">
+                    <div class="input-box">
+                        <input type="text"
+                               class="point-input"
+                               :value="usePoint"
+                               @input="onPointInput"
+                               placeholder="사용할 포인트">
 
-                                    <div class="aside-row">
-                                        <span>총 배송비</span>
-                                        <span class="val">0원</span>
-                                    </div>
+                        <button type="button"
+                                class="point-clear-btn"
+                                v-if="Number(usePoint || 0) > 0"
+                                @click="clearPoint">
+                            ✕
+                        </button>
+                    </div>
 
-                                    <div class="aside-row total">
-                                        <span>최종 결제금액</span>
-                                        <span class="val">{{ formatPrice(finalTotal) }}</span>
-                                    </div>
-                                </div>
+                    <button type="button" class="point-use-btn" @click="useAllPoint">
+                        전액사용
+                    </button>
+                </div>
 
-                                <button class="order-btn"
-                                    :disabled="!agreeAll || orderItems.length === 0"
-                                    @click="fnPay">
-                                    {{ formatPrice(finalTotal) }} 결제하기
-                                </button>
+                <div class="point-help">
+                    최대 {{ formatPrice(maxUsePoint) }} 사용 가능
+                </div>
+            </div>
 
-                                <div class="pay-info">결제 완료 후 취소/변경이 어려울 수 있습니다</div>
-                            </div>
-                        </div>
+            <div class="aside-row" v-if="isLogin">
+                <span>포인트 사용금액</span>
+                <span class="val red">-{{ formatPrice(validUsePoint) }}</span>
+            </div>
+
+            <div class="aside-row">
+                <span>총 배송비</span>
+                <span class="val">0원</span>
+            </div>
+
+            <div class="aside-row total">
+                <span>총 주문 예상 금액</span>
+                <span class="val">{{ formatPrice(finalTotal) }}</span>
+            </div>
+        </div>
+
+        <button class="order-btn"
+                :disabled="!agreeAll || orderItems.length === 0"
+                @click="fnPay">
+            {{ formatPrice(finalTotal) }} 결제하기
+        </button>
+
+        <div class="pay-info">결제 완료 후 취소/변경이 어려울 수 있습니다</div>
+    </div>
+</div>
 
                     </div><!-- /checkout-layout -->
                 </div><!-- /checkout-wrap -->

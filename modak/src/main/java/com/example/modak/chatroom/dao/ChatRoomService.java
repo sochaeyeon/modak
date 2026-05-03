@@ -1,15 +1,15 @@
 package com.example.modak.chatroom.dao;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.io.File;
 import java.util.UUID;
 
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.modak.alarm.dao.AlarmService;
 import com.example.modak.chatroom.mapper.ChatRoomMapper;
@@ -24,59 +24,142 @@ public class ChatRoomService {
     // 대화 신청
     // ════════════════════════════════════════
     @Transactional
+    public HashMap<String, Object> respondChat(String userId, Long requestId, String action) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            Map<String, Object> req = mapper.selectRequestById(requestId);
+            if (req == null) {
+                result.put("result", "fail");
+                result.put("message", "신청 정보를 찾을 수 없습니다.");
+                return result;
+            }
+
+            String fromUser = String.valueOf(req.get("FROM_USER"));
+            String toUser = String.valueOf(req.get("TO_USER"));
+            String status = String.valueOf(req.get("STATUS"));
+
+            if (!userId.equals(toUser)) {
+                result.put("result", "fail");
+                result.put("message", "본인에게 온 신청만 처리할 수 있습니다.");
+                return result;
+            }
+
+            HashMap<String, Object> roomCheck = new HashMap<>();
+            roomCheck.put("userId", fromUser);
+            roomCheck.put("otherId", toUser);
+
+            Map<String, Object> existingRoom = mapper.selectChatRoomIncludeHidden(roomCheck);
+
+            // 이미 수락된 신청이면 기존 방으로 보내기
+            if ("ACCEPTED".equals(status)) {
+                if (existingRoom != null) {
+                    result.put("result", "success");
+                    result.put("roomId", existingRoom.get("ROOM_ID"));
+                    result.put("already", true);
+                    return result;
+                }
+            }
+
+            if ("REJECTED".equals(status)) {
+                result.put("result", "fail");
+                result.put("message", "이미 거절한 신청입니다.");
+                return result;
+            }
+
+            if ("ACCEPT".equals(action)) {
+
+                Long roomId;
+
+                if (existingRoom != null) {
+                    roomId = Long.parseLong(String.valueOf(existingRoom.get("ROOM_ID")));
+                } else {
+                    HashMap<String, Object> roomParam = new HashMap<>();
+                    roomParam.put("userA", fromUser);
+                    roomParam.put("userB", userId);
+                    mapper.insertChatRoom(roomParam);
+
+                    roomId = Long.parseLong(String.valueOf(roomParam.get("roomId")));
+                }
+
+                HashMap<String, Object> updateParam = new HashMap<>();
+                updateParam.put("requestId", requestId);
+                updateParam.put("status", "ACCEPTED");
+                updateParam.put("roomId", roomId);
+                mapper.updateRequestStatusWithRoom(updateParam);
+
+                alarmService.createAlarm(
+                    fromUser,
+                    "CHAT_ACCEPTED",
+                    "대화 신청이 수락되었어요 ✅",
+                    "채팅방으로 이동하세요.",
+                    roomId
+                );
+
+                result.put("result", "success");
+                result.put("roomId", roomId);
+                return result;
+            }
+
+            HashMap<String, Object> updateParam = new HashMap<>();
+            updateParam.put("requestId", requestId);
+            updateParam.put("status", "REJECTED");
+            updateParam.put("roomId", null);
+            mapper.updateRequestStatusWithRoom(updateParam);
+
+            alarmService.createAlarm(
+                fromUser,
+                "CHAT_REJECTED",
+                "대화 신청이 거절되었어요 ❌",
+                "상대방이 대화 신청을 거절했습니다.",
+                null
+            );
+
+            result.put("result", "rejected");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+            result.put("message", "서버 오류가 발생했습니다.");
+        }
+
+        return result;
+    }
+    @Transactional
     public HashMap<String, Object> requestChat(String fromUser, String toUser) {
         HashMap<String, Object> result = new HashMap<>();
+
         try {
             if (fromUser.equals(toUser)) {
-                result.put("result",  "fail");
-                result.put("message", "자신에게는 신청할 수 없습니다.");
+                result.put("result", "fail");
+                result.put("message", "자기 자신에게는 신청 불가");
                 return result;
             }
 
-            // 차단 여부 확인
-            HashMap<String, Object> blockParam = new HashMap<>();
-            blockParam.put("blockerId", toUser);
-            blockParam.put("blockedId", fromUser);
-            if (mapper.selectBlockExists(blockParam) > 0) {
-                result.put("result",  "fail");
-                result.put("message", "대화를 신청할 수 없습니다.");
-                return result;
-            }
+            // 이미 채팅방 있는지 체크
+            HashMap<String, Object> param = new HashMap<>();
+            param.put("userId", fromUser);
+            param.put("otherId", toUser);
 
-            // 이미 채팅방 있는지 확인
-            HashMap<String, Object> roomParam = new HashMap<>();
-            roomParam.put("userId",  fromUser);
-            roomParam.put("otherId", toUser);
-            Map<String, Object> room = mapper.selectChatRoom(roomParam);
+            Map<String, Object> room = mapper.selectChatRoomIncludeHidden(param);
+
             if (room != null) {
-                HashMap<String, Object> showParam = new HashMap<>();
-                showParam.put("roomId", room.get("ROOM_ID"));
-                showParam.put("userId", fromUser);
-
-                mapper.showRoomAgain(showParam);
-
                 result.put("result", "exists");
                 result.put("roomId", room.get("ROOM_ID"));
                 return result;
             }
 
-            // 이미 신청 중인지 확인
+            // 요청 생성
             HashMap<String, Object> reqParam = new HashMap<>();
             reqParam.put("fromUser", fromUser);
-            reqParam.put("toUser",   toUser);
-            Map<String, Object> existing = mapper.selectPendingRequest(reqParam);
-            if (existing != null) {
-                result.put("result",  "fail");
-                result.put("message", "이미 신청 중입니다.");
-                return result;
-            }
+            reqParam.put("toUser", toUser);
 
-            // 신청 INSERT
             mapper.insertChatRequest(reqParam);
 
-            // 알림 발송
+            // 알림
             alarmService.createAlarm(
-                toUser, "CHAT_REQUEST",
+                toUser,
+                "CHAT_REQUEST",
                 "대화 신청이 왔어요 💬",
                 "새로운 대화 신청이 도착했습니다.",
                 reqParam.get("requestId")
@@ -86,67 +169,10 @@ public class ChatRoomService {
 
         } catch (Exception e) {
             e.printStackTrace();
-            result.put("result",  "fail");
-            result.put("message", "서버 오류가 발생했습니다.");
+            result.put("result", "fail");
+            result.put("message", "서버 오류");
         }
-        return result;
-    }
 
-    // ════════════════════════════════════════
-    // 수락 / 거절
-    // ════════════════════════════════════════
-    @Transactional
-    public HashMap<String, Object> respondChat(String userId, Long requestId, String action) {
-        HashMap<String, Object> result = new HashMap<>();
-        try {
-            HashMap<String, Object> param = new HashMap<>();
-            param.put("requestId", requestId);
-            param.put("status", "ACCEPT".equals(action) ? "ACCEPTED" : "REJECTED");
-            mapper.updateRequestStatus(param);
-
-            Map<String, Object> req = mapper.selectRequestById(requestId);
-            if (req == null) {
-                result.put("result",  "fail");
-                result.put("message", "신청 정보를 찾을 수 없습니다.");
-                return result;
-            }
-
-            String fromUser = String.valueOf(req.get("FROM_USER"));
-
-            if ("ACCEPT".equals(action)) {
-                // 채팅방 생성
-                HashMap<String, Object> roomParam = new HashMap<>();
-                roomParam.put("userA", fromUser);
-                roomParam.put("userB", userId);
-                mapper.insertChatRoom(roomParam);
-
-                Long roomId = Long.parseLong(String.valueOf(roomParam.get("roomId")));
-
-                alarmService.createAlarm(
-                    fromUser, "CHAT_ACCEPTED",
-                    "대화 신청이 수락되었어요 ✅",
-                    "채팅방으로 이동하세요.",
-                    roomId
-                );
-
-                result.put("result", "success");
-                result.put("roomId", roomId);
-
-            } else {
-                alarmService.createAlarm(
-                    fromUser, "CHAT_REJECTED",
-                    "대화 신청이 거절되었어요 ❌",
-                    "상대방이 대화 신청을 거절했습니다.",
-                    null
-                );
-                result.put("result", "rejected");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            result.put("result",  "fail");
-            result.put("message", "서버 오류가 발생했습니다.");
-        }
         return result;
     }
 
@@ -177,18 +203,22 @@ public class ChatRoomService {
             param.put("roomId", roomId);
             param.put("userId", userId);
 
-            // 읽음 처리
+            // 삭제해야 함
+            // mapper.showRoomAgain(param);
+
             mapper.markMessagesRead(param);
 
             List<Map<String, Object>> list = mapper.selectMessages(param);
             result.put("result", "success");
-            result.put("list",   list);
+            result.put("list", list);
+
         } catch (Exception e) {
             e.printStackTrace();
             result.put("result", "fail");
         }
         return result;
     }
+    
 
     // ════════════════════════════════════════
     // 메시지 전송
@@ -197,13 +227,19 @@ public class ChatRoomService {
         HashMap<String, Object> result = new HashMap<>();
         try {
             HashMap<String, Object> param = new HashMap<>();
-            param.put("roomId",   roomId);
+            param.put("roomId", roomId);
+            param.put("userId", userId);
             param.put("senderId", userId);
-            param.put("content",  content);
+            param.put("content", content);
+
+            // 내가 다시 메시지 보내면 내 채팅방 복구
+            mapper.showRoomAgain(param);
+
             mapper.insertMessage(param);
 
-            result.put("result",    "success");
+            result.put("result", "success");
             result.put("messageId", param.get("messageId"));
+
         } catch (Exception e) {
             e.printStackTrace();
             result.put("result", "fail");

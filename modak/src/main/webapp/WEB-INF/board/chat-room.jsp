@@ -154,8 +154,8 @@
                 <div class="toast" id="toast"></div>
 
                 <script>
-                    var ROOM_ID = new URLSearchParams(location.search).get('roomId');
-                    var OTHER_ID = new URLSearchParams(location.search).get('otherId');
+					var ROOM_ID = new URLSearchParams(location.search).get('roomId');
+					var OTHER_ID = new URLSearchParams(location.search).get('otherId') || null;
                     var MY_ID = '${sessionScope.sessionId}';
                     var selectedDeleteMessageId = null;
                     var isBlocked = false;

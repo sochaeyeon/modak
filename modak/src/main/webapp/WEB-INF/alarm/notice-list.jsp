@@ -15,90 +15,7 @@
         [v-cloak] { display: none; }
         body { background-color: #faf6f0 !important; }
 
-        /* ── 채팅 신청 수락/거절 버튼 ─────────────────── */
-        .chat-respond-wrap {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(92,61,30,0.12);
-        }
-        .btn-respond {
-            flex: 1;
-            height: 36px;
-            border-radius: 10px;
-            border: 1.5px solid;
-            font-size: 13px;
-            font-weight: 700;
-            font-family: inherit;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            transition: background .15s, transform .1s;
-        }
-        .btn-respond:active   { transform: scale(.96); }
-        .btn-respond:disabled { opacity: .4; cursor: not-allowed; }
-
-        .btn-respond.accept {
-            background: #E8732A;
-            border-color: #E8732A;
-            color: #fff;
-        }
-        .btn-respond.accept:hover:not(:disabled) {
-            background: #C4621E;
-            border-color: #C4621E;
-        }
-        .btn-respond.reject {
-            background: #FFFDF8;
-            border-color: #E0D2BE;
-            color: #8B6B4A;
-        }
-        .btn-respond.reject:hover:not(:disabled) {
-            border-color: #c82333;
-            color: #c82333;
-        }
-
-        /* ── 처리 완료 결과 ────────────────────────────── */
-        .chat-respond-result {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(92,61,30,0.12);
-        }
-        .result-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 5px 12px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-        .result-chip.accepted { background: rgba(57,143,86,.12); color: #2f7b45; }
-        .result-chip.rejected { background: rgba(220,53,69,.10); color: #c82333; }
-
-        .btn-go-chat {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            height: 32px;
-            padding: 0 12px;
-            border: 1.5px solid #E8732A;
-            border-radius: 9px;
-            background: #FFFDF8;
-            color: #E8732A;
-            font-size: 12px;
-            font-weight: 700;
-            font-family: inherit;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background .15s;
-        }
-        .btn-go-chat:hover { background: #fff5ee; }
+     
     </style>
 </head>
 
@@ -259,23 +176,38 @@
 
             methods: {
                 // ── 목록 로드 ─────────────────────────────────
-                fnGetList() {
-                    $.ajax({
-                        url: '/alarm/getAlarmList.dox', type: 'POST', dataType: 'json',
-                        success: (res) => {
-                            if (res.result === 'success') {
-                                // 반응형 속성 초기화
-                                this.alarmList = (res.list || []).map(a => ({
-                                    ...a,
-                                    responding:     false,
-                                    respondDone:    false,
-                                    respondAction:  null,
-                                    acceptedRoomId: null
-                                }));
-                            }
-                        }
-                    });
-                },
+				// ── 목록 로드 ─────────────────────────────────
+				fnGetList() {
+				    $.ajax({
+				        url: '/alarm/getAlarmList.dox',
+				        type: 'POST',
+				        dataType: 'json',
+				        success: (res) => {
+				            if (res.result === 'success') {
+
+				                this.alarmList = (res.list || []).map(a => ({
+				                    ...a,
+				                    responding: false,
+
+				                    // DB에서 가져온 신청 상태 기준
+				                    respondDone:
+				                        a.TYPE === 'CHAT_REQUEST' &&
+				                        (a.REQUEST_STATUS === 'ACCEPTED' || a.REQUEST_STATUS === 'REJECTED'),
+
+				                    respondAction:
+				                        a.REQUEST_STATUS === 'ACCEPTED'
+				                            ? 'ACCEPT'
+				                            : a.REQUEST_STATUS === 'REJECTED'
+				                                ? 'REJECT'
+				                                : null,
+
+				                    // 수락된 채팅방 번호
+				                    acceptedRoomId: a.CHAT_ROOM_ID || a.ROOM_ID || null
+				                }));
+				            }
+				        }
+				    });
+				},
 
                 // ── 알림 클릭 → 읽음 + 이동 ──────────────────
                 fnGoDetail(item) {

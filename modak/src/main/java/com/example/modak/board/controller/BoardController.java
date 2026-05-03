@@ -36,7 +36,11 @@ public class BoardController {
 
     @GetMapping("/detail.do")
     public String detailPage() { return "board/board-detail"; }
-
+    
+    @GetMapping("/edit.do")
+    public String editPage() {
+        return "board/board-edit";
+    }
     // ── API ──
 
     @PostMapping(value = "/list.dox", produces = "application/json;charset=UTF-8")
@@ -166,5 +170,24 @@ public class BoardController {
         }
 
         return result;
+    }
+    @PostMapping(value = "/edit-info.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String getBoardEditInfo(@RequestParam Long boardId) {
+        return new Gson().toJson(boardService.getBoardEditInfo(boardId));
+    }
+
+    @PostMapping(value = "/edit.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String editBoard(
+            @RequestParam HashMap<String, Object> map,
+            @RequestParam(required = false) String pollQuestion,
+            @RequestParam(required = false) List<String> pollOptions,
+            @RequestParam(required = false) String pollEndDate,
+            @RequestParam(required = false) List<String> tags) {
+
+        return new Gson().toJson(
+            boardService.editBoard(map, pollQuestion, pollOptions, pollEndDate, tags)
+        );
     }
 }

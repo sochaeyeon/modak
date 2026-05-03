@@ -74,4 +74,16 @@ public interface BoardMapper {
     List<Map<String, Object>> selectBoardListByTag(String tag);
     
     List<Map<String, Object>> selectRecentBoardsByUser(HashMap<String, Object> map);
+    
+    
+    // 수정 화면 조회
+    HashMap<String, Object> selectBoardEditInfo(HashMap<String, Object> map);
+
+    // 태그 전체 삭제 후 재등록용
+    int deleteBoardTagAll(HashMap<String, Object> map);
+
+    // 투표 전체 삭제 후 재등록용
+    int deletePollVoteByBoardId(HashMap<String, Object> map);
+    int deletePollOptionByBoardId(HashMap<String, Object> map);
+    int deletePollByBoardId(HashMap<String, Object> map);
 }

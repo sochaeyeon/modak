@@ -660,4 +660,164 @@ public class BoardService {
             }
         }
     }
+    
+    public HashMap<String, Object> getBoardEditInfo(Long boardId) {
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            String userId = getUserId();
+
+            if (userId == null) {
+                result.put("result", "fail");
+                result.put("message", "로그인이 필요합니다.");
+                return result;
+            }
+
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("boardId", boardId);
+            map.put("userId", userId);
+
+            HashMap<String, Object> board = mapper.selectBoardEditInfo(map);
+
+            if (board == null) {
+                result.put("result", "fail");
+                result.put("message", "수정 권한이 없거나 게시글을 찾을 수 없습니다.");
+                return result;
+            }
+
+            List<String> tagList = mapper.selectTagsByBoardId(boardId);
+
+            Map<String, Object> poll = null;
+            List<Map<String, Object>> pollOptions = null;
+
+            if ("Y".equals(String.valueOf(board.get("hasPoll")))) {
+                poll = mapper.selectPollByBoardId(map);
+
+                if (poll != null) {
+                    HashMap<String, Object> pollMap = new HashMap<>();
+                    pollMap.put("pollId", poll.get("POLL_ID"));
+                    pollOptions = mapper.selectPollOptions(pollMap);
+                }
+            }
+
+            result.put("result", "success");
+            result.put("board", board);
+            result.put("tagList", tagList);
+            result.put("poll", poll);
+            result.put("pollOptions", pollOptions);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+            result.put("message", e.getMessage());
+        }
+
+        return result;
+    }
+    
+    @Transactional
+    public HashMap<String, Object> editBoard(
+            HashMap<String, Object> map,
+            String question,
+            List<String> options,
+            String endDate,
+            List<String> tags) {
+
+        HashMap<String, Object> result = new HashMap<>();
+
+        try {
+            String userId = getUserId();
+
+            if (userId == null) {
+                result.put("result", "fail");
+                result.put("message", "로그인이 필요합니다.");
+                return result;
+            }
+
+            map.put("userId", userId);
+
+            boolean hasPoll =
+                    question != null
+                    && !question.isBlank()
+                    && options != null
+                    && options.stream().filter(o -> o != null && !o.isBlank()).count() >= 2;
+
+            map.put("hasPoll", hasPoll ? "Y" : "N");
+
+            int updated = mapper.updateBoard(map);
+
+            if (updated == 0) {
+                result.put("result", "fail");
+                result.put("message", "수정 권한이 없거나 게시글을 찾을 수 없습니다.");
+                return result;
+            }
+
+            Long boardId = Long.parseLong(String.valueOf(map.get("boardId")));
+
+            // 태그 전체 삭제 후 재등록
+            mapper.deleteBoardTagAll(map);
+
+            if (tags != null) {
+                for (String tag : tags) {
+                    if (tag == null || tag.isBlank()) {
+                        continue;
+                    }
+
+                    String cleanTag = tag.replace("#", "").trim();
+
+                    if (cleanTag.isEmpty()) {
+                        continue;
+                    }
+
+                    HashMap<String, Object> tagMap = new HashMap<>();
+                    tagMap.put("boardId", boardId);
+                    tagMap.put("tagName", cleanTag);
+
+                    mapper.insertBoardTag(tagMap);
+                }
+            }
+
+            // 기존 투표 삭제
+            mapper.deletePollVoteByBoardId(map);
+            mapper.deletePollOptionByBoardId(map);
+            mapper.deletePollByBoardId(map);
+
+            // 투표 다시 저장
+            if (hasPoll) {
+                HashMap<String, Object> pollMap = new HashMap<>();
+                pollMap.put("boardId", boardId);
+                pollMap.put("question", question);
+                pollMap.put("endDate", endDate);
+
+                mapper.insertPoll(pollMap);
+
+                Long pollId = Long.parseLong(String.valueOf(pollMap.get("pollId")));
+
+                int sortOrder = 1;
+
+                for (String option : options) {
+                    if (option == null || option.isBlank()) {
+                        continue;
+                    }
+
+                    HashMap<String, Object> optMap = new HashMap<>();
+                    optMap.put("pollId", pollId);
+                    optMap.put("optionText", option.trim());
+                    optMap.put("sortOrder", sortOrder++);
+
+                    mapper.insertPollOption(optMap);
+                }
+            }
+
+            result.put("result", "success");
+            result.put("boardId", boardId);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("result", "fail");
+            result.put("message", e.getMessage());
+        }
+
+        return result;
+    }
 }

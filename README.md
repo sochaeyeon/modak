@@ -1,143 +1,109 @@
-# 🔥 ModakModak (모닥모닥)
+# 🏕️ ModakModak (모닥모닥)
 
-> **캠핑장 탐색부터 장비 렌탈, 커뮤니티까지 — 캠퍼를 위한 종합 플랫폼**
-
-Spring Boot + MyBatis 기반으로 구축된 모닥모닥은 카카오맵, 공공데이터, 기상청, Gemini AI 등 다양한 외부 API를 연동하여 캠핑을 더 스마트하고 편리하게 즐길 수 있도록 돕습니다.
-
-<br>
+**ModakModak**은 캠핑장 정보 조회, 상품 대여 및 구매, 커뮤니티 기능을 제공하는 **종합 캠핑 플랫폼**입니다. Spring Boot와 MyBatis를 기반으로 구축되었으며, 생성형 AI(Gemini)와 다양한 외부 API를 연동하여 차별화된 캠핑 경험을 제공합니다.
 
 ---
 
-## 👥 팀원 소개
+## 👥 팀원 소개 (Team Modak)
 
-| 이름 | 역할 | GitHub |
-|:---:|:---:|:---:|
-| **소채연** | 팀장 · 외부 API 연동 아키텍처 | [@sochaeyeon](https://github.com/sochaeyeon) |
-| **김은동** | 풀스택 · 인프라 · 어드민 시스템 | [@rladmsehd135](https://github.com/rladmsehd135) |
-| **임예림** | 풀스택 · UI/UX · 이커머스 로직 | [@kewiibird-source](https://github.com/kewiibird-source) |
-| **필우청** | 풀스택 · 데이터 모델링 · 고객 지원 | [@yuqingtangda](https://github.com/yuqingtangda) |
-
-<br>
+| 프로필 | 성명 | 역할 | GitHub |
+| :---: | :--- | :--- | :--- |
+| 🙂 | **소채연** | **팀장** / 외부 API 연동 아키텍처 설계 | [@sochaeyeon](https://github.com/sochaeyeon) |
+| 😡 | **김은동** | **백엔드** / 인프라 및 서비스 아키텍처 / 어드민 설계 | [@rladmsehd135](https://github.com/rladmsehd135) |
+| 😀 | **임예림** | **풀스택** / UI·UX 설계 / 이커머스 로직 구현 | [@kewiibird-source](https://github.com/kewiibird-source) |
+| 😂 | **필우청** | **풀스택** / 데이터 모델링 / 고객 지원 시스템 구축 | [@yuqingtangda](https://github.com/yuqingtangda) |
 
 ---
 
-## 📂 관련 문서
+## 📂 관련 문서 (Documents)
 
-| 문서 | 링크 |
-|:---:|:---:|
-| 📝 회의록 | [바로가기](https://drive.google.com/drive/folders/14zyi4NPYp5hNNngEVUll3zfDjJBpoXgU) |
-| 📐 설계 문서 (ERD, 요구사항) | [바로가기](https://drive.google.com/drive/folders/1ImcpHUeuDkVdmN7kLwLxJ86gxVyfqsfu) |
-| 🛠️ 공통 가이드라인 | [바로가기](https://drive.google.com/drive/folders/1Xm2uaNjuhy3Qlk6FlUh8F5hIuKT3p7nS) |
+> [!TIP]
+> 프로젝트의 상세 기획 및 설계 내용은 아래 링크에서 확인하실 수 있습니다.
 
-<br>
+*   [📝 **회의록**](https://drive.google.com/drive/folders/1bpM3vTIY-6_Rf_6FwxaOvptJlfphWDZC)
+*   [📐 **설계 문서 (ERD, 요구사항 등)**](https://drive.google.com/drive/folders/1WqbDMTMkynVD0cCp9hnwFD0ld0HBcUQW)
+*   [🛠️ **공통 가이드라인**](https://drive.google.com/drive/folders/1Xm2uaNjuhy3Qlk6FlUh8F5hIuKT3p7nS)
+
+---
+
+## 🌟 기대 효과 (Expected Effects)
+
+### 1. 사용자 경험의 혁신 (User Experience)
+*   **원스톱 솔루션**: 캠핑장 탐색부터 장비 렌탈, 구매, 날씨 확인까지 한 번에 해결합니다.
+*   **스마트한 의사결정**: **AI 리뷰 요약**으로 방대한 정보를 빠르게 파악하여 실패 없는 장비 선택을 돕습니다.
+*   **실시간 소통**: 커뮤니티와 1:1 채팅을 통해 캠핑족 간의 유대감을 형성합니다.
+
+### 2. 효율적인 비즈니스 운영 (Business Operation)
+*   **데이터 기반 관리**: 매출 통계 및 실시간 재고 관리 대시보드로 운영 효율성을 극대화합니다.
+*   **리소스 최적화**: AI 챗봇과 자동화된 알림 시스템으로 고객 응대 비용을 절감합니다.
+*   **높은 확장성**: 모듈화된 설계를 통해 캠핑카 렌탈, 밀키트 배송 등 부가 서비스 확장이 용이합니다.
+
+---
+
+## 🚀 주요 기능
+
+### 1. ⛺ 캠핑장 및 날씨 정보
+*   **지도 연동**: 카카오맵 API를 활용한 전국 캠핑장 위치 확인
+*   **데이터 동기화**: GoCamping API 연동으로 실시간 캠핑장 정보 제공
+*   **기상 정보**: 기상청 단기예보 API 기반의 캠핑장별 맞춤 날씨 정보
+
+### 2. 🛒 쇼핑 및 렌탈 (이커머스)
+*   **스마트 렌탈**: 대여 상품 연장 신청 및 반납 관리 (비회원 토큰 인증 지원)
+*   **통합 결제**: 토스 페이먼츠 API 연동으로 안전하고 빠른 결제 지원
+*   **배송 추적**: Delivery Tracker API를 통한 실시간 상품 위치 정보 제공
+
+### 3. 💬 커뮤니티 및 AI 서비스
+*   **AI 챗봇**: Google Gemini 기반의 캠핑 가이드 챗봇 서비스
+*   **AI 리뷰 요약**: 수많은 리뷰를 Gemini AI가 3문장 이내로 핵심 요약
+*   **실시간 채팅**: 사용자 간 1:1 실시간 소통 공간 제공
+
+---
+
+## 🖥️ 상세 역할 분담 (Role & Responsibilities)
+
+### 🔐 소채연 (팀장 / 인증 및 아키텍처)
+| 카테고리 | 상세 업무 및 담당 페이지 |
+| :--- | :--- |
+| **인증/계정** | 소셜 로그인 API, 회원가입, SMS 인증(아이디/비번 찾기) |
+| **회원 서비스** | 마이페이지, 멤버십 정보, 포인트/쿠폰 내역, 주문 내역 관리 |
+| **활동 기록** | 최근 본 상품, 위시리스트, 챗봇 기록, 리뷰 전체보기 |
+| **고객 지원** | 통합 검색 결과, 배송 현황(택배사 API), 1:1 문의 수정, 리뷰 및 게시글 수정/작성 |
+
+### 🏗️ 김은동 (백엔드 / 어드민 및 인프라)
+| 카테고리 | 상세 업무 및 담당 페이지 |
+| :--- | :--- |
+| **핵심 서비스** | 메인 페이지, 캠핑장 지도/목록/상세 조회(시설 정보 포함) |
+| **주문/렌탈** | 비회원 주문 조회/상세, 대여 연장 및 반납, 교환 처리 로직 |
+| **커뮤니티** | 게시판(목록/상세/작성), 1:1 채팅방 및 목록 관리, 챗봇 구현 |
+| **관리자(Admin)** | **전체 어드민 시스템 설계 및 구현** (대시보드, 통계, 매출, 회원/상품/캠핑장/쿠폰/리뷰/문의/등급/알림 등 통합 관리) |
+
+### 🛍️ 임예림 (풀스택 / 이커머스 로직)
+| 카테고리 | 상세 업무 및 담당 페이지 |
+| :--- | :--- |
+| **상품 서비스** | 상품 목록, 상품 검색 결과, 상품 상세 페이지 구현 |
+| **구매 로직** | 장바구니 관리, 결제 API 연동, 주문 완료 프로세스 |
+| **사후 관리** | 환불 요청 및 환불 상세 조회 시스템 |
+| **리뷰 시스템** | 리뷰 작성/수정, 리뷰 신고 폼 구축 |
+
+### 📞 필우청 (풀스택 / 고객 지원 및 UI)
+| 카테고리 | 상세 업무 및 담당 페이지 |
+| :--- | :--- |
+| **공통 UI** | 헤더/푸터 레이아웃, 에러 페이지 구성 |
+| **고객 센터** | 고객센터 메인, FAQ, 1:1 문의 폼 구현 |
+| **정보/약관** | 공지사항(목록/상세), 이용약관, 개인정보처리방침, 마케팅 수신동의 |
+| **프로모션** | 이벤트 목록 및 이벤트 상세 페이지 관리 |
 
 ---
 
 ## 🛠 기술 스택
 
 ### Backend / Frontend
-| 구분 | 기술 |
-|:---:|:---|
-| Framework | Spring Boot 3.5.12, MyBatis 3.0.5 |
-| Language | Java 17, JavaScript (jQuery, AJAX), Vue.js 3 |
-| Database | MySQL (AWS RDS) |
-| Template | JSP (Jakarta Servlet JSP JSTL) |
-| Security | Spring Security, OAuth2 Client |
+*   **Framework**: Spring Boot 3.5.12 / MyBatis 3.0.5
+*   **Language**: Java 17 / JavaScript (jQuery, AJAX)
+*   **Database**: MySQL (AWS RDS)
+*   **Security**: Spring Security, OAuth2 Client
 
 ### External APIs
-| 구분 | 기술 |
-|:---:|:---|
-| 인증 | Google / Naver / Kakao OAuth2, Solapi (SMS) |
-| 결제 / 배송 | Toss Payments, Delivery Tracker |
-| 데이터 | GoCamping 공공데이터, 기상청 단기예보 API, 카카오맵 API |
-| AI / 메일 | Google Gemini API, Java Mail (Gmail SMTP) |
-
-<br>
-
----
-
-## 🚀 주요 기능
-
-### ⛺ 캠핑장 & 날씨
-- 카카오맵 기반 캠핑장 위치 확인 및 목록/상세 조회
-- GoCamping 공공데이터 연동 — 전국 캠핑장 정보 실시간 동기화
-- 기상청 단기예보 API — 캠핑장별 실시간 날씨 제공
-
-### 🛒 쇼핑 & 렌탈
-- 캠핑 용품 구매 및 대여 통합 시스템
-- 장바구니, Toss Payments 결제, 회원/비회원 주문 처리
-- 대여 연장 및 반납 관리 (비회원 토큰 인증 지원)
-- Delivery Tracker API 실시간 배송 상태 추적
-
-### 💬 커뮤니티 & AI
-- 게시판 (작성/수정/상세) 및 사용자 간 1:1 실시간 채팅
-- Google Gemini 기반 캠핑 가이드 AI 챗봇
-- 상품 리뷰 AI 자동 요약 (3문장 이내)
-
-### ⚙️ 관리자 시스템
-- 매출 통계 및 실시간 재고 관리 대시보드
-- 회원 / 상품 / 캠핑장 / 쿠폰 / 리뷰 / 문의 통합 관리
-- 공지사항 / 이벤트 / 알림 발송 시스템
-
-<br>
-
----
-
-## 📋 역할 분담
-
-<details>
-<summary><b>🙂 소채연 — 팀장 / 외부 API 연동</b></summary>
-
-- 소셜 로그인 (Google, Naver, Kakao), 회원가입, SMS 인증 기반 계정 찾기
-- 마이페이지, 멤버십, 주문 내역, 포인트/쿠폰 관리
-- 리뷰/최근 본 상품/위시리스트/챗봇 기록 전체보기, 통합 검색
-- 문의 목록/수정, 배송 조회 (택배사 API 연동), 게시글/리뷰 작성·수정
-- CSS 통합 관리
-</details>
-
-<details>
-<summary><b>😡 김은동 — 풀스택 / 인프라 / 어드민 시스템</b></summary>
-
-- 메인 페이지, 캠핑장 지도/목록/상세 (시설 정보 포함)
-- 주문 상세, 비회원 주문 조회, 회원/비회원 대여 연장·반납·교환
-- 게시판 목록/상세/작성, 1:1 채팅방, AI 챗봇 구현
-- 알림 목록/상세, 가이드 페이지
-- Admin 전체 — 대시보드, 통계, 회원/상품/캠핑장/쿠폰/리뷰/문의/등급/알림/취소 관리
-- CSS 구현
-</details>
-
-<details>
-<summary><b>😀 임예림 — 풀스택 / UI·UX / 이커머스</b></summary>
-
-- 상품 목록/검색/상세
-- 장바구니, 결제 API 연동, 주문 완료 화면
-- 환불 요청 및 상세 조회
-- 리뷰 작성/수정, 리뷰 신고 폼
-- CSS 구현
-</details>
-
-<details>
-<summary><b>😂 필우청 — 풀스택 / 데이터 모델링 / 고객 지원</b></summary>
-
-- 헤더, 푸터, 에러 페이지
-- 고객센터 메인, FAQ, 1:1 문의 폼
-- 공지사항 목록/상세, 이용약관, 개인정보 처리방침, 마케팅 수신 동의
-- 이벤트 목록/상세
-- CSS 구현
-</details>
-
-<br>
-
----
-
-## 🌟 기대 효과
-
-### 사용자 경험
-- **원스톱 솔루션** — 캠핑장 탐색부터 장비 렌탈, 날씨 확인까지 한 번에 해결
-- **스마트한 의사결정** — AI 리뷰 요약으로 방대한 정보를 빠르게 파악
-- **실시간 소통** — 커뮤니티와 1:1 채팅으로 캠핑족 간 정보 공유
-
-### 비즈니스 운영
-- **데이터 기반 관리** — 매출 통계 및 실시간 재고 대시보드로 운영 효율 극대화
-- **비용 절감** — AI 챗봇 및 자동 알림 시스템으로 고객 응대 자동화
-- **확장 가능한 플랫폼** — 모듈화 설계로 캠핑카 렌탈, 밀키트 정기 배송 등 부가 서비스 확장 용이
+*   **인증**: Google, Naver, Kakao OAuth2 / Solapi (SMS)
+*   **비즈니스**: Toss Payments / Delivery Tracker / GoCamping / 기상청 API
+*   **AI/통신**: Google Gemini API / Java Mail (Gmail SMTP)

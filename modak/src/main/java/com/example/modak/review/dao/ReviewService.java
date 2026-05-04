@@ -372,7 +372,7 @@ public class ReviewService {
 		if (files == null || files.length == 0)
 			return;
 
-		String uploadPath = System.getProperty("user.home") + "/modak_uploads/review/";
+		String uploadPath = request.getServletContext().getRealPath("/img/review/");
 
 		File dir = new File(uploadPath);
 		if (!dir.exists())
@@ -392,7 +392,7 @@ public class ReviewService {
 
 			HashMap<String, Object> imgMap = new HashMap<>();
 			imgMap.put("reviewId", reviewId);
-			imgMap.put("imgUrl", "/upload/review/" + saveName); // ✅ /img/review/ → /upload/review/ 로 변경
+			imgMap.put("imgUrl", "/img/review/" + saveName);
 			imgList.add(imgMap);
 		}
 

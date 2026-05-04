@@ -115,21 +115,20 @@ public class RentalExtensionService {
     public HashMap<String, Object> getGuestExtensions(Long rentalId, String token) {
         HashMap<String, Object> result = new HashMap<>();
         try {
-            if (!validateToken(token, rentalId)) {
-                result.put("result",  "fail");
-                result.put("message", "유효하지 않은 접근입니다. 다시 조회해주세요.");
-                return result;
-            }
+            // ★ TOKEN_STORE 대신 rentalId로 직접 조회 (orderId 방식 지원)
             RentalExtension rental = mapper.selectRentalById(rentalId);
+            
             if (rental == null) {
                 result.put("result",  "fail");
                 result.put("message", "대여 정보를 찾을 수 없습니다.");
                 return result;
             }
+            
             result.put("result",        "success");
             result.put("rental",        rental);
             result.put("extensions",    mapper.selectExtensionsByRentalId(rentalId));
             result.put("returnHistory", mapper.selectReturnHistoryByRentalId(rentalId));
+            
         } catch (Exception e) {
             e.printStackTrace();
             result.put("result",  "fail");
@@ -137,7 +136,6 @@ public class RentalExtensionService {
         }
         return result;
     }
-
     // ════════════════════════════════════════
     // 연장 신청 (회원/비회원 공통) — 결제 후 호출
     // ════════════════════════════════════════

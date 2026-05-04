@@ -1,4 +1,6 @@
-/* ===== RESET ===== */
+[v-cloak] {
+	display: none;
+}
 *,
 *::before,
 *::after {

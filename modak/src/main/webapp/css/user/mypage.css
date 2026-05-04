@@ -4435,7 +4435,7 @@ button,
 
 /* 비밀번호 잠금 안내 */
 #tab-settings .settings-lock-box {
-    margin: 22px 26px !important;
+    margin: 22px 2px !important;
     padding: 20px !important;
     border: 1.5px dashed rgba(139, 107, 74, .36) !important;
     border-radius: 18px !important;
@@ -4495,6 +4495,7 @@ button,
     font-weight: 900 !important;
     box-shadow: none !important;
     transform: none !important;
+    margin-top: 12px;
 }
 
 #tab-settings .btn-danger:hover {
@@ -4644,7 +4645,7 @@ button,
 /* 비밀번호 변경 폼 안쪽 여백 정리 */
 #tab-settings .section-card:not(.account-settings-card) .settings-form {
     padding: 24px 28px 28px !important;
-    gap: 18px !important;
+    gap: 0px !important;
 }
 
 /* 새 비밀번호 + 확인 묶음이 inline style 때문에 답답해 보이는 것 보정 */
@@ -4686,6 +4687,7 @@ button,
     flex-shrink: 0;
     color: #8B6B4A;
 }
+
 /* ===== 채팅방 기록 리디자인 ===== */
 
 #tab-chatrooms .chatbot-review-list {
@@ -4734,7 +4736,7 @@ button,
     height: 46px;
     border-radius: 50%;
     overflow: hidden;
-    border: 1px solid rgba(201,79,30,.2);
+    border: 1px solid rgba(201, 79, 30, .2);
     background: #fff;
 }
 
@@ -5061,4 +5063,220 @@ button,
 
 #tab-bookmarks .bookmark-community-card:not(:has(.bookmark-thumb-wrap)) .bookmark-community-body {
     max-width: 100%;
+}
+
+.order-status.status-EXCHANGE_REQUESTED {
+    background: #fff3e8;
+    color: #c4621e;
+    border: 1px solid rgba(232, 115, 42, 0.28);
+}
+
+.order-status.status-EXCHANGE_APPROVED {
+    background: #f5efe7;
+    color: #8b5a2b;
+    border: 1px solid rgba(139, 90, 43, 0.25);
+}
+
+.order-status.status-EXCHANGE_COMPLETED {
+    background: #eef8f1;
+    color: #2f7d4f;
+    border: 1px solid rgba(47, 125, 79, 0.22);
+}
+
+.order-status.status-RETURN_REQUESTED,
+.order-status.status-RETURN_APPROVED,
+.order-status.status-RETURN_COMPLETED,
+.order-status.status-REFUND_REQUESTED,
+.order-status.status-REFUND_APPROVED,
+.order-status.status-REFUNDED {
+    background: #fff7ed;
+    color: #b45309;
+    border: 1px solid rgba(180, 83, 9, 0.22);
+}
+
+.withdraw-zone {
+    gap: 18px;
+}
+
+.withdraw-guide-box {
+    width: 100%;
+    padding: 18px 20px;
+    border: 1px solid rgba(232, 115, 42, 0.22);
+    border-radius: 18px;
+    background: #fffaf4;
+}
+
+.withdraw-guide-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: 15px;
+    font-weight: 800;
+    color: #2c1e0f;
+}
+
+.withdraw-guide-title i {
+    font-size: 18px;
+    color: #e8732a;
+}
+
+.withdraw-guide-list {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.withdraw-guide-list li {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #6f5540;
+}
+
+.withdraw-btn {
+    align-self: flex-start;
+}
+
+.withdraw-modal-content {
+    text-align: left;
+}
+
+.withdraw-modal-main {
+    margin: 0 0 12px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #2c1e0f;
+    line-height: 1.55;
+}
+
+.withdraw-modal-main.strong {
+    color: #b42318;
+}
+
+.withdraw-modal-sub {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #6f5540;
+}
+
+.withdraw-notice-box {
+    padding: 14px 15px;
+    margin: 12px 0;
+    border-radius: 14px;
+    background: #fff7ed;
+    border: 1px solid rgba(232, 115, 42, 0.2);
+}
+
+.withdraw-notice-title {
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #c4621e;
+}
+
+.withdraw-notice-box ul {
+    margin: 0;
+    padding-left: 17px;
+}
+
+.withdraw-notice-box li {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #6f5540;
+}
+
+.withdraw-modal-question {
+    margin: 12px 0 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #2c1e0f;
+}
+
+/* 회원탈퇴 잠금 안내 박스 */
+.withdraw-zone .settings-lock-box {
+    width: 100%;
+    padding: 22px 24px;
+    border-radius: 18px;
+    background: #fff7ed;
+    border: 1px solid rgba(232, 115, 42, 0.22);
+    box-shadow: none;
+}
+
+.withdraw-zone .settings-lock-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #2c1e0f;
+    margin-bottom: 8px;
+}
+
+.withdraw-zone .settings-lock-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #7a5c3e;
+}
+
+/* 휴대폰 인증 카드 상태 칩 */
+.account-phone-verify-card .phone-card-chip {
+    display: inline-flex;
+    width: fit-content;
+    min-width: unset;
+    max-width: max-content;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 18px;
+}
+
+.account-phone-verify-card .phone-card-chip.verified {
+    background: #eef8f1;
+    color: #2f7d4f;
+    border: 1px solid rgba(47, 125, 79, 0.22);
+}
+
+.account-phone-verify-card .phone-card-chip.not-verified {
+    background: #fff3e8;
+    color: #c4621e;
+    border: 1px solid rgba(232, 115, 42, 0.24);
+}
+
+.account-phone-verify-card .account-settings-form {
+    display: block;
+}
+
+.account-phone-verify-card .account-phone-field {
+    max-width: 620px;
+}
+
+.account-phone-verify-card .phone-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.account-phone-verify-card .phone-input-row input {
+    flex: 1;
+}
+
+.account-phone-verify-card .account-mini-btn {
+    min-width: 94px;
+    height: 44px;
+    white-space: nowrap;
+}
+
+.phone-timer-text {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    margin-top: 8px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: #fff7ed;
+    color: #c4621e;
+    font-size: 13px;
+    font-weight: 700;
 }

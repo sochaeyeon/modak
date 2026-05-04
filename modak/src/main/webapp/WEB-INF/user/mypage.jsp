@@ -1135,59 +1135,11 @@
                                                                 placeholder="닉네임">
                                                         </div>
 
-                                                        <div class="setting-field account-field account-phone-field">
-                                                            <label>연락처</label>
-
-                                                            <div class="phone-verify-wrap account-phone-wrap">
-                                                                <div class="phone-input-row account-phone-row">
-                                                                    <input type="text" v-model="settingsForm.userPhone"
-                                                                        placeholder="01012345678">
-
-                                                                    <button type="button"
-                                                                        class="btn-outline account-mini-btn"
-                                                                        @click="fnSendSmsCode"
-                                                                        :disabled="!settingsForm.userPhone">
-                                                                        인증요청
-                                                                    </button>
-                                                                </div>
-
-                                                                <div class="phone-input-row account-phone-row"
-                                                                    v-if="smsInputVisible">
-                                                                    <input type="text" v-model="smsAuthCode"
-                                                                        placeholder="인증번호 입력">
-
-                                                                    <button type="button"
-                                                                        class="btn-save account-mini-btn"
-                                                                        @click="fnVerifySmsCode" :disabled="smsExpired">
-                                                                        확인
-                                                                    </button>
-                                                                </div>
-
-                                                                <div class="phone-timer-wrap" v-if="smsInputVisible">
-                                                                    <span v-if="!smsExpired" class="phone-timer-text">
-                                                                        남은 시간 {{ smsTimeLeft }}초
-                                                                    </span>
-                                                                    <span v-else class="phone-timer-expired">
-                                                                        인증 시간이 만료되었습니다.
-                                                                    </span>
-                                                                </div>
-
-                                                                <div class="phone-verify-status">
-                                                                    <span v-if="settingsForm.phoneVerifyYn === 'Y'"
-                                                                        class="verify-success">
-                                                                        인증된 연락처입니다.
-                                                                    </span>
-                                                                    <span v-else class="verify-fail">
-                                                                        연락처 변경 시 인증이 필요합니다.
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
                                                     </div>
 
                                                     <div class="account-settings-bottom">
-                                                        <div class="account-save-desc">
-                                                            변경사항을 저장하면 마이페이지 프로필 정보에도 바로 반영됩니다.
+                                                      <div class="account-save-desc">
+                                                            아이디, 이름, 닉네임 변경사항을 저장하면 프로필 정보에도 반영됩니다.
                                                         </div>
 
                                                         <div class="settings-actions account-actions">
@@ -1267,21 +1219,118 @@
 
                                             </div>
                                         </template>
+                                            </template>
 
-                                        <!-- 소셜 로그인 회원 -->
-                                        <div class="section-card social-only-box" v-else>
-                                            <div class="social-message">
-                                                소셜 로그인 회원은 계정 정보를 수정할 수 없습니다.
-                                            </div>
-                                        </div>
-                                        <div class="section-card">
-                                            <div class="settings-divider"></div>
+<!-- 소셜 로그인 회원 -->
+<div class="section-card social-only-box" v-else>
+    <div class="social-message">
+        소셜 로그인 회원은 아이디, 비밀번호 등 기본 계정 정보는 수정할 수 없습니다.<br>
+        휴대폰 인증은 아래에서 진행할 수 있습니다.
+    </div>
+</div>
 
-                                            <div class="danger-zone">
-                                                <div class="danger-title">계정 관리</div>
-                                                <button class="btn-danger" @click="fnDeleteUser">회원탈퇴</button>
-                                            </div>
-                                        </div>
+<!-- 휴대폰 인증 : 일반/소셜 회원 공통 -->
+<div class="section-card account-phone-verify-card">
+    <div class="section-head">
+        <h3>휴대폰 인증</h3>
+    </div>
+
+    <div class="settings-form account-settings-form">
+        <div class="account-status-chip phone-card-chip"
+            :class="settingsForm.phoneVerifyYn === 'Y' ? 'verified' : 'not-verified'">
+            {{ settingsForm.phoneVerifyYn === 'Y' ? '휴대폰 인증 완료' : '휴대폰 인증 필요' }}
+        </div>
+
+        <div class="setting-field account-field account-phone-field">
+            <label>연락처</label>
+
+            <div class="phone-verify-wrap account-phone-wrap">
+                <div class="phone-input-row account-phone-row">
+                    <input type="text"
+                        v-model="settingsForm.userPhone"
+                        placeholder="01012345678"
+                        maxlength="11">
+
+                    <button type="button"
+                        class="btn-outline account-mini-btn"
+                        @click="fnSendSmsCode"
+                        :disabled="!settingsForm.userPhone">
+                        인증요청
+                    </button>
+                </div>
+
+                <div class="phone-input-row account-phone-row" v-if="smsInputVisible">
+                    <input type="text"
+                        v-model="smsAuthCode"
+                        placeholder="인증번호 입력">
+
+                    <button type="button"
+                        class="btn-save account-mini-btn"
+                        @click="fnVerifySmsCode"
+                        :disabled="smsExpired">
+                        확인
+                    </button>
+                </div>
+
+                <div class="phone-timer-wrap" v-if="smsInputVisible">
+                    <span v-if="!smsExpired" class="phone-timer-text">
+                       남은 시간 {{ formattedSmsTime }}
+                    </span>
+                    <span v-else class="phone-timer-expired">
+                        인증 시간이 만료되었습니다.
+                    </span>
+                </div>
+
+                <div class="phone-verify-status">
+                    <span v-if="settingsForm.phoneVerifyYn === 'Y'" class="verify-success">
+                        인증된 연락처입니다.
+                    </span>
+                    <span v-else class="verify-fail">
+                        회원탈퇴 및 보안 설정을 위해 휴대폰 인증이 필요합니다.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 계정 관리 / 회원탈퇴 : 일반/소셜 공통 -->
+<div class="section-card">
+    <div class="settings-divider"></div>
+
+    <div class="danger-zone withdraw-zone">
+        <div class="danger-title">계정 관리</div>
+
+        <div class="withdraw-guide-box">
+            <div class="withdraw-guide-title">
+                <i class="ri-error-warning-line"></i>
+                회원탈퇴 전 꼭 확인해주세요
+            </div>
+
+            <ul class="withdraw-guide-list">
+                <li>탈퇴 후에는 같은 계정으로 로그인할 수 없습니다.</li>
+                <li>작성한 게시글, 리뷰, 문의 내역은 서비스 운영 정책에 따라 남아 있을 수 있습니다.</li>
+                <li>보유 포인트와 쿠폰은 탈퇴 즉시 사용할 수 없습니다.</li>
+                <li>진행 중인 주문, 대여, 환불, 교환이 있는 경우 처리 완료 후 탈퇴를 권장합니다.</li>
+            </ul>
+        </div>
+
+        <div class="settings-lock-box" v-if="settingsForm.phoneVerifyYn !== 'Y'">
+            <div class="settings-lock-title">휴대폰 인증 후 회원탈퇴 가능</div>
+            <div class="settings-lock-desc">
+                계정 보호를 위해 휴대폰 인증을 완료한 뒤 회원탈퇴를 진행할 수 있습니다.
+            </div>
+        </div>
+
+        <button
+            v-else
+            type="button"
+            class="btn-danger withdraw-btn"
+            @click="fnDeleteUser">
+            회원탈퇴
+        </button>
+    </div>
+</div>
 
 
                                     </div>
@@ -1429,10 +1478,9 @@
                         },
                         computed: {
                             isSettingsChanged() {
-                                return this.settingsForm.userId !== this.originalSettingsForm.userId
+                                  return this.settingsForm.userId !== this.originalSettingsForm.userId
                                     || this.settingsForm.userName !== this.originalSettingsForm.userName
-                                    || this.settingsForm.nickName !== this.originalSettingsForm.nickName
-                                    || this.settingsForm.userPhone !== this.originalSettingsForm.userPhone;
+                                    || this.settingsForm.nickName !== this.originalSettingsForm.nickName;
                             },
                             limitedOrderList() {
                                 return this.filteredOrderList.slice(0, 5);
@@ -1522,7 +1570,19 @@
                                         summary.shipping++;
                                     } else if (status === "DONE" || status === "RETURNED") {
                                         summary.done++;
-                                    } else if (status === "CANCELLED" || status === "CANCEL_REQUESTED" || status === "REFUND_REQUESTED"){
+                                    } else if (
+                                        status === "CANCELLED" ||
+                                        status === "CANCEL_REQUESTED" ||
+                                        status === "REFUND_REQUESTED" ||
+                                        status === "REFUND_APPROVED" ||
+                                        status === "REFUNDED" ||
+                                        status === "RETURN_REQUESTED" ||
+                                        status === "RETURN_APPROVED" ||
+                                        status === "RETURN_COMPLETED" ||
+                                        status === "EXCHANGE_REQUESTED" ||
+                                        status === "EXCHANGE_APPROVED" ||
+                                        status === "EXCHANGE_COMPLETED"
+                                    ) {
                                         summary.cancelled++;
                                     }
                                 });
@@ -1558,11 +1618,18 @@
                                     if (this.selectedOrderStatus === "READY") {
                                         return orderType === "PURCHASE" && status === "READY";
                                     }
-                                    // 취소,환불 상태
-                                    if (this.selectedOrderStatus === "CANCELLED") {
+                                   if (this.selectedOrderStatus === "CANCELLED") {
                                         return status === "CANCELLED"
                                             || status === "CANCEL_REQUESTED"
-                                            || status === "REFUND_REQUESTED";
+                                            || status === "REFUND_REQUESTED"
+                                            || status === "REFUND_APPROVED"
+                                            || status === "REFUNDED"
+                                            || status === "RETURN_REQUESTED"
+                                            || status === "RETURN_APPROVED"
+                                            || status === "RETURN_COMPLETED"
+                                            || status === "EXCHANGE_REQUESTED"
+                                            || status === "EXCHANGE_APPROVED"
+                                            || status === "EXCHANGE_COMPLETED";
                                     }
 
                                     return status === this.selectedOrderStatus;
@@ -1664,17 +1731,32 @@
                                     }
                                 });
                             },
-                            fnGetStatusText: function (status) {
-                                if (status === "PAID") return "결제완료";
-                                if (status === "READY") return "배송준비";
-                                if (status === "SHIPPING") return "배송중";
-                                if (status === "DONE") return "배송완료";
-                                if (status === "RETURNED") return "반납완료";
-                                if (status === "CANCELLED") return "취소됨";
-                                if (status === "CANCEL_REQUESTED") return "취소요청";
-                                if (status === "REFUND_REQUESTED") return "환불요청";
-                                return "-";
-                            },
+                           fnGetStatusText: function (status) {
+                            status = (status || "").toUpperCase();
+
+                            if (status === "PAID") return "결제완료";
+                            if (status === "READY") return "배송준비";
+                            if (status === "SHIPPING") return "배송중";
+                            if (status === "DONE") return "배송완료";
+                            if (status === "RETURNED") return "반납완료";
+
+                            if (status === "CANCEL_REQUESTED") return "취소요청";
+                            if (status === "CANCELLED") return "취소완료";
+
+                            if (status === "REFUND_REQUESTED") return "환불요청";
+                            if (status === "REFUND_APPROVED") return "환불승인";
+                            if (status === "REFUNDED") return "환불완료";
+
+                            if (status === "RETURN_REQUESTED") return "반품요청";
+                            if (status === "RETURN_APPROVED") return "반품승인";
+                            if (status === "RETURN_COMPLETED") return "반품완료";
+
+                            if (status === "EXCHANGE_REQUESTED") return "교환요청";
+                            if (status === "EXCHANGE_APPROVED") return "교환승인";
+                            if (status === "EXCHANGE_COMPLETED") return "교환완료";
+
+                            return status || "-";
+                        },
                             fnFilterByStatus: function (status) {
                                 if (this.selectedOrderStatus === status) {
                                     // 같은 거 다시 누르면 전체로
@@ -1982,37 +2064,76 @@
                                     }
                                 });
                             },
-                            fnDeleteUser: function () {
-                                let self = this;
+                          fnDeleteUser: function () {
+                            let self = this;
 
-                                self.fnOpenModal({
-                                    title: "회원탈퇴 하시겠습니까?",
-                                    message: "탈퇴 시 계정 정보가 삭제되며 <strong>되돌릴 수 없습니다.</strong>",
-                                    confirmText: "탈퇴",
-                                    onConfirm: function () {
-                                        $.ajax({
-                                            url: "/user/settings/delete.dox",
-                                            type: "POST",
-                                            dataType: "json",
-                                            data: {},
-                                            success: function (data) {
-                                                if (data.result === "success") {
-                                                    self.showToast(data.message || "회원탈퇴가 완료되었습니다.");
-                                                    setTimeout(function () {
-                                                        location.href = "/user/login.do";
-                                                    }, 900);
-                                                } else {
-                                                    self.showToast(data.message || "탈퇴에 실패했습니다.");
+                            if (self.settingsForm.phoneVerifyYn !== "Y") {
+                                self.showToast("휴대폰 인증 후 회원탈퇴를 진행할 수 있습니다.");
+                                return;
+                            }
+
+                            self.fnOpenModal({
+                                title: "정말 회원탈퇴를 진행하시겠습니까?",
+                                message:
+                                    "<div class='withdraw-modal-content'>" +
+                                        "<p class='withdraw-modal-main'>" +
+                                            "회원탈퇴 시 계정은 비활성화되며, 다시 로그인할 수 없습니다." +
+                                        "</p>" +
+
+                                        "<div class='withdraw-notice-box'>" +
+                                            "<div class='withdraw-notice-title'>탈퇴 전 안내사항</div>" +
+                                            "<ul>" +
+                                                "<li>보유 포인트와 쿠폰은 더 이상 사용할 수 없습니다.</li>" +
+                                                "<li>작성한 게시글, 리뷰, 문의는 운영 정책에 따라 보관될 수 있습니다.</li>" +
+                                                "<li>진행 중인 주문, 대여, 교환, 환불이 있다면 먼저 처리를 완료해주세요.</li>" +
+                                                "<li>탈퇴 후 계정 정보는 복구할 수 없습니다.</li>" +
+                                            "</ul>" +
+                                        "</div>" +
+
+                                        "<p class='withdraw-modal-question'>" +
+                                            "위 내용을 확인하셨다면 탈퇴를 계속 진행해주세요." +
+                                        "</p>" +
+                                    "</div>",
+                                confirmText: "계속 진행",
+                                onConfirm: function () {
+                                    self.fnOpenModal({
+                                        title: "마지막 확인",
+                                        message:
+                                            "<div class='withdraw-modal-content'>" +
+                                                "<p class='withdraw-modal-main strong'>" +
+                                                    "정말로 탈퇴하시겠습니까?" +
+                                                "</p>" +
+                                                "<p class='withdraw-modal-sub'>" +
+                                                    "이 작업은 취소할 수 없으며, 탈퇴 후에는 현재 계정으로 로그인할 수 없습니다." +
+                                                "</p>" +
+                                            "</div>",
+                                        confirmText: "회원탈퇴",
+                                        onConfirm: function () {
+                                            $.ajax({
+                                                url: "/user/settings/delete.dox",
+                                                type: "POST",
+                                                dataType: "json",
+                                                data: {},
+                                                success: function (data) {
+                                                    if (data.result === "success") {
+                                                        self.showToast(data.message || "회원탈퇴가 완료되었습니다.");
+
+                                                        setTimeout(function () {
+                                                            location.href = "/user/login.do";
+                                                        }, 900);
+                                                    } else {
+                                                        self.showToast(data.message || "탈퇴에 실패했습니다.");
+                                                    }
+                                                },
+                                                error: function () {
+                                                    self.showToast("서버 오류가 발생했습니다.");
                                                 }
-                                            },
-                                            error: function () {
-                                                self.showToast("서버 오류가 발생했습니다.");
-                                            }
-                                        });
-                                    }
-                                });
+                                            });
+                                        }
+                                    });
+                                }
+                            });
                             },
-
                             fnRemoveReview: function (reviewId) {
                                 let self = this;
 
@@ -2838,12 +2959,24 @@
                                 return map[category] || category || "커뮤니티";
                             },
 
-                            fnPlainText: function (text) {
+                           fnPlainText: function (text) {
                                 if (!text) {
                                     return "";
                                 }
 
-                                return String(text).replace(/\n/g, " ").replace(/\s+/g, " ").trim();
+                                // HTML 문자열을 실제 DOM으로 변환해서 태그 제거
+                                const temp = document.createElement("div");
+                                temp.innerHTML = String(text)
+                                    .replace(/<br\s*\/?>/gi, " ")
+                                    .replace(/<\/p>/gi, " ");
+
+                                let plainText = temp.textContent || temp.innerText || "";
+
+                                return plainText
+                                    .replace(/\u00a0/g, " ")
+                                    .replace(/&nbsp;/g, " ")
+                                    .replace(/\s+/g, " ")
+                                    .trim();
                             },
 
                             fnBookmarkThumb: function (item) {

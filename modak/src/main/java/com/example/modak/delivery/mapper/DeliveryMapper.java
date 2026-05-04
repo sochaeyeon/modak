@@ -19,4 +19,6 @@ public interface DeliveryMapper {
 
 	DeliveryDetail selectDeliveryDetailByOrderId(@Param("orderId") Long orderId, @Param("userId") String userId,
 			@Param("token") String token);
+	
+	DeliveryDetail selectOrderDeliveryBaseByOrderId(@Param("orderId") Long orderId);
 }

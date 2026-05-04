@@ -687,6 +687,10 @@
 					<i class="ri-arrow-up-line"></i>
 				</button>
 			</div><!-- /#app -->
+			<%@ include file="/WEB-INF/common/footer.jsp" %>
+	</body>
+
+	</html>
 			<script>
 				const BUY_NOW_KEY = 'checkout_items'; // 상품디테일>바로구매,대여할때필요
 				const loginUserId = '${sessionScope.sessionId}' || '';
@@ -784,8 +788,6 @@
 						},
 						detailImgUrl() {
 							const desc = this.productInfo.description;
-
-							console.log('description:', desc);
 
 							if (!desc) {
 								return '';
@@ -1060,8 +1062,6 @@
 									return;
 								}
 							}
-							console.log("선택 옵션:", selectedOptionValues);
-							console.log("optionValueIds:", optionId);
 
 							/* ══ 비회원: localStorage 저장 ══ */
 							if (!self.isLogin) {
@@ -1752,7 +1752,3 @@
 
 				app.mount('#app');
 			</script>
-			<%@ include file="/WEB-INF/common/footer.jsp" %>
-	</body>
-
-	</html>

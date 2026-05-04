@@ -123,4 +123,30 @@
 		OR o.USER_ID IS NULL
 		)
 	</select>
+	<select id="selectOrderDeliveryBaseByOrderId" resultMap="deliveryDetailResultMap">
+    SELECT
+        NULL AS DELIVERY_ID,
+        'PREPARING' AS DELIVERY_STATUS,
+        NULL AS TRACKING_NO,
+        NULL AS CARRIER_ID,
+        NULL AS SHIPPED_AT,
+        NULL AS DELIVERED_AT,
+        NULL AS PICKED_UP_AT,
+
+        O.GUEST_NAME AS RECEIVER_NAME,
+        O.ORDER_ID,
+        O.ORDER_TYPE,
+        O.ORDER_STATUS,
+        DATE_FORMAT(O.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT,
+        O.USER_ID,
+        O.GUEST_NAME,
+        O.GUEST_PHONE,
+
+        NULL AS ZIPCODE,
+        NULL AS ADDRESS,
+        NULL AS DETAILED_ADDRESS
+
+    FROM ORDERS O
+    WHERE O.ORDER_ID = #{orderId}
+</select>
 </mapper>

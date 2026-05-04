@@ -35,8 +35,20 @@ public class BoardController {
     public String writePage() { return "board/board-write"; }
 
     @GetMapping("/detail.do")
-    public String detailPage() { return "board/board-detail"; }
-    
+    public String detailPage(@RequestParam(required = false) Long boardId) {
+
+        if (boardId == null) {
+            return "redirect:/board/list.do";
+        }
+
+        HashMap<String, Object> resultMap = boardService.getBoardDetail(boardId);
+
+        if (!"success".equals(resultMap.get("result")) || resultMap.get("board") == null) {
+            return "redirect:/board/list.do";
+        }
+
+        return "board/board-detail";
+    }
     @GetMapping("/edit.do")
     public String editPage() {
         return "board/board-edit";

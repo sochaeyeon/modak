@@ -11,7 +11,6 @@
       <link rel="stylesheet" href="/css/common/header.css">
       <link rel="stylesheet" href="/css/main/main.css">
       <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-      <script src="/js/wish.js"></script>
       <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
       <script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoKey}&autoload=false"></script>
       <link href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css" rel="stylesheet">
@@ -20,7 +19,7 @@
     <body>
 
       <%@ include file="/WEB-INF/common/header.jsp" %>
-
+        <input type="hidden" id="loginYn" value="${not empty sessionScope.sessionId ? 'Y' : 'N'}">
         <!-- ════════════════ HERO ════════════════ -->
         <section class="hero">
           <div class="scroll-progress"></div>
@@ -361,9 +360,16 @@
 
               document.querySelector('.scroll-progress').style.width = progress + '%';
             });
-            /* ── 1. 불씨 + 낙엽 ── */
             /* ── 9. 최근 본 상품 바 - DB 연동 ── */
             (function () {
+              const isLogin = document.getElementById('loginYn')?.value === 'Y';
+
+              if (!isLogin) {
+                $('#recentBar').removeClass('visible');
+                $('#recentItems').empty();
+                return;
+              }
+
               $.ajax({
                 url: '/user/recent/list.dox',
                 type: 'POST',
@@ -374,6 +380,8 @@
                 },
                 success: function (res) {
                   if (res.result !== 'success' || !res.list || res.list.length === 0) {
+                    $('#recentBar').removeClass('visible');
+                    $('#recentItems').empty();
                     return;
                   }
 
@@ -386,7 +394,7 @@
 
                     var imgHtml = imgUrl
                       ? '<img src="' + imgUrl + '" style="width:24px;height:24px;object-fit:cover;border-radius:4px;">'
-                      : '<span>🏕️</span>';
+                      : '<span><i class="ri-image-line"></i></span>';
 
                     html += ''
                       + '<div class="recent-item" data-pid="' + productId + '">'
@@ -398,7 +406,6 @@
                   });
 
                   $('#recentItems').html(html);
-
                   $('#recentBar').addClass('visible');
 
                   $('#recentItems').off('click').on('click', '.recent-item', function () {
@@ -407,11 +414,11 @@
                   });
                 },
                 error: function () {
-                  console.log('최근 본 상품 조회 실패');
+                  $('#recentBar').removeClass('visible');
+                  $('#recentItems').empty();
                 }
               });
             })();
-
             /* ── 2. 스크롤 리빌 ── */
             var revealObs = new IntersectionObserver(function (entries) {
               entries.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('visible'); });
@@ -495,13 +502,7 @@
             /* ── 6. 토스트 ── */
             function showToast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(function () { t.classList.remove('show'); }, 2200); }
 
-            /* ── 7. 상품 상세 이동 + 최근 본 상품 localStorage 저장 ── */
             function fnGoDetail(productId, productName, imgUrl) {
-              var items = JSON.parse(localStorage.getItem('recentViewed') || '[]');
-              items = items.filter(function (i) { return i.no !== productId; });
-              items.unshift({ no: productId, name: productName, icon: imgUrl || '🏕️' });
-              if (items.length > 10) items.pop();
-              localStorage.setItem('recentViewed', JSON.stringify(items));
               location.href = '/product/detail.do?productId=' + productId;
             }
 
@@ -662,29 +663,6 @@
                 }
               });
 
-            })();
-            /* ── 9. 최근 본 상품 바 ── */
-            (function () {
-              var items = JSON.parse(localStorage.getItem('recentViewed') || '[]');
-              if (!items.length) return;
-              var html = '';
-              items.slice(0, 10).forEach(function (item) {
-                var iconHtml = item.icon && item.icon.startsWith('/')
-                  ? '<img src="' + item.icon + '" style="width:24px;height:24px;object-fit:cover;border-radius:4px;">'
-                  : '<span>' + item.icon + '</span>';
-                html += '<div class="recent-item" data-pid="' + item.no + '">'
-                  + iconHtml
-                  + '<span style="font-size:12px;color:var(--brown2)">' + item.name + '</span></div>';
-              });
-              var bar = document.getElementById('recentItems');
-              if (bar) {
-                bar.innerHTML = html;
-                bar.addEventListener('click', function (e) {
-                  var el = e.target.closest('.recent-item');
-                  if (el) location.href = '/product/detail.do?productId=' + el.dataset.pid;
-                });
-              }
-              setTimeout(function () { document.getElementById('recentBar').classList.add('visible'); }, 3000);
             })();
             function closeRecent() { document.getElementById('recentBar').classList.remove('visible'); }
 

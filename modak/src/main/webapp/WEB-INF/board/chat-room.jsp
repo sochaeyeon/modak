@@ -9,6 +9,7 @@
             <title>채팅방 | 모닥모닥</title>
             <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
             <link rel="stylesheet" href="${pageContext.request.contextPath}/css/board/chat-room.css">
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
         </head>
 
         <body>
@@ -18,7 +19,9 @@
 
                     <!-- 상단 바 -->
                     <div class="room-topbar">
-                        <button class="btn-back" id="btnBack">&#8592;</button>
+                        <button class="btn-back" id="btnBack" type="button" aria-label="뒤로가기">
+                            <i class="ri-arrow-left-line"></i>
+                        </button>
                         <div class="top-avatar" id="topAvatar">
                             <img id="topImg" src="" alt="" style="display:none;">
                             <div class="av-fb" id="topFb">?</div>
@@ -27,11 +30,17 @@
                             <div class="top-name" id="topName">…</div>
                             <div class="top-sub" id="topSub">모닥모닥 멤버</div>
                         </div>
-                        <div class="btn-more" id="btnMore">
-                            &#8943;
+                        <div class="btn-more" id="btnMore" role="button" tabindex="0" aria-label="채팅방 메뉴">
+                            <i class="ri-more-2-fill"></i>
                             <div class="more-menu" id="moreMenu">
-                                <button id="menuBlock">🚫 <span id="menuBlockTxt">차단하기</span></button>
-                                <button id="menuLeave">🚪 <span>채팅방 나가기</span></button>
+                                <button id="menuBlock" type="button">
+                                    <i class="ri-forbid-2-line"></i>
+                                    <span id="menuBlockTxt">차단하기</span>
+                                </button>
+                                <button id="menuLeave" type="button">
+                                    <i class="ri-logout-box-r-line"></i>
+                                    <span>채팅방 나가기</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -39,7 +48,9 @@
                     <!-- 메시지 영역 -->
                     <div class="msg-area" id="msgArea">
                         <div class="empty-chat" id="emptyChat">
-                            <div class="empty-icon">🔥</div>
+                            <div class="empty-icon">
+                                <i class="ri-chat-heart-line"></i>
+                            </div>
                             <p>모닥불처럼 따뜻한 대화를<br><strong>지금 시작해보세요!</strong></p>
                         </div>
                         <div class="typing-wrap" id="typingWrap">
@@ -58,40 +69,49 @@
                         새 메시지 보기
                     </button>
 
-                    <div class="blocked-bar" id="blockedBar">🚫 차단한 사용자입니다. 메시지를 보낼 수 없어요.</div>
+                    <div class="blocked-bar" id="blockedBar">
+                        <i class="ri-forbid-2-line"></i>
+                        차단한 사용자입니다. 메시지를 보낼 수 없어요.
+                    </div>
 
                     <div class="input-wrap" id="inputWrap">
                         <div class="textarea-box">
                             <input type="file" id="chatImageInput" accept="image/*" style="display:none;">
-                            <button type="button" class="btn-img" id="btnImage">📷</button><textarea id="msgInput"
-                                placeholder="메시지를 입력하세요" rows="1"></textarea>
+                            <button type="button" class="btn-img" id="btnImage" aria-label="이미지 보내기">
+                                <i class="ri-image-add-line"></i>
+                            </button>
+                            <textarea id="msgInput" placeholder="메시지를 입력하세요" rows="1"></textarea>
                         </div>
-                        <button class="btn-send" id="btnSend" disabled>&#10148;</button>
-						<button type="button" class="btn-emoji" id="btnEmoji">😊</button>
+                        <button class="btn-send" id="btnSend" type="button" disabled aria-label="메시지 전송">
+                            <i class="ri-send-plane-fill"></i>
+                        </button>
+                        <button type="button" class="btn-emoji" id="btnEmoji" aria-label="스티커 열기">
+                            <i class="ri-emotion-line"></i>
+                        </button>
                     </div>
                 </div>
-				<div id="stickerPanel" class="sticker-panel">
-				    <img src="/img/sticker/modak1.png">
-				    <img src="/img/sticker/modak2.png">
-				    <img src="/img/sticker/modak3.png">
-				    <img src="/img/sticker/modak4.png">
-				    <img src="/img/sticker/modak5.png">
-				    <img src="/img/sticker/modak6.png">
-				    <img src="/img/sticker/modak7.png">
-				    <img src="/img/sticker/modak8.png">
-				    <img src="/img/sticker/modak9.png">
-				    <img src="/img/sticker/modak10.png">
-				    <img src="/img/sticker/modak11.png">
-				    <img src="/img/sticker/modak12.png">
-				    <img src="/img/sticker/modak13.png">
-				    <img src="/img/sticker/modak14.png">
-				    <img src="/img/sticker/modak15.png">
-				    <img src="/img/sticker/modak16.png">
-				    <img src="/img/sticker/modak17.png">
-				    <img src="/img/sticker/modak18.png">
-				    <img src="/img/sticker/modak19.png">
-				    <img src="/img/sticker/modak20.png">
-				</div>
+                <div id="stickerPanel" class="sticker-panel">
+                    <img src="/img/sticker/modak1.png">
+                    <img src="/img/sticker/modak2.png">
+                    <img src="/img/sticker/modak3.png">
+                    <img src="/img/sticker/modak4.png">
+                    <img src="/img/sticker/modak5.png">
+                    <img src="/img/sticker/modak6.png">
+                    <img src="/img/sticker/modak7.png">
+                    <img src="/img/sticker/modak8.png">
+                    <img src="/img/sticker/modak9.png">
+                    <img src="/img/sticker/modak10.png">
+                    <img src="/img/sticker/modak11.png">
+                    <img src="/img/sticker/modak12.png">
+                    <img src="/img/sticker/modak13.png">
+                    <img src="/img/sticker/modak14.png">
+                    <img src="/img/sticker/modak15.png">
+                    <img src="/img/sticker/modak16.png">
+                    <img src="/img/sticker/modak17.png">
+                    <img src="/img/sticker/modak18.png">
+                    <img src="/img/sticker/modak19.png">
+                    <img src="/img/sticker/modak20.png">
+                </div>
                 <!-- 미니 프로필 팝업 -->
                 <div class="mini-profile" id="miniProfile" style="display:none;">
                     <div class="mp-header">
@@ -119,7 +139,10 @@
                         </div>
                     </div>
                     <div class="mp-actions">
-                        <button class="mp-btn primary" id="mpChatBtn">💬 대화 중</button>
+                        <button class="mp-btn primary" id="mpChatBtn" type="button">
+                            <i class="ri-chat-3-line"></i>
+                            <span>대화 중</span>
+                        </button>
                         <button class="mp-btn secondary" id="mpProfileBtn">프로필 보기</button>
                     </div>
                 </div>
@@ -127,7 +150,9 @@
                 <!-- 차단 모달 -->
                 <div class="modal-bg" id="blockModal">
                     <div class="modal-box">
-                        <div class="modal-icon block-icon" id="modalIcon">🚫</div>
+                        <div class="modal-icon block-icon" id="modalIcon">
+                            <i class="ri-forbid-2-line"></i>
+                        </div>
                         <div class="modal-title" id="modalTitle">사용자를 차단할까요?</div>
                         <div class="modal-desc" id="modalDesc">차단하면 이 사용자의 메시지를<br>더 이상 받지 않게 됩니다.</div>
                         <div class="modal-btns">
@@ -138,24 +163,67 @@
                 </div>
                 <!-- 메시지 삭제 모달 -->
                 <div class="modal-bg" id="deleteMsgModal">
-                    <div class="modal-box">
-                        <div class="modal-icon">🗑️</div>
-                        <div class="modal-title">메시지를 삭제할까요?</div>
-                        <div class="modal-desc">삭제 방식을 선택해주세요.</div>
+                    <div class="modal-box delete-msg-box">
+                        <div class="modal-icon delete-icon">
+                            <i class="ri-delete-bin-6-line"></i>
+                        </div>
 
-                        <div class="modal-btns vertical">
-                            <button class="modal-btn confirm-block" id="deleteForMe">나에게만 삭제</button>
-                            <button class="modal-btn confirm-block" id="deleteForAll">모두에게 삭제</button>
-                            <button class="modal-btn cancel" id="deleteCancel">취소</button>
+                        <div class="modal-title">메시지 삭제</div>
+                        <div class="modal-desc">
+                            삭제 방식을 선택해주세요.<br>
+                            모두에게 삭제하면 상대방 화면에서도 메시지가 사라집니다.
+                        </div>
+
+                        <div class="delete-option-list">
+                            <button type="button" class="delete-option" id="deleteForMe">
+                                <span class="delete-option-icon soft">
+                                    <i class="ri-user-line"></i>
+                                </span>
+                                <span class="delete-option-text">
+                                    <strong>나에게만 삭제</strong>
+                                    <em>내 채팅방에서만 보이지 않아요</em>
+                                </span>
+                                <i class="ri-arrow-right-s-line delete-option-arrow"></i>
+                            </button>
+
+                            <button type="button" class="delete-option danger" id="deleteForAll">
+                                <span class="delete-option-icon danger">
+                                    <i class="ri-group-line"></i>
+                                </span>
+                                <span class="delete-option-text">
+                                    <strong>모두에게 삭제</strong>
+                                    <em>상대방 채팅방에서도 삭제돼요</em>
+                                </span>
+                                <i class="ri-arrow-right-s-line delete-option-arrow"></i>
+                            </button>
+                        </div>
+
+                        <button type="button" class="delete-cancel-btn" id="deleteCancel">취소</button>
+                    </div>
+                </div>
+                <!-- 채팅방 나가기 모달 -->
+                <div class="modal-bg" id="leaveRoomModal">
+                    <div class="modal-box">
+                        <div class="modal-icon leave-icon">
+                            <i class="ri-logout-box-r-line"></i>
+                        </div>
+                        <div class="modal-title">채팅방을 나갈까요?</div>
+                        <div class="modal-desc">
+                            나가면 이 대화방이 내 채팅 목록에서 사라집니다.<br>
+                            상대방의 채팅방은 유지됩니다.
+                        </div>
+
+                        <div class="modal-btns">
+                            <button class="modal-btn cancel" id="leaveCancel" type="button">취소</button>
+                            <button class="modal-btn confirm-block" id="leaveConfirm" type="button">나가기</button>
                         </div>
                     </div>
                 </div>
-
                 <div class="toast" id="toast"></div>
 
                 <script>
-					var ROOM_ID = new URLSearchParams(location.search).get('roomId');
-					var OTHER_ID = new URLSearchParams(location.search).get('otherId') || null;
+                    var ROOM_ID = new URLSearchParams(location.search).get('roomId');
+                    var OTHER_ID = new URLSearchParams(location.search).get('otherId') || null;
                     var MY_ID = '${sessionScope.sessionId}';
                     var selectedDeleteMessageId = null;
                     var isBlocked = false;
@@ -197,20 +265,28 @@
                             e.stopPropagation();
                             openMiniProfile(OTHER_ID, this);
                         });
-						$('#btnEmoji').on('click', function (e) {
-						    e.stopPropagation();
-						    $('#stickerPanel').toggle();
-						});
+                        $('#btnEmoji').on('click', function (e) {
+                            e.stopPropagation();
+                            $('#stickerPanel').toggle();
+                        });
+                        $('#leaveCancel').on('click', closeLeaveRoomModal);
 
-						$(document).on('click', function () {
-						    $('#stickerPanel').hide();
-						});
+                        $('#leaveConfirm').on('click', leaveRoom);
 
-						$('#stickerPanel img').on('click', function () {
-						    var url = $(this).attr('src');
-						    sendSticker(url);
-						    $('#stickerPanel').hide();
-						});
+                        $('#leaveRoomModal').on('click', function (e) {
+                            if (e.target === this) {
+                                closeLeaveRoomModal();
+                            }
+                        });
+                        $(document).on('click', function () {
+                            $('#stickerPanel').hide();
+                        });
+
+                        $('#stickerPanel img').on('click', function () {
+                            var url = $(this).attr('src');
+                            sendSticker(url);
+                            $('#stickerPanel').hide();
+                        });
 
                         $('#btnMore').on('click', function (e) {
                             e.stopPropagation();
@@ -222,55 +298,32 @@
                             openBlockModal();
                         });
 
-						// ✅ 수정 — 버튼을 실수로 두 번 누르지 못하게 비활성화
-						$('#menuLeave').on('click', function(e) {
-						    e.stopPropagation();
-						    $('#moreMenu').removeClass('open');
-						    if (!confirm('채팅방을 나가시겠습니까? 나가면 대화 내역이 목록에서 사라집니다.')) return;
-
-						    var $btn = $(this);
-						    $btn.prop('disabled', true);  // ← 중복 호출 방지
-
-						    $.ajax({
-						        url: '/chat-room/leave.dox',
-						        type: 'POST',
-						        data: { roomId: ROOM_ID },
-						        dataType: 'json',
-						        success: function(res) {
-						            if (res.result === 'success') {
-						                location.href = '/chat-room/list.do';
-						            } else {
-						                showToast(res.message || '채팅방 나가기 실패');
-						                $btn.prop('disabled', false);
-						            }
-						        },
-						        error: function() {
-						            showToast('서버 오류가 발생했습니다.');
-						            $btn.prop('disabled', false);
-						        }
-						    });
-						});
-						function sendSticker(stickerUrl) {
-						    $.ajax({
-						        url: '/chat-room/send-sticker.dox',
-						        type: 'POST',
-						        data: {
-						            roomId: ROOM_ID,
-						            content: stickerUrl
-						        },
-						        dataType: 'json',
-						        success: function (res) {
-						            if (res.result === 'success') {
-						                loadMessages(false);
-						            } else {
-						                showToast(res.message || '이모티콘 전송 실패');
-						            }
-						        },
-						        error: function () {
-						            showToast('이모티콘 전송 중 오류가 발생했습니다.');
-						        }
-						    });
-						}
+                        $('#menuLeave').on('click', function (e) {
+                            e.stopPropagation();
+                            $('#moreMenu').removeClass('open');
+                            openLeaveRoomModal();
+                        });
+                        function sendSticker(stickerUrl) {
+                            $.ajax({
+                                url: '/chat-room/send-sticker.dox',
+                                type: 'POST',
+                                data: {
+                                    roomId: ROOM_ID,
+                                    content: stickerUrl
+                                },
+                                dataType: 'json',
+                                success: function (res) {
+                                    if (res.result === 'success') {
+                                        loadMessages(false);
+                                    } else {
+                                        showToast(res.message || '이모티콘 전송 실패');
+                                    }
+                                },
+                                error: function () {
+                                    showToast('이모티콘 전송 중 오류가 발생했습니다.');
+                                }
+                            });
+                        }
 
                         $('#btnImage').on('click', function () {
                             $('#chatImageInput').click();
@@ -381,8 +434,8 @@
 
                         $('#msgInput')
                             .on('input', function () {
-                                this.style.height = 'auto';
-                                this.style.height = Math.min(this.scrollHeight, 110) + 'px';
+                                this.style.height = '22px';
+                                this.style.height = Math.min(this.scrollHeight, 96) + 'px';
 
                                 $('#btnSend').prop('disabled', !$(this).val().trim());
 
@@ -544,6 +597,7 @@
                             success: function (res) {
                                 if (res.result === 'success') {
                                     loadMessages(false);
+                                    showToast(type === 'ALL' ? '모두에게서 메시지를 삭제했어요.' : '내 채팅방에서 메시지를 삭제했어요.');
                                 } else {
                                     showToast(res.message || '삭제 실패');
                                 }
@@ -593,7 +647,12 @@
                         var side = isMe ? 'me' : 'other';
                         var minute = (m.CREATED_AT || '').slice(0, 16);
 
-                        var cls = 'msg-row ' + side + (isCont ? ' cont' : '') + (isGap ? ' gap' : '');
+                        var isDeleted = m.IS_DELETED === 'Y' || m.isDeleted === 'Y';
+
+                        var cls = 'msg-row ' + side
+                            + (isCont ? ' cont' : '')
+                            + (isGap ? ' gap' : '')
+                            + (isDeleted ? ' deleted-msg' : '');
 
                         var imgHtml = m.SENDER_IMG
                             ? '<img src="' + escAttr(m.SENDER_IMG) + '" alt="">'
@@ -603,17 +662,23 @@
                             ? '<div class="m-nick">' + escHtml(m.SENDER_NICK || OTHER_ID || '') + '</div>'
                             : '';
 
-							var bubbleContent = '';
-							var messageType = m.MESSAGE_TYPE || m.messageType || 'TEXT';
-							var content = m.CONTENT || '';
+                        var bubbleContent = '';
+                        var messageType = m.MESSAGE_TYPE || m.messageType || 'TEXT';
+                        var content = m.CONTENT || '';
 
-							if (messageType === 'STICKER') {
-							    bubbleContent = '<img class="chat-sticker" src="' + escAttr(content) + '" alt="이모티콘">';
-							} else if (messageType === 'IMAGE' || String(content).startsWith('/img/chat/')) {
-							    bubbleContent = '<img class="chat-img" src="' + escAttr(content) + '" alt="채팅 이미지">';
-							} else {
-							    bubbleContent = escHtml(content);
-							}
+                        if (isDeleted) {
+                            bubbleContent =
+                                '<span class="deleted-message-text">' +
+                                '<i class="ri-delete-bin-line"></i>' +
+                                '<span>삭제된 메시지입니다</span>' +
+                                '</span>';
+                        } else if (messageType === 'STICKER') {
+                            bubbleContent = '<img class="chat-sticker" src="' + escAttr(content) + '" alt="스티커">';
+                        } else if (messageType === 'IMAGE' || String(content).startsWith('/img/chat/')) {
+                            bubbleContent = '<img class="chat-img" src="' + escAttr(content) + '" alt="채팅 이미지">';
+                        } else {
+                            bubbleContent = escHtml(content);
+                        }
 
                         var readStatus = '';
 
@@ -635,7 +700,7 @@
 
                         var deleteBtn = '';
 
-                        if (isMe && m.IS_DELETED !== 'Y' && !m.TEMP_STATUS) {
+                        if (isMe && !isDeleted && !m.TEMP_STATUS) {
                             deleteBtn =
                                 '<button type="button" class="msg-del-btn" data-message-id="' + escAttr(m.MESSAGE_ID) + '">' +
                                 '삭제' +
@@ -801,7 +866,47 @@
                             }
                         });
                     }
+                    function openLeaveRoomModal() {
+                        $('#leaveRoomModal').addClass('open');
+                    }
 
+                    function closeLeaveRoomModal() {
+                        $('#leaveRoomModal').removeClass('open');
+                        $('#leaveConfirm').prop('disabled', false).text('나가기');
+                    }
+
+                    function leaveRoom() {
+                        var $btn = $('#leaveConfirm');
+
+                        if ($btn.prop('disabled')) return;
+
+                        $btn.prop('disabled', true).text('처리 중');
+
+                        $.ajax({
+                            url: '/chat-room/leave.dox',
+                            type: 'POST',
+                            data: { roomId: ROOM_ID },
+                            dataType: 'json',
+                            success: function (res) {
+                                if (res.result === 'success') {
+                                    showToast('채팅방을 나갔어요.');
+
+                                    setTimeout(function () {
+                                        location.href = '/chat-room/list.do';
+                                    }, 700);
+
+                                    return;
+                                }
+
+                                showToast(res.message || '채팅방 나가기 실패');
+                                closeLeaveRoomModal();
+                            },
+                            error: function () {
+                                showToast('서버 오류가 발생했습니다.');
+                                closeLeaveRoomModal();
+                            }
+                        });
+                    }
                     function openMiniProfile(userId, triggerEl) {
                         if (!userId) return;
 
@@ -814,7 +919,9 @@
                         $('#mpBoard').text('-');
                         $('#mpComment').text('-');
                         $('#mpLike').text('-');
-                        $('#mpChatBtn').text('💬 대화 중').prop('disabled', true);
+                        $('#mpChatBtn')
+                            .html('<i class="ri-chat-3-line"></i><span>대화 중</span>')
+                            .prop('disabled', true);
 
                         positionPopup(triggerEl);
                         $('#miniProfile').show();
@@ -838,14 +945,24 @@
                                 }
 
                                 $('#mpName').text(u.nickname || userId);
-                                $('#mpGrade').text(gradeLabel(u.communityGrade));
+                                $('#mpGrade').text(gradeLabel(u.communityGrade)); $('#mpGrade').html(
+                                    '<i class="' + gradeIcon(u.communityGrade) + '"></i> ' + escHtml(gradeLabel(u.communityGrade))
+                                );
                                 $('#mpBoard').text(u.boardCount || 0);
                                 $('#mpComment').text(u.commentCount || 0);
                                 $('#mpLike').text(u.likeCount || 0);
                             }
                         });
                     }
-
+                    function gradeIcon(g) {
+                        return {
+                            'SPROUT': 'ri-seedling-line',
+                            'EMBER': 'ri-fire-line',
+                            'CAMPER': 'ri-tent-line',
+                            'FIRE_CAMPER': 'ri-blaze-line',
+                            'MODAK': 'ri-award-line'
+                        }[g] || 'ri-seedling-line';
+                    }
                     function positionPopup(el) {
                         var rect = $(el)[0].getBoundingClientRect();
                         var popW = 240;
@@ -929,15 +1046,29 @@
 
                     function openBlockModal() {
                         if (isBlocked) {
-                            $('#modalIcon').removeClass('block-icon').addClass('unblock-icon').text('✅');
+                            $('#modalIcon')
+                                .removeClass('block-icon')
+                                .addClass('unblock-icon')
+                                .html('<i class="ri-shield-check-line"></i>');
+
                             $('#modalTitle').text('차단을 해제할까요?');
                             $('#modalDesc').html('차단을 해제하면 이 사용자와<br>다시 대화할 수 있어요.');
-                            $('#modalConfirm').removeClass('confirm-block').addClass('confirm-unblock').text('해제하기');
+                            $('#modalConfirm')
+                                .removeClass('confirm-block')
+                                .addClass('confirm-unblock')
+                                .text('해제하기');
                         } else {
-                            $('#modalIcon').removeClass('unblock-icon').addClass('block-icon').text('🚫');
+                            $('#modalIcon')
+                                .removeClass('unblock-icon')
+                                .addClass('block-icon')
+                                .html('<i class="ri-forbid-2-line"></i>');
+
                             $('#modalTitle').text('사용자를 차단할까요?');
                             $('#modalDesc').html('차단하면 이 사용자의 메시지를<br>더 이상 받지 않게 됩니다.');
-                            $('#modalConfirm').removeClass('confirm-unblock').addClass('confirm-block').text('차단하기');
+                            $('#modalConfirm')
+                                .removeClass('confirm-unblock')
+                                .addClass('confirm-block')
+                                .text('차단하기');
                         }
 
                         $('#blockModal').addClass('open');
@@ -1048,12 +1179,12 @@
 
                     function gradeLabel(g) {
                         return {
-                            'SPROUT': '🌱 새싹',
-                            'EMBER': '🔥 불씨',
-                            'CAMPER': '⛺ 캠퍼',
-                            'FIRE_CAMPER': '🔥 불꽃캠퍼',
-                            'MODAK': '🪵 모닥불'
-                        }[g] || '🌱 새싹';
+                            'SPROUT': '새싹',
+                            'EMBER': '불씨',
+                            'CAMPER': '캠퍼',
+                            'FIRE_CAMPER': '불꽃캠퍼',
+                            'MODAK': '모닥불'
+                        }[g] || '새싹';
                     }
 
                     function escHtml(s) {

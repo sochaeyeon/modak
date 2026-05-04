@@ -186,20 +186,19 @@
 	</select>
 
 	<!-- 회원 반납 신청 -->
-	<update id="updateReturnRequest" parameterType="hashmap">
-		UPDATE RENTALS
-		SET RENTAL_STATUS = 'RETURN_REQUESTED',
-		RETURN_ZIPCODE = #{zipcode},
-		RETURN_ADDRESS = #{address},
-		RETURN_DETAILED_ADDRESS = #{detailedAddress},
-		RETURN_REQUESTED_AT = NOW()
-		WHERE RENTAL_ID = #{rentalId}
-		AND USER_ID = #{userId}
-		AND RENTAL_STATUS IN ('IN_USE', 'RESERVED')
-	</update>
+<update id="updateReturnRequest" parameterType="hashmap">
+    UPDATE RENTALS
+    SET RENTAL_STATUS = 'RETURN_REQUESTED',
+        RETURN_ZIPCODE = #{zipcode},
+        RETURN_ADDRESS = #{address},
+        RETURN_DETAILED_ADDRESS = #{detailedAddress},
+        RETURN_REQUESTED_AT = NOW()
+    WHERE RENTAL_ID = #{rentalId}
+      AND USER_ID = #{userId}
+      AND RENTAL_STATUS = 'IN_USE'
+</update>
 
-	<!-- 비회원 반납 신청 -->
-	<update id="updateGuestReturnRequest" parameterType="hashmap">
+<update id="updateGuestReturnRequest" parameterType="hashmap">
     UPDATE RENTALS
     SET RENTAL_STATUS = 'RETURN_REQUESTED',
         RETURN_ZIPCODE = #{zipcode},
@@ -210,9 +209,8 @@
       AND GUEST_NAME = #{guestName}
       AND GUEST_PHONE = #{guestPhone}
       AND USER_ID LIKE 'GUEST%'
-      AND RENTAL_STATUS IN ('IN_USE', 'RESERVED')
+      AND RENTAL_STATUS = 'IN_USE'
 </update>
-
 	<!-- 배송 상태 반납요청으로 변경 -->
 	<update id="updateDeliveryReturnRequest" parameterType="hashmap">
 		UPDATE DELIVERY

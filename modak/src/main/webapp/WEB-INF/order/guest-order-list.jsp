@@ -246,11 +246,6 @@
 
             <div v-for="order in orderList" :key="order.ORDER_ID"
                  class="order-item" @click="fnGoDetail(order)">
-				 <!-- 기존 -->
-				 <div class="order-icon">
-				     {{ order.ORDER_TYPE === 'RENTAL' ? '⛺' : '🛒' }}
-				 </div>
-
 				 <!-- 변경 -->
 				 <div class="order-icon" style="overflow:hidden;padding:0;">
 				     <img v-if="order.thumbUrl" :src="order.thumbUrl"

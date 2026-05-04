@@ -246,22 +246,27 @@ public class RentalExtensionController {
 	@PostMapping(value = "/payment/ready.dox", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String extensionPaymentReady(@RequestParam HashMap<String, Object> map, HttpSession session) {
-		String userId = (String) session.getAttribute("sessionId");
+	    String userId = (String) session.getAttribute("sessionId");
 
-		if (userId != null) {
-			// 회원
-			map.put("userId", userId);
-			map.put("token", null);
-		} else {
-			// 비회원 — JSP에서 guestToken 전달
-			String token = String.valueOf(map.get("token"));
-			if (token == null || "null".equals(token) || token.isEmpty()) {
-				return "{\"result\":\"fail\",\"message\":\"비회원 인증 정보가 없습니다.\"}";
-			}
-			map.put("userId", "GUEST");
-		}
+	    if (userId != null && !userId.isBlank()) {
+	        map.put("userId", userId);
+	        map.put("token", null);
+	    } else {
+	        String token = String.valueOf(map.get("token"));
+	        String orderId = String.valueOf(map.get("orderId"));
 
-		return new Gson().toJson(service.readyExtensionPayment(map));
+	        if (token == null || "null".equals(token) || token.isBlank()) {
+	            return "{\"result\":\"fail\",\"message\":\"비회원 인증 정보가 없습니다.\"}";
+	        }
+
+	        if (orderId == null || "null".equals(orderId) || orderId.isBlank()) {
+	            return "{\"result\":\"fail\",\"message\":\"비회원 주문 정보가 없습니다.\"}";
+	        }
+
+	        map.put("userId", "GUEST");
+	    }
+
+	    return new Gson().toJson(service.readyExtensionPayment(map));
 	}
 
 	// 연장 결제 페이지

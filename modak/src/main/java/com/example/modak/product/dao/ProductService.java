@@ -67,7 +67,11 @@ public class ProductService {
 	    try {
 	        // ① 상품 기본 정보
 	        Product info = productMapper.selectProduct(map);
-	        
+	        if (info == null) {
+	            resultMap.put("result", "fail");
+	            resultMap.put("message", "상품 정보를 찾을 수 없습니다.");
+	            return resultMap;
+	        }
 	        // ② 조회수 +1
 	        productMapper.increaseViewCount(map);
 	        

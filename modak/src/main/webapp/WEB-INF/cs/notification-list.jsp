@@ -15,7 +15,7 @@
 
 		<%@ include file="/WEB-INF/common/header.jsp" %>
 
-			<div class="notice-page" id="app">
+			<div class="notice-page" id="app" v-cloak>
 
 				<section class="notice-hero">
 					<div class="notice-inner">

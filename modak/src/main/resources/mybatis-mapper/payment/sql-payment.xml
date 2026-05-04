@@ -128,15 +128,19 @@
 	</insert>
 
 	<!-- MySQL 버전 결제성공하고 카트에서 삭제 -->
-	<delete id="deleteCartByOrderId" parameterType="hashmap">
-		DELETE FROM CART
-		WHERE FIND_IN_SET(
-		CART_ID,
-		(SELECT CART_IDS FROM ORDERS WHERE ORDER_ID = #{orderId})
-		) > 0
-		AND USER_ID = #{userId}
-	</delete>
-
+<delete id="deleteCartByOrderId" parameterType="hashmap">
+    DELETE FROM CART
+    WHERE USER_ID = #{userId}
+      AND FIND_IN_SET(
+          CART_ID,
+          (SELECT CART_IDS FROM ORDERS WHERE ORDER_ID = #{orderId})
+      ) > 0
+      AND CART_TYPE = (
+          SELECT ORDER_TYPE
+          FROM ORDERS
+          WHERE ORDER_ID = #{orderId}
+      )
+</delete>
 	<!--orderId 하나로 필요한 정보를 다 꺼내 쓸 수 있게-->
 	<select id="selectOrderById" parameterType="hashmap" resultType="hashmap">
 	    SELECT 
@@ -283,26 +287,26 @@
 	</insert>
 	
 	<insert id="insertRental" parameterType="hashmap">
-	    INSERT INTO rentals (
-	        ITEM_ID,
-	        USER_ID,
-	        START_DATE,
-	        RETURN_DATE,
-	        RENTAL_STATUS,
-	        CREATED_AT,
-	        GUEST_NAME,
-	        GUEST_PHONE
-	    ) VALUES (
-	        #{itemId},
-	        #{userId},
-	        #{startDate},
-	        #{returnDate},
-	        'IN_USE',
-	        NOW(),
-	        #{guestName},
-	        #{guestPhone}
-	    )
-	</insert>
+    INSERT INTO rentals (
+        ITEM_ID,
+        USER_ID,
+        START_DATE,
+        RETURN_DATE,
+        RENTAL_STATUS,
+        CREATED_AT,
+        GUEST_NAME,
+        GUEST_PHONE
+    ) VALUES (
+        #{itemId},
+        #{userId},
+        #{startDate},
+        #{returnDate},
+        'PAID',
+        NOW(),
+        #{guestName},
+        #{guestPhone}
+    )
+</insert>
 
 	<!-- 날짜별 재고 레코드 없으면 자동 생성 (OPTION_ITEM_ID 기준 TOTAL_QTY 참조) -->
 	<insert id="insertStockIfNotExists" parameterType="map">
@@ -352,4 +356,12 @@
 	          WHERE cul.USER_COUPON_ID = uc.USER_COUPON_ID
 	      )
 	</select>
+	
+	<select id="selectPaidPaymentCount" parameterType="hashmap" resultType="int">
+    SELECT COUNT(*)
+    FROM PAYMENT
+    WHERE ORDER_ID = #{orderId}
+      AND PAY_STATUS = 'PAID'
+</select>
+
 </mapper>

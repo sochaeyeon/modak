@@ -36,7 +36,8 @@ public class RentalExtensionService {
     private String tossSecretKey;
 
     /* ★ 연장 가능 상태 */
-    private static final List<String> EXTENDABLE = List.of("RESERVED", "IN_USE");
+    private static final List<String> EXTENDABLE =
+            List.of("PAID", "READY", "SHIPPING", "DONE", "IN_USE");
 
     /* ★ 비회원 토큰 저장소 */
     private static final long TOKEN_TTL_MS = 30 * 60 * 1000L;
@@ -158,7 +159,7 @@ public class RentalExtensionService {
             }
             if (!EXTENDABLE.contains(rental.getRentalStatus())) {
                 result.put("result",  "fail");
-                result.put("message", "대여중(IN_USE) 또는 예약완료(RESERVED) 상태만 연장 가능합니다.");
+                result.put("message", "현재 상태에서는 연장 신청이 불가능합니다.");
                 return result;
             }
 

@@ -58,4 +58,6 @@ public interface PaymentMapper {
     public int insertRental(HashMap<String, Object> map);
     
     public HashMap<String, Object> selectValidCoupon(HashMap<String, Object> map);
+    
+    int selectPaidPaymentCount(HashMap<String, Object> map);
 }

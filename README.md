@@ -9,7 +9,7 @@ Modak(모닥모닥)은 캠핑장 정보 조회, 상품 대여 및 구매, 커뮤
 | 성명 | 역할 | GitHub |
 | :--- | :--- | :--- |
 | **소채연** | **팀장** /풀스택 | [@sochaeyeon](https://github.com/sochaeyeon) |
-| **김은동** | 풀스택 /  | [@rladmsehd135](https://github.com/rladmsehd135) |
+| **김은동** | 풀스택   | [@rladmsehd135](https://github.com/rladmsehd135) |
 | **임예림** | 풀스택  | [@kewiibird-source](https://github.com/kewiibird-source) |
 | **필우청** | 풀스택 | [@yuqingtangda](https://github.com/yuqingtangda) |
 
@@ -56,6 +56,7 @@ Modak(모닥모닥)은 캠핑장 정보 조회, 상품 대여 및 구매, 커뮤
 *   **사용자 활동**: 마이페이지, 멤버십 정보, 주문 내역, 포인트/쿠폰 내역 관리
 *   **기록 및 조회**: 리뷰/최근 본 상품/위시리스트/챗봇 기록 전체보기, 통합 검색 결과
 *   **고객지원 및 소통**: 문의 목록 조회/수정, 배송 현황(택배사 API), 리뷰 및 게시글 수정/작성
+*   **css 통합**: 사이트별 css 통합
 
 ### 😡 김은동 (프로젝트 총괄 / 관리자)
 *   **서비스 메인**: 메인 페이지, 캠핑장 지도 조회 및 목록/상세(시설 정보 포함)

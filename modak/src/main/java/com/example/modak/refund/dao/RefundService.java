@@ -35,7 +35,12 @@ public class RefundService {
 
         try {
             List<HashMap<String, Object>> list = refundMapper.selectOrderInfoForRefund(map);
-            HashMap<String, Object> addr = refundMapper.selectDefaultAddress(map);
+//            HashMap<String, Object> addr = refundMapper.selectDefaultAddress(map);
+            HashMap<String, Object> addr = null;
+
+            if ("Y".equals(String.valueOf(map.get("memberYn")))) {
+                addr = refundMapper.selectDefaultAddress(map);
+            }
 
             resultMap.put("list", list);
             resultMap.put("address", addr);

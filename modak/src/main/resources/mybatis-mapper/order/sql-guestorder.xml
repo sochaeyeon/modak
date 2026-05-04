@@ -40,15 +40,19 @@
         D.SHIPPED_AT, D.DELIVERED_AT, D.PICKED_UP_AT,
         D.RECEIVER_NAME, D.ADDRESS, D.ORDER_ID AS D_ORDER_ID
     FROM ORDERS O
-    INNER JOIN PAYMENT PAY
+    LEFT JOIN PAYMENT PAY
         ON PAY.ORDER_ID = O.ORDER_ID
-       AND PAY.PAY_STATUS = 'PAID'
+       AND PAY.PAY_STATUS IN ('PAID', 'REFUNDED', 'CANCELLED')
     LEFT JOIN DELIVERY D
         ON O.ORDER_ID = D.ORDER_ID
     WHERE O.ORDER_ID    = #{orderId}
       AND O.GUEST_NAME  = #{guestName}
       AND O.GUEST_PHONE = #{guestPhone}
       AND O.USER_ID LIKE 'GUEST_%'
+      AND (
+          PAY.PAY_STATUS IN ('PAID', 'REFUNDED', 'CANCELLED')
+          OR O.ORDER_STATUS = 'CANCELLED'
+      )
 </select>
 
 <!-- 주문번호만으로 조회 (토큰 검증 통과 후 + 결제완료 주문만 조회) -->
@@ -61,13 +65,17 @@
         D.SHIPPED_AT, D.DELIVERED_AT, D.PICKED_UP_AT,
         D.RECEIVER_NAME, D.ADDRESS, D.ORDER_ID AS D_ORDER_ID
     FROM ORDERS O
-    INNER JOIN PAYMENT PAY
+    LEFT JOIN PAYMENT PAY
         ON PAY.ORDER_ID = O.ORDER_ID
-       AND PAY.PAY_STATUS = 'PAID'
+       AND PAY.PAY_STATUS IN ('PAID', 'REFUNDED', 'CANCELLED')
     LEFT JOIN DELIVERY D
         ON O.ORDER_ID = D.ORDER_ID
     WHERE O.ORDER_ID = #{orderId}
-      AND O.USER_ID LIKE 'GUEST_%' 
+      AND O.USER_ID LIKE 'GUEST_%'
+      AND (
+          PAY.PAY_STATUS IN ('PAID', 'REFUNDED', 'CANCELLED')
+          OR O.ORDER_STATUS = 'CANCELLED'
+      )
 </select>
     <!-- ★ 주문 상품 목록 — PRODUCT_IMG 조인으로 이미지 추가 -->
 	<select id="selectGuestOrderItems" resultType="com.example.modak.order.model.GuestOrderItem">

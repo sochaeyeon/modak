@@ -9,7 +9,7 @@
 | 프로필 | 성명 | 역할 | GitHub |
 | :---: | :--- | :--- | :--- |
 | 🙂 | **소채연** | **팀장** / 외부 API 연동 아키텍처 설계 | [@sochaeyeon](https://github.com/sochaeyeon) |
-| 😡 | **김은동** | **백엔드** / 인프라 및 서비스 아키텍처 / 어드민 설계 | [@rladmsehd135](https://github.com/rladmsehd135) |
+| 😡 | **김은동** | **풀스택** / 인프라 및 서비스 아키텍처 / 어드민 설계 | [@rladmsehd135](https://github.com/rladmsehd135) |
 | 😀 | **임예림** | **풀스택** / UI·UX 설계 / 이커머스 로직 구현 | [@kewiibird-source](https://github.com/kewiibird-source) |
 | 😂 | **필우청** | **풀스택** / 데이터 모델링 / 고객 지원 시스템 구축 | [@yuqingtangda](https://github.com/yuqingtangda) |
 

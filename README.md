@@ -19,8 +19,8 @@ Modak(모닥모닥)은 캠핑장 정보 조회, 상품 대여 및 구매, 커뮤
 
 프로젝트의 상세 기획 및 설계 내용은 아래 링크에서 확인하실 수 있습니다.
 
-*   [📝 회의록]([https://drive.google.com/drive/folders/1bpM3vTIY-6_Rf_6FwxaOvptJlfphWDZC](https://drive.google.com/drive/folders/14zyi4NPYp5hNNngEVUll3zfDjJBpoXgU))
-*   [📐 설계 문서 ([ERD, 요구사항 등)](https://drive.google.com/drive/folders/1WqbDMTMkynVD0cCp9hnwFD0ld0HBcUQW](https://drive.google.com/drive/folders/1ImcpHUeuDkVdmN7kLwLxJ86gxVyfqsfu))
+*   [📝 회의록] https://drive.google.com/drive/folders/14zyi4NPYp5hNNngEVUll3zfDjJBpoXgU
+*   [📐 설계 문서 ([ERD, 요구사항 등)][(https://drive.google.com/drive/folders/1WqbDMTMkynVD0cCp9hnwFD0ld0HBcUQW](https://drive.google.com/drive/folders/1ImcpHUeuDkVdmN7kLwLxJ86gxVyfqsfu))](https://drive.google.com/drive/folders/1ImcpHUeuDkVdmN7kLwLxJ86gxVyfqsfu)
 *   [🛠️ 공통 가이드라인](https://drive.google.com/drive/folders/1Xm2uaNjuhy3Qlk6FlUh8F5hIuKT3p7nS)
 
 ---

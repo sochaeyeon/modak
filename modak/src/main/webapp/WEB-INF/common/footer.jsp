@@ -49,7 +49,7 @@
 							<li><a href="/notification/list.do">공지사항</a></li>
 							<li><a href="/faq.do">자주 묻는 질문</a></li>
 							<li><a href="/inquiry.do">1:1 문의</a></li>
-							<li><a href="/deliveryTracking.do">배송조회</a></li>
+							<li><a href="/user/delivery/detail.do">배송조회</a></li>
 							<li><a href="/refund/request.do">반품/교환</a></li>
 						</ul>
 					</div>

@@ -16,9 +16,8 @@
             </head>
 
             <body>
+                <%@ include file="/WEB-INF/common/header.jsp" %>
                 <div id="app" v-cloak>
-                    <%@ include file="/WEB-INF/common/header.jsp" %>
-
                         <main>
                             <h1 class="page-title">리뷰 수정</h1>
                             <p class="page-subtitle">✦ 작성한 후기를 수정하고 다시 저장할 수 있어요 🔥</p>

@@ -29,6 +29,11 @@
 		SELECT COUNT(*)
 		FROM ORDERS O
 		WHERE O.USER_ID = #{userId}
+		AND NOT (O.ORDER_STATUS = 'READY' AND NOT EXISTS (
+		    SELECT 1 FROM PAYMENT P
+		    WHERE P.ORDER_ID = O.ORDER_ID
+		    AND P.PAY_STATUS = 'PAID'
+		))
 		) AS orderCount,
 
 		(

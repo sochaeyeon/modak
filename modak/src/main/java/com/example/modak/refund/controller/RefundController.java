@@ -25,20 +25,45 @@ public class RefundController {
 	HttpSession session;
 	
 	// 환불 페이지 이동
-    @RequestMapping("/refund/request.do")
-    public String refundPage(Model model, @RequestParam HashMap<String, Object> map) {
+//    @RequestMapping("/refund/request.do")
+//    public String refundPage(Model model, @RequestParam HashMap<String, Object> map) {
+//
+//        String sessionId = (String) session.getAttribute("sessionId");
+//
+//        if (sessionId == null || sessionId.equals("")) {
+//            return "redirect:/user/login.do";
+//        }
+//
+//        map.put("userId", sessionId);
+//        model.addAttribute("map", map);
+//
+//        return "refund/refund-request";
+//    }
+	@RequestMapping("/refund/request.do")
+	public String refundPage(Model model, @RequestParam HashMap<String, Object> map) {
 
-        String sessionId = (String) session.getAttribute("sessionId");
+	    String sessionId = (String) session.getAttribute("sessionId");
+	    String token = String.valueOf(map.get("token"));
 
-        if (sessionId == null || sessionId.equals("")) {
-            return "redirect:/user/login.do";
-        }
+	    boolean isLogin = sessionId != null && !sessionId.equals("");
+	    boolean isGuest = token != null && !token.equals("") && !"null".equals(token);
 
-        map.put("userId", sessionId);
-        model.addAttribute("map", map);
+	    // 회원도 아니고 비회원 token도 없으면 로그인
+	    if (!isLogin && !isGuest) {
+	        return "redirect:/user/login.do";
+	    }
 
-        return "refund/refund-request";
-    }
+	    if (isLogin) {
+	        map.put("userId", sessionId);
+	        map.put("memberYn", "Y");
+	    } else {
+	        map.put("memberYn", "N");
+	    }
+
+	    model.addAttribute("map", map);
+
+	    return "refund/refund-request";
+	}
 
     // 환불 정보 조회
     @RequestMapping(value = "/refund/info.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
@@ -48,15 +73,24 @@ public class RefundController {
         HashMap<String, Object> resultMap = new HashMap<>();
 
         try {
-            String sessionId = (String) session.getAttribute("sessionId");
+        	String sessionId = (String) session.getAttribute("sessionId");
+        	String token = String.valueOf(map.get("token"));
 
-            if (sessionId == null || sessionId.equals("")) {
-                resultMap.put("result", "fail");
-                resultMap.put("message", "로그인이 필요합니다.");
-                return new Gson().toJson(resultMap);
-            }
+        	boolean isLogin = sessionId != null && !sessionId.equals("");
+        	boolean isGuest = token != null && !token.equals("") && !"null".equals(token);
 
-            map.put("userId", sessionId);
+        	if (!isLogin && !isGuest) {
+        	    resultMap.put("result", "fail");
+        	    resultMap.put("message", "로그인 또는 비회원 인증이 필요합니다.");
+        	    return new Gson().toJson(resultMap);
+        	}
+
+        	if (isLogin) {
+        	    map.put("userId", sessionId);
+        	    map.put("memberYn", "Y");
+        	} else {
+        	    map.put("memberYn", "N");
+        	}
 
             resultMap = refundService.getRefundInfo(map);
 
@@ -69,8 +103,7 @@ public class RefundController {
         return new Gson().toJson(resultMap);
     }
 
-
-    // 환불 신청 처리
+    // 환불 신청처리
     @RequestMapping(value = "/refund/add.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String addRefund(@RequestParam HashMap<String, Object> map) {
@@ -79,21 +112,30 @@ public class RefundController {
 
         try {
             String sessionId = (String) session.getAttribute("sessionId");
+            String token = String.valueOf(map.get("token"));
 
-            if (sessionId == null || sessionId.equals("")) {
+            boolean isLogin = sessionId != null && !sessionId.equals("");
+            boolean isGuest = token != null && !token.equals("") && !"null".equals(token);
+
+            if (!isLogin && !isGuest) {
                 resultMap.put("result", "fail");
-                resultMap.put("message", "로그인이 필요합니다.");
+                resultMap.put("message", "로그인 또는 비회원 인증이 필요합니다.");
                 return new Gson().toJson(resultMap);
             }
 
-            map.put("userId", sessionId);
-            
+            if (isLogin) {
+                map.put("userId", sessionId);
+                map.put("memberYn", "Y");
+            } else {
+                map.put("memberYn", "N");
+            }
+
             System.out.println("===== 환불 신청 요청 =====");
             System.out.println("sessionId = " + sessionId);
             System.out.println("request map = " + map);
-            
+
             resultMap = refundService.addRefund(map);
-            
+
             System.out.println("refund resultMap = " + resultMap);
 
         } catch (Exception e) {

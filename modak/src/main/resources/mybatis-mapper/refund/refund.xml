@@ -14,6 +14,8 @@
 	        oi.UNIT_PRICE AS price,
 	        p.PRODUCT_NAME AS productName,
 	        pi.IMG_URL AS imgUrl,
+	        o.GUEST_NAME AS guestName,
+			o.GUEST_PHONE AS guestPhone,
 	
 	        GROUP_CONCAT(
 	            CONCAT(poi.ITEM_NAME, ': ', pov.OPTION_VALUE)
@@ -53,7 +55,19 @@
 	    ) pay ON o.ORDER_ID = pay.ORDER_ID
 	
 	    WHERE o.ORDER_ID = #{orderId}
-	      AND o.USER_ID = #{userId}
+	      <choose>
+		    <!-- 회원 -->
+		    <when test='memberYn == "Y"'>
+		        AND o.USER_ID = #{userId}
+		    </when>
+		
+		    <!-- 비회원 -->
+		    <otherwise>
+		        AND o.USER_ID LIKE 'GUEST_%'
+		        <!-- 네 비회원 주문조회 token 검증 방식에 맞춰 추가 필요 -->
+		        <!-- 예: AND o.GUEST_TOKEN = #{token} -->
+		    </otherwise>
+		</choose>
 	
 	    <if test="orderItemId != null">
 	      AND oi.ITEM_ID = #{orderItemId}
@@ -86,17 +100,25 @@
     
     <!-- 환불 가능 여부 체크 (이미 환불 진행중인지 + 주문 상태 확인) -->
     <select id="checkRefundAvailability" parameterType="map" resultType="map">
-        SELECT 
-            (SELECT COUNT(*) 
-             FROM refund 
-             WHERE ORDER_ID = #{orderId} 
-               AND REFUND_STATUS NOT IN ('CANCELLED', 'REJECTED')
-            ) AS refundCount,
-            (SELECT ORDER_STATUS 
-             FROM orders 
-             WHERE ORDER_ID = #{orderId}
-            ) AS currentStatus
-    </select>
+	    SELECT 
+	        (SELECT COUNT(*) 
+	         FROM refund 
+	         WHERE ORDER_ID = #{orderId} 
+	           AND REFUND_STATUS NOT IN ('CANCELLED', 'REJECTED')
+	        ) AS refundCount,
+	        (SELECT ORDER_STATUS 
+	         FROM orders 
+	         WHERE ORDER_ID = #{orderId}
+	         <choose>
+	             <when test='memberYn == "Y"'>
+	                 AND USER_ID = #{userId}
+	             </when>
+	             <otherwise>
+	                 AND USER_ID LIKE 'GUEST_%'
+	             </otherwise>
+	         </choose>
+	        ) AS currentStatus
+	</select>
     
     <!-- 환불 요청 데이터 저장 -->
     <insert id="insertRefund" parameterType="map">
@@ -125,7 +147,14 @@
 	        NOW(), 
 	        #{payId}, 
 	        #{orderId}, 
-	        #{userId}, 
+	        <choose>
+			    <when test='memberYn == "Y"'>
+			        #{userId}
+			    </when>
+			    <otherwise>
+			        (SELECT USER_ID FROM orders WHERE ORDER_ID = #{orderId})
+			    </otherwise>
+			</choose>,
 	        #{refundType}
 	    )
 	
@@ -138,9 +167,19 @@
     <update id="updateOrderStatus" parameterType="map">
         UPDATE orders 
         SET ORDER_STATUS = 'REFUND_REQUESTED'
-        WHERE ORDER_ID = #{orderId} 
-          AND USER_ID = #{userId}
-          AND ORDER_STATUS IN ('DONE', 'COMPLETED')
+        WHERE ORDER_ID = #{orderId}
+		<choose>
+		    <when test='memberYn == "Y"'>
+		        AND USER_ID = #{userId}
+		    </when>
+		    <otherwise>
+		        AND USER_ID LIKE 'GUEST_%'
+		        <!-- 여기도 token 검증 가능하면 같이 넣기 -->
+		        <!-- 예: AND GUEST_TOKEN = #{token} -->
+		    </otherwise>
+		</choose>
+		
+		AND ORDER_STATUS IN ('DONE', 'COMPLETED')
     </update>
 	
 	<!-- 해당 주문의 누적 환불 금액 조회 (부분환불/전체환불 판단용) -->

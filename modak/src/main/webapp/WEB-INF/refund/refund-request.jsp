@@ -75,6 +75,9 @@
                                         </div>
                                         <div class="op-price">{{ fnPrice(orderInfo.price) }}</div>
                                     </div>
+                                    <div class="empty-box" v-else>
+                                        환불 상품 정보를 불러오지 못했습니다. 다시 시도해주세요!
+                                    </div>
                                 </div>
                             </div>
 
@@ -338,6 +341,7 @@
                             fnInit: function () {
                                 var params = new URLSearchParams(location.search);
                                 this.orderId = params.get('orderId') || '${map.orderId}' || '';
+                                this.token = params.get('token') || '${map.token}' || '';
 
                                 console.log('환불 orderId:', this.orderId);
 
@@ -353,7 +357,10 @@
                                     url: '/refund/info.dox',
                                     type: 'POST',
                                     dataType: 'json',
-                                    data: { orderId: self.orderId },
+                                    data: {
+                                        orderId: self.orderId,
+                                        token: self.token
+                                    },
                                     success: function (res) {
                                         self.isLoading = false;
 
@@ -391,6 +398,7 @@
 
                                 var data = {
                                     orderId: self.orderId,
+                                    token: self.token,
                                     payId: self.orderInfo.payId,
                                     amount: self.orderInfo.totalPayAmount,
                                     deductAmount: 0,
@@ -490,7 +498,41 @@
                             },
 
                             fnCloseModal: function () { this.modal.show = false; },
-                            fnGoHistory: function () { location.href = '/order/history.do'; },
+                            fnGoHistory: function () {
+                                if (this.token) {
+                                    // 토큰 재발급 요청 후 이동
+                                    var self = this;
+                                    $.ajax({
+                                        url: '/order/guest/inquiry.dox',
+                                        type: 'POST',
+                                        dataType: 'json',
+                                        data: {
+                                            orderId: self.orderId,
+                                            guestName: self.orderInfo ? self.orderInfo.guestName : '',
+                                            guestPhone: self.orderInfo ? self.orderInfo.guestPhone : ''
+                                        },
+                                        success: function (res) {
+                                            if (res.result === 'success') {
+                                                location.href = '/order/guest/detail.do'
+                                                    + '?orderId=' + encodeURIComponent(self.orderId)
+                                                    + '&token=' + encodeURIComponent(res.token);
+                                            } else {
+                                                // 재발급 실패시 그냥 이동 (기존 토큰으로 시도)
+                                                location.href = '/order/guest/detail.do'
+                                                    + '?orderId=' + encodeURIComponent(self.orderId)
+                                                    + '&token=' + encodeURIComponent(self.token);
+                                            }
+                                        },
+                                        error: function () {
+                                            location.href = '/order/guest/detail.do'
+                                                + '?orderId=' + encodeURIComponent(self.orderId)
+                                                + '&token=' + encodeURIComponent(self.token);
+                                        }
+                                    });
+                                    return;
+                                }
+                                location.href = '/order/history.do';
+                            },
                             fnGoMain: function () { location.href = '/main.do'; }
                         },
 

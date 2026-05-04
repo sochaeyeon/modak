@@ -74,7 +74,7 @@
                             회원은 주문내역을 더 간편하게 확인할 수 있어요.
                         </p>
 
-                        <a href="/user/join.do" class="btn-signup-link">
+                        <a href="/user/sign-up.do" class="btn-signup-link">
                             회원가입하고 쿠폰 받기
                         </a>
                     </div>

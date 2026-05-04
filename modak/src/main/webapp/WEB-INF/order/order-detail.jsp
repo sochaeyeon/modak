@@ -456,6 +456,8 @@
                                 var self = this;
 
                                 if (!self.cancelReasonCode) return;
+								
+								if (!confirm('주문을 취소 신청하시겠습니까?\n관리자 확인 후 취소 처리됩니다.')) return;
 
                                 $.ajax({
                                     url: '/order/cancel.dox',

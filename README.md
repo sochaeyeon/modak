@@ -8,10 +8,10 @@ Modak(모닥모닥)은 캠핑장 정보 조회, 상품 대여 및 구매, 커뮤
 
 | 성명 | 역할 | GitHub |
 | :--- | :--- | :--- |
-| **김은동** | 백엔드 / 프로젝트 총괄 | [@rladmsehd135](https://github.com/rladmsehd135) |
-| **소채연** | 백엔드 / API 연동 | [@sochaeyeon](https://github.com/sochaeyeon) |
-| **임예림** | 백엔드 / UI·UX 설계 | [@kewiibird-source](https://github.com/kewiibird-source) |
-| **필우청** | 백엔드 / 데이터 관리 | [@yuqingtangda](https://github.com/yuqingtangda) |
+| **소채연** | 팀장 / | [@rladmsehd135](https://github.com/rladmsehd135) |
+| **김은동** |  /  | [@sochaeyeon](https://github.com/sochaeyeon) |
+| **임예림** |  /  | [@kewiibird-source](https://github.com/kewiibird-source) |
+| **필우청** |  /  | [@yuqingtangda](https://github.com/yuqingtangda) |
 
 ---
 

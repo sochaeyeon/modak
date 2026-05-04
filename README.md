@@ -45,7 +45,7 @@ Modak(모닥모닥)은 캠핑장 정보 조회, 상품 대여 및 구매, 커뮤
 
 ### Frontend
 * **Template Engine**: JSP (Jakarta Servlet JSP JSTL)
-* **Styling**: CSS, Bootstrap (추정)
+* **Styling**: CSS
 * **Scripting**: JavaScript, jQuery, AJAX
 
 ### External APIs & Services

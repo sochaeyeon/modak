@@ -490,7 +490,7 @@
                             },
 
                             fnGoExchange: function () {
-                                location.href = '/order/exchange.do?orderId=' + this.orderId;
+                                location.href = '/order/exchange/request.do?orderId=' + this.orderId;
                             },
 
                             fnGoRefund: function () {

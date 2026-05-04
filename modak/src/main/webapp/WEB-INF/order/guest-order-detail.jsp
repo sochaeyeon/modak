@@ -107,7 +107,7 @@
 
                                         <div class="product-info">
                                             <p class="product-name">{{ item.productName }}</p>
-                                        
+
                                             <div class="product-meta">
                                                 <span class="type-badge"
                                                     :class="order.orderType === 'PURCHASE' ? 'badge-purchase' : 'badge-rental'">
@@ -143,9 +143,9 @@
                                     </div>
 
                                     <a class="action-btn delivery"
-                                    :href="order.orderStatus === 'CANCEL_REQUESTED' ? '#' : fnDeliveryUrl()"
-                                    :class="{ disabled: order.orderStatus === 'CANCEL_REQUESTED' }"
-                                    @click.prevent="order.orderStatus === 'CANCEL_REQUESTED'">
+                                        :href="order.orderStatus === 'CANCEL_REQUESTED' ? '#' : fnDeliveryUrl()"
+                                        :class="{ disabled: order.orderStatus === 'CANCEL_REQUESTED' }"
+                                        @click.prevent="order.orderStatus === 'CANCEL_REQUESTED'">
                                         배송조회
                                     </a>
                                 </div>
@@ -202,32 +202,34 @@
                             <!-- 주문 관리 -->
                             <section class="action-card">
                                 <div class="action-head">
-                                <div>
-                                    <p class="card-kicker">ORDER ACTION</p>
-                                    <h2>주문 관리</h2>
+                                    <div>
+                                        <p class="card-kicker">ORDER ACTION</p>
+                                        <h2>주문 관리</h2>
+                                    </div>
+
+                                    <span class="status-chip">
+                                        {{ fnStatusText(order.orderStatus) }}
+                                    </span>
                                 </div>
 
-                                <span class="status-chip">
-                                    {{ fnStatusText(order.orderStatus) }}
-                                </span>
-                            </div>
-
-                            <!-- 🔥 상태 안내는 밖으로 분리 -->
-                            <p class="action-empty" v-if="order.orderStatus === 'CANCEL_REQUESTED'">
-                                현재 취소 처리중입니다.<br>
-                                관리자 승인 후 환불이 진행됩니다.
-                            </p>
+                                <!-- 🔥 상태 안내는 밖으로 분리 -->
+                                <p class="action-empty" v-if="order.orderStatus === 'CANCEL_REQUESTED'">
+                                    현재 취소 처리중입니다.<br>
+                                    관리자 승인 후 환불이 진행됩니다.
+                                </p>
                                 <!-- <div class="action-row delivery-action-row"> -->
-                                    <div class="action-row" v-if="fnCanShowActions() && order.orderStatus !== 'CANCEL_REQUESTED'">
+                                <div class="action-row"
+                                    v-if="fnCanShowActions() && order.orderStatus !== 'CANCEL_REQUESTED'">
                                     <a class="action-btn delivery" :href="fnDeliveryUrl()">
                                         배송조회
                                     </a>
                                 </div>
                                 <!-- <div class="action-row" v-if="fnCanShowActions()"> -->
-                                        <div class="action-row" v-if="fnCanShowActions() && order.orderStatus !== 'CANCEL_REQUESTED'">
+                                <div class="action-row"
+                                    v-if="fnCanShowActions() && order.orderStatus !== 'CANCEL_REQUESTED'">
                                     <button class="action-btn cancel"
-                                            v-if="order.orderStatus === 'PAID' || order.orderStatus === 'READY'"
-                                            @click="openModal('cancel')">
+                                        v-if="order.orderStatus === 'PAID' || order.orderStatus === 'READY'"
+                                        @click="openModal('cancel')">
                                         취소신청
                                     </button>
 
@@ -242,7 +244,8 @@
                                     </button>
                                 </div>
 
-                                <p class="action-empty" v-if="!fnCanShowActions() && order.orderStatus !== 'CANCEL_REQUESTED'">
+                                <p class="action-empty"
+                                    v-if="!fnCanShowActions() && order.orderStatus !== 'CANCEL_REQUESTED'">
                                     현재 상태에서는 추가 신청 가능한 메뉴가 없습니다.
                                 </p>
 
@@ -358,7 +361,7 @@
 
                             fnGoExchange: function () {
                                 var p = new URLSearchParams(location.search);
-                                location.href = '/order/guest/exchange.do'
+                                location.href = '/order/exchange/request.do?orderId='
                                     + '?orderId=' + p.get('orderId')
                                     + '&token=' + p.get('token');
                             },
@@ -519,7 +522,7 @@
                                     return '주문 취소를 신청하시겠습니까?\n관리자 확인 후 취소 처리됩니다.';
                                 }
                                 if (this.modalType === 'success') {
-                                    return this.successMessage;  
+                                    return this.successMessage;
                                 }
                                 return '처리하시겠습니까?';
                             },

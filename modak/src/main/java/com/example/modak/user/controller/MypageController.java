@@ -135,8 +135,23 @@ public class MypageController {
 	private com.example.modak.board.mapper.BoardMapper boardMapper;
 
 	// 유저 프로필 페이지
+	// /user/profile.do 접속하면 자신 아이디로 , 비회원이면 로그인유도
 	@GetMapping("/user/profile.do")
-	public String profilePage() {
+	public String profilePage(
+	        @RequestParam(required = false) String userId,
+	        HttpSession session,
+	        org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+
+	    String sessionId = (String) session.getAttribute("sessionId");
+
+	    if (userId == null || userId.isBlank()) {
+	        if (sessionId == null) {
+	            redirectAttributes.addFlashAttribute("loginMessage", "로그인이 필요한 서비스입니다.");
+	            return "redirect:/user/login.do";
+	        }
+	        return "redirect:/user/profile.do?userId=" + sessionId;
+	    }
+
 	    return "user/user-profile";
 	}
 

@@ -68,7 +68,8 @@ public class BoardService {
             HashMap<String, Object> param = new HashMap<>();
             param.put("boardId", boardId);
 
-            // 조회수 증가
+          
+         // 조회수 증가
             mapper.increaseViewCount(param);
 
             Map<String, Object> board = mapper.selectBoardById(param);

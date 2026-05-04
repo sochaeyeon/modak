@@ -41,12 +41,6 @@ public class BoardController {
             return "redirect:/board/list.do";
         }
 
-        HashMap<String, Object> resultMap = boardService.getBoardDetail(boardId);
-
-        if (!"success".equals(resultMap.get("result")) || resultMap.get("board") == null) {
-            return "redirect:/board/list.do";
-        }
-
         return "board/board-detail";
     }
     @GetMapping("/edit.do")

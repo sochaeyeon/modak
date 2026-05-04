@@ -54,6 +54,40 @@ body {
     margin-bottom: 10px;
     display: block;
 }
+/* =========================
+   Quill 상세 출력 정렬 유지
+========================= */
+
+.editor-content .ql-align-center {
+    text-align: center;
+}
+
+.editor-content .ql-align-right {
+    text-align: right;
+}
+
+.editor-content .ql-align-justify {
+    text-align: justify;
+}
+
+.editor-content .ql-align-center img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.editor-content .ql-align-right img {
+    display: block;
+    margin-left: auto;
+    margin-right: 0;
+}
+
+
+
+.editor-content p {
+    margin: 0 0 16px;
+    line-height: 1.9;
+}
 
 .form-input,
 .form-textarea,

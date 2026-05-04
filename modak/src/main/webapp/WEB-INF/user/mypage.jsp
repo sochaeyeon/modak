@@ -685,7 +685,7 @@
 
                                                                         <div
                                                                             style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-                                                                            <div
+                                                                            <!-- <div
                                                                                 class="ph-point ${item.amount >= 0 ? 'plus' : 'minus'}">
                                                                                 <c:if test="${item.amount >= 0}">+
                                                                                 </c:if>
@@ -693,7 +693,14 @@
                                                                                 <fmt:formatNumber
                                                                                     value="${item.amount < 0 ? item.amount * -1 : item.amount}"
                                                                                     pattern="#,###" />P
-                                                                            </div>
+                                                                            </div> -->
+                                                                            <div class="ph-point ${item.type == 'EARN' || item.type == 'RESTORE' ? 'plus' : 'minus'}">
+    <c:choose>
+        <c:when test="${item.type == 'EARN' || item.type == 'RESTORE'}">+</c:when>
+        <c:otherwise>-</c:otherwise>
+    </c:choose>
+    <fmt:formatNumber value="${item.amount}" pattern="#,###" />P
+</div>
                                                                             <div class="ph-balance">
                                                                                 잔액
                                                                                 <fmt:formatNumber

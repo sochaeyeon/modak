@@ -170,10 +170,6 @@
                                             </svg>
                                             챗봇 기록
                                         </div>
-										<div class="nav-item" onclick="switchTab('chatrooms', this)">
-										    <i class="ri-chat-3-line nav-ri-icon"></i>
-										    채팅방 기록
-										</div>
 
                                         <div class="nav-item" onclick="switchTab('inquiries', this)">
                                             <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
@@ -1075,78 +1071,7 @@
                                             </div>
                                         </div>
                                     </div>
-									<div class="tab-panel" id="tab-chatrooms">
-									    <div class="section-card">
-									        <div class="section-head">
-									            <h3>채팅방 기록</h3>
 
-									            <button type="button"
-									                    class="btn-outline btn-sm danger"
-									                    v-if="selectedChatRoomIds.length > 0"
-									                    @click="fnDeleteSelectedChatRooms">
-									                선택 삭제 {{ selectedChatRoomIds.length }}개
-									            </button>
-									        </div>
-
-									        <div class="review-list chatbot-review-list">
-									            <div v-if="chatRoomList.length === 0" class="empty-state">
-									                <p>채팅방 기록이 없습니다.</p>
-									            </div>
-
-									            <div class="review-item chatbot-review-item"
-									                 v-for="room in chatRoomList"
-									                 :key="room.ROOM_ID">
-
-									                <div class="review-head chatbot-head">
-									                    <div style="display:flex;align-items:center;gap:12px;width:100%;">
-
-									                        <input type="checkbox"
-									                               class="chatroom-check"
-									                               v-model="selectedChatRoomIds"
-									                               :value="room.ROOM_ID"
-									                               @click.stop>
-
-									                        <div class="chatbot-head-left"
-									                             style="flex:1;cursor:pointer;"
-									                             @click="fnGoChatRoom(room)">
-
-									                            <div class="chatbot-icon-wrap">
-									                                <img v-if="room.OTHER_IMG"
-									                                     :src="room.OTHER_IMG"
-									                                     style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
-									                                <span v-else>💬</span>
-									                            </div>
-
-									                            <div class="chatbot-head-text">
-									                                <div class="review-title chatbot-title">
-									                                    {{ room.OTHER_NICK || room.OTHER_ID }}
-									                                </div>
-
-									                                <div class="chatbot-preview">
-									                                    {{ room.LAST_MSG || '대화 내용이 없습니다.' }}
-									                                </div>
-									                            </div>
-									                        </div>
-
-									                        <button type="button"
-									                                class="btn-outline btn-sm danger"
-									                                @click.stop="fnDeleteOneChatRoom(room.ROOM_ID)">
-									                            삭제
-									                        </button>
-
-									                        <div class="chatbot-arrow" @click="fnGoChatRoom(room)">→</div>
-									                    </div>
-									                </div>
-
-									                <div class="review-bottom chatbot-bottom">
-									                    <div class="review-date chatbot-date">
-									                        {{ room.LAST_AT || '-' }}
-									                    </div>
-									                </div>
-									            </div>
-									        </div>
-									    </div>
-									</div>
                                     <!-- ── 계정설정 탭 ── -->
                                     <div class="tab-panel" id="tab-settings">
 
@@ -1434,12 +1359,10 @@
                                 },
                                 addressMsg: "",
                                 addressMsgType: "",
-								chatRoomList: [],
-								selectedChatRoomIds: [],
-		
+
                                 isEditMode: false,
                                 editAddressId: "",
-				
+
                                 wishlist: [],
                                 recentList: [],
                                 chatbotList: [],
@@ -2751,59 +2674,6 @@
                                     rentalId: item.rentalId
                                 });
                             },
-							fnDeleteOneChatRoom: function (roomId) {
-							    this.selectedChatRoomIds = [roomId];
-							    this.fnDeleteSelectedChatRooms();
-							},
-
-							fnDeleteSelectedChatRooms: function () {
-							    let self = this;
-
-							    if (self.selectedChatRoomIds.length === 0) {
-							        return;
-							    }
-
-							    if (!confirm("선택한 채팅방을 삭제하시겠습니까?")) {
-							        return;
-							    }
-
-							    let ids = self.selectedChatRoomIds.slice();
-							    let doneCount = 0;
-							    let failCount = 0;
-
-							    ids.forEach(function (roomId) {
-							        $.ajax({
-							            url: "/chat-room/leave.dox",
-							            type: "POST",
-							            dataType: "json",
-							            data: {
-							                roomId: roomId
-							            },
-							            success: function (data) {
-							                if (data.result === "success") {
-							                    doneCount++;
-							                } else {
-							                    failCount++;
-							                }
-							            },
-							            error: function () {
-							                failCount++;
-							            },
-							            complete: function () {
-							                if (doneCount + failCount === ids.length) {
-							                    self.selectedChatRoomIds = [];
-							                    self.fnGetChatRoomList();
-
-							                    if (failCount > 0) {
-							                        self.showToast("일부 채팅방 삭제에 실패했습니다.");
-							                    } else {
-							                        self.showToast("채팅방이 삭제되었습니다.");
-							                    }
-							                }
-							            }
-							        });
-							    });
-							},
                             fnGoMembershipInfo: function () {
                                 pageChange("/user/membership/info.do", {});
                             },
@@ -2916,32 +2786,6 @@
                                     }
                                 });
                             },
-							fnGetChatRoomList: function () {
-							    let self = this;
-
-							    $.ajax({
-							        url: "/chat-room/rooms.dox",
-							        type: "POST",
-							        dataType: "json",
-							        success: function (data) {
-							            if (data.result === "success") {
-							                self.chatRoomList = data.list || [];
-							            } else {
-							                self.chatRoomList = [];
-							            }
-							        },
-							        error: function () {
-							            self.chatRoomList = [];
-							            self.showToast("채팅방 기록을 불러오지 못했습니다.");
-							        }
-							    });
-							},
-
-							fnGoChatRoom: function (room) {
-							    location.href =
-							        "/chat-room/room.do?roomId=" + room.ROOM_ID +
-							        "&otherId=" + encodeURIComponent(room.OTHER_ID);
-							},
 
                             fnCouponBenefitText: function (item) {
                                 if (item.couponType === "AMOUNT") {
@@ -2975,20 +2819,8 @@
                                 if (status === "EXPIRED") return "만료";
                                 return status || "-";
                             },
-                            fnEditReview: function (reviewId) {
-                                pageChange("/user/review/edit.do", { reviewId: reviewId });
-                            },
-                            fnResetSettings: function () {
-                                this.settingsForm.userId = this.originalSettingsForm.userId;
-                                this.settingsForm.userName = this.originalSettingsForm.userName;
-                                this.settingsForm.nickName = this.originalSettingsForm.nickName;
-                                this.settingsForm.userPhone = this.originalSettingsForm.userPhone;
-
-                                this.settingsMsg = "";
-                                this.settingsMsgType = "";
-                                this.smsInputVisible = false;
-                                this.smsAuthCode = "";
-                            }, fnBoardCategoryText: function (category) {
+                           
+                           fnBoardCategoryText: function (category) {
                                 const map = {
                                     FREE: "자유",
                                     REVIEW: "후기",
@@ -3033,7 +2865,7 @@
                             this.fnGetInquiryList();
                             this.fnGetCouponList();
                             this.fnGetBookmarkList();
-							this.fnGetChatRoomList();
+
                             const savedTab = sessionStorage.getItem("activeTab");
 
                             this.$nextTick(function () {

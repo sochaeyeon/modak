@@ -16,185 +16,188 @@
 			</head>
 
 			<body>
-				<div id="app">
-					<%@ include file="/WEB-INF/common/header.jsp" %>
+				<div id="app" v-cloak>
+
+					<div id="app">
+						<%@ include file="/WEB-INF/common/header.jsp" %>
 
 
-						<!-- MAIN -->
-						<main>
-							<h1 class="page-title">리뷰 작성</h1>
-							<p class="page-subtitle">✦ 솔직한 후기가 다른 캠버들에게 큰 도움이 됩니다 🔥</p>
+							<!-- MAIN -->
+							<main>
+								<h1 class="page-title">리뷰 작성</h1>
+								<p class="page-subtitle">✦ 솔직한 후기가 다른 캠버들에게 큰 도움이 됩니다 🔥</p>
 
-							<!-- 상품 정보 -->
-							<div class="card product-card" :class="{ 'is-open': isOrderDetailOpen }"
-								@click="toggleOrderDetail" style="cursor:pointer;" ref="productCard">
-								<div class="product-info">
-									<div class="product-thumb">
-										<img v-if="selectedItem && selectedItem.imageUrl" :src="selectedItem.imageUrl"
-											:alt="selectedItem.productName"
-											style="width:100%; height:100%; object-fit:cover;">
-										<span v-else>🏕️</span>
-									</div>
-									<div>
-										<div class="product-name">
-											{{ selectedItem ? selectedItem.productName : '리뷰 작성 상품을 선택하세요' }}
+								<!-- 상품 정보 -->
+								<div class="card product-card" :class="{ 'is-open': isOrderDetailOpen }"
+									@click="toggleOrderDetail" style="cursor:pointer;" ref="productCard">
+									<div class="product-info">
+										<div class="product-thumb">
+											<img v-if="selectedItem && selectedItem.imageUrl"
+												:src="selectedItem.imageUrl" :alt="selectedItem.productName"
+												style="width:100%; height:100%; object-fit:cover;">
+											<span v-else>🏕️</span>
 										</div>
-										<div class="product-meta">
-											주문번호 {{ orderInfo.orderId || orderId }} · {{ selectedItem ?
-											selectedItem.reviewStatusText : '' }}
+										<div>
+											<div class="product-name">
+												{{ selectedItem ? selectedItem.productName : '리뷰 작성 상품을 선택하세요' }}
+											</div>
+											<div class="product-meta">
+												주문번호 {{ orderInfo.orderId || orderId }} · {{ selectedItem ?
+												selectedItem.reviewStatusText : '' }}
+											</div>
 										</div>
 									</div>
+
+									<span class="badge-shipped">
+										{{ selectedItem ? selectedItem.reviewStatusText : '' }}
+									</span>
 								</div>
 
-								<span class="badge-shipped">
-									{{ selectedItem ? selectedItem.reviewStatusText : '' }}
-								</span>
-							</div>
+								<transition name="expand-fade">
+									<div class="order-expand-box review-order-expand-box" v-if="isOrderDetailOpen">
+										<div class="expand-title">주문 상품 목록</div>
 
-							<transition name="expand-fade">
-								<div class="order-expand-box review-order-expand-box" v-if="isOrderDetailOpen">
-									<div class="expand-title">주문 상품 목록</div>
-
-									<div v-for="item in orderItemList" :key="item.itemId"
-										class="expand-item-row review-order-item" :class="{
+										<div v-for="item in orderItemList" :key="item.itemId"
+											class="expand-item-row review-order-item" :class="{
         active: selectedItem && selectedItem.itemId == item.itemId,
         done: item.reviewWrittenYn === 'Y'
     }" @click.stop="item.reviewWrittenYn !== 'Y' && selectOrderItem(item)">
 
-										<div class="expand-thumb review-order-thumb"
-											@click.stop="fnGoProductDetail(item.productId)" style="cursor:pointer;">
-											<img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.productName">
-											<div v-else class="expand-thumb-fallback">📦</div>
-										</div>
-
-										<div class="expand-info review-order-text">
-											<div class="expand-name review-order-name">{{ item.productName }}</div>
-											<div class="expand-meta review-order-sub">
-												{{ item.categoryName }} · {{ fnFormatPrice(item.price) }}
+											<div class="expand-thumb review-order-thumb"
+												@click.stop="fnGoProductDetail(item.productId)" style="cursor:pointer;">
+												<img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.productName">
+												<div v-else class="expand-thumb-fallback">📦</div>
 											</div>
-										</div>
 
-										<div class="review-item-status">
-											{{ item.reviewStatusText }}
-										</div>
-										<button class="review-item-btn" :class="[
+											<div class="expand-info review-order-text">
+												<div class="expand-name review-order-name">{{ item.productName }}</div>
+												<div class="expand-meta review-order-sub">
+													{{ item.categoryName }} · {{ fnFormatPrice(item.price) }}
+												</div>
+											</div>
+
+											<div class="review-item-status">
+												{{ item.reviewStatusText }}
+											</div>
+											<button class="review-item-btn" :class="[
         item.reviewWrittenYn === 'Y' ? 'is-done' : 'is-select',
         selectedItem && selectedItem.itemId == item.itemId ? 'is-active' : ''
     ]" :disabled="item.reviewWrittenYn === 'Y'" @click.stop="selectOrderItem(item)">
 
-											{{
-											item.reviewWrittenYn === 'Y'
-											? '작성완료'
-											: (selectedItem && selectedItem.itemId == item.itemId ? '선택됨' : '선택')
-											}}
+												{{
+												item.reviewWrittenYn === 'Y'
+												? '작성완료'
+												: (selectedItem && selectedItem.itemId == item.itemId ? '선택됨' : '선택')
+												}}
 
+											</button>
+										</div>
+									</div>
+								</transition>
+
+								<!-- 별점 -->
+								<div class="card" ref="ratingCard">
+									<div class="section-label">
+										별점 <span class="required-badge">필수</span>
+									</div>
+
+									<div class="star-row">
+										<button v-for="n in 5" :key="n" class="star-btn" @click="setRating(n)"
+											@mouseover="hoverRating = n" @mouseleave="hoverRating = 0">
+											<span
+												:style="{ color: (hoverRating || rating) >= n ? 'var(--star-filled)' : 'var(--star-empty)' }">★</span>
 										</button>
+
+										<!-- 👉 오른쪽 유지 -->
+										<span class="star-hint">{{ ratingLabel }}</span>
+									</div>
+
+									<!-- 👉 에러는 아래 -->
+									<div v-if="ratingErrorMsg" class="review-error-msg">
+										{{ ratingErrorMsg }}
 									</div>
 								</div>
-							</transition>
+								<div class="card" ref="titleCard">
+									<div class="section-label">
+										제목 <span class="required-badge">필수</span>
+									</div>
 
-							<!-- 별점 -->
-							<div class="card" ref="ratingCard">
-								<div class="section-label">
-									별점 <span class="required-badge">필수</span>
+									<input type="text" class="review-title-input" ref="titleInput" v-model="title"
+										@input="titleErrorMsg = ''" placeholder="한 줄로 리뷰를 요약해보세요">
+
+									<div v-if="titleErrorMsg" class="review-error-msg">
+										{{ titleErrorMsg }}
+									</div>
+								</div>
+								<!-- 리뷰 작성 -->
+								<div class="card">
+									<div class="section-label">
+										리뷰 작성 <span class="required-badge">필수</span>
+									</div>
+									<textarea class="review-textarea" ref="reviewTextarea" v-model="reviewText"
+										@input="reviewErrorMsg = ''" placeholder="상품에 대한 솔직한 후기를 남겨주세요.&#10;(최소 10자 이상)"
+										maxlength="1000"></textarea>
+
+									<div v-if="reviewErrorMsg" class="review-error-msg">
+										{{ reviewErrorMsg }}
+									</div>
+
+									<div class="char-count"><span>{{ reviewText.length }}</span> / 1000</div>
+
 								</div>
 
-								<div class="star-row">
-									<button v-for="n in 5" :key="n" class="star-btn" @click="setRating(n)"
-										@mouseover="hoverRating = n" @mouseleave="hoverRating = 0">
-										<span
-											:style="{ color: (hoverRating || rating) >= n ? 'var(--star-filled)' : 'var(--star-empty)' }">★</span>
+								<!-- 사진 첨부 -->
+								<div class="card">
+									<div class="section-label">사진 첨부 <span
+											style="font-weight:400;color:var(--text-muted);font-size:0.75rem;">최대
+											5장</span>
+									</div>
+									<div class="photo-area">
+										<label class="photo-add-btn" style="cursor:pointer;">
+											<input type="file" accept="image/*" multiple style="display:none"
+												@change="addPhotos" />
+											<svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+												stroke="currentColor" stroke-width="1.5">
+												<rect x="3" y="3" width="18" height="18" rx="2" />
+												<circle cx="8.5" cy="8.5" r="1.5" />
+												<polyline points="21 15 16 10 5 21" />
+											</svg>
+											<span class="photo-add-label">사진 추가</span>
+										</label>
+										<div class="photo-wrapper" v-for="(photo, i) in photos" :key="i">
+											<img class="photo-preview" :src="photo" alt="첨부 사진" />
+											<button class="photo-remove" @click="removePhoto(i)">✕</button>
+										</div>
+									</div>
+									<div class="photo-footer">{{ photos.length }} / 5장 · JPG, PNG, WEBP 가능</div>
+								</div>
+
+								<!-- 포인트 안내 -->
+								<div class="point-box">
+									<div class="point-row">
+										<span class="point-icon">ℹ</span>
+										<span>
+											리뷰 작성 시 <strong>500P</strong> 적립<br />
+											사진 포함 시 <strong>+300P 추가</strong><br />
+											비회원·부적절 리뷰는 삭제될 수 있습니다
+										</span>
+									</div>
+								</div>
+
+								<!-- 버튼 -->
+								<div class="btn-row">
+									<button class="btn-cancel" @click="handleCancel">취소</button>
+									<button class="btn-submit" @click="fnSave">
+										✓ 리뷰 등록하기
 									</button>
-
-									<!-- 👉 오른쪽 유지 -->
-									<span class="star-hint">{{ ratingLabel }}</span>
 								</div>
-
-								<!-- 👉 에러는 아래 -->
-								<div v-if="ratingErrorMsg" class="review-error-msg">
-									{{ ratingErrorMsg }}
-								</div>
-							</div>
-							<div class="card" ref="titleCard">
-								<div class="section-label">
-									제목 <span class="required-badge">필수</span>
-								</div>
-
-								<input type="text" class="review-title-input" ref="titleInput" v-model="title"
-									@input="titleErrorMsg = ''" placeholder="한 줄로 리뷰를 요약해보세요">
-
-								<div v-if="titleErrorMsg" class="review-error-msg">
-									{{ titleErrorMsg }}
-								</div>
-							</div>
-							<!-- 리뷰 작성 -->
-							<div class="card">
-								<div class="section-label">
-									리뷰 작성 <span class="required-badge">필수</span>
-								</div>
-								<textarea class="review-textarea" ref="reviewTextarea" v-model="reviewText"
-									@input="reviewErrorMsg = ''" placeholder="상품에 대한 솔직한 후기를 남겨주세요.&#10;(최소 10자 이상)"
-									maxlength="1000"></textarea>
-
-								<div v-if="reviewErrorMsg" class="review-error-msg">
-									{{ reviewErrorMsg }}
-								</div>
-
-								<div class="char-count"><span>{{ reviewText.length }}</span> / 1000</div>
-
-							</div>
-
-							<!-- 사진 첨부 -->
-							<div class="card">
-								<div class="section-label">사진 첨부 <span
-										style="font-weight:400;color:var(--text-muted);font-size:0.75rem;">최대 5장</span>
-								</div>
-								<div class="photo-area">
-									<label class="photo-add-btn" style="cursor:pointer;">
-										<input type="file" accept="image/*" multiple style="display:none"
-											@change="addPhotos" />
-										<svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-											stroke="currentColor" stroke-width="1.5">
-											<rect x="3" y="3" width="18" height="18" rx="2" />
-											<circle cx="8.5" cy="8.5" r="1.5" />
-											<polyline points="21 15 16 10 5 21" />
-										</svg>
-										<span class="photo-add-label">사진 추가</span>
-									</label>
-									<div class="photo-wrapper" v-for="(photo, i) in photos" :key="i">
-										<img class="photo-preview" :src="photo" alt="첨부 사진" />
-										<button class="photo-remove" @click="removePhoto(i)">✕</button>
-									</div>
-								</div>
-								<div class="photo-footer">{{ photos.length }} / 5장 · JPG, PNG, WEBP 가능</div>
-							</div>
-
-							<!-- 포인트 안내 -->
-							<div class="point-box">
-								<div class="point-row">
-									<span class="point-icon">ℹ</span>
-									<span>
-										리뷰 작성 시 <strong>500P</strong> 적립<br />
-										사진 포함 시 <strong>+300P 추가</strong><br />
-										비회원·부적절 리뷰는 삭제될 수 있습니다
-									</span>
-								</div>
-							</div>
-
-							<!-- 버튼 -->
-							<div class="btn-row">
-								<button class="btn-cancel" @click="handleCancel">취소</button>
-								<button class="btn-submit" @click="fnSave">
-									✓ 리뷰 등록하기
-								</button>
-							</div>
-						</main>
+							</main>
 
 
-						<!-- Toast -->
-						<div class="toast" :class="{ show: toastVisible }">{{ toastMsg }}</div>
-				</div>
-				<%@ include file="/WEB-INF/common/footer.jsp" %>
+							<!-- Toast -->
+							<div class="toast" :class="{ show: toastVisible }">{{ toastMsg }}</div>
+					</div>
+					<%@ include file="/WEB-INF/common/footer.jsp" %>
 			</body>
 
 			</html>

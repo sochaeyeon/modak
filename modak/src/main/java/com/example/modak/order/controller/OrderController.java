@@ -52,6 +52,10 @@ public class OrderController {
         model.addAttribute("orderId", orderId);
         return "order/order-detail"; 
     }
+    @GetMapping("/order/exchange.do")
+    public String exchangePage() {
+        return "order/order-exchange";
+    }
     
 
     // 3. 주문 목록 데이터 조회 (AJAX용 .dox)

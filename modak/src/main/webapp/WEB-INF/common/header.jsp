@@ -10,22 +10,29 @@
 				<button class="icon-btn" onclick="location.href='/board/list.do'" title="커뮤니티">
 					<i class="fa-solid fa-fire"></i>
 				</button>
+
 				<button class="icon-btn" onclick="fnMove('mypage')" title="마이페이지">
 					<i class="fa-regular fa-user"></i>
 				</button>
+
 				<button class="icon-btn" onclick="fnMove('wishlist')" title="찜목록">
 					<i class="fa-regular fa-heart"></i>
 				</button>
+
 				<div class="cart-wrap" onclick="fnMove('cart')">
-					<button class="icon-btn" title="장바구니"><i class="fa-solid fa-basket-shopping"></i></button>
+					<button class="icon-btn" title="장바구니">
+						<i class="fa-solid fa-basket-shopping"></i>
+					</button>
 					<span class="cart-badge" id="cartCount">0</span>
 				</div>
+
 				<div class="alarm-wrap">
 					<button class="icon-btn" title="알림" onclick="toggleAlarm(event)">
 						<i class="fa-regular fa-bell"></i>
 					</button>
 
 					<span class="alarm-dot" id="alarmDot" style="display:none;"></span>
+
 					<div class="alarm-dropdown" id="alarmDropdown">
 						<div class="alarm-dropdown-header">
 							<span>최근 알림</span>
@@ -47,6 +54,7 @@
 						<span class="sep">/</span>
 						<span class="node current" id="currentPageName"></span>
 					</div>
+
 					<c:choose>
 						<c:when test="${not empty sessionScope.sessionId}">
 							<a href="/logout" class="header-top-logout">Log out</a>
@@ -55,6 +63,7 @@
 							<a href="/user/login.do" class="header-top-logout">Login</a>
 						</c:otherwise>
 					</c:choose>
+
 					<div class="category-trigger" onclick="toggleCategory(event)">
 						<div class="burger-icon">
 							<span></span><span></span><span></span>
@@ -66,11 +75,14 @@
 			<div class="category-menu" id="categoryMenu">
 				<div class="menu-header">
 					<h3>CATEGORY</h3>
+
 					<div class="welcome-msg">
 						반갑닥! 모닥러님
 						<i class="fa-solid fa-fire flame-icon"></i>
 					</div>
+
 					<button class="close-btn" onclick="toggleCategory()">&times;</button>
+
 					<form class="menu-search-box" action="/search/integrated.do" method="POST">
 						<input type="text" name="keyword" placeholder="어떤 캠핑용품을 찾고 계신가요?">
 						<button type="submit">
@@ -94,7 +106,6 @@
 
 						<li class="divider"></li>
 
-						<!-- ★ 로그인 상태별 주문 메뉴 -->
 						<c:choose>
 							<c:when test="${not empty sessionScope.sessionId}">
 								<li><a href="/order/history.do"><i class="fa-solid fa-receipt"></i> 주문내역</a></li>
@@ -118,17 +129,22 @@
 
 		<script>
 			const isLogin = "${not empty sessionScope.sessionId}" === "true";
+
 			function toggleCategory(e) {
 				if (e) e.stopPropagation();
+
 				const menu = document.getElementById('categoryMenu');
 				const overlay = document.getElementById('menuOverlay');
 				const isOpen = menu.classList.contains('open');
+
 				if (isOpen) {
 					menu.classList.remove('open');
 					overlay.classList.remove('show');
 				} else {
 					const dropdown = document.getElementById('alarmDropdown');
+
 					if (dropdown) dropdown.classList.remove('open');
+
 					menu.classList.add('open');
 					overlay.classList.add('show');
 				}
@@ -136,15 +152,19 @@
 
 			function toggleAlarm(e) {
 				e.stopPropagation();
+
 				const dropdown = document.getElementById('alarmDropdown');
 				const isOpen = dropdown.classList.contains('open');
+
 				if (isOpen) {
 					dropdown.classList.remove('open');
 				} else {
 					fnLoadAlarmPreview();
 					dropdown.classList.add('open');
+
 					const menu = document.getElementById('categoryMenu');
 					const overlay = document.getElementById('menuOverlay');
+
 					if (menu) menu.classList.remove('open');
 					if (overlay) overlay.classList.remove('show');
 				}
@@ -153,7 +173,6 @@
 			function fnLoadAlarmPreview() {
 				const listBody = document.getElementById('alarmPreviewList');
 
-				// 비회원 알림 안내
 				if (!isLogin) {
 					listBody.innerHTML =
 						'<div class="guest-alarm-box">' +
@@ -194,9 +213,16 @@
 												: item.TYPE === 'CHAT_REJECTED'
 													? '<i class="fa-solid fa-xmark"></i>'
 													: '<i class="fa-solid fa-bullhorn"></i>';
+
 								const unreadClass = item.IS_READ === 'N' ? 'unread' : '';
 
-								html += '<div class="alarm-preview-item ' + unreadClass + '" onclick="location.href=\'/alarm/notice-detail.do?alarmId=' + item.ALARM_ID + '\'">' +
+								const type = item.TYPE || '';
+								const linkId = item.LINK_ID || '';
+								const alarmId = item.ALARM_ID || '';
+
+								html +=
+									'<div class="alarm-preview-item ' + unreadClass + '" ' +
+									'onclick="fnAlarmMove(\'' + type + '\', \'' + linkId + '\', \'' + alarmId + '\')">' +
 									'<div class="item-icon">' + icon + '</div>' +
 									'<div class="item-content">' +
 									'<div class="item-title">' + item.TITLE + '</div>' +
@@ -213,6 +239,35 @@
 				});
 			}
 
+			function fnAlarmMove(type, linkId, alarmId) {
+				$.ajax({
+					url: '/alarm/read.dox',
+					type: 'POST',
+					data: { alarmId: alarmId },
+					complete: function () {
+						const boardTypes = ['BOARD_COMMENT', 'BOARD_REPLY', 'BOARD_LIKE', 'COMMENT_LIKE'];
+						const orderTypes = ['ORDER', 'PAYMENT', 'ORDER_COMPLETE', 'PAYMENT_COMPLETE'];
+
+						if (boardTypes.includes(type) && linkId) {
+							location.href = '/board/detail.do?boardId=' + linkId;
+
+						} else if (orderTypes.includes(type) && linkId) {
+							location.href = '/order/detail.do?orderId=' + linkId;
+
+						} else if (type === 'CHAT_ACCEPTED' && linkId) {
+							location.href = '/chat-room/room.do?roomId=' + linkId;
+
+
+						} else if (type === 'EVENT') {
+							location.href = '/user/mypage.do#coupon';
+
+						} else {
+							location.href = '/alarm/notice-detail.do?alarmId=' + alarmId;
+						}
+					}
+				});
+			}
+
 			function fnCheckAlarm() {
 				$.ajax({
 					url: "/alarm/alarmCount.dox",
@@ -220,19 +275,28 @@
 					dataType: "json",
 					success: function (res) {
 						const dot = document.getElementById('alarmDot');
-						if (dot) dot.style.display = (res.count > 0) ? 'block' : 'none';
+
+						if (dot) {
+							dot.style.display = (res.count > 0) ? 'block' : 'none';
+						}
 					}
 				});
 			}
 
 			function fnMove(type) {
-				if (type === 'mypage') location.href = '/user/mypage.do';
-				else if (type === 'search') location.href = '/product/search.do';
-				else if (type === 'wishlist') location.href = '/user/wishlist/history.do';
-				else if (type === 'cart') location.href = '/cart/list.do';
-				else if (type === 'alarm') {
+				if (type === 'mypage') {
+					location.href = '/user/mypage.do';
+				} else if (type === 'search') {
+					location.href = '/product/search.do';
+				} else if (type === 'wishlist') {
+					location.href = '/user/wishlist/history.do';
+				} else if (type === 'cart') {
+					location.href = '/cart/list.do';
+				} else if (type === 'alarm') {
 					const dropdown = document.getElementById('alarmDropdown');
+
 					if (dropdown) dropdown.classList.remove('open');
+
 					location.href = '/alarm/notice-list.do';
 				}
 			}
@@ -241,10 +305,17 @@
 				const dropdown = document.getElementById('alarmDropdown');
 				const menu = document.getElementById('categoryMenu');
 				const overlay = document.getElementById('menuOverlay');
-				if (dropdown && !e.target.closest('.alarm-wrap')) dropdown.classList.remove('open');
+
+				if (dropdown && !e.target.closest('.alarm-wrap')) {
+					dropdown.classList.remove('open');
+				}
+
 				if (menu && !e.target.closest('.category-trigger') && !e.target.closest('.category-menu')) {
 					menu.classList.remove('open');
-					if (overlay) overlay.classList.remove('show');
+
+					if (overlay) {
+						overlay.classList.remove('show');
+					}
 				}
 			});
 
@@ -252,21 +323,23 @@
 				fnCheckAlarm();
 				fnCheckCartCount();
 
-				// 알림 실시간 갱신
 				if (isLogin) {
 					setInterval(fnCheckAlarm, 5000);
 				}
 
 				const title = document.title.split(' - ')[0];
 				const pageNameEl = document.getElementById('currentPageName');
-				if (pageNameEl) pageNameEl.innerText = title;
+
+				if (pageNameEl) {
+					pageNameEl.innerText = title;
+				}
 			});
+
 			function fnCheckCartCount() {
 				const cartCountEl = document.getElementById('cartCount');
 
 				if (!cartCountEl) return;
 
-				// 비회원이면 localStorage 장바구니 개수 사용
 				if (!isLogin) {
 					let guestCart = [];
 
@@ -281,7 +354,6 @@
 					return;
 				}
 
-				// 회원이면 서버 장바구니 개수 사용
 				$.ajax({
 					url: "/cart/count.dox",
 					type: "POST",
@@ -298,10 +370,12 @@
 					}
 				});
 			}
+
 			(function () {
 				function sendActive() {
 					$.post('/chat-room/active.dox');
 				}
+
 				sendActive();
 				setInterval(sendActive, 8000);
 			}());

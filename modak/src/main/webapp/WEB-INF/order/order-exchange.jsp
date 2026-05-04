@@ -338,9 +338,17 @@
                             fnInit: function () {
                                 var params = new URLSearchParams(location.search);
                                 this.orderId = params.get('orderId') || '';
+                                this.token = params.get('token') || '';
 
                                 if (!this.orderId) {
                                     this.fnShowToast('잘못된 접근입니다.');
+                                    return;
+                                }
+
+                                // 비회원인데 token 없으면 막기
+                                var isLogin = '${sessionScope.sessionId}' !== '';
+                                if (!isLogin && !this.token) {
+                                    this.fnShowToast('비회원 주문조회 페이지에서 다시 진행해주세요.');
                                     return;
                                 }
 
@@ -348,26 +356,35 @@
                                 this.isLoading = true;
 
                                 $.ajax({
-                                    url: '/order/exchange/info.dox',
+                                    url: self.token ? '/order/guest/exchange-info.dox' : '/order/exchange/info.dox',
                                     type: 'POST',
                                     dataType: 'json',
-                                    data: { orderId: self.orderId },
+                                    data: self.token
+                                        ? {
+                                            orderId: self.orderId,
+                                            token: self.token
+                                        }
+                                        : {
+                                            orderId: self.orderId
+                                        },
                                     success: function (res) {
                                         self.isLoading = false;
 
                                         if (res.result === 'success') {
                                             self.orderInfo = res.orderInfo;
 
-                                            // ⭐ 기본 주소 자동 세팅
                                             if (res.defaultAddress) {
                                                 self.pickup.zipcode = res.defaultAddress.zipcode;
                                                 self.pickup.address = res.defaultAddress.address;
                                                 self.pickup.detailAddress = res.defaultAddress.detailedAddress;
                                             }
-
                                         } else {
                                             self.fnShowToast(res.message);
                                         }
+                                    },
+                                    error: function () {
+                                        self.isLoading = false;
+                                        self.fnShowToast('주문 정보를 불러오지 못했습니다.');
                                     }
                                 });
                             },

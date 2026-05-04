@@ -359,6 +359,31 @@
                             </div>
                         </div>
                     </div>
+                    <!-- 공통 확인/알림 모달 -->
+                    <div class="modal-bg" v-if="commonModal.show" @click.self="fnCloseCommonModal">
+                        <div class="modal-box">
+                            <div class="modal-title">
+                                <i class="ri-information-line"></i>
+                                {{ commonModal.title }}
+                            </div>
+
+                            <div
+                                style="font-size:14px;color:var(--brown3);line-height:1.7;margin:18px 0 6px;white-space:pre-line;">
+                                {{ commonModal.message }}
+                            </div>
+
+                            <div class="modal-actions">
+                                <button v-if="commonModal.type === 'confirm'" class="modal-cancel"
+                                    @click="fnCloseCommonModal">
+                                    {{ commonModal.cancelText }}
+                                </button>
+
+                                <button class="modal-confirm" @click="fnConfirmCommonModal">
+                                    {{ commonModal.confirmText }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- ── 미니 프로필 팝업 ───────────────────────── -->
                     <div v-if="profilePopup.show"
@@ -448,6 +473,16 @@
                                         chatBtnState: '',       // '' | 'pending' | 'exists'
                                         chatBtnLabel: '대화 신청'
                                     },
+                                    commonModal: {
+                                        show: false,
+                                        type: 'alert',
+                                        title: '',
+                                        message: '',
+                                        confirmText: '확인',
+                                        cancelText: '취소',
+                                        callback: null
+                                    },
+                                    isReporting: false,
                                     commentPageSize: 5,
                                     commentShowAll: false,
                                     gradeList: [
@@ -582,6 +617,43 @@
                                         }
                                     });
                                 },
+                                fnOpenAlertModal(title, message) {
+                                    this.commonModal = {
+                                        show: true,
+                                        type: 'alert',
+                                        title: title,
+                                        message: message,
+                                        confirmText: '확인',
+                                        cancelText: '취소',
+                                        callback: null
+                                    };
+                                },
+
+                                fnOpenConfirmModal(title, message, callback) {
+                                    this.commonModal = {
+                                        show: true,
+                                        type: 'confirm',
+                                        title: title,
+                                        message: message,
+                                        confirmText: '확인',
+                                        cancelText: '취소',
+                                        callback: callback
+                                    };
+                                },
+
+                                fnCloseCommonModal() {
+                                    this.commonModal.show = false;
+                                    this.commonModal.callback = null;
+                                },
+
+                                fnConfirmCommonModal() {
+                                    const callback = this.commonModal.callback;
+                                    this.fnCloseCommonModal();
+
+                                    if (typeof callback === 'function') {
+                                        callback();
+                                    }
+                                },
 
                                 fnCloseProfile() { this.profilePopup.show = false; },
 
@@ -687,11 +759,27 @@
                                 fnGoBack() { location.href = '/board/list.do'; },
                                 fnGoProfile(userId) { if (userId) location.href = '/user/profile.do?userId=' + encodeURIComponent(userId); },
                                 fnDeletePost() {
-                                    if (!confirm('게시글을 삭제하시겠습니까?')) return;
-                                    $.ajax({
-                                        url: '/board/delete.dox', type: 'POST', data: { boardId: this.boardId },
-                                        success: (res) => { if (res.result === 'success') location.href = '/board/list.do'; else this.showToast(res.message || '삭제 실패'); }
-                                    });
+                                    this.fnOpenConfirmModal(
+                                        '게시글 삭제',
+                                        '게시글을 삭제하시겠습니까?',
+                                        () => {
+                                            $.ajax({
+                                                url: '/board/delete.dox',
+                                                type: 'POST',
+                                                data: { boardId: this.boardId },
+                                                success: (res) => {
+                                                    if (res.result === 'success') {
+                                                        location.href = '/board/list.do';
+                                                    } else {
+                                                        this.fnOpenAlertModal('삭제 실패', res.message || '삭제에 실패했습니다.');
+                                                    }
+                                                },
+                                                error: () => {
+                                                    this.fnOpenAlertModal('서버 오류', '서버 오류가 발생했습니다.');
+                                                }
+                                            });
+                                        }
+                                    );
                                 },
                                 fnVote(optionId) {
                                     if (this.poll?.myVoted) { this.showToast('이미 투표하셨습니다.'); return; }
@@ -728,23 +816,68 @@
                                     });
                                 },
                                 fnDeleteComment(commentId) {
-                                    if (!confirm('댓글을 삭제하시겠습니까?')) return;
-                                    $.ajax({
-                                        url: '/board/comment/delete.dox', type: 'POST', data: { commentId, boardId: this.boardId },
-                                        success: (res) => { if (res.result === 'success') this.fnLoad(); else this.showToast('삭제 실패'); }
-                                    });
+                                    this.fnOpenConfirmModal(
+                                        '댓글 삭제',
+                                        '댓글을 삭제하시겠습니까?',
+                                        () => {
+                                            $.ajax({
+                                                url: '/board/comment/delete.dox',
+                                                type: 'POST',
+                                                data: {
+                                                    commentId: commentId,
+                                                    boardId: this.boardId
+                                                },
+                                                success: (res) => {
+                                                    if (res.result === 'success') {
+                                                        this.fnLoad();
+                                                    } else {
+                                                        this.fnOpenAlertModal('삭제 실패', res.message || '댓글 삭제에 실패했습니다.');
+                                                    }
+                                                },
+                                                error: () => {
+                                                    this.fnOpenAlertModal('서버 오류', '서버 오류가 발생했습니다.');
+                                                }
+                                            });
+                                        }
+                                    );
                                 },
                                 fnReportComment(commentId) { this.reportTarget = 'COMMENT'; this.reportCommentId = commentId; this.showReportModal = true; },
                                 fnSubmitReport() {
-                                    if (!this.reportReason) { this.showToast('신고 사유를 선택해주세요.'); return; }
+                                    if (this.isReporting) return;
+
+                                    if (!this.reportReason) {
+                                        this.fnOpenAlertModal('신고 사유 선택', '신고 사유를 선택해주세요.');
+                                        return;
+                                    }
+
+                                    this.isReporting = true;
+
                                     $.ajax({
-                                        url: '/board/report.dox', type: 'POST',
-                                        data: { boardId: this.boardId, commentId: this.reportCommentId || '', target: this.reportTarget, reason: this.reportReason },
+                                        url: '/board/report.dox',
+                                        type: 'POST',
+                                        data: {
+                                            boardId: this.boardId,
+                                            commentId: this.reportCommentId || '',
+                                            target: this.reportTarget,
+                                            reason: this.reportReason
+                                        },
                                         success: (res) => {
+                                            this.isReporting = false;
                                             this.showReportModal = false;
-                                            if (res.result === 'success') this.showToast('신고가 접수되었습니다.');
-                                            else if (res.result === 'duplicate') this.showToast('이미 신고한 게시글입니다.');
-                                            else this.showToast('로그인이 필요합니다.');
+
+                                            if (res.result === 'success') {
+                                                this.fnOpenAlertModal('신고 완료', '신고가 접수되었습니다.');
+                                            } else {
+                                                this.fnOpenAlertModal('신고 실패', res.message || '신고 처리에 실패했습니다.');
+                                            }
+
+                                            this.reportReason = '';
+                                            this.reportTarget = 'BOARD';
+                                            this.reportCommentId = null;
+                                        },
+                                        error: () => {
+                                            this.isReporting = false;
+                                            this.fnOpenAlertModal('서버 오류', '서버 오류가 발생했습니다.');
                                         }
                                     });
                                 },

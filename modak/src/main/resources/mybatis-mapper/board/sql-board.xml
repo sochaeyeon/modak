@@ -285,11 +285,13 @@
          신고
     ════════════════════════════ -->
 	<select id="selectReportExists" parameterType="hashmap" resultType="int">
-		SELECT COUNT(*) FROM BOARD_REPORT WHERE USER_ID = #{userId} AND TARGET =
-		#{target} <if test="boardId != null">AND BOARD_ID = #{boardId}</if>
-          <if
-			test="commentId != null">AND COMMENT_ID = #{commentId}</if>
-	</select>
+	SELECT COUNT(*)
+	FROM BOARD_REPORT
+	WHERE USER_ID = #{userId}
+	  AND TARGET = #{target}
+	  AND BOARD_ID = #{boardId}
+	  AND IFNULL(COMMENT_ID, 0) = IFNULL(NULLIF(#{commentId}, ''), 0)
+</select>
 
 	<insert id="insertReport" parameterType="hashmap">
 		INSERT INTO BOARD_REPORT

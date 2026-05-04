@@ -2,7 +2,7 @@
 
 <div align="center">
 
-**캠핑장 탐색부터 장비 렌탈, AI 서비스, 커뮤니티까지**
+**캠핑장 탐색부터 장비 렌탈/판매, AI 서비스, 커뮤니티까지**
 **캠퍼를 위한 모든 것이 담긴 종합 캠핑 플랫폼**
 
 [![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.5.12-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)

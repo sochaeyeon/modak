@@ -101,4 +101,15 @@ public class GuestOrderController {
         if (isBlank(orderId) || isBlank(token)) return fail("잘못된 요청입니다.");
         return guestOrderService.exchangeGuestOrder(orderId.trim(), token.trim(), map);
     }
+    /** 비회원 교환 신청 정보 조회 */
+    @PostMapping("/exchange-info.dox")
+    @ResponseBody
+    public Map<String, Object> exchangeInfoAjax(@RequestParam String orderId,
+                                                @RequestParam String token) {
+        if (isBlank(orderId) || isBlank(token)) {
+            return fail("잘못된 요청입니다.");
+        }
+
+        return guestOrderService.getGuestExchangeInfo(orderId.trim(), token.trim());
+    }
 }

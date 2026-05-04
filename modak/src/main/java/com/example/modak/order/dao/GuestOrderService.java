@@ -234,4 +234,51 @@ public class GuestOrderService {
 			this.createdAt = createdAt;
 		}
 	}
+	
+	public HashMap<String, Object> getGuestExchangeInfo(String orderId, String token) {
+	    HashMap<String, Object> result = new HashMap<>();
+
+	    try {
+	        orderId = orderId.trim();
+	        token = token.trim();
+
+	        if (!validateToken(token, orderId)) {
+	            result.put("result", "fail");
+	            result.put("message", "유효하지 않은 접근입니다. 다시 조회해주세요.");
+	            return result;
+	        }
+
+	        GuestOrder order = guestOrderMapper.selectGuestOrderById(orderId);
+
+	        if (order == null) {
+	            result.put("result", "fail");
+	            result.put("message", "주문 정보를 찾을 수 없습니다.");
+	            return result;
+	        }
+
+	        List<GuestOrderItem> items = guestOrderMapper.selectGuestOrderItems(orderId);
+
+	        HashMap<String, Object> orderInfo = new HashMap<>();
+
+	        if (items != null && !items.isEmpty()) {
+	            GuestOrderItem item = items.get(0);
+
+	            orderInfo.put("productName", item.getProductName());
+	            orderInfo.put("count", item.getQuantity());       // ✔ 수량
+	            orderInfo.put("price", item.getUnitPrice());      // ✔ 가격
+	            orderInfo.put("optionName", item.getOptionName()); 
+	            orderInfo.put("imgUrl", item.getImgUrl());
+	        }
+
+	        result.put("result", "success");
+	        result.put("orderInfo", orderInfo);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	        result.put("message", "서버 오류가 발생했습니다.");
+	    }
+
+	    return result;
+	}
 }

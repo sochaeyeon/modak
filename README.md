@@ -106,7 +106,9 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 <summary><b>⛺ 캠핑장 & 날씨</b></summary>
 <br>
 - 🗺️ <b>카카오맵 API</b> 기반 전국 캠핑장 위치 확인 및 목록 / 상세 조회
+  
 - 🏕️ <b>GoCamping 공공데이터</b> 연동 — 전국 캠핑장 정보 실시간 동기화
+- 
 - 🌤️ <b>기상청 단기예보 API</b> — 캠핑장별 맞춤 날씨 정보 제공
 </details>
 

@@ -72,7 +72,7 @@ public interface AdminMapper {
 
     // 주문 상태(결제완료 -> 배송중 -> 배송완료 등) 변경 처리
     void updateOrderStatus(HashMap<String, Object> map); 
-    
+    int updateRentalStatusByOrderStatus(HashMap<String, Object> map);
  // 반납 요청 목록
     List<Map<String, Object>> selectReturnRequestList();
      

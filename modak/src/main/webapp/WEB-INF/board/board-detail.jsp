@@ -451,6 +451,23 @@
                 <%@ include file="/WEB-INF/common/footer.jsp" %>
 
                     <script>
+                        if ('scrollRestoration' in history) {
+                            history.scrollRestoration = 'manual';
+                        }
+
+                        function forceBoardDetailTop() {
+                            window.scrollTo(0, 0);
+                            document.documentElement.scrollTop = 0;
+                            document.body.scrollTop = 0;
+                        }
+
+                        window.addEventListener('pageshow', function () {
+                            forceBoardDetailTop();
+
+                            setTimeout(forceBoardDetailTop, 50);
+                            setTimeout(forceBoardDetailTop, 200);
+                        });
+
                         const { createApp } = Vue;
                         createApp({
                             data() {
@@ -929,7 +946,16 @@
                             },
 
                             mounted() {
+                                forceBoardDetailTop();
+
                                 this.fnLoad();
+
+                                this.$nextTick(() => {
+                                    forceBoardDetailTop();
+                                });
+
+                                setTimeout(forceBoardDetailTop, 200);
+
                                 document.addEventListener('click', this.fnHandleOutsideClick);
                                 window.addEventListener('scroll', this.fnHandleScroll);
                                 this.fnHandleScroll();

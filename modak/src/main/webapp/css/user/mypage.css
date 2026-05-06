@@ -5315,3 +5315,195 @@ button,
     font-size: 13px;
     color: #8b6b4a;
 }
+
+.chat-room-section-head {
+    align-items: flex-start;
+}
+
+.chat-room-section-sub {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #8b6b4a;
+}
+
+.mypage-chat-room-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px 10px;
+}
+
+.mypage-chat-room-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    border: 1px solid rgba(200, 165, 130, .45);
+    border-radius: 18px;
+    background: #fffdf8;
+    cursor: pointer;
+    transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+.mypage-chat-room-item:hover {
+    border-color: #e8732a;
+    background: #fffaf2;
+    transform: translateY(-1px);
+}
+
+.mypage-chat-avatar {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+.mypage-chat-avatar img,
+.mypage-chat-avatar-fallback {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(200, 165, 130, .55);
+}
+
+.mypage-chat-avatar-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f6f0e6;
+    color: #c4621e;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.mypage-chat-unread-dot {
+    position: absolute;
+    right: 1px;
+    bottom: 2px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #e8732a;
+    border: 2px solid #fffdf8;
+}
+
+.mypage-chat-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.mypage-chat-name {
+    font-size: 15px;
+    font-weight: 800;
+    color: #2c1e0f;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mypage-chat-last {
+    font-size: 13px;
+    color: #8b6b4a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mypage-chat-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 7px;
+    flex-shrink: 0;
+}
+
+.mypage-chat-time {
+    font-size: 12px;
+    color: #9a7b5b;
+}
+
+.mypage-chat-unread-badge {
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 999px;
+    background: #e8732a;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 섹션 헤더 전체보기 링크 */
+.section-head a,
+.order-head-actions a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-light);
+    text-decoration: none;
+    transition: color .18s ease;
+}
+
+/* 오렌지 밑줄 */
+.section-head a::after,
+.order-head-actions a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    width: 0;
+    height: 1.5px;
+    background: var(--ember);
+    border-radius: 999px;
+    transition: width .2s ease;
+}
+
+/* hover */
+.section-head a:hover,
+.order-head-actions a:hover {
+    color: var(--ember);
+}
+
+/* hover 시 밑줄 나타남 */
+.section-head a:hover::after,
+.order-head-actions a:hover::after {
+    width: 100%;
+}
+
+.section-head a:hover {
+    color: var(--ember);
+}
+
+/* 전체보기 hover 오렌지 밑줄 - 간격/색상 조정 */
+.section-head a,
+.order-head-actions a {
+    display: inline-block !important;
+    position: relative !important;
+
+    /* 글씨 너무 연한 문제 해결 */
+    color: var(--text-mid) !important;
+    font-weight: 600;
+
+    text-decoration: none !important;
+
+    /* 밑줄과 글씨 사이 간격 */
+    padding-bottom: 6px !important;
+
+    background-image: linear-gradient(var(--ember), var(--ember));
+    background-repeat: no-repeat;
+    background-position: left calc(100% - 1px);
+    background-size: 0 1.5px;
+
+    transition: color .18s ease, background-size .22s ease;
+}
+
+.section-head a:hover,
+.order-head-actions a:hover {
+    color: var(--ember) !important;
+    background-size: 100% 1.5px;
+}

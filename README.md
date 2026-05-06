@@ -269,9 +269,10 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 <div align="center">
 
 <!-- ✅erd  -->
-![ModakModak ERD](업로드후_URL_교체)
+![ModakModak ERD](<img width="1007" height="672" alt="erd" src="https://github.com/user-attachments/assets/dc4b2327-3481-4985-8204-0b41e67c6ee5" />
+)
 
-<!-- 업로드 방법: GitHub Issue나 PR 코멘트 창에 이미지를 드래그하면 URL이 생성됩니다 -->
+
 
 </div>
 

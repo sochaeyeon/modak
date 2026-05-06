@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.modak.order.mapper.OrderExchangeMapper">
+
+    <!-- 회원 교환 신청용 주문 정보 + 기본 주소 조회 -->
+    <select id="selectExchangeOrderInfo" parameterType="hashmap" resultType="hashmap">
+        SELECT
+            O.ORDER_ID AS orderId,
+            O.USER_ID AS userId,
+            O.TOTAL_PRICE AS price,
+
+            OI.PRODUCT_ID AS productId,
+            P.PRODUCT_NAME AS productName,
+            OI.QUANTITY AS count,
+
+            (
+                SELECT PI.IMG_URL
+                FROM PRODUCT_IMG PI
+                WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
+                  AND PI.IS_MAIN = 'Y'
+                ORDER BY PI.SORT_ORDER ASC, PI.IMAGE_ID ASC
+                LIMIT 1
+            ) AS imgUrl,
+
+            UA.ZIPCODE AS zipcode,
+            UA.ADDRESS AS address,
+            UA.DETAILED_ADDRESS AS detailedAddress
+
+        FROM ORDERS O
+        JOIN ORDER_ITEM OI ON O.ORDER_ID = OI.ORDER_ID
+        JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+        LEFT JOIN USER_ADDRESS UA
+               ON O.USER_ID = UA.USER_ID
+              AND UA.ADDRESS_ID = (
+                    SELECT UA2.ADDRESS_ID
+                    FROM USER_ADDRESS UA2
+                    WHERE UA2.USER_ID = O.USER_ID
+                    ORDER BY UA2.DEFAULT_YN DESC, UA2.ADDRESS_ID ASC
+                    LIMIT 1
+              )
+        WHERE O.ORDER_ID = #{orderId}
+          AND O.USER_ID = #{userId}
+        LIMIT 1
+    </select>
+
+    <!-- 회원 교환 신청 등록 -->
+    <insert id="insertExchange" parameterType="hashmap">
+        INSERT INTO ORDER_EXCHANGE (
+            ORDER_ID,
+            USER_ID,
+            EXCHANGE_REASON,
+            REASON_DETAIL,
+            EXCHANGE_METHOD,
+            ZIPCODE,
+            ADDRESS,
+            DETAILED_ADDRESS,
+            MEMO,
+            EXCHANGE_STATUS,
+            CREATED_AT
+        ) VALUES (
+            #{orderId},
+            #{userId},
+            #{exchangeReason},
+            #{reasonDetail},
+            #{exchangeMethod},
+            #{zipcode},
+            #{address},
+            #{detailedAddress},
+            #{memo},
+            'REQUESTED',
+            NOW()
+        )
+    </insert>
+
+    <!-- 주문 상태 교환 요청으로 변경 -->
+    <update id="updateOrderStatusToExchange" parameterType="hashmap">
+        UPDATE ORDERS
+        SET ORDER_STATUS = 'EXCHANGE_REQUESTED'
+        WHERE ORDER_ID = #{orderId}
+          AND USER_ID = #{userId}
+    </update>
+
+</mapper>

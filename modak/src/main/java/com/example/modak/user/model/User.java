@@ -16,6 +16,15 @@ public class User {
 	private String gradeId;
 	private String socialType;
 	private String socialId;
+	private String userStatus;
 
 	private String gradeName;
+
+	// 휴대폰 인증 관련
+	private String phoneVerifyYn;
+	private String phoneVerifiedAt;
+	// 프로필 이미지 URL
+	private String profileImgUrl;
+	
+	private String marketingYn;
 }

@@ -1,0 +1,641 @@
+[v-cloak] {
+	display: none;
+}
+
+.point-history-page {
+    max-width: 1100px;
+}
+
+.main.full {
+    width: 100%;
+}
+
+.point-history-full {
+    padding: 8px 22px 20px;
+    animation: fadeUpSoft 0.35s ease both;
+}
+
+.point-history-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border);
+    opacity: 0;
+    animation: fadeUpSoft 0.45s ease both;
+}
+
+.point-history-card:last-child {
+    border-bottom: none;
+}
+
+.point-history-left {
+    min-width: 0;
+    flex: 1;
+}
+
+.point-history-desc {
+    font-size: 14px;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+    line-height: 1.5;
+}
+
+.point-history-date {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.point-history-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.point-history-amount {
+    
+    font-size: 15px;
+}
+
+.point-history-amount.plus {
+    color: var(--ember-deep);
+}
+
+.point-history-amount.minus {
+    color: var(--text-mid);
+}
+
+.point-history-balance {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.point-summary-box {
+    margin: 20px 22px 0;
+    padding: 22px 24px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(255, 248, 240, 0.95), rgba(255, 252, 248, 0.92));
+    animation: fadeUpSoft 0.45s ease both;
+}
+
+.point-summary-label {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 8px;
+}
+
+.point-summary-amount {
+
+    font-size: 32px;
+    color: var(--ember-deep);
+    line-height: 1.1;
+}
+
+.point-summary-amount span {
+    margin-left: 4px;
+    font-size: 14px;
+    color: var(--text-light);
+}
+
+.point-summary-desc {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-mid);
+}
+
+.paging-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 18px 0 24px;
+    animation: fadeUpSoft 0.45s ease both;
+}
+
+.paging-btn {
+    min-width: 38px;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--white);
+    color: var(--text-mid);
+   
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.paging-btn:hover:not(:disabled) {
+    border-color: var(--ember-light);
+    color: var(--ember-deep);
+    background: rgba(240, 125, 58, 0.08);
+}
+
+.paging-btn.active {
+    background: var(--ember);
+    color: #fff;
+    border-color: var(--ember);
+}
+
+.paging-btn:disabled {
+    opacity: 0.45;
+    cursor: default;
+}
+
+@keyframes fadeUpSoft {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+.benefit-summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 20px 22px 0;
+}
+
+.benefit-tab-wrap {
+    display: flex;
+    gap: 10px;
+    padding: 18px 22px 10px;
+}
+
+.benefit-tab-wrap {
+    position: relative;
+    display: flex;
+    gap: 22px;
+    padding: 20px 22px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.benefit-tab-btn {
+    position: relative;
+    padding: 0 0 12px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-light);
+    font-size: 14px;
+    cursor: pointer;
+    transition: color .2s ease;
+}
+
+.benefit-tab-btn:hover {
+    color: var(--ember-deep);
+    background: transparent;
+    border-color: transparent;
+}
+
+.tab-underline {
+    position: absolute;
+    bottom: -1px;
+    left: 22px;
+    height: 2px;
+    background: var(--ember);
+    border-radius: 999px;
+    transition: transform 0.35s ease, width 0.35s ease;
+    pointer-events: none;
+}
+.benefit-tab-btn.active {
+    background: transparent;
+    border-color: transparent;
+    color: var(--ember-deep);
+}
+.benefit-tab-btn::after {
+    display: none;
+}
+.coupon-history-full {
+    padding: 8px 22px 20px;
+    animation: fadeUpSoft 0.35s ease both;
+}
+
+.coupon-history-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--border);
+    opacity: 0;
+    animation: fadeUpSoft 0.45s ease both;
+}
+
+.coupon-history-card:last-child {
+    border-bottom: none;
+}
+
+.coupon-history-left {
+    min-width: 0;
+    flex: 1;
+}
+
+.coupon-history-name {
+    font-size: 14px;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+    line-height: 1.45;
+}
+
+.coupon-history-date {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.coupon-history-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.coupon-history-discount {
+
+    font-size: 15px;
+    color: var(--ember-deep);
+}
+
+.coupon-history-status {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.coupon-history-status.available {
+    background: rgba(201, 79, 30, .1);
+    color: var(--ember-deep);
+}
+
+.coupon-history-status.used {
+    background: rgba(176, 144, 112, .12);
+    color: var(--text-mid);
+}
+
+.coupon-history-status.expired {
+    background: rgba(120, 120, 120, .10);
+    color: #777;
+}
+
+.point-history-right {
+    align-items: flex-end;
+    gap: 5px;
+}
+
+.point-history-amount {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.point-history-amount.plus {
+    color: var(--ember-deep);
+}
+
+.point-history-amount.minus {
+    color: #5f4636;
+}
+
+.point-history-balance {
+    font-size: 13px;
+    color: #8f806f;
+}
+.coupon-history-card.used {
+    background: #f7f7f7;
+    opacity: 0.6;
+}
+
+.coupon-history-card.expired {
+    background: #f2f2f2;
+    opacity: 0.5;
+}
+.coupon-history-card.used .coupon-history-name,
+.coupon-history-card.expired .coupon-history-name {
+    color: #aaa;
+}
+
+.coupon-history-card.used .coupon-history-date,
+.coupon-history-card.expired .coupon-history-date {
+    color: #bbb;
+}
+.coupon-history-full {
+    padding: 8px 0 20px;
+    animation: fadeUpSoft 0.35s ease both;
+    overflow: hidden;
+}
+
+.coupon-history-card {
+    padding: 18px 22px;
+}
+
+.coupon-history-full {
+    padding: 8px 0 0;
+}
+
+.coupon-history-card:last-child {
+    border-bottom: none;
+    border-radius: 0 0 14px 14px;
+}
+
+.coupon-history-full {
+    padding: 14px 22px 20px;
+    animation: fadeUpSoft 0.35s ease both;
+}
+
+.coupon-history-card {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 18px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(221, 198, 174, 0.85);
+    border-radius: 16px;
+    background: linear-gradient(135deg, #fffaf4 0%, #fff 62%);
+    box-shadow: 0 8px 22px rgba(87, 58, 35, 0.06);
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeUpSoft 0.45s ease both;
+}
+
+.coupon-history-card::before,
+.coupon-history-card::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    background: var(--white);
+    border: 1px solid rgba(221, 198, 174, 0.85);
+    border-radius: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+}
+
+.coupon-history-card::before {
+    left: -10px;
+}
+
+.coupon-history-card::after {
+    right: -10px;
+}
+
+.coupon-ticket-left {
+    min-width: 0;
+    flex: 1;
+}
+
+.coupon-ticket-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--ember-deep);
+    margin-bottom: 8px;
+}
+
+.coupon-ticket-name {
+    font-size: 15px;
+    color: var(--text-dark);
+    margin-bottom: 7px;
+    line-height: 1.45;
+}
+
+.coupon-ticket-benefit {
+    font-size: 22px;
+    color: var(--ember-deep);
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 7px;
+}
+
+.coupon-ticket-condition {
+    font-size: 12px;
+    color: var(--text-mid);
+    margin-bottom: 6px;
+}
+
+.coupon-ticket-date {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.coupon-ticket-right {
+    width: 120px;
+    flex-shrink: 0;
+    border-left: 1px dashed rgba(206, 176, 146, 0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 8px;
+    padding-left: 18px;
+}
+
+.coupon-history-status {
+    font-size: 11px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.coupon-history-status.available {
+    background: rgba(201, 79, 30, .1);
+    color: var(--ember-deep);
+}
+
+.coupon-history-status.used {
+    background: rgba(120, 120, 120, .1);
+    color: #7a6b5d;
+}
+
+.coupon-history-status.expired {
+    background: rgba(120, 120, 120, .09);
+    color: #999;
+}
+
+.coupon-ticket-dday {
+    font-size: 12px;
+    color: var(--text-mid);
+}
+
+.coupon-history-card.used,
+.coupon-history-card.expired {
+    background: #f7f5f2;
+    border-color: rgba(210, 200, 190, 0.75);
+    box-shadow: none;
+}
+
+.coupon-history-card.used .coupon-ticket-label,
+.coupon-history-card.expired .coupon-ticket-label,
+.coupon-history-card.used .coupon-ticket-benefit,
+.coupon-history-card.expired .coupon-ticket-benefit {
+    color: #aaa;
+}
+
+.coupon-history-card.used .coupon-ticket-name,
+.coupon-history-card.expired .coupon-ticket-name {
+    color: #999;
+}
+
+.coupon-history-card.used .coupon-ticket-condition,
+.coupon-history-card.expired .coupon-ticket-condition,
+.coupon-history-card.used .coupon-ticket-date,
+.coupon-history-card.expired .coupon-ticket-date {
+    color: #aaa;
+}
+
+.coupon-history-full {
+    padding: 14px 22px 20px;
+    animation: fadeUpSoft 0.35s ease both;
+    overflow: visible;
+}
+
+.coupon-history-card {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: 18px;
+    padding: 20px 22px;
+    margin-bottom: 12px;
+    border: 1px solid rgba(221, 198, 174, 0.85);
+    border-radius: 16px !important;
+    background: linear-gradient(135deg, #fffaf4 0%, #fff 65%);
+    box-shadow: 0 8px 22px rgba(87, 58, 35, 0.06);
+    overflow: visible;
+    opacity: 1;
+    animation: fadeUpSoft 0.45s ease both;
+}
+
+.coupon-history-card:last-child {
+    border-radius: 16px !important;
+    margin-bottom: 0;
+}
+
+.coupon-ticket-left {
+    flex: 1;
+    min-width: 0;
+    padding-right: 8px;
+}
+
+.coupon-ticket-label {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: #b8a99a;
+    margin-bottom: 10px;
+}
+
+.coupon-ticket-name {
+    font-size: 15px;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.coupon-ticket-benefit {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ember-deep);
+    margin-bottom: 8px;
+}
+
+.coupon-ticket-condition {
+    font-size: 12px;
+    color: var(--text-mid);
+    margin-bottom: 6px;
+}
+
+.coupon-ticket-date {
+    font-size: 12px;
+    color: var(--text-light);
+}
+
+.coupon-ticket-right {
+    width: 132px;
+    flex-shrink: 0;
+    border-left: 1px dashed rgba(206, 176, 146, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding-left: 18px;
+}
+
+.coupon-history-status {
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.coupon-use-btn {
+    position: relative;
+    overflow: hidden;
+
+    border: 1px solid rgba(201, 79, 30, 0.4);
+    background: #fff;
+    color: var(--ember-deep);
+
+    border-radius: 999px;
+    padding: 7px 13px;
+    font-size: 12px;
+    cursor: pointer;
+
+    transition: color .25s ease, border-color .25s ease;
+    z-index: 1;
+}
+
+/* 채워지는 레이어 */
+.coupon-use-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 0;
+    background: var(--ember);
+    transition: width .25s ease;
+    z-index: -1;
+}
+
+/* hover */
+.coupon-use-btn:hover {
+    color: #fff;
+    border-color: var(--ember);
+}
+
+/* 차오르는 효과 */
+.coupon-use-btn:hover::before {
+    width: 100%;
+}
+.coupon-history-card.used,
+.coupon-history-card.expired {
+    background: #f7f5f2;
+    border-color: rgba(210, 200, 190, 0.75);
+    box-shadow: none;
+}
+
+.coupon-history-card.used *,
+.coupon-history-card.expired * {
+    color: #aaa;
+}
+
+.coupon-history-card.used .coupon-history-status,
+.coupon-history-card.expired .coupon-history-status {
+    color: #7a6b5d;
+}
+.coupon-history-card {
+    border: 1px solid rgba(221, 198, 174, 0.6);
+    transition: border-color .2s ease;
+}
+
+.coupon-history-card:hover {
+    border-color: var(--ember);
+}   

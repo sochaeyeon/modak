@@ -1,0 +1,73 @@
+@charset "UTF-8";
+
+/* ════ 매출 관리 전용 다크 프리미엄 테마 ════ */
+.sales-page-container {
+    --s-bg: #11131a;
+    --s-card: #1c1f2b;
+    --s-accent: #E8732A;
+    --s-accent-glow: rgba(232, 115, 42, 0.2);
+    --s-border: rgba(255, 255, 255, 0.08);
+    --s-text: #e2e4e9;
+    --s-text-muted: #8a8f9d;
+    
+    background: var(--s-bg);
+    min-height: 100vh;
+    padding: 28px 32px;
+}
+
+/* 상단 영역 */
+.sales-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+.sales-title { font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
+
+.s-btn-back {
+    background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid var(--s-border);
+    padding: 10px 18px; border-radius: 12px; font-weight: 600; font-size: 13px;
+    cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px;
+}
+.s-btn-back:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--s-text-muted); }
+
+/* 매출 요약 레이아웃 */
+.sales-grid {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr;
+    gap: 24px;
+    margin-bottom: 30px;
+}
+
+/* 차트 카드 */
+.chart-card {
+    background: var(--s-card);
+    border: 1px solid var(--s-border);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    height: 400px;
+}
+
+/* 일자별 매출 리스트 카드 */
+.list-card {
+    background: var(--s-card);
+    border: 1px solid var(--s-border);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
+}
+
+.list-title {
+    font-size: 16px; font-weight: 700; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 8px;
+}
+
+/* 테이블 스타일 */
+.s-table { width: 100%; border-collapse: collapse; }
+.s-table th {
+    text-align: center; padding: 12px; font-size: 11px;
+    color: var(--s-text-muted); text-transform: uppercase;
+    border-bottom: 1px solid var(--s-border);
+}
+.s-table td { padding: 14px 12px; border-bottom: 1px solid var(--s-border); color: var(--s-text); font-size: 14px; text-align: center; }
+.s-table tr:hover { background: rgba(255,255,255,0.02); }
+
+.s-amt { font-weight: 700; color: var(--s-accent); }

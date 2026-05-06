@@ -1,0 +1,479 @@
+@charset "UTF-8";
+
+/* RESET */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #faf6f0;
+    --white: #FFFDF8;
+    --border: rgba(200, 165, 130, .5);
+    --border-strong: rgba(232, 115, 42, .45);
+    --orange: #E8732A;
+    --orange2: #C4621E;
+    --brown: #2C1E0F;
+    --brown2: #5C4230;
+    --brown3: #8B6B4A;
+    --cream: #F6F0E6;
+    --danger: #D94A38;
+}
+
+body {
+    background: var(--bg);
+    color: var(--brown);
+}
+
+/* 전체 중앙 */
+.guest-inquiry-page {
+    min-height: calc(100vh - 200px);
+    padding: 54px 20px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 상단 문구 */
+.inquiry-hero {
+    text-align: center;
+    margin-bottom: 22px;
+}
+
+.hero-kicker {
+    display: inline-block;
+    margin-bottom: 8px;
+    padding: 5px 12px;
+    border: 1px solid rgba(232, 115, 42, .25);
+    border-radius: 999px;
+    background: rgba(232, 115, 42, .08);
+    font-size: 11px;
+    color: var(--orange2);
+    font-weight: 900;
+    letter-spacing: .08em;
+}
+
+.inquiry-hero h1 {
+    font-size: 30px;
+    font-weight: 900;
+    color: var(--brown);
+    letter-spacing: -0.04em;
+}
+
+.hero-desc {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--brown3);
+    line-height: 1.5;
+}
+
+/* 카드 */
+.inquiry-card-new {
+    width: 420px;
+    min-height: 420px;
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: 26px;
+    padding: 24px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    box-shadow: 0 14px 32px rgba(44, 30, 15, .06);
+}
+
+/* 폼 */
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-group {
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--brown2);
+}
+
+.form-group input {
+    width: 100%;
+    height: 42px;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    background: #fff;
+    padding: 0 13px;
+    color: var(--brown);
+    font-size: 13px;
+    font-weight: 400;
+    outline: none;
+    transition: border-color .18s ease, background-color .18s ease;
+}
+
+.form-group input::placeholder {
+    color: rgba(139, 107, 74, .48);
+    font-weight: 400;
+}
+
+.form-group input:focus {
+    border-color: var(--border-strong);
+    background: #fffdfa;
+}
+
+.form-group input.is-error {
+    border-color: rgba(217, 74, 56, .65);
+    background: rgba(217, 74, 56, .035);
+}
+
+/* 에러 문구 */
+.err-msg {
+    display: none;
+    margin-top: 5px;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--danger);
+}
+
+.err-msg.show {
+    display: block;
+}
+
+/* 조회 실패 알림 */
+.alert-box {
+    display: none;
+    padding: 10px 12px;
+    border: 1px solid rgba(217, 74, 56, .25);
+    border-radius: 12px;
+    background: rgba(217, 74, 56, .06);
+    color: var(--danger);
+    font-size: 12px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.alert-box.show {
+    display: block;
+}
+
+/* 버튼 */
+.btn-submit {
+    width: 100%;
+    height: 44px;
+    border-radius: 13px;
+    border: 1.5px solid var(--orange);
+    background: var(--orange);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: background-color .18s ease, border-color .18s ease;
+}
+
+.btn-submit:hover {
+    background: var(--orange2);
+    border-color: var(--orange2);
+}
+
+.btn-submit:disabled {
+    opacity: .7;
+    cursor: default;
+}
+
+.btn-submit.loading {
+    position: relative;
+    color: transparent;
+}
+
+.btn-submit.loading::after {
+    content: "조회 중...";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.signup-promo {
+    position: relative;
+    padding: 18px 15px 15px;
+    background: #FFF8F3;
+    border: 1.5px solid rgba(232, 115, 42, .35);
+}
+
+.promo-text,
+.signup-promo p {
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--brown2);
+    font-weight: 700;
+}
+
+.signup-promo strong {
+    color: var(--orange2);
+    font-weight: 900;
+}
+
+.btn-signup-link {
+    display: block;
+    margin-top: 9px;
+    padding: 9px 10px;
+    border-radius: 11px;
+    border: 1.5px solid rgba(44, 30, 15, .88);
+    background: var(--brown);
+    color: #fff;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 900;
+    transition: background-color .18s ease, border-color .18s ease;
+}
+
+.btn-signup-link:hover {
+    background: var(--brown2);
+    border-color: var(--brown2);
+}
+
+/* 반응형 */
+@media (max-width: 520px) {
+    .guest-inquiry-page {
+        padding: 42px 16px 54px;
+    }
+
+    .inquiry-hero h1 {
+        font-size: 26px;
+    }
+
+    .inquiry-card-new {
+        width: 100%;
+        max-width: 420px;
+        min-height: 420px;
+        padding: 22px;
+        border-radius: 22px;
+    }
+}
+
+/* =========================
+   모닥모닥 스타일 덮어쓰기
+   - 검정 버튼 제거
+   - 박스섀도우 제거
+   - 들썩임 제거
+========================= */
+
+.inquiry-card-new {
+    box-shadow: none;
+    border: 1.5px solid rgba(232, 115, 42, .28);
+    background: var(--white);
+}
+
+.btn-submit,
+.btn-guest-all,
+.btn-signup-link {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.btn-submit:hover,
+.btn-guest-all:hover,
+.btn-signup-link:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* 전체 주문내역 조회 */
+.btn-guest-all {
+    width: 100%;
+    height: 42px;
+    border-radius: 13px;
+    border: 1.5px solid rgba(232, 115, 42, .42);
+    background: #FFF8F3;
+    color: var(--orange);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 900;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    transition: background-color .16s ease, border-color .16s ease, color .16s ease;
+}
+
+.btn-guest-all i {
+    font-size: 17px;
+}
+
+.btn-guest-all:hover {
+    background: var(--orange-pale);
+    border-color: var(--orange);
+    color: var(--orange2);
+}
+
+/* 회원가입 유도 박스 */
+.signup-promo {
+    margin-top: 2px;
+    padding: 15px 14px;
+    border: 1.5px solid rgba(200, 165, 130, .45);
+    border-radius: 16px;
+    background: #FFFCF7;
+    box-shadow: none;
+}
+
+.btn-signup-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 10px;
+    height: 40px;
+    padding: 0 12px;
+
+    border-radius: 12px;
+    border: 1.5px solid rgba(232, 115, 42, .38);
+    background: #FFF8F3;
+    color: var(--orange);
+    text-decoration: none;
+
+    font-size: 12px;
+    font-weight: 900;
+    transition: background-color .16s ease, border-color .16s ease, color .16s ease;
+}
+
+/* 기존 검정 버튼 완전 제거 */
+.btn-signup-link:hover {
+    background: var(--orange-pale);
+    border-color: var(--orange);
+    color: var(--orange2);
+}
+
+/* 입력창도 들썩임 없이 보더만 */
+.form-group input {
+    box-shadow: none !important;
+    transition: border-color .16s ease, background-color .16s ease;
+}
+
+.form-group input:focus {
+    border-color: var(--orange);
+    background: #FFFDF8;
+}
+
+/* 버튼 active 눌림도 과하지 않게 */
+.btn-submit:active,
+.btn-guest-all:active,
+.btn-signup-link:active {
+    transform: none !important;
+}
+
+.btn-guest-all {
+    height: auto;
+    min-height: 48px;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.btn-guest-all i {
+    display: none;
+}
+
+.btn-guest-all span {
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.btn-guest-all em {
+    font-style: normal;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--brown3);
+}
+
+.signup-promo {
+    position: relative;
+    padding: 18px 15px 15px;
+    background: #FFF8F3;
+    border: 1.5px solid rgba(232, 115, 42, .35);
+}
+
+.coupon-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 9px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--orange);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.promo-text {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--brown);
+}
+
+.promo-text strong {
+    color: var(--orange);
+    font-weight: 900;
+}
+
+.promo-sub {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--brown3);
+    font-weight: 600;
+}
+
+.btn-signup-link {
+    margin-top: 12px;
+}
+
+.btn-signup-link {
+    margin-top: 14px;
+    height: 46px;
+
+    border-radius: 14px;
+    border: 1.5px solid var(--orange);
+    background: var(--orange);
+    color: #fff;
+
+    font-size: 14px;
+    font-weight: 900;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 14px rgba(232, 115, 42, 0.18);
+
+    transition: background-color .15s ease;
+}
+
+.btn-signup-link:hover {
+    background: var(--orange2);
+    border-color: var(--orange2);
+}
+
+.btn-signup-link:active {
+    transform: none;
+}
+
+.btn-signup-link:hover {
+    background: var(--orange2) !important;
+    border-color: var(--orange2) !important;
+    color: #fff !important;
+}
+
+.btn-signup-link {
+    box-shadow: 0 6px 14px rgba(232, 115, 42, 0.18);
+}

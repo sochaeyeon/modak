@@ -36,6 +36,12 @@ public class LoginService {
 			User info = loginMapper.selectUser(map);
 
 			if (info != null) {
+				 if ("DELETED".equals(info.getUserStatus())) {
+				        resultMap.put("message", "탈퇴한 회원은 로그인할 수 없습니다.");
+				        resultMap.put("loginResult", false);
+				        resultMap.put("result", "success");
+				        return resultMap;
+				    }
 				if (passwordEncoder.matches((String) map.get("userPwd"), info.getUserPwd())) {
 					resultMap.put("message", Message.USER_LOGIN_SUCCESS);
 					resultMap.put("loginResult", true);
@@ -47,14 +53,18 @@ public class LoginService {
 					session.setMaxInactiveInterval(30 * 60);
 
 					String returnUrl = (String) session.getAttribute("returnUrl");
+					session.removeAttribute("returnUrl");
 
-					if (returnUrl != null && !returnUrl.equals("")) {
-						resultMap.put("moveUrl", returnUrl);
-						session.removeAttribute("returnUrl");
+					if (returnUrl != null
+					        && !returnUrl.trim().isEmpty()
+					        && !returnUrl.endsWith(".dox")
+					        && !returnUrl.contains("/user/login.do")
+					        && !returnUrl.contains("/user/login.dox")
+					        && returnUrl.startsWith("/")) {
+					    resultMap.put("moveUrl", returnUrl);
 					} else {
-						resultMap.put("moveUrl", "/main.do");
+					    resultMap.put("moveUrl", "/main.do");
 					}
-
 				} else {
 					resultMap.put("message", Message.USER_LOGIN_FAIL_PWD);
 					resultMap.put("loginResult", false);

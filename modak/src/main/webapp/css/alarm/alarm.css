@@ -1,0 +1,472 @@
+/* 전체 레이아웃 */
+html {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
+
+.alarm-page {
+    max-width: 800px;
+    margin: 80px auto;
+    padding: 0 20px;
+
+}
+
+/* 헤더 영역 */
+.alarm-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #E2D8C3;
+}
+
+.alarm-title-main {
+    font-size: 24px;
+    font-weight: 800;
+    color: #2C1E0F;
+}
+
+.all-remove-btn {
+    position: relative;
+    background: none;
+    border: none;
+    color: #B89A7A;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    /* 기존 밑줄 제거 */
+}
+
+/* 기본 얇은 밑줄 */
+.all-remove-btn::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+
+    width: 100%;
+    height: 1px;
+    background: rgba(184, 154, 122, 0.5);
+
+    transition: all 0.25s ease;
+}
+
+/* hover 시 오렌지로 확장 */
+.all-remove-btn:hover::after {
+    height: 2px;
+    background: #E8732A;
+}
+
+/* 색도 같이 바뀌게 */
+.all-remove-btn:hover {
+    color: #E8732A;
+}
+
+.all-remove-btn::after {
+    width: 0;
+}
+
+.all-remove-btn:hover::after {
+    width: 100%;
+}
+
+/* 탭 메뉴 */
+.alarm-tabs {
+    position: relative;
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    font-weight: 700;
+    color: #B89A7A;
+    cursor: pointer;
+    padding: 8px 0;
+}
+
+/* 활성 색 */
+.tab-btn.active {
+    color: #E8732A;
+}
+
+/* ⭐ 움직이는 밑줄 */
+.tab-underline {
+    position: absolute;
+    bottom: 0;
+    height: 3px;
+    background: #E8732A;
+    border-radius: 10px;
+
+    transition: all 0.28s cubic-bezier(.4, 0, .2, 1);
+}
+
+.count-badge {
+    font-size: 11px;
+    background: #E2D8C3;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 4px;
+}
+
+.unread-bg {
+    background: #E8732A !important;
+}
+
+/* 알림 아이템 카드 (핵심 수정) */
+.alarm-item {
+    display: flex;
+    /* 가로 배치 */
+    background: #fff;
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 16px;
+    border: 1px solid #E2D8C3;
+    position: relative;
+    cursor: pointer;
+    transition: 0.3s ease;
+    box-shadow: 0 4px 15px rgba(44, 30, 15, 0.05);
+}
+
+.alarm-item:hover {
+    transform: translateY(-3px);
+    border-color: #E8732A;
+}
+
+.alarm-item.unread {
+    background: #FFFDF8;
+    border-left: 6px solid #E8732A;
+}
+
+.alarm-item.read {
+    opacity: 0.8;
+}
+
+.alarm-icon {
+    width: 56px;
+    height: 56px;
+    flex-shrink: 0;
+    background: #F6F0E6;
+    border-radius: 15px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 22px;
+    color: #E8732A;
+    /* 포인트 색 */
+}
+
+.alarm-title-main i {
+    margin-right: 6px;
+    color: #E8732A;
+}
+
+.no-alarm-icon {
+    font-size: 32px;
+    color: #E2D8C3;
+    margin-bottom: 10px;
+}
+
+.unread-dot {
+    width: 8px;
+    height: 8px;
+    background: #E8732A;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.alarm-item:hover .alarm-icon {
+    background: #FFEFE4;
+    transform: scale(1.05);
+}
+
+/* 텍스트 정보 */
+.alarm-info {
+    flex: 1;
+    min-width: 0;
+    margin-left: 25px;
+}
+
+.alarm-subject {
+    font-size: 17px;
+    font-weight: 700;
+    color: #2C1E0F;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+}
+
+.unread-dot {
+    color: #E8732A;
+    margin-right: 8px;
+    font-size: 12px;
+}
+
+.alarm-text {
+    font-size: 14.5px;
+    color: #5C4230;
+    line-height: 1.6;
+    margin-bottom: 10px;
+    word-break: break-all;
+}
+
+.alarm-time {
+    font-size: 12px;
+    color: #B89A7A;
+}
+
+/* 개별 삭제 버튼 */
+.remove-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    color: #E2D8C3;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+.remove-btn:hover {
+    color: #E8732A;
+    background: #F6F0E6;
+    border-radius: 50%;
+}
+
+/* 텅! */
+.no-alarm {
+    text-align: center;
+    padding: 80px 0;
+    border: 2px dashed #E2D8C3;
+    border-radius: 20px;
+}
+
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2C1E0F;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 999px;
+    font-size: 13px;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+}
+
+.toast.show {
+    opacity: 1;
+}
+
+.delete-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    background: rgba(35, 24, 15, 0.38);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    outline: none;
+    animation: fadeIn .15s ease;
+}
+
+.delete-modal-box {
+    width: 100%;
+    max-width: 360px;
+    background: #FFFDF8;
+    border: 1px solid rgba(184, 154, 122, 0.22);
+    border-radius: 16px;
+    padding: 24px 24px 20px;
+    box-shadow: 0 18px 46px rgba(35, 24, 15, 0.18);
+    text-align: center;
+    animation: modalFadeUp .18s ease;
+}
+
+.delete-modal-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #2C1E0F;
+    margin-bottom: 8px;
+}
+
+.delete-modal-desc {
+    font-size: 13px;
+    color: #8B6B4A;
+    line-height: 1.6;
+    margin-bottom: 22px;
+}
+
+.delete-modal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.delete-confirm-btn,
+.delete-cancel-btn {
+    flex: 1;
+    height: 42px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all .18s ease;
+}
+
+.delete-confirm-btn {
+    border: none;
+    background: #C4621E;
+    color: #fff;
+}
+
+.delete-confirm-btn:hover {
+    background: #A94F26;
+    transform: translateY(-1px);
+}
+
+.delete-cancel-btn {
+    border: 1px solid rgba(184, 154, 122, 0.24);
+    background: #fff;
+    color: #5C4230;
+}
+
+.delete-cancel-btn:hover {
+    background: #FFF8F1;
+    border-color: rgba(232, 115, 42, 0.25);
+    color: #C4621E;
+    transform: translateY(-1px);
+}
+/* ── 채팅 신청 수락/거절 버튼 ─────────────────── */
+     .chat-respond-wrap {
+         display: flex;
+         gap: 8px;
+         margin-top: 12px;
+         padding-top: 12px;
+         border-top: 1px solid rgba(92,61,30,0.12);
+     }
+     .btn-respond {
+         flex: 1;
+         height: 36px;
+         border-radius: 10px;
+         border: 1.5px solid;
+         font-size: 13px;
+         font-weight: 700;
+         font-family: inherit;
+         cursor: pointer;
+         display: inline-flex;
+         align-items: center;
+         justify-content: center;
+         gap: 5px;
+         transition: background .15s, transform .1s;
+     }
+     .btn-respond:active   { transform: scale(.96); }
+     .btn-respond:disabled { opacity: .4; cursor: not-allowed; }
+
+     .btn-respond.accept {
+         background: #E8732A;
+         border-color: #E8732A;
+         color: #fff;
+     }
+     .btn-respond.accept:hover:not(:disabled) {
+         background: #C4621E;
+         border-color: #C4621E;
+     }
+     .btn-respond.reject {
+         background: #FFFDF8;
+         border-color: #E0D2BE;
+         color: #8B6B4A;
+     }
+     .btn-respond.reject:hover:not(:disabled) {
+         border-color: #c82333;
+         color: #c82333;
+     }
+
+     /* ── 처리 완료 결과 ────────────────────────────── */
+     .chat-respond-result {
+         display: flex;
+         align-items: center;
+         gap: 8px;
+         margin-top: 12px;
+         padding-top: 12px;
+         border-top: 1px solid rgba(92,61,30,0.12);
+     }
+     .result-chip {
+         display: inline-flex;
+         align-items: center;
+         gap: 5px;
+         padding: 5px 12px;
+         border-radius: 999px;
+         font-size: 12px;
+         font-weight: 700;
+     }
+     .result-chip.accepted { background: rgba(57,143,86,.12); color: #2f7b45; }
+     .result-chip.rejected { background: rgba(220,53,69,.10); color: #c82333; }
+
+     .btn-go-chat {
+         display: inline-flex;
+         align-items: center;
+         gap: 5px;
+         height: 32px;
+         padding: 0 12px;
+         border: 1.5px solid #E8732A;
+         border-radius: 9px;
+         background: #FFFDF8;
+         color: #E8732A;
+         font-size: 12px;
+         font-weight: 700;
+         font-family: inherit;
+         cursor: pointer;
+         text-decoration: none;
+         transition: background .15s;
+     }
+     .btn-go-chat:hover { background: #fff5ee; }
+
+@keyframes modalFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}

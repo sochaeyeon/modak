@@ -38,22 +38,6 @@ public class FindAccountController {
 		return new Gson().toJson(resultMap);
 	}
 
-	// 문자 인증번호 발송
-	@PostMapping(value = "/send-sms-code.dox", produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public String sendSmsCode(@RequestParam HashMap<String, Object> map) {
-		HashMap<String, Object> resultMap = findAccountService.sendSmsCode(map);
-		return new Gson().toJson(resultMap);
-	}
-
-	// 문자 인증번호 확인
-	@PostMapping(value = "/verify-sms-code.dox", produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public String verifySmsCode(@RequestParam HashMap<String, Object> map) {
-		HashMap<String, Object> resultMap = findAccountService.verifySmsCode(map);
-		return new Gson().toJson(resultMap);
-	}
-
 	// 이름 + 전화번호로 아이디 찾기
 	@PostMapping(value = "/find-id-by-phone.dox", produces = "application/json;charset=UTF-8")
 	@ResponseBody

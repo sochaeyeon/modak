@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.modak.payment.mapper.PaymentMapper">
+
+	<!-- 배송지 검색 -->
+	<select id="selectAddressList" parameterType="hashmap" resultType="hashmap">
+		SELECT
+		A.ADDRESS_ID AS addressId,
+		A.ADDRESS_ALIAS AS addressAlias,
+		A.ZIPCODE AS zipcode,
+		A.ADDRESS AS address,
+		A.DETAILED_ADDRESS AS detailedAddress,
+		A.DEFAULT_YN AS defaultYn,
+		U.USER_NAME AS receiverName,
+		U.USER_PHONE AS receiverPhone
+		FROM USER_ADDRESS A
+		INNER JOIN `USER` U
+		ON A.USER_ID = U.USER_ID
+		WHERE A.USER_ID = #{userId}
+		ORDER BY
+		CASE A.DEFAULT_YN WHEN 'Y' THEN 0 ELSE 1 END,
+		A.ADDRESS_ID DESC
+	</select>
+
+	<select id="selectCheckoutItems" parameterType="hashmap" resultType="hashmap">
+	    SELECT
+	        c.cart_id AS cartId,
+	        c.quantity AS quantity,
+	        c.cart_type AS cartType,
+	        c.user_id AS userId,
+	        c.product_id AS productId,
+	        c.option_item_id AS optionItemId,
+	        c.rental_start AS rentalStart,
+	        c.rental_end AS rentalEnd,
+	        p.product_name AS productName,
+	        p.price AS price,
+	        p.deposit AS deposit,
+	        b.brand_name AS brandName,
+	        (p.price + COALESCE(poi.extra_price, 0)) AS unitPrice,
+	        COALESCE(poi.item_name, '기본 옵션') AS optionName,
+	        COALESCE(poi.extra_price, 0) AS optionPrice,
+	        (
+	            SELECT img_url
+	            FROM product_img
+	            WHERE product_id = c.product_id
+	              AND is_main = 'Y'
+	            LIMIT 1
+	        ) AS imgUrl
+	    FROM cart c
+	    INNER JOIN product p
+	        ON c.product_id = p.product_id
+	    LEFT JOIN brand b
+	        ON p.brand_id = b.brand_id
+	    LEFT JOIN product_option_item poi
+	        ON c.option_item_id = poi.option_item_id
+	    WHERE c.user_id = #{userId}
+	
+	    <if test="cartType != null and cartType != ''">
+		    AND c.cart_type = #{cartType}
+		</if>
+		
+		<if test="cartIds != null and cartIds != ''">
+		    AND c.cart_id IN (${cartIds})
+		</if>
+	
+	    ORDER BY c.created_at DESC
+	</select>
+	<!-- 임시 주문 INSERT (STATUS = READY) -->
+	<insert id="insertTempOrder" parameterType="hashmap" useGeneratedKeys="true" keyProperty="orderId">
+	    INSERT INTO ORDERS (
+		    ORDER_TYPE, ORDER_STATUS, TOTAL_PRICE, DISCOUNT_AMT,
+		    CREATED_AT, USER_ID, USER_COUPON_ID, GUEST_NAME, GUEST_PHONE, CART_IDS,
+		    USE_POINT
+		) VALUES (
+		    #{cartType}, 'READY', #{amount}, #{discountAmt},
+		    NOW(), #{userId},
+		    <choose>
+		        <when test="userCouponId != null and userCouponId != ''">#{userCouponId}</when>
+		        <otherwise>NULL</otherwise>
+		    </choose>,
+		    #{guestName}, #{guestPhone}, #{cartIds}, #{usePoint}
+		)	
+	</insert>
+
+	<!-- 결제 성공 시 상태 업데이트 -->
+	<update id="updateOrderStatus" parameterType="hashmap">
+		UPDATE ORDERS
+		SET ORDER_STATUS = #{orderStatus}
+		WHERE ORDER_ID = #{orderId}
+	</update>
+
+	<!-- PAYMENT 테이블 INSERT -->
+	<insert id="insertPayment" parameterType="hashmap" useGeneratedKeys="true" keyProperty="payId">
+	    INSERT INTO PAYMENT (
+	        ORDER_ID,
+	        AMOUNT,
+	        PAY_STATUS,
+	        PAID_AT,
+	        PAYMENT_KEY
+	    ) VALUES (
+	        #{orderId},
+	        #{amount},
+	        'PAID',
+	        NOW(),
+	        #{paymentKey}
+	    )
+	</insert>
+
+	<insert id="insertOrderItem" parameterType="hashmap">
+		INSERT INTO order_item (
+		ORDER_ID,
+		PRODUCT_ID,
+		OPTION_ITEM_ID,
+		QUANTITY,
+		UNIT_PRICE,
+		START_DATE,
+		END_DATE
+		) VALUES (
+		#{orderId},
+		#{productId},
+		#{optionItemId},
+		#{quantity},
+		#{unitPrice},
+		#{rentalStart},
+		#{rentalEnd}
+		)
+	</insert>
+
+	<!-- MySQL 버전 결제성공하고 카트에서 삭제 -->
+<delete id="deleteCartByOrderId" parameterType="hashmap">
+    DELETE FROM CART
+    WHERE USER_ID = #{userId}
+      AND FIND_IN_SET(
+          CART_ID,
+          (SELECT CART_IDS FROM ORDERS WHERE ORDER_ID = #{orderId})
+      ) > 0
+      AND CART_TYPE = (
+          SELECT ORDER_TYPE
+          FROM ORDERS
+          WHERE ORDER_ID = #{orderId}
+      )
+</delete>
+	<!--orderId 하나로 필요한 정보를 다 꺼내 쓸 수 있게-->
+	<select id="selectOrderById" parameterType="hashmap" resultType="hashmap">
+	    SELECT 
+	        O.ORDER_ID AS orderId,
+	        O.USER_ID AS userId,
+	        O.CART_IDS AS cartIds,
+	        O.USER_COUPON_ID AS userCouponId,
+	        O.ORDER_TYPE AS orderType,
+	        O.TOTAL_PRICE AS totalPrice,
+	        O.DISCOUNT_AMT AS discountAmt,
+			O.USE_POINT AS usePoint,
+	        O.DISCOUNT_AMT AS discountAmt,
+	        O.GUEST_NAME AS guestName,
+	        O.GUEST_PHONE AS guestPhone,
+	        (
+	            SELECT P.PRODUCT_NAME
+	            FROM ORDER_ITEM OI
+	            JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+	            WHERE OI.ORDER_ID = O.ORDER_ID
+	            LIMIT 1
+	        ) AS orderName,
+	        (
+	            SELECT COUNT(*)
+	            FROM ORDER_ITEM OI
+	            WHERE OI.ORDER_ID = O.ORDER_ID
+	        ) AS itemCount
+	    FROM ORDERS O
+	    WHERE O.ORDER_ID = #{orderId}
+	</select>
+
+	<!-- 쿠폰 사용 처리 -->
+	<update id="updateCouponUsed" parameterType="hashmap">
+		UPDATE USER_COUPON
+		SET USED_YN = 'Y',
+		USED_AT = NOW(),
+		ORDER_ID = #{orderId},
+		STATUS = 'USED',
+		UPDATED_AT = NOW()
+		WHERE USER_COUPON_ID = #{userCouponId}
+		AND USER_ID = #{userId}
+		AND STATUS = 'AVAILABLE'
+	</update>
+
+	<!-- 쿠폰 사용 로그 -->
+	<insert id="insertCouponUseLog" parameterType="hashmap">
+		INSERT INTO COUPON_USE_LOG (
+		USER_COUPON_ID, USER_ID, COUPON_ID,
+		ORDER_ID, USED_AT, DISCOUNT_APPLIED_AMT
+		)
+		SELECT
+		#{userCouponId},
+		#{userId},
+		COUPON_ID,
+		#{orderId},
+		NOW(),
+		#{discountAmt}
+		FROM USER_COUPON
+		WHERE USER_COUPON_ID = #{userCouponId}
+	</insert>
+
+	<!-- 포인트 적립 이력 -->
+	<insert id="insertPointHistory" parameterType="hashmap">
+		INSERT INTO POINT_HISTORY (
+		USER_ID, DESCRIPTION, AMOUNT, TYPE, CREATED_AT, BALANCE_AFTER
+		) VALUES (
+		#{userId},
+		#{description},
+		#{earnedPoint},
+		'EARN',
+		NOW(),
+		(
+		SELECT COALESCE(POINT, 0) + #{earnedPoint}
+		FROM USER
+		WHERE USER_ID = #{userId}
+		)
+		)
+	</insert>
+
+	<!-- 누적금액 + 포인트 -->
+	<update id="updateUserPointAndAmount" parameterType="hashmap">
+		UPDATE USER
+		SET POINT = POINT + #{earnedPoint} - #{usePoint},
+		TOTAL_AMOUNT = TOTAL_AMOUNT + #{amount}
+		WHERE USER_ID = #{userId}
+	</update>
+
+	<!-- 재고 차감용 주문 아이템 조회 -->
+	<select id="selectOrderItemsForStock" parameterType="hashmap"
+		resultType="hashmap">
+		 SELECT
+        OI.ITEM_ID,           
+        OI.PRODUCT_ID,
+        OI.OPTION_ITEM_ID,
+        OI.QUANTITY,
+        OI.START_DATE,
+        OI.END_DATE,
+        O.ORDER_TYPE
+    FROM ORDER_ITEM OI
+    JOIN ORDERS O ON OI.ORDER_ID = O.ORDER_ID
+    WHERE OI.ORDER_ID = #{orderId}
+	</select>
+
+	<!-- 구매 재고 차감 -->
+	<update id="decreaseStockForPurchase" parameterType="hashmap">
+	    UPDATE product_stock
+	    SET AVAILABLE_QTY = AVAILABLE_QTY - #{quantity}
+	    WHERE PRODUCT_ID = #{productId}
+	      AND OPTION_ITEM_ID = #{optionItemId}
+	      AND STOCK_DATE IS NULL
+	      AND AVAILABLE_QTY >= #{quantity}
+	</update>
+
+	<!-- 대여 재고 차감 (날짜 범위) -->
+	<update id="decreaseStockForRental" parameterType="hashmap"> UPDATE
+		product_stock SET RESERVED_QTY = RESERVED_QTY + #{quantity},
+		AVAILABLE_QTY = AVAILABLE_QTY - #{quantity} WHERE PRODUCT_ID = #{productId} 
+			AND OPTION_ITEM_ID = #{optionItemId}
+			AND STOCK_DATE
+		BETWEEN #{startDate} AND DATE_SUB(#{endDate}, INTERVAL 1 DAY) AND
+		AVAILABLE_QTY >= #{quantity} 
+	</update>
+	<!--주문취소시 재고업데이트-->
+	<update id="increaseStockForPurchase" parameterType="hashmap">
+	    UPDATE product_stock
+	    SET AVAILABLE_QTY = AVAILABLE_QTY + #{quantity}
+	    WHERE PRODUCT_ID = #{productId}
+	      AND OPTION_ITEM_ID = #{optionItemId}
+	      AND STOCK_DATE IS NULL
+	</update>
+
+	<!-- 결제 내역 -->
+	<insert id="insertPaymentHistory" parameterType="hashmap">
+		INSERT INTO PAYMENT_HISTORY (
+		PAY_TYPE,
+		NEW_STATUS,
+		CHANGED_AT,
+		TARGET_PAY_ID
+		) VALUES (
+		#{payType},
+		'PAID',
+		NOW(),
+		#{payId}
+		)
+	</insert>
+	
+	<insert id="insertRental" parameterType="hashmap">
+    INSERT INTO rentals (
+        ITEM_ID,
+        USER_ID,
+        START_DATE,
+        RETURN_DATE,
+        RENTAL_STATUS,
+        CREATED_AT,
+        GUEST_NAME,
+        GUEST_PHONE
+    ) VALUES (
+        #{itemId},
+        #{userId},
+        #{startDate},
+        #{returnDate},
+        'PAID',
+        NOW(),
+        #{guestName},
+        #{guestPhone}
+    )
+</insert>
+
+	<!-- 날짜별 재고 레코드 없으면 자동 생성 (OPTION_ITEM_ID 기준 TOTAL_QTY 참조) -->
+	<insert id="insertStockIfNotExists" parameterType="map">
+	    INSERT INTO product_stock (
+	        STOCK_DATE,
+	        TOTAL_QTY,
+	        RESERVED_QTY,
+	        AVAILABLE_QTY,
+	        OPTION_ITEM_ID,
+	        PRODUCT_ID
+	    )
+	    SELECT
+	        DATE_ADD(#{startDate}, INTERVAL seq DAY),
+	        COALESCE(ref.TOTAL_QTY, #{defaultQty}),
+	        0,
+	        COALESCE(ref.TOTAL_QTY, #{defaultQty}),
+	        #{optionItemId},
+	        #{productId}
+	    FROM (
+	        SELECT a.n + b.n * 10 + c.n * 100 AS seq
+	        FROM (SELECT 0 n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4
+	              UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a
+	        CROSS JOIN (SELECT 0 n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4
+	                    UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) b
+	        CROSS JOIN (SELECT 0 n UNION SELECT 1 UNION SELECT 2 UNION SELECT 3) c
+	    ) nums
+	    LEFT JOIN (
+	        SELECT TOTAL_QTY
+	        FROM product_stock
+	        WHERE OPTION_ITEM_ID = #{optionItemId}
+	        ORDER BY STOCK_DATE DESC
+	        LIMIT 1
+	    ) ref ON 1=1
+	    WHERE DATE_ADD(#{startDate}, INTERVAL seq DAY) &lt; #{endDate}
+	    ON DUPLICATE KEY UPDATE STOCK_DATE = STOCK_DATE
+	</insert>
+	
+	<select id="selectValidCoupon" parameterType="hashmap" resultType="hashmap">
+	    SELECT *
+	    FROM USER_COUPON uc
+	    WHERE uc.USER_COUPON_ID = #{userCouponId}
+	      AND uc.USER_ID = #{userId}
+	      AND uc.STATUS = 'AVAILABLE'
+	      AND NOT EXISTS (
+	          SELECT 1
+	          FROM COUPON_USE_LOG cul
+	          WHERE cul.USER_COUPON_ID = uc.USER_COUPON_ID
+	      )
+	</select>
+	
+	<select id="selectPaidPaymentCount" parameterType="hashmap" resultType="int">
+    SELECT COUNT(*)
+    FROM PAYMENT
+    WHERE ORDER_ID = #{orderId}
+      AND PAY_STATUS = 'PAID'
+</select>
+
+</mapper>

@@ -1,0 +1,105 @@
+@charset "UTF-8";
+
+/* 1. 기본 레이아웃 */
+.coupon-page-container { 
+    padding: 32px; 
+    background: #0f1117; 
+    min-height: 100vh;
+    font-family: 'Pretendard', -apple-system, sans-serif;
+}
+
+/* 2. 상단 헤더 및 버튼 디자인 수정 */
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.event-title { font-size: 24px; font-weight: 800; color: #fff; }
+
+.header-buttons { display: flex; gap: 12px; align-items: center; }
+
+/* 🚨 공통 버튼 스타일 (상단 버튼들 해결) */
+.p-btn {
+    background: linear-gradient(135deg, #FF8C42 0%, #E8732A 100%);
+    color: #fff; border: none; padding: 12px 24px; border-radius: 12px;
+    font-weight: 700; cursor: pointer; transition: 0.3s;
+    box-shadow: 0 4px 15px rgba(232, 115, 42, 0.25);
+}
+.p-btn:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 6px 20px rgba(232, 115, 42, 0.4); }
+
+.p-btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e4e9; border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 10px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.3s;
+}
+.p-btn-secondary:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+
+/* 3. 검색 필터 영역 */
+.ev-filter-bar {
+    display: flex; gap: 10px; margin-bottom: 30px; align-items: center;
+}
+.filter-btn {
+    background: #E8732A; color: #fff; border: none; padding: 10px 20px;
+    border-radius: 10px; font-weight: 700; cursor: pointer;
+}
+
+/* 4. 테이블 디자인 */
+.camp-table-card { 
+    background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); 
+    border-radius: 24px; overflow: hidden; backdrop-filter: blur(10px);
+}
+.c-table { width: 100%; border-collapse: collapse; }
+.c-table th { background: rgba(255, 255, 255, 0.05); padding: 18px; color: #8a8f9d; font-size: 13px; font-weight: 700; }
+.c-table td { padding: 22px 16px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.04); color: #e2e4e9; }
+.coupon-name-cell { text-align: left !important; font-weight: 700; color: #fff !important; }
+
+/* 혜택 컬러 포인트 */
+.benefit-amount { color: #58d68d; font-weight: 800; font-size: 17px; text-shadow: 0 0 10px rgba(88, 214, 141, 0.3); }
+.benefit-rate { color: #f4d03f; font-weight: 800; font-size: 17px; text-shadow: 0 0 10px rgba(244, 208, 63, 0.3); }
+
+/* 상태 표시 */
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.active-dot { background: #58d68d; box-shadow: 0 0 12px rgba(88, 214, 141, 0.8); }
+.inactive-dot { background: #ec7063; }
+
+/* 테이블 내 버튼 그룹 */
+.table-btn-group { display: flex; gap: 8px; justify-content: center; }
+
+/* 5. 모달 디자인 및 모달 버튼 해결 */
+.ev-modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+    display: none; align-items: center; justify-content: center; z-index: 2000;
+}
+.ev-modal-overlay.open { display: flex; }
+.ev-modal {
+    background: #1c1f26; border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 32px; width: 480px; padding: 40px; box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+}
+.modal-header { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 30px; text-align: center; }
+
+.modal-label { display: block; font-size: 13px; color: #8a8f9d; margin-bottom: 8px; font-weight: 700; }
+.ev-input { 
+    width: 100%; background: #0f1117; border: 1px solid rgba(255,255,255,0.15); 
+    padding: 14px; border-radius: 12px; color: #fff; margin-bottom: 20px; box-sizing: border-box;
+}
+
+/* 🚨 모달 하단 버튼 가로 정렬 및 디자인 */
+.modal-footer { display: flex; gap: 12px; margin-top: 10px; }
+
+.m-btn-close { 
+    flex: 1; background: #2d3139; color: #fff; border: none; 
+    padding: 15px; border-radius: 14px; cursor: pointer; font-weight: 700; transition: 0.3s;
+}
+.m-btn-close:hover { background: #3f444d; }
+
+.m-btn-save { 
+    flex: 2; background: linear-gradient(135deg, #FF8C42 0%, #E8732A 100%); 
+    color: #fff; border: none; padding: 15px; border-radius: 14px; 
+    cursor: pointer; font-weight: 800; box-shadow: 0 4px 15px rgba(232, 115, 42, 0.3);
+}
+.m-btn-save:hover { transform: translateY(-2px); filter: brightness(1.1); }

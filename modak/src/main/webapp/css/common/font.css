@@ -1,24 +1,82 @@
-/* 서울한강체 */
-@font-face {
-  font-family: 'SeoulHangangCL';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/SeoulHangangCL.woff') format('woff');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+/* =============================================
+   font.css - 모닥모닥 폰트 시스템
+   Noto Sans KR (Google Fonts CDN) 만 사용
+   → 별도 폰트 파일 다운로드 불필요
+============================================= */
+
+/* ── Google Fonts CDN 로드 ── */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+/* ── CSS 변수 ── */
+:root {
+    --font-body:  'Noto Sans KR', sans-serif;
+    --font-title: 'Noto Sans KR', sans-serif;
+    --font-ui:    'Noto Sans KR', sans-serif;
+    --font-bold:  'Noto Sans KR', sans-serif;
 }
 
-@font-face {
-  font-family: 'SeoulHangangCEB';
-  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/SeoulHangangCEB.woff') format('woff');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
+/* ── 기본 배경 ── */
 html, body {
-  font-family: 'SeoulHangangCL', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    background-color: #faf6f0;
 }
 
-input, textarea, button, select {
-  font-family: 'SeoulHangangCL', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+/* ── 전체 본문 ── */
+* {
+    font-family: var(--font-body);
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.5px;
+}
+
+/* ── 제목 ── */
+h1, h2, h3, h4,
+.page-title,
+.section-title,
+.sidebar-logo,
+.trigger-text {
+    font-family: var(--font-title);
+    font-weight: 700;
+}
+
+/* ── 입력창 및 버튼 ── */
+input, button, select, textarea {
+    font-family: var(--font-ui);
+    font-weight: 400;
+}
+
+/* ── 강조 텍스트 ── */
+b, strong {
+    font-family: var(--font-bold);
+    font-weight: 700;
+    color: #2c1e0f;
+}
+/* 날씨 카드, 안전수칙 리스트 등 텍스트가 삐져나가는 곳들 */
+#weatherSection *, 
+.weather-card *, 
+.safety-card *,
+.safety-list li,
+.hero-search-input,
+.hero-search-btn {
+    font-family: var(--font-body) !important;
+}
+
+/* 날씨 정보 중 강조되어야 할 텍스트 */
+.weather-temp .max, 
+.weather-temp .min,
+.section-title {
+    font-family: var(--font-title) !important;
+    font-weight: 700 !important;
+}
+
+/* ── [팁] 단기/중기 배지 스타일 (안 보였던 것 해결) ── */
+.weather-badge {
+    font-family: var(--font-body) !important;
+    font-size: 10px;
+    font-weight: 500 !important;
+}
+a, a:link, a:visited, a:hover, a:active {
+    text-decoration: none !important;
+    /* color: inherit !important; ← 이 줄 제거 */
+    cursor: pointer;
 }

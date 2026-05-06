@@ -1,0 +1,951 @@
+[v-cloak] {
+    display: none;
+}
+
+/* =========================
+   RESET / VARIABLES
+========================= */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+:root {
+    --cream: #F6F0E6;
+    --cream2: #EDE5D4;
+    --cream3: #E2D8C3;
+    --white: #FFFDF8;
+
+    --orange: #E8732A;
+    --orange2: #C4621E;
+
+    --brown: #2C1E0F;
+    --brown2: #5C4230;
+    --brown3: #8B6B4A;
+    --brown4: #B89A7A;
+
+    --border: rgba(92, 66, 48, 0.18);
+    --border-strong: rgba(232, 115, 42, 0.45);
+    --shadow-soft: 0 16px 34px rgba(44, 30, 15, 0.08);
+    --shadow-modal: 0 22px 70px rgba(44, 30, 15, 0.28);
+}
+
+body {
+    margin: 0;
+    background: #faf6f0;
+    color: var(--brown);
+}
+
+button,
+input {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+/* =========================
+   PAGE
+========================= */
+#app {
+    width: 100%;
+}
+
+.ext-page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 44px 24px 80px;
+}
+
+.page-eyebrow {
+    margin: 0 0 8px;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    color: var(--brown4);
+    font-weight: 700;
+}
+
+.page-title {
+    margin: 0 0 8px;
+    font-size: 30px;
+    font-weight: 900;
+    color: var(--brown);
+}
+
+.page-desc {
+    margin: 0 0 24px;
+    font-size: 14px;
+    color: var(--brown3);
+    line-height: 1.7;
+}
+
+/* =========================
+   LIST CARD
+========================= */
+.section-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+}
+
+.section-head {
+    height: 58px;
+    padding: 0 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.section-head h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 900;
+    color: var(--brown);
+}
+
+.section-body {
+    padding: 22px;
+}
+
+.rental-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.rental-card {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: center;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: #fffaf3;
+    transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.rental-card:hover,
+.rental-card.active {
+    border-color: var(--border-strong);
+    background: #fffdf8;
+}
+
+.rental-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--cream2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.rental-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.rental-info {
+    min-width: 0;
+}
+
+.rental-name {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--brown);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rental-dates {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: var(--brown3);
+    font-weight: 700;
+}
+
+.rental-card-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.mini-action-btn {
+    min-width: 78px;
+    height: 36px;
+    padding: 0 13px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--white);
+    color: var(--brown2);
+    font-size: 12px;
+    font-weight: 900;
+    transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
+}
+
+.mini-action-btn:hover {
+    border-color: var(--orange);
+    color: var(--orange2);
+}
+
+.mini-action-btn.return {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: #fff;
+}
+
+.mini-action-btn.return:hover {
+    background: var(--orange2);
+    border-color: var(--orange2);
+    color: #fff;
+}
+
+.mini-action-btn.return-cancel {
+    background: var(--orange);
+    border-color: var(--orange);
+    color: #fff;
+}
+
+/* =========================
+   STATUS
+========================= */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.st-PAID,
+.st-RESERVED {
+    background: rgba(212, 147, 42, 0.16);
+    color: var(--brown2);
+}
+
+.st-READY {
+    background: rgba(184, 154, 122, 0.18);
+    color: var(--brown2);
+}
+
+.st-SHIPPING {
+    background: rgba(232, 115, 42, 0.15);
+    color: var(--orange2);
+}
+
+.st-RENTING,
+.st-IN_USE {
+    background: rgba(232, 115, 42, 0.18);
+    color: var(--orange2);
+}
+
+.st-RETURN_REQUESTED {
+    background: rgba(44, 30, 15, 0.12);
+    color: var(--brown);
+}
+
+.st-RETURN_PICKED {
+    background: rgba(33, 150, 243, 0.12);
+    color: #1565c0;
+}
+
+.st-DONE,
+.st-RETURNED,
+.st-RETURN_COMPLETED {
+    background: rgba(76, 175, 80, 0.12);
+    color: #2e7d32;
+}
+
+.st-CANCELLED {
+    background: rgba(44, 30, 15, 0.1);
+    color: var(--brown3);
+}
+
+/* =========================
+   SELECTED RENTAL MODAL
+========================= */
+.ext-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    padding: 32px 20px;
+    background: rgba(35, 24, 15, 0.46);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ext-panel,
+.ext-modal-panel {
+    width: min(920px, 100%);
+    max-height: calc(100vh - 64px);
+    background: #fffaf3;
+    border: 1px solid rgba(232, 115, 42, 0.2);
+    border-radius: 20px;
+    overflow-y: auto;
+    box-shadow: var(--shadow-modal);
+    animation: modalFadeUp 0.25s cubic-bezier(.2, .8, .2, 1);
+}
+
+@keyframes modalUp {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ext-modal-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.ext-modal-panel::-webkit-scrollbar-thumb {
+    background: rgba(139, 107, 74, 0.35);
+    border-radius: 999px;
+}
+
+.ext-panel-head {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    background: #fff5ea;
+    display: grid;
+    grid-template-columns: 78px minmax(0, 1fr) auto auto;
+    gap: 14px;
+    align-items: center;
+}
+
+.ext-panel-img {
+    width: 78px;
+    height: 78px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--cream2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ext-panel-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ext-panel-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--brown);
+}
+
+.ext-panel-subtitle {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--brown3);
+    font-weight: 700;
+}
+
+.btn-close-panel {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--cream2);
+    color: var(--brown3);
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-close-panel:hover {
+    background: var(--cream3);
+    color: var(--brown);
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 0 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--white);
+    color: var(--brown3);
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+/* =========================
+   TABS
+========================= */
+.ext-tab-bar {
+    display: flex;
+    padding: 0 22px;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+}
+
+.ext-tab-btn {
+    height: 50px;
+    padding: 0 18px;
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    color: var(--brown4);
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.ext-tab-btn.active {
+    color: var(--orange);
+    border-bottom-color: var(--orange);
+}
+
+/* =========================
+   FORM
+========================= */
+.ext-form {
+    padding: 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.ext-form-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-label {
+    font-size: 13px;
+    font-weight: 900;
+    color: var(--brown2);
+}
+
+.days-stepper {
+    width: 150px;
+    height: 46px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--white);
+    display: grid;
+    grid-template-columns: 42px 1fr 42px;
+}
+
+.stepper-btn {
+    border: none;
+    background: var(--cream2);
+    color: var(--brown2);
+    font-size: 18px;
+    font-weight: 900;
+}
+
+.stepper-btn:hover {
+    background: var(--cream3);
+    color: var(--orange2);
+}
+
+.stepper-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    text-align: center;
+    color: var(--brown);
+    font-size: 17px;
+    font-weight: 900;
+    -moz-appearance: textfield;
+}
+
+.stepper-input::-webkit-inner-spin-button,
+.stepper-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.price-preview {
+    min-width: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.price-preview-label {
+    font-size: 11px;
+    color: var(--brown4);
+    font-weight: 800;
+}
+
+.price-preview-val {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--orange2);
+}
+
+.btn-apply,
+.btn-return {
+    height: 46px;
+    padding: 0 24px;
+    border: none;
+    border-radius: 12px;
+    background: var(--orange);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 900;
+    box-shadow: 0 8px 18px rgba(232, 115, 42, 0.2);
+}
+
+.btn-return {
+    background: var(--orange);
+    border-color: var(--orange);
+}
+
+.btn-apply:hover,
+.btn-return:hover {
+    background: var(--orange2);
+}
+
+.btn-apply:disabled,
+.btn-return:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.ext-notice {
+    margin: 14px 0 0;
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--brown3);
+    font-weight: 600;
+}
+
+/* =========================
+   RETURN ADDRESS
+========================= */
+.return-info-box {
+    padding: 18px;
+    margin-bottom: 16px;
+    background: rgba(246, 240, 230, 0.65);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+}
+
+.form-input {
+    min-height: 42px;
+    padding: 0 13px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--white);
+    color: var(--brown);
+    font-size: 14px;
+    outline: none;
+}
+
+.form-input:focus {
+    border-color: var(--orange);
+}
+
+.form-input[readonly] {
+    background: #f9f1e7;
+}
+
+/* =========================
+   HISTORY
+========================= */
+.ext-history {
+    padding: 22px 24px 26px;
+}
+
+.ext-history-title {
+    margin: 0 0 14px;
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--brown2);
+}
+
+.ext-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ext-item {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto auto;
+    gap: 12px;
+    align-items: center;
+    padding: 14px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+}
+
+.ext-item-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(232, 115, 42, 0.1);
+    border: 1px solid rgba(232, 115, 42, 0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ext-item-days {
+    margin: 0 0 3px;
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--brown);
+}
+
+.ext-item-date {
+    margin: 0;
+    font-size: 12px;
+    color: var(--brown3);
+    font-weight: 700;
+}
+
+.ext-item-price {
+    color: var(--orange2);
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.btn-ext-cancel {
+    height: 32px;
+    padding: 0 13px;
+    border-radius: 999px;
+    border: 1px solid rgba(232, 115, 42, 0.35);
+    background: transparent;
+    color: var(--orange2);
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.ext-empty {
+    padding: 30px 10px;
+    text-align: center;
+    color: var(--brown4);
+    font-size: 13px;
+}
+
+/* =========================
+   STATE / TOAST / CONFIRM MODAL
+========================= */
+.state-box {
+    min-height: 220px;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    color: var(--brown3);
+    text-align: center;
+}
+
+.spinner {
+    width: 34px;
+    height: 34px;
+    border: 3px solid var(--cream3);
+    border-top-color: var(--orange);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 70px;
+    z-index: 12000;
+    transform: translateX(-50%) translateY(30px);
+    opacity: 0;
+    padding: 13px 24px;
+    border-radius: 999px;
+    background: var(--brown);
+    color: var(--white);
+    font-size: 13px;
+    font-weight: 800;
+    box-shadow: 0 10px 24px rgba(44, 30, 15, 0.26);
+    transition: all 0.22s ease;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.delete-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 11000;
+    padding: 24px;
+    background: rgba(35, 24, 15, 0.42);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-modal-box {
+    width: min(380px, 100%);
+    padding: 24px;
+    border-radius: 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-modal);
+    text-align: center;
+}
+
+.delete-modal-title {
+    margin-bottom: 8px;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--brown);
+}
+
+.delete-modal-desc {
+    margin-bottom: 20px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--brown3);
+}
+
+.delete-modal-desc strong {
+    color: var(--orange2);
+}
+
+.delete-modal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.delete-confirm-btn,
+.delete-cancel-btn {
+    flex: 1;
+    height: 42px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.delete-confirm-btn {
+    border: none;
+    background: var(--orange);
+    color: #fff;
+}
+
+.delete-cancel-btn {
+    border: 1px solid var(--border);
+    background: var(--white);
+    color: var(--brown2);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 760px) {
+    .ext-page {
+        padding: 30px 16px 64px;
+    }
+
+    .rental-card {
+        grid-template-columns: 64px minmax(0, 1fr);
+    }
+
+    .rental-card-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-start;
+    }
+
+    .ext-modal-backdrop {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .ext-panel,
+    .ext-modal-panel {
+        width: 100%;
+        max-height: 92vh;
+        border-radius: 22px 22px 0 0;
+    }
+
+    .ext-panel-head {
+        grid-template-columns: 64px minmax(0, 1fr) auto;
+    }
+
+    .ext-panel-img {
+        width: 64px;
+        height: 64px;
+    }
+
+    .btn-back {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .ext-form-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .days-stepper,
+    .btn-apply,
+    .btn-return {
+        width: 100%;
+    }
+
+    .ext-item {
+        grid-template-columns: 40px minmax(0, 1fr);
+    }
+
+    .ext-item-price,
+    .btn-ext-cancel {
+        grid-column: 2;
+        justify-self: start;
+    }
+}
+
+@media (max-width: 480px) {
+    .page-title {
+        font-size: 25px;
+    }
+
+    .section-body {
+        padding: 16px;
+    }
+
+    .rental-card {
+        padding: 14px;
+    }
+
+    .mini-action-btn {
+        flex: 1;
+    }
+
+    .delete-modal-actions {
+        flex-direction: column;
+    }
+}
+
+.ext-tab-bar {
+    position: relative;
+}
+
+.ext-tab-bar::after {
+    content: "";
+    position: absolute;
+    left: 22px;
+    bottom: -1px;
+    width: 120px;
+    height: 3px;
+    background: var(--orange);
+    transition: transform 0.25s ease;
+}
+
+.ext-tab-bar.is-extension::after {
+    transform: translateX(0);
+}
+
+.ext-tab-bar.is-return::after {
+    transform: translateX(120px);
+}
+/* ── 연장 내역 인라인 ── */
+  .rental-ext-history {
+      grid-column: 1 / -1;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(92, 66, 48, 0.18);
+  }
+  .ext-hist-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: #8B6B4A;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+  }
+  .ext-hist-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: #fffaf2;
+      border: 1px solid rgba(232, 115, 42, 0.15);
+      border-radius: 10px;
+      margin-bottom: 6px;
+      font-size: 12px;
+  }
+  .ext-hist-days  { font-weight: 900; color: #C4621E; min-width: 44px; }
+  .ext-hist-price { font-weight: 800; color: #2C1E0F; min-width: 72px; }
+  .ext-hist-date  { color: #8B6B4A; flex: 1; }
+  .btn-ext-cancel-small {
+      border: 1.5px solid #ffd0d0;
+      background: #fff5f5;
+      color: #c0392b;
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+      flex-shrink: 0;
+  }
+  .btn-ext-cancel-small:hover { background: #ffe0e0; }
+.ext-tab-btn {
+    width: 120px;
+    border-bottom: none !important;
+}
+
+@keyframes modalFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}

@@ -1,150 +1,367 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.modak.rental.mapper.RentalExtensionMapper">
 
-    <!-- ════════════════════════════════════════
-         회원 대여 목록
-    ════════════════════════════════════════ -->
-    <select id="selectMyRentals"
-            resultType="com.example.modak.rental.model.RentalExtension">
-        SELECT
-            R.RENTAL_ID,
-            R.ITEM_ID,
-            R.USER_ID,
-            R.START_DATE,
-            R.RETURN_DATE,
-            R.RENTAL_STATUS,
-            R.GUEST_NAME,
-            R.GUEST_PHONE,
-            P.PRODUCT_NAME
-        FROM RENTALS R
-        LEFT JOIN ORDER_ITEM OI ON R.ITEM_ID     = OI.ITEM_ID
-        LEFT JOIN PRODUCT    P  ON OI.PRODUCT_ID = P.PRODUCT_ID
-        WHERE R.USER_ID = #{userId}
-        ORDER BY R.RENTAL_ID DESC
-    </select>
 
-    <!-- ════════════════════════════════════════
-         회원 대여 단건 조회 (소유자 검증)
-    ════════════════════════════════════════ -->
-    <select id="selectRentalByIdAndUser"
-            resultType="com.example.modak.rental.model.RentalExtension">
-        SELECT
-            R.RENTAL_ID,
-            R.ITEM_ID,
-            R.USER_ID,
-            R.START_DATE,
-            R.RETURN_DATE,
-            R.RENTAL_STATUS,
-            R.GUEST_NAME,
-            R.GUEST_PHONE,
-            P.PRODUCT_NAME
-        FROM RENTALS R
-        LEFT JOIN ORDER_ITEM OI ON R.ITEM_ID     = OI.ITEM_ID
-        LEFT JOIN PRODUCT    P  ON OI.PRODUCT_ID = P.PRODUCT_ID
-        WHERE R.RENTAL_ID = #{rentalId}
-          AND R.USER_ID   = #{userId}
-    </select>
+	<!-- 회원 대여 목록 -->
+	<select id="selectMyRentals"
+		resultType="com.example.modak.rental.model.RentalExtension">
+		SELECT
+		R.RENTAL_ID, R.ITEM_ID, R.USER_ID,
+		R.START_DATE, R.RETURN_DATE, R.RENTAL_STATUS,
+		R.GUEST_NAME, R.GUEST_PHONE,
+		P.PRODUCT_NAME, P.PRICE AS pricePerDay,
+		(SELECT PI.IMG_URL FROM PRODUCT_IMG PI
+		WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
+		AND PI.IS_MAIN = 'Y' LIMIT 1) AS imgUrl
+		FROM RENTALS R
+		LEFT JOIN ORDER_ITEM OI ON R.ITEM_ID = OI.ITEM_ID
+		LEFT JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+		LEFT JOIN ORDERS O ON OI.ORDER_ID = O.ORDER_ID -- ★ 추가
+		WHERE R.USER_ID = #{userId}
+		AND O.ORDER_STATUS NOT IN ('CANCELLED', 'CANCEL_REQUESTED') -- ★ 추가
+		AND R.RENTAL_STATUS NOT IN ('CANCELLED') -- ★ 추가
+		ORDER BY R.RENTAL_ID DESC
+	</select>
 
-    <!-- ════════════════════════════════════════
-         비회원 대여 단건 조회 (3중 검증)
-         USER_ID = 'GUEST' + GUEST_NAME + GUEST_PHONE
-    ════════════════════════════════════════ -->
-    <select id="selectGuestRental"
-            resultType="com.example.modak.rental.model.RentalExtension">
-        SELECT
-            R.RENTAL_ID,
-            R.ITEM_ID,
-            R.USER_ID,
-            R.START_DATE,
-            R.RETURN_DATE,
-            R.RENTAL_STATUS,
-            R.GUEST_NAME,
-            R.GUEST_PHONE,
-            P.PRODUCT_NAME
-        FROM RENTALS R
-        LEFT JOIN ORDER_ITEM OI ON R.ITEM_ID     = OI.ITEM_ID
-        LEFT JOIN PRODUCT    P  ON OI.PRODUCT_ID = P.PRODUCT_ID
-        WHERE R.RENTAL_ID   = #{rentalId}
-          AND R.GUEST_NAME  = #{guestName}
-          AND R.GUEST_PHONE = #{guestPhone}
-          AND R.USER_ID     = 'GUEST'
-    </select>
+	<!-- 회원 단건 조회 -->
+	<select id="selectRentalByIdAndUser"
+		resultType="com.example.modak.rental.model.RentalExtension">
+		SELECT
+		R.RENTAL_ID,
+		R.ITEM_ID,
+		R.USER_ID,
+		R.START_DATE,
+		R.RETURN_DATE,
+		R.RENTAL_STATUS,
+		R.GUEST_NAME,
+		R.GUEST_PHONE,
+		R.RETURN_ZIPCODE,
+		R.RETURN_ADDRESS,
+		R.RETURN_DETAILED_ADDRESS,
+		R.RETURN_REQUESTED_AT,
+		P.PRODUCT_NAME,
+		P.PRICE AS pricePerDay,
+		(SELECT PI.IMG_URL FROM PRODUCT_IMG PI
+		WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
+		AND PI.IS_MAIN = 'Y' LIMIT 1) AS imgUrl
+		FROM RENTALS R
+		LEFT JOIN ORDER_ITEM OI ON R.ITEM_ID = OI.ITEM_ID
+		LEFT JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+		WHERE R.RENTAL_ID = #{rentalId}
+		AND R.USER_ID = #{userId}
+	</select>
 
-    <!-- ════════════════════════════════════════
-         대여번호만으로 단건 조회 (토큰 검증 통과 후)
-    ════════════════════════════════════════ -->
-    <select id="selectRentalById"
-            resultType="com.example.modak.rental.model.RentalExtension">
-        SELECT
-            R.RENTAL_ID,
-            R.ITEM_ID,
-            R.USER_ID,
-            R.START_DATE,
-            R.RETURN_DATE,
-            R.RENTAL_STATUS,
-            R.GUEST_NAME,
-            R.GUEST_PHONE,
-            P.PRODUCT_NAME
-        FROM RENTALS R
-        LEFT JOIN ORDER_ITEM OI ON R.ITEM_ID     = OI.ITEM_ID
-        LEFT JOIN PRODUCT    P  ON OI.PRODUCT_ID = P.PRODUCT_ID
-        WHERE R.RENTAL_ID = #{rentalId}
-    </select>
+	<!-- 비회원 3중 검증 -->
+	<select id="selectGuestRental"
+		resultType="com.example.modak.rental.model.RentalExtension">
+		SELECT
+		R.RENTAL_ID,
+		R.ITEM_ID,
+		R.USER_ID,
+		R.START_DATE,
+		R.RETURN_DATE,
+		R.RENTAL_STATUS,
+		R.GUEST_NAME,
+		R.GUEST_PHONE,
+		R.RETURN_ZIPCODE,
+		R.RETURN_ADDRESS,
+		R.RETURN_DETAILED_ADDRESS,
+		R.RETURN_REQUESTED_AT,
+		P.PRODUCT_NAME,
+		P.PRICE AS pricePerDay,
+		(SELECT PI.IMG_URL FROM PRODUCT_IMG PI
+		WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
+		AND PI.IS_MAIN = 'Y' LIMIT 1) AS imgUrl
+		FROM RENTALS R
+		LEFT JOIN ORDER_ITEM OI ON R.ITEM_ID = OI.ITEM_ID
+		LEFT JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+		WHERE R.RENTAL_ID = #{rentalId}
+		AND R.GUEST_NAME = #{guestName}
+		AND R.GUEST_PHONE = #{guestPhone}
+		AND R.USER_ID LIKE 'GUEST%' -- 'GUEST' → LIKE 'GUEST%'
+	</select>
 
-    <!-- ════════════════════════════════════════
-         연장 내역 조회
-    ════════════════════════════════════════ -->
-    <select id="selectExtensionsByRentalId"
-            resultType="com.example.modak.rental.model.RentalExtension">
-        SELECT
-            EXTENSION_ID,
-            EXTENSION_DAYS,
-            PRICE,
-            CREATED_AT,
-            RENTAL_ID
-        FROM RENTAL_EXTENSION
-        WHERE RENTAL_ID = #{rentalId}
-        ORDER BY CREATED_AT DESC
-    </select>
+	<!-- 토큰 통과 후 단건 조회 -->
+	<select id="selectRentalById"
+		resultType="com.example.modak.rental.model.RentalExtension">
+		SELECT
+		R.RENTAL_ID,
+		R.ITEM_ID,
+		R.USER_ID,
+		R.START_DATE,
+		R.RETURN_DATE,
+		R.RENTAL_STATUS,
+		R.GUEST_NAME,
+		R.GUEST_PHONE,
+		R.RETURN_ZIPCODE,
+		R.RETURN_ADDRESS,
+		R.RETURN_DETAILED_ADDRESS,
+		R.RETURN_REQUESTED_AT,
+		P.PRODUCT_NAME,
+		P.PRICE AS pricePerDay,
+		(SELECT PI.IMG_URL FROM PRODUCT_IMG PI
+		WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
+		AND PI.IS_MAIN = 'Y' LIMIT 1) AS imgUrl
+		FROM RENTALS R
+		LEFT JOIN ORDER_ITEM OI ON R.ITEM_ID = OI.ITEM_ID
+		LEFT JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+		WHERE R.RENTAL_ID = #{rentalId}
+	</select>
 
-    <!-- ════════════════════════════════════════
-         연장 신청 등록
-    ════════════════════════════════════════ -->
-    <insert id="insertExtension">
-        INSERT INTO RENTAL_EXTENSION (
-            EXTENSION_DAYS,
-            PRICE,
-            CREATED_AT,
-            RENTAL_ID
-        ) VALUES (
-            #{extensionDays},
-            #{price},
-            NOW(),
-            #{rentalId}
-        )
-    </insert>
+	<!-- 연장 내역 조회 -->
+	<select id="selectExtensionsByRentalId"
+		resultType="com.example.modak.rental.model.RentalExtension">
+		SELECT
+		EXTENSION_ID,
+		EXTENSION_DAYS,
+		PRICE,
+		CREATED_AT,
+		RENTAL_ID
+		FROM RENTAL_EXTENSION
+		WHERE RENTAL_ID = #{rentalId}
+		ORDER BY CREATED_AT DESC
+	</select>
 
-    <!-- ════════════════════════════════════════
-         연장 취소 (행 삭제)
-    ════════════════════════════════════════ -->
-    <delete id="deleteExtension">
-        DELETE FROM RENTAL_EXTENSION
-        WHERE EXTENSION_ID = #{extensionId}
-          AND RENTAL_ID    = #{rentalId}
-    </delete>
-    
+	<!-- ★ 반납 신청 내역 조회 — RENTALS 컬럼 직접 사용 -->
+	<select id="selectReturnHistoryByRentalId" resultType="hashmap">
+		SELECT
+		RENTAL_STATUS AS returnStatus,
+		RETURN_ZIPCODE AS zipcode,
+		RETURN_ADDRESS AS address,
+		RETURN_DETAILED_ADDRESS AS detailedAddress,
+		DATE_FORMAT(RETURN_REQUESTED_AT, '%Y-%m-%d %H:%i:%s') AS createdAt
+		FROM RENTALS
+		WHERE RENTAL_ID = #{rentalId}
+		AND RETURN_REQUESTED_AT IS NOT NULL
+	</select>
 
-    <!-- ════════════════════════════════════════
-         반납일 업데이트
-         extensionDays 음수 전달 시 원복
-    ════════════════════════════════════════ -->
-    <update id="updateReturnDate">
-        UPDATE RENTALS
-        SET RETURN_DATE = DATE_ADD(RETURN_DATE, INTERVAL #{extensionDays} DAY)
-        WHERE RENTAL_ID = #{rentalId}
-    </update>
+	<!-- 연장 신청 -->
+	<insert id="insertExtension">
+		INSERT INTO RENTAL_EXTENSION (EXTENSION_DAYS, PRICE, CREATED_AT,
+		RENTAL_ID)
+		VALUES (#{extensionDays}, #{price}, NOW(), #{rentalId})
+	</insert>
 
+	<!-- 연장 취소 -->
+	<delete id="deleteExtension">
+		DELETE FROM RENTAL_EXTENSION
+		WHERE EXTENSION_ID = #{extensionId}
+		AND RENTAL_ID = #{rentalId}
+	</delete>
+
+	<!-- 반납일 업데이트 (음수 = 원복) -->
+	<update id="updateReturnDate">
+		UPDATE RENTALS
+		SET RETURN_DATE = DATE_ADD(RETURN_DATE, INTERVAL #{extensionDays} DAY)
+		WHERE RENTAL_ID = #{rentalId}
+	</update>
+
+	<!-- 반납 신청 가능 목록 (회원) -->
+	<select id="selectReturnableRentals" parameterType="hashmap"
+		resultType="hashmap">
+		SELECT
+		R.RENTAL_ID AS rentalId,
+		R.ITEM_ID AS itemId,
+		R.USER_ID AS userId,
+		R.START_DATE AS startDate,
+		R.RETURN_DATE AS returnDate,
+		R.RENTAL_STATUS AS rentalStatus,
+		R.GUEST_NAME AS guestName,
+		R.GUEST_PHONE AS guestPhone,
+		P.PRODUCT_NAME AS productName,
+		P.PRICE AS pricePerDay,
+		(SELECT PI.IMG_URL FROM PRODUCT_IMG PI
+		WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
+		AND PI.IS_MAIN = 'Y' LIMIT 1) AS imgUrl
+		FROM RENTALS R
+		LEFT JOIN ORDER_ITEM OI ON R.ITEM_ID = OI.ITEM_ID
+		LEFT JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+		WHERE R.USER_ID = #{userId}
+		AND R.RENTAL_STATUS IN ('IN_USE', 'RESERVED')
+		ORDER BY R.RENTAL_ID DESC
+	</select>
+
+	<!-- 회원 반납 신청 -->
+	<update id="updateReturnRequest" parameterType="hashmap">
+		UPDATE RENTALS
+		SET RENTAL_STATUS = 'RETURN_REQUESTED',
+		RETURN_ZIPCODE = #{zipcode},
+		RETURN_ADDRESS = #{address},
+		RETURN_DETAILED_ADDRESS = #{detailedAddress},
+		RETURN_REQUESTED_AT = NOW()
+		WHERE RENTAL_ID = #{rentalId}
+		AND USER_ID = #{userId}
+		AND RENTAL_STATUS = 'IN_USE'
+	</update>
+
+	<update id="updateGuestReturnRequest" parameterType="hashmap">
+		UPDATE RENTALS
+		SET RENTAL_STATUS = 'RETURN_REQUESTED',
+		RETURN_ZIPCODE = #{zipcode},
+		RETURN_ADDRESS = #{address},
+		RETURN_DETAILED_ADDRESS = #{detailedAddress},
+		RETURN_REQUESTED_AT = NOW()
+		WHERE RENTAL_ID = #{rentalId}
+		AND GUEST_NAME = #{guestName}
+		AND GUEST_PHONE = #{guestPhone}
+		AND USER_ID LIKE 'GUEST%'
+		AND RENTAL_STATUS = 'IN_USE'
+	</update>
+	<!-- 배송 상태 반납요청으로 변경 -->
+	<update id="updateDeliveryReturnRequest" parameterType="hashmap">
+		UPDATE DELIVERY
+		SET DELIVERY_STATUS = 'RETURN_REQUESTED'
+		WHERE ORDER_ID = (
+		SELECT OI.ORDER_ID
+		FROM RENTALS R
+		JOIN ORDER_ITEM OI ON R.ITEM_ID = OI.ITEM_ID
+		WHERE R.RENTAL_ID = #{rentalId}
+		LIMIT 1
+		)
+	</update>
+
+	<!-- 회원 반납 취소 -->
+	<update id="cancelReturnRequest" parameterType="hashmap">
+		UPDATE RENTALS
+		SET RENTAL_STATUS = 'IN_USE',
+		RETURN_ZIPCODE = NULL,
+		RETURN_ADDRESS = NULL,
+		RETURN_DETAILED_ADDRESS = NULL,
+		RETURN_REQUESTED_AT = NULL
+		WHERE RENTAL_ID = #{rentalId}
+		AND USER_ID = #{userId}
+		AND RENTAL_STATUS = 'RETURN_REQUESTED'
+	</update>
+
+	<!-- 비회원 반납 취소 -->
+	<update id="cancelGuestReturnRequest" parameterType="hashmap">
+		UPDATE RENTALS
+		SET RENTAL_STATUS = 'IN_USE',
+		RETURN_ZIPCODE = NULL,
+		RETURN_ADDRESS = NULL,
+		RETURN_DETAILED_ADDRESS = NULL,
+		RETURN_REQUESTED_AT = NULL
+		WHERE RENTAL_ID = #{rentalId}
+		AND GUEST_NAME = #{guestName}
+		AND GUEST_PHONE = #{guestPhone}
+		AND USER_ID LIKE 'GUEST%'
+		AND RENTAL_STATUS = 'RETURN_REQUESTED'
+	</update>
+
+	<!-- 배송 상태 원복 -->
+	<update id="cancelDeliveryReturnRequest" parameterType="hashmap">
+		UPDATE DELIVERY
+		SET DELIVERY_STATUS = 'DONE'
+		WHERE ORDER_ID = (
+		SELECT OI.ORDER_ID
+		FROM RENTALS R
+		JOIN ORDER_ITEM OI ON R.ITEM_ID = OI.ITEM_ID
+		WHERE R.RENTAL_ID = #{rentalId}
+		LIMIT 1
+		)
+	</update>
+
+	<!-- 회원 기본 픽업 주소 -->
+	<select id="selectDefaultPickupAddress" parameterType="hashmap"
+		resultType="hashmap">
+		SELECT
+		UA.ZIPCODE AS zipcode,
+		UA.ADDRESS AS address,
+		UA.DETAILED_ADDRESS AS detailedAddress
+		FROM USER_ADDRESS UA
+		WHERE UA.USER_ID = #{userId}
+		ORDER BY UA.DEFAULT_YN DESC, UA.ADDRESS_ID ASC
+		LIMIT 1
+	</select>
+
+	<!-- 비회원 픽업 주소 (배송지 기반) -->
+	<select id="selectGuestPickupAddress" parameterType="hashmap"
+		resultType="hashmap">
+		SELECT
+		D.ZIPCODE AS zipcode,
+		D.ADDRESS AS address,
+		D.DETAILED_ADDRESS AS detailedAddress
+		FROM DELIVERY D
+		JOIN ORDER_ITEM OI ON D.ORDER_ID = OI.ORDER_ID
+		JOIN RENTALS R ON R.ITEM_ID = OI.ITEM_ID
+		WHERE R.RENTAL_ID = #{rentalId}
+		LIMIT 1
+	</select>
+
+	<!-- 연장 결제 주문 생성 -->
+	<insert id="insertExtensionOrder" parameterType="hashmap"
+		useGeneratedKeys="true" keyProperty="extensionOrderId">
+		INSERT INTO RENTAL_EXTENSION_ORDER
+		(RENTAL_ID, EXTENSION_DAYS, PRICE, STATUS, USER_ID, GUEST_TOKEN,
+		CREATED_AT)
+		VALUES (#{rentalId}, #{extensionDays}, #{price}, 'PENDING', #{userId},
+		#{guestToken}, NOW())
+	</insert>
+
+	<!-- 연장 결제 주문 조회 -->
+	<select id="selectExtensionOrder" parameterType="hashmap"
+		resultType="hashmap">
+		SELECT
+		eo.EXTENSION_ORDER_ID,
+		eo.RENTAL_ID,
+		eo.EXTENSION_DAYS,
+		eo.PRICE,
+		eo.STATUS,
+		eo.USER_ID,
+		eo.GUEST_TOKEN,
+
+		p.PRODUCT_NAME,
+		(
+		SELECT pi.IMG_URL
+		FROM PRODUCT_IMG pi
+		WHERE pi.PRODUCT_ID = p.PRODUCT_ID
+		AND pi.IS_MAIN = 'Y'
+		LIMIT 1
+		) AS IMG_URL
+
+		FROM RENTAL_EXTENSION_ORDER eo
+		JOIN RENTALS r ON eo.RENTAL_ID = r.RENTAL_ID
+		JOIN ORDER_ITEM oi ON r.ITEM_ID = oi.ITEM_ID
+		JOIN PRODUCT p ON oi.PRODUCT_ID = p.PRODUCT_ID
+
+		WHERE eo.EXTENSION_ORDER_ID = #{extensionOrderId}
+	</select>
+
+	<!-- 연장 결제 주문 상태 업데이트 -->
+	<update id="updateExtensionOrderStatus" parameterType="hashmap">
+		UPDATE RENTAL_EXTENSION_ORDER
+		SET STATUS = #{status}
+		WHERE EXTENSION_ORDER_ID = #{extensionOrderId}
+	</update>
+	<select id="selectGuestRentalListByOrder" parameterType="string"
+		resultType="com.example.modak.rental.model.RentalExtension">
+		SELECT
+		R.RENTAL_ID AS rentalId, R.ITEM_ID AS itemId,
+		R.USER_ID AS userId, R.RENTAL_STATUS AS rentalStatus,
+		R.START_DATE AS startDate, R.RETURN_DATE AS returnDate,
+		R.GUEST_NAME AS guestName, R.GUEST_PHONE AS guestPhone,
+		R.RETURN_ZIPCODE AS returnZipcode,
+		R.RETURN_ADDRESS AS returnAddress,
+		R.RETURN_DETAILED_ADDRESS AS returnDetailedAddress,
+		P.PRODUCT_NAME AS productName, P.PRICE AS pricePerDay,
+		(SELECT PI.IMG_URL FROM PRODUCT_IMG PI
+		WHERE PI.PRODUCT_ID = P.PRODUCT_ID AND PI.IS_MAIN = 'Y'
+		LIMIT 1) AS imgUrl
+		FROM RENTALS R
+		JOIN ORDER_ITEM OI ON R.ITEM_ID = OI.ITEM_ID
+		JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+		JOIN ORDERS O ON OI.ORDER_ID = O.ORDER_ID -- ★ 추가
+		WHERE OI.ORDER_ID = #{orderId}
+		AND O.ORDER_STATUS NOT IN ('CANCELLED', 'CANCEL_REQUESTED') -- ★ 추가
+		AND R.RENTAL_STATUS NOT IN ('CANCELLED') -- ★ 추가
+	</select>
+	<select id="selectGuestRentalByPhone" parameterType="hashmap"
+		resultType="com.example.modak.rental.model.RentalExtension">
+		SELECT RENTAL_ID AS rentalId
+		FROM RENTALS
+		WHERE RENTAL_ID = #{rentalId}
+		AND GUEST_PHONE = #{guestPhone}
+	</select>
 </mapper>

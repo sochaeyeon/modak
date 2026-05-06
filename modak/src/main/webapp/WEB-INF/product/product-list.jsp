@@ -1,561 +1,840 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>모닥모닥 - 장비 목록</title>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+	<!DOCTYPE html>
+	<html lang="ko">
 
-<link rel="stylesheet" href="/css/common/font.css">
-<link rel="stylesheet" href="/css/product/product-list.css">
-<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script src="/js/page-change.js"></script>
-</head>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>상품 - 모닥모닥</title>
 
-<body>
-<%@ include file="/WEB-INF/common/header.jsp" %>
+		<link rel="stylesheet" href="/css/product/product-list.css">
+		<link rel="stylesheet" href="/css/search/search.css">
+		<script src="https://code.jquery.com/jquery-3.7.1.js"
+			integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+		<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+		<script src="/js/page-change.js"></script>
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css" rel="stylesheet">
+	</head>
 
-<div id="app">
+	<body>
+		<%@ include file="/WEB-INF/common/header.jsp" %>
 
-  <!-- ── 카테고리 pill 바 ── -->
-  <div class="cat-bar">
-    <div class="cat-bar-inner">
-      <!-- 전체 pill (고정) -->
-      <button
-        class="cat-pill"
-        :class="{ active: currentCat === null }"
-        @click="selectCategory(null)"
-      >
-        <span class="pill-emoji">⛺</span>
-        전체
-      </button>
-      <!-- DB에서 가져온 부모 카테고리 순회 -->
-      <button
-        v-for="cat in category"
-        :key="cat.categoryId"
-        class="cat-pill"
-        :class="{ active: currentCat === cat.categoryId }"
-        @click="selectCategory(cat.categoryId)"
-      >
-        {{ cat.categoryName }}
-      </button>
-    </div>
-  </div>
+			<div id="app" class="product-page" v-cloak>
+				<!-- ── 메인 컨텐츠 영역 ── -->
+				<div class="page-wrap">
+					<div class="main-banner" @click="fnGoEvent">
+						<img src="${pageContext.request.contextPath}/img/banner/bannerImg1.png" alt="배너">
+					</div>
+					<div class="top-row">
+						<div class="result-info">
+							<div class="result-label">{{ getSortLabel() }}</div>
+							<div>
+								<span class="result-title">{{ getCurrentCategoryName() }}</span>
+								<span class="result-count">총 {{ products.length }}개</span>
+							</div>
+						</div>
+						<!-- 검색창 -->
+						<div class="search-box">
+							<input type="text" v-model="searchKeyword" placeholder="검색어를 입력하세요" @keyup.enter="fnSearch">
+							<button type="button" @click="fnSearch">검색</button>
+						</div>
+						<div class="controls">
+							<button class="filter-toggle" :class="{ active: sidebarVisible }"
+								@click="sidebarVisible = !sidebarVisible">
+								<svg viewBox="0 0 24 24">
+									<line x1="4" y1="6" x2="20" y2="6" />
+									<line x1="8" y1="12" x2="16" y2="12" />
+									<line x1="11" y1="18" x2="13" y2="18" />
+								</svg>
+								필터
+							</button>
+							<select class="sort-select" v-model="sortKey" @change="fnSearch">
+								<option value="popular">인기순</option>
+								<option value="newest">최신순</option>
+								<option value="review-count">리뷰 많은순</option>
+								<option value="price-low">가격 낮은순</option>
+								<option value="price-high">가격 높은순</option>
+								<option value="rating">별점순</option>
+							</select>
+							<div class="view-toggle" :class="currentView">
+								<button class="vbtn" :class="{ active: currentView === 'grid' }"
+									@click="currentView = 'grid'">
+									<svg viewBox="0 0 24 24">
+										<rect x="3" y="3" width="7" height="7" />
+										<rect x="14" y="3" width="7" height="7" />
+										<rect x="3" y="14" width="7" height="7" />
+										<rect x="14" y="14" width="7" height="7" />
+									</svg>
+								</button>
+								<button class="vbtn" :class="{ active: currentView === 'list' }"
+									@click="currentView = 'list'">
+									<svg viewBox="0 0 24 24">
+										<line x1="8" y1="6" x2="21" y2="6" />
+										<line x1="8" y1="12" x2="21" y2="12" />
+										<line x1="8" y1="18" x2="21" y2="18" />
+										<line x1="3" y1="6" x2="3.01" y2="6" />
+										<line x1="3" y1="12" x2="3.01" y2="12" />
+										<line x1="3" y1="18" x2="3.01" y2="18" />
+									</svg>
+								</button>
+							</div>
+						</div>
+					</div>
 
-  <!-- ── 메인 컨텐츠 영역 ── -->
-  <div class="page-wrap">
-    <div class="top-row">
-      <div class="result-info">
-        <div class="result-label">인기 장비</div>
-        <div>
-          <span class="result-title">{{ getCurrentCategoryName() }}</span>
-          <span class="result-count">총 {{ filteredProducts.length }}개</span>
-        </div>
-      </div>
-      <div class="search-product">
-        <div class="search-wrapper">
-          <svg class="search-icon" viewBox="0 0 24 24">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <input 
-            type="text" 
-            v-model="searchKeyword" 
-            placeholder="어떤 장비를 찾으시나요?" 
-            @keyup.enter="fnList"
-          >
-          <button v-if="searchKeyword" class="search-clear" @click="searchKeyword = ''; fnList();">
-            &times;
-          </button>
-        </div>
-      </div>
-      <div class="controls">
-        <button class="filter-toggle" @click="sidebarVisible = !sidebarVisible">
-          <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-          필터
-        </button>
-        <select class="sort-select" v-model="sortKey" @change="currentPage = 1">
-          <option value="popular">인기순</option>
-          <option value="newest">최신순</option>
-          <option value="price-low">가격 낮은순</option>
-          <option value="price-high">가격 높은순</option>
-          <option value="rating">평점순</option>
-        </select>
-        <div class="view-toggle">
-          <button class="vbtn" :class="{ active: currentView === 'grid' }" @click="currentView = 'grid'">
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-          </button>
-          <button class="vbtn" :class="{ active: currentView === 'list' }" @click="currentView = 'list'">
-            <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
+					<div class="content-wrap" :class="{ 'no-sidebar': !sidebarVisible }">
 
-    <div class="content-wrap">
-      <div class="sidebar" v-show="sidebarVisible">
-        <!-- 대여/구매 필터 -->
-        <div class="filter-section">
-          <div class="fs-header">
-            <span class="fs-title">대여 / 구매</span>
-          </div>
-          <div class="filter-opts">
-            <div class="fopt-item">
-              <input type="radio" id="type-all" v-model="filter.productType" value="all" @change="fnSearch">
-              <label for="type-all" class="fopt">전체</label>
-            </div>
-            <label class="fopt">
-              <input type="checkbox" v-model="filter.rentable" @change="fnList"> 대여 가능
-              <span class="fopt-count">38</span>
-            </label>
-            <label class="fopt">
-              <input type="checkbox" v-model="filter.buyable" @change="fnList"> 구매 가능
-              <span class="fopt-count">42</span>
-            </label>
-          </div>
-        </div>
+						<div class="sidebar" v-show="sidebarVisible">
+							<div class="filter-section">
+								<div class="fs-header" @click="filterOpen.type = !filterOpen.type">
+									<span class="fs-title">대여 / 구매</span>
+									<i class="ri-arrow-down-s-line fs-toggle" :class="{ open: filterOpen.type }"></i>
+								</div>
 
-        <!-- 자식 카테고리 필터 -->
-    <div class="filter-section" v-if="childCategory.length > 0">
-      <div class="fs-header">
-        <span class="fs-title">세부 카테고리</span>
-      </div>
+								<div class="filter-opts filter-panel" :class="{ open: filterOpen.type }">
+									<label class="type-chip">
+										<input type="checkbox" v-model="filter.rentable" @change="fnSearch">
+										<span class="chip-check"><i class="ri-check-line"></i></span>
+										<span class="chip-text">대여 가능</span>
+									</label>
 
-      <div class="filter-opts">
-        <label
-          class="fopt"
-          v-for="child in childCategory"
-          :key="child.categoryId"
-        >
-          <input
-            type="radio"
-            name="childCategory"
-            :value="child.categoryId"
-            v-model="currentChild"
-            @change="fnList"
-          >
-          {{ child.categoryName }}
-        </label>
+									<label class="type-chip">
+										<input type="checkbox" v-model="filter.buyable" @change="fnSearch">
+										<span class="chip-check"><i class="ri-check-line"></i></span>
+										<span class="chip-text">구매 가능</span>
+									</label>
+								</div>
+							</div>
 
-        <!-- 전체 선택 -->
-        <label class="fopt">
-          <input
-            type="radio"
-            name="childCategory"
-            :value="null"
-            v-model="currentChild"
-            @change="fnList"
-          >
-          전체
-        </label>
-      </div>
-    </div>
+							<div class="filter-section category-section">
+								<div class="fs-header" @click="filterOpen.category = !filterOpen.category">
+									<span class="fs-title">카테고리</span>
+									<i class="ri-arrow-down-s-line fs-toggle"
+										:class="{ open: filterOpen.category }"></i>
+								</div>
 
-        <!-- 브랜드 필터 -->
-        <div class="filter-section">
-          <div class="fs-header">
-            <span class="fs-title">브랜드</span>
-          </div>
-          <div class="filter-opts">
-            <label class="fopt">
-              <input 
-                type="radio" 
-                :checked="filter.brandId.length === 0" 
-                @change="clearBrands"
-              > 전체
-            </label>
-            <label class="fopt">
-              <input type="checkbox" v-model="filter.brandId" :value="1" @change="fnList"> 자체
-            </label>
-            <label class="fopt">
-              <input type="checkbox" v-model="filter.brandId" :value="2" @change="fnList"> 케로로
-            </label>
-            <label class="fopt">
-              <input type="checkbox" v-model="filter.brandId" :value="3" @change="fnList"> 타마마
-            </label>
-            <label class="fopt">
-              <input type="checkbox" v-model="filter.brandId" :value="4" @change="fnList"> 기로로
-            </label>
-            <label class="fopt">
-              <input type="checkbox" v-model="filter.brandId" :value="5" @change="fnList"> 쿠루루
-            </label>
-          </div>
-        </div>
+								<div class="category-tree filter-panel" :class="{ open: filterOpen.category }">
+									<div v-for="parent in category" :key="parent.categoryId">
+										<button type="button" class="category-parent"
+											:class="{ open: openParent === parent.categoryId }"
+											@click.stop="clickParent(parent.categoryId)">
+											{{ parent.categoryName }}
+											<svg class="arrow" viewBox="0 0 24 24">
+												<polyline points="6 9 12 15 18 9"></polyline>
+											</svg>
+										</button>
 
-        <div class="filter-section">
-          <div class="fs-header">
-            <span class="fs-title">1박 대여 가격</span>
-          </div>
-          <div class="filter-opts">
-            <label class="fopt"><input type="radio" v-model="filter.priceRange" :value="null" @change="fnSearch" checked="checked"> 전체</label>
-            <label class="fopt"><input type="radio" v-model="filter.priceRange" value="0-10000" @change="fnSearch"> 1만원 이하</label>
-            <label class="fopt"><input type="radio" v-model="filter.priceRange" value="10000-30000" @change="fnSearch"> 1만원 ~ 3만원</label>
-            <label class="fopt"><input type="radio" v-model="filter.priceRange" value="30000-50000" @change="fnSearch"> 3만원 ~ 5만원</label>
-            <label class="fopt"><input type="radio" v-model="filter.priceRange" value="50000-999999" @change="fnSearch"> 5만원 이상</label>
-          </div>
-        </div>
+										<div v-show="openParent === parent.categoryId" class="child-wrap">
+											<label class="fopt child" v-for="child in parent.childList"
+												:key="child.categoryId">
+												<input type="radio" :value="child.categoryId" v-model="currentChild"
+													@change="selectChild(parent.categoryId, child.categoryId)">
+												{{ child.categoryName }}
+											</label>
+										</div>
+									</div>
+								</div>
+							</div>
 
-        <div style="padding:14px 20px;">
-          <button class="filter-reset" @click="resetFilter">필터 초기화</button>
-        </div>
-      </div><!-- /sidebar -->
+							<div class="filter-section">
+								<div class="fs-header" @click="filterOpen.brand = !filterOpen.brand">
+									<span class="fs-title">브랜드</span>
+									<i class="ri-arrow-down-s-line fs-toggle" :class="{ open: filterOpen.brand }"></i>
+								</div>
 
-      <!-- ── 상품 목록 ── -->
-      <div class="grid-wrap">
-        <div v-if="loading" class="empty">
-          <div class="empty-emoji">⏳</div>
-          <div class="empty-msg">장비를 불러오는 중입니다...</div>
-        </div>
+								<div class="filter-opts filter-panel" :class="{ open: filterOpen.brand }">
+									<div class="brand-all" v-if="filter.brandId.length === 0">
+										전체 브랜드
+									</div>
 
-        <div v-else-if="pagedProducts.length === 0" class="empty">
-          <div class="empty-emoji">🏕️</div>
-          <div class="empty-msg">해당 조건의 장비가 없습니다</div>
-        </div>
+									<label class="fopt" v-for="brand in brandList" :key="brand.brandId">
+										<input type="checkbox" :value="brand.brandId" v-model="filter.brandId"
+											@change="fnSearch">
+										{{ brand.brandName }}
+									</label>
+								</div>
+							</div>
+							<div class="filter-section">
+								<div class="fs-header" @click="filterOpen.price = !filterOpen.price">
+									<span class="fs-title">가격</span>
 
-        <div v-else :class="['product-grid', currentView === 'list' ? 'view-list' : '']">
-          <div
-            v-for="(product, idx) in pagedProducts"
-            :key="product.productId"
-            class="pcard"
-            :class="{ 'list-card': currentView === 'list' }"
-            :style="{ animationDelay: (idx * 0.05) + 's' }"
-          >
-            <div class="pcard-img">
-              <a href="javascript:;" @click="fnView(product.productId)">
-                <img
-                  :src="product.imgUrl
-                    ? '/product-img/' + product.imgUrl
-                    : '/product-img/default.jpg'"
-                  class="pcard-img"
-                />
-              </a>
-              <button
-                :class="{ wished: wishedIds.has(product.productId) }"
-                @click.stop="toggleWish(product.productId)"
-              >
-                <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-              </button>
-            </div>
-            <div class="pcard-body">
-              <template v-if="currentView === 'list'">
-                <div class="pcard-main">
-                  <div class="pcard-cat">{{ product.categoryId }}</div>
-                  <div class="pcard-name">{{ product.productName }}</div>
-                  <!-- <div class="stars">
-                    <span v-html="starsHTML(product.rating)"></span>
-                    <span class="star-count">{{ product.rating }} ({{ product.rCount }})</span>
-                  </div> -->
-                </div>
-                <div class="pcard-price-wrap">
-                  <div class="price-row" style="justify-content:flex-end">
-                    <span class="price-orig" v-if="product.origRent">{{ product.origRent.toLocaleString() }}원</span>
-                    <span class="price-main">{{ product.price.toLocaleString() }}원</span>
-                    <span class="price-unit">/ 1박</span>
-                  </div>
-                  <div v-if="product.buyPrice" style="font-size:11px;color:var(--stone);text-align:right;margin-bottom:10px">
-                    구매 {{ product.buyPrice.toLocaleString() }}원
-                  </div>
-                </div>
-              </template>
-              
-              <template v-else>
-                <div class="pcard-name">{{ product.productName }}</div>
-                <!-- <div class="stars">
-                  <span v-html="starsHTML(product.rating)"></span>
-                  <span class="star-count">{{ product.rating }} ({{ product.rCount }})</span> 리뷰 별점 평균 -->
-            </div>
-                <div class="price-row">
-                  <span class="price-orig" v-if="product.origRent">{{ product.origRent.toLocaleString() }}원</span>
-                  <span class="price-main">{{ (product.price || 0).toLocaleString() }}원</span>
-                  <span class="price-unit">/ 1박</span>
-                </div>
-              </template>
+									<div class="fs-right">
+										<span class="range-value">{{ priceText }}</span>
+										<i class="ri-arrow-down-s-line fs-toggle"
+											:class="{ open: filterOpen.price }"></i>
+									</div>
+								</div>
 
-              <div class="btn-row">
-                <button v-if="product.productType !== 'PURCHASE'" class="btn-rent">대여하기</button>
-                <button v-if="product.productType !== 'RENTAL'" class="btn-buy">구매하기</button>
-              </div>
-            </div>
-          </div>
-        </div><!-- /product-grid -->
-        <div class="grid-wrap">
-          <div class="pagination" v-if="totalPages > 1">
-            <button 
-              class="page-btn prev" 
-              :disabled="currentPage === 1" 
-              @click="changePage(currentPage - 1)"
-            >
-              &lt;
-            </button>
-            
-            <button 
-              v-for="page in totalPages" 
-              :key="page" 
-              class="page-number" 
-              :class="{ active: currentPage === page }"
-              @click="changePage(page)"
-            >
-              {{ page }}
-            </button>
+								<div class="filter-panel" :class="{ open: filterOpen.price }">
 
-            <button 
-              class="page-btn next" 
-              :disabled="currentPage === totalPages" 
-              @click="changePage(currentPage + 1)"
-            >
-              &gt;
-            </button>
-          </div>
-        </div>
+									<div class="price-guide-row">
+										<span>0원</span>
+										<span>5만원</span>
+										<span>10만원</span>
+									</div>
 
-      </div><!-- /grid-wrap -->
-    </div><!-- /content-wrap -->
-  </div><!-- /page-wrap -->
+									<div class="price-slider-box">
+										<input type="range" min="0" max="100000" step="5000"
+											v-model.number="filter.priceMax"
+											:style="{ '--range-percent': pricePercent + '%' }" @input="fnPriceInput"
+											class="price-range">
+									</div>
+								</div>
+							</div>
 
-</div><!-- /#app -->
+							<div style="padding:14px 20px;">
+								<button class="filter-reset" @click="resetFilter">필터 초기화</button>
+							</div>
+						</div>
 
-<script>
-const { createApp } = Vue;
+						<div class="grid-wrap">
 
-createApp({
+							<div v-if="loading" class="empty">
+								<div>
+									<div class="empty-emoji">⏳</div>
+									<div class="empty-msg">장비를 불러오는 중입니다...</div>
+								</div>
+							</div>
 
-  data() {
-    return {
-      products:        [],
-      loading:         false,
+							<div v-else-if="pagedProducts.length === 0" class="empty">
+								<div>
+									<div class="empty-msg">해당 조건의 장비가 없습니다</div>
+								</div>
+							</div>
 
-      category:      [],    // 부모 카테고리 (pill 바)
-      childCategory: [],    // 자식 카테고리 (사이드바) ← 추가
-      currentCat:      null,  // null = 전체  ← 'null' 문자열에서 수정
-      currentChild:    null,  // 선택된 자식 카테고리 ← 추가
+							<div v-else :class="['product-grid', currentView === 'list' ? 'view-list' : '']">
+								<div v-for="(product, idx) in pagedProducts" :key="product.productId" class="pcard"
+									:class="{ 'list-card': currentView === 'list' }"
+									:style="{ animationDelay: (idx * 0.05) + 's' }" @click="fnView(product.productId)">
 
-      currentView:     'grid',
-      sortKey:         'popular',
-      currentPage:     1,
-      perPage:         12,
-      sidebarVisible:  true,
-      wishedIds:       new Set(),
-      searchKeyword: '', // 검색어 변수
-      priceRange: null, // 가격 필터링
+									<div class="pcard-img">
+										<img :src="product.imgUrl || '/img/product/default.jpg'" class="pcard-photo"
+											alt="상품 이미지">
+									</div>
 
-      filter: {
-        productType: 'all', // 'all', 'rent', 'buy'
-        brandId:   [],
-        priceRange: 50,
-        minRating:  null,
-      },
-    };
-  },
+									<button class="wish-btn" type="button"
+										:class="{ on: wishedIds.has(product.productId) }"
+										@click.stop="fnWishVue($event, product.productId)">
+										<svg viewBox="0 0 24 24">
+											<path
+												d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 1.06-8.84z">
+											</path>
+										</svg>
+									</button>
 
-  computed: {
+									<div class="pcard-body">
+										<div class="pcard-top">
+											<template v-if="currentView === 'list'">
+												<div class="pcard-main">
+													<div class="pcard-cat">{{ product.categoryName }}</div>
+													<div class="pcard-name">
+														{{ product.productName }}
+														<span class="brand">· {{ product.brandName }}</span>
+													</div>
 
-    filteredProducts() {
-      let list = this.currentCat === null          // ← 'null' 문자열에서 수정
-        ? this.products
-        : this.products.filter(p => p.categoryId === this.currentCat);
+													<div class="stars">
+														<span v-html="starsHTML(product.rating)"></span>
+														<span class="star-count">
+															{{ formatRating(product.rating) }} ({{ product.rCount || 0
+															}})
+														</span>
+													</div>
+												</div>
 
-      // 자식 카테고리 필터 ← 추가
-      if (this.currentChild !== null) {
-        list = list.filter(p => p.childCategoryId === this.currentChild);
-      }
+												<div class="pcard-price-wrap">
+													<div class="price-row" style="justify-content:flex-end">
+														<span class="price-main">{{ (product.price ||
+															0).toLocaleString() }}원</span>
+														<span class="price-unit"
+															v-if="product.productType !== 'PURCHASE'">/ 1박</span>
+													</div>
+												</div>
+											</template>
 
-      return [...list].sort((a, b) => {
-        if (this.sortKey === 'price-low')  return a.price - b.price;
-        if (this.sortKey === 'price-high') return b.price - a.price;
-        if (this.sortKey === 'newest')     return b.productId - a.productId;
-        return b.productId - a.productId;
-      });
-    },
+											<template v-else>
+												<div class="pcard-cat">{{ product.categoryName }}</div>
+												<div class="pcard-name">
+													{{ product.productName }}
+													<span v-if="product.brandName" class="pcard-brand">· {{
+														product.brandName }}</span>
+												</div>
 
-    pagedProducts() {
-      const start = (this.currentPage - 1) * this.perPage;
-      return this.filteredProducts.slice(start, start + this.perPage);
-    },
+												<div class="stars">
+													<span v-html="starsHTML(product.rating)"></span>
+													<span class="star-count">
+														{{ formatRating(product.rating) }} ({{ product.rCount || 0 }})
+													</span>
+												</div>
 
-    totalPages() {
-      return Math.ceil(this.filteredProducts.length / this.perPage);
-    },
+												<div class="price-row">
+													<span class="price-main">{{ (product.price || 0).toLocaleString()
+														}}원</span>
+													<span class="price-unit" v-if="product.productType !== 'PURCHASE'">/
+														1박</span>
+												</div>
+											</template>
+										</div>
+										<div class="btn-row">
+											<button v-if="product.productType !== 'PURCHASE'" type="button"
+												class="btn-rent" @click.stop="fnView(product.productId)">
+												대여하기
+											</button>
 
-    priceRangeLabel() {
-      const v = Math.round(this.filter.priceRange * 500);
-      return v >= 50000 ? '50,000원+' : v.toLocaleString() + '원';
-    },
-  },
+											<button v-if="product.productType !== 'RENTAL'" type="button"
+												class="btn-buy" @click.stop="fnView(product.productId)">
+												구매하기
+											</button>
+										</div>
+									</div>
+								</div>
+							</div>
 
-  methods: {
 
-    // ── 상품 목록 조회 ──
-    fnList() {
-      let self = this;
-      self.loading = true;
-      // 가격 필터링
-      let minP = null;
-      let maxP = null;
-      // ⭐ 수정: priceRange가 존재하고(null이 아니고), 동시에 빈 문자열이 아닐 때만 split 실행
-      if (self.filter.priceRange && typeof self.filter.priceRange === 'string') {
-          const prices = self.filter.priceRange.split('-');
-          minP = parseInt(prices[0]);
-          maxP = parseInt(prices[1]);
-      }
-      
-      let param = {
-        categoryId:  self.currentCat,
-        childCatId:  self.currentChild,  // ← 자식 카테고리 파라미터 추가
-        sortKey:     self.sortKey,
-        page:        self.currentPage,
-        perPage:     self.perPage,
-        // 구매/대여 필터링
-        rentable: (self.filter.productType === 'all' || self.filter.productType === 'rent'),
-        buyable:  (self.filter.productType === 'all' || self.filter.productType === 'buy'),
-        // 브랜드 필터링 brandId가 빈 배열이면 서버에 보내지 않거나 null 처리
-        brandId: self.filter.brandId.length > 0 ? self.filter.brandId : null,
-        // 가격 필터링 , 전체일 때는 null이 넘어감
-        priceMin: minP, 
-        priceMax: maxP,
-        // 검색어
-        searchKeyword: self.searchKeyword
-      };
+						</div>
+					</div>
 
-      $.ajax({
-        url:      "/product/list.dox",
-        dataType: "json",
-        type:     "POST",
-        data:     param,
-        traditional: true,
-        success: function(data) {
-          self.products = Array.isArray(data.list) ? data.list : [];
-          self.loading     = false;
-        },
-        error: function(xhr, status, err) {
-          console.error("상품 목록 조회 실패:", err);
-          self.loading = false;
-        }
-      });
-    },
-    fnSearch() {
-      this.currentPage = 1;
-      this.fnList();
-    },
+					<!-- /content-wrap -->
+					<div v-if="confirmModal.open" class="confirm-overlay" @click.self="confirmCancel">
+						<div class="confirm-box">
+							<div class="confirm-title">알림</div>
+							<div class="confirm-message">{{ confirmModal.message }}</div>
 
-    // ── 부모 카테고리 조회 (pill 바) ──
-    fetchCategory() {
-      let self = this;
-      $.ajax({
-        url: "/category/parentList.dox",
-        dataType: "json",
-        type: "POST",
-        success: function(data) {
-          if (data.result === 'success') {
-            self.category = data.list;
-          }
-        },
-        error: function(xhr, status, err) {
-          console.error("카테고리 조회 실패:", err);
-        }
-      });
-    },
+							<div class="confirm-btns">
+								<button type="button" class="confirm-cancel" @click="confirmCancel">
+									{{ confirmModal.cancelText }}
+								</button>
+								<button type="button" class="confirm-ok" @click="confirmOk">
+									{{ confirmModal.okText }}
+								</button>
+							</div>
+						</div>
+					</div>
 
-    // ── 자식 카테고리 조회 (사이드바) ── ← 추가
-    fetchChildCategory(parentId) {
-      let self = this;
-      $.ajax({
-        url: "/category/childList.dox",
-        dataType: "json",
-        type: "POST",
-        data:     { parentId: parentId },
-        success: function(data) {
-          if (data.result === 'success') {
-            self.childCategory = data.list;
-          }
-          
-        },
-        error: function(xhr, status, err) {
-          console.error("자식 카테고리 조회 실패:", err);
-        }
-      });
-    },
+					<button class="floating-top-btn" type="button" :class="{ show: showTopBtn }" @click="fnMoveTop">
+						<i class="ri-arrow-up-line"></i>
+					</button>
+				</div>
+			</div>
+			<%@ include file="/WEB-INF/common/footer.jsp" %>
+	
+	<script>
+		if ('scrollRestoration' in history) {
+			history.scrollRestoration = 'manual';
+		}
 
-    // ── 부모 카테고리 선택 ──
-    selectCategory(catId) {
-      this.currentCat   = catId;
-      this.currentChild = null;          // 자식 선택 초기화
+		// ── 토스트 ──
+		function showToast(msg) {
+			var t = document.getElementById('toast');
+			if (!t) {
+				t = document.createElement('div');
+				t.id = 'toast';
+				t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;display:none;';
+				document.body.appendChild(t);
+			}
+			t.textContent = msg;
+			t.style.display = 'block';
+			setTimeout(function () {t.style.display = 'none';}, 2200);
+		}
 
-      if (catId !== null) {
-        this.fetchChildCategory(catId); // 자식 카테고리 로드
-      } else {
-        this.childCategory = [];        // 전체 선택 시 사이드바 비우기
-      }
+		// ── 위시 토글 ──
+		function fnWish(e, btn, no) {
+			e.stopPropagation();
+			$.ajax({
+				url: '/user/wishlist/toggle.dox',
+				type: 'POST',
+				data: {productId: no},
+				dataType: 'json',
+				success: function (res) {
+					if (res.result === 'success') {
+						btn.classList.toggle('on');
+						var isOn = btn.classList.contains('on');
+						showToast(isOn ? '❤️ 위시리스트에 추가됐어요' : '위시리스트에서 제거됐어요');
+					} else {
+						showToast('로그인이 필요합니다.');
+					}
+				}
+			});
+		}
+		const {createApp} = Vue;
 
-      this.currentPage = 1;
-      this.fnList();
-    },
+		createApp({
 
-    // ── 현재 카테고리명 반환 ──
-    getCurrentCategoryName() {
-      if (this.currentCat === null) return '전체 장비';  // ← '전체' 문자열에서 수정
-      const cat = this.category.find(c => c.categoryId === this.currentCat);
-      return cat ? cat.categoryName : '';
-    },
+			data() {
+				return {
+					products: [],
+					brandList: [],
+					loading: false,
 
-    toggleWish(id) {
-      const next = new Set(this.wishedIds);
-      if (next.has(id)) next.delete(id);
-      else              next.add(id);
-      this.wishedIds = next;
-    },
+					category: [],    // 부모 카테고리 (pill 바)
+					childCategory: [],    // 자식 카테고리 (사이드바) ← 추가
+					currentCat: null,  // null = 전체  ← 'null' 문자열에서 수정
+					currentChild: null,  // 선택된 자식 카테고리 ← 추가
 
-    resetFilter() {
-      this.filter = {
-        productType: 'all', // 초기화 시 '전체'로 이동
-        brandId:   [],
-        priceRange: null,
-        minRating:  null,
-      };
-      this.currentPage = 1;
-      this.fnList();
-    },
+					currentView: 'grid',
+					sortKey: 'popular',
+					currentPage: 1,
+					perPage: 12,
+					sidebarVisible: true,
+					wishedIds: new Set(),
+					searchKeyword: '', // 검색어 변수
+					priceRange: null, // 가격 필터링
+					confirmModal: {
+						open: false,
+						message: '',
+						okText: '확인',
+						cancelText: '취소',
+						onOk: null
+					},
+					openParent: null,
+					filter: {
+						rentable: true,
+						buyable: true,
+						brandId: [],
+						priceMax: 100000
+					},
+					filterOpen: {
+						type: true,
+						category: true,
+						brand: true,
+						price: true
+					},
+					showTopBtn: false,
+					filterTimer: null,
+				};
 
-    updateRangeStyle(event) {
-      const el  = event.target;
-      const pct = el.value + '%';
-      el.style.background = `linear-gradient(to right, var(--ember) 0%, var(--ember) ${pct}, var(--border) ${pct}, var(--border) 100%)`;
-    },
+			},
 
-    // starsHTML(rating) {
-    //   const full = Math.floor(rating);
-    //   const half = rating % 1 >= 0.5;
-    //   let html = '';
-    //   for (let i = 0; i < full; i++) html += '<span class="star">★</span>';
-    //   if (half) html += '<span class="star" style="opacity:.5">★</span>';
-    //   return html;
-    // },
-    fnView : function(productId) {
-                alert("제품상세로 이동");
-                pageChange("/product/detail.do", {productId : productId});
-            },
-    // 페이지 변경 시 호출할 공통 메서드
-    changePage(page) {
-      this.currentPage = page;
-      
-      // 화면 상단으로 부드럽게 이동 (선택 사항)
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth' // 'smooth'를 넣으면 스르륵 올라가고, 빼면 바로 점프합니다.
-      });
-    },
-    clearBrands() {
-      this.filter.brandId = []; // 배열을 비워서 다른 체크를 모두 해제
-      this.fnSearch();
-    }
+			computed: {
+				pricePercent() {
+					return (Number(this.filter.priceMax) / 100000) * 100;
+				},
+				priceText() {
+					if (!this.filter.priceMax || this.filter.priceMax >= 100000) return '전체';
+					return this.filter.priceMax.toLocaleString() + '원 이하';
+				},
+				pagedProducts() {
+					return this.products;
+				},
 
-  },
+				totalPages() {
+					return Math.ceil(this.products.length / this.perPage);
+				},
 
-  mounted() {
-    this.fetchCategory();  // 부모 카테고리 로드
-    this.fnList();           // 상품 목록 로드 (fetchProducts 제거, fnList로 통일)
-  },
+				priceRangeLabel() {
+					const v = Math.round(this.filter.priceRange * 500);
+					return v >= 50000 ? '50,000원+' : v.toLocaleString() + '원';
+				},
+			},
 
-}).mount('#app');
-</script>
-</body>
-</html>
+			methods: {
+
+				getSortLabel() {
+					if (this.sortKey === 'popular') return '인기 장비';
+					if (this.sortKey === 'newest') return '최신 장비';
+					if (this.sortKey === 'review-count') return '리뷰 많은 순';
+					if (this.sortKey === 'price-low') return '가격 낮은 순';
+					if (this.sortKey === 'price-high') return '가격 높은 순';
+					if (this.sortKey === 'rating') return '평점 높은 순';
+					return '장비 목록';
+				},
+
+				// 별점 - 소수점 비율만큼 채우기
+				starsHTML(rating) {
+					let score = Number(rating) || 0;
+
+					if (score < 0) {
+						score = 0;
+					}
+
+					if (score > 5) {
+						score = 5;
+					}
+
+					const percent = (score / 5) * 100;
+
+					return ''
+						+ '<span class="star-layer-wrap" aria-label="' + score.toFixed(1) + '점">'
+						+ '  <span class="star-layer star-base">★★★★★</span>'
+						+ '  <span class="star-layer star-fill" style="width:' + percent + '%">★★★★★</span>'
+						+ '</span>';
+				},
+				formatRating(rating) {
+					return (Number(rating) || 0).toFixed(1);
+				},
+
+				// ── 상품 목록 조회 ──
+				fnList() {
+					let self = this;
+					if (self.products.length === 0) {
+						self.loading = true;
+					}
+
+					let minP = null;
+					let maxP = null;
+
+					if (Number(self.filter.priceMax) < 100000) {
+						maxP = Number(self.filter.priceMax);
+					}
+
+					let param = {
+						categoryId: self.currentCat,
+						childCatId: self.currentChild,
+						sortKey: self.sortKey,
+						rentable: self.filter.rentable,
+						buyable: self.filter.buyable,
+						brandId: self.filter.brandId.length > 0 ? self.filter.brandId : null,
+						priceMin: minP,
+						priceMax: maxP,
+						searchKeyword: self.searchKeyword,
+						searchKeywordNoSpace: (self.searchKeyword || '').replace(/\s+/g, '')
+					};
+
+					$.ajax({
+						url: "/product/list.dox",
+						dataType: "json",
+						type: "POST",
+						data: param,
+						traditional: true,
+						success: function (data) {
+							self.products = Array.isArray(data.list) ? data.list : [];
+							self.loading = false;
+
+							$.ajax({
+								url: "/user/wishlist/list.dox",
+								type: "POST",
+								dataType: "json",
+								success: function (wRes) {
+									if (wRes && wRes.result === "success" && Array.isArray(wRes.list)) {
+										self.wishedIds = new Set(
+											wRes.list.map(function (w) {
+												return w.productId;
+											})
+										);
+									} else {
+										self.wishedIds = new Set();
+									}
+								},
+								error: function () {
+									self.wishedIds = new Set();
+								}
+							});
+						},
+						error: function () {
+							self.products = [];
+							self.loading = false;
+						}
+					});
+				},
+
+				fnSearch(keepScroll = true) {
+					const scrollY = keepScroll ? window.scrollY : 0;
+
+					this.currentPage = 1;
+					clearTimeout(this.filterTimer);
+
+					this.filterTimer = setTimeout(() => {
+						this.fnList();
+
+						this.$nextTick(() => {
+							if (keepScroll) {
+								window.scrollTo(0, scrollY);
+							}
+						});
+					}, 120);
+				},
+				// ── 부모 카테고리 조회 (pill 바) ──
+				fetchCategory() {
+					let self = this;
+
+					$.ajax({
+						url: "/category/allList.dox",
+						type: "POST",
+						dataType: "json",
+						success: function (data) {
+
+							const map = {};
+							const parents = [];
+
+							data.list.forEach(c => {
+								if (!c.parentId) {
+									map[c.categoryId] = {...c, childList: []};
+									parents.push(map[c.categoryId]);
+								}
+							});
+
+							data.list.forEach(c => {
+								if (c.parentId) {
+									map[c.parentId]?.childList.push(c);
+								}
+							});
+
+							self.category = parents;
+						}
+					});
+				},
+				// ── 현재 카테고리명 반환 ──
+				getCurrentCategoryName() {
+					if (this.currentCat === null) return '전체 장비';
+
+					const parent = this.category.find(function (c) {
+						return c.categoryId === this.currentCat;
+					}, this);
+
+					if (!parent) return '장비 목록';
+
+					if (this.currentChild !== null) {
+						const child = parent.childList.find(function (c) {
+							return c.categoryId === this.currentChild;
+						}, this);
+
+						return child ? child.categoryName : parent.categoryName;
+					}
+
+					return parent.categoryName;
+				},
+
+				resetFilter() {
+					clearTimeout(this.filterTimer);
+
+					this.filter = {
+						rentable: true,
+						buyable: true,
+						brandId: [],
+						priceMax: 100000
+					};
+
+					this.currentCat = null;
+					this.currentChild = null;
+					this.openParent = null;
+					this.childCategory = [];
+					this.currentPage = 1;
+					this.searchKeyword = '';
+
+					window.scrollTo({
+						top: 0,
+						behavior: 'smooth'
+					});
+
+					setTimeout(() => {
+						this.fnSearch(false);
+					}, 120);
+				},
+				fnView: function (productId) {
+					location.href = "/product/detail.do?productId=" + productId;
+				},
+				fetchBrandList() {
+					let self = this;
+					$.ajax({
+						url: "/product/brandList.dox", // 브랜드 목록 조회를 위한 URL
+						dataType: "json",
+						type: "POST",
+						data: {}, // 필요 시 조건 전달
+						success: function (data) {
+							if (data.result === 'success') {
+								self.brandList = data.list; // 서버에서 받은 리스트를 할당
+							}
+						},
+						error: function (err) {
+							console.error("브랜드 조회 실패:", err);
+						}
+					});
+				},
+				clearBrands() {
+					this.filter.brandId = []; // 배열을 비워서 다른 체크를 모두 해제
+					this.fnSearch();
+				},
+				fnWishVue(e, productId) {
+					e.stopPropagation();
+
+					let self = this;
+
+					$.ajax({
+						url: '/user/wishlist/toggle.dox',
+						type: 'POST',
+						data: {productId: productId},
+						dataType: 'json',
+						success: function (res) {
+							if (!res || res.result !== 'success') {
+								self.openConfirm(
+									'찜하려면 로그인이 필요해요!🔥 \n 로그인하고 마음에 드는 상품을 저장해보세요!',
+									function () {
+										location.href = '/user/login.do';
+									},
+									'로그인하기',
+									'취소'
+								);
+								return;
+							}
+
+							let newSet = new Set(self.wishedIds);
+
+							if (newSet.has(productId)) {
+								newSet.delete(productId);
+								showToast('위시리스트에서 제거했어요');
+							} else {
+								newSet.add(productId);
+								showToast('❤️ 위시리스트에 추가했어요!');
+							}
+
+							self.wishedIds = newSet;
+						},
+						error: function (xhr) {
+							self.openConfirm(
+								'찜하려면 로그인이 필요해요!🔥 \n 로그인하고 마음에 드는 상품을 저장해보세요!',
+								function () {
+									location.href = '/user/login.do';
+								},
+								'로그인하기',
+								'취소'
+							);
+						}
+					});
+				},
+				openConfirm(message, onOk, okText = '확인', cancelText = '취소') {
+					this.confirmModal.message = message;
+					this.confirmModal.onOk = onOk;
+					this.confirmModal.okText = okText;
+					this.confirmModal.cancelText = cancelText;
+					this.confirmModal.open = true;
+				},
+
+				confirmOk() {
+					if (typeof this.confirmModal.onOk === 'function') {
+						this.confirmModal.onOk();
+					}
+					this.confirmModal.open = false;
+				},
+
+				confirmCancel() {
+					this.confirmModal.open = false;
+				},
+				toggleParent(parentId) {
+					this.openParent = this.openParent === parentId ? null : parentId;
+				},
+
+				clickParent(id) {
+					// 이미 열린 상태 → 전체로 초기화
+					if (this.openParent === id) {
+						this.openParent = null;
+						this.currentCat = null;
+						this.currentChild = null;
+						this.currentPage = 1;
+						this.fnSearch();
+						return;
+					}
+
+					// 새 카테고리 선택
+					this.openParent = id;
+					this.currentCat = id;
+					this.currentChild = null;
+					this.currentPage = 1;
+					this.fnSearch();
+				},
+
+				selectCategory(id) {
+					this.currentCat = id;
+					this.currentChild = null;
+					this.openParent = null;
+					this.currentPage = 1;
+					this.fnSearch();
+				},
+
+				selectChild(parentId, childId) {
+					this.currentCat = parentId;
+					this.currentChild = childId;
+					this.currentPage = 1;
+					this.fnSearch();
+				},
+				updateRange(e) {
+					const val = e.target.value;
+					const percent = val / 100000 * 100;
+
+					e.target.style.background =
+						`linear-gradient(to right, #E8732A ${percent}%, #ddd ${percent}%)`;
+				},
+				fnMoveTop() {
+					window.scrollTo({
+						top: 0,
+						behavior: 'smooth'
+					});
+				},
+
+				fnHandleScroll() {
+					this.showTopBtn = window.scrollY > 420;
+				},
+				fnGoEvent() {
+					pageChange("/event/detail.do", {
+						eventId: 20
+					});
+				},
+				fnPriceInput() {
+					clearTimeout(this.filterTimer);
+
+					this.filterTimer = setTimeout(() => {
+						this.currentPage = 1;
+
+						const contentTop = document.querySelector('.content-wrap').offsetTop - 90;
+
+						this.fnList();
+
+						this.$nextTick(() => {
+							if (window.scrollY > contentTop) {
+								window.scrollTo({
+									top: contentTop,
+									behavior: 'auto'
+								});
+							}
+						});
+					}, 250);
+				}
+
+			}, // methods
+
+			mounted() {
+				this.fetchCategory();
+				this.fetchBrandList();
+				window.addEventListener('keydown', this.fnKeyEnter);
+
+				var self = this;
+				var params = new URLSearchParams(window.location.search);
+
+				var catId = params.get('categoryId');
+				var parId = params.get('parentId');
+				var hasCategoryParam = catId || parId;
+				var rentalParam = params.get('rental') || '${param.rental}';
+				var purchaseParam = params.get('purchase') || '${param.purchase}';
+
+				if (rentalParam === 'Y') {
+					self.filter.rentable = true;
+					self.filter.buyable = false;
+				}
+
+				if (purchaseParam === 'Y') {
+					self.filter.rentable = false;
+					self.filter.buyable = true;
+				}
+				if (catId && parId) {
+					self.currentCat = parseInt(parId);
+					self.currentChild = parseInt(catId);
+					self.openParent = parseInt(parId);
+					self.fnList();
+				} else if (catId) {
+					self.selectCategory(parseInt(catId));
+				} else {
+					self.fnList();
+				}
+
+				/* URL 카테고리 파라미터는 첫 진입에만 쓰고 바로 제거 */
+				if (hasCategoryParam) {
+					window.history.replaceState({}, document.title, window.location.pathname);
+				}
+				window.addEventListener('scroll', this.fnHandleScroll);
+			},
+			unmounted() {
+				window.removeEventListener('scroll', this.fnHandleScroll);
+			}
+
+		}).mount('#app');
+	</script>
+	</body>
+
+	</html>

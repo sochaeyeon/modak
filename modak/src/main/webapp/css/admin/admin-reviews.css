@@ -1,0 +1,124 @@
+@charset "UTF-8";
+
+/* 1. 기본 레이아웃 및 변수 */
+.review-page-container {
+    --r-bg: #11131a;
+    --r-card: #1c1f2b;
+    --r-accent: #E8732A;
+    --r-border: rgba(255, 255, 255, 0.08);
+    --r-text: #e2e4e9;
+    --r-text-muted: #8a8f9d;
+    background: var(--r-bg);
+    min-height: 100vh;
+    padding: 28px 32px;
+}
+
+/* 2. 테이블 디자인 및 행 클릭 효과 */
+.review-table-card {
+    background: var(--r-card);
+    border: 1px solid var(--r-border);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+}
+
+.r-table { width: 100%; border-collapse: collapse; }
+.r-table th {
+    background: rgba(255,255,255,0.03);
+    padding: 18px;
+    color: var(--r-text-muted);
+    font-size: 11px;
+    border-bottom: 1px solid var(--r-border);
+}
+.r-table td {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--r-border);
+    color: var(--r-text);
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* 행 호버 및 클릭 암시 */
+.r-table tbody tr {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+.r-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 3. 썸네일 및 텍스트 스타일 */
+.prod-thumb {
+    width: 55px; height: 55px; border-radius: 12px;
+    object-fit: cover; margin-right: 15px;
+    border: 1px solid var(--r-border);
+}
+.prod-thumb.no-img {
+    background: #262a3a; display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: #555;
+}
+
+.review-content {
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-size: 13px; color: var(--r-text-muted);
+}
+.user-badge {
+    background: rgba(255,255,255,0.05); padding: 4px 10px;
+    border-radius: 8px; font-size: 12px; color: #fff;
+}
+.star-rating { color: #f4d03f; font-size: 14px; }
+
+/* 4. 상세보기 모달 (팝업) 디자인 */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center; z-index: 2000;
+}
+.modal-content {
+    background: #1c1f2b; border: 1px solid rgba(255,255,255,0.1);
+    width: 650px; max-height: 85vh; border-radius: 28px; padding: 35px;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.6);
+    position: relative; color: #fff; overflow-y: auto;
+}
+
+/* 모달 내 유저 사진 슬라이드 영역 */
+.review-img-container {
+    display: flex; gap: 12px; overflow-x: auto; 
+    padding-bottom: 15px; margin-bottom: 25px;
+}
+.review-img-item {
+    width: 180px; height: 180px; border-radius: 18px; 
+    object-fit: cover; border: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0; transition: transform 0.3s;
+}
+.review-img-item:hover { transform: scale(1.02); }
+
+/* 커스텀 스크롤바 */
+.review-img-container::-webkit-scrollbar { height: 6px; }
+.review-img-container::-webkit-scrollbar-thumb { 
+    background: var(--r-accent); border-radius: 10px; 
+}
+.review-img-container::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+.modal-info-tag { 
+    font-size: 10px; color: var(--r-accent); font-weight: 800; 
+    letter-spacing: 1.5px; margin-bottom: 8px; display: block; 
+}
+.modal-stars { color: #f4d03f; font-size: 24px; margin-bottom: 15px; }
+
+/* 5. 버튼 스타일 */
+.p-btn {
+    background: linear-gradient(135deg, #E8732A 0%, #D45D12 100%);
+    color: white; border: none; padding: 12px 24px; border-radius: 12px;
+    font-weight: 700; cursor: pointer; transition: all 0.3s;
+}
+.p-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(232, 115, 42, 0.4); }
+
+.p-btn-secondary {
+    background: rgba(255, 255, 255, 0.05); color: #e2e4e9;
+    border: 1px solid var(--r-border); padding: 7px 14px; border-radius: 8px;
+    cursor: pointer; transition: 0.2s;
+}
+.btn-delete { color: #ff5f5f; border-color: rgba(255, 95, 95, 0.3); }
+.btn-delete:hover { background: rgba(255, 95, 95, 0.1); border-color: #ff5f5f; }

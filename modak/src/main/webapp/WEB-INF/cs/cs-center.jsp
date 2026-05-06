@@ -1,1155 +1,621 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-	<!DOCTYPE html>
-	<html lang="ko">
-
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>모닥모닥 고객센터 - Frame</title>
-		<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
-			rel="stylesheet">
-		<style>
-			:root {
-				--cream: #f7f3ee;
-				--cream-dark: #f0ebe3;
-				--orange: #d4714a;
-				--orange-light: #e8a07a;
-				--orange-pale: #faf0eb;
-				--text-dark: #3a3530;
-				--text-mid: #7a7068;
-				--text-light: #b0a89e;
-				--border: #e8e0d8;
-				--white: #ffffff;
-			}
-
-			* {
-				box-sizing: border-box;
-				margin: 0;
-				padding: 0;
-			}
-
-			body {
-				font-family: 'Noto Sans KR', sans-serif;
-				background: var(--cream);
-				color: var(--text-dark);
-				font-size: 12px;
-				line-height: 1.7;
-			}
-
-			/* ── HEADER ── */
-			.top-bar {
-				background: var(--white);
-				border-bottom: 1px solid var(--border);
-				padding: 0 32px;
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				height: 44px;
-			}
-
-			.logo {
-				font-size: 17px;
-				font-weight: 700;
-				color: var(--text-dark);
-				letter-spacing: -0.5px;
-			}
-
-			.logo span {
-				color: var(--orange);
-			}
-
-			.top-right {
-				display: flex;
-				align-items: center;
-				gap: 16px;
-				font-size: 11px;
-				color: var(--text-mid);
-			}
-
-			.top-right a {
-				color: var(--text-mid);
-				text-decoration: none;
-			}
-
-			.top-right a:hover {
-				color: var(--orange);
-			}
-
-			.nav-bar {
-				background: var(--white);
-				border-bottom: 1px solid var(--border);
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				padding: 0 32px;
-				height: 40px;
-			}
-
-			.nav-left {
-				display: flex;
-				align-items: center;
-				gap: 20px;
-			}
-
-			.nav-left a {
-				font-size: 11px;
-				color: var(--text-mid);
-				text-decoration: none;
-			}
-
-			.nav-left a:hover {
-				color: var(--orange);
-			}
-
-			.nav-center {
-				font-size: 14px;
-				font-weight: 700;
-				color: var(--text-dark);
-				letter-spacing: 2px;
-			}
-
-			.nav-right {
-				font-size: 11px;
-				color: var(--text-mid);
-				display: flex;
-				gap: 12px;
-			}
-
-			.nav-right a {
-				color: var(--text-mid);
-				text-decoration: none;
-			}
-
-			.nav-right a:hover {
-				color: var(--orange);
-			}
-
-			/* ── HERO ── */
-			.hero {
-				background: var(--cream-dark);
-				padding: 36px 32px 28px;
-				text-align: center;
-				position: relative;
-				overflow: hidden;
-			}
-
-			.hero::before {
-				content: '';
-				position: absolute;
-				top: 0;
-				left: 0;
-				right: 0;
-				bottom: 0;
-				background: radial-gradient(ellipse at 50% 0%, rgba(212, 113, 74, 0.06) 0%, transparent 70%);
-				pointer-events: none;
-			}
-
-			.hero-icon {
-				font-size: 28px;
-				margin-bottom: 10px;
-				display: block;
-			}
-
-			.hero h1 {
-				font-size: 17px;
-				font-weight: 700;
-				color: var(--orange);
-				margin-bottom: 4px;
-				letter-spacing: -0.3px;
-			}
-
-			.hero p {
-				font-size: 17px;
-				font-weight: 700;
-				color: var(--text-dark);
-				margin-bottom: 16px;
-				letter-spacing: -0.3px;
-			}
-
-			.hero-search-wrap {
-				display: flex;
-				align-items: center;
-				max-width: 340px;
-				margin: 0 auto 10px;
-				background: var(--white);
-				border: 1px solid var(--border);
-				border-radius: 4px;
-				overflow: hidden;
-			}
-
-			.hero-search-wrap input {
-				flex: 1;
-				border: none;
-				outline: none;
-				padding: 8px 12px;
-				font-size: 11px;
-				font-family: 'Noto Sans KR', sans-serif;
-				background: transparent;
-				color: var(--text-dark);
-			}
-
-			.hero-search-wrap input::placeholder {
-				color: var(--text-light);
-			}
-
-			.hero-search-wrap button {
-				background: none;
-				border: none;
-				padding: 0 12px;
-				cursor: pointer;
-				color: var(--text-light);
-				font-size: 14px;
-			}
-
-			.hero-links {
-				font-size: 10px;
-				color: var(--text-light);
-				display: flex;
-				justify-content: center;
-				gap: 12px;
-				flex-wrap: wrap;
-			}
-
-			.hero-links a {
-				color: var(--text-light);
-				text-decoration: none;
-			}
-
-			.hero-links a:hover {
-				color: var(--orange);
-			}
-
-			.hero-links span {
-				color: var(--border);
-			}
-
-			/* ── MAIN ── */
-			.main {
-				max-width: 720px;
-				margin: 0 auto;
-				padding: 32px 24px 60px;
-			}
-
-			.sec-eyebrow {
-				font-size: 9px;
-				letter-spacing: 1.5px;
-				text-transform: uppercase;
-				color: var(--text-light);
-				margin-bottom: 3px;
-			}
-
-			.sec-title {
-				font-size: 16px;
-				font-weight: 700;
-				color: var(--text-dark);
-				margin-bottom: 16px;
-				letter-spacing: -0.3px;
-			}
-
-			/* ── CATEGORY CARDS ── */
-			.cat-section {
-				margin-bottom: 16px;
-			}
-
-			.cat-grid {
-				display: flex;
-				gap: 8px;
-			}
-
-			.cat-card {
-				flex: 1;
-				background: var(--white);
-				border: 1px solid var(--border);
-				border-radius: 8px;
-				padding: 16px 8px;
-				text-align: center;
-				cursor: pointer;
-				transition: all 0.18s ease;
-			}
-
-			.cat-card:hover,
-			.cat-card.active {
-				border-color: var(--orange);
-				background: var(--orange-pale);
-			}
-
-			.cat-card .ci {
-				font-size: 18px;
-				margin-bottom: 6px;
-			}
-
-			.cat-card .cn {
-				font-size: 11px;
-				font-weight: 700;
-				color: var(--text-dark);
-				margin-bottom: 2px;
-			}
-
-			.cat-card .cd {
-				font-size: 9px;
-				color: var(--text-light);
-			}
-
-			/* ── NOTICE STRIP ── */
-			.notice-strip {
-				background: var(--orange-pale);
-				border: 1px solid #f0d8cc;
-				border-radius: 6px;
-				padding: 10px 14px;
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				margin-bottom: 40px;
-				gap: 12px;
-			}
-
-			.notice-strip-left {
-				display: flex;
-				align-items: center;
-				gap: 10px;
-			}
-
-			.ns-dot {
-				width: 28px;
-				height: 28px;
-				background: var(--orange);
-				border-radius: 50%;
-				flex-shrink: 0;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				color: #fff;
-				font-size: 11px;
-				font-weight: 700;
-			}
-
-			.ns-text {
-				font-size: 11px;
-				color: var(--text-mid);
-			}
-
-			.ns-text strong {
-				color: var(--text-dark);
-			}
-
-			.ns-btn {
-				background: var(--orange);
-				color: #fff;
-				border: none;
-				padding: 6px 14px;
-				border-radius: 4px;
-				font-size: 10px;
-				cursor: pointer;
-				white-space: nowrap;
-				font-family: 'Noto Sans KR', sans-serif;
-				letter-spacing: 0.3px;
-			}
-
-			/* ── FAQ ── */
-			.faq-section {
-				margin-bottom: 48px;
-			}
-
-			.faq-layout {
-				display: flex;
-				gap: 20px;
-			}
-
-			.faq-sidebar {
-				width: 100px;
-				flex-shrink: 0;
-			}
-
-			.faq-sidebar ul {
-				list-style: none;
-			}
-
-			.faq-sidebar li {
-				font-size: 11px;
-				color: var(--text-light);
-				padding: 5px 0;
-				cursor: pointer;
-				border-bottom: 1px solid transparent;
-				transition: color 0.15s;
-			}
-
-			.faq-sidebar li:hover {
-				color: var(--orange);
-			}
-
-			.faq-sidebar li.active {
-				color: var(--orange);
-				font-weight: 700;
-			}
-
-			.faq-main {
-				flex: 1;
-			}
-
-			.faq-tabs {
-				display: flex;
-				gap: 0;
-				border-bottom: 1.5px solid var(--border);
-				margin-bottom: 2px;
-			}
-
-			.faq-tab {
-				padding: 6px 12px;
-				font-size: 11px;
-				cursor: pointer;
-				color: var(--text-light);
-				border-bottom: 2px solid transparent;
-				margin-bottom: -1.5px;
-				transition: color 0.15s;
-				white-space: nowrap;
-			}
-
-			.faq-tab.active {
-				color: var(--orange);
-				border-bottom-color: var(--orange);
-				font-weight: 700;
-			}
-
-			.faq-item {
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-				padding: 9px 2px;
-				border-bottom: 1px solid #f0ebe3;
-				cursor: pointer;
-				font-size: 11px;
-				color: var(--text-mid);
-				transition: color 0.15s;
-			}
-
-			.faq-item:hover {
-				color: var(--orange);
-			}
-
-			.faq-item .arr {
-				color: var(--border);
-				font-size: 12px;
-			}
-
-			/* ── CONSULT ── */
-			.consult-section {
-				margin-bottom: 48px;
-			}
-
-			.consult-layout {
-				display: flex;
-				gap: 16px;
-				align-items: flex-start;
-			}
-
-			.consult-left {
-				flex: 1;
-				display: flex;
-				flex-direction: column;
-				gap: 10px;
-			}
-
-			.consult-card {
-				background: var(--white);
-				border: 1px solid var(--border);
-				border-radius: 8px;
-				padding: 14px 16px;
-				display: flex;
-				align-items: flex-start;
-				gap: 12px;
-				transition: box-shadow 0.18s;
-			}
-
-			.consult-card:hover {
-				box-shadow: 0 2px 12px rgba(212, 113, 74, 0.10);
-			}
-
-			.c-avatar {
-				width: 32px;
-				height: 32px;
-				border-radius: 50%;
-				background: var(--orange);
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				color: #fff;
-				font-size: 11px;
-				font-weight: 700;
-				flex-shrink: 0;
-			}
-
-			.c-avatar.blue {
-				background: #8aadcc;
-			}
-
-			.c-avatar.gray {
-				background: #b8b0a8;
-			}
-
-			.c-info {
-				flex: 1;
-			}
-
-			.c-name {
-				font-size: 12px;
-				font-weight: 700;
-				color: var(--text-dark);
-				margin-bottom: 2px;
-			}
-
-			.c-desc {
-				font-size: 10px;
-				color: var(--text-light);
-				line-height: 1.6;
-				margin-bottom: 8px;
-			}
-
-			.c-btn {
-				display: inline-block;
-				background: var(--orange);
-				color: #fff;
-				border: none;
-				padding: 5px 12px;
-				border-radius: 4px;
-				font-size: 10px;
-				cursor: pointer;
-				font-family: 'Noto Sans KR', sans-serif;
-			}
-
-			.c-btn.blue {
-				background: #8aadcc;
-			}
-
-			.c-btn.gray {
-				background: #b8b0a8;
-			}
-
-			/* FORM */
-			.contact-form {
-				width: 280px;
-				flex-shrink: 0;
-				background: var(--white);
-				border: 1px solid var(--border);
-				border-radius: 8px;
-				padding: 18px;
-			}
-
-			.cf-title {
-				font-size: 13px;
-				font-weight: 700;
-				color: var(--text-dark);
-				margin-bottom: 14px;
-			}
-
-			.cf-row {
-				display: flex;
-				gap: 8px;
-				margin-bottom: 8px;
-			}
-
-			.cf-group {
-				flex: 1;
-				margin-bottom: 8px;
-			}
-
-			.cf-group label {
-				display: block;
-				font-size: 9px;
-				color: var(--text-light);
-				margin-bottom: 3px;
-				letter-spacing: 0.3px;
-			}
-
-			.cf-group input,
-			.cf-group select,
-			.cf-group textarea {
-				width: 100%;
-				border: 1px solid var(--border);
-				border-radius: 4px;
-				padding: 6px 9px;
-				font-size: 10px;
-				font-family: 'Noto Sans KR', sans-serif;
-				outline: none;
-				color: var(--text-dark);
-				background: #fff;
-				transition: border-color 0.15s;
-			}
-
-			.cf-group input::placeholder,
-			.cf-group textarea::placeholder {
-				color: var(--text-light);
-			}
-
-			.cf-group input:focus,
-			.cf-group select:focus,
-			.cf-group textarea:focus {
-				border-color: var(--orange-light);
-			}
-
-			.cf-group textarea {
-				resize: vertical;
-				min-height: 60px;
-			}
-
-			.cf-note {
-				font-size: 9px;
-				color: var(--text-light);
-				line-height: 1.6;
-				margin-bottom: 12px;
-			}
-
-			.cf-submit {
-				width: 100%;
-				background: var(--orange);
-				color: #fff;
-				border: none;
-				padding: 9px;
-				border-radius: 4px;
-				font-size: 12px;
-				font-weight: 700;
-				cursor: pointer;
-				font-family: 'Noto Sans KR', sans-serif;
-				letter-spacing: 0.3px;
-				transition: background 0.15s;
-			}
-
-			.cf-submit:hover {
-				background: #c05e3a;
-			}
-
-			/* ── HOW TO USE ── */
-			.howto-section {
-				margin-bottom: 48px;
-			}
-
-			.howto-grid {
-				display: flex;
-				gap: 10px;
-			}
-
-			.howto-card {
-				flex: 1;
-				background: var(--white);
-				border: 1px solid var(--border);
-				border-radius: 8px;
-				padding: 16px 12px;
-			}
-
-			.hw-num {
-				font-size: 20px;
-				font-weight: 900;
-				color: var(--orange);
-				opacity: 0.45;
-				margin-bottom: 6px;
-				letter-spacing: -1px;
-			}
-
-			.hw-title {
-				font-size: 11px;
-				font-weight: 700;
-				color: var(--text-dark);
-				margin-bottom: 5px;
-			}
-
-			.hw-desc {
-				font-size: 10px;
-				color: var(--text-light);
-				line-height: 1.6;
-			}
-
-			/* ── NOTICE LIST ── */
-			.notice-section {
-				margin-bottom: 48px;
-			}
-
-			.notice-header {
-				display: flex;
-				justify-content: space-between;
-				align-items: flex-end;
-				margin-bottom: 12px;
-			}
-
-			.notice-more {
-				font-size: 10px;
-				color: var(--text-light);
-				text-decoration: none;
-			}
-
-			.notice-more:hover {
-				color: var(--orange);
-			}
-
-			.n-row {
-				display: flex;
-				align-items: center;
-				padding: 9px 0;
-				border-bottom: 1px solid #f0ebe3;
-				gap: 8px;
-			}
-
-			.n-badge {
-				font-size: 9px;
-				padding: 2px 7px;
-				border-radius: 10px;
-				background: var(--orange);
-				color: #fff;
-				flex-shrink: 0;
-				letter-spacing: 0.3px;
-			}
-
-			.n-badge.gray {
-				background: var(--text-light);
-			}
-
-			.n-badge.blue {
-				background: #8aadcc;
-			}
-
-			.n-text {
-				flex: 1;
-				font-size: 11px;
-				color: var(--text-mid);
-				cursor: pointer;
-			}
-
-			.n-text:hover {
-				color: var(--orange);
-			}
-
-			.n-date {
-				font-size: 10px;
-				color: var(--text-light);
-				flex-shrink: 0;
-			}
-
-			/* ── FOOTER ── */
-			footer {
-				background: var(--white);
-				border-top: 1px solid var(--border);
-				padding: 28px 0 14px;
-				margin-top: 20px;
-			}
-
-			.footer-inner {
-				max-width: 720px;
-				margin: 0 auto;
-				padding: 0 24px;
-				display: flex;
-				gap: 24px;
-			}
-
-			.f-brand {
-				flex: 1.6;
-			}
-
-			.f-brand-name {
-				font-size: 14px;
-				font-weight: 700;
-				color: var(--text-dark);
-				margin-bottom: 6px;
-			}
-
-			.f-brand-name span {
-				color: var(--orange);
-				font-size: 11px;
-				margin-left: 4px;
-			}
-
-			.f-brand-desc {
-				font-size: 9px;
-				color: var(--text-light);
-				line-height: 1.8;
-			}
-
-			.f-nav {
-				flex: 1;
-			}
-
-			.f-nav h4 {
-				font-size: 10px;
-				font-weight: 700;
-				color: var(--text-mid);
-				margin-bottom: 8px;
-			}
-
-			.f-nav ul {
-				list-style: none;
-			}
-
-			.f-nav li {
-				margin-bottom: 4px;
-			}
-
-			.f-nav a {
-				font-size: 10px;
-				color: var(--text-light);
-				text-decoration: none;
-			}
-
-			.f-nav a:hover {
-				color: var(--orange);
-			}
-
-			.f-contact {
-				flex: 1.2;
-			}
-
-			.f-contact h4 {
-				font-size: 10px;
-				font-weight: 700;
-				color: var(--text-mid);
-				margin-bottom: 8px;
-			}
-
-			.f-phone {
-				font-size: 18px;
-				font-weight: 900;
-				color: var(--text-dark);
-				letter-spacing: -0.5px;
-				margin-bottom: 4px;
-			}
-
-			.f-hours {
-				font-size: 9px;
-				color: var(--text-light);
-				line-height: 1.8;
-			}
-
-			.footer-bottom {
-				max-width: 720px;
-				margin: 16px auto 0;
-				padding: 12px 24px 0;
-				border-top: 1px solid var(--border);
-				display: flex;
-				justify-content: space-between;
-				font-size: 9px;
-				color: var(--text-light);
-			}
-
-			.footer-bottom a {
-				color: var(--text-light);
-				text-decoration: none;
-				margin-left: 10px;
-			}
-
-			.footer-bottom a:hover {
-				color: var(--orange);
-			}
-
-			/* divider */
-			.section-divider {
-				height: 1px;
-				background: var(--border);
-				margin: 0 0 40px;
-			}
-		</style>
-	</head>
-
-	<body>
-
-		<!-- Header -->
-		<%@ include file="/WEB-INF/common/header.jsp" %>
-
-			<!-- HERO -->
-			<div class="hero">
-				<span class="hero-icon">🔥</span>
-				<h1>모닥모닥 고객센터에</h1>
-				<p>오신 것을 환영합니다</p>
-				<div class="hero-search-wrap">
-					<input type="text" placeholder="궁금한 것을 검색해보세요">
-					<button>🔍</button>
-				</div>
-				<div class="hero-links">
-					<a href="#">자주 묻는 질문</a>
-					<span>|</span>
-					<a href="#">공지사항</a>
-					<span>|</span>
-					<a href="#">1:1 문의</a>
-					<span>|</span>
-					<a href="/terms.do">이용약관</a>
-					<span>|</span>
-					<a href="/privacyPolicy.do">개인정보처리방침</a>
-				</div>
-			</div>
-
-			<!-- MAIN -->
-			<div class="main">
-
-				<!-- CATEGORY -->
-				<div class="cat-section">
-					<div class="sec-eyebrow">HELP CENTER</div>
-					<div class="sec-title">어떤 도움이 필요하세요?</div>
-					<div class="cat-grid">
-						<div class="cat-card">
-							<div class="ci">🏠</div>
-							<div class="cn">서비스 안내</div>
-							<div class="cd">이용방법</div>
-						</div>
-						<div class="cat-card">
-							<div class="ci">📧</div>
-							<div class="cn">청구 / 요금</div>
-							<div class="cd">결제 문의</div>
-						</div>
-						<div class="cat-card">
-							<div class="ci">📋</div>
-							<div class="cn">공지 / 이벤트</div>
-							<div class="cd">최신 소식</div>
-						</div>
-						<div class="cat-card">
-							<div class="ci">🔧</div>
-							<div class="cn">계약 / 설정</div>
-							<div class="cd">계정 관리</div>
-						</div>
-						<div class="cat-card">
-							<div class="ci">👤</div>
-							<div class="cn">회원 / 계정</div>
-							<div class="cd">회원정보</div>
-						</div>
+	<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
+		<!DOCTYPE html>
+		<html lang="ko">
+		<head>
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0">
+			<title>고객센터 - 모닥모닥</title>
+			<link rel="stylesheet" href="${pageContext.request.contextPath}/css/cs/cs-center.css">
+			<link rel="stylesheet" href="${pageContext.request.contextPath}/css/common/font.css">
+			<link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+			<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+		</head>
+		<body>
+			<%@ include file="/WEB-INF/common/header.jsp" %>
+
+				<!-- HERO -->
+				<div class="hero">
+					<span class="hero-icon"><i class="ri-customer-service-2-line"></i></span>
+					<h1>모닥모닥 고객센터에</h1>
+					<p>오신 것을 환영합니다</p>
+					<div class="hero-search-wrap">
+						<input type="text" id="heroSearchInput" placeholder="검색어를 입력하세요"
+							onkeydown="if(event.key==='Enter') doHeroSearch()">
+						<button type="button" class="search-btn" onclick="doHeroSearch()">검색</button>
+					</div>
+					<div class="search-result-box" id="searchResultBox" style="display:none;">
+						<div class="search-result-inner" id="searchResultInner"></div>
+					</div>
+					<div class="hero-links">
+						<a href="/faq.do">자주 묻는 질문</a>
+						<span>|</span>
+						<a href="/notification/list.do">공지사항</a>
+						<span>|</span>
+						<a href="/inquiry.do">1:1 문의</a>
+						<span>|</span>
+						<a href="/terms.do">이용약관</a>
+						<span>|</span>
+						<a href="/privacyPolicy.do">개인정보처리방침</a>
 					</div>
 				</div>
 
-				<!-- NOTICE STRIP -->
-				<div class="notice-strip">
-					<div class="notice-strip-left">
-						<div class="ns-dot">!</div>
-						<div class="ns-text">
-							<strong>도움이 필요하신가요?</strong><br>
-							전문 상담사가 빠르게 도와드리겠습니다. 평일 09:00 ~ 18:00 운영중입니다.
-						</div>
-					</div>
-					<button class="ns-btn">상담 신청하기 →</button>
-				</div>
+				<!-- MAIN -->
+				<div class="main">
 
-				<!-- FAQ -->
-				<div class="faq-section">
-					<div class="sec-eyebrow">FAQ</div>
-					<div class="sec-title">자주 묻는 질문</div>
-					<div class="faq-layout">
-						<div class="faq-sidebar">
-							<ul>
-								<li class="active">전체</li>
-								<li>서비스 안내</li>
-								<li>요금 / 결제</li>
-								<li>회원 / 계정</li>
-								<li>기타 문의</li>
-							</ul>
-						</div>
-						<div class="faq-main">
-							<div class="faq-tabs">
-								<div class="faq-tab active">전체</div>
-								<div class="faq-tab">서비스</div>
-								<div class="faq-tab">요금</div>
-								<div class="faq-tab">계정</div>
+					<!-- CATEGORY -->
+					<div class="cat-section">
+						<div class="sec-eyebrow">HELP CENTER</div>
+						<div class="sec-title">어떤 도움이 필요하세요?</div>
+						<div class="cat-grid">
+							<div class="cat-card" onclick="moveFaqTab('서비스')">
+								<div class="ci"><i class="ri-compass-3-line"></i></div>
+								<div class="cn">서비스 안내</div>
+								<div class="cd">이용방법</div>
 							</div>
-							<div class="faq-item">서비스 이용 방법이 어떻게 되나요? <span class="arr">›</span></div>
-							<div class="faq-item">비밀번호를 잊어버렸을 때 어떻게 하나요? <span class="arr">›</span></div>
-							<div class="faq-item">요금제 변경은 어떻게 하나요? <span class="arr">›</span></div>
-							<div class="faq-item">영수증 발급은 어떻게 하나요? <span class="arr">›</span></div>
-							<div class="faq-item">회원 탈퇴 후 재가입이 가능한가요? <span class="arr">›</span></div>
-							<div class="faq-item">환불 정책이 어떻게 되나요? <span class="arr">›</span></div>
-							<div class="faq-item">결제 오류가 발생했을 때는 어떻게 하나요? <span class="arr">›</span></div>
-							<div class="faq-item">서비스 이용 중 오류가 발생했을 때 대처 방법은? <span class="arr">›</span></div>
+							<div class="cat-card" onclick="moveFaqTab('요금')">
+								<div class="ci"><i class="ri-bank-card-line"></i></div>
+								<div class="cn">청구 / 요금</div>
+								<div class="cd">결제 문의</div>
+							</div>
+							<div class="cat-card" onclick="location.href='/notification/list.do'">
+								<div class="ci"><i class="ri-megaphone-line"></i></div>
+								<div class="cn">공지 / 이벤트</div>
+								<div class="cd">최신 소식</div>
+							</div>
+							<div class="cat-card" onclick="moveFaqTab('계정')">
+								<div class="ci"><i class="ri-settings-3-line"></i></div>
+								<div class="cn">계약 / 설정</div>
+								<div class="cd">계정 관리</div>
+							</div>
+							<div class="cat-card" onclick="moveFaqTab('계정')">
+								<div class="ci"><i class="ri-user-smile-line"></i></div>
+								<div class="cn">회원 / 계정</div>
+								<div class="cd">회원정보</div>
+							</div>
 						</div>
 					</div>
-				</div>
 
-				<div class="section-divider"></div>
-
-				<!-- CONSULT -->
-				<div class="consult-section">
-					<div class="sec-eyebrow">CONTACT</div>
-					<div class="sec-title">직접 문의하기</div>
-					<div style="font-size:10px;color:var(--text-light);margin-bottom:14px;">평일 09:00 ~ 18:00 (주말/공휴일 제외)
+					<!-- NOTICE STRIP -->
+					<div class="notice-strip">
+						<div class="notice-strip-left">
+							<div class="ns-dot">!</div>
+							<div class="ns-text">
+								<strong>도움이 필요하신가요?</strong><br>
+								챗봇 모닥이가 도와들게요!!
+							</div>
+						</div>
+						<button class="ns-btn" onclick="location.href='/chat/bot.do'">상담 신청하기 </button>
 					</div>
-					<div class="consult-layout">
-						<div class="consult-left">
-							<div class="consult-card">
-								<div class="c-avatar">전</div>
-								<div class="c-info">
-									<div class="c-name">전화 상담</div>
-									<div class="c-desc">전화를 통해 빠르게 상담받으실 수 있습니다.<br>대기 시간이 발생할 수 있습니다.</div>
-									<button class="c-btn">전화 연결</button>
+
+					<!-- FAQ -->
+					<div class="faq-section">
+						<div class="faq-section-header">
+							<div>
+								<div class="sec-eyebrow">FAQ</div>
+								<div class="sec-title">자주 묻는 질문</div>
+							</div>
+							<a href="/faq.do" class="faq-more-btn">더보기 →</a>
+						</div>
+						<div class="faq-layout">
+							<!-- 사이드바: 대분류 -->
+							<div class="faq-sidebar">
+								<ul id="faqSidebarList">
+									<li class="active" data-cat="전체">전체</li>
+									<li data-cat="대여">대여</li>
+									<li data-cat="리뷰">리뷰</li>
+									<li data-cat="결제">결제</li>
+									<li data-cat="회원">회원</li>
+									<li data-cat="캠핑장">캠핑장</li>
+									<li data-cat="기타">기타</li>
+								</ul>
+							</div>
+							<div class="faq-main">
+								<!-- 소분류 탭 -->
+								<div class="faq-tabs" id="faqTabList">
+									<div class="faq-tab active" data-tab="전체">전체</div>
 								</div>
-							</div>
-							<div class="consult-card">
-								<div class="c-avatar blue">채</div>
-								<div class="c-info">
-									<div class="c-name">채팅 상담</div>
-									<div class="c-desc">실시간 채팅 상담이 가능합니다.<br>빠른 답변을 받아보실 수 있습니다.</div>
-									<button class="c-btn blue">채팅 시작</button>
-								</div>
-							</div>
-							<div class="consult-card">
-								<div class="c-avatar gray">이</div>
-								<div class="c-info">
-									<div class="c-name">이메일 문의</div>
-									<div class="c-desc">help@modakmodak.com으로 문의해주세요.<br>1~2 영업일 내 답변드립니다.</div>
-									<button class="c-btn gray">이메일 보내기</button>
+								<!-- FAQ 목록 -->
+								<div id="faqListWrap">
+									<div class="faq-loading"><span class="spin"></span>불러오는 중...</div>
 								</div>
 							</div>
 						</div>
-						<div class="contact-form">
-							<div class="cf-title">온라인 문의 접수</div>
-							<div class="cf-row">
-								<div class="cf-group" style="flex:1">
-									<label>이름</label>
-									<input type="text" placeholder="홍길동">
+					</div>
+
+					<div class="section-divider"></div>
+
+					<!-- CONSULT -->
+					<div class="consult-section">
+						<div class="sec-eyebrow">CONTACT</div>
+						<div class="sec-title">직접 문의하기</div>
+						<div style="font-size:10px;color:var(--text-light);margin-bottom:14px;">평일 09:00 ~ 18:00 (주말/공휴일
+							제외)</div>
+						<div class="consult-layout">
+							<div class="consult-left">
+								<div class="consult-card">
+									<div class="c-avatar"><i class="ri-phone-line"></i></div>
+									<div class="c-info">
+										<div class="c-name">전화 상담</div>
+										<div class="c-desc">전화를 통해 빠르게 상담받으실 수 있습니다.<br>대기 시간이 발생할 수 있습니다.</div>
+										<button class="c-btn" onclick="callPhone()">전화 연결</button>
+									</div>
 								</div>
-								<div class="cf-group" style="flex:1.4">
-									<label>이메일</label>
-									<input type="email" placeholder="example@mail.com">
+								<!-- 채팅 상담 카드 버튼 -->
+								<div class="consult-card">
+									<div class="c-avatar blue"><i class="ri-chat-smile-3-line"></i></div>
+									<div class="c-info">
+										<div class="c-name">채팅 상담</div>
+										<div class="c-desc">AI 챗봇을 통해 24시간 상담이 가능합니다.<br>빠른 답변을 받아보실 수 있습니다.</div>
+										<button class="c-btn blue" onclick="location.href='/chat/bot.do'">챗봇 시작</button>
+									</div>
+								</div>
+								<div class="consult-card">
+									<div class="c-avatar gray"><i class="ri-mail-send-line"></i></div>
+									<div class="c-info">
+										<div class="c-name">이메일 문의</div>
+										<div class="c-desc">help@modakmodak.com으로 문의해주세요.<br>1~2 영업일 내 답변드립니다.</div>
+										<button class="c-btn gray" onclick="sendEmail()">이메일 보내기</button>
+									</div>
+								</div>
+								<div class="consult-card">
+									<div class="c-avatar green"><i class="ri-edit-2-line"></i></div>
+									<div class="c-info">
+										<div class="c-name">온라인 문의 접수</div>
+										<div class="c-desc">궁금하신 사항을 남겨주시면 빠르게 답변드리겠습니다.<br>1:1 문의를 통해 접수해주세요.</div>
+										<button class="c-btn green" onclick="location.href='/inquiry.do'">바로가기</button>
+									</div>
 								</div>
 							</div>
-							<div class="cf-group">
-								<label>연락처</label>
-								<input type="text" placeholder="010-0000-0000">
+						</div>
+					</div>
+
+					<div class="section-divider"></div>
+
+					<!-- HOW TO USE -->
+					<div class="howto-section">
+						<div class="sec-eyebrow">GUIDE</div>
+						<div class="sec-title">서비스 이용 방법</div>
+						<div class="howto-grid">
+							<div class="howto-card">
+								<div class="hw-num">01</div>
+								<div class="hw-title">회원 가입</div>
+								<div class="hw-desc">이메일 또는 소셜 계정으로 간편하게 회원가입 하세요.</div>
 							</div>
-							<div class="cf-group">
-								<label>문의 유형</label>
-								<select>
-									<option>선택해주세요</option>
-									<option>서비스 이용</option>
-									<option>결제 / 환불</option>
-									<option>계정 / 회원</option>
-									<option>기타</option>
-								</select>
+							<div class="howto-card">
+								<div class="hw-num">02</div>
+								<div class="hw-title">요금제 선택</div>
+								<div class="hw-desc">다양한 요금제 중 원하시는 플랜을 선택하세요.</div>
 							</div>
-							<div class="cf-group">
-								<label>문의 내용</label>
-								<textarea placeholder="문의하실 내용을 상세히 입력해주세요."></textarea>
+							<div class="howto-card">
+								<div class="hw-num">03</div>
+								<div class="hw-title">No.1 선택</div>
+								<div class="hw-desc">결제 수단 등록 후 원하는 서비스 옵션을 선택하세요.</div>
 							</div>
-							<div class="cf-note">
-								접수된 문의는 평일 영업시간 내에 순차적으로 답변드립니다. 문의가 많을 경우 다소 지연될 수 있습니다.
+							<div class="howto-card">
+								<div class="hw-num">04</div>
+								<div class="hw-title">이용 완료</div>
+								<div class="hw-desc">모든 준비 완료! 지금 바로 서비스를 이용하실 수 있습니다.</div>
 							</div>
-							<button class="cf-submit">문의 접수하기</button>
 						</div>
 					</div>
-				</div>
 
-				<div class="section-divider"></div>
+					<div class="section-divider"></div>
 
-				<!-- HOW TO USE -->
-				<div class="howto-section">
-					<div class="sec-eyebrow">GUIDE</div>
-					<div class="sec-title">서비스 이용 방법</div>
-					<div class="howto-grid">
-						<div class="howto-card">
-							<div class="hw-num">01</div>
-							<div class="hw-title">회원 가입</div>
-							<div class="hw-desc">이메일 또는 소셜 계정으로 간편하게 회원가입 하세요.</div>
+					<!-- NOTICE LIST (DB 연동) -->
+					<div class="notice-section">
+						<div class="notice-header">
+							<div>
+								<div class="sec-eyebrow">NOTICE</div>
+								<div class="sec-title" style="margin-bottom:0">공지사항</div>
+							</div>
+							<a href="/notification/list.do" class="notice-more">더보기 →</a>
 						</div>
-						<div class="howto-card">
-							<div class="hw-num">02</div>
-							<div class="hw-title">요금제 선택</div>
-							<div class="hw-desc">다양한 요금제 중 원하시는 플랜을 선택하세요.</div>
-						</div>
-						<div class="howto-card">
-							<div class="hw-num">03</div>
-							<div class="hw-title">No.1 선택</div>
-							<div class="hw-desc">결제 수단 등록 후 원하는 서비스 옵션을 선택하세요.</div>
-						</div>
-						<div class="howto-card">
-							<div class="hw-num">04</div>
-							<div class="hw-title">이용 완료</div>
-							<div class="hw-desc">모든 준비 완료! 지금 바로 서비스를 이용하실 수 있습니다.</div>
+						<div id="notificationListWrap">
+							<div class="faq-loading"><span class="spin"></span>불러오는 중...</div>
 						</div>
 					</div>
-				</div>
 
-				<div class="section-divider"></div>
+				</div><!-- /main -->
 
-				<!-- NOTICE LIST -->
-				<div class="notice-section">
-					<div class="notice-header">
-						<div>
-							<div class="sec-eyebrow">NOTICE</div>
-							<div class="sec-title" style="margin-bottom:0">공지사항</div>
+				<%@ include file="/WEB-INF/common/footer.jsp" %>
+
+
+					<!-- 전화 연결 확인 모달 -->
+					<div id="phoneConfirmModal" class="confirm-modal" style="display:none;">
+						<div class="confirm-box" role="dialog" aria-modal="true" aria-labelledby="phoneConfirmTitle">
+							<div class="confirm-icon"><i class="ri-phone-line"></i></div>
+							<div class="confirm-title" id="phoneConfirmTitle">전화 상담으로 이동할까요?</div>
+							<div class="confirm-desc">평일 09:00 ~ 18:00 운영됩니다.<br>확인을 누르면 1588-0000으로 연결돼요.</div>
+							<div class="confirm-actions">
+								<button type="button" class="confirm-btn primary"
+									onclick="confirmPhoneCall()">이동</button>
+								<button type="button" class="confirm-btn secondary"
+									onclick="closePhoneModal()">취소</button>
+							</div>
 						</div>
-						<a href="#" class="notice-more">더보기 →</a>
 					</div>
-					<div class="n-row">
-						<span class="n-badge">공지</span>
-						<span class="n-text">2024년 상반기 서비스 업데이트 안내 및 새로운 기능 추가 예정에 대해 안내드립니다</span>
-						<span class="n-date">2024.03.15</span>
+
+					<!-- 챗봇 모달 -->
+					<div id="chatbotModal" class="chatbot-modal" style="display:none;">
+						<div class="chatbot-wrap">
+							<div class="chatbot-header">
+								<span><i class="ri-sparkling-2-line"></i> 모닥모닥 AI 상담</span>
+								<button class="chatbot-close" onclick="closeChatbot()" aria-label="닫기"><i
+										class="ri-close-line"></i></button>
+							</div>
+							<div class="chatbot-body" id="chatbotBody">
+								<div class="chat-msg bot">안녕하세요! 모닥모닥 고객센터입니다. 무엇을 도와드릴까요?</div>
+							</div>
+							<div class="chatbot-input-wrap">
+								<input type="text" id="chatbotInput" placeholder="메시지를 입력하세요..."
+									onkeydown="if(event.key==='Enter') sendChat()">
+								<button onclick="sendChat()">전송</button>
+							</div>
+						</div>
 					</div>
-					<div class="n-row">
-						<span class="n-badge blue">이벤트</span>
-						<span class="n-text">서비스 3주년 기념 특별 이벤트 - 요금제 50% 할인 프로모션 안내</span>
-						<span class="n-date">2024.03.10</span>
-					</div>
-					<div class="n-row">
-						<span class="n-badge gray">일반</span>
-						<span class="n-text">정기 서버 점검 안내 (3월 20일 새벽 2시 ~ 4시)</span>
-						<span class="n-date">2024.03.08</span>
-					</div>
-					<div class="n-row">
-						<span class="n-badge gray">일반</span>
-						<span class="n-text">개인정보처리방침 변경 안내 - 시행일: 2024년 4월 1일부터 적용</span>
-						<span class="n-date">2024.03.05</span>
-					</div>
-				</div>
 
-			</div><!-- /main -->
+					<script>
+						var CTX = '<%=request.getContextPath()%>';
 
-			<!-- Footer -->
-			<%@ include file="/WEB-INF/common/footer.jsp" %>
+						/* ── 소분류 탭 매핑 ── */
+						// cs-center.jsp는 별도 카테고리 구조를 쓰고 있으므로
+						// faq.jsp와 동일하게 통일
+						var SUB_TABS = {
+							'전체': ['전체'],
+							'대여': ['전체', '예약', '반납', '연장', '취소'],
+							'리뷰': ['전체', '작성', '수정', '삭제'],
+							'결제': ['전체', '결제수단', '환불', '영수증'],
+							'회원': ['전체', '가입', '탈퇴', '정보수정', '비밀번호'],
+							'캠핑장': ['전체', '시설', '예약', '이용안내'],
+							'기타': ['전체']
+						};
 
+						var currentCat = '전체';
+						var currentSubTab = '전체';
+						var currentKeyword = '';
+						var heroSearchResults = []; // hero 검색 결과 캐시
 
-				<script>
-					// FAQ tab switch
-					document.querySelectorAll('.faq-tab').forEach(t => {
-						t.addEventListener('click', function () {
-							document.querySelectorAll('.faq-tab').forEach(x => x.classList.remove('active'));
-							this.classList.add('active');
-						});
-					});
-					// FAQ sidebar
-					document.querySelectorAll('.faq-sidebar li').forEach(li => {
-						li.addEventListener('click', function () {
-							document.querySelectorAll('.faq-sidebar li').forEach(x => x.classList.remove('active'));
-							this.classList.add('active');
-						});
-					});
-					// Category card
-					document.querySelectorAll('.cat-card').forEach(c => {
-						c.addEventListener('click', function () {
-							document.querySelectorAll('.cat-card').forEach(x => x.classList.remove('active'));
-							this.classList.add('active');
-						});
-					});
-				</script>
-	</body>
+						/* ════════════════════════════
+						   FAQ Ajax 조회
+						════════════════════════════ */
+						function fnGetFaqList() {
+							$('#faqListWrap').html('<div class="faq-loading"><span class="spin"></span>불러오는 중...</div>');
 
-	</html>
+							var sendCategory = '';
+							var excludeCategory = '';
 
-	<script>
-		const app = Vue.createApp({
-			data() {
-				return {
-					message: ""
-				};
-			},
-			methods: {
-				fnCs: function () {
-					let self = this;
-					$.ajax({
-						url: "http://localhost:8080/cs/center.dox",
-						dataType: "json",
-						type: "POST",
-						data: {}, // Sending empty object if no params needed
-						success: function (data) {
-							console.log("Server Response:", data);
-							self.message = data.message;
-						},
-						cs: function (cs) {
-							console.cs("AJAX Cs:", cs);
+							if (currentCat === '기타' && currentSubTab === '전체') {
+								// 기타 > 전체: 알려진 소분류 전부 제외
+								var knownSubs = [];
+								$.each(SUB_TABS, function (cat, tabs) {
+									if (cat !== '전체' && cat !== '기타') {
+										$.each(tabs, function (i, tab) {
+											if (tab !== '전체' && $.inArray(tab, knownSubs) === -1) {
+												knownSubs.push(tab);
+											}
+										});
+									}
+								});
+								excludeCategory = knownSubs.join(',');
+
+							} else if (currentCat !== '전체') {
+								if (currentSubTab !== '전체') {
+									sendCategory = currentSubTab;
+								} else {
+									var subTabs = SUB_TABS[currentCat] || [];
+									var subs = subTabs.filter(function (t) {return t !== '전체';});
+									sendCategory = subs.join(',');
+								}
+							}
+
+							$.ajax({
+								url: CTX + '/cs/center.dox',
+								type: 'POST',
+								dataType: 'json',
+								data: {
+									action: 'faqList',
+									category: sendCategory,
+									excludeCategory: excludeCategory,
+									searchKeyword: currentKeyword
+								},
+								success: function (data) {
+									if (data.result === 'success') {
+										renderFaqList(data.list);
+									} else {
+										$('#faqListWrap').html('<div class="faq-empty">데이터를 불러오지 못했습니다.</div>');
+									}
+								},
+								error: function (xhr) {
+									$('#faqListWrap').html('<div class="faq-empty">서버 연결 오류 (' + xhr.status + ')</div>');
+								}
+							});
 						}
-					});
-				}
-			},
-			mounted() {
-				this.fnCs();
-			}
-		});
-		app.mount('#app');
-	</script>
+
+						/* ── FAQ 렌더링 ── */
+						function renderFaqList(list) {
+							var $wrap = $('#faqListWrap');
+							if (!list || list.length === 0) {
+								$wrap.html('<div class="faq-empty">등록된 FAQ가 없습니다.</div>');
+								return;
+							}
+							var html = '';
+							$.each(list, function (i, f) {
+								html += '<div class="faq-item">'
+									+ '<div class="faq-question">'
+									+ '<span class="q-text">' + escHtml(f.question) + '</span>'
+									+ '<span class="q-arrow"><i class="ri-arrow-down-s-line"></i></span>'
+									+ '</div>'
+									+ '<div class="faq-answer" style="display:none;">'  // ← display:none 유지
+									+ '<div class="faq-answer-inner">' + escHtml(f.answer) + '</div>'
+									+ '</div>'
+									+ '</div>';
+							});
+							$wrap.html(html);
+
+							// 아코디언 이벤트
+							$wrap.find('.faq-question').off('click').on('click', function () {
+								var $item = $(this).closest('.faq-item');
+								var $answer = $item.find('.faq-answer');
+								var wasOpen = $item.hasClass('open');
+
+								if ($item.hasClass('open')) {
+									$item.removeClass('open');
+									$answer.stop(true, true).slideUp(160);
+								} else {
+									$item.addClass('open');
+									$answer.stop(true, true).slideDown(160);
+								}
+							});
+						}
+						/* ════════════════════════════
+						   공지사항 Ajax 조회
+						════════════════════════════ */
+						function fnGetNotificationList() {
+							$('#notificationListWrap').html('<div class="faq-loading"><span class="spin"></span>불러오는 중...</div>');
+
+							$.ajax({
+								url: CTX + '/cs/center.dox',
+								type: 'POST',
+								dataType: 'json',
+								data: {action: 'notificationList', limit: 4},
+								success: function (data) {
+									if (data.result === 'success') {
+										renderNotificationList(data.list);
+									} else {
+										$('#notificationListWrap').html('<div class="faq-empty">공지사항을 불러오지 못했습니다.</div>');
+									}
+								},
+								error: function (xhr) {
+									$('#notificationListWrap').html('<div class="faq-empty">서버 연결 오류 (' + xhr.status + ')</div>');
+								}
+							});
+						}
+
+						/* ── 공지사항 렌더링 ── */
+						function renderNotificationList(list) {
+							var $wrap = $('#notificationListWrap');
+							if (!list || list.length === 0) {
+								$wrap.html('<div class="faq-empty">등록된 공지사항이 없습니다.</div>');
+								return;
+							}
+							var html = '';
+							$.each(list, function (i, item) {
+								var badgeClass = getBadgeClass(item.type);
+								var badgeLabel = getBadgeLabel(item.type);
+								var dateStr = item.createdAt ? item.createdAt.substring(0, 10).replace(/-/g, '.') : '';
+								html += '<div class="n-row" style="cursor:pointer;" onclick="location.href=\'' + CTX + '/notification/detail.do?notificationId=' + item.notificationId + '\'">'
+									+ '<span class="n-badge ' + badgeClass + '">' + badgeLabel + '</span>'
+									+ '<span class="n-text">' + escHtml(item.title) + '</span>'
+									+ '<span class="n-date">' + dateStr + '</span>'
+									+ '</div>';
+							});
+							$wrap.html(html);
+						}
+
+						function getBadgeClass(type) {
+							var map = {ORDER: '', SYSTEM: 'blue', EVENT: 'blue', POLICY: 'gray', RENTAL: '', INQUIRY: 'gray'};
+							return map[type] !== undefined ? map[type] : 'gray';
+						}
+						function getBadgeLabel(type) {
+							var map = {ORDER: '공지', SYSTEM: '업데이트', EVENT: '이벤트', POLICY: '안내', RENTAL: '공지', INQUIRY: '일반'};
+							return map[type] || '공지';
+						}
+
+						/* ════════════════════════════
+						   소분류 탭 렌더링
+						════════════════════════════ */
+						function renderSubTabs(mainCat) {
+							var tabs = SUB_TABS[mainCat] || ['전체'];
+							var html = '';
+							$.each(tabs, function (i, tab) {
+								html += '<div class="faq-tab' + (i === 0 ? ' active' : '') + '" data-tab="' + tab + '">' + tab + '</div>';
+							});
+							$('#faqTabList').html(html);
+							currentSubTab = '전체';
+						}
+
+						/* ════════════════════════════
+						   사이드바 (대분류) 클릭
+						════════════════════════════ */
+						$('#faqSidebarList').on('click', 'li', function () {
+							$('#faqSidebarList li').removeClass('active');
+							$(this).addClass('active');
+							currentCat = $(this).data('cat');
+							currentKeyword = '';
+							renderSubTabs(currentCat);
+							fnGetFaqList();
+						});
+
+						/* ════════════════════════════
+						   소분류 탭 클릭
+						════════════════════════════ */
+						$('#faqTabList').on('click', '.faq-tab', function () {
+							$('#faqTabList .faq-tab').removeClass('active');
+							$(this).addClass('active');
+							currentSubTab = $(this).data('tab');
+							currentKeyword = '';
+							fnGetFaqList();
+						});
+
+						/* ════════════════════════════
+						   카테고리 카드 클릭 → FAQ 탭 이동
+						════════════════════════════ */
+						function moveFaqTab(cat) {
+							$('#faqSidebarList li').removeClass('active');
+							$('#faqSidebarList li[data-cat="' + cat + '"]').addClass('active');
+							currentCat = cat;
+							currentKeyword = '';
+							renderSubTabs(cat);
+							fnGetFaqList();
+							$('html, body').animate({scrollTop: $('.faq-section').offset().top - 80}, 400);
+						}
+
+						/* ════════════════════════════
+						   Hero 검색 → 통합검색 페이지로 이동
+						════════════════════════════ */
+						function doHeroSearch() {
+							var keyword = $('#heroSearchInput').val().trim();
+							if (!keyword) {
+								$('#searchResultBox').hide();
+								return;
+							}
+							location.href = CTX + '/search/integrated.do?keyword=' + encodeURIComponent(keyword);
+						}
+
+						$('#heroSearchInput').on('input', function () {
+							$('#searchResultBox').hide();
+						});
+
+						$('#heroSearchInput').on('keydown', function (e) {
+							if (e.key === 'Escape') $('#searchResultBox').hide();
+						});
+
+						$(document).on('click', function (e) {
+							if (!$(e.target).closest('.hero-search-wrap, .search-result-box').length) {
+								$('#searchResultBox').hide();
+							}
+						});
+
+						function renderHeroSearchResult(keyword) {
+							var html = '';
+							if (heroSearchResults.length === 0) {
+								html = '<div class="search-no-result">검색 결과가 없습니다.</div>';
+							} else {
+								$.each(heroSearchResults, function (i, f) {
+									var hl = escHtml(f.question).replace(
+										new RegExp('(' + escapeRegex(keyword) + ')', 'gi'),
+										'<mark>$1</mark>'
+									);
+									html += '<div class="search-result-item" data-idx="' + i + '">'
+										+ '<span class="search-result-q">' + hl + '</span>'
+										+ '</div>';
+								});
+							}
+							$('#searchResultInner').html(html);
+							$('#searchResultBox').show();
+
+							$('#searchResultInner').off('click', '.search-result-item').on('click', '.search-result-item', function () {
+								var idx = $(this).data('idx');
+								var item = heroSearchResults[idx];
+								$('#searchResultBox').hide();
+								$('#heroSearchInput').val('');
+
+								// FAQ 섹션으로 이동 후 키워드로 재검색
+								currentCat = '전체';
+								currentSubTab = '전체';
+								currentKeyword = item.question; // 질문 전체로 검색
+								$('#faqSidebarList li').removeClass('active').filter('[data-cat="전체"]').addClass('active');
+								renderSubTabs('전체');
+								fnGetFaqList();
+								$('html, body').animate({scrollTop: $('.faq-section').offset().top - 80}, 400);
+							});
+						}
+
+						/* ════════════════════════════
+						   유틸
+						════════════════════════════ */
+						function escapeRegex(str) {
+							return str.replace(/[.*+?^$()|[\]\\]/g, function (m) {return '\\' + m;});
+						}
+						function escHtml(str) {
+							if (!str) return '';
+							return String(str)
+								.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+								.replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+						}
+
+						/* ── 전화 상담 ── */
+						function callPhone() {
+							$('#phoneConfirmModal').fadeIn(160);
+							setTimeout(function () {
+								$('#phoneConfirmModal .primary').focus();
+							}, 30);
+						}
+
+						function closePhoneModal() {
+							$('#phoneConfirmModal').fadeOut(140);
+						}
+
+						function confirmPhoneCall() {
+							location.href = 'tel:15880000';
+						}
+
+						$(document).on('keydown', function (e) {
+							if ($('#phoneConfirmModal').is(':visible')) {
+								if (e.key === 'Enter') confirmPhoneCall();
+								if (e.key === 'Escape') closePhoneModal();
+							}
+						});
+
+						$(document).on('click', '#phoneConfirmModal', function (e) {
+							if ($(e.target).is('#phoneConfirmModal')) closePhoneModal();
+						});
+
+						/* ── 이메일 문의 ── */
+						function sendEmail() {
+							window.open('mailto:help@modakmodak.com?subject=' + encodeURIComponent('[문의]') + '&body=' + encodeURIComponent('문의 내용을 입력해주세요.'), '_self');
+						}
+
+						/* ── 챗봇 ── */
+						var chatBotAnswers = {
+							'환불': '환불은 결제일로부터 7일 이내 신청 가능합니다. 고객센터로 연락해주세요.',
+							'비밀번호': '비밀번호 찾기는 로그인 화면 하단 [비밀번호 찾기]를 클릭하세요.',
+							'탈퇴': '회원 탈퇴는 마이페이지 > 계정 설정에서 진행하실 수 있습니다.',
+							'결제': '결제 수단 변경은 마이페이지 > 결제 관리에서 가능합니다.',
+							'예약': '예약 관련 문의는 예약 내역에서 확인하실 수 있습니다.',
+							'대여': '대여 관련 문의는 예약 내역 > 대여 현황에서 확인하실 수 있습니다.'
+						};
+						function openChatbot() {$('#chatbotModal').fadeIn(200); $('#chatbotInput').focus();}
+						function closeChatbot() {$('#chatbotModal').fadeOut(200);}
+						function sendChat() {
+							var msg = $('#chatbotInput').val().trim();
+							if (!msg) return;
+							$('#chatbotInput').val('');
+							$('#chatbotBody').append('<div class="chat-msg user">' + escHtml(msg) + '</div>');
+							var reply = '죄송합니다. 해당 내용은 1:1 문의나 전화 상담을 이용해주세요.';
+							$.each(chatBotAnswers, function (keyword, answer) {
+								if (msg.indexOf(keyword) >= 0) {reply = answer; return false;}
+							});
+							setTimeout(function () {
+								$('#chatbotBody').append('<div class="chat-msg bot">' + reply + '</div>');
+								var $body = $('#chatbotBody');
+								$body.scrollTop($body[0].scrollHeight);
+							}, 500);
+							$('#chatbotBody').scrollTop($('#chatbotBody')[0].scrollHeight);
+						}
+
+						/* ── 초기화 ── */
+						$(document).ready(function () {
+							renderSubTabs('전체');
+							fnGetFaqList();
+							fnGetNotificationList();
+						});
+
+
+
+					</script>
+
+		</body>
+
+		</html>

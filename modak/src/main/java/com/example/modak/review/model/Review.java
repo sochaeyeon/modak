@@ -1,21 +1,31 @@
 package com.example.modak.review.model;
 
+import java.util.List;
+
 import lombok.Data;
 
 @Data
 public class Review {
 
+	private Long reviewId;
+	private Integer rating;
+	private String content;
+	private String reviewStatus;
+	private String createdAt;
+	private String updatedAt;
+	private String userId;
+	private Long productId;
+	private Long itemId;
+	private String title;
+	private int helpfulCount;
+	private String helpfulYn;
 
-    private String reviewId;
-    private String rating;
-    private String content;
-    private String reviewStatus;
-    private String createdAt;
-    private String updatedAt;
-    private String userId;
-    private String productId;
-    private String itemId;
+	private String productName;
+	private String imageUrl;
+	private List<ReviewImage> imageList;
+	private int imageCount;
 
-    private String productName;
-    private String imageUrl; // 대표 이미지
+	private String nickname;
+	private String profileImgUrl;
+	private int gradeId;
 }

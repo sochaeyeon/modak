@@ -1,15 +1,19 @@
 package com.example.modak.user.dao;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.modak.review.model.Review;
 import com.example.modak.user.mapper.MypageMapper;
+import com.example.modak.user.model.ChatbotHistory;
 import com.example.modak.user.model.MypageSummary;
 import com.example.modak.user.model.PointHistory;
 import com.example.modak.user.model.User;
+import com.example.modak.user.model.UserCoupon;
 
 @Service
 public class MypageService {
@@ -36,5 +40,84 @@ public class MypageService {
 
 	public int getMyReviewCount(String userId) {
 	    return mypageMapper.selectMyReviewCount(userId);
+	}
+	
+	public List<ChatbotHistory> getChatbotRoomList(String userId) {
+	    return mypageMapper.selectChatbotRoomList(userId);
+	}
+	 
+	public List<UserCoupon> getCouponList(String userId) {
+		return mypageMapper.selectCouponList(userId);
+	}
+
+	// 쿠폰 전체보기 페이징 조회
+	public List<UserCoupon> getCouponPagingList(HashMap<String, Object> map) {
+		return mypageMapper.selectCouponPagingList(map);
+	}
+
+	// 쿠폰 전체 개수
+	public int getCouponCount(String userId) {
+		return mypageMapper.selectCouponCount(userId);
+	}
+
+	// 사용 가능 쿠폰 수
+	public int getAvailableCouponCount(String userId) {
+		MypageSummary summary = mypageMapper.selectMypageSummary(userId);
+		return summary != null ? summary.getCouponCount() : 0;
+	}
+	
+	public HashMap<String, Object> getBookmarkList(String userId) {
+	    HashMap<String, Object> result = new HashMap<>();
+
+	    if (userId == null || userId.isBlank()) {
+	        result.put("result", "fail");
+	        result.put("message", "로그인이 필요합니다.");
+	        return result;
+	    }
+
+	    List<Map<String, Object>> list = mypageMapper.selectBookmarkList(userId);
+
+	    result.put("result", "success");
+	    result.put("list", list);
+
+	    return result;
+	}
+	public HashMap<String, Object> getMiniProfile(HashMap<String, Object> map) {
+	    return mypageMapper.selectMiniProfile(map);
+	}
+	
+	public HashMap<String, Object> getMyChatRoomList(String userId) {
+	    HashMap<String, Object> result = new HashMap<>();
+
+	    try {
+	        result.put("result", "success");
+	        result.put("list", mypageMapper.selectMyChatRoomList(userId));
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	    }
+
+	    return result;
+	}
+
+	public HashMap<String, Object> deleteMyChatRooms(String userId, List<Long> roomIds) {
+	    HashMap<String, Object> result = new HashMap<>();
+
+	    try {
+	        for (Long roomId : roomIds) {
+	            HashMap<String, Object> map = new HashMap<>();
+	            map.put("roomId", roomId);
+	            map.put("userId", userId);
+	            mypageMapper.hideMyChatRoom(map);
+	        }
+
+	        result.put("result", "success");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result.put("result", "fail");
+	        result.put("message", "채팅방 삭제 실패");
+	    }
+
+	    return result;
 	}
 }

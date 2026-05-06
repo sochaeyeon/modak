@@ -32,7 +32,8 @@ public class MembershipService {
 
 	    resultMap.put("result", "success");
 	    resultMap.put("info", info);
-
+	    resultMap.put("allGrades", membershipMapper.selectAllGrades());
+	    
 	    return resultMap;
 	}
 
@@ -69,4 +70,23 @@ public class MembershipService {
 	    }
 	}
 
+	// 등급 목록 조회
+	public HashMap<String, Object> getGradeList() {
+		HashMap<String, Object> resultMap = new HashMap<>();
+
+		resultMap.put("result", "success");
+		resultMap.put("grades", membershipMapper.selectAllGrades());
+
+		return resultMap;
+	}
+
+	// FAQ 목록 조회
+	public HashMap<String, Object> getFaqList() {
+		HashMap<String, Object> resultMap = new HashMap<>();
+
+		resultMap.put("result", "success");
+		resultMap.put("faqs", membershipMapper.selectFaqList());
+
+		return resultMap;
+	}
 }

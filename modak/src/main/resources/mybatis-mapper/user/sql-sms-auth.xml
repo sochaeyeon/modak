@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.modak.user.mapper.SmsAuthMapper">
+
+	<!-- 기존 미인증 인증번호 만료 -->
+	<update id="expireSmsAuth" parameterType="hashmap">
+		UPDATE SMS_AUTH
+		SET EXPIRE_AT = NOW()
+		WHERE USER_PHONE = #{userPhone}
+		AND AUTH_PURPOSE = #{authPurpose}
+		AND AUTH_YN = 'N'
+	</update>
+
+	<!-- 인증번호 저장 -->
+	<insert id="insertSmsAuth" parameterType="hashmap">
+		INSERT INTO SMS_AUTH (
+		USER_PHONE,
+		AUTH_CODE,
+		AUTH_PURPOSE,
+		AUTH_YN,
+		EXPIRE_AT,
+		CREATED_AT
+		) VALUES (
+		#{userPhone},
+		#{authCode},
+		#{authPurpose},
+		'N',
+		#{expireAt},
+		NOW()
+		)
+	</insert>
+
+	<!-- 최신 인증번호 조회 -->
+	<select id="selectLatestSmsAuth" parameterType="hashmap" resultType="map">
+		SELECT AUTH_CODE, AUTH_YN, EXPIRE_AT
+		FROM SMS_AUTH
+		WHERE USER_PHONE = #{userPhone}
+		AND AUTH_PURPOSE = #{authPurpose}
+		AND AUTH_YN = 'N'
+		AND EXPIRE_AT > NOW()
+
+		ORDER BY AUTH_ID DESC
+		LIMIT 1
+	</select>
+
+	<!-- 인증 완료 처리 -->
+	<update id="updateSmsAuthVerified" parameterType="hashmap">
+		UPDATE SMS_AUTH
+		SET AUTH_YN = 'Y'
+		WHERE USER_PHONE = #{userPhone}
+		AND AUTH_CODE = #{authCode}
+		AND AUTH_PURPOSE = #{authPurpose}
+		AND AUTH_YN = 'N'
+	</update>
+
+	<!-- 인증 완료 여부 확인 -->
+	<select id="selectVerifiedSmsAuth" parameterType="hashmap"
+		resultType="hashmap">
+		SELECT AUTH_ID
+		FROM SMS_AUTH
+		WHERE USER_PHONE = #{userPhone}
+		AND AUTH_PURPOSE = #{authPurpose}
+		AND AUTH_YN = 'Y'
+		ORDER BY AUTH_ID DESC
+		LIMIT 1
+	</select>
+
+</mapper>

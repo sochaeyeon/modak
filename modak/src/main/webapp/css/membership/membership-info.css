@@ -1,597 +1,880 @@
- * {
-     box-sizing: border-box;
-     margin: 0;
-     padding: 0;
- }
+@charset "UTF-8";
 
- a {
-     text-decoration: none;
-     color: black;
- }
-
- body {
-     font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
-     background: #f5f0e8;
-     color: #1a1a18;
- }
-
- /* NAV */
- .nav {
-     background: #fff;
-     border-bottom: 1px solid #e8e2d6;
-     padding: 0 24px;
-     display: flex;
-     align-items: center;
-     height: 52px;
-     gap: 12px;
- }
-
- .nav-brand {
-     font-size: 15px;
-     font-weight: 700;
-     color: #2c2c2a;
- }
-
- .nav-crumb {
-     font-size: 13px;
-     color: #aaa;
-     display: flex;
-     align-items: center;
-     gap: 6px;
- }
-
- .nav-crumb .cur {
-     color: #555;
-     font-weight: 500;
- }
-
- .wrap {
-     max-width: 1000px;
-     margin: 0 auto;
-     padding: 40px 24px 80px;
- }
-
- /* HERO */
- .hero {
-     text-align: center;
-     padding: 48px 24px 40px;
- }
-
- .hero-badge {
-     display: inline-block;
-     padding: 5px 16px;
-     background: #fde8d8;
-     color: #993c1d;
-     border-radius: 20px;
-     font-size: 12px;
-     font-weight: 700;
-     margin-bottom: 16px;
- }
-
- .hero h1 {
-     font-size: 32px;
-     font-weight: 800;
-     color: #1a1a18;
-     line-height: 1.3;
-     margin-bottom: 12px;
- }
-
- .hero h1 span {
-     color: #e8610a;
- }
-
- .hero p {
-     font-size: 15px;
-     color: #888;
-     line-height: 1.7;
-     max-width: 480px;
-     margin: 0 auto;
- }
-
- /* 현재 등급 배너 */
- .my-grade {
-     background: #fff;
-     border-radius: 16px;
-     border: 1px solid #ede8de;
-     padding: 20px 24px;
-     display: flex;
-     align-items: center;
-     gap: 18px;
-     margin-bottom: 36px;
-     flex-wrap: wrap;
- }
-
- .grade-icon {
-     width: 52px;
-     height: 52px;
-     border-radius: 50%;
-     background: #f5f0e8;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     font-size: 24px;
-     flex-shrink: 0;
- }
-
- .grade-icon.silver {
-     background: #eef0f4;
- }
-
- .grade-meta {
-     flex: 1;
-     min-width: 160px;
- }
-
- .grade-meta .label {
-     font-size: 12px;
-     color: #aaa;
-     margin-bottom: 3px;
- }
-
- .grade-meta .name {
-     font-size: 17px;
-     font-weight: 800;
-     color: #1a1a18;
- }
-
- .progress-wrap {
-     flex: 2;
-     min-width: 200px;
- }
-
- .progress-label {
-     display: flex;
-     justify-content: space-between;
-     font-size: 12px;
-     color: #aaa;
-     margin-bottom: 6px;
- }
-
- .progress-bar {
-     height: 8px;
-     background: #f0ece4;
-     border-radius: 4px;
-     overflow: hidden;
- }
-
- .progress-fill {
-     height: 100%;
-     background: #e8610a;
-     border-radius: 4px;
-     width: 62%;
-     transition: width 0.6s;
- }
-
- .grade-points {
-     text-align: right;
-     min-width: 120px;
- }
-
- .grade-points .pts {
-     font-size: 20px;
-     font-weight: 800;
-     color: #e8610a;
- }
-
- .grade-points .pts-label {
-     font-size: 11px;
-     color: #aaa;
- }
-
- /* 등급 카드 그리드 */
- .section-title {
-     font-size: 16px;
-     font-weight: 700;
-     color: #1a1a18;
-     margin-bottom: 18px;
-     display: flex;
-     align-items: center;
-     gap: 8px;
- }
-
- .section-title::before {
-     content: '';
-     display: block;
-     width: 4px;
-     height: 18px;
-     background: #e8610a;
-     border-radius: 2px;
- }
-
- .grade-grid {
-     display: grid;
-     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-     gap: 14px;
-     margin-bottom: 48px;
- }
-
- .grade-card {
-     background: #fff;
-     border-radius: 18px;
-     border: 1.5px solid #ede8de;
-     padding: 24px 20px;
-     text-align: center;
-     position: relative;
-     transition: box-shadow 0.15s, transform 0.15s;
-     cursor: pointer;
- }
-
- .grade-card:hover {
-     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.09);
-     transform: translateY(-2px);
- }
-
- .grade-card.current {
-     border-color: #e8610a;
-     border-width: 2px;
- }
-
- .current-label {
-     position: absolute;
-     top: -12px;
-     left: 50%;
-     transform: translateX(-50%);
-     background: #e8610a;
-     color: #fff;
-     font-size: 11px;
-     font-weight: 700;
-     padding: 4px 14px;
-     border-radius: 20px;
-     white-space: nowrap;
- }
-
- .grade-emoji {
-     font-size: 36px;
-     margin-bottom: 10px;
- }
-
- .grade-name {
-     font-size: 18px;
-     font-weight: 800;
-     margin-bottom: 4px;
- }
-
- .grade-cond {
-     font-size: 11px;
-     color: #aaa;
-     margin-bottom: 16px;
- }
-
- .grade-perks {
-     display: flex;
-     flex-direction: column;
-     gap: 8px;
-     text-align: left;
- }
-
- .perk {
-     display: flex;
-     align-items: center;
-     gap: 8px;
-     font-size: 12px;
-     color: #555;
- }
-
- .perk-dot {
-     width: 6px;
-     height: 6px;
-     border-radius: 50%;
-     flex-shrink: 0;
- }
-
- .perk .highlight {
-     font-weight: 700;
-     color: #1a1a18;
- }
-
- /* 등급별 색상 */
- .grade-card.bronze .grade-name {
-     color: #854f0b;
- }
-
- .grade-card.bronze .perk-dot {
-     background: #ef9f27;
- }
-
- .grade-card.silver .grade-name {
-     color: #5f5e5a;
- }
-
- .grade-card.silver .perk-dot {
-     background: #b4b2a9;
- }
-
- .grade-card.gold .grade-name {
-     color: #633806;
- }
-
- .grade-card.gold .perk-dot {
-     background: #ba7517;
- }
-
- .grade-card.vvip .grade-name {
-     color: #993c1d;
- }
-
- .grade-card.vvip .perk-dot {
-     background: #e8610a;
- }
-
- /* 혜택 상세 테이블 */
- .benefit-table-wrap {
-     background: #fff;
-     border-radius: 16px;
-     border: 1px solid #ede8de;
-     overflow: hidden;
-     margin-bottom: 48px;
- }
-
- .benefit-table {
-     width: 100%;
-     border-collapse: collapse;
-     font-size: 13px;
- }
-
- .benefit-table th {
-     background: #f5f0e8;
-     padding: 14px 16px;
-     text-align: center;
-     font-weight: 700;
-     color: #555;
-     border-bottom: 1px solid #ede8de;
- }
-
- .benefit-table th.highlight-col {
-     background: #fde8d8;
-     color: #993c1d;
- }
-
- .benefit-table td {
-     padding: 13px 16px;
-     text-align: center;
-     border-bottom: 1px solid #f5f0e8;
-     color: #555;
- }
-
- .benefit-table td:first-child {
-     text-align: left;
-     font-weight: 600;
-     color: #1a1a18;
- }
-
- .benefit-table tr:last-child td {
-     border-bottom: none;
- }
-
- .benefit-table tr:hover td {
-     background: #fafaf8;
- }
-
- .check {
-     color: #3b6d11;
-     font-weight: 700;
- }
-
- .cross {
-     color: #d3d1c7;
- }
-
- .val-orange {
-     color: #e8610a;
-     font-weight: 700;
- }
-
- /* 포인트 적립 안내 */
- .point-section {
-     margin-bottom: 48px;
- }
-
- .point-grid {
-     display: grid;
-     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-     gap: 12px;
- }
-
- .point-card {
-     background: #fff;
-     border-radius: 14px;
-     border: 1px solid #ede8de;
-     padding: 20px 16px;
-     display: flex;
-     align-items: flex-start;
-     gap: 12px;
- }
-
- .point-icon {
-     width: 42px;
-     height: 42px;
-     border-radius: 12px;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     font-size: 20px;
-     flex-shrink: 0;
- }
-
- .point-card h4 {
-     font-size: 13px;
-     font-weight: 700;
-     color: #1a1a18;
-     margin-bottom: 3px;
- }
-
- .point-card p {
-     font-size: 11px;
-     color: #aaa;
-     line-height: 1.6;
- }
-
- .point-card .rate {
-     font-size: 15px;
-     font-weight: 800;
-     color: #e8610a;
-     margin-top: 6px;
- }
-
- /* FAQ */
- .faq-list {
-     display: flex;
-     flex-direction: column;
-     gap: 10px;
-     margin-bottom: 48px;
- }
-
- .faq-item {
-     background: #fff;
-     border-radius: 12px;
-     border: 1px solid #ede8de;
-     overflow: hidden;
- }
-
- .faq-q {
-     padding: 16px 20px;
-     font-size: 14px;
-     font-weight: 600;
-     color: #1a1a18;
-     cursor: pointer;
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
-     user-select: none;
-     transition: background 0.12s;
- }
-
- .faq-q:hover {
-     background: #fafaf8;
- }
-
- .faq-q .arrow {
-     font-size: 12px;
-     color: #bbb;
-     transition: transform 0.2s;
- }
-
- .faq-item.open .faq-q .arrow {
-     transform: rotate(180deg);
- }
-
- .faq-a {
-     margin-top: 5px;
-     font-size: 13px;
-     color: #666;
-     line-height: 1.7;
-     padding: 0 20px;
-     max-height: 0;
-     overflow: hidden;
-     transition: max-height 0.25s ease, padding 0.25s;
- }
-
- .faq-item.open .faq-a {
-     max-height: 200px;
-     padding: 0 20px 16px;
- }
-
- /* CTA */
- .cta {
-     background: #1a1a18;
-     border-radius: 20px;
-     padding: 40px 32px;
-     display: flex;
-     align-items: center;
-     justify-content: space-between;
-     gap: 24px;
-     flex-wrap: wrap;
- }
-
- .cta-text h3 {
-     font-size: 22px;
-     font-weight: 800;
-     color: #fff;
-     margin-bottom: 6px;
- }
-
- .cta-text p {
-     font-size: 14px;
-     color: #888;
- }
-
- .cta-btns {
-     display: flex;
-     gap: 10px;
-     flex-wrap: wrap;
- }
-
- .btn-join {
-     padding: 13px 28px;
-     background: #e8610a;
-     color: #fff;
-     border: none;
-     border-radius: 12px;
-     font-size: 14px;
-     font-weight: 700;
-     cursor: pointer;
-     transition: background 0.15s;
- }
-
- .btn-join:hover {
-     background: #c9510a;
- }
-
- .btn-login {
-     padding: 13px 28px;
-     background: transparent;
-     color: #fff;
-     border: 1px solid #444;
-     border-radius: 12px;
-     font-size: 14px;
-     font-weight: 600;
-     cursor: pointer;
-     transition: border-color 0.15s;
- }
-
- .btn-login:hover {
-     border-color: #888;
- }
-
- .grade-card {
-     position: relative;
-     border: 2px solid transparent;
-     transition: all 0.25s ease;
- }
-
- .grade-card.current {
-     border: 2px solid #e8610a;
-     box-shadow: 0 10px 24px rgba(232, 97, 10, 0.16);
-     transform: translateY(-4px);
- }
-
- .current-label {
-     position: absolute;
-     top: -14px;
-     left: 50%;
-     transform: translateX(-50%);
-     background: #e8610a;
-     color: #fff;
-     font-size: 13px;
-     font-weight: 700;
-     padding: 6px 14px;
-     border-radius: 999px;
-     z-index: 2;
- }
- .cta-btns {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
+[v-cloak] {
+    display: none;
 }
 
-.cta-btns .btn-join,
-.cta-btns .btn-login {
-    width: auto;
-    min-width: 140px;
-    flex: 0 0 auto;
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --cream: #F6F0E6;
+    --cream2: #EDE5D4;
+    --cream3: #E2D8C3;
+    --white: #FFFDF8;
+
+    --orange: #E8732A;
+    --orange2: #C4621E;
+    --orange-pale: #FAF0EB;
+
+    --brown: #2C1E0F;
+    --brown2: #5C4230;
+    --brown3: #8B6B4A;
+    --brown4: #B89A7A;
+    --vip-dark: #4A2A0A;
+    --vip-main: #B86A16;
+    --vip-soft: #FFF1D8;
+    --vip-border: rgba(184, 106, 22, .42);
+    --border: rgba(200, 165, 130, .45);
+    --radius: 18px;
+
+    --gold: #D4932A;
+    --gold-light: #FFF4CC;
+    --gold-border: rgba(212, 147, 42, .45);
+
+}
+
+body {
+    background: var(--cream);
+    color: var(--brown);
+    font-family: var(--font-body, 'Pretendard', 'Noto Sans KR', sans-serif);
+}
+
+.wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px 100px;
+}
+
+.hero {
+    position: relative;
+    margin: 34px 0 46px;
+    padding: 76px 28px 70px;
+    text-align: center;
+    border: 1.5px solid rgba(232, 115, 42, .28);
+    border-radius: 34px;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(232, 115, 42, .18), transparent 32%),
+        radial-gradient(circle at 80% 10%, rgba(212, 147, 42, .16), transparent 30%),
+        linear-gradient(135deg, #FFFDF8 0%, #FFF2E8 48%, #FFF7E4 100%);
+    overflow: hidden;
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    inset: 18px;
+    border: 1px solid rgba(255, 255, 255, .75);
+    border-radius: 28px;
+    pointer-events: none;
+}
+
+.hero::after {
+    content: "MEMBERSHIP";
+    position: absolute;
+    right: -28px;
+    bottom: -16px;
+    color: rgba(232, 115, 42, .08);
+    font-size: 76px;
+    font-weight: 900;
+    letter-spacing: -3px;
+}
+
+.hero-badge {
+    position: relative;
+    z-index: 1;
     display: inline-flex;
     align-items: center;
+    gap: 8px;
+    padding: 9px 20px;
+    margin-bottom: 20px;
+    border: 1.5px solid rgba(232, 115, 42, .45);
+    border-radius: 999px;
+    background: rgba(255, 253, 248, .82);
+    color: var(--orange);
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.hero-badge i {
+    font-size: 18px;
+}
+
+.hero h1 {
+    position: relative;
+    z-index: 1;
+    font-size: 46px;
+    line-height: 1.2;
+    font-weight: 950;
+    letter-spacing: -1.6px;
+    color: var(--brown);
+}
+
+.hero h1 span {
+    color: transparent;
+    background: linear-gradient(90deg, var(--orange), var(--orange2), var(--vip-main));
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+.hero p {
+    position: relative;
+    z-index: 1;
+    margin-top: 18px;
+    color: var(--brown2);
+    font-size: 16px;
+    line-height: 1.85;
+}
+
+.my-grade {
+    display: grid;
+    grid-template-columns: auto 1fr 2fr auto;
+    align-items: center;
+    gap: 22px;
+    margin-bottom: 54px;
+    padding: 26px 30px;
+    border: 1.5px solid rgba(232, 115, 42, .32);
+    border-radius: 26px;
+    background: var(--white);
+    box-shadow: 0 12px 32px rgba(44, 30, 15, .08);
+}
+
+.my-grade .grade-meta .label {
+    display: inline-flex;
+    padding: 5px 11px;
+    margin-bottom: 7px;
+    border-radius: 999px;
+    background: var(--orange-pale);
+    color: var(--orange);
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.my-grade .grade-meta .name {
+    font-size: 22px;
+    font-weight: 950;
+    color: var(--brown);
+}
+
+.my-grade .grade-points {
+    padding: 14px 18px;
+    border: 1px solid rgba(232, 115, 42, .25);
+    border-radius: 18px;
+    background: #FFF8F3;
+}
+
+.grade-icon {
+    width: 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
     justify-content: center;
+    border-radius: 18px;
+    background: var(--orange-pale);
+    color: var(--orange);
+    font-size: 28px;
+    border: 1px solid rgba(232, 115, 42, .24);
+}
+
+.grade-icon.bronze {
+    color: #A8692A;
+    background: #FFF4E6;
+}
+
+.grade-icon.silver {
+    color: #77736B;
+    background: #F2F1ED;
+}
+
+.grade-icon.gold {
+    color: #B67814;
+    background: #FFF7D8;
+}
+
+.grade-icon.vvip {
+    color: var(--vip-main);
+    background: var(--vip-soft);
+    border: 1px solid var(--vip-border);
+}
+
+.grade-meta .label {
+    font-size: 12px;
+    color: var(--brown3);
+    margin-bottom: 4px;
+}
+
+.grade-meta .name {
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 9px;
+    color: var(--brown3);
+    font-size: 12px;
+}
+
+.progress-bar {
+    height: 10px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--cream2);
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--orange);
+    transition: width 3.5s cubic-bezier(.16, 1, .3, 1);
+}
+
+.grade-points {
+    text-align: right;
+}
+
+.grade-points .pts {
+    color: var(--orange);
+    font-size: 23px;
+    font-weight: 900;
+}
+
+.grade-points .pts-label {
+    margin-top: 4px;
+    color: var(--brown3);
+    font-size: 12px;
+}
+
+/* section title */
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 18px;
+    color: var(--brown);
+    font-size: 19px;
+    font-weight: 900;
+}
+
+.section-title::before {
+    content: "";
+    width: 5px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--orange);
+}
+
+/* 등급 카드 */
+.grade-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 58px;
+}
+
+.grade-card {
+    position: relative;
+    min-height: 280px;
+    padding: 34px 18px 26px;
+    border: 1.5px solid var(--border);
+    border-radius: 26px;
+    background: var(--white);
+    text-align: center;
+    overflow: visible;
+    transition: transform .18s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.grade-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 26px;
+    background: radial-gradient(circle at 50% 0%, rgba(232, 115, 42, .14), transparent 45%);
+    opacity: 0;
+    transition: opacity .2s ease;
+    pointer-events: none;
+}
+
+.grade-card:hover {
+    transform: translateY(-1px);
+    border-color: rgba(232, 115, 42, .55);
+    box-shadow: none;
+}
+
+.grade-card:hover::before {
+    opacity: 0;
+}
+
+.grade-card.current {
+    border: 2px solid var(--orange);
+    background: var(--white);
+    box-shadow: none;
+}
+
+.current-label {
+    position: absolute;
+    top: -13px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 15px;
+    border-radius: 999px;
+    background: var(--orange);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
     white-space: nowrap;
+}
+
+.grade-symbol {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    background: var(--cream);
+    color: var(--orange);
+    font-size: 29px;
+    border: 1px solid var(--border);
+}
+
+.grade-card.bronze .grade-symbol {
+    color: #A8692A;
+    background: #FFF4E6;
+}
+
+.grade-card.silver .grade-symbol {
+    color: #77736B;
+    background: #F2F1ED;
+}
+
+.grade-card.gold .grade-symbol {
+    color: #B67814;
+    background: #FFF7D8;
+}
+
+.grade-card.vvip .grade-symbol {
+    color: var(--vip-green);
+    background: var(--green-light);
+    border: 1px solid var(--green-border);
+}
+
+.grade-name {
+    margin-bottom: 5px;
+    font-size: 19px;
+    font-weight: 900;
+}
+
+.grade-cond {
+    margin-bottom: 18px;
+    color: var(--brown3);
+    font-size: 12px;
+}
+
+.grade-perks {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+}
+
+.perk {
+    display: flex;
+    gap: 8px;
+    color: var(--brown2);
+    font-size: 12.5px;
+    line-height: 1.45;
+}
+
+.perk-dot {
+    width: 6px;
+    height: 6px;
+    margin-top: 7px;
+    border-radius: 50%;
+    background: var(--orange);
+    flex-shrink: 0;
+}
+
+/* 혜택 테이블 */
+.benefit-table-wrap {
+    margin-bottom: 58px;
+    overflow: hidden;
+    border: 1.5px solid var(--border);
+    border-radius: 22px;
+    background: var(--white);
+}
+
+.benefit-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.benefit-table th {
+    padding: 15px 14px;
+    background: var(--cream2);
+    color: var(--brown2);
+    border-bottom: 1px solid var(--border);
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.benefit-table th i {
+    margin-right: 4px;
+    color: var(--orange);
+}
+
+.benefit-table th:first-child,
+.benefit-table td:first-child {
+    text-align: left;
+}
+
+.benefit-table td {
+    padding: 15px 14px;
+    text-align: center;
+    color: var(--brown2);
+    border-bottom: 1px solid rgba(200, 165, 130, .22);
+}
+
+.benefit-table tr:last-child td {
+    border-bottom: none;
+}
+
+.benefit-table td:first-child {
+    color: var(--brown);
+    font-weight: 900;
+}
+
+.benefit-table .highlight-col {
+    background: var(--orange-pale);
+    color: var(--orange);
+}
+
+/* 포인트 */
+.point-section {
+    margin-bottom: 58px;
+}
+
+.point-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 13px;
+}
+
+.point-card {
+    position: relative;
+    min-height: 160px;
+    padding: 22px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 22px;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(255, 253, 248, 1));
+    overflow: hidden;
+    transition: transform .18s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.point-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 20% 0%, rgba(232, 115, 42, .16), transparent 42%);
+    opacity: 0;
+    transition: opacity .2s ease;
+}
+
+.point-card:hover {
+    transform: translateY(-1px);
+    border-color: var(--orange);
+    box-shadow: none;
+}
+
+.point-card:hover::before {
+    opacity: 1;
+}
+
+.point-icon {
+    width: 42px;
+    height: 42px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    background: var(--orange-pale);
+    color: var(--orange);
+    font-size: 22px;
+}
+
+.point-card h4 {
+    margin-bottom: 6px;
+    color: var(--brown);
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.point-card p {
+    color: var(--brown3);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.point-card .rate {
+    margin-top: 10px;
+    color: var(--orange);
+    font-size: 16px;
+    font-weight: 900;
+}
+
+/* FAQ */
+.faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 36px;
+}
+
+.faq-item {
+    overflow: hidden;
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    background: var(--white);
+    transition: border-color .2s ease, background .2s ease;
+}
+
+.faq-item.open {
+    border-color: var(--orange);
+    background: #FFFDF8;
+}
+
+.faq-q {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px;
+    cursor: pointer;
+    color: var(--brown);
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.faq-q:hover {
+    color: var(--orange);
+}
+
+.arrow {
+    color: var(--brown4);
+    font-size: 20px;
+    transition: transform .22s ease, color .22s ease;
+}
+
+.faq-item.open .arrow {
+    color: var(--orange);
+    transform: rotate(180deg);
+}
+
+.faq-a {
+    max-height: 0;
+    overflow: hidden;
+    padding: 0 22px;
+    color: var(--brown2);
+    font-size: 13.5px;
+    line-height: 1.8;
+    transition: max-height .25s ease, padding .25s ease;
+}
+
+.faq-item.open .faq-a {
+    max-height: 260px;
+    padding: 0 22px 19px;
+}
+
+.faq-empty {
+    padding: 30px;
+    border: 1.5px solid var(--border);
+    border-radius: 18px;
+    background: var(--white);
+    color: var(--brown3);
+    text-align: center;
+}
+
+.cta {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 24px;
+    margin-top: 20px;
+    padding: 38px 42px;
+    border: 1.5px solid rgba(232, 115, 42, .42);
+    border-radius: 30px;
+    background:
+        radial-gradient(circle at 14% 20%, rgba(232, 115, 42, .24), transparent 34%),
+        radial-gradient(circle at 88% 12%, rgba(124, 58, 237, .20), transparent 32%),
+        linear-gradient(135deg, #FFFDF8 0%, #FFF1E7 54%, #F7EDFF 100%);
+    overflow: hidden;
+}
+
+.cta::after {
+    content: "WELCOME";
+    position: absolute;
+    right: -18px;
+    bottom: -12px;
+    color: rgba(124, 58, 237, .08);
+    font-size: 66px;
+    font-weight: 950;
+    letter-spacing: -2px;
+}
+
+.cta-text {
+    position: relative;
+    z-index: 1;
+}
+
+.cta-text h3 {
+    margin-bottom: 8px;
+    color: var(--brown);
+    font-size: 26px;
+    font-weight: 950;
+    letter-spacing: -1px;
+}
+
+.cta-text p {
+    color: var(--brown2);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.cta-btns {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: 10px;
+}
+
+.btn-join,
+.btn-login {
+    height: 48px;
+    padding: 0 26px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.btn-join {
+    border: 1.5px solid var(--orange);
+    background: linear-gradient(90deg, var(--orange), var(--orange2));
+    color: #fff;
+    box-shadow: 0 10px 24px rgba(232, 115, 42, .28);
+}
+
+.btn-join:hover {
+    background: var(--orange2);
+    box-shadow: none;
+    transform: none;
+}
+
+.btn-login {
+    border: 1.5px solid rgba(232, 115, 42, .45);
+    background: rgba(255, 253, 248, .78);
+    color: var(--orange);
+}
+
+.btn-login:hover {
+    border-color: var(--orange);
+    background: #fff;
+}
+
+/* 반응형 */
+@media (max-width: 900px) {
+    .my-grade {
+        grid-template-columns: auto 1fr;
+    }
+
+    .progress-wrap,
+    .grade-points {
+        grid-column: 1 / -1;
+    }
+
+    .grade-points {
+        text-align: left;
+    }
+
+    .grade-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .point-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .benefit-table-wrap {
+        overflow-x: auto;
+    }
+
+    .benefit-table {
+        min-width: 720px;
+    }
+}
+
+@media (max-width: 520px) {
+    .wrap {
+        padding: 0 16px 70px;
+    }
+
+    .hero {
+        padding: 52px 0 36px;
+    }
+
+    .hero h1 {
+        font-size: 28px;
+    }
+
+    .grade-grid,
+    .point-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cta {
+        align-items: stretch;
+        flex-direction: column;
+        padding: 28px 24px;
+    }
+
+    .cta-btns {
+        flex-direction: column;
+    }
+}
+
+
+.grade-card.vvip {
+    border-color: var(--vip-border);
+    background: var(--white);
+}
+
+.grade-card.vvip:hover {
+    border-color: var(--vip-main);
+    box-shadow: none;
+}
+
+.grade-card.vvip.current {
+    border: 2px solid var(--orange);
+    background: var(--white);
+    box-shadow: none;
+}
+
+.grade-card.vvip .grade-symbol {
+    color: var(--vip-main);
+    background: var(--vip-soft);
+    border: 1px solid var(--vip-border);
+}
+
+.grade-card.vvip .grade-name {
+    color: var(--vip-dark);
+}
+
+.grade-card.vvip .perk-dot {
+    background: var(--vip-main);
+}
+
+.top-btn {
+    position: fixed;
+    right: 28px;
+    bottom: 28px;
+    width: 48px;
+    height: 48px;
+    border: none;
+    border-radius: 50%;
+    background: var(--orange);
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+    z-index: 900;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 22px rgba(232, 115, 42, .28);
+    transition: background .2s ease, transform .2s ease;
+}
+
+.top-btn:hover {
+    background: var(--orange2);
+    transform: translateY(-2px);
+}
+
+.top-btn.show {
+    display: flex;
+}
+
+.grade-card.vvip .grade-symbol {
+    box-shadow: 0 0 0 rgba(232, 115, 42, 0);
+    transition: box-shadow .3s ease;
+}
+
+.grade-card.vvip:hover .grade-symbol {
+    box-shadow: 0 0 10px rgba(232, 115, 42, .22);
+}
+
+.grade-card.vvip .current-label {
+    z-index: 3;
+}
+
+.grade-card.vvip .grade-symbol,
+.grade-card.vvip .grade-name,
+.grade-card.vvip .grade-cond,
+.grade-card.vvip .grade-perks {
+    position: relative;
+    z-index: 2;
+}
+
+.shine-box {
+    display: none;
+}
+
+.grade-card.vvip .shine-box {
+    display: block;
+    position: absolute;
+    inset: 0;
+    border-radius: 26px;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.grade-card.vvip .shine-box::before {
+    content: "";
+    position: absolute;
+    top: -30%;
+    left: -80%;
+    width: 42%;
+    height: 160%;
+    background: linear-gradient(120deg,
+            transparent 0%,
+            rgba(255, 244, 214, .7) 45%,
+            transparent 70%);
+    transform: skewX(-18deg);
+    opacity: 0;
+}
+
+.grade-card.vvip:hover .shine-box::before {
+    opacity: 1;
+    animation: shine 1.05s ease;
+}
+
+@keyframes shine {
+    0% {
+        left: -80%;
+    }
+
+    100% {
+        left: 130%;
+    }
 }

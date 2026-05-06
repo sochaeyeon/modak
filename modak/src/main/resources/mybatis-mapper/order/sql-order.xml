@@ -2,53 +2,381 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.modak.order.mapper.OrderMapper">
-	<!-- 주문 목록 조회 -->
-	<select id="selectOrderList"
-		parameterType="hashmap"
-		resultType="com.example.modak.order.model.Order">
+<resultMap id="orderListMap" type="com.example.modak.order.model.Order">
+    <id property="orderId" column="ORDER_ID"/>
+
+    <result property="orderType" column="ORDER_TYPE"/>
+    <result property="orderStatus" column="ORDER_STATUS"/>
+    <result property="totalPrice" column="TOTAL_PRICE"/>
+    <result property="discountAmt" column="DISCOUNT_AMT"/>
+    <result property="createdAt" column="CREATED_AT"/>
+    <result property="userId" column="USER_ID"/>
+
+    <result property="deliveryId" column="DELIVERY_ID"/>
+    <result property="deliveryStatus" column="DELIVERY_STATUS"/>
+    <result property="trackingNo" column="TRACKING_NO"/>
+
+    <collection property="itemList" ofType="com.example.modak.order.model.OrderItem">
+        <id property="itemId" column="ITEM_ID"/>
+        <result property="productId" column="PRODUCT_ID"/>
+        <result property="productName" column="PRODUCT_NAME"/>
+        <result property="brandName" column="BRAND_NAME"/>
+        <result property="categoryName" column="CATEGORY_NAME"/>
+        <result property="price" column="ITEM_PRICE"/>
+        <result property="count" column="ITEM_COUNT"/>
+        <result property="startDate" column="START_DATE"/>
+        <result property="endDate" column="END_DATE"/>
+        <result property="imgUrl" column="IMG_URL"/>
+    </collection>
+</resultMap>
+
+<resultMap id="orderDetailMap" type="com.example.modak.order.model.Order">
+    <id property="orderId" column="ORDER_ID"/>
+
+    <result property="orderType" column="ORDER_TYPE"/>
+    <result property="orderStatus" column="ORDER_STATUS"/>
+    <result property="totalPrice" column="TOTAL_PRICE"/>
+    <result property="discountAmt" column="DISCOUNT_AMT"/>
+    <result property="createdAt" column="CREATED_AT"/>
+    <result property="userId" column="USER_ID"/>
+
+    <result property="receiverName" column="RECEIVER_NAME"/>
+    <result property="receiverPhone" column="RECEIVER_PHONE"/>
+    <result property="zipcode" column="ZIPCODE"/>
+    <result property="deliveryAddr" column="DELIVERY_ADDR"/>
+    <result property="deliveryDetailAddr" column="DELIVERY_DETAIL_ADDR"/>
+
+    <result property="payMethod" column="PAY_METHOD"/>
+    <result property="payDate" column="PAY_DATE"/>
+    <result property="usePoint" column="USE_POINT"/>
+
+    <collection property="itemList" ofType="com.example.modak.order.model.OrderItem">
+        <id property="itemId" column="ITEM_ID"/>
+        <result property="productId" column="PRODUCT_ID"/>
+        <result property="productName" column="PRODUCT_NAME"/>
+        <result property="brandName" column="BRAND_NAME"/>
+        <result property="categoryName" column="CATEGORY_NAME"/>
+        <result property="price" column="ITEM_PRICE"/>
+        <result property="count" column="ITEM_COUNT"/>
+        <result property="orderType" column="ITEM_TYPE"/>
+        <result property="startDate" column="START_DATE"/>
+        <result property="endDate" column="END_DATE"/>
+        <result property="imgUrl" column="IMG_URL"/>
+        <result property="optionName" column="OPTION_NAME"/>
+        <result property="deposit" column="DEPOSIT"/>
+    </collection>
+</resultMap>
+<select id="selectOrderList" resultMap="orderListMap">
 		SELECT
-			O.ORDER_ID,
-			O.ORDER_TYPE,
-			O.ORDER_STATUS,
-			O.TOTAL_PRICE,
-			O.DISCOUNT_AMT,
-			O.CREATED_AT,
-			O.USER_ID,
-			O.USER_COUPON_ID,
-			MIN(P.PRODUCT_NAME) AS productName,
-			COUNT(OI.ITEM_ID) AS itemCount
+		O.ORDER_ID,
+		O.ORDER_TYPE,
+		O.ORDER_STATUS,
+		O.TOTAL_PRICE,
+		O.DISCOUNT_AMT,
+		O.CREATED_AT,
+		O.USER_ID,
+
+		D.DELIVERY_ID,
+		D.DELIVERY_STATUS,
+		D.TRACKING_NO,
+
+		OI.ITEM_ID,
+		OI.PRODUCT_ID,
+		P.PRODUCT_NAME,
+		B.BRAND_NAME AS BRAND_NAME,
+		C.CATEGORY_NAME AS CATEGORY_NAME,
+		OI.UNIT_PRICE AS ITEM_PRICE,
+		OI.QUANTITY AS ITEM_COUNT,
+		OI.START_DATE,
+		OI.END_DATE,
+
+		(SELECT PI.IMG_URL
+		FROM PRODUCT_IMG PI
+		WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
+		ORDER BY PI.IS_MAIN DESC
+		LIMIT 1) AS IMG_URL
+
 		FROM ORDERS O
-		LEFT JOIN ORDER_ITEM OI	ON O.ORDER_ID = OI.ORDER_ID
-		LEFT JOIN PRODUCT P	ON OI.PRODUCT_ID = P.PRODUCT_ID
+		LEFT JOIN DELIVERY D
+		ON O.ORDER_ID = D.ORDER_ID
+		LEFT JOIN ORDER_ITEM OI
+		ON O.ORDER_ID = OI.ORDER_ID
+		LEFT JOIN PRODUCT P
+		ON OI.PRODUCT_ID = P.PRODUCT_ID
+		LEFT JOIN BRAND B
+		ON P.BRAND_ID = B.BRAND_ID
+		LEFT JOIN PRODUCT_CATEGORY C
+		ON P.CATEGORY_ID = C.CATEGORY_ID
 		WHERE O.USER_ID = #{userId}
-		GROUP BY
-			O.ORDER_ID,
-			O.ORDER_TYPE,
-			O.ORDER_STATUS,
-			O.TOTAL_PRICE,
-			O.DISCOUNT_AMT,
-			O.CREATED_AT,
-			O.USER_ID,
-			O.USER_COUPON_ID
-		ORDER BY O.CREATED_AT DESC
-	</select>
+		AND NOT (O.ORDER_STATUS = 'READY' AND NOT EXISTS (
+		    SELECT 1 FROM PAYMENT P
+		    WHERE P.ORDER_ID = O.ORDER_ID
+		    AND P.PAY_STATUS = 'PAID'
+		))
+		ORDER BY O.CREATED_AT DESC, OI.ITEM_ID ASC
+</select>
 
-	<!-- 주문 상세 조회 -->
-	<select id="selectOrderDetail"
-		parameterType="hashmap"
-		resultType="com.example.modak.order.model.Order">
-		SELECT
-			ORDER_ID,
-			ORDER_TYPE,
-			ORDER_STATUS,
-			TOTAL_PRICE,
-			DISCOUNT_AMT,
-			CREATED_AT,
-			USER_ID,
-			USER_COUPON_ID
-			FROM ORDERS
-		WHERE ORDER_ID = #{orderId}
-		AND USER_ID = #{userId}
+	<!-- 주문 상세 — 이미지 추가 + 결제시간 COALESCE fallback -->
+	<select id="selectOrderDetail" resultMap="orderDetailMap">
+    SELECT
+        O.ORDER_ID,
+        O.ORDER_TYPE,
+        O.ORDER_STATUS,
+        O.TOTAL_PRICE,
+        O.DISCOUNT_AMT,
+        O.USE_POINT,
+        O.CREATED_AT,
+        O.USER_ID,
+		OI.ITEM_ID,
+		P.PRODUCT_ID,
+		P.PRODUCT_NAME,
+		B.BRAND_NAME,
+		C.CATEGORY_NAME,
+        U.USER_NAME  AS RECEIVER_NAME,
+        U.USER_PHONE AS RECEIVER_PHONE,
+        A.ZIPCODE,
+        A.ADDRESS          AS DELIVERY_ADDR,
+        A.DETAILED_ADDRESS AS DELIVERY_DETAIL_ADDR,
+        POI.ITEM_NAME AS OPTION_NAME,
+
+        /* 결제 */
+        COALESCE(PH.PAY_TYPE, 'CARD')      AS PAY_METHOD,
+        COALESCE(PM.PAID_AT, O.CREATED_AT) AS PAY_DATE,
+
+        /* 상품 */
+        P.PRODUCT_ID,
+        P.PRODUCT_NAME,
+        B.BRAND_NAME AS BRAND_NAME,
+        C.CATEGORY_NAME AS CATEGORY_NAME,
+
+        OI.UNIT_PRICE AS ITEM_PRICE,
+        P.DEPOSIT AS DEPOSIT,
+        OI.QUANTITY   AS ITEM_COUNT,
+        O.ORDER_TYPE  AS ITEM_TYPE,
+        OI.START_DATE,
+        OI.END_DATE,
+
+        /* 대표 이미지 */
+        (SELECT PI.IMG_URL
+         FROM PRODUCT_IMG PI
+         WHERE PI.PRODUCT_ID = P.PRODUCT_ID
+           AND PI.IS_MAIN = 'Y'
+         LIMIT 1) AS IMG_URL
+
+    FROM ORDERS O
+
+    INNER JOIN ORDER_ITEM OI 
+        ON O.ORDER_ID = OI.ORDER_ID
+
+    INNER JOIN PRODUCT P  
+        ON OI.PRODUCT_ID = P.PRODUCT_ID
+
+    /* 🔥 추가된 부분 */
+    LEFT JOIN BRAND B
+        ON P.BRAND_ID = B.BRAND_ID
+
+    LEFT JOIN PRODUCT_CATEGORY C
+        ON P.CATEGORY_ID = C.CATEGORY_ID
+
+    INNER JOIN USER U  
+        ON O.USER_ID = U.USER_ID
+
+    LEFT JOIN USER_ADDRESS A  
+        ON O.USER_ID = A.USER_ID 
+        AND A.DEFAULT_YN = 'Y'
+
+    LEFT JOIN PAYMENT PM  
+        ON O.ORDER_ID = PM.ORDER_ID
+
+    LEFT JOIN PAYMENT_HISTORY PH  
+        ON PM.PAY_ID = PH.TARGET_PAY_ID
+        AND PH.NEW_STATUS = 'PAID'
+        
+    LEFT JOIN PRODUCT_OPTION_ITEM POI
+    ON OI.OPTION_ITEM_ID = POI.OPTION_ITEM_ID
+
+    WHERE O.ORDER_ID = #{orderId}
+
+    <if test="userId != null and userId != ''">
+        AND O.USER_ID = #{userId}
+    </if>
+</select>
+
+	<update id="updateOrderStatus">
+	    UPDATE ORDERS
+	    SET ORDER_STATUS = #{status}
+	    WHERE ORDER_ID = #{orderId}
+	      AND ORDER_STATUS IN ('PAID', 'READY', 'PAY_COMPLETED')
+	</update>
+ 
+	<insert id="insertOrderCancel" parameterType="hashmap">
+	    INSERT INTO ORDER_CANCEL (
+	        CANCEL_REASON_CODE,
+	        CANCEL_REASON_TEXT,
+	        CANCEL_AMOUNT,
+	        CANCEL_STATUS,
+	        REQUESTED_AT,
+	        ORDER_ID
+	    ) VALUES (
+	        #{cancelReasonCode},
+	        #{cancelReasonText},
+	        #{cancelAmount},
+	        'REQUESTED',
+	        NOW(),
+	        #{orderId}
+	    )
+	</insert>
+	
+	<select id="selectDeliveryIdByOrderId" parameterType="int" resultType="Integer">
+    SELECT DELIVERY_ID FROM DELIVERY WHERE ORDER_ID = #{orderId} LIMIT 1
+</select>
+<!-- 비회원 전체 주문 목록 (휴대폰 번호 기준) - 결제 완료된 주문만 -->
+<select id="selectGuestOrderListByPhone" parameterType="hashmap" resultType="map">
+    SELECT
+        O.ORDER_ID,
+        O.ORDER_TYPE,
+        O.ORDER_STATUS,
+        O.TOTAL_PRICE,
+        DATE_FORMAT(O.CREATED_AT, '%Y-%m-%d %H:%i:%s') AS CREATED_AT,
+        O.GUEST_NAME,
+        O.GUEST_PHONE,
+
+        (SELECT P.PRODUCT_NAME
+         FROM ORDER_ITEM OI
+         JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+         WHERE OI.ORDER_ID = O.ORDER_ID
+         ORDER BY OI.ITEM_ID ASC
+         LIMIT 1) AS firstProductName,
+
+        (SELECT COUNT(*)
+         FROM ORDER_ITEM OI2
+         WHERE OI2.ORDER_ID = O.ORDER_ID) AS itemCount,
+
+        (SELECT PI.IMG_URL
+         FROM ORDER_ITEM OI3
+         JOIN PRODUCT P2 ON OI3.PRODUCT_ID = P2.PRODUCT_ID
+         JOIN PRODUCT_IMG PI
+           ON PI.PRODUCT_ID = P2.PRODUCT_ID
+          AND PI.IS_MAIN = 'Y'
+         WHERE OI3.ORDER_ID = O.ORDER_ID
+         ORDER BY OI3.ITEM_ID ASC
+         LIMIT 1) AS thumbUrl
+
+    FROM ORDERS O
+    LEFT JOIN PAYMENT PAY
+        ON PAY.ORDER_ID = O.ORDER_ID
+       AND PAY.PAY_STATUS IN ('PAID', 'REFUNDED', 'CANCELLED')
+
+    WHERE O.USER_ID LIKE 'GUEST_%'
+      AND O.GUEST_PHONE = #{guestPhone}
+      AND O.GUEST_NAME  = #{guestName}
+      AND (
+          PAY.PAY_STATUS IN ('PAID', 'REFUNDED', 'CANCELLED')
+          OR O.ORDER_STATUS = 'CANCELLED'
+      )
+
+    ORDER BY O.CREATED_AT DESC
+</select>
+	
+	<!-- 취소 재고 복원용 주문 아이템 조회 -->
+	<select id="selectOrderItemsForCancel" parameterType="long" resultType="hashmap">
+	    SELECT
+	        OI.PRODUCT_ID,
+	        OI.OPTION_ITEM_ID,
+	        OI.QUANTITY,
+	        OI.START_DATE,
+	        OI.END_DATE,
+	        O.ORDER_TYPE
+	    FROM ORDER_ITEM OI
+	    JOIN ORDERS O ON OI.ORDER_ID = O.ORDER_ID
+	    WHERE OI.ORDER_ID = #{orderId}
 	</select>
+	
+	<!-- 렌탈 취소 — RESERVED_QTY 감소, AVAILABLE_QTY 증가 -->
+	<update id="restoreStockForRentalCancel" parameterType="hashmap">
+	    UPDATE product_stock
+	    SET RESERVED_QTY  = RESERVED_QTY  - #{quantity},
+	        AVAILABLE_QTY = AVAILABLE_QTY + #{quantity}
+	    WHERE PRODUCT_ID    = #{productId}
+	      AND OPTION_ITEM_ID = #{optionItemId}
+	      AND STOCK_DATE BETWEEN #{startDate} AND DATE_SUB(#{endDate}, INTERVAL 1 DAY)
+	      AND RESERVED_QTY >= #{quantity}
+	</update>
+	
+	<!-- 구매 취소 — AVAILABLE_QTY 증가 (STOCK_DATE NULL 또는 0000-00-00) -->
+	<update id="increaseStockForPurchaseCancel" parameterType="hashmap">
+	    UPDATE product_stock
+	    SET AVAILABLE_QTY = LEAST(TOTAL_QTY, AVAILABLE_QTY + #{quantity})
+	    WHERE PRODUCT_ID     = #{productId}
+	      AND OPTION_ITEM_ID = #{optionItemId}
+	      AND STOCK_DATE IS NULL
+	</update>
+	
+	<!-- 취소용 주문 정보 조회 (USE_POINT, USER_ID) -->
+	<select id="selectOrderInfoForCancel" parameterType="long" resultType="hashmap">
+	    SELECT
+	        ORDER_ID,
+	        USER_ID,
+	        USE_POINT,
+	        ORDER_TYPE,
+	        TOTAL_PRICE,
+	        ORDER_STATUS
+	    FROM ORDERS
+	    WHERE ORDER_ID = #{orderId}
+	</select>
+	
+	<!-- 취소 시 포인트 반환 이력 INSERT -->
+	<insert id="insertPointRestoreHistory" parameterType="hashmap">
+	    INSERT INTO POINT_HISTORY (
+	        USER_ID, DESCRIPTION, AMOUNT, TYPE, CREATED_AT, BALANCE_AFTER
+	    ) VALUES (
+	        #{userId},
+	        #{description},
+	        #{usePoint},
+	        'RESTORE',
+	        NOW(),
+	        (SELECT COALESCE(POINT, 0) + #{usePoint}
+	         FROM USER
+	         WHERE USER_ID = #{userId})
+	    )
+	</insert>
+	
+	<!-- USE_POINT 반환 + EARN 포인트 회수 동시 처리 -->
+	<update id="restoreUserPoint" parameterType="hashmap">
+	    UPDATE USER
+	    SET POINT = POINT + #{usePoint} - #{earnedPoint}
+	    WHERE USER_ID = #{userId}
+	</update>
+	
+	<!-- 취소 시 적립 포인트 회수 이력 -->
+	<insert id="insertPointCancelHistory" parameterType="hashmap">
+	    INSERT INTO POINT_HISTORY (
+	        USER_ID, DESCRIPTION, AMOUNT, TYPE, CREATED_AT, BALANCE_AFTER
+	    ) VALUES (
+	        #{userId},
+	        #{description},
+	        #{earnedPoint},
+	        'CANCEL',
+	        NOW(),
+	        (SELECT COALESCE(POINT, 0) - #{earnedPoint}
+	         FROM USER
+	         WHERE USER_ID = #{userId})
+	    )
+	</insert>
+	
+	<insert id="insertPurchaseStockIfNotExists">
+		INSERT INTO product_stock (
+		    STOCK_DATE, PRODUCT_ID, OPTION_ITEM_ID,
+		    TOTAL_QTY, RESERVED_QTY, AVAILABLE_QTY
+		)
+		SELECT NULL, #{productId}, #{optionItemId}, 0, 0, 0
+		FROM dual
+		WHERE NOT EXISTS (
+		    SELECT 1 FROM product_stock
+		    WHERE PRODUCT_ID = #{productId}
+		    AND OPTION_ITEM_ID = #{optionItemId}
+		    AND STOCK_DATE IS NULL
+		)
+	</insert>
+
 </mapper>
-

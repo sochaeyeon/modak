@@ -757,47 +757,41 @@
 							</div>
 						</div>
 						<!-- [하단 바] 액션 영역 -->
+						<!-- 이 블록이 모달 바깥에 있어서 하단에 계속 노출되는 것입니다. 제거하세요! -->
 						<div class="modal-footer-bar">
-							<!-- 도움돼요 섹션 -->
-							<div class="helpful-container">
-								<span class="guide-text">도움이 됐나요?</span>
-								<!-- 도움돼요 버튼 -->
-								<!-- 방법 B: 버튼은 보여주되, 본인이면 비활성화 스타일 적용 -->
-								<button class="btn-helpful" :class="{ 
-								        on: reviewList[reviewImgModal.reviewIndex]?.helpfulYn === 'Y',
-								        'is-me': String(reviewList[reviewImgModal.reviewIndex]?.userId) === String(loginUserId) 
-								    }" :disabled="String(reviewList[reviewImgModal.reviewIndex]?.userId) === String(loginUserId)"
-									@click="fnReviewHelpful(reviewList[reviewImgModal.reviewIndex])">
-									<i
-										:class="reviewList[reviewImgModal.reviewIndex]?.helpfulYn === 'Y' ? 'ri-thumb-up-fill' : 'ri-thumb-up-line'"></i>
-									도움돼요 {{ reviewList[reviewImgModal.reviewIndex]?.helpfulCount || 0 }}
-								</button>
-							</div>
+						    <!-- 도움돼요 섹션 -->
+						    <div class="helpful-container">
+						        <span class="guide-text">도움이 됐나요?</span>
+						        <button class="btn-helpful" :class="{ 
+						                on: reviewList[reviewImgModal.reviewIndex]?.helpfulYn === 'Y',
+						                'is-me': String(reviewList[reviewImgModal.reviewIndex]?.userId) === String(loginUserId) 
+						            }" :disabled="String(reviewList[reviewImgModal.reviewIndex]?.userId) === String(loginUserId)"
+						            @click="fnReviewHelpful(reviewList[reviewImgModal.reviewIndex])">
+						            <i :class="reviewList[reviewImgModal.reviewIndex]?.helpfulYn === 'Y' ? 'ri-thumb-up-fill' : 'ri-thumb-up-line'"></i>
+						            도움돼요 {{ reviewList[reviewImgModal.reviewIndex]?.helpfulCount || 0 }}
+						        </button>
+						    </div>
 
-							<!-- 리뷰 이동 네비게이션 -->
-							<div class="navigation-container">
-								<!-- 이전 리뷰 버튼 -->
-								<button class="btn-nav prev" @click="modalReviewMove(-1)"
-									:disabled="reviewList.filter((r,i) => i < reviewImgModal.reviewIndex && r.imageList?.length > 0).length === 0">
-									<i class="ri-arrow-left-s-line"></i> 이전 리뷰
-								</button>
+						    <!-- 리뷰 이동 네비게이션 -->
+						    <div class="navigation-container">
+						        <button class="btn-nav prev" @click="modalReviewMove(-1)"
+						            :disabled="reviewList.filter((r,i) => i < reviewImgModal.reviewIndex && r.imageList?.length > 0).length === 0">
+						            <i class="ri-arrow-left-s-line"></i> 이전 리뷰
+						        </button>
 
-								<!-- 페이지 정보 -->
-								<span class="pagination-info">
-									<strong class="current-idx">
-										{{ reviewList.filter(r => r.imageList?.length >
-										0).indexOf(reviewList[reviewImgModal.reviewIndex]) + 1 }}
-									</strong>
-									<span class="divider">/</span>
-									{{ reviewList.filter(r => r.imageList?.length > 0).length }}
-								</span>
+						        <span class="pagination-info">
+						            <strong class="current-idx">
+						                {{ reviewList.filter(r => r.imageList?.length > 0).indexOf(reviewList[reviewImgModal.reviewIndex]) + 1 }}
+						            </strong>
+						            <span class="divider">/</span>
+						            {{ reviewList.filter(r => r.imageList?.length > 0).length }}
+						        </span>
 
-								<!-- 다음 리뷰 버튼 -->
-								<button class="btn-nav next" @click="modalReviewMove(1)"
-									:disabled="reviewList.filter((r,i) => i > reviewImgModal.reviewIndex && r.imageList?.length > 0).length === 0">
-									다음 리뷰 <i class="ri-arrow-right-s-line"></i>
-								</button>
-							</div>
+						        <button class="btn-nav next" @click="modalReviewMove(1)"
+						            :disabled="reviewList.filter((r,i) => i > reviewImgModal.reviewIndex && r.imageList?.length > 0).length === 0">
+						            다음 리뷰 <i class="ri-arrow-right-s-line"></i>
+						        </button>
+						    </div>
 						</div>
 					</div>
 				</div>

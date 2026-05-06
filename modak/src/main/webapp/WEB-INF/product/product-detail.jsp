@@ -631,146 +631,221 @@
 							</div>
 						</div>
 
-						<!-- 리뷰 이미지 모달 수정안 -->
-						<div v-if="reviewImgModal.open" class="img-modal-overlay" @click.self="reviewImgModal.open = false" 
-						     style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10000; display:flex; align-items:center; justify-content:center;">
-						    
-						    <div class="img-modal-box" style="position:relative; width:940px; max-width:95vw; background:#fff; border-radius:32px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 25px 50px rgba(0,0,0,0.4);">
-						        
-						        <!-- [메인 영역] 이미지와 텍스트 -->
-						        <div style="display:flex; height:580px;">
-						            <!-- (왼쪽) 이미지 영역 -->
-						            <div style="flex:1.1; background:#1a1510; position:relative; display:flex; align-items:center; justify-content:center;">
-						                <img :src="reviewImgModal.url" style="max-width:100%; max-height:100%; object-fit:contain;">
-						                
-						                <!-- 이미지 인디케이터 (하단 점) -->
-						                <div v-if="reviewList[reviewImgModal.reviewIndex]?.imageList?.length > 1" 
-						                     style="position:absolute; bottom:20px; display:flex; gap:8px;">
-						                    <span v-for="(img, idx) in reviewList[reviewImgModal.reviewIndex].imageList" :key="idx"
-						                          :style="{ width:'8px', height:'8px', borderRadius:'50%', background: idx === reviewImgModal.imgIndex ? '#e67e22' : 'rgba(255,255,255,0.3)' }"></span>
-						                </div>
-						            </div>
-
-						            <!-- (오른쪽) 리뷰 본문 영역 -->
-						            <div style="flex:1; padding:40px; position:relative; display:flex; flex-direction:column; background:#fff;">
-						                <!-- 닫기 버튼 -->
-						                <button @click="reviewImgModal.open = false" style="position:absolute; top:24px; right:24px; background:#f5f5f5; border:none; border-radius:50%; width:36px; height:36px; cursor:pointer; color:#999; font-size:20px;">✕</button>
-
-						                <!-- 상단: 유저 정보 및 날짜 -->
-						                <div style="display:flex; align-items:center; gap:14px; margin-bottom:30px;">
-						                    <img :src="reviewList[reviewImgModal.reviewIndex]?.profileImgUrl || '/img/profile/default-profile.png'"
-						                         style="width:56px; height:56px; border-radius:50%; object-fit:cover; background:#e67e22; padding:2px;">
-						                    <div style="flex:1;">
-						                        <div style="display:flex; align-items:center; gap:8px;">
-						                            <span style="font-weight:700; font-size:18px;">{{ reviewList[reviewImgModal.reviewIndex]?.nickname }}</span>
-						                            <!-- 등급 배지 연동 -->
-						                            <span v-if="reviewList[reviewImgModal.reviewIndex]?.gradeId >= 4" style="background:#fdf2e9; color:#e67e22; font-size:11px; padding:2px 8px; border-radius:10px; font-weight:700;">VIP</span>
-						                            <span v-else-if="reviewList[reviewImgModal.reviewIndex]?.gradeId == 3" style="background:#fff9e6; color:#f1c40f; font-size:11px; padding:2px 8px; border-radius:10px; font-weight:700;">GOLD</span>
-						                        </div>
-						                        <div style="display:flex; align-items:center; gap:4px; margin-top:4px;">
-						                            <div style="color:#ffb800; font-size:14px;">
-						                                <span v-for="i in 5" :key="i">{{ i <= reviewList[reviewImgModal.reviewIndex]?.rating ? '★' : '☆' }}</span>
-						                            </div>
-						                            <span style="color:#bbb; font-size:13px; margin-left:4px;">{{ reviewList[reviewImgModal.reviewIndex]?.rating }}점</span>
-						                        </div>
-						                    </div>
-						                    <!-- 날짜 데이터가 있다면 연동 (없으면 숨김 처리 가능) -->
-						                    <div style="color:#bbb; font-size:13px; align-self: flex-start; padding-top:5px;">{{ reviewList[reviewImgModal.reviewIndex]?.createDate }}</div>
-						                </div>
-
-						                <!-- 중단: 리뷰 내용 -->
-						                <div style="flex:1; overflow-y:auto;">
-						                    <h3 style="font-size:20px; font-weight:800; margin-bottom:16px; color:#1a1510;">{{ reviewList[reviewImgModal.reviewIndex]?.title }}</h3>
-						                    <p style="font-size:16px; color:#4a4a4a; line-height:1.8; white-space:pre-wrap;">{{ reviewList[reviewImgModal.reviewIndex]?.content }}</p>
-						                </div>
-						            </div>
-						        </div>
-
-						        <!-- [하단 바] 액션 영역 -->
-						        <div style="background:#fdfaf7; padding:20px 40px; display:flex; align-items:center; justify-content:space-between; border-top:1px solid #f2e8df;">
-						            <div style="display:flex; align-items:center; gap:20px;">
-						                <span style="font-size:14px; color:#aaa;">도움이 됐나요?</span>
-						                <!-- 도움돼요 데이터 연동 -->
-						                <button class="hbtn" 
-						                        :class="{ on: reviewList[reviewImgModal.reviewIndex]?.helpfulYn === 'Y' }"
-						                        :disabled="String(reviewList[reviewImgModal.reviewIndex]?.userId) === String(loginUserId)"
-						                        @click="fnReviewHelpful(reviewList[reviewImgModal.reviewIndex])"
-						                        style="background:#fff; border:1px solid #e67e22; color:#e67e22; padding:8px 20px; border-radius:25px; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 8px rgba(230,126,34,0.1);"
-						                        :style="reviewList[reviewImgModal.reviewIndex]?.helpfulYn === 'Y' ? 'background:#e67e22; color:#fff;' : ''">
-						                    <i :class="reviewList[reviewImgModal.reviewIndex]?.helpfulYn === 'Y' ? 'ri-thumb-up-fill' : 'ri-thumb-up-line'"></i> 
-						                    도움돼요 {{ reviewList[reviewImgModal.reviewIndex]?.helpfulCount || 0 }}
-						                </button>
-						            </div>
-
-						            <div style="display:flex; align-items:center; gap:15px;">
-						                <!-- 이전 리뷰 버튼 -->
-						                <button @click="modalReviewMove(-1)" 
-						                        :disabled="reviewList.filter((r,i) => i < reviewImgModal.reviewIndex && r.imageList?.length > 0).length === 0"
-						                        style="background:#fff; border:1px solid #ddd; padding:10px 24px; border-radius:12px; cursor:pointer; font-weight:600; color:#666; display:flex; align-items:center; gap:5px;"
-						                        :style="{ opacity: reviewList.filter((r,i) => i < reviewImgModal.reviewIndex && r.imageList?.length > 0).length === 0 ? 0.4 : 1 }">
-						                    <i class="ri-arrow-left-s-line"></i> 이전 리뷰
-						                </button>
-						                
-						                <span style="font-size:15px; color:#bbb; font-weight:600;">
-						                    <strong style="color:#e67e22;">{{ reviewList.filter(r => r.imageList?.length > 0).indexOf(reviewList[reviewImgModal.reviewIndex]) + 1 }}</strong> / {{ reviewList.filter(r => r.imageList?.length > 0).length }}
-						                </span>
-
-						                <!-- 다음 리뷰 버튼 -->
-						                <button @click="modalReviewMove(1)" 
-						                        :disabled="reviewList.filter((r,i) => i > reviewImgModal.reviewIndex && r.imageList?.length > 0).length === 0"
-						                        style="background:#e67e22; border:none; padding:10px 24px; border-radius:12px; cursor:pointer; font-weight:600; color:#fff; display:flex; align-items:center; gap:5px;"
-						                        :style="{ opacity: reviewList.filter((r,i) => i > reviewImgModal.reviewIndex && r.imageList?.length > 0).length === 0 ? 0.4 : 1 }">
-						                    다음 리뷰 <i class="ri-arrow-right-s-line"></i>
-						                </button>
-						            </div>
-						        </div>
-						    </div>
+						<!-- 상품 이미지 단순 확대 모달 -->
+						<div v-if="reviewImgModal.open && reviewImgModal.reviewIndex === -1"
+							class="modal-overlay zoom-mode" @click.self="reviewImgModal.open = false">
+							<div class="zoom-content-wrapper">
+								<button class="btn-close-out" @click="reviewImgModal.open = false">
+									<i class="ri-close-line"></i>
+								</button>
+								<img :src="reviewImgModal.url" class="zoom-img-main">
+							</div>
 						</div>
-						<!-- 확인 모달 -->
-						<div v-if="confirmModal.open" class="confirm-overlay" @click.self="confirmCancel">
-							<div class="confirm-box">
-								<div class="confirm-title">알림</div>
-								<div class="confirm-message">{{ confirmModal.message }}</div>
-								<div class="confirm-btns">
-									<button class="confirm-ok" @click="confirmOk">
-										{{ confirmModal.okText }}
-									</button>
-									<button class="confirm-cancel" @click="confirmCancel">
-										{{ confirmModal.cancelText }}
-									</button>
+
+						<!-- 2. 리뷰 이미지 상세 모달 (이미지 + 리뷰 내용) -->
+						<div v-if="reviewImgModal.open && reviewImgModal.reviewIndex >= 0"
+							class="modal-overlay detail-mode" @click.self="reviewImgModal.open = false">
+
+							<div class="detail-modal-container">
+								<!-- 메인 콘텐츠 영역 (상단) -->
+								<div class="detail-main-body">
+									<!-- 왼쪽 이미지 섹션 -->
+									<div class="detail-image-section">
+										<img :src="reviewImgModal.url" class="img-display">
+
+										<!-- 이미지 내 좌우 네비게이션 -->
+										<button v-if="reviewImgModal.imgIndex > 0" class="btn-img-nav prev"
+											@click="modalImgMove(-1)">
+											<i class="ri-arrow-left-s-line"></i>
+										</button>
+										<button
+											v-if="reviewImgModal.imgIndex < (reviewList[reviewImgModal.reviewIndex]?.imageList?.length - 1)"
+											class="btn-img-nav next" @click="modalImgMove(1)">
+											<i class="ri-arrow-right-s-line"></i>
+										</button>
+
+										<!-- 하단 인디케이터 -->
+										<div v-if="reviewList[reviewImgModal.reviewIndex]?.imageList?.length > 1"
+											class="img-indicators">
+											<span v-for="(img, idx) in reviewList[reviewImgModal.reviewIndex].imageList"
+												:key="idx" class="dot"
+												:class="{ active: idx === reviewImgModal.imgIndex }">
+											</span>
+										</div>
+									</div>
+
+									<!-- 오른쪽 텍스트 리뷰 섹션 -->
+									<div class="detail-info-section">
+										<!-- 내부 닫기 버튼 -->
+										<button class="btn-close-in" @click="reviewImgModal.open = false">
+											<i class="ri-close-line"></i>
+										</button>
+
+										<!-- 유저 프로필 헤더 -->
+										<div class="user-header">
+											<img :src="reviewList[reviewImgModal.reviewIndex]?.profileImgUrl || '/img/profile/default-profile.png'"
+												class="user-avatar">
+											<div class="user-meta">
+												<div class="name-row">
+													<span class="nickname">{{
+														reviewList[reviewImgModal.reviewIndex]?.nickname }}</span>
+													<span v-if="reviewList[reviewImgModal.reviewIndex]?.gradeId >= 4"
+														class="badge vip">VIP</span>
+													<span
+														v-else-if="reviewList[reviewImgModal.reviewIndex]?.gradeId == 3"
+														class="badge gold">GOLD</span>
+												</div>
+												<div class="star-row">
+													<div class="stars">
+														<span v-for="i in 5" :key="i" class="star"
+															:class="{ filled: i <= reviewList[reviewImgModal.reviewIndex]?.rating }">★</span>
+													</div>
+													<span class="rating-num">{{
+														reviewList[reviewImgModal.reviewIndex]?.rating }}점</span>
+												</div>
+											</div>
+											<span class="create-date">{{
+												reviewList[reviewImgModal.reviewIndex]?.createDate }}</span>
+										</div>
+
+										<!-- 리뷰 텍스트 본문 (스크롤 가능) -->
+										<div class="review-text-content custom-scroll">
+											<h3 class="review-title">{{ reviewList[reviewImgModal.reviewIndex]?.title }}
+											</h3>
+											<p class="review-body">{{ reviewList[reviewImgModal.reviewIndex]?.content }}
+											</p>
+										</div>
+									</div>
+								</div>
+
+								<!-- 하단 바 영역 -->
+								<div class="detail-footer-bar">
+									<!-- 도움돼요 섹션 -->
+									<div class="helpful-area">
+										<span class="guide-txt">도움이 됐나요?</span>
+										<button class="btn-helpful"
+											:class="{ on: reviewList[reviewImgModal.reviewIndex]?.helpfulYn === 'Y' }"
+											:disabled="String(reviewList[reviewImgModal.reviewIndex]?.userId) === String(loginUserId)"
+											@click="fnReviewHelpful(reviewList[reviewImgModal.reviewIndex])">
+											<i
+												:class="reviewList[reviewImgModal.reviewIndex]?.helpfulYn === 'Y' ? 'ri-thumb-up-fill' : 'ri-thumb-up-line'"></i>
+											도움돼요 {{ reviewList[reviewImgModal.reviewIndex]?.helpfulCount || 0 }}
+										</button>
+									</div>
+
+									<!-- 리뷰 이동 네비게이션 -->
+									<div class="review-pagination">
+										<button class="btn-page prev" @click="modalReviewMove(-1)"
+											:disabled="reviewList.filter((r,i) => i < reviewImgModal.reviewIndex && r.imageList?.length > 0).length === 0">
+											<i class="ri-arrow-left-s-line"></i> 이전 리뷰
+										</button>
+
+										<div class="page-counter">
+											<span class="current">{{ reviewList.filter(r => r.imageList?.length >
+												0).indexOf(reviewList[reviewImgModal.reviewIndex]) + 1 }}</span>
+											<span class="divider">/</span>
+											<span class="total">{{ reviewList.filter(r => r.imageList?.length >
+												0).length }}</span>
+										</div>
+
+										<button class="btn-page next" @click="modalReviewMove(1)"
+											:disabled="reviewList.filter((r,i) => i > reviewImgModal.reviewIndex && r.imageList?.length > 0).length === 0">
+											다음 리뷰 <i class="ri-arrow-right-s-line"></i>
+										</button>
+									</div>
 								</div>
 							</div>
 						</div>
-						<div v-if="reportModal.open" class="report-modal-overlay" @click.self="closeReportModal">
-							<div class="report-modal-box">
-								<div class="report-modal-title">리뷰 신고</div>
-								<div class="report-modal-desc">
-									신고 사유를 입력해 주세요.
-								</div>
+						<!-- [하단 바] 액션 영역 -->
+						<div class="modal-footer-bar">
+							<!-- 도움돼요 섹션 -->
+							<div class="helpful-container">
+								<span class="guide-text">도움이 됐나요?</span>
+								<!-- 도움돼요 버튼 -->
+								<!-- 방법 B: 버튼은 보여주되, 본인이면 비활성화 스타일 적용 -->
+								<button class="btn-helpful" :class="{ 
+								        on: reviewList[reviewImgModal.reviewIndex]?.helpfulYn === 'Y',
+								        'is-me': String(reviewList[reviewImgModal.reviewIndex]?.userId) === String(loginUserId) 
+								    }" :disabled="String(reviewList[reviewImgModal.reviewIndex]?.userId) === String(loginUserId)"
+									@click="fnReviewHelpful(reviewList[reviewImgModal.reviewIndex])">
+									<i
+										:class="reviewList[reviewImgModal.reviewIndex]?.helpfulYn === 'Y' ? 'ri-thumb-up-fill' : 'ri-thumb-up-line'"></i>
+									도움돼요 {{ reviewList[reviewImgModal.reviewIndex]?.helpfulCount || 0 }}
+								</button>
+							</div>
 
-								<textarea class="report-textarea" v-model="reportModal.content" maxlength="500"
-									placeholder="예: 욕설, 허위 정보, 광고성 리뷰 등"></textarea>
+							<!-- 리뷰 이동 네비게이션 -->
+							<div class="navigation-container">
+								<!-- 이전 리뷰 버튼 -->
+								<button class="btn-nav prev" @click="modalReviewMove(-1)"
+									:disabled="reviewList.filter((r,i) => i < reviewImgModal.reviewIndex && r.imageList?.length > 0).length === 0">
+									<i class="ri-arrow-left-s-line"></i> 이전 리뷰
+								</button>
 
-								<div class="report-count">
-									{{ reportModal.content.length }}/500
-								</div>
+								<!-- 페이지 정보 -->
+								<span class="pagination-info">
+									<strong class="current-idx">
+										{{ reviewList.filter(r => r.imageList?.length >
+										0).indexOf(reviewList[reviewImgModal.reviewIndex]) + 1 }}
+									</strong>
+									<span class="divider">/</span>
+									{{ reviewList.filter(r => r.imageList?.length > 0).length }}
+								</span>
 
-								<div class="report-modal-actions">
-									<button type="button" class="report-cancel" @click="closeReportModal">
-										취소
-									</button>
-									<button type="button" class="report-submit" @click="submitReport">
-										신고하기
-									</button>
-								</div>
+								<!-- 다음 리뷰 버튼 -->
+								<button class="btn-nav next" @click="modalReviewMove(1)"
+									:disabled="reviewList.filter((r,i) => i > reviewImgModal.reviewIndex && r.imageList?.length > 0).length === 0">
+									다음 리뷰 <i class="ri-arrow-right-s-line"></i>
+								</button>
 							</div>
 						</div>
 					</div>
 				</div>
-				<!-- TOP 버튼 -->
-				<button v-show="showTopBtn" class="scroll-top-btn" @click="scrollToTop">
-					<i class="ri-arrow-up-line"></i>
-				</button>
+				<!-- 확인 모달 -->
+				<div v-if="confirmModal.open" class="confirm-overlay" @click.self="confirmCancel">
+					<div class="confirm-box">
+						<div class="confirm-title">알림</div>
+						<div class="confirm-message">{{ confirmModal.message }}</div>
+						<div class="confirm-btns">
+							<button class="confirm-ok" @click="confirmOk">
+								{{ confirmModal.okText }}
+							</button>
+							<button class="confirm-cancel" @click="confirmCancel">
+								{{ confirmModal.cancelText }}
+							</button>
+						</div>
+					</div>
+				</div>
+				<div v-if="reportModal.open" class="report-modal-overlay" @click.self="closeReportModal">
+					<div class="report-modal-box">
+						<div class="report-modal-title">리뷰 신고</div>
+						<div class="report-modal-desc">
+							신고 사유를 입력해 주세요.
+						</div>
+
+						<textarea class="report-textarea" v-model="reportModal.content" maxlength="500"
+							placeholder="예: 욕설, 허위 정보, 광고성 리뷰 등"></textarea>
+
+						<div class="report-count">
+							{{ reportModal.content.length }}/500
+						</div>
+
+						<div class="report-modal-actions">
+							<button type="button" class="report-cancel" @click="closeReportModal">
+								취소
+							</button>
+							<button type="button" class="report-submit" @click="submitReport">
+								신고하기
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			</div>
+			<!-- TOP 버튼 -->
+			<button v-show="showTopBtn" class="scroll-top-btn" @click="scrollToTop">
+				<i class="ri-arrow-up-line"></i>
+			</button>
 			</div><!-- /#app -->
 			<%@ include file="/WEB-INF/common/footer.jsp" %>
 	</body>

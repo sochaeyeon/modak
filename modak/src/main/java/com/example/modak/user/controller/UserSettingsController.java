@@ -272,4 +272,36 @@ public class UserSettingsController {
 
 		return new Gson().toJson(resultMap);
 	}
+	// 프로필 이미지 삭제 (기본 이미지로 초기화)
+	@PostMapping(value = "/user/profile/delete.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String deleteProfileImage() {
+
+	    HashMap<String, Object> resultMap = new HashMap<>();
+
+	    try {
+	        String sessionId = (String) session.getAttribute("sessionId");
+
+	        if (sessionId == null || sessionId.equals("")) {
+	            resultMap.put("result", "fail");
+	            resultMap.put("message", "로그인이 필요합니다.");
+	            return new Gson().toJson(resultMap);
+	        }
+
+	        // 기본 이미지 경로로 초기화
+	        String defaultImgUrl = "/img/profile/default-profile.png";
+	        userSettingsService.updateProfileImage(sessionId, defaultImgUrl);
+
+	        resultMap.put("result", "success");
+	        resultMap.put("message", "프로필 이미지가 삭제되었습니다.");
+	        resultMap.put("profileImgUrl", defaultImgUrl);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result", "fail");
+	        resultMap.put("message", "프로필 이미지 삭제 중 오류가 발생했습니다.");
+	    }
+
+	    return new Gson().toJson(resultMap);
+	}
 }

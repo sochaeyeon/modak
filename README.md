@@ -105,8 +105,7 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 <details open>
 <summary><b>⛺ 캠핑장 & 날씨</b></summary>
 <br>
-- 
-  🗺️ <b>카카오맵 API</b> 기반 전국 캠핑장 위치 확인 및 목록 / 상세 조회
+- 🗺️ <b>카카오맵 API</b> 기반 전국 캠핑장 위치 확인 및 목록 / 상세 조회
   
 - 🏕️ <b>GoCamping 공공데이터</b> 연동 — 전국 캠핑장 정보 실시간 동기화
   
@@ -117,8 +116,11 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 <summary><b>🛒 쇼핑 & 렌탈</b></summary>
 <br>
 - 🏷️ 캠핑 용품 <b>구매 및 대여</b> 통합 시스템
+  
 - 🛒 장바구니, <b>Toss Payments</b> 결제, 회원 / 비회원 주문 처리
+  
 - 🔑 대여 연장 및 반납 관리 — <b>비회원 토큰 인증 지원</b>
+
 - 🚚 <b>Delivery Tracker API</b> 실시간 배송 상태 추적
 </details>
 
@@ -126,7 +128,9 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 <summary><b>💬 커뮤니티 & AI</b></summary>
 <br>
 - 📋 게시판 (작성 / 수정 / 상세) 및 사용자 간 <b>1:1 실시간 채팅</b>
+  
 - 🤖 <b>Google Gemini</b> 기반 캠핑 가이드 AI 챗봇
+  
 - ✨ 상품 리뷰 <b>AI 자동 요약</b> (3문장 이내)
 </details>
 
@@ -134,8 +138,11 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 <summary><b>⚙️ 관리자 시스템</b></summary>
 <br>
 - 📊 매출 통계 및 실시간 재고 관리 <b>대시보드</b>
+  
 - 👥 회원 / 상품 / 캠핑장 / 쿠폰 / 리뷰 / 문의 <b>통합 관리</b>
+
 - 🔔 공지사항 / 이벤트 / 알림 발송 시스템
+  
 - 🔄 주문 취소 승인, 반납 상태 변경, 검수 관리
 </details>
 

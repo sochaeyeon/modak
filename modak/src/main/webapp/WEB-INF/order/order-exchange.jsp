@@ -393,7 +393,9 @@
                                 if (this.isSubmitting) return;
 
                                 this.isSubmitting = true;
-
+                                console.log('orderId:', self.orderId);  // ★ 확인
+                                console.log('token:', self.token);       // ★ 확인
+                                console.log('isGuest:', isGuest);
                                 var self = this;
                                 var isGuest = !!self.token;
 

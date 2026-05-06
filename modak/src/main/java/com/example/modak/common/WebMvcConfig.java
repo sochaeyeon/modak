@@ -8,36 +8,32 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
-	@Autowired
-	private LoginCheckInterceptor loginCheckInterceptor;
 
-	@Override
-	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(loginCheckInterceptor)
-				.addPathPatterns("/alarm/**",
-						"/user/chatbot/**", "/inquiry.do", "/user/inquiry/**",
-						"/order/history.do", "/order/detail.do", "/user/review/**", "/user/mypage.do",
-						"/user/benefit/**", "/user/recent/**", "/user/wishlist/**", "/board/write.do",
-					    "/board/edit.do",
-					    "/board/insert.do",
-					    "/board/update.do",
-					    "/board/delete.do",
-					    "/board/comment/**",
-					    "/board/scrap/**",
-					    "/board/like/**")
-				.excludePathPatterns("/css/**", "/js/**", "/img/**", "/images/**", "/static/**", "/upload/**");
-	}
+    @Autowired
+    private LoginCheckInterceptor loginCheckInterceptor;
 
-	// ★ 여기에 추가
-	@Override
-	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		String home = System.getProperty("user.home");
+    @Autowired
+    private jakarta.servlet.ServletContext servletContext;  // ★ 추가
 
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(loginCheckInterceptor)
+                .addPathPatterns("/alarm/**", "/user/chatbot/**", "/inquiry.do",
+                        "/user/inquiry/**", "/order/history.do", "/order/detail.do",
+                        "/user/review/**", "/user/mypage.do", "/user/benefit/**",
+                        "/user/recent/**", "/user/wishlist/**", "/board/write.do",
+                        "/board/edit.do", "/board/insert.do", "/board/update.do",
+                        "/board/delete.do", "/board/comment/**", "/board/scrap/**",
+                        "/board/like/**")
+                .excludePathPatterns("/css/**", "/js/**", "/img/**", "/images/**",
+                        "/static/**", "/upload/**");
+    }
 
-		// 프로필 이미지
-		registry.addResourceHandler("/upload/profile/**").addResourceLocations("classpath:/static/upload/profile/");
-	
-
-	}
-
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // ★ webapp/img/profile/ 명시적 서빙
+        String profilePath = servletContext.getRealPath("/img/profile/");
+        registry.addResourceHandler("/img/profile/**")
+                .addResourceLocations("file:" + profilePath + "/");
+    }
 }

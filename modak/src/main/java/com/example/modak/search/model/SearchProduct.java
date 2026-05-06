@@ -9,4 +9,8 @@ public class SearchProduct {
     private String description;
     private Integer price;
     private String thumbImgUrl;
+    private String categoryName;
+    private String brandName;
+    private Double ratingAvg;
+    private Integer reviewCount;
 }

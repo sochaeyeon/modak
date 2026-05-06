@@ -2011,3 +2011,46 @@ select {
     color: var(--brown);
     line-height: 1.45;
 }
+
+/* =========================
+   QUILL DETAIL CONTENT FIX
+   글쓰기/수정 Quill 정렬 유지
+========================= */
+
+.post-content.ql-editor {
+    padding: 0;
+    text-align: initial;
+    line-height: 1.8;
+}
+
+/* 가운데/오른쪽/양쪽 정렬 복원 */
+.post-content.ql-editor .ql-align-center {
+    text-align: center;
+}
+
+.post-content.ql-editor .ql-align-right {
+    text-align: right;
+}
+
+.post-content.ql-editor .ql-align-justify {
+    text-align: justify;
+}
+
+/* 이미지 기본 안정화 */
+.post-content.ql-editor img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* 혹시 기존 CSS에서 p를 왼쪽 정렬로 강제하는 경우 덮어쓰기 */
+.post-content.ql-editor p.ql-align-center {
+    text-align: center;
+}
+
+.post-content.ql-editor p.ql-align-right {
+    text-align: right;
+}
+
+.post-content.ql-editor p.ql-align-justify {
+    text-align: justify;
+}

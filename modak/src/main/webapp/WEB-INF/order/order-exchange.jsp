@@ -391,13 +391,16 @@
 
                             fnSubmit: function () {
                                 if (this.isSubmitting) return;
-
                                 this.isSubmitting = true;
-                                console.log('orderId:', self.orderId);  // ★ 확인
-                                console.log('token:', self.token);       // ★ 확인
-                                console.log('isGuest:', isGuest);
+
+                                // ★ self와 isGuest를 먼저 선언
                                 var self = this;
                                 var isGuest = !!self.token;
+
+                                // console.log는 선언 후에
+                                console.log('orderId:', self.orderId);
+                                console.log('token:', self.token);
+                                console.log('isGuest:', isGuest);
 
                                 var url = isGuest
                                     ? '/order/guest/exchange.dox'
@@ -426,7 +429,6 @@
                                     data: data,
                                     success: function (res) {
                                         self.isSubmitting = false;
-
                                         if (res.result === 'success') {
                                             self.modal.show = true;
                                         } else {

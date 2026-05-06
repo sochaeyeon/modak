@@ -361,9 +361,9 @@
 
                             fnGoExchange: function () {
                                 var p = new URLSearchParams(location.search);
-                                location.href = '/order/exchange/request.do?orderId='
+                                location.href = '/order/guest/exchange.do'   // ★ 비회원 URL로 변경
                                     + '?orderId=' + p.get('orderId')
-                                    + '&token=' + p.get('token');
+                                    + '&token=' + encodeURIComponent(p.get('token'));
                             },
 
                             fnGoRefund: function () {

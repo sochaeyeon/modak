@@ -41,10 +41,10 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 
 | &nbsp;&nbsp;&nbsp;프로필&nbsp;&nbsp;&nbsp; | 이름 | 역할 | GitHub |
 |:---:|:---:|:---|:---:|
-| <img src="https://github.com/user-attachments/assets/9e99a888-294c-4740-9e67-0f81d86d525a" width="50" height="50"> | **소채연** | `팀장` · 외부 API 연동 · 인증 아키텍처 설계 | [![GitHub](https://img.shields.io/badge/-sochaeyeon-181717?style=flat-square&logo=github)](https://github.com/sochaeyeon) |
-| <img src="https://github.com/user-attachments/assets/e607997a-9218-4a94-b258-29528f8040f2" width="50" height="50"> | **김은동** | `풀스택` · 인프라 · 어드민 시스템 설계 | [![GitHub](https://img.shields.io/badge/-rladmsehd135-181717?style=flat-square&logo=github)](https://github.com/rladmsehd135) |
-| <img src="https://github.com/user-attachments/assets/61e8605c-502c-474a-a991-6453966037e5" width="50" height="50"> | **임예림** | `풀스택` · UI/UX 설계 · 이커머스 로직 | [![GitHub](https://img.shields.io/badge/-kewiibird--source-181717?style=flat-square&logo=github)](https://github.com/kewiibird-source) |
-| <img src="https://github.com/user-attachments/assets/38210350-5936-4074-9549-36f73121f644" width="50" height="50"> | **필우청** | `풀스택` · 데이터 모델링 · 고객 지원 시스템 | [![GitHub](https://img.shields.io/badge/-yuqingtangda-181717?style=flat-square&logo=github)](https://github.com/yuqingtangda) |
+|  | **소채연** | `팀장` · 외부 API 연동 · 인증 아키텍처 설계 | [![GitHub](https://img.shields.io/badge/-sochaeyeon-181717?style=flat-square&logo=github)](https://github.com/sochaeyeon) |
+|  | **김은동** | `풀스택` · 인프라 · 어드민 시스템 설계 | [![GitHub](https://img.shields.io/badge/-rladmsehd135-181717?style=flat-square&logo=github)](https://github.com/rladmsehd135) |
+|  | **임예림** | `풀스택` · UI/UX 설계 · 이커머스 로직 | [![GitHub](https://img.shields.io/badge/-kewiibird--source-181717?style=flat-square&logo=github)](https://github.com/kewiibird-source) |
+|  | **필우청** | `풀스택` · 데이터 모델링 · 고객 지원 시스템 | [![GitHub](https://img.shields.io/badge/-yuqingtangda-181717?style=flat-square&logo=github)](https://github.com/yuqingtangda) |
 
 </div>
 

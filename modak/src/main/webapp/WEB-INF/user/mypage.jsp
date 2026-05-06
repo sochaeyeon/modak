@@ -2641,7 +2641,6 @@
                                                     self.displayUser.profileImgUrl = "";
                                                     self.$refs.profileFileInput.value = "";
                                                     self.showToast("프로필 사진이 삭제되었습니다.");
-                                                    sessionStorage.setItem("activeTab", "profile");
 
                                                     setTimeout(function () {
                                                         location.reload();

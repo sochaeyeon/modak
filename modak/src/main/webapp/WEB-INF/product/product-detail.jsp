@@ -632,85 +632,100 @@
 						</div>
 
 						<!-- 리뷰 이미지 모달 수정안 -->
-						<div v-if="reviewImgModal.open" class="img-modal-overlay"
-							@click.self="reviewImgModal.open = false"
-							style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10000; display:flex; align-items:center; justify-content:center;">
+						<div v-if="reviewImgModal.open" class="img-modal-overlay" @click.self="reviewImgModal.open = false" 
+						     style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10000; display:flex; align-items:center; justify-content:center;">
+						    
+						    <div class="img-modal-box" style="position:relative; width:940px; max-width:95vw; background:#fff; border-radius:32px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 25px 50px rgba(0,0,0,0.4);">
+						        
+						        <!-- [메인 영역] 이미지와 텍스트 -->
+						        <div style="display:flex; height:580px;">
+						            <!-- (왼쪽) 이미지 영역 -->
+						            <div style="flex:1.1; background:#1a1510; position:relative; display:flex; align-items:center; justify-content:center;">
+						                <img :src="reviewImgModal.url" style="max-width:100%; max-height:100%; object-fit:contain;">
+						                
+						                <!-- 이미지 인디케이터 (하단 점) -->
+						                <div v-if="reviewList[reviewImgModal.reviewIndex]?.imageList?.length > 1" 
+						                     style="position:absolute; bottom:20px; display:flex; gap:8px;">
+						                    <span v-for="(img, idx) in reviewList[reviewImgModal.reviewIndex].imageList" :key="idx"
+						                          :style="{ width:'8px', height:'8px', borderRadius:'50%', background: idx === reviewImgModal.imgIndex ? '#e67e22' : 'rgba(255,255,255,0.3)' }"></span>
+						                </div>
+						            </div>
 
-							<div class="img-modal-box"
-								style="position:relative; width:900px; max-width:95vw; height:600px; background:#fff; border-radius:20px; overflow:hidden; display:flex; box-shadow:0 20px 40px rgba(0,0,0,0.3);">
+						            <!-- (오른쪽) 리뷰 본문 영역 -->
+						            <div style="flex:1; padding:40px; position:relative; display:flex; flex-direction:column; background:#fff;">
+						                <!-- 닫기 버튼 -->
+						                <button @click="reviewImgModal.open = false" style="position:absolute; top:24px; right:24px; background:#f5f5f5; border:none; border-radius:50%; width:36px; height:36px; cursor:pointer; color:#999; font-size:20px;">✕</button>
 
-								<!-- 우측 상단 닫기 버튼 (이미지 속 X 버튼 위치) -->
-								<button class="img-modal-close" @click="reviewImgModal.open = false"
-									style="position:absolute; top:20px; right:20px; z-index:10; background:none; color:#666; border:none; font-size:28px; cursor:pointer;">
-									<i class="ri-close-circle-fill" style="color:#999;"></i>
-								</button>
+						                <!-- 상단: 유저 정보 및 날짜 -->
+						                <div style="display:flex; align-items:center; gap:14px; margin-bottom:30px;">
+						                    <img :src="reviewList[reviewImgModal.reviewIndex]?.profileImgUrl || '/img/profile/default-profile.png'"
+						                         style="width:56px; height:56px; border-radius:50%; object-fit:cover; background:#e67e22; padding:2px;">
+						                    <div style="flex:1;">
+						                        <div style="display:flex; align-items:center; gap:8px;">
+						                            <span style="font-weight:700; font-size:18px;">{{ reviewList[reviewImgModal.reviewIndex]?.nickname }}</span>
+						                            <!-- 등급 배지 연동 -->
+						                            <span v-if="reviewList[reviewImgModal.reviewIndex]?.gradeId >= 4" style="background:#fdf2e9; color:#e67e22; font-size:11px; padding:2px 8px; border-radius:10px; font-weight:700;">VIP</span>
+						                            <span v-else-if="reviewList[reviewImgModal.reviewIndex]?.gradeId == 3" style="background:#fff9e6; color:#f1c40f; font-size:11px; padding:2px 8px; border-radius:10px; font-weight:700;">GOLD</span>
+						                        </div>
+						                        <div style="display:flex; align-items:center; gap:4px; margin-top:4px;">
+						                            <div style="color:#ffb800; font-size:14px;">
+						                                <span v-for="i in 5" :key="i">{{ i <= reviewList[reviewImgModal.reviewIndex]?.rating ? '★' : '☆' }}</span>
+						                            </div>
+						                            <span style="color:#bbb; font-size:13px; margin-left:4px;">{{ reviewList[reviewImgModal.reviewIndex]?.rating }}점</span>
+						                        </div>
+						                    </div>
+						                    <!-- 날짜 데이터가 있다면 연동 (없으면 숨김 처리 가능) -->
+						                    <div style="color:#bbb; font-size:13px; align-self: flex-start; padding-top:5px;">{{ reviewList[reviewImgModal.reviewIndex]?.createDate }}</div>
+						                </div>
 
-								<!-- [왼쪽] 이미지 영역 (검정 배경) -->
-								<div
-									style="flex:1.2; background:#000; position:relative; display:flex; align-items:center; justify-content:center;">
-									<button v-if="reviewImgModal.imgIndex > 0" @click="modalImgMove(-1)"
-										style="position:absolute; left:15px; background:rgba(255,255,255,0.2); color:#fff; border:none; border-radius:50%; width:40px; height:40px; cursor:pointer;">‹</button>
+						                <!-- 중단: 리뷰 내용 -->
+						                <div style="flex:1; overflow-y:auto;">
+						                    <h3 style="font-size:20px; font-weight:800; margin-bottom:16px; color:#1a1510;">{{ reviewList[reviewImgModal.reviewIndex]?.title }}</h3>
+						                    <p style="font-size:16px; color:#4a4a4a; line-height:1.8; white-space:pre-wrap;">{{ reviewList[reviewImgModal.reviewIndex]?.content }}</p>
+						                </div>
+						            </div>
+						        </div>
 
-									<img :src="reviewImgModal.url"
-										style="max-width:100%; max-height:100%; object-fit:contain;">
+						        <!-- [하단 바] 액션 영역 -->
+						        <div style="background:#fdfaf7; padding:20px 40px; display:flex; align-items:center; justify-content:space-between; border-top:1px solid #f2e8df;">
+						            <div style="display:flex; align-items:center; gap:20px;">
+						                <span style="font-size:14px; color:#aaa;">도움이 됐나요?</span>
+						                <!-- 도움돼요 데이터 연동 -->
+						                <button class="hbtn" 
+						                        :class="{ on: reviewList[reviewImgModal.reviewIndex]?.helpfulYn === 'Y' }"
+						                        :disabled="String(reviewList[reviewImgModal.reviewIndex]?.userId) === String(loginUserId)"
+						                        @click="fnReviewHelpful(reviewList[reviewImgModal.reviewIndex])"
+						                        style="background:#fff; border:1px solid #e67e22; color:#e67e22; padding:8px 20px; border-radius:25px; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 2px 8px rgba(230,126,34,0.1);"
+						                        :style="reviewList[reviewImgModal.reviewIndex]?.helpfulYn === 'Y' ? 'background:#e67e22; color:#fff;' : ''">
+						                    <i :class="reviewList[reviewImgModal.reviewIndex]?.helpfulYn === 'Y' ? 'ri-thumb-up-fill' : 'ri-thumb-up-line'"></i> 
+						                    도움돼요 {{ reviewList[reviewImgModal.reviewIndex]?.helpfulCount || 0 }}
+						                </button>
+						            </div>
 
-									<button
-										v-if="reviewImgModal.imgIndex < (reviewList[reviewImgModal.reviewIndex]?.imageList?.length - 1)"
-										@click="modalImgMove(1)"
-										style="position:absolute; right:15px; background:rgba(255,255,255,0.2); color:#fff; border:none; border-radius:50%; width:40px; height:40px; cursor:pointer;">›</button>
-								</div>
+						            <div style="display:flex; align-items:center; gap:15px;">
+						                <!-- 이전 리뷰 버튼 -->
+						                <button @click="modalReviewMove(-1)" 
+						                        :disabled="reviewList.filter((r,i) => i < reviewImgModal.reviewIndex && r.imageList?.length > 0).length === 0"
+						                        style="background:#fff; border:1px solid #ddd; padding:10px 24px; border-radius:12px; cursor:pointer; font-weight:600; color:#666; display:flex; align-items:center; gap:5px;"
+						                        :style="{ opacity: reviewList.filter((r,i) => i < reviewImgModal.reviewIndex && r.imageList?.length > 0).length === 0 ? 0.4 : 1 }">
+						                    <i class="ri-arrow-left-s-line"></i> 이전 리뷰
+						                </button>
+						                
+						                <span style="font-size:15px; color:#bbb; font-weight:600;">
+						                    <strong style="color:#e67e22;">{{ reviewList.filter(r => r.imageList?.length > 0).indexOf(reviewList[reviewImgModal.reviewIndex]) + 1 }}</strong> / {{ reviewList.filter(r => r.imageList?.length > 0).length }}
+						                </span>
 
-								<!-- [오른쪽] 리뷰 정보 영역 -->
-								<div
-									style="flex:1; padding:40px; display:flex; flex-direction:column; background:#fff; position:relative;">
-
-									<!-- 유저 정보 -->
-									<div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
-										<img :src="reviewList[reviewImgModal.reviewIndex]?.profileImgUrl || '/img/profile/default-profile.png'"
-											style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:1px solid #eee;">
-										<div>
-											<div style="font-weight:700; font-size:16px; color:#333;">{{
-												reviewList[reviewImgModal.reviewIndex]?.nickname }}</div>
-											<div style="display:flex; gap:2px; font-size:14px; color:#ffb800;">
-												<span v-for="i in 5" :key="i">{{ i <=
-														reviewList[reviewImgModal.reviewIndex]?.rating ? '★' : '☆'
-														}}</span>
-														<span style="color:#999; margin-left:5px; font-size:13px;">{{
-															reviewList[reviewImgModal.reviewIndex]?.rating }}점</span>
-											</div>
-										</div>
-									</div>
-
-									<!-- 리뷰 내용 -->
-									<div style="flex:1; overflow-y:auto; padding-right:10px;">
-										<h3 style="font-size:18px; font-weight:700; margin-bottom:12px; color:#222;">
-											{{ reviewList[reviewImgModal.reviewIndex]?.title }}
-										</h3>
-										<p style="font-size:15px; color:#555; line-height:1.7; white-space:pre-wrap;">
-											{{ reviewList[reviewImgModal.reviewIndex]?.content }}
-										</p>
-									</div>
-
-									<!-- 하단 페이지네이션 컨트롤 (이미지 속 화살표 및 숫자) -->
-									<div
-										style="margin-top:20px; display:flex; align-items:center; justify-content:center; gap:20px; border-top:1px solid #f0f0f0; pt:20px;">
-										<div
-											style="display:flex; align-items:center; background:#f5f5f5; border-radius:30px; padding:5px 15px;">
-											<button @click="modalReviewMove(-1)"
-												style="background:none; border:none; cursor:pointer; font-size:20px; color:#ccc;">‹</button>
-											<span style="margin:0 15px; font-size:14px; color:#666; font-weight:600;">
-												{{ reviewList.filter(r => r.imageList?.length >
-												0).indexOf(reviewList[reviewImgModal.reviewIndex]) + 1 }} / {{
-												reviewList.filter(r => r.imageList?.length > 0).length }}
-											</span>
-											<button @click="modalReviewMove(1)"
-												style="background:none; border:none; cursor:pointer; font-size:20px; color:#ccc;">›</button>
-										</div>
-									</div>
-								</div>
-							</div>
+						                <!-- 다음 리뷰 버튼 -->
+						                <button @click="modalReviewMove(1)" 
+						                        :disabled="reviewList.filter((r,i) => i > reviewImgModal.reviewIndex && r.imageList?.length > 0).length === 0"
+						                        style="background:#e67e22; border:none; padding:10px 24px; border-radius:12px; cursor:pointer; font-weight:600; color:#fff; display:flex; align-items:center; gap:5px;"
+						                        :style="{ opacity: reviewList.filter((r,i) => i > reviewImgModal.reviewIndex && r.imageList?.length > 0).length === 0 ? 0.4 : 1 }">
+						                    다음 리뷰 <i class="ri-arrow-right-s-line"></i>
+						                </button>
+						            </div>
+						        </div>
+						    </div>
 						</div>
-
 						<!-- 확인 모달 -->
 						<div v-if="confirmModal.open" class="confirm-overlay" @click.self="confirmCancel">
 							<div class="confirm-box">

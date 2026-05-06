@@ -261,7 +261,7 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 <br>
 
 <details>
-<summary><b>📐 ERD 펼쳐보기 — 초기 29개 → 최종 75개 테이블</b></summary>
+
 
 <br>
 

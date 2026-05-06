@@ -175,6 +175,11 @@ Spring Boot + MyBatis 기반으로 구축되었으며, Google Gemini AI, 카카�
 
 ---
 
+## ERD
+
+<img width="1637" height="886" alt="image" src="https://github.com/user-attachments/assets/2be2c044-2331-4b7d-91f0-ee14917bcee0" />
+
+
 <div align="center">
 
 **🔥 모닥불처럼 따뜻한 캠핑 플랫폼, 모닥모닥 🔥**

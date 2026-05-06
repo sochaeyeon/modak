@@ -199,7 +199,7 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 <br>
 
 <div align="center">
-<img width="100%" alt="ModakModak ERD" src="https://github.com/user-attachments/assets/dc4b2327-3481-4985-8204-0b41e67c6ee5" />
+|🗂️ **ERD** | ERD | [바로가기 →](https://www.erdcloud.com/d/mKYg2hEbjCt6jR4kW) |
 </div>
 
 <br>

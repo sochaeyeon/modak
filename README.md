@@ -39,12 +39,12 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 
 <div align="center">
 
-| &nbsp;&nbsp;&nbsp;프로필&nbsp;&nbsp;&nbsp; | 이름 | 역할 | GitHub |
-|:---:|:---:|:---|:---:|
-|  | **소채연** | `팀장` · 외부 API 연동 · 인증 아키텍처 설계 | [![GitHub](https://img.shields.io/badge/-sochaeyeon-181717?style=flat-square&logo=github)](https://github.com/sochaeyeon) |
-|  | **김은동** | `풀스택` · 인프라 · 어드민 시스템 설계 | [![GitHub](https://img.shields.io/badge/-rladmsehd135-181717?style=flat-square&logo=github)](https://github.com/rladmsehd135) |
-|  | **임예림** | `풀스택` · UI/UX 설계 · 이커머스 로직 | [![GitHub](https://img.shields.io/badge/-kewiibird--source-181717?style=flat-square&logo=github)](https://github.com/kewiibird-source) |
-|  | **필우청** | `풀스택` · 데이터 모델링 · 고객 지원 시스템 | [![GitHub](https://img.shields.io/badge/-yuqingtangda-181717?style=flat-square&logo=github)](https://github.com/yuqingtangda) |
+| 이름 | 역할 | GitHub |
+|:---:|:---|:---:|
+| **소채연** | `팀장` · 외부 API 연동 · 인증 아키텍처 설계 | [![GitHub](https://img.shields.io/badge/-sochaeyeon-181717?style=flat-square&logo=github)](https://github.com/sochaeyeon) |
+| **김은동** | `풀스택` · 인프라 · 어드민 시스템 설계 | [![GitHub](https://img.shields.io/badge/-rladmsehd135-181717?style=flat-square&logo=github)](https://github.com/rladmsehd135) |
+| **임예림** | `풀스택` · UI/UX 설계 · 이커머스 로직 | [![GitHub](https://img.shields.io/badge/-kewiibird--source-181717?style=flat-square&logo=github)](https://github.com/kewiibird-source) |
+| **필우청** | `풀스택` · 데이터 모델링 · 고객 지원 시스템 | [![GitHub](https://img.shields.io/badge/-yuqingtangda-181717?style=flat-square&logo=github)](https://github.com/yuqingtangda) |
 
 </div>
 

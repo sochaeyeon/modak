@@ -24,5 +24,8 @@ public interface AddressMapper {
 	
 	// 배송지 삭제
 	public int deleteAddress(HashMap<String, Object> map);
+	
+	// 연락처 없을때 연락처 업데이트
+	int updateUserPhoneIfEmpty(HashMap<String, Object> map);
 
 }

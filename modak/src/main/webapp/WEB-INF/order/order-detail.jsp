@@ -378,7 +378,13 @@
                                     { code: 'DONE', name: '배송완료' },
                                     { code: 'REFUND_REQUESTED', name: '환불진행' },
                                     { code: 'REFUND_DONE', name: '환불완료' }
-                                ]
+                                ],
+                                exchangeSteps: [
+                                    { code: 'DONE',               name: '배송완료' },
+                                    { code: 'EXCHANGE_REQUESTED', name: '교환신청' },
+                                    { code: 'EXCHANGE_APPROVED',  name: '교환승인' },
+                                    { code: 'EXCHANGE_DONE',      name: '교환완료' }
+                                ],
                             };
                         },
 
@@ -619,6 +625,11 @@
 
                                 if (s === 'REFUND_REQUESTED' || s === 'REFUND_APPROVED' || s === 'REFUND_DONE') {
                                     this.statusSteps = this.refundSteps;
+                                    return;
+                                }
+
+                                 if (s === 'EXCHANGE_REQUESTED' || s === 'EXCHANGE_APPROVED' || s === 'EXCHANGE_DONE') {
+                                    this.statusSteps = this.exchangeSteps;
                                     return;
                                 }
 

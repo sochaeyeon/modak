@@ -226,31 +226,65 @@
                                         </div>
                                         <div class="guest-field-wrap">
                                             <span class="guest-field-label">연락처 *</span>
-                                            <input class="guest-input" v-model="newAddr.receiverPhone"
-                                                placeholder="01012345678" />
-                                        </div>
-                                        <div class="guest-addr-row">
-                                            <div class="guest-field-wrap zip">
-                                                <span class="guest-field-label">우편번호 *</span>
-                                                <div class="zipcode-row">
-                                                    <input class="guest-input" v-model="newAddr.zipCode"
-                                                        placeholder="06234" readonly />
-                                                    <button type="button" class="addr-search-btn"
-                                                        @click="fnSearchAddress">
-                                                        주소찾기
-                                                    </button>
+
+                                            <!-- 전화번호 + 인증요청 -->
+                                            <div class="zipcode-row">
+                                                <input class="guest-input"
+                                                    v-model="newAddr.receiverPhone"
+                                                    placeholder="01012345678"
+                                                    maxlength="11"
+                                                    @input="onAddrPhoneInput" />
+                                                <button type="button" class="addr-search-btn"
+                                                        @click="fnSendAddrSmsCode"
+                                                        :disabled="addrPhoneVerified">
+                                                    {{ addrPhoneVerified ? '인증완료 ✓' : '인증요청' }}
+                                                </button>
+                                            </div>
+
+                                            <!-- 인증번호 입력칸 — 스르륵 -->
+                                            <transition name="slide-down">
+                                                <div v-if="addrSmsVisible" class="sms-verify-row">
+                                                    <div class="zipcode-row" style="margin-top: 8px;">
+                                                        <input class="guest-input"
+                                                            v-model="addrSmsCode"
+                                                            placeholder="인증번호 입력" />
+                                                        <button type="button" class="addr-search-btn confirm-btn"
+                                                                @click="fnVerifyAddrSmsCode"
+                                                                :disabled="addrSmsExpired">
+                                                            확인
+                                                        </button>
+                                                    </div>
+                                                    <div class="sms-timer">
+                                                        <span v-if="!addrSmsExpired" style="color: #e0621a;">
+                                                            남은 시간 {{ formattedAddrSmsTime }}
+                                                        </span>
+                                                        <span v-else style="color: #e74c3c;">
+                                                            인증 시간이 만료되었습니다.
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="guest-field-wrap">
-                                                <span class="guest-field-label">주소 *</span>
-                                                <input class="guest-input" v-model="newAddr.address"
-                                                    placeholder="서울시 강남구 테헤란로 123" readonly />
-                                            </div>
+                                            </transition>
                                         </div>
                                         <div class="guest-field-wrap">
-                                            <span class="guest-field-label">상세주소</span>
+                                            <span class="guest-field-label">주소 *</span>
+
+                                            <!-- 우편번호 | 주소찾기 | 주소 한 줄 -->
+                                            <div class="addr-full-row">
+                                                <input class="guest-input addr-zip" v-model="newAddr.zipCode"
+                                                    placeholder="우편번호" readonly />
+                                                <button type="button" class="addr-search-btn"
+                                                    @click="fnSearchAddress">
+                                                    주소찾기
+                                                </button>
+                                                <input class="guest-input addr-road" v-model="newAddr.address"
+                                                    placeholder="주소" readonly />
+                                            </div>
+
+                                            <!-- 상세주소 -->
                                             <input class="guest-input optional" ref="detailAddressInput"
-                                                v-model="newAddr.detailedAddress" placeholder="101동 202호" />
+                                                v-model="newAddr.detailedAddress"
+                                                placeholder="상세주소 (101동 202호)"
+                                                style="margin-top: 6px;" />
                                         </div>
                                         <label
                                             style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;cursor:pointer;">
@@ -503,6 +537,12 @@
                                     detailedAddress: '',
                                     defaultYn: false
                                 },
+                                addrSmsVisible: false,
+                                addrSmsCode: '',
+                                addrSmsExpired: false,
+                                addrSmsTimeLeft: 0,
+                                addrSmsTimer: null,
+                                addrPhoneVerified: false,
                                 addrAddMsg: '',
                                 // 비회원 정보
                                 guestName: '',
@@ -565,7 +605,12 @@
                             },
                             remainPoint() {
                                 return Math.max(0, Number(this.userPoint || 0) - Number(this.validUsePoint || 0));
-                            }
+                            },
+                            formattedAddrSmsTime() {
+                                const m = Math.floor(this.addrSmsTimeLeft / 60);
+                                const s = this.addrSmsTimeLeft % 60;
+                                return m + ':' + String(s).padStart(2, '0');
+                            },
 
                         },
                         watch: {
@@ -986,6 +1031,12 @@
                                     detailedAddress: '',
                                     defaultYn: false
                                 };
+                                this.addrPhoneVerified = false;
+                                this.addrSmsVisible = false;
+                                this.addrSmsCode = '';
+                                this.addrSmsExpired = false;
+                                clearInterval(this.addrSmsTimer);
+                                this.addrSmsTimeLeft = 0;
                             },
 
                             fnSearchAddressNew() {
@@ -1009,14 +1060,14 @@
 
                                 if (!self.newAddr.addressAlias.trim()) { self.addrAddMsg = '별칭을 입력해주세요.'; return; }
                                 if (!self.newAddr.receiverName.trim()) { self.addrAddMsg = '수령인 이름을 입력해주세요.'; return; }
-                                if (!self.newAddr.receiverPhone.trim()) {
-                                    self.addrAddMsg = '연락처를 입력해주세요.';
-                                    return;
-                                }
+                                if (!self.newAddr.receiverPhone.trim()) { self.addrAddMsg = '연락처를 입력해주세요.'; return; }
 
                                 if (!self.isValidPhone(self.newAddr.receiverPhone)) {
-                                    self.addrAddMsg = '연락처는 010으로 시작하는 11자리 숫자로 입력해주세요.';
-                                    return;
+                                    self.addrAddMsg = '연락처는 010으로 시작하는 11자리 숫자로 입력해주세요.'; return;
+                                }
+                                // 기존 전화번호 검사 바로 아래에
+                                if (!self.addrPhoneVerified) {
+                                    self.addrAddMsg = '연락처 인증을 완료해주세요.'; return;
                                 }
                                 if (!self.newAddr.zipCode.trim()) { self.addrAddMsg = '우편번호를 입력해주세요.'; return; }
                                 if (!self.newAddr.address.trim()) { self.addrAddMsg = '주소를 입력해주세요.'; return; }
@@ -1190,6 +1241,10 @@
                                     return;
                                 }
 
+                                 if (!self.addrPhoneVerified) {
+                                    self.showToast('연락처 인증을 완료해주세요.');
+                                    return;
+                                }
                                 if (!self.newAddr.zipCode.trim()) {
                                     self.addrAddMsg = '우편번호를 입력해주세요.';
                                     return;
@@ -1335,6 +1390,88 @@
                                         .replace(/[^0-9]/g, '')
                                         .slice(0, 11);
                                 }
+                            },
+                            onAddrPhoneInput() {
+                                this.newAddr.receiverPhone = String(this.newAddr.receiverPhone || '')
+                                    .replace(/[^0-9]/g, '').slice(0, 11);
+                                // 번호 변경 시 인증 초기화
+                                this.addrPhoneVerified = false;
+                                this.addrSmsVisible = false;
+                                this.addrSmsCode = '';
+                                this.addrSmsExpired = false;
+                                clearInterval(this.addrSmsTimer);
+                                this.addrSmsTimeLeft = 0;
+                            },
+
+                            fnSendAddrSmsCode() {
+                                let self = this;
+                                if (!self.isValidPhone(self.newAddr.receiverPhone)) {
+                                    self.addrAddMsg = '010으로 시작하는 11자리 번호를 입력해주세요.';
+                                    return;
+                                }
+                                $.ajax({
+                                    url: '/user/sms/send-code.dox',
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    data: {
+                                        userPhone: self.newAddr.receiverPhone,
+                                        authPurpose: 'USER_SETTINGS'
+                                    },
+                                    success(res) {
+                                        if (res.result === 'success') {
+                                            self.addrSmsVisible = true;
+                                            self.addrSmsCode = '';
+                                            self.addrSmsExpired = false;
+                                            self.addrSmsTimeLeft = 180;
+                                            clearInterval(self.addrSmsTimer);
+                                            self.addrSmsTimer = setInterval(() => {
+                                                if (self.addrSmsTimeLeft > 0) {
+                                                    self.addrSmsTimeLeft--;
+                                                } else {
+                                                    clearInterval(self.addrSmsTimer);
+                                                    self.addrSmsExpired = true;
+                                                }
+                                            }, 1000);
+                                            self.addrAddMsg = '';
+                                        } else {
+                                            self.addrAddMsg = res.message || '인증번호 발송에 실패했습니다.';
+                                        }
+                                    },
+                                    error() {
+                                        self.addrAddMsg = '서버 오류가 발생했습니다.';
+                                    }
+                                });
+                            },
+
+                            fnVerifyAddrSmsCode() {
+                                let self = this;
+                                if (!self.addrSmsCode.trim()) {
+                                    self.addrAddMsg = '인증번호를 입력해주세요.';
+                                    return;
+                                }
+                                $.ajax({
+                                    url: '/user/sms/verify-code.dox',
+                                    type: 'POST',
+                                    dataType: 'json',
+                                    data: {
+                                        userPhone: self.newAddr.receiverPhone,
+                                        authCode: self.addrSmsCode,
+                                        authPurpose: 'USER_SETTINGS'
+                                    },
+                                    success(res) {
+                                        if (res.result === 'success') {
+                                            self.addrPhoneVerified = true;
+                                            self.addrSmsVisible = false;
+                                            clearInterval(self.addrSmsTimer);
+                                            self.addrAddMsg = '';
+                                        } else {
+                                            self.addrAddMsg = res.message || '인증번호가 올바르지 않습니다.';
+                                        }
+                                    },
+                                    error() {
+                                        self.addrAddMsg = '서버 오류가 발생했습니다.';
+                                    }
+                                });
                             },
                         },
                         mounted() {

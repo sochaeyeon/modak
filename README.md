@@ -200,7 +200,7 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 <summary><b>ERD 펼치기</b></summary>
 <br>
 <div align="center">
-<img width="100%" alt="ModakModak ERD" src="https://private-user-images.githubusercontent.com/233740606/588049586-9fb81bc2-ce57-4edc-8706-a213e828eebf.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NzgwNDA3NDQsIm5iZiI6MTc3ODA0MDQ0NCwicGF0aCI6Ii8yMzM3NDA2MDYvNTg4MDQ5NTg2LTlmYjgxYmMyLWNlNTctNGVkYy04NzA2LWEyMTNlODI4ZWViZi5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjYwNTA2JTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI2MDUwNlQwNDA3MjRaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT00Mjg3YTIyZmYwM2IyZDUyMzA0ZTA4MjMxMDc2NDVmNmM2MjNmMTRjM2VhNzE2NDU2OTU0ZDVmN2I3NTkyYWNkJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZyZXNwb25zZS1jb250ZW50LXR5cGU9aW1hZ2UlMkZwbmcifQ.5ml0fCRnouPuOe9sTG7i1z8Ty6bwBj2Qz9I0gcK7Xpw" />
+<img width="100%" alt="ModakModak ERD" src=<img width="1007" height="672" alt="Image" src="https://github.com/user-attachments/assets/133c5849-865d-4eb4-af8c-e50d3f546fe4" />
 </div>
 </details>
 

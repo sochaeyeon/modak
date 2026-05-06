@@ -426,12 +426,10 @@
                                                             {{ item.categoryName }}
                                                         </div>
 
-                                                        <div class="wish-rating-row">
-                                                            <span class="wish-stars">
-                                                                <span v-for="n in 5" :key="n" class="wish-star"
-                                                                    :class="{ filled: n <= Math.floor(Number(item.avgRating || 0)) }">
-                                                                    ★
-                                                                </span>
+                                                       <div class="wish-rating-row">
+                                                            <span class="wish-stars-fill" :style="{ '--rating-width': fnRatingWidth(item.avgRating) }">
+                                                                <span class="star-base">★★★★★</span>
+                                                                <span class="star-fill">★★★★★</span>
                                                             </span>
 
                                                             <span class="wish-rating-text">
@@ -492,12 +490,10 @@
                                                         <div v-if="item.categoryName" class="wish-category-pill">
                                                             {{ item.categoryName }}
                                                         </div>
-                                                        <div class="wish-rating-row">
-                                                            <span class="wish-stars">
-                                                                <span v-for="n in 5" :key="n" class="wish-star"
-                                                                    :class="{ filled: n <= Math.round(Number(item.avgRating || 0)) }">
-                                                                    ★
-                                                                </span>
+                                                       <div class="wish-rating-row">
+                                                            <span class="wish-stars-fill" :style="{ '--rating-width': fnRatingWidth(item.avgRating) }">
+                                                                <span class="star-base">★★★★★</span>
+                                                                <span class="star-fill">★★★★★</span>
                                                             </span>
 
                                                             <span class="wish-rating-text">
@@ -2630,27 +2626,34 @@
                             },
                             fnDeleteProfile: function () {
                                 let self = this;
+                                self.fnOpenModal({
+                                    title: "프로필 사진을 삭제하시겠습니까?",
+                                    message: "삭제한 프로필 사진은 다시 복구할 수 없습니다.",
+                                    confirmText: "삭제",
+                                    onConfirm: function () {
+                                        $.ajax({
+                                            url: "/user/profile/delete.dox",
+                                            type: "POST",
+                                            dataType: "json",
+                                            data: {},
+                                            success: function (data) {
+                                                if (data.result === "success") {
+                                                    self.displayUser.profileImgUrl = "";
+                                                    self.$refs.profileFileInput.value = "";
+                                                    self.showToast("프로필 사진이 삭제되었습니다.");
+                                                    sessionStorage.setItem("activeTab", "profile");
 
-                                if (!confirm("프로필 사진을 삭제하시겠습니까?")) {
-                                    return;
-                                }
-
-                                $.ajax({
-                                    url: "/user/profile/delete.dox",
-                                    type: "POST",
-                                    dataType: "json",
-                                    data: {},
-                                    success: function (data) {
-                                        if (data.result === "success") {
-                                            self.displayUser.profileImgUrl = "";
-                                            self.$refs.profileFileInput.value = "";
-                                            alert("프로필 사진이 삭제되었습니다.");
-                                        } else {
-                                            alert(data.message || "프로필 사진 삭제에 실패했습니다.");
-                                        }
-                                    },
-                                    error: function () {
-                                        alert("서버 오류가 발생했습니다.");
+                                                    setTimeout(function () {
+                                                        location.reload();
+                                                    }, 700);
+                                                } else {
+                                                    self.showToast(data.message || "삭제에 실패했습니다.");
+                                                }
+                                            },
+                                            error: function () {
+                                                self.showToast("서버 오류가 발생했습니다.");
+                                            }
+                                        });
                                     }
                                 });
                             },
@@ -2981,7 +2984,20 @@
 
                             fnBookmarkThumb: function (item) {
                                 return item.thumbImgUrl || "";
-                            },            
+                            },  
+                            fnRatingWidth: function (rating) {
+                                const value = Number(rating || 0);
+
+                                if (value <= 0) {
+                                    return "0%";
+                                }
+
+                                if (value >= 5) {
+                                    return "100%";
+                                }
+
+                                return (value / 5 * 100) + "%";
+                            },          
                         }, // methods
                         mounted() {
                             let profileUrl = String(this.displayUser.profileImgUrl || "").trim();

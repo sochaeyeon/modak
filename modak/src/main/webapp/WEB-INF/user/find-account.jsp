@@ -21,9 +21,10 @@
     </head>
 
     <body>
-        <div id="app" v-cloak>
-            <!-- HEADER -->
+        <!-- HEADER -->
             <%@ include file="/WEB-INF/common/header.jsp" %>
+        <div id="app" v-cloak>
+            
 
                 <!-- MAIN -->
                 <main>

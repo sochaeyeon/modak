@@ -16,11 +16,8 @@
 			</head>
 
 			<body>
-				<div id="app" v-cloak>
-
-					<div id="app">
-						<%@ include file="/WEB-INF/common/header.jsp" %>
-
+				<%@ include file="/WEB-INF/common/header.jsp" %>
+					<div id="app" v-cloak>						
 
 							<!-- MAIN -->
 							<main>

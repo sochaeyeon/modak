@@ -370,8 +370,7 @@
                                         else if (status === "SHIPPING") s.shipping++;
                                         else if (status === "IN_USE") s.inUse++;
                                         else if (status === "DONE" || status === "RETURNED" || status === "COMPLETED") s.done++;
-                                        else if (status === "CANCELLED") s.cancelled++;
-                                        else if (status === "CANCELLED" || status === "REFUND_REQUESTED") s.cancelled++;
+                                        else if (status === "CANCELLED" || status === "REFUND_REQUESTED" || status === "CANCEL_REQUESTED") s.cancelled++;
                                     });
                                     return s;
                                 }
@@ -445,7 +444,7 @@
                                         PAID: '결제완료', READY: '배송준비', SHIPPING: '배송중',
                                         DONE: '배송완료', RETURNED: '반납완료', COMPLETED: '대여완료',
                                         CANCELLED: '취소/반품', RESERVED: '예약완료', IN_USE: '이용중',
-                                        EXCHANGE_REQUESTED: '교환신청', REFUND_REQUESTED: '환불신청'
+                                        EXCHANGE_REQUESTED: '교환신청', REFUND_REQUESTED: '환불신청', CANCEL_REQUESTED: '취소신청'
                                     };
                                     return m[s] || s;
                                 },
@@ -547,8 +546,7 @@
                                     if (this.selectedStatus === "shipping") return status === "SHIPPING";
                                     if (this.selectedStatus === "inUse") return status === "IN_USE";
                                     if (this.selectedStatus === "done") return status === "DONE" || status === "RETURNED" || status === "COMPLETED";
-                                    if (this.selectedStatus === "cancelled") return status === "CANCELLED";
-                                    if (this.selectedStatus === "cancelled") return status === "CANCELLED" || status === "REFUND_REQUESTED";
+                                    if (this.selectedStatus === "cancelled") return status === "CANCELLED" || status === "REFUND_REQUESTED" || status === "CANCEL_REQUESTED";
                                     return true;
                                 },
 

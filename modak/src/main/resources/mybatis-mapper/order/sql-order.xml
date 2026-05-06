@@ -208,7 +208,7 @@
 	    WHERE ORDER_ID = #{orderId}
 	      AND ORDER_STATUS IN ('PAID', 'READY', 'PAY_COMPLETED')
 	</update>
-
+ 
 	<insert id="insertOrderCancel" parameterType="hashmap">
 	    INSERT INTO ORDER_CANCEL (
 	        CANCEL_REASON_CODE,

@@ -4419,6 +4419,7 @@ button,
     box-shadow: none !important;
     backdrop-filter: none !important;
     overflow: hidden !important;
+    padding: 0px 15px;
 }
 
 #tab-settings .section-head {
@@ -5307,7 +5308,7 @@ button,
     width: var(--rating-width);
     overflow: hidden;
     white-space: nowrap;
-    color: #FFC107; 
+    color: #FFC107;
 }
 
 .wish-rating-text {

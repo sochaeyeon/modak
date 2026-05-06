@@ -29,9 +29,10 @@
                             <div class="card-title">📱 본인 확인</div>
 
                             <div class="field">
-                                <label>이름</label>
-                                <input v-model="form.phone" placeholder="01012345678" maxlength="11"
-                                    @input="form.phone = form.phone.replace(/\D/g,'')" @keyup.enter="fnSendSms">
+                                <div class="field">
+                                    <label>이름</label>
+                                    <input v-model="form.name" placeholder="주문 시 입력한 이름">
+                                </div>
                             </div>
 
                             <div class="field">

@@ -67,6 +67,7 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 | 📝 **회의록** | 주간 회의 내용 및 결정 사항 기록 | [바로가기 →](https://drive.google.com/drive/folders/1bpM3vTIY-6_Rf_6FwxaOvptJlfphWDZC) |
 | 📐 **설계 문서** | ERD, 요구사항 정의서, API 명세서 | [바로가기 →](https://drive.google.com/drive/folders/1ImcpHUeuDkVdmN7kLwLxJ86gxVyfqsfu) |
 | 🛠️ **공통 가이드라인** | 코드 컨벤션, 브랜치 전략, 공통 규칙 | [바로가기 →](https://drive.google.com/drive/folders/1Xm2uaNjuhy3Qlk6FlUh8F5hIuKT3p7nS) |
+| 🎞️ **발표 PPT** | 프로젝트 최종 발표 슬라이드 | [바로가기 →](https://drive.google.com/drive/folders/1HiUoiXSteg3I6RIs6ugyEuQGllCwXxJs) |
 
 </div>
 
@@ -261,15 +262,16 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 <br>
 
 <details>
-
+<summary><b>ERD 펼치기</b></summary>
 
 <br>
 
 <div align="center">
 
-<img width="1637" height="886" alt="ModakModak ERD" src="https://github.com/user-attachments/assets/2be2c044-2331-4b7d-91f0-ee14917bcee0" />
+<!-- ✅erd  -->
+![ModakModak ERD](업로드후_URL_교체)
 
-> 
+<!-- 업로드 방법: GitHub Issue나 PR 코멘트 창에 이미지를 드래그하면 URL이 생성됩니다 -->
 
 </div>
 

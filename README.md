@@ -260,13 +260,20 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 
 <br>
 
+<details>
+<summary><b>📐 ERD 펼쳐보기 — 초기 29개 → 최종 75개 테이블</b></summary>
+
+<br>
+
 <div align="center">
 
 <img width="1637" height="886" alt="ModakModak ERD" src="https://github.com/user-attachments/assets/2be2c044-2331-4b7d-91f0-ee14917bcee0" />
 
-> 📌 초기 29개 테이블 → 최종 **75개 테이블** 로 확장된 데이터 모델
+> 
 
 </div>
+
+</details>
 
 <br>
 

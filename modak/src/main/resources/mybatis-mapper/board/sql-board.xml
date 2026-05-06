@@ -285,13 +285,13 @@
          신고
     ════════════════════════════ -->
 	<select id="selectReportExists" parameterType="hashmap" resultType="int">
-	SELECT COUNT(*)
-	FROM BOARD_REPORT
-	WHERE USER_ID = #{userId}
-	  AND TARGET = #{target}
-	  AND BOARD_ID = #{boardId}
-	  AND IFNULL(COMMENT_ID, 0) = IFNULL(NULLIF(#{commentId}, ''), 0)
-</select>
+		SELECT COUNT(*)
+		FROM BOARD_REPORT
+		WHERE USER_ID = #{userId}
+		AND TARGET = #{target}
+		AND BOARD_ID = #{boardId}
+		AND IFNULL(COMMENT_ID, 0) = IFNULL(NULLIF(#{commentId}, ''), 0)
+	</select>
 
 	<insert id="insertReport" parameterType="hashmap">
 		INSERT INTO BOARD_REPORT
@@ -432,15 +432,27 @@
 		b.CONTENT,
 		b.CATEGORY,
 		b.USER_ID,
+		U.NICKNAME AS nickName,
+		U.PROFILE_IMG_URL AS profileImg,
 		b.LIKE_COUNT,
 		b.DISLIKE_COUNT,
 		b.COMMENT_COUNT,
 		b.VIEW_COUNT,
 		b.IS_HOT,
 		b.HAS_POLL,
-		DATE_FORMAT(b.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT
+		DATE_FORMAT(b.CREATED_AT, '%Y-%m-%d %H:%i') AS CREATED_AT,
+		(
+		SELECT BI.IMG_URL
+		FROM BOARD_IMG BI
+		WHERE BI.BOARD_ID = b.BOARD_ID
+		ORDER BY BI.SORT_ORDER ASC
+		LIMIT 1
+		) AS thumbUrl
 		FROM BOARD b
-		JOIN BOARD_TAG t ON b.BOARD_ID = t.BOARD_ID
+		JOIN BOARD_TAG t
+		ON b.BOARD_ID = t.BOARD_ID
+		LEFT JOIN USER U
+		ON b.USER_ID = U.USER_ID
 		WHERE t.TAG_NAME = #{tag}
 		AND b.STATUS = 'ACTIVE'
 		ORDER BY b.CREATED_AT DESC
@@ -456,6 +468,24 @@
 		WHERE USER_ID = #{userId}
 		AND STATUS = 'ACTIVE'
 		ORDER BY CREATED_AT DESC
+		LIMIT #{limit}
+	</select>
+	<select id="selectRecentCommentsByUser" parameterType="hashmap"
+		resultType="map">
+		SELECT
+		C.COMMENT_ID,
+		C.BOARD_ID,
+		B.TITLE AS BOARD_TITLE,
+		C.CONTENT,
+		C.LIKE_COUNT,
+		DATE_FORMAT(C.CREATED_AT, '%Y-%m-%d %H:%i:%s') AS CREATED_AT
+		FROM BOARD_COMMENT C
+		JOIN BOARD B
+		ON C.BOARD_ID = B.BOARD_ID
+		WHERE C.USER_ID = #{userId}
+		AND C.STATUS = 'ACTIVE'
+		AND B.STATUS = 'ACTIVE'
+		ORDER BY C.CREATED_AT DESC
 		LIMIT #{limit}
 	</select>
 	<!-- 수정 화면 게시글 조회 -->

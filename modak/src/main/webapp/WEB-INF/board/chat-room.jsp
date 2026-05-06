@@ -89,6 +89,20 @@
                             <i class="ri-emotion-line"></i>
                         </button>
                     </div>
+                    <div class="delete-select-bar" id="deleteSelectBar" style="display:none;">
+                        <button type="button" class="delete-select-cancel" id="deleteSelectCancel">
+                            취소
+                        </button>
+
+                        <div class="delete-select-info">
+                            <strong id="deleteSelectedCount">0개 선택됨</strong>
+                            <span>선택한 메시지는 내 화면에서만 삭제됩니다.</span>
+                        </div>
+
+                        <button type="button" class="delete-select-submit" id="deleteSelectedSubmit" disabled>
+                            선택 삭제
+                        </button>
+                    </div>
                 </div>
                 <div id="stickerPanel" class="sticker-panel">
                     <img src="/img/sticker/modak1.png">
@@ -201,6 +215,24 @@
                         <button type="button" class="delete-cancel-btn" id="deleteCancel">취소</button>
                     </div>
                 </div>
+                <div class="modal-bg" id="deleteSelectedConfirmModal">
+                    <div class="modal-box">
+                        <div class="modal-icon delete-icon">
+                            <i class="ri-delete-bin-6-line"></i>
+                        </div>
+
+                        <div class="modal-title">선택한 메시지를 삭제할까요?</div>
+                        <div class="modal-desc">
+                            선택한 메시지는 내 채팅방에서만 보이지 않아요.<br>
+                            상대방의 채팅방에는 그대로 남아있습니다.
+                        </div>
+
+                        <div class="modal-btns">
+                            <button class="modal-btn cancel" id="deleteSelectedCancelConfirm" type="button">취소</button>
+                            <button class="modal-btn confirm-block" id="deleteSelectedConfirm" type="button">삭제</button>
+                        </div>
+                    </div>
+                </div>
                 <!-- 채팅방 나가기 모달 -->
                 <div class="modal-bg" id="leaveRoomModal">
                     <div class="modal-box">
@@ -226,6 +258,9 @@
                     var OTHER_ID = new URLSearchParams(location.search).get('otherId') || null;
                     var MY_ID = '${sessionScope.sessionId}';
                     var selectedDeleteMessageId = null;
+                    var deleteSelectMode = false;
+                    var selectedDeleteIds = [];
+                    var selectedDeleteIsMine = false;
                     var isBlocked = false;
                     var pollTimer = null;
                     var typingTimer = null;
@@ -297,7 +332,73 @@
                             $('#moreMenu').removeClass('open');
                             openBlockModal();
                         });
+                        // 선택 삭제 취소
+                        $('#deleteSelectCancel').on('click', function () {
+                            exitDeleteSelectMode();
+                        });
 
+                        // 선택 삭제 버튼 클릭 → 확인 모달
+                        $('#deleteSelectedSubmit').on('click', function () {
+                            if (selectedDeleteIds.length === 0) {
+                                showToast('삭제할 메시지를 선택해주세요.');
+                                return;
+                            }
+
+                            $('#deleteSelectedConfirmModal').addClass('open');
+                        });
+
+                        // 확인 모달 취소
+                        $('#deleteSelectedCancelConfirm').on('click', function () {
+                            $('#deleteSelectedConfirmModal').removeClass('open');
+                        });
+
+                        // 확인 모달 바깥 클릭
+                        $('#deleteSelectedConfirmModal').on('click', function (e) {
+                            if (e.target === this) {
+                                $('#deleteSelectedConfirmModal').removeClass('open');
+                            }
+                        });
+
+                        // 최종 삭제
+                        $('#deleteSelectedConfirm').on('click', function () {
+                            deleteSelectedMessagesForMe();
+                        });
+
+                        // 메시지 체크박스 선택
+                        $('#msgArea').on('change', '.msg-select-check', function () {
+                            var messageId = String($(this).data('message-id'));
+
+                            if ($(this).is(':checked')) {
+                                if (!selectedDeleteIds.includes(messageId)) {
+                                    selectedDeleteIds.push(messageId);
+                                }
+                            } else {
+                                selectedDeleteIds = selectedDeleteIds.filter(function (id) {
+                                    return id !== messageId;
+                                });
+                            }
+
+                            updateDeleteSelectBar();
+                        });
+                        // 선택 삭제 모드에서는 메시지 영역을 눌러도 체크/해제
+                        $('#msgArea').on('click', '.msg-row', function (e) {
+                            if (!deleteSelectMode) {
+                                return;
+                            }
+
+                            // 아바타, 닉네임, 삭제 버튼 등 기존 클릭 요소는 제외
+                            if ($(e.target).closest('.m-avatar, .m-nick, .msg-del-btn').length) {
+                                return;
+                            }
+
+                            const $check = $(this).find('.msg-select-check');
+
+                            if (!$check.length) {
+                                return;
+                            }
+
+                            $check.prop('checked', !$check.prop('checked')).trigger('change');
+                        });
                         $('#menuLeave').on('click', function (e) {
                             e.stopPropagation();
                             $('#moreMenu').removeClass('open');
@@ -394,7 +495,21 @@
                         $('#msgArea').on('click', '.msg-del-btn', function (e) {
                             e.stopPropagation();
 
-                            selectedDeleteMessageId = $(this).data('message-id');
+                            selectedDeleteMessageId = String($(this).data('message-id'));
+                            selectedDeleteIsMine = $(this).data('is-me') === 'Y';
+
+                            if (selectedDeleteIsMine) {
+                                $('#deleteForAll').show();
+                                $('#deleteMsgModal .modal-desc').html(
+                                    '삭제 방식을 선택해주세요.<br>모두에게 삭제하면 상대방 화면에서도 메시지가 사라집니다.'
+                                );
+                            } else {
+                                $('#deleteForAll').hide();
+                                $('#deleteMsgModal .modal-desc').html(
+                                    '상대방이 보낸 메시지는<br>내 채팅방에서만 삭제할 수 있어요.'
+                                );
+                            }
+
                             $('#deleteMsgModal').addClass('open');
                         });
 
@@ -412,8 +527,9 @@
                         $('#deleteForMe').on('click', function () {
                             if (!selectedDeleteMessageId) return;
 
-                            deleteMessage(selectedDeleteMessageId, 'ME');
                             closeDeleteMsgModal();
+
+                            enterDeleteSelectMode(selectedDeleteMessageId);
                         });
 
                         // 모두에게 삭제
@@ -473,10 +589,15 @@
                             data: { roomId: ROOM_ID }
                         });
                     }
-
                     function closeDeleteMsgModal() {
                         $('#deleteMsgModal').removeClass('open');
                         selectedDeleteMessageId = null;
+                        selectedDeleteIsMine = false;
+
+                        $('#deleteForAll').show();
+                        $('#deleteMsgModal .modal-desc').html(
+                            '삭제 방식을 선택해주세요.<br>모두에게 삭제하면 상대방 화면에서도 메시지가 사라집니다.'
+                        );
                     }
 
                     function loadMessages(isPolling) {
@@ -583,6 +704,111 @@
                         setTimeout(function () {
                             scrollToBottom(false);
                         }, 50);
+                    }
+                    function enterDeleteSelectMode(initialMessageId) {
+                        deleteSelectMode = true;
+                        selectedDeleteIds = [];
+
+                        $('body').addClass('delete-select-mode');
+
+                        $('#inputWrap').hide();
+                        $('#deleteSelectBar').css('display', 'flex');
+
+                        // 기존 메시지를 다시 그려서 체크박스 표시
+                        loadMessages(false);
+
+                        setTimeout(function () {
+                            if (initialMessageId) {
+                                var id = String(initialMessageId);
+                                var $check = $('.msg-select-check[data-message-id="' + id + '"]');
+
+                                if ($check.length) {
+                                    $check.prop('checked', true);
+                                    selectedDeleteIds.push(id);
+                                }
+                            }
+
+                            updateDeleteSelectBar();
+                        }, 120);
+                    }
+
+                    function exitDeleteSelectMode() {
+                        deleteSelectMode = false;
+                        selectedDeleteIds = [];
+
+                        $('body').removeClass('delete-select-mode');
+
+                        $('#deleteSelectBar').hide();
+
+                        if (!isBlocked) {
+                            $('#inputWrap').show();
+                        }
+
+                        $('.msg-select-check').prop('checked', false);
+
+                        updateDeleteSelectBar();
+
+                        loadMessages(false);
+                    }
+
+                    function updateDeleteSelectBar() {
+                        var count = selectedDeleteIds.length;
+
+                        $('#deleteSelectedCount').text(count + '개 선택됨');
+                        $('#deleteSelectedSubmit').prop('disabled', count === 0);
+                    }
+
+                    function deleteSelectedMessagesForMe() {
+                        if (selectedDeleteIds.length === 0) {
+                            showToast('삭제할 메시지를 선택해주세요.');
+                            return;
+                        }
+
+                        var ids = selectedDeleteIds.slice();
+                        var index = 0;
+
+                        $('#deleteSelectedConfirm').prop('disabled', true).text('삭제 중');
+
+                        function next() {
+                            if (index >= ids.length) {
+                                $('#deleteSelectedConfirm').prop('disabled', false).text('삭제');
+
+                                $('#deleteSelectedConfirmModal').removeClass('open');
+
+                                showToast('선택한 메시지를 내 채팅방에서 삭제했어요.');
+
+                                exitDeleteSelectMode();
+                                loadMessages(false);
+
+                                return;
+                            }
+
+                            $.ajax({
+                                url: '/chat-room/message/delete.dox',
+                                type: 'POST',
+                                data: {
+                                    roomId: ROOM_ID,
+                                    messageId: ids[index],
+                                    type: 'ME'
+                                },
+                                dataType: 'json',
+                                success: function (res) {
+                                    if (res.result !== 'success') {
+                                        showToast(res.message || '일부 메시지 삭제에 실패했어요.');
+                                    }
+
+                                    index++;
+                                    next();
+                                },
+                                error: function () {
+                                    showToast('서버 오류로 일부 메시지 삭제에 실패했어요.');
+                                    index++;
+                                    next();
+                                }
+                            });
+                        }
+
+                        next();
                     }
                     function deleteMessage(messageId, type) {
                         $.ajax({
@@ -700,11 +926,23 @@
 
                         var deleteBtn = '';
 
-                        if (isMe && !isDeleted && !m.TEMP_STATUS) {
+                        if (!isDeleted && !m.TEMP_STATUS && !deleteSelectMode) {
                             deleteBtn =
-                                '<button type="button" class="msg-del-btn" data-message-id="' + escAttr(m.MESSAGE_ID) + '">' +
+                                '<button type="button" class="msg-del-btn" ' +
+                                'data-message-id="' + escAttr(m.MESSAGE_ID) + '" ' +
+                                'data-is-me="' + (isMe ? 'Y' : 'N') + '">' +
                                 '삭제' +
                                 '</button>';
+                        }
+
+                        var selectCheckHtml = '';
+
+                        if (deleteSelectMode && !isDeleted && !m.TEMP_STATUS) {
+                            selectCheckHtml =
+                                '<label class="msg-select-label">' +
+                                '<input type="checkbox" class="msg-select-check" data-message-id="' + escAttr(m.MESSAGE_ID) + '">' +
+                                '<span></span>' +
+                                '</label>';
                         }
 
                         var meta = '<div class="m-meta">' +
@@ -712,8 +950,8 @@
                             readStatus +
                             '<div class="m-time">' + formatTime(m.CREATED_AT) + '</div>' +
                             '</div>';
-
                         return '<div class="' + cls + '" data-message-id="' + escAttr(m.MESSAGE_ID) + '" data-sender="' + escAttr(m.SENDER_ID) + '" data-minute="' + escAttr(minute) + '">' +
+                            selectCheckHtml +
                             '<div class="m-avatar">' + imgHtml + '</div>' +
                             '<div class="m-body">' +
                             nickHtml +
@@ -726,7 +964,7 @@
                     }
 
                     function sendMessage() {
-                        if (isBlocked) return;
+                        if (isBlocked || deleteSelectMode) return;
 
                         var content = $('#msgInput').val().trim();
                         if (!content) return;
@@ -838,8 +1076,11 @@
                         pollTimer = setInterval(function () {
                             sendActive();
                             checkActive();
-                            loadMessages(true);
-                            checkTyping();
+
+                            if (!deleteSelectMode) {
+                                loadMessages(true);
+                                checkTyping();
+                            }
                         }, 3000);
                     }
                     function sendActive() {

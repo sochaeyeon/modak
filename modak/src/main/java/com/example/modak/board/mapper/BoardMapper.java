@@ -75,7 +75,7 @@ public interface BoardMapper {
     
     List<Map<String, Object>> selectRecentBoardsByUser(HashMap<String, Object> map);
     
-    
+    List<Map<String, Object>> selectRecentCommentsByUser(HashMap<String, Object> map);
     // 수정 화면 조회
     HashMap<String, Object> selectBoardEditInfo(HashMap<String, Object> map);
 

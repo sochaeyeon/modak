@@ -12,13 +12,45 @@
 		P.PRODUCT_NAME AS productName,
 		P.DESCRIPTION AS description,
 		P.PRICE AS price,
-		PI.IMG_URL AS thumbImgUrl
-		FROM PRODUCT P
-		LEFT JOIN PRODUCT_IMG PI
-		ON P.PRODUCT_ID = PI.PRODUCT_ID
+		PC.CATEGORY_NAME AS categoryName,
+		B.BRAND_NAME AS brandName,
+
+		IFNULL(ROUND(AVG(R.RATING), 1), 0) AS ratingAvg,
+		COUNT(R.REVIEW_ID) AS reviewCount,
+
+		(
+		SELECT PI.IMG_URL
+		FROM PRODUCT_IMG PI
+		WHERE PI.PRODUCT_ID = P.PRODUCT_ID
 		AND PI.IS_MAIN = 'Y'
-		WHERE P.PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
+		ORDER BY PI.SORT_ORDER ASC, PI.IMAGE_ID ASC
+		LIMIT 1
+		) AS thumbImgUrl
+
+		FROM PRODUCT P
+		LEFT JOIN PRODUCT_CATEGORY PC
+		ON P.CATEGORY_ID = PC.CATEGORY_ID
+		LEFT JOIN BRAND B
+		ON P.BRAND_ID = B.BRAND_ID
+		LEFT JOIN REVIEW R
+		ON P.PRODUCT_ID = R.PRODUCT_ID
+		AND R.REVIEW_STATUS = 'ACTIVE'
+
+		WHERE (
+		P.PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
 		OR P.DESCRIPTION LIKE CONCAT('%', #{keyword}, '%')
+		OR PC.CATEGORY_NAME LIKE CONCAT('%', #{keyword}, '%')
+		OR B.BRAND_NAME LIKE CONCAT('%', #{keyword}, '%')
+		)
+
+		GROUP BY
+		P.PRODUCT_ID,
+		P.PRODUCT_NAME,
+		P.DESCRIPTION,
+		P.PRICE,
+		PC.CATEGORY_NAME,
+		B.BRAND_NAME
+
 		ORDER BY P.PRODUCT_ID DESC
 	</select>
 
@@ -27,10 +59,17 @@
 		resultType="int">
 		SELECT COUNT(*)
 		FROM PRODUCT P
-		WHERE P.PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
+		LEFT JOIN PRODUCT_CATEGORY PC
+		ON P.CATEGORY_ID = PC.CATEGORY_ID
+		LEFT JOIN BRAND B
+		ON P.BRAND_ID = B.BRAND_ID
+		WHERE (
+		P.PRODUCT_NAME LIKE CONCAT('%', #{keyword}, '%')
 		OR P.DESCRIPTION LIKE CONCAT('%', #{keyword}, '%')
+		OR PC.CATEGORY_NAME LIKE CONCAT('%', #{keyword}, '%')
+		OR B.BRAND_NAME LIKE CONCAT('%', #{keyword}, '%')
+		)
 	</select>
-
 	<!-- FAQ -->
 	<select id="selectIntegratedFaqList"
 		parameterType="string"
@@ -117,53 +156,57 @@
 		OR C.DESCRIPTION LIKE CONCAT('%', #{keyword}, '%')
 		OR C.INDUTY LIKE CONCAT('%', #{keyword}, '%')
 	</select>
-<select id="selectIntegratedCommunityList" parameterType="string" resultType="hashmap">
-    SELECT
-        B.BOARD_ID AS boardId,
-        B.TITLE AS title,
-        B.CONTENT AS content,
-        B.CATEGORY AS category,
-        B.USER_ID AS userId,
+	<select id="selectIntegratedCommunityList" parameterType="string"
+		resultType="hashmap">
+		SELECT
+		B.BOARD_ID AS boardId,
+		B.TITLE AS title,
+		B.CONTENT AS content,
+		B.CATEGORY AS category,
+		B.USER_ID AS userId,
 
-        U.USER_NAME AS userName,
+		U.NICKNAME AS nickName,
+		U.PROFILE_IMG_URL AS profileImg,
 
-        B.VIEW_COUNT AS viewCount,
-        B.LIKE_COUNT AS likeCount,
-        B.DISLIKE_COUNT AS dislikeCount,
+		B.VIEW_COUNT AS viewCount,
+		B.LIKE_COUNT AS likeCount,
+		B.DISLIKE_COUNT AS dislikeCount,
+		B.COMMENT_COUNT AS commentCount,
 
-        DATE_FORMAT(B.CREATED_AT, '%Y.%m.%d') AS createdAt,
+		DATE_FORMAT(B.CREATED_AT, '%Y-%m-%d %H:%i:%s') AS createdAt,
 
-        (
-            SELECT COUNT(*)
-            FROM BOARD_COMMENT BC
-            WHERE BC.BOARD_ID = B.BOARD_ID
-        ) AS commentCount,
+		(
+		SELECT BI.IMG_URL
+		FROM BOARD_IMG BI
+		WHERE BI.BOARD_ID = B.BOARD_ID
+		ORDER BY BI.SORT_ORDER ASC, BI.IMG_ID ASC
+		LIMIT 1
+		) AS thumbImgUrl
 
-        (
-            SELECT BI.IMG_URL
-            FROM BOARD_IMG BI
-            WHERE BI.BOARD_ID = B.BOARD_ID
-            ORDER BY BI.IMG_ID ASC
-            LIMIT 1
-        ) AS thumbImgUrl
+		FROM BOARD B
+		LEFT JOIN USER U
+		ON B.USER_ID = U.USER_ID
 
-    FROM BOARD B
-    LEFT JOIN USER U
-        ON B.USER_ID = U.USER_ID
+		WHERE B.STATUS = 'ACTIVE'
+		AND (
+		B.TITLE LIKE CONCAT('%', #{keyword}, '%')
+		OR B.CONTENT LIKE CONCAT('%', #{keyword}, '%')
+		OR U.NICKNAME LIKE CONCAT('%', #{keyword}, '%')
+		)
 
-    WHERE B.TITLE LIKE CONCAT('%', #{keyword}, '%')
-       OR B.CONTENT LIKE CONCAT('%', #{keyword}, '%')
-       OR U.USER_NAME LIKE CONCAT('%', #{keyword}, '%')
-
-    ORDER BY B.CREATED_AT DESC
-</select>
-<select id="selectIntegratedCommunityCount" parameterType="string" resultType="int">
-    SELECT COUNT(*)
-    FROM BOARD B
-    LEFT JOIN USER U
-        ON B.USER_ID = U.USER_ID
-    WHERE B.TITLE LIKE CONCAT('%', #{keyword}, '%')
-       OR B.CONTENT LIKE CONCAT('%', #{keyword}, '%')
-       OR U.USER_NAME LIKE CONCAT('%', #{keyword}, '%')
-</select>
+		ORDER BY B.CREATED_AT DESC
+	</select>
+	<select id="selectIntegratedCommunityCount" parameterType="string"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM BOARD B
+		LEFT JOIN USER U
+		ON B.USER_ID = U.USER_ID
+		WHERE B.STATUS = 'ACTIVE'
+		AND (
+		B.TITLE LIKE CONCAT('%', #{keyword}, '%')
+		OR B.CONTENT LIKE CONCAT('%', #{keyword}, '%')
+		OR U.NICKNAME LIKE CONCAT('%', #{keyword}, '%')
+		)
+	</select>
 </mapper>

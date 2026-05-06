@@ -13,6 +13,7 @@
             <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
             <script src="/js/page-change.js"></script>
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
+            <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
 
             <style>
                 /* ── 미니 프로필 채팅 버튼 ───────────────────── */
@@ -84,7 +85,7 @@
                                 </div>
 
                                 <!-- 본문 -->
-                                <div class="post-content editor-content" v-html="board.CONTENT"></div>
+                                <div class="post-content editor-content ql-editor" v-html="board.CONTENT"></div>
 
                                 <!-- 태그 -->
                                 <div class="tag-wrap" v-if="tagList.length > 0">

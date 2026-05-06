@@ -158,7 +158,10 @@
                                             <i class="ri-bookmark-line nav-ri-icon"></i>
                                             스크랩한 글
                                         </div>
-
+                                      <div class="nav-item" onclick="switchTab('chatRooms', this)">
+                                            <i class="ri-chat-1-line nav-ri-icon"></i>
+                                            채팅방 목록
+                                        </div>
                                         <div class="nav-item" onclick="switchTab('chatbot', this)">
                                             <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
                                                 <rect x="2" y="3" width="11" height="8" rx="2" stroke="#7a5c3e"
@@ -170,7 +173,6 @@
                                             </svg>
                                             챗봇 기록
                                         </div>
-
                                         <div class="nav-item" onclick="switchTab('inquiries', this)">
                                             <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
                                                 <path d="M2.5 3.5h10v8h-10z" stroke="#7a5c3e" stroke-width="1.2" />
@@ -1028,7 +1030,71 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <!-- ── 채팅방 목록 탭 ── -->
+                                    <div class="tab-panel" id="tab-chatRooms">
+                                        <div class="section-card chat-room-section-card">
+                                            <div class="section-head chat-room-section-head">
+                                                <div>
+                                                    <h3>채팅방 목록</h3>
+                                                    <p class="chat-room-section-sub">최근 대화한 채팅방을 확인할 수 있습니다.</p>
+                                                </div>
 
+                                                <a href="/chat-room/list.do">전체보기 →</a>
+                                            </div>
+
+                                            <div class="mypage-chat-room-list">
+                                                <div v-if="limitedChatRoomList.length === 0" class="empty-state">
+                                                    <p>진행 중인 채팅방이 없습니다.</p>
+                                                </div>
+
+                                                <div
+                                                    class="mypage-chat-room-item"
+                                                    v-for="room in limitedChatRoomList"
+                                                    :key="room.ROOM_ID || room.roomId"
+                                                    @click="fnGoChatRoom(room)"
+                                                >
+                                                    <div class="mypage-chat-avatar">
+                                                        <img
+                                                            v-if="room.OTHER_IMG || room.otherImg"
+                                                            :src="room.OTHER_IMG || room.otherImg"
+                                                            alt="상대방 프로필"
+                                                        >
+                                                        <div v-else class="mypage-chat-avatar-fallback">
+                                                            {{ fnChatInitial(room) }}
+                                                        </div>
+
+                                                        <span
+                                                            v-if="Number(room.UNREAD_COUNT || room.unreadCount || 0) > 0"
+                                                            class="mypage-chat-unread-dot"
+                                                        ></span>
+                                                    </div>
+
+                                                    <div class="mypage-chat-info">
+                                                        <div class="mypage-chat-name">
+                                                            {{ room.OTHER_NICK || room.otherNick || room.OTHER_ID || room.otherId || '상대방' }}
+                                                        </div>
+
+                                                        <div class="mypage-chat-last">
+                                                            {{ fnChatPreview(room.LAST_MSG || room.lastMsg) }}
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mypage-chat-meta">
+                                                        <span class="mypage-chat-time">
+                                                            {{ fnChatTime(room.LAST_AT || room.lastAt) }}
+                                                        </span>
+
+                                                        <span
+                                                            v-if="Number(room.UNREAD_COUNT || room.unreadCount || 0) > 0"
+                                                            class="mypage-chat-unread-badge"
+                                                        >
+                                                            {{ Number(room.UNREAD_COUNT || room.unreadCount || 0) > 99 ? '99+' : Number(room.UNREAD_COUNT || room.unreadCount || 0) }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <!-- ── 챗봇 기록 탭 ── -->
                                     <div class="tab-panel" id="tab-chatbot">
                                         <div class="section-card">
@@ -1470,9 +1536,13 @@
                                     userPhone: ""
                                 },
                                 couponList: [],
+                                chatRoomList: [],
                             };
                         },
                         computed: {
+                            limitedChatRoomList() {
+                                return this.chatRoomList.slice(0, 5);
+                            },
                             isSettingsChanged() {
                                   return this.settingsForm.userId !== this.originalSettingsForm.userId
                                     || this.settingsForm.userName !== this.originalSettingsForm.userName
@@ -2690,6 +2760,95 @@
                                     }
                                 });
                             },
+                            fnGetChatRoomList: function () {
+                                let self = this;
+
+                                $.ajax({
+                                    url: "/chat-room/rooms.dox",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {},
+                                    success: function (data) {
+                                        if (data.result === "success") {
+                                            self.chatRoomList = data.list || [];
+                                        } else {
+                                            self.chatRoomList = [];
+                                        }
+                                    },
+                                    error: function () {
+                                        self.chatRoomList = [];
+                                    }
+                                });
+                            },
+
+                            fnGoChatRoom: function (room) {
+                                const roomId = room.ROOM_ID || room.roomId;
+                                const otherId = room.OTHER_ID || room.otherId;
+
+                                if (!roomId) {
+                                    this.showToast("채팅방 정보를 불러올 수 없습니다.");
+                                    return;
+                                }
+
+                                location.href = "/chat-room/room.do?roomId=" + encodeURIComponent(roomId || "")
+                                    + "&otherId=" + encodeURIComponent(otherId || "");
+                            },
+
+                            fnChatInitial: function (room) {
+                                const name = room.OTHER_NICK || room.otherNick || room.OTHER_ID || room.otherId || "?";
+                                return String(name).charAt(0);
+                            },
+
+                            fnChatPreview: function (message) {
+                                if (!message) {
+                                    return "대화를 시작해보세요";
+                                }
+
+                                const text = String(message).trim();
+
+                                const isImage =
+                                    text.startsWith("/upload/") ||
+                                    text.startsWith("/img/") ||
+                                    text.includes("/chat/") ||
+                                    /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(text);
+
+                                if (isImage) {
+                                    return "사진을 보냈습니다";
+                                }
+
+                                return text;
+                            },
+
+                            fnChatTime: function (dateStr) {
+                                if (!dateStr) {
+                                    return "";
+                                }
+
+                                const d = new Date(String(dateStr).replace(" ", "T"));
+                                const now = new Date();
+                                const diff = (now - d) / 1000;
+
+                                if (isNaN(d.getTime())) {
+                                    return "";
+                                }
+
+                                if (diff < 60) {
+                                    return "방금";
+                                }
+
+                                if (diff < 3600) {
+                                    return Math.floor(diff / 60) + "분 전";
+                                }
+
+                                if (diff < 86400) {
+                                    return Math.floor(diff / 3600) + "시간 전";
+                                }
+
+                                const mm = String(d.getMonth() + 1).padStart(2, "0");
+                                const dd = String(d.getDate()).padStart(2, "0");
+
+                                return mm + "/" + dd;
+                            },
                             fnGetOrderActions: function (item) {
                                 const actions = [];
                                 const status = (item.orderStatus || "").toUpperCase();
@@ -3020,6 +3179,7 @@
                             this.fnGetInquiryList();
                             this.fnGetCouponList();
                             this.fnGetBookmarkList();
+                            this.fnGetChatRoomList();
 
                             const savedTab = sessionStorage.getItem("activeTab");
 

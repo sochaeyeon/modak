@@ -890,7 +890,49 @@ button {
 .ext-tab-bar.is-return::after {
     transform: translateX(120px);
 }
-
+/* ── 연장 내역 인라인 ── */
+  .rental-ext-history {
+      grid-column: 1 / -1;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(92, 66, 48, 0.18);
+  }
+  .ext-hist-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: #8B6B4A;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+  }
+  .ext-hist-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      background: #fffaf2;
+      border: 1px solid rgba(232, 115, 42, 0.15);
+      border-radius: 10px;
+      margin-bottom: 6px;
+      font-size: 12px;
+  }
+  .ext-hist-days  { font-weight: 900; color: #C4621E; min-width: 44px; }
+  .ext-hist-price { font-weight: 800; color: #2C1E0F; min-width: 72px; }
+  .ext-hist-date  { color: #8B6B4A; flex: 1; }
+  .btn-ext-cancel-small {
+      border: 1.5px solid #ffd0d0;
+      background: #fff5f5;
+      color: #c0392b;
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+      flex-shrink: 0;
+  }
+  .btn-ext-cancel-small:hover { background: #ffe0e0; }
 .ext-tab-btn {
     width: 120px;
     border-bottom: none !important;

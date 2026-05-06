@@ -246,7 +246,8 @@
                                     </button>
                                 </div>
 
-                                <p class="action-empty" v-if="!fnCanShowActions() && upperStatus !== 'CANCEL_REQUESTED' && upperStatus !== 'CANCELLED'">
+                                <p class="action-empty"
+                                    v-if="!fnCanShowActions() && upperStatus !== 'CANCEL_REQUESTED' && upperStatus !== 'CANCELLED'">
                                     현재 상태에서는 추가 신청 가능한 메뉴가 없습니다.
                                 </p>
 
@@ -301,6 +302,34 @@
                             </div>
                         </div>
                     </div>
+                    <!-- 확인 모달 -->
+                    <div class="modal-overlay" :class="{ open: confirmModal.show }"
+                        @click.self="confirmModal.show = false">
+                        <div class="modal-box">
+                            <p class="modal-title">확인</p>
+                            <p class="modal-desc" style="white-space:pre-line;">{{ confirmModal.message }}</p>
+                            <div class="modal-btns">
+                                <button class="modal-btn cancel" @click="confirmModal.show = false">닫기</button>
+                                <button class="modal-btn confirm"
+                                    @click="confirmModal.onConfirm && confirmModal.onConfirm()">확인</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 결과 모달 -->
+                    <div class="modal-overlay" :class="{ open: resultModal.show }"
+                        @click.self="resultModal.show = false">
+                        <div class="modal-box">
+                            <p class="modal-title">✅ 완료</p>
+                            <p class="modal-desc">{{ resultModal.message }}</p>
+                            <div class="modal-btns">
+                                <button class="modal-btn confirm" @click="resultModal.show = false">확인</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 토스트 -->
+                    <div class="toast" :class="{ show: toastVisible }">{{ toastMsg }}</div>
 
                 </div>
             </div>
@@ -320,6 +349,17 @@
                                 cancelReasonCode: '',
                                 cancelReasonText: '',
                                 statusSteps: [],
+                                toastVisible: false,
+                                toastMsg: '',
+                                confirmModal: {
+                                    show: false,
+                                    message: '',
+                                    onConfirm: null
+                                },
+                                resultModal: {
+                                    show: false,
+                                    message: ''
+                                },
 
                                 normalSteps: [
                                     { code: 'PAID', name: '결제완료' },
@@ -417,6 +457,11 @@
                                     }
                                 });
                             },
+                            showToast(msg) {
+                                this.toastMsg = msg;
+                                this.toastVisible = true;
+                                setTimeout(() => { this.toastVisible = false; }, 2500);
+                            },
 
                             fnItemType: function (item) {
                                 return String(item.orderType || this.order.orderType || 'PURCHASE').toUpperCase();
@@ -454,37 +499,42 @@
 
                             fnSubmitCancel: function () {
                                 var self = this;
-
                                 if (!self.cancelReasonCode) return;
-								
-								if (!confirm('주문을 취소 신청하시겠습니까?\n관리자 확인 후 취소 처리됩니다.')) return;
 
-                                $.ajax({
-                                    url: '/order/cancel.dox',
-                                    type: 'POST',
-                                    dataType: 'json',
-                                    data: {
-                                        orderId: self.orderId,
-                                        cancelReasonCode: self.cancelReasonCode,
-                                        cancelReasonText: self.cancelReasonText,
-                                        cancelAmount: self.calcFinalTotal
-                                    },
-                                    success: function (res) {
-                                        if (res.result === 'success') {
-                                            self.closeModal();
+                                // ★ confirm 모달로 변경
+                                self.confirmModal.message = '주문을 취소 신청하시겠습니까?\n관리자 확인 후 취소 처리됩니다.';
+                                self.confirmModal.onConfirm = function () {
+                                    self.confirmModal.show = false;
 
-                                            self.order.orderStatus = 'CANCEL_REQUESTED';
-                                            self.setStatusSteps();
+                                    $.ajax({
+                                        url: '/order/cancel.dox',
+                                        type: 'POST',
+                                        dataType: 'json',
+                                        data: {
+                                            orderId: self.orderId,
+                                            cancelReasonCode: self.cancelReasonCode,
+                                            cancelReasonText: self.cancelReasonText,
+                                            cancelAmount: self.calcFinalTotal
+                                        },
+                                        success: function (res) {
+                                            if (res.result === 'success') {
+                                                self.closeModal();
+                                                self.order.orderStatus = 'CANCEL_REQUESTED';
+                                                self.setStatusSteps();
 
-                                            alert('주문취소 신청이 완료되었습니다.');
-                                        } else {
-                                            alert(res.message || '취소신청 처리 중 오류가 발생했습니다.');
+                                                // ★ alert → 결과 모달
+                                                self.resultModal.message = '주문취소 신청이 완료되었습니다.';
+                                                self.resultModal.show = true;
+                                            } else {
+                                                self.showToast(res.message || '취소신청 처리 중 오류가 발생했습니다.');
+                                            }
+                                        },
+                                        error: function () {
+                                            self.showToast('서버 오류가 발생했습니다.');
                                         }
-                                    },
-                                    error: function () {
-                                        alert('서버 오류가 발생했습니다.');
-                                    }
-                                });
+                                    });
+                                };
+                                self.confirmModal.show = true;
                             },
 
                             fnGoProductDetail: function (id) {

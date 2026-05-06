@@ -111,14 +111,17 @@
                                     @input="fnSearchProduct" @focus="showProductResult = true">
                                 <div class="product-search-result"
                                     v-if="showProductResult && productResults.length > 0">
-                                    <div class="product-item" v-for="p in productResults" :key="p.productId"
-                                        @click="fnSelectProduct(p)">
-                                        <img :src="p.imgUrl || '/img/product/default.jpg'" :alt="p.productName">
+                                    <div class="product-item" v-for="p in productResults"
+                                        :key="p.productId || p.PRODUCT_ID" @click="fnSelectProduct(p)">
+                                        <img :src="p.imgUrl || p.IMG_URL || '/img/product/default.jpg'"
+                                            :alt="p.productName || p.PRODUCT_NAME">
                                         <div>
-                                            <div style="font-size:13px;font-weight:700;color:var(--brown);">{{
-                                                p.productName }}</div>
-                                            <div style="font-size:11px;color:var(--brown3);">{{
-                                                Number(p.price).toLocaleString() }}원</div>
+                                            <div style="font-size:13px;font-weight:700;color:var(--brown);">
+                                                {{ p.productName || p.PRODUCT_NAME }}
+                                            </div>
+                                            <div style="font-size:11px;color:var(--brown3);">
+                                                {{ Number(p.price || p.PRICE || 0).toLocaleString() }}원
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -241,19 +244,43 @@
                             },
                             methods: {
                                 fnRemoveOption(i) { this.poll.options.splice(i, 1); },
+                                // ── 검색 ──
                                 fnSearchProduct() {
                                     clearTimeout(this.productTimer);
                                     if (!this.productKeyword.trim()) { this.productResults = []; return; }
                                     this.productTimer = setTimeout(() => {
                                         $.ajax({
                                             url: '/product/list.dox', type: 'POST',
-                                            data: { searchKeyword: this.productKeyword, page: 1, pageSize: 8 },
+                                            data: {
+                                                searchKeyword: this.productKeyword,
+                                                page: 1,
+                                                pageSize: 8,
+                                                rentable: true,   // ★ 추가
+                                                buyable: true     // ★ 추가
+                                            },
                                             success: (res) => {
                                                 this.productResults = res.list || [];
+                                                this.showProductResult = true;
+                                            },
+                                            error: (err) => {
+                                                console.log('에러:', err.status);
                                             }
                                         });
                                     }, 300);
                                 },
+                                fnSelectProduct(p) {
+                                    this.selectedProduct = {
+                                        productId: p.productId || p.PRODUCT_ID,
+                                        productName: p.productName || p.PRODUCT_NAME,
+                                        price: p.price || p.PRICE || 0,
+                                        imgUrl: p.imgUrl || p.IMG_URL || p.mainImg || '/img/product/default.jpg'
+                                    };
+                                    this.productKeyword = this.selectedProduct.productName;
+                                    this.showProductResult = false;
+                                },
+
+                                // ── 선택 ── 대소문자 모두 대응
+
                                 fnAddTag() {
                                     let tag = this.tagInput.replace(/^#/, '').trim();
                                     if (!tag) return;
@@ -283,11 +310,7 @@
 
                                     location.href = '/board/list.do';
                                 },
-                                fnSelectProduct(p) {
-                                    this.selectedProduct = p;
-                                    this.productKeyword = p.productName;
-                                    this.showProductResult = false;
-                                },
+
                                 showToast(msg) {
                                     this.toastMsg = msg;
                                     this.toastVisible = true;

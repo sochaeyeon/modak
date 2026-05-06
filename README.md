@@ -199,7 +199,8 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 <br>
 
 <div align="center">
-|🗂️ **ERD** | ERD | [바로가기 →](https://www.erdcloud.com/d/mKYg2hEbjCt6jR4kW) |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;문서&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | 설명 | 링크 |
+|🗂️ **ERD** | ERD |[바로가기 →](https://www.erdcloud.com/d/mKYg2hEbjCt6jR4kW) |
 </div>
 
 <br>

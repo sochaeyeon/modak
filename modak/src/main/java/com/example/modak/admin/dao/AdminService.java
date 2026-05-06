@@ -135,16 +135,15 @@ public class AdminService {
 
 	// 주문 진행 상태 변경 (배송준비, 배송중, 완료 등)
 	public HashMap<String, Object> updateOrderStatus(HashMap<String, Object> map) {
-		HashMap<String, Object> result = new HashMap<>();
-		try {
-			mapper.updateOrderStatus(map);
-			result.put("result", "success");
-		} catch (Exception e) {
-			e.printStackTrace();
-			result.put("result", "fail");
-			result.put("message", "상태 변경 실패: " + e.getMessage());
-		}
-		return result;
+	    HashMap<String, Object> resultMap = new HashMap<>();
+
+	    mapper.updateOrderStatus(map);
+
+	    // 대여 주문이면 rentals.rental_status도 함께 동기화
+	    mapper.updateRentalStatusByOrderStatus(map);
+
+	    resultMap.put("result", "success");
+	    return resultMap;
 	}
 
 	@Transactional

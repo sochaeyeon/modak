@@ -5280,3 +5280,37 @@ button,
     font-size: 13px;
     font-weight: 700;
 }
+
+.wish-rating-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.wish-stars-fill {
+    position: relative;
+    display: inline-block;
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: 1px;
+    color: #ddd3c7;
+}
+
+.wish-stars-fill .star-base {
+    color: #ddd3c7;
+}
+
+.wish-stars-fill .star-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--rating-width);
+    overflow: hidden;
+    white-space: nowrap;
+    color: #FFC107; 
+}
+
+.wish-rating-text {
+    font-size: 13px;
+    color: #8b6b4a;
+}

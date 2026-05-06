@@ -36,6 +36,12 @@ public class AddressService {
 			}
 
 			int result = addressMapper.insertAddress(map);
+			
+			// ✅ 추가: USER_PHONE이 없을 때만 업데이트
+	        String receiverPhone = (String) map.get("receiverPhone");
+	        if (receiverPhone != null && !receiverPhone.trim().isEmpty()) {
+	            addressMapper.updateUserPhoneIfEmpty(map);
+	        }
 
 			if (result > 0) {
 				resultMap.put("message", Message.SUCCESS_ADD);

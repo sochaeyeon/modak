@@ -1452,7 +1452,54 @@ input[type="number"] {
     flex: 0 0 90px !important;
 }
 
-.zipcode-row .guest-input {
+.zipcode-row {
     flex: 0 0 80px !important;
     min-width: 80px !important;
+}
+
+/* 슬라이드 애니메이션 */
+.slide-down-enter-active {
+    transition: all 0.3s ease;
+}
+.slide-down-leave-active {
+    transition: all 0.2s ease;
+}
+.slide-down-enter-from,
+.slide-down-leave-to {
+    opacity: 0;
+    transform: translateY(-8px);
+}
+
+.sms-timer {
+    font-size: 12px;
+    margin-top: 6px;
+    padding-left: 2px;
+}
+
+/* 확인 버튼 강조 */
+.confirm-btn {
+    background: #e0621a !important;
+    color: #fff !important;
+}
+
+.addr-full-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    width: 100%;
+}
+
+.addr-full-row .addr-zip {
+    flex: 0 0 90px;
+    min-width: 0;
+}
+
+.addr-full-row .addr-search-btn {
+    flex: 0 0 76px;
+    white-space: nowrap;
+}
+
+.addr-full-row .addr-road {
+    flex: 1;
+    min-width: 0;
 }

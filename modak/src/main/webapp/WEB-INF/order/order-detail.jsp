@@ -182,7 +182,12 @@
 
                                 <div class="pay-row">
                                     <span>결제 수단</span>
-                                    <strong>{{ order.payMethod || 'CARD' }}</strong>
+                                    <template v-if="order.easyPayProvider">
+                                        간편결제({{ fnEasyPayText(order.easyPayProvider) }})
+                                    </template>
+                                    <template v-else>
+                                        {{ order.payMethod || 'CARD' }}
+                                    </template>
                                 </div>
 
                                 <div class="pay-row">
@@ -667,6 +672,18 @@
                                 }
 
                                 return price * count;
+                            },
+                            fnEasyPayText: function (provider) {
+                                var map = {
+                                    KAKAOPAY: '카카오페이',
+                                    NAVERPAY: '네이버페이',
+                                    TOSSPAY: '토스페이',
+                                    PAYCO: '페이코',
+                                    SAMSUNGPAY: '삼성페이',
+                                    LPAY: '엘페이'
+                                };
+
+                                return map[String(provider || '').toUpperCase()] || provider;
                             },
                         },
 

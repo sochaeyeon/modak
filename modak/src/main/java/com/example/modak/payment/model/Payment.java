@@ -11,6 +11,7 @@ public class Payment {
     private Long amount; // AMOUNT
     private String payStatus; // PAY_STATUS
     private LocalDateTime paidAt; // PAID_AT
-    private Long orderId2; // orderId
+    private String payMethod; // 결제수단 
+    private String easyPayProvider; // 결제수단 상세
 
 }

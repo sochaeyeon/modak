@@ -31,6 +31,7 @@ public class Order {
     private Long itemId;
     private String payMethod; // 쿼리의 PAY_METHOD (PAY_TYPE 데이터)
     private String payDate;
+    private String easyPayProvider;
     
     // 배송
     private Integer deliveryId;

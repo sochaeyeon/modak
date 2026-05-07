@@ -113,53 +113,147 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 
 ```
 modak/
-├── src/
-│   └── main/
-│       ├── java/com/example/modak/
-│       │   ├── ModakApplication.java
-│       │   │
-│       │   ├── common/                  # 공통 설정
-│       │   │   ├── WebMvcConfig.java
-│       │   │   ├── LoginCheckInterceptor.java
-│       │   │   └── SecurityConfig.java
-│       │   │
-│       │   ├── admin/                   # 관리자 시스템
-│       │   ├── alarm/                   # 알림
-│       │   ├── board/                   # 게시판 / 커뮤니티
-│       │   ├── camp/                    # 캠핑장
-│       │   ├── cart/                    # 장바구니
-│       │   ├── chat/                    # AI 챗봇
-│       │   ├── chatroom/                # 1:1 채팅
-│       │   ├── csCenter/               # 고객센터 (FAQ, 문의, 공지)
-│       │   ├── delivery/               # 배송 조회
-│       │   ├── event/                  # 이벤트
-│       │   ├── guide/                  # 캠핑 가이드
-│       │   ├── main/                   # 메인 페이지
-│       │   ├── membership/             # 멤버십 / 등급
-│       │   ├── order/                  # 주문 (회원 / 비회원)
-│       │   ├── payment/                # 결제 (Toss Payments)
-│       │   ├── product/                # 상품
-│       │   ├── refund/                 # 환불
-│       │   ├── rental/                 # 대여 연장 / 반납
-│       │   ├── review/                 # 리뷰 + AI 요약
-│       │   ├── search/                 # 통합 검색
-│       │   ├── user/                   # 회원 (인증, 마이페이지, 설정)
-│       │   └── wishlist/               # 위시리스트
-│       │
-│       ├── resources/
-│       │   ├── application.properties
-│       │   └── mapper/                 # MyBatis XML 매퍼
-│       │
-│       └── webapp/
-│           ├── WEB-INF/
-│           │   ├── common/             # 공통 header / footer JSP
-│           │   ├── admin/              # 관리자 JSP
-│           │   └── views/              # 사용자 JSP
-│           ├── css/                    # 스타일시트
-│           ├── js/                     # 자바스크립트
-│           └── img/                    # 이미지 리소스
-│
-└── pom.xml
+├── pom.xml
+└── src/main/
+    │
+    ├── java/com/example/modak/
+    │   ├── ModakApplication.java
+    │   │
+    │   ├── common/                          # 공통 설정 및 보안
+    │   │   ├── SecurityConfig.java          # Spring Security 설정
+    │   │   ├── WebMvcConfig.java            # MVC 설정, 인터셉터
+    │   │   ├── LoginCheckInterceptor.java   # 로그인 인터셉터
+    │   │   ├── CustomOAuth2User.java        # 소셜 로그인 유저
+    │   │   ├── CustomOAuth2UserService.java
+    │   │   ├── OAuth2LoginSuccessHandler.java
+    │   │   └── controller/                  # 공통 컨트롤러
+    │   │       ├── ErrorController.java
+    │   │       ├── WeatherController.java    # 기상청 API
+    │   │       ├── TermsController.java
+    │   │       └── PrivacyPolicy.java
+    │   │
+    │   ├── admin/                           # 관리자 시스템
+    │   │   ├── controller/AdminController.java
+    │   │   ├── dao/AdminService.java
+    │   │   └── mapper/AdminMapper.java
+    │   │
+    │   ├── alarm/                           # 알림
+    │   ├── board/                           # 게시판 / 커뮤니티
+    │   ├── camp/                            # 캠핑장 (공공데이터 연동)
+    │   ├── cart/                            # 장바구니
+    │   ├── category/                        # 상품 카테고리
+    │   ├── chat/                            # AI 챗봇 (Gemini)
+    │   ├── chatroom/                        # 1:1 실시간 채팅
+    │   ├── csCenter/                        # 고객센터
+    │   │   ├── controller/
+    │   │   │   ├── CsCenterController.java
+    │   │   │   ├── FaqController.java
+    │   │   │   ├── InquiryController.java
+    │   │   │   └── NotificationController.java
+    │   │   ├── dao/ & mapper/ & model/
+    │   │
+    │   ├── delivery/                        # 배송 조회 (Delivery Tracker)
+    │   ├── event/                           # 이벤트
+    │   ├── guide/                           # 캠핑 가이드
+    │   ├── main/                            # 메인 페이지
+    │   ├── membership/                      # 멤버십 / 등급
+    │   ├── order/                           # 주문
+    │   │   ├── controller/
+    │   │   │   ├── OrderController.java       # 회원 주문
+    │   │   │   ├── GuestOrderController.java  # 비회원 주문
+    │   │   │   └── OrderExchangeController.java # 교환 신청
+    │   │   ├── dao/ & mapper/ & model/
+    │   │
+    │   ├── payment/                         # 결제 (Toss Payments)
+    │   ├── product/                         # 상품
+    │   ├── refund/                          # 환불
+    │   ├── rental/                          # 대여 연장 / 반납
+    │   ├── review/                          # 리뷰
+    │   │   ├── controller/
+    │   │   │   ├── ReviewController.java
+    │   │   │   └── ReviewAiController.java  # AI 리뷰 요약 (Gemini)
+    │   │   ├── dao/
+    │   │   │   ├── ReviewService.java
+    │   │   │   ├── GeminiReviewService.java
+    │   │   │   └── GeminiReviewServiceImpl.java
+    │   │   └── mapper/ & model/
+    │   │
+    │   ├── search/                          # 통합 검색
+    │   ├── user/                            # 회원
+    │   │   ├── controller/
+    │   │   │   ├── LoginController.java
+    │   │   │   ├── SignUpController.java
+    │   │   │   ├── MypageController.java
+    │   │   │   ├── UserSettingsController.java
+    │   │   │   ├── FindAccountController.java
+    │   │   │   ├── SmsAuthController.java   # Solapi SMS
+    │   │   │   ├── CouponController.java
+    │   │   │   ├── PointHistoryController.java
+    │   │   │   └── ViewController.java
+    │   │   ├── dao/ & mapper/ & model/
+    │   │
+    │   └── wishlist/                        # 위시리스트
+    │
+    ├── resources/
+    │   ├── application.properties
+    │   └── mybatis-mapper/                  # MyBatis XML 매퍼
+    │       ├── admin/sql-admin.xml
+    │       ├── board/sql-board.xml
+    │       ├── order/sql-order.xml
+    │       ├── order/sql-guestorder.xml
+    │       ├── order/sql-orderexchange.xml
+    │       ├── product/sql-product.xml
+    │       ├── rental/sql-rentalextension.xml
+    │       ├── review/sql-review.xml
+    │       ├── user/sql-login.xml
+    │       └── ... (총 40개 XML 매퍼)
+    │
+    └── webapp/
+        ├── WEB-INF/
+        │   ├── common/                      # 공통 JSP
+        │   │   ├── header.jsp
+        │   │   └── footer.jsp
+        │   ├── admin/                       # 관리자 화면 (15개)
+        │   │   ├── admin-dashboard.jsp
+        │   │   ├── admin-members.jsp
+        │   │   ├── admin-products.jsp
+        │   │   ├── admin-orders.jsp
+        │   │   ├── admin-rentals.jsp
+        │   │   ├── admin-coupons.jsp
+        │   │   └── ...
+        │   ├── board/                       # 게시판 JSP
+        │   │   ├── board-list.jsp
+        │   │   ├── board-detail.jsp
+        │   │   ├── board-write.jsp
+        │   │   ├── board-edit.jsp
+        │   │   ├── chat-list.jsp
+        │   │   └── chat-room.jsp
+        │   ├── order/                       # 주문 JSP
+        │   │   ├── order-history.jsp
+        │   │   ├── order-detail.jsp
+        │   │   ├── order-exchange.jsp
+        │   │   ├── guest-order-list.jsp
+        │   │   ├── guest-order-detail.jsp
+        │   │   └── guest-order-inquiry.jsp
+        │   ├── user/                        # 회원 JSP
+        │   │   ├── login.jsp
+        │   │   ├── sign-up.jsp
+        │   │   ├── mypage.jsp
+        │   │   ├── find-account.jsp
+        │   │   └── user-profile.jsp
+        │   └── ... (총 70개+ JSP)
+        │
+        ├── css/                             # 스타일시트 (도메인별)
+        │   ├── common/
+        │   ├── admin/
+        │   ├── board/
+        │   ├── order/
+        │   └── ...
+        └── img/                             # 이미지 리소스
+            ├── profile/
+            ├── board/
+            ├── chat/
+            └── ...
 ```
 
 </details>

@@ -826,7 +826,30 @@
                                             alert('서버 오류');
                                         }
                                     });
-                                }
+                                },
+                                fnUpdateReturnStatus(item, status) {
+                                    const msgMap = {
+                                        'RETURN_PICKED':     '수거를 시작하시겠습니까?',
+                                        'RETURN_COMPLETED':  '반납 완료 처리하시겠습니까?'
+                                    };
+                                    if (!confirm(msgMap[status] || '상태를 변경하시겠습니까?')) return;
+
+                                    $.ajax({
+                                        url: '/admin/rental/return/update-status.dox',
+                                        type: 'POST',
+                                        data: { rentalId: item.RENTAL_ID, status: status },
+                                        success: (res) => {
+                                            if (res.result === 'success') {
+                                                item.RENTAL_STATUS = status;
+                                                // 배지 카운트 갱신
+                                                this.returnCount;
+                                            } else {
+                                                alert(res.message || '상태 변경 실패');
+                                            }
+                                        },
+                                        error: () => alert('서버 오류')
+                                    });
+                                },
                             },
                             mounted() { this.fnGetList(); }
                         }).mount('#app');

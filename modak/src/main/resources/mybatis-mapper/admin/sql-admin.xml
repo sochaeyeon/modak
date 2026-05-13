@@ -823,6 +823,7 @@
 		WHERE CAMP_ID = #{campId}
 	</update>
 
+
 	<delete id="deleteCamp" parameterType="hashmap">
 		DELETE FROM camp WHERE CAMP_ID = #{campId}
 	</delete>

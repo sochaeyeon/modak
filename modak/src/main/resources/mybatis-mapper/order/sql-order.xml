@@ -49,6 +49,7 @@
     <result property="payMethod" column="PAY_METHOD"/>
     <result property="payDate" column="PAY_DATE"/>
     <result property="usePoint" column="USE_POINT"/>
+    <result property="easyPayProvider" column="EASY_PAY_PROVIDER"/>
 
     <collection property="itemList" ofType="com.example.modak.order.model.OrderItem">
         <id property="itemId" column="ITEM_ID"/>
@@ -140,8 +141,9 @@
         POI.ITEM_NAME AS OPTION_NAME,
 
         /* 결제 */
-        COALESCE(PH.PAY_TYPE, 'CARD')      AS PAY_METHOD,
+        COALESCE(PM.PAY_METHOD, 'CARD')      AS PAY_METHOD,
         COALESCE(PM.PAID_AT, O.CREATED_AT) AS PAY_DATE,
+        PM.EASY_PAY_PROVIDER,
 
         /* 상품 */
         P.PRODUCT_ID,

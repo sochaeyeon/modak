@@ -1330,3 +1330,354 @@ body {
 .msg-row.deleted-msg .msg-del-btn {
     display: none;
 }
+
+/* =========================
+   MESSAGE MULTI DELETE SELECT
+========================= */
+
+.delete-select-mode .msg-row {
+    position: relative;
+}
+
+.msg-select-label {
+    width: 28px;
+    height: 28px;
+    flex: 0 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    cursor: pointer;
+}
+
+.msg-row.me .msg-select-label {
+    order: 99;
+}
+
+.msg-select-check {
+    display: none;
+}
+
+.msg-select-label span {
+    width: 18px;
+    height: 18px;
+    border-radius: 7px;
+    border: 1.5px solid rgba(92, 61, 30, 0.22);
+    background: #fffdf9;
+    transition: background .15s, border-color .15s, box-shadow .15s;
+    position: relative;
+}
+
+.msg-select-label span::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 5px;
+    height: 9px;
+    border-right: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(45deg) scale(0);
+    transition: transform .12s;
+}
+
+.msg-select-check:checked+span {
+    background: var(--orange);
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(232, 115, 42, 0.12);
+}
+
+.msg-select-check:checked+span::after {
+    transform: rotate(45deg) scale(1);
+}
+
+.delete-select-bar {
+    flex-shrink: 0;
+    min-height: 64px;
+    padding: 10px 14px;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 60;
+}
+
+.delete-select-cancel,
+.delete-select-submit {
+    height: 42px;
+    border: none;
+    border-radius: 14px;
+    padding: 0 16px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s;
+}
+
+.delete-select-cancel {
+    background: var(--cream2);
+    color: var(--brown2);
+    border: 1.5px solid var(--border);
+}
+
+.delete-select-cancel:hover {
+    background: var(--cream);
+    color: var(--orange);
+    border-color: rgba(232, 115, 42, 0.25);
+}
+
+.delete-select-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.delete-select-info strong {
+    color: var(--brown);
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.delete-select-info span {
+    color: var(--gray);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.delete-select-submit {
+    background: var(--orange);
+    color: #fff;
+}
+
+.delete-select-submit:hover {
+    background: var(--brown2);
+}
+
+.delete-select-submit:disabled {
+    background: var(--gray2);
+    cursor: not-allowed;
+}
+
+@media (max-width: 520px) {
+    .delete-select-bar {
+        gap: 8px;
+        padding: 9px 10px;
+    }
+
+    .delete-select-cancel,
+    .delete-select-submit {
+        padding: 0 12px;
+    }
+
+    .delete-select-info span {
+        display: none;
+    }
+}
+
+/* =========================
+   DELETE SELECT MODE FIX
+   - 체크박스 왼쪽 고정
+   - 메시지 클릭 선택
+   - 하단 삭제 바 개선
+========================= */
+
+/* 선택 모드일 때 메시지 왼쪽에 체크박스 공간 확보 */
+.delete-select-mode .msg-row {
+    position: relative;
+    padding-left: 42px;
+    cursor: pointer;
+}
+
+/* 내 메시지도 row-reverse 영향을 받지 않고 왼쪽에 체크박스 고정 */
+.delete-select-mode .msg-row.me {
+    padding-left: 42px;
+}
+
+/* 체크박스는 모든 메시지 공통 왼쪽 끝 고정 */
+.delete-select-mode .msg-select-label {
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    width: 26px;
+    height: 26px;
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    z-index: 5;
+}
+
+/* 혹시 이전에 order로 오른쪽 보내는 코드가 있으면 무력화 */
+.delete-select-mode .msg-row.me .msg-select-label {
+    order: initial;
+}
+
+/* 실제 input 숨김 */
+.msg-select-check {
+    display: none;
+}
+
+/* 체크박스 모양 */
+.msg-select-label span {
+    width: 19px;
+    height: 19px;
+    border-radius: 7px;
+    border: 1.5px solid rgba(92, 61, 30, 0.24);
+    background: #fffdf9;
+    position: relative;
+    transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+/* 체크 표시 */
+.msg-select-label span::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border-right: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    transform: rotate(45deg) scale(0);
+    transition: transform .12s ease;
+}
+
+.msg-select-check:checked+span {
+    background: var(--orange);
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(232, 115, 42, 0.12);
+}
+
+.msg-select-check:checked+span::after {
+    transform: rotate(45deg) scale(1);
+}
+
+/* 선택 모드에서 hover 느낌 */
+.delete-select-mode .msg-row:hover .bubble {
+    filter: brightness(0.98);
+}
+
+/* 하단 선택 삭제 바 */
+.delete-select-bar {
+    flex-shrink: 0;
+    min-height: 68px;
+    padding: 10px 16px;
+    background: #fffdf9;
+    border-top: 1px solid var(--border);
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    position: relative;
+    z-index: 60;
+}
+
+/* 왼쪽 취소 버튼 */
+.delete-select-cancel {
+    height: 42px;
+    min-width: 62px;
+    padding: 0 16px;
+    border-radius: 14px;
+    border: 1.5px solid rgba(92, 61, 30, 0.12);
+    background: var(--cream2);
+    color: var(--brown2);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.delete-select-cancel:hover {
+    background: var(--cream);
+    color: var(--orange);
+    border-color: rgba(232, 115, 42, 0.28);
+}
+
+/* 가운데 안내 */
+.delete-select-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.delete-select-info strong {
+    color: var(--brown);
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.delete-select-info span {
+    color: var(--gray);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* 오른쪽 삭제 버튼 - 더 명확하게 */
+.delete-select-submit {
+    height: 44px;
+    min-width: 82px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 15px;
+    background: var(--orange);
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: background .15s ease, opacity .15s ease;
+}
+
+.delete-select-submit:hover {
+    background: var(--brown2);
+}
+
+.delete-select-submit:disabled {
+    background: var(--gray2);
+    opacity: .75;
+    cursor: not-allowed;
+}
+
+/* 모바일 */
+@media (max-width: 520px) {
+    .delete-select-mode .msg-row {
+        padding-left: 36px;
+    }
+
+    .delete-select-mode .msg-select-label {
+        left: 2px;
+    }
+
+    .delete-select-bar {
+        padding: 9px 10px;
+        gap: 8px;
+    }
+
+    .delete-select-cancel {
+        min-width: 54px;
+        padding: 0 12px;
+    }
+
+    .delete-select-submit {
+        min-width: 68px;
+        padding: 0 14px;
+    }
+
+    .delete-select-info span {
+        display: none;
+    }
+}

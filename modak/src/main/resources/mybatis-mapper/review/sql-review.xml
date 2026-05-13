@@ -150,46 +150,77 @@
 	</select>
 
 	<!-- 상품 상세 리뷰 목록 -->
-	<select id="selectProductReviewList" parameterType="hashmap"
-		resultType="com.example.modak.review.model.Review">
-		SELECT
-		R.REVIEW_ID AS reviewId,
-		R.RATING AS rating,
-		R.CONTENT AS content,
-		R.REVIEW_STATUS AS reviewStatus,
-		DATE_FORMAT(R.CREATED_AT, '%Y.%m.%d') AS createdAt,
-		R.USER_ID AS userId,
-		U.NICKNAME AS nickname,
-		U.PROFILE_IMG_URL AS profileImgUrl,
-		U.GRADE_ID AS gradeId,
-		R.PRODUCT_ID AS productId,
-		R.TITLE AS title,
-		P.PRODUCT_NAME AS productName,
-		R.HELPFUL_COUNT AS helpfulCount,
-		CASE
-		WHEN RH.HELPFUL_ID IS NULL THEN 'N'
-		ELSE 'Y'
-		END AS helpfulYn,
-		(
-		SELECT RI.IMG_URL
-		FROM REVIEW_IMG RI
-		WHERE RI.REVIEW_ID = R.REVIEW_ID
-		ORDER BY RI.IMG_ID ASC
-		LIMIT 1
-		) AS imageUrl
-		FROM REVIEW R
-		LEFT JOIN PRODUCT P
-		ON R.PRODUCT_ID = P.PRODUCT_ID
-		LEFT JOIN USER U
-		ON R.USER_ID = U.USER_ID
-		LEFT JOIN REVIEW_HELPFUL RH
-		ON R.REVIEW_ID = RH.REVIEW_ID
-		AND RH.USER_ID = #{loginUserId}
-		WHERE R.PRODUCT_ID = #{productId}
-		AND R.REVIEW_STATUS = 'ACTIVE'
-		ORDER BY R.CREATED_AT DESC
-		LIMIT ${pageSize} OFFSET ${offset}
-	</select>
+<select id="selectProductReviewList" parameterType="hashmap"
+    resultType="com.example.modak.review.model.Review">
+    SELECT
+        R.REVIEW_ID AS reviewId,
+        R.RATING AS rating,
+        R.CONTENT AS content,
+        R.REVIEW_STATUS AS reviewStatus,
+        DATE_FORMAT(R.CREATED_AT, '%Y.%m.%d') AS createdAt,
+        DATE_FORMAT(R.UPDATED_AT, '%Y.%m.%d') AS updatedAt,
+        R.USER_ID AS userId,
+        U.NICKNAME AS nickname,
+        U.PROFILE_IMG_URL AS profileImgUrl,
+        U.GRADE_ID AS gradeId,
+        R.PRODUCT_ID AS productId,
+        R.TITLE AS title,
+        P.PRODUCT_NAME AS productName,
+        R.HELPFUL_COUNT AS helpfulCount,
+        CASE
+            WHEN RH.HELPFUL_ID IS NULL THEN 'N'
+            ELSE 'Y'
+        END AS helpfulYn,
+        (
+            SELECT RI.IMG_URL
+            FROM REVIEW_IMG RI
+            WHERE RI.REVIEW_ID = R.REVIEW_ID
+            ORDER BY RI.IMG_ID ASC
+            LIMIT 1
+        ) AS imageUrl
+    FROM REVIEW R
+    LEFT JOIN PRODUCT P
+        ON R.PRODUCT_ID = P.PRODUCT_ID
+    LEFT JOIN USER U
+        ON R.USER_ID = U.USER_ID
+    LEFT JOIN REVIEW_HELPFUL RH
+        ON R.REVIEW_ID = RH.REVIEW_ID
+        AND RH.USER_ID = #{loginUserId}
+    WHERE R.PRODUCT_ID = #{productId}
+      AND R.REVIEW_STATUS = 'ACTIVE'
+
+    <!-- 사진 리뷰만 보기 -->
+  <if test='onlyPhoto == "Y"'>
+        AND EXISTS (
+            SELECT 1
+            FROM REVIEW_IMG RI2
+            WHERE RI2.REVIEW_ID = R.REVIEW_ID
+        )
+    </if>
+
+    <!-- 검색: 제목 + 내용 + 닉네임 -->
+    <if test="keyword != null and keyword != ''">
+        AND (
+            R.TITLE LIKE CONCAT('%', #{keyword}, '%')
+            OR R.CONTENT LIKE CONCAT('%', #{keyword}, '%')
+            OR U.NICKNAME LIKE CONCAT('%', #{keyword}, '%')
+        )
+    </if>
+
+    <choose>
+        <when test="sort == 'oldest'">
+            ORDER BY R.CREATED_AT ASC, R.REVIEW_ID ASC
+        </when>
+        <when test="sort == 'helpful'">
+            ORDER BY R.HELPFUL_COUNT DESC, R.CREATED_AT DESC, R.REVIEW_ID DESC
+        </when>
+        <otherwise>
+            ORDER BY R.CREATED_AT DESC, R.REVIEW_ID DESC
+        </otherwise>
+    </choose>
+
+    LIMIT ${pageSize} OFFSET ${offset}
+</select>
 
 	<!-- 리뷰 작성 페이지 진입용 주문 정보 조회 -->
 	<select id="selectReviewWriteInfo" parameterType="hashmap"
@@ -366,10 +397,30 @@
 	</insert>
 
 	<select id="selectProductReviewCount" parameterType="hashmap"
-		resultType="int">
-		SELECT COUNT(*)
-		FROM REVIEW
-		WHERE PRODUCT_ID = #{productId}
-		AND REVIEW_STATUS = 'ACTIVE'
-	</select>
+    resultType="int">
+    SELECT COUNT(*)
+    FROM REVIEW R
+    LEFT JOIN USER U
+        ON R.USER_ID = U.USER_ID
+    WHERE R.PRODUCT_ID = #{productId}
+      AND R.REVIEW_STATUS = 'ACTIVE'
+
+    <!-- 사진 리뷰만 보기 -->
+   <if test='onlyPhoto == "Y"'>
+        AND EXISTS (
+            SELECT 1
+            FROM REVIEW_IMG RI
+            WHERE RI.REVIEW_ID = R.REVIEW_ID
+        )
+    </if>
+
+    <!-- 검색: 제목 + 내용 + 닉네임 -->
+    <if test="keyword != null and keyword != ''">
+        AND (
+            R.TITLE LIKE CONCAT('%', #{keyword}, '%')
+            OR R.CONTENT LIKE CONCAT('%', #{keyword}, '%')
+            OR U.NICKNAME LIKE CONCAT('%', #{keyword}, '%')
+        )
+    </if>
+</select>
 </mapper>

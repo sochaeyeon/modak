@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import jakarta.servlet.http.HttpSession;
+import java.util.Map;
 
 @Controller
 public class MypageController {
@@ -160,27 +161,34 @@ public class MypageController {
 	@ResponseBody
 	public String getUserProfile(@RequestParam String targetUserId) {
 	    HashMap<String, Object> result = new HashMap<>();
+
 	    try {
 	        HashMap<String, Object> map = new HashMap<>();
 	        map.put("userId", targetUserId);
+	        map.put("limit", 5);
 
 	        HashMap<String, Object> user = mypageService.getMiniProfile(map);
+
 	        if (user == null) {
 	            result.put("result", "fail");
 	            result.put("message", "유저를 찾을 수 없습니다.");
 	            return new Gson().toJson(result);
 	        }
 
-	        map.put("limit", 5);
-	        List<java.util.Map<String, Object>> recentBoards = boardMapper.selectRecentBoardsByUser(map);
+	        List<Map<String, Object>> recentBoards = boardMapper.selectRecentBoardsByUser(map);
+	        List<Map<String, Object>> recentComments = boardMapper.selectRecentCommentsByUser(map);
 
 	        result.put("result", "success");
 	        result.put("user", user);
 	        result.put("recentBoards", recentBoards);
+	        result.put("recentComments", recentComments);
+
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        result.put("result", "fail");
+	        result.put("message", "프로필 조회 중 오류가 발생했습니다.");
 	    }
+
 	    return new Gson().toJson(result);
 	}
 	@PostMapping("/mypage/chat-room-list.dox")

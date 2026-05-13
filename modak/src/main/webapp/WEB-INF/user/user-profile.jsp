@@ -316,6 +316,140 @@
                     font-size: 17px;
                     color: var(--orange2);
                 }
+
+                .stat-clickable {
+                    cursor: pointer;
+                    padding: 8px 18px;
+                    border-radius: 14px;
+                    transition: background .18s, color .18s;
+                }
+
+                .stat-clickable:hover,
+                .stat-clickable.active {
+                    background: rgba(232, 115, 42, .08);
+                }
+
+                .stat-clickable.active .stat-num,
+                .stat-clickable.active .stat-label {
+                    color: var(--orange2);
+                }
+
+                .comment-item {
+                    padding: 15px 20px;
+                    border-bottom: 1px solid rgba(44, 30, 15, .06);
+                    cursor: pointer;
+                    transition: background .15s;
+                }
+
+                .comment-item:last-child {
+                    border-bottom: none;
+                }
+
+                .comment-item:hover {
+                    background: rgba(232, 115, 42, .04);
+                }
+
+                .comment-content {
+                    margin-bottom: 8px;
+                    color: var(--brown);
+                    font-size: 14px;
+                    font-weight: 700;
+                    line-height: 1.55;
+
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                }
+
+                .comment-board-title {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 4px;
+                    margin-bottom: 5px;
+                    color: var(--brown3);
+                    font-size: 12px;
+                    font-weight: 700;
+                }
+
+                .comment-board-title i {
+                    color: var(--orange2);
+                    font-size: 14px;
+                }
+
+                .profile-avatar.clickable {
+                    cursor: pointer;
+                    transition: opacity .18s ease, transform .18s ease;
+                }
+
+                .profile-avatar.clickable:hover {
+                    opacity: .86;
+                }
+
+                .profile-img-modal {
+                    position: fixed;
+                    inset: 0;
+                    z-index: 9999;
+                    background: rgba(44, 30, 15, .58);
+                    backdrop-filter: blur(5px);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 28px;
+                }
+
+                .profile-img-modal-box {
+                    position: relative;
+                    width: min(420px, calc(100vw - 48px));
+                    max-height: calc(100vh - 80px);
+                    border-radius: 24px;
+                    background: var(--white);
+                    padding: 16px;
+                    border: 1.5px solid rgba(255, 253, 248, .35);
+                    animation: profileImgPop .18s ease;
+                }
+
+                .profile-img-modal-box img {
+                    display: block;
+                    width: 100%;
+                    max-height: calc(100vh - 130px);
+                    object-fit: contain;
+                    border-radius: 18px;
+                    background: var(--cream2);
+                }
+
+                .profile-img-modal-close {
+                    position: absolute;
+                    top: -14px;
+                    right: -14px;
+                    width: 38px;
+                    height: 38px;
+                    border: none;
+                    border-radius: 50%;
+                    background: var(--orange);
+                    color: #fff;
+                    font-size: 22px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .profile-img-modal-close:hover {
+                    background: var(--orange2);
+                }
+
+                @keyframes profileImgPop {
+                    from {
+                        opacity: 0;
+                        transform: translateY(8px) scale(.96);
+                    }
+
+                    to {
+                        opacity: 1;
+                        transform: translateY(0) scale(1);
+                    }
+                }
             </style>
         </head>
 
@@ -330,8 +464,9 @@
                         </button>
                         <!-- 프로필 카드 -->
                         <div class="profile-card" v-if="user">
-                            <div class="profile-avatar">
-                                <img v-if="user.profileImg" :src="user.profileImg">
+                            <div class="profile-avatar" :class="{ clickable: user.profileImg }"
+                                @click="fnOpenProfileImgModal">
+                                <img v-if="user.profileImg" :src="user.profileImg" alt="프로필 이미지">
                                 <i v-else class="ri-user-smile-line"></i>
                             </div>
                             <div class="profile-nickname">{{ user.nickname }}</div>
@@ -339,20 +474,23 @@
 
                             <!-- 통계 -->
                             <div class="profile-stats">
-                                <div class="stat-item">
-                                    <div class="stat-num">{{ user.boardCount }}</div>
+                                <div class="stat-item stat-clickable" :class="{ active: activeTab === 'board' }"
+                                    @click="activeTab = 'board'">
+                                    <div class="stat-num">{{ user.boardCount || 0 }}</div>
                                     <div class="stat-label">게시글</div>
                                 </div>
-                                <div class="stat-item">
-                                    <div class="stat-num">{{ user.commentCount }}</div>
+
+                                <div class="stat-item stat-clickable" :class="{ active: activeTab === 'comment' }"
+                                    @click="activeTab = 'comment'">
+                                    <div class="stat-num">{{ user.commentCount || 0 }}</div>
                                     <div class="stat-label">댓글</div>
                                 </div>
+
                                 <div class="stat-item">
-                                    <div class="stat-num">{{ user.likeCount }}</div>
-                                    <div class="stat-label">받은 추천</div>
+                                    <div class="stat-num">{{ user.likeCount || 0 }}</div>
+                                    <div class="stat-label">받은 좋아요</div>
                                 </div>
                             </div>
-
                             <!-- 등급 단계 바 -->
                             <div class="grade-bar">
                                 <div v-for="g in gradeList" :key="g.code" class="grade-step"
@@ -363,37 +501,81 @@
                             </div>
                         </div>
 
-                        <!-- 최근 게시글 -->
-                        <div class="section-card" v-if="recentBoards.length > 0">
+                        <!-- 게시글 / 댓글 목록 -->
+                        <div class="section-card" v-if="activeTab === 'board'">
                             <div class="section-head">
                                 <i class="ri-article-line"></i>
-                                최근 게시글
+                                작성한 게시글
                             </div>
-                            <div v-for="board in recentBoards" :key="board.BOARD_ID" class="board-item"
-                                @click="fnGoBoard(board.BOARD_ID)">
-                                <div>
-                                    <div class="board-title">
-                                        <span class="cat-tag" :class="'cat-' + board.CATEGORY">
-                                            {{ fnCatLabel(board.CATEGORY) }}
-                                        </span>
-                                        {{ board.TITLE }}
+
+                            <div v-if="recentBoards.length > 0">
+                                <div v-for="board in recentBoards" :key="board.BOARD_ID" class="board-item"
+                                    @click="fnGoBoard(board.BOARD_ID)">
+                                    <div>
+                                        <div class="board-title">
+                                            <span class="cat-tag" :class="'cat-' + board.CATEGORY">
+                                                {{ fnCatLabel(board.CATEGORY) }}
+                                            </span>
+                                            {{ board.TITLE }}
+                                        </div>
+                                        <div class="board-meta">{{ fnFormatDate(board.CREATED_AT) }}</div>
                                     </div>
-                                    <div class="board-meta">{{ fnFormatDate(board.CREATED_AT) }}</div>
+
+                                    <div class="board-stats">
+                                        <span>
+                                            <i class="ri-heart-3-line"></i>
+                                            {{ board.LIKE_COUNT || 0 }}
+                                        </span>
+                                        <span>
+                                            <i class="ri-chat-3-line"></i>
+                                            {{ board.COMMENT_COUNT || 0 }}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div class="board-stats">
-                                    <span>
-                                        <i class="ri-heart-3-line"></i>
-                                        {{ board.LIKE_COUNT }}
-                                    </span>
-                                    <span>
-                                        <i class="ri-chat-3-line"></i>
-                                        {{ board.COMMENT_COUNT }}
-                                    </span>
-                                </div>
+                            </div>
+
+                            <div class="empty-state" v-else>
+                                아직 작성한 게시글이 없습니다.
                             </div>
                         </div>
-                        <div class="section-card" v-else-if="user">
-                            <div class="empty-state">아직 작성한 게시글이 없습니다.</div>
+
+                        <div class="section-card" v-if="activeTab === 'comment'">
+                            <div class="section-head">
+                                <i class="ri-chat-3-line"></i>
+                                작성한 댓글
+                            </div>
+
+                            <div v-if="recentComments.length > 0">
+                                <div v-for="comment in recentComments" :key="comment.COMMENT_ID" class="comment-item"
+                                    @click="fnGoBoard(comment.BOARD_ID)">
+                                    <div class="comment-content">
+                                        {{ comment.CONTENT }}
+                                    </div>
+
+                                    <div class="comment-board-title">
+                                        <i class="ri-article-line"></i>
+                                        {{ comment.BOARD_TITLE || '게시글 보기' }}
+                                    </div>
+
+                                    <div class="board-meta">
+                                        {{ fnFormatDate(comment.CREATED_AT) }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="empty-state" v-else>
+                                아직 작성한 댓글이 없습니다.
+                            </div>
+                        </div>
+                        <!-- 프로필 이미지 확대 모달 -->
+                        <div class="profile-img-modal" v-if="profileImgModalOpen" @click.self="fnCloseProfileImgModal">
+                            <div class="profile-img-modal-box">
+                                <button type="button" class="profile-img-modal-close" @click="fnCloseProfileImgModal">
+                                    <i class="ri-close-line"></i>
+                                </button>
+
+                                <img :src="user.profileImg" alt="프로필 이미지 확대">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -407,6 +589,9 @@
                                 return {
                                     user: null,
                                     recentBoards: [],
+                                    recentComments: [],
+                                    activeTab: 'board',
+                                    profileImgModalOpen: false,
                                     gradeList: [
                                         { code: 'SPROUT', icon: 'ri-seedling-line', name: '새싹' },
                                         { code: 'EMBER', icon: 'ri-fire-line', name: '불씨' },
@@ -417,6 +602,19 @@
                                 };
                             },
                             methods: {
+                                fnOpenProfileImgModal() {
+                                    if (!this.user || !this.user.profileImg) {
+                                        return;
+                                    }
+
+                                    this.profileImgModalOpen = true;
+                                    document.body.style.overflow = 'hidden';
+                                },
+
+                                fnCloseProfileImgModal() {
+                                    this.profileImgModalOpen = false;
+                                    document.body.style.overflow = '';
+                                },
                                 fnLoad() {
                                     const userId = new URLSearchParams(location.search).get('userId');
                                     if (!userId) return;
@@ -427,6 +625,7 @@
                                             if (res.result === 'success') {
                                                 this.user = res.user;
                                                 this.recentBoards = res.recentBoards || [];
+                                                this.recentComments = res.recentComments || [];
                                             }
                                         }
                                     });

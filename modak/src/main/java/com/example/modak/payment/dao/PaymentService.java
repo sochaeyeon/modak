@@ -194,7 +194,29 @@ public class PaymentService {
 
 	    if (response != null && response.statusCode() == 200) {
 	        try {
-	            return processAfterPayment(orderIdLong, amount, paymentKey);
+	        	HashMap<String, Object> tossMap = new Gson().fromJson(response.body(), HashMap.class);
+
+	            String payMethod = tossMap.get("method") == null
+	                    ? "CARD"
+	                    : String.valueOf(tossMap.get("method"));
+	            
+	            Object easyPayObj = tossMap.get("easyPay");
+
+	            String easyPayProvider = null;
+
+	            if (easyPayObj instanceof java.util.Map) {
+
+	                java.util.Map<String, Object> easyPayMap = (java.util.Map<String, Object>) easyPayObj;
+
+	                if (easyPayMap.get("provider") != null) {
+	                    easyPayProvider =
+	                            String.valueOf(easyPayMap.get("provider"));
+	                }
+	            }
+	            
+	            System.out.println("easyPayProvider : " + easyPayProvider);
+	        	
+	            return processAfterPayment(orderIdLong, amount, paymentKey, payMethod, easyPayProvider);
 	        } catch (Exception e) {
 	            e.printStackTrace();
 
@@ -255,7 +277,7 @@ public class PaymentService {
 
 	// DB 처리 전용 - 트랜잭션 적용
 	@Transactional
-	public HashMap<String, Object> processAfterPayment(Long orderIdLong, Long amount, String paymentKey) {
+	public HashMap<String, Object> processAfterPayment(Long orderIdLong, Long amount, String paymentKey, String payMethod, String easyPayProvider) {
 	    HashMap<String, Object> resultMap = new HashMap<>();
 
 	    HashMap<String, Object> baseMap = new HashMap<>();
@@ -285,6 +307,8 @@ public class PaymentService {
 
 	    baseMap.put("amount", amount);
 	    baseMap.put("paymentKey", paymentKey);
+	    baseMap.put("payMethod", payMethod);
+	    baseMap.put("easyPayProvider", easyPayProvider);
 	    paymentMapper.insertPayment(baseMap);
 
 	    String orderType = getStringValue(orderInfo, "orderType", "ORDER_TYPE");

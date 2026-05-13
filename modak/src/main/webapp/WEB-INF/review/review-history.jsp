@@ -23,7 +23,7 @@
 				<body>
 					<%@ include file="/WEB-INF/common/header.jsp" %>
 
-						<div id="app">
+						<div id="app" v-cloak>
 							<div class="wishlist-history-page">
 								<div class="wishlist-history-wrap">
 
@@ -180,6 +180,17 @@
 									</button>
 								</div>
 							</div>
+							<!-- 확인 모달 -->
+							<div v-if="confirmModal.open" class="confirm-overlay" @click.self="confirmCancel">
+								<div class="confirm-box">
+									<div class="confirm-title">알림</div>
+									<div class="confirm-message">{{ confirmModal.message }}</div>
+									<div class="confirm-btns">
+										<button class="confirm-ok"     @click="confirmOk">{{ confirmModal.okText }}</button>
+										<button class="confirm-cancel" @click="confirmCancel">{{ confirmModal.cancelText }}</button>
+									</div>
+								</div>
+							</div>
 						</div>
 
 						<%@ include file="/WEB-INF/common/footer.jsp" %>
@@ -188,6 +199,19 @@
 				</html>
 
 				<script>
+					// ── 토스트 (product-detail 동일) ──
+					function showToast(msg) {
+						var t = document.getElementById('toast');
+						if (!t) {
+							t = document.createElement('div');
+							t.id = 'toast';
+							t.className = 'toast';
+							document.body.appendChild(t);
+						}
+						t.textContent = msg;
+						t.classList.add('show');
+						setTimeout(() => t.classList.remove('show'), 2000);
+					}
 					const app = Vue.createApp({
 						data() {
 							return {
@@ -200,8 +224,14 @@
 								isImageModalOpen: false,
 								modalImageList: [],
 								currentImageIndex: 0,
-								expandedReviewId: null,
-								listAnimateKey: 0
+								expandedReviewId: null,				
+								confirmModal: {
+									open: false,
+									message: '',
+									okText: '확인',
+									cancelText: '취소',
+									onOk: null
+								}
 							};
 						},
 						computed: {
@@ -210,47 +240,33 @@
 								const half = Math.floor(range / 2);
 								let start = Math.max(1, this.page - half);
 								let end = Math.min(this.totalPages, start + range - 1);
-								if (end - start < range - 1) {
-									start = Math.max(1, end - range + 1);
-								}
+								if (end - start < range - 1) start = Math.max(1, end - range + 1);
 								const pages = [];
 								for (let i = start; i <= end; i++) pages.push(i);
 								return pages;
 							}
 						},
 						methods: {
-							fnGetReviewList: function (moveTop = false) {
+							fnGetReviewList(moveTop = false) {
 								let self = this;
-
 								$.ajax({
-									url: "/user/review/list.dox",
-									type: "POST",
-									dataType: "json",
-									data: {
-										page: self.page,
-										pageSize: self.pageSize
-									},
-									success: function (data) {
+									url: "/user/review/list.dox", type: "POST", dataType: "json",
+									data: { page: self.page, pageSize: self.pageSize },
+									success(data) {
 										if (data.result === "success") {
 											self.reviewList = data.list || [];
 											self.totalCount = data.totalCount || 0;
 											self.totalPages = Math.ceil(self.totalCount / self.pageSize) || 1;
 											self.listAnimateKey++;
 											self.expandedReviewId = null;
-
-											if (moveTop) {
-												window.scrollTo({
-													top: 0,
-													behavior: "smooth"
-												});
-											}
+											if (moveTop) window.scrollTo({ top: 0, behavior: "smooth" });
 										} else {
 											self.reviewList = [];
 											self.totalCount = 0;
 											self.totalPages = 1;
 										}
 									},
-									error: function () {
+									error() {
 										self.reviewList = [];
 										self.totalCount = 0;
 										self.totalPages = 1;
@@ -259,88 +275,80 @@
 								});
 							},
 
-							fnChangePage: function (num) {
-								if (num < 1 || num > this.totalPages || num === this.page) {
-									return;
-								}
-
+							fnChangePage(num) {
+								if (num < 1 || num > this.totalPages || num === this.page) return;
 								this.page = num;
 								this.fnGetReviewList(true);
 							},
 
-							fnEditReview: function (reviewId) {
-								pageChange("/user/review/edit.do", {reviewId: reviewId});
+							fnEditReview(reviewId) {
+								pageChange("/user/review/edit.do", { reviewId });
 							},
 
-							fnRemoveReview: function (reviewId) {
+							// ── product-detail 방식으로 변경 (async/await 제거) ──
+							fnRemoveReview(reviewId) {
 								let self = this;
-
-								if (!confirm("리뷰를 삭제하시겠습니까?")) {
-									return;
-								}
-
-								$.ajax({
-									url: "/user/review/remove.dox",
-									type: "POST",
-									dataType: "json",
-									data: {reviewId: reviewId},
-									success: function (data) {
-										if (data.result === "success") {
-											alert("리뷰가 삭제되었습니다.");
-
-											// 🔥 핵심: 리스트 다시 조회
-											self.fnGetReviewList();
-										} else {
-											alert(data.message || "삭제 실패");
-										}
-									},
-									error: function () {
-										alert("서버 오류");
-									}
-								});
+								this.openConfirm("리뷰를 삭제하시겠습니까?", function () {
+									$.ajax({
+										url: "/user/review/remove.dox", type: "POST", dataType: "json",
+										data: { reviewId },
+										success(data) {
+											if (data.result === "success") {
+												showToast("리뷰가 삭제되었습니다.");
+												self.fnGetReviewList();
+											} else {
+												showToast(data.message || "삭제 실패");
+											}
+										},
+										error() { showToast("서버 오류가 발생했습니다."); }
+									});
+								}, "삭제", "취소");
 							},
-							fnOpenImageModal: function (imageList, index) {
+
+							fnOpenImageModal(imageList, index) {
 								this.modalImageList = imageList;
 								this.currentImageIndex = index;
 								this.isImageModalOpen = true;
 								document.body.style.overflow = "hidden";
 							},
-
-							fnCloseImageModal: function () {
+							fnCloseImageModal() {
 								this.isImageModalOpen = false;
 								this.modalImageList = [];
 								this.currentImageIndex = 0;
 								document.body.style.overflow = "";
 							},
-
-							fnPrevImage: function () {
-								if (this.currentImageIndex > 0) {
-									this.currentImageIndex--;
-								} else {
-									this.currentImageIndex = this.modalImageList.length - 1;
-								}
+							fnPrevImage() {
+								this.currentImageIndex = this.currentImageIndex > 0
+									? this.currentImageIndex - 1
+									: this.modalImageList.length - 1;
+							},
+							fnNextImage() {
+								this.currentImageIndex = this.currentImageIndex < this.modalImageList.length - 1
+									? this.currentImageIndex + 1
+									: 0;
+							},
+							fnToggleReview(reviewId) {
+								this.expandedReviewId = this.expandedReviewId === reviewId ? null : reviewId;
+							},
+							fnGoProductDetail(productId) {
+								pageChange("/product/detail.do", { productId });
 							},
 
-							fnNextImage: function () {
-								if (this.currentImageIndex < this.modalImageList.length - 1) {
-									this.currentImageIndex++;
-								} else {
-									this.currentImageIndex = 0;
-								}
+							// ── product-detail 방식 confirm (콜백) ──
+							openConfirm(message, onOk, okText = '확인', cancelText = '취소') {
+								this.confirmModal.message = message;
+								this.confirmModal.onOk = onOk;
+								this.confirmModal.okText = okText;
+								this.confirmModal.cancelText = cancelText;
+								this.confirmModal.open = true;
 							},
-							fnToggleReview: function (reviewId) {
-								if (this.expandedReviewId === reviewId) {
-									this.expandedReviewId = null;
-								} else {
-									this.expandedReviewId = reviewId;
-								}
+							confirmOk() {
+								if (typeof this.confirmModal.onOk === 'function') this.confirmModal.onOk();
+								this.confirmModal.open = false;
 							},
-
-							fnGoProductDetail: function (productId) {
-								pageChange("/product/detail.do", {
-									productId: productId
-								});
-							},
+							confirmCancel() {
+								this.confirmModal.open = false;
+							}
 						},
 						mounted() {
 							this.fnGetReviewList();

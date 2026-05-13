@@ -336,7 +336,18 @@ public class ReviewService {
 			int page = map.get("page") != null ? Integer.parseInt(String.valueOf(map.get("page"))) : 1;
 			int pageSize = map.get("pageSize") != null ? Integer.parseInt(String.valueOf(map.get("pageSize"))) : 10;
 			int offset = (page - 1) * pageSize;
+			// 상품 상세 리뷰 필터/검색/정렬 기본값
+			if (map.get("onlyPhoto") == null) {
+				map.put("onlyPhoto", "N");
+			}
 
+			if (map.get("sort") == null || String.valueOf(map.get("sort")).isBlank()) {
+				map.put("sort", "latest");
+			}
+
+			if (map.get("keyword") == null) {
+				map.put("keyword", "");
+			}
 			map.put("offset", offset);
 
 			List<Review> list = reviewMapper.selectProductReviewList(map);

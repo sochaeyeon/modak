@@ -11,6 +11,7 @@
         <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
         <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
 
     </head>
 
@@ -35,7 +36,7 @@
                         <div class="step-line"></div>
                         <div class="step" :class="{ active: currentStep >= 2, done: currentStep > 2 }">
                             <div class="step-dot">{{ currentStep > 2 ? '✓' : '2' }}</div>
-                            <span>회수 주소</span>
+                            <span>{{ exchangeMethod === 'PICKUP' ? '회수 주소' : '발송 안내' }}</span>
                         </div>
                         <div class="step-line"></div>
                         <div class="step" :class="{ active: currentStep >= 3 }">
@@ -65,7 +66,9 @@
                                         <div class="op-thumb">
                                             <img v-if="orderInfo.imgUrl" :src="orderInfo.imgUrl"
                                                 :alt="orderInfo.productName">
-                                            <span v-else>🛒</span>
+                                            <span v-else class="empty-thumb-icon">
+                                                <i class="ri-shopping-bag-3-line"></i>
+                                            </span>
                                         </div>
                                         <div class="op-info">
                                             <p class="op-name">{{ orderInfo.productName || '상품명 없음' }}</p>
@@ -89,8 +92,10 @@
                                         <div v-for="r in reasonList" :key="r.value" class="reason-chip"
                                             :class="{ active: selectedReason === r.value }"
                                             @click="selectedReason = r.value">
-                                            <span class="chip-icon">{{ r.icon }}</span>
-                                            {{ r.label }}
+                                            <span class="chip-icon">
+                                                <i :class="r.icon"></i>
+                                            </span>
+                                            <span>{{ r.label }}</span>
                                         </div>
                                     </div>
 
@@ -101,7 +106,7 @@
                                             <span style="color:var(--brown4);font-weight:300;"> (선택)</span>
                                         </label>
                                         <textarea class="reason-textarea" v-model="reasonDetail"
-                                            :placeholder="selectedReason === 'OTHER' ? '교환 사유를 직접 입력해 주세요.' : '추가로 전달할 내용이 있으면 입력해 주세요.'"
+                                            :placeholder="selectedReason === 'OTHER' ? '교환 사유를 직접 입력해 주세요.' : '상품 상태, 누락된 구성품, 오배송 내용 등 추가로 전달할 내용을 입력해 주세요.'"
                                             maxlength="300" @input="fnCountChar">
                             </textarea>
                                         <div class="char-count">{{ reasonDetail.length }} / 300</div>
@@ -119,13 +124,17 @@
                                     <div class="method-grid">
                                         <div class="method-card" :class="{ active: exchangeMethod === 'PICKUP' }"
                                             @click="exchangeMethod = 'PICKUP'">
-                                            <div class="method-icon">🚚</div>
+                                            <div class="method-icon">
+                                                <i class="ri-truck-line"></i>
+                                            </div>
                                             <div class="method-name">택배 회수</div>
                                             <div class="method-desc">기사님이 방문하여 수거</div>
                                         </div>
                                         <div class="method-card" :class="{ active: exchangeMethod === 'DIRECT' }"
                                             @click="exchangeMethod = 'DIRECT'">
-                                            <div class="method-icon">📦</div>
+                                            <div class="method-icon">
+                                                <i class="ri-box-3-line"></i>
+                                            </div>
                                             <div class="method-name">직접 발송</div>
                                             <div class="method-desc">고객 직접 택배 발송</div>
                                         </div>
@@ -134,56 +143,136 @@
                             </div>
 
                         </template>
-
-                        <!-- ══ STEP 2: 회수 주소 ══ -->
+                        <div class="notice-box" style="margin-top:14px;">
+                            <p class="notice-title">
+                                <i class="ri-information-line"></i>
+                                동일 상품 교환 안내
+                            </p>
+                            <ul>
+                                <li>교환은 현재 주문하신 상품과 동일한 상품으로 진행됩니다.</li>
+                                <li>옵션 변경 교환은 지원하지 않으며, 다른 옵션을 원하시는 경우 환불 후 재주문해 주세요.</li>
+                                <li>재고 상황에 따라 교환이 어려운 경우 별도 안내드립니다.</li>
+                            </ul>
+                        </div>
+                        <!-- ══ STEP 2: 회수 주소 / 직접 발송 안내 ══ -->
                         <template v-if="currentStep === 2">
 
                             <div class="section-card">
                                 <div class="section-head">
-                                    <h3>회수 주소</h3>
-                                    <span class="head-badge">필수</span>
+                                    <h3>{{ exchangeMethod === 'PICKUP' ? '회수 주소' : '직접 발송 안내' }}</h3>
+                                    <span class="head-badge">
+                                        {{ exchangeMethod === 'PICKUP' ? '필수' : '안내' }}
+                                    </span>
                                 </div>
+
                                 <div class="section-body">
 
-                                    <div class="form-group">
-                                        <label class="form-label">우편번호</label>
-                                        <div class="zipcode-row">
-                                            <input type="text" class="form-input" v-model="pickup.zipcode" readonly
-                                                placeholder="우편번호">
-                                            <button type="button" class="btn-search-addr" @click="fnSearchAddr">주소
-                                                검색</button>
+                                    <!-- 택배 회수 선택 시: 고객 회수 주소 입력 -->
+                                    <template v-if="exchangeMethod === 'PICKUP'">
+
+                                        <div class="exchange-guide-box">
+                                            <div class="guide-icon">
+                                                <i class="ri-truck-line"></i>
+                                            </div>
+                                            <div>
+                                                <p class="guide-title">택배 회수를 선택하셨습니다.</p>
+                                                <p class="guide-desc">
+                                                    기사님이 방문할 주소를 입력해 주세요. 입력한 주소로 상품 회수가 진행됩니다.
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div class="form-group">
-                                        <label class="form-label">주소</label>
-                                        <input type="text" class="form-input" v-model="pickup.address" readonly
-                                            placeholder="주소 검색을 눌러주세요">
-                                    </div>
+                                        <div class="form-group">
+                                            <label class="form-label">우편번호</label>
+                                            <div class="zipcode-row">
+                                                <input type="text" class="form-input" v-model="pickup.zipcode" readonly
+                                                    placeholder="우편번호">
 
-                                    <div class="form-group">
-                                        <label class="form-label">상세 주소</label>
-                                        <input type="text" class="form-input" v-model="pickup.detailAddress"
-                                            ref="detailAddrInput" placeholder="상세 주소를 입력해 주세요">
-                                    </div>
+                                                <button type="button" class="btn-search-addr" @click="fnSearchAddr">
+                                                    주소 검색
+                                                </button>
+                                            </div>
+                                        </div>
 
-                                    <div class="form-group">
-                                        <label class="form-label">회수 요청 사항</label>
-                                        <input type="text" class="form-input" v-model="pickup.memo"
-                                            placeholder="예: 문 앞에 놓아주세요 (선택)">
-                                    </div>
+                                        <div class="form-group">
+                                            <label class="form-label">주소</label>
+                                            <input type="text" class="form-input" v-model="pickup.address" readonly
+                                                placeholder="주소 검색을 눌러주세요">
+                                        </div>
 
-                                    <!-- 택배 직접 발송 안내 -->
-                                    <div v-if="exchangeMethod === 'DIRECT'" class="notice-box" style="margin-top:4px;">
-                                        <p style="font-weight:700;color:var(--brown2);margin-bottom:6px;">📦 직접 발송 안내
-                                        </p>
-                                        <ul>
-                                            <li>아래 주소로 상품을 보내주세요.</li>
-                                            <li>발송 택배사: 자유 선택</li>
-                                            <li>반송 주소: 서울시 강남구 테헤란로 123 모닥모닥 물류센터</li>
-                                            <li>발송 후 운송장 번호를 고객센터로 알려주세요.</li>
-                                        </ul>
-                                    </div>
+                                        <div class="form-group">
+                                            <label class="form-label">상세 주소</label>
+                                            <input type="text" class="form-input" v-model="pickup.detailAddress"
+                                                ref="detailAddrInput" placeholder="상세 주소를 입력해 주세요">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label class="form-label">회수 요청 사항</label>
+                                            <input type="text" class="form-input" v-model="pickup.memo"
+                                                placeholder="예: 문 앞에 놓아주세요 (선택)">
+                                        </div>
+
+                                        <div class="notice-box" style="margin-top:4px;">
+                                            <p class="notice-title">
+                                                <i class="ri-information-line"></i>
+                                                회수 신청 안내
+                                            </p>
+                                            <ul>
+                                                <li>교환 신청 접수 후 회수 일정은 영업일 기준 1~3일 내 안내됩니다.</li>
+                                                <li>상품은 구성품과 포장재를 가능한 그대로 준비해 주세요.</li>
+                                                <li>상품 확인 후 동일 상품으로 교환 처리가 진행됩니다.</li>
+                                            </ul>
+                                        </div>
+                                    </template>
+
+                                    <!-- 직접 발송 선택 시: 모닥모닥 주소 안내만 표시 -->
+                                    <template v-else>
+
+                                        <div class="exchange-guide-box direct">
+                                            <div class="guide-icon">
+                                                <i class="ri-box-3-line"></i>
+                                            </div>
+                                            <div>
+                                                <p class="guide-title">직접 발송을 선택하셨습니다.</p>
+                                                <p class="guide-desc">
+                                                    고객님이 직접 택배를 접수해 아래 모닥모닥 물류센터 주소로 보내주시면 됩니다.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="return-address-card">
+                                            <div class="return-address-head">
+                                                <i class="ri-map-pin-2-line"></i>
+                                                <span>모닥모닥 교환 접수 주소</span>
+                                            </div>
+
+                                            <div class="return-address-body">
+                                                <p class="return-zipcode">우편번호 06236</p>
+                                                <p class="return-address-main">
+                                                    서울시 강남구 테헤란로 123 모닥모닥 물류센터
+                                                </p>
+                                                <p class="return-address-sub">
+                                                    교환 담당자 앞 / 주문번호 {{ orderId }}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="notice-box" style="margin-top:14px;">
+                                            <p class="notice-title">
+                                                <i class="ri-information-line"></i>
+                                                직접 발송 안내
+                                            </p>
+                                            <ul>
+                                                <li>택배사는 자유롭게 선택하실 수 있습니다.</li>
+                                                <li>상품 발송 시 주문번호를 메모지에 적어 동봉해 주세요.</li>
+                                                <li>운송장 번호는 고객센터 또는 1:1 문의로 남겨주시면 처리가 더 빨라집니다.</li>
+                                                <li>상품 도착 및 검수 후 동일 상품으로 교환이 진행됩니다.</li>
+                                                <li>단순 변심의 경우 왕복 배송비가 부과될 수 있습니다.</li>
+                                            </ul>
+                                        </div>
+
+                                    </template>
+
                                 </div>
                             </div>
 
@@ -204,7 +293,9 @@
                                         <div class="order-product-card" v-if="orderInfo">
                                             <div class="op-thumb">
                                                 <img v-if="orderInfo.imgUrl" :src="orderInfo.imgUrl">
-                                                <span v-else>🛒</span>
+                                                <span v-else class="empty-thumb-icon">
+                                                    <i class="ri-shopping-bag-3-line"></i>
+                                                </span>
                                             </div>
                                             <div class="op-info">
                                                 <p class="op-name">{{ orderInfo.productName }}</p>
@@ -229,7 +320,11 @@
                                         <tr style="border-bottom:1px solid var(--cream2);">
                                             <td style="padding:12px 0;color:var(--brown4);font-weight:600;">교환 방법</td>
                                             <td style="padding:12px 0;color:var(--brown);font-weight:500;">
-                                                {{ exchangeMethod === 'PICKUP' ? '🚚 택배 회수' : '📦 직접 발송' }}
+                                                <span class="summary-method">
+                                                    <i
+                                                        :class="exchangeMethod === 'PICKUP' ? 'ri-truck-line' : 'ri-box-3-line'"></i>
+                                                    {{ exchangeMethod === 'PICKUP' ? '택배 회수' : '직접 발송' }}
+                                                </span>
                                             </td>
                                         </tr>
                                         <tr v-if="exchangeMethod === 'PICKUP'">
@@ -242,14 +337,40 @@
                                                 </span>
                                             </td>
                                         </tr>
+                                        <tr v-else>
+                                            <td style="padding:12px 0;color:var(--brown4);font-weight:600;">발송 주소</td>
+                                            <td style="padding:12px 0;color:var(--brown3);">
+                                                <span style="display:block;color:var(--brown);font-weight:700;">
+                                                    서울시 강남구 테헤란로 123 모닥모닥 물류센터
+                                                </span>
+                                                <span
+                                                    style="display:block;font-size:11px;color:var(--brown4);margin-top:2px;">
+                                                    교환 담당자 앞 / 주문번호 {{ orderId }}
+                                                </span>
+                                            </td>
+                                        </tr>
                                     </table>
 
                                     <!-- 안내 -->
                                     <div class="notice-box" style="margin-top:20px;">
-                                        <ul>
-                                            <li>교환 신청 후 영업일 1~3일 내 처리됩니다.</li>
-                                            <li>교환 상품은 동일 상품으로만 가능합니다.</li>
-                                            <li>상품 수령 후 7일 이내만 교환 신청 가능합니다.</li>
+                                        <p class="notice-title">
+                                            <i class="ri-information-line"></i>
+                                            교환 처리 안내
+                                        </p>
+
+                                        <ul v-if="exchangeMethod === 'PICKUP'">
+                                            <li>교환 신청 후 영업일 1~3일 내 회수 일정이 안내됩니다.</li>
+                                            <li>기사님 방문 전 상품과 구성품을 함께 포장해 주세요.</li>
+                                            <li>회수 상품 검수 후 동일 상품으로 교환 발송됩니다.</li>
+                                            <li>다른 옵션을 원하시는 경우 교환이 아닌 환불 후 재주문으로 진행해 주세요.</li>
+                                            <li>고객 변심의 경우 왕복 배송비가 부과될 수 있습니다.</li>
+                                        </ul>
+
+                                        <ul v-else>
+                                            <li>상품을 직접 발송하신 뒤 운송장 번호를 고객센터에 남겨주세요.</li>
+                                            <li>상품 도착 및 검수 후 동일 상품으로 교환 발송됩니다.</li>
+                                            <li>옵션 변경 요청이 있는 경우 재고 확인 후 별도 안내드립니다.</li>
+                                            <li>주문번호를 함께 동봉하면 확인이 더 빠릅니다.</li>
                                             <li>고객 변심의 경우 왕복 배송비가 부과될 수 있습니다.</li>
                                         </ul>
                                     </div>
@@ -263,10 +384,13 @@
                     <!-- 하단 버튼 -->
                     <div class="bottom-actions" v-if="!isLoading">
                         <button class="btn-cancel" @click="fnPrev">
-                            {{ currentStep === 1 ? '← 돌아가기' : '← 이전' }}
+                            <i class="ri-arrow-left-line"></i>
+                            {{ currentStep === 1 ? '돌아가기' : '이전' }}
                         </button>
+
                         <button class="btn-submit" :disabled="!fnCanNext()" @click="fnNext">
-                            {{ currentStep === 3 ? '교환 신청 완료' : '다음 →' }}
+                            {{ currentStep === 3 ? '교환 신청 완료' : '다음' }}
+                            <i v-if="currentStep !== 3" class="ri-arrow-right-line"></i>
                         </button>
                     </div>
 
@@ -275,7 +399,9 @@
                 <!-- 완료 모달 -->
                 <div class="modal-backdrop" v-if="modal.show" @click.self="fnCloseModal">
                     <div class="modal-box">
-                        <div class="modal-icon">🎉</div>
+                        <div class="modal-icon">
+                            <i class="ri-checkbox-circle-line"></i>
+                        </div>
                         <div class="modal-title">교환 신청 완료!</div>
                         <div class="modal-desc">
                             교환 신청이 접수되었습니다.<br>
@@ -310,12 +436,12 @@
                                 selectedReason: '',
                                 reasonDetail: '',
                                 reasonList: [
-                                    { value: 'DEFECT', icon: '🔧', label: '상품 불량/파손' },
-                                    { value: 'WRONG', icon: '❌', label: '오배송' },
-                                    { value: 'DIFF', icon: '📦', label: '상품 설명 상이' },
-                                    { value: 'SIZE', icon: '📏', label: '사이즈/색상 변경' },
-                                    { value: 'MIND', icon: '💭', label: '단순 변심' },
-                                    { value: 'OTHER', icon: '✏️', label: '기타 (직접 입력)' },
+                                    { value: 'DEFECT', icon: 'ri-tools-line', label: '상품 불량/파손' },
+                                    { value: 'WRONG', icon: 'ri-error-warning-line', label: '오배송' },
+                                    { value: 'DIFF', icon: 'ri-file-list-3-line', label: '상품 설명 상이' },
+                                    { value: 'MISSING', icon: 'ri-inbox-unarchive-line', label: '구성품 누락' },
+                                    { value: 'MIND', icon: 'ri-chat-smile-2-line', label: '단순 변심' },
+                                    { value: 'OTHER', icon: 'ri-edit-2-line', label: '기타 직접 입력' },
                                 ],
 
                                 /* 교환 방법 */
@@ -489,7 +615,7 @@
                             /* ── 유틸 ── */
                             fnReasonLabel: function (val) {
                                 var r = this.reasonList.find(function (r) { return r.value === val; });
-                                return r ? r.icon + ' ' + r.label : '-';
+                                return r ? r.label : '-';
                             },
 
                             fnPrice: function (v) { return Number(v || 0).toLocaleString() + '원'; },

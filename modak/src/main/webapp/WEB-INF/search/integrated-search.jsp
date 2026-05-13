@@ -75,7 +75,7 @@
 
 							<!-- 상품 -->
 							<transition name="filter-section">
-								<div v-show="filter.product" class="section-block"
+								<div v-show="filter.product" class="section-block" :ref="'section-product'"
 									:style="{ order: fnSectionOrder('product') }">
 									<div class="search-section">
 										<div class="section-head">
@@ -85,10 +85,47 @@
 										<div v-if="result.productList.length > 0" class="product-card-grid">
 											<div v-for="item in pagedProductList" :key="item.productId"
 												class="product-card" @click="fnGoProductDetail(item.productId)">
-												<img :src="item.thumbImgUrl" alt="상품 이미지">
-												<div class="product-card-title">{{ item.productName }}</div>
-												<div class="product-card-desc">{{ item.description }}</div>
-												<div class="product-card-price">{{ fnFormatNumber(item.price) }}원</div>
+
+												<div class="product-img-box" v-if="item.thumbImgUrl">
+													<img :src="item.thumbImgUrl" alt="상품 이미지">
+												</div>
+
+												<div class="product-category-badge">
+													{{ item.categoryName || '상품' }}
+												</div>
+
+												<div class="product-title-line">
+													<span class="product-card-title">
+														{{ item.productName }}
+													</span>
+
+													<template v-if="item.brandName">
+														<span class="product-title-dot">·</span>
+														<span class="product-brand-name">{{ item.brandName }}</span>
+													</template>
+												</div>
+
+												<div class="product-rating-row">
+													<div class="star-rating" :title="fnRatingText(item.ratingAvg)">
+														<span class="star-item" v-for="n in 5"
+															:key="'star-' + item.productId + '-' + n">
+															<span class="star-empty">★</span>
+															<span class="star-fill-one"
+																:style="{ width: fnStarPercent(item.ratingAvg, n) }">★</span>
+														</span>
+													</div>
+
+													<span class="rating-score">
+														{{ fnRatingNumber(item.ratingAvg) }}
+													</span>
+													<span class="review-count">
+														({{ item.reviewCount || 0 }})
+													</span>
+												</div>
+
+												<div class="product-card-price">
+													{{ fnFormatNumber(item.price) }}원
+												</div>
 											</div>
 										</div>
 										<div v-else class="empty-row">상품 검색 결과가 없습니다.</div>
@@ -111,7 +148,7 @@
 
 							<!-- FAQ -->
 							<transition name="filter-section">
-								<div v-show="filter.faq" class="section-block"
+								<div v-show="filter.faq" class="section-block" :ref="'section-faq'"
 									:style="{ order: fnSectionOrder('faq') }">
 									<div class="search-section">
 										<div class="section-head">
@@ -146,7 +183,7 @@
 
 							<!-- 이벤트 -->
 							<transition name="filter-section">
-								<div v-show="filter.event" class="section-block"
+								<div v-show="filter.event" class="section-block" :ref="'section-event'"
 									:style="{ order: fnSectionOrder('event') }">
 									<div class="search-section">
 										<div class="section-head">
@@ -186,7 +223,7 @@
 
 							<!-- 캠핑장 -->
 							<transition name="filter-section">
-								<div v-show="filter.camp" class="section-block"
+								<div v-show="filter.camp" class="section-block" :ref="'section-camp'"
 									:style="{ order: fnSectionOrder('camp') }">
 									<div class="search-section">
 										<div class="section-head">
@@ -224,7 +261,7 @@
 								</div>
 							</transition>
 							<transition name="filter-section">
-								<div v-show="filter.community" class="section-block"
+								<div v-show="filter.community" class="section-block" :ref="'section-community'"
 									:style="{ order: fnSectionOrder('community') }">
 									<div class="search-section">
 										<div class="section-head">
@@ -278,12 +315,8 @@
 														</span>
 													</div>
 												</div>
-												<div class="community-thumb-wrap" v-if="item.thumbImgUrl">
-													<img :src="item.thumbImgUrl" alt="커뮤니티 이미지">
-												</div>
-
-												<div class="community-thumb-empty" v-else>
-													<i class="ri-chat-smile-3-line"></i>
+												<div class="community-thumb-wrap" v-if="fnCommunityImage(item)">
+													<img :src="fnCommunityImage(item)" alt="커뮤니티 이미지">
 												</div>
 											</div>
 										</div>
@@ -308,6 +341,10 @@
 						</div>
 					</template>
 				</div>
+				<button type="button" class="scroll-top-btn" v-show="showScrollTop" @click="fnScrollTop"
+					aria-label="맨 위로 이동">
+					<i class="ri-arrow-up-line"></i>
+				</button>
 			</div>
 
 			<%@ include file="/WEB-INF/common/footer.jsp" %>
@@ -351,7 +388,8 @@
 									event: 5,
 									camp: 5,
 									community: 5
-								}
+								},
+								showScrollTop: false,
 							};
 						},
 						computed: {
@@ -446,6 +484,16 @@
 							}
 						},
 						methods: {
+							fnHandleScroll: function () {
+								this.showScrollTop = window.scrollY > 350;
+							},
+
+							fnScrollTop: function () {
+								window.scrollTo({
+									top: 0,
+									behavior: "smooth"
+								});
+							},
 							fnSearch: function () {
 								let self = this;
 
@@ -456,10 +504,12 @@
 										faqList: [],
 										eventList: [],
 										campList: [],
+										communityList: [],
 										productCount: 0,
 										faqCount: 0,
 										eventCount: 0,
-										campCount: 0
+										campCount: 0,
+										communityCount: 0
 									};
 									return;
 								}
@@ -533,7 +583,9 @@
 								return Number(value).toLocaleString();
 							},
 							fnChangePage: function (type, page) {
-								if (page < 1) return;
+								if (page < 1) {
+									return;
+								}
 
 								const totalPageMap = {
 									product: this.totalProductPage,
@@ -543,9 +595,35 @@
 									community: this.totalCommunityPage
 								};
 
-								if (page > totalPageMap[type]) return;
+								if (page > totalPageMap[type]) {
+									return;
+								}
 
 								this.page[type] = page;
+
+								this.$nextTick(() => {
+									this.fnScrollToSection(type);
+								});
+							},
+							fnScrollToSection: function (type) {
+								const refName = "section-" + type;
+								let section = this.$refs[refName];
+
+								if (Array.isArray(section)) {
+									section = section[0];
+								}
+
+								if (!section) {
+									return;
+								}
+
+								const headerOffset = 90;
+								const targetTop = section.getBoundingClientRect().top + window.pageYOffset - headerOffset;
+
+								window.scrollTo({
+									top: targetTop,
+									behavior: "smooth"
+								});
 							},
 							toggleAll() {
 								const allOn = this.filter.product && this.filter.faq && this.filter.event && this.filter.camp;
@@ -555,11 +633,74 @@
 								this.filter.event = !allOn;
 								this.filter.camp = !allOn;
 							},
+							fnRatingNumber: function (value) {
+								const rating = Number(value || 0);
+								return rating.toFixed(1);
+							},
+
+							fnStarPercent: function (ratingValue, starIndex) {
+								const rating = Number(ratingValue || 0);
+
+								if (rating <= starIndex - 1) {
+									return "0%";
+								}
+
+								if (rating >= starIndex) {
+									return "100%";
+								}
+
+								return ((rating - (starIndex - 1)) * 100) + "%";
+							},
+
+							fnCommunityImage: function (item) {
+								if (!item) {
+									return "";
+								}
+
+								const directImage =
+									item.thumbImgUrl ||
+									item.thumbUrl ||
+									item.THUMB_IMG_URL ||
+									item.THUMBIMGURL ||
+									item.IMG_URL ||
+									item.imgUrl ||
+									"";
+
+								if (directImage) {
+									return directImage;
+								}
+
+								if (!item.content) {
+									return "";
+								}
+
+								const temp = document.createElement("div");
+								temp.innerHTML = item.content;
+
+								const img = temp.querySelector("img");
+
+								if (!img) {
+									return "";
+								}
+
+								return img.getAttribute("src") || "";
+							},
+
+							fnRatingText: function (value) {
+								return "평점 " + this.fnRatingNumber(value) + "점";
+							},
 							fnPlainText: function (text) {
 								if (!text) {
 									return "";
 								}
-								return text.replace(/\n/g, " ").replace(/\s+/g, " ").trim();
+
+								const temp = document.createElement("div");
+								temp.innerHTML = text;
+
+								return (temp.textContent || temp.innerText || "")
+									.replace(/\n/g, " ")
+									.replace(/\s+/g, " ")
+									.trim();
 							},
 
 							fnCommunityCategoryLabel: function (category) {
@@ -618,6 +759,12 @@
 							} else {
 								this.emptyKeyword = true;
 							}
+
+							this.fnHandleScroll();
+							window.addEventListener("scroll", this.fnHandleScroll);
+						},
+						beforeUnmount() {
+							window.removeEventListener("scroll", this.fnHandleScroll);
 						}
 					});
 

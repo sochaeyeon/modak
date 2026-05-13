@@ -13,6 +13,7 @@
             <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
             <script src="/js/page-change.js"></script>
             <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
+            <link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
 
             <style>
                 /* ── 미니 프로필 채팅 버튼 ───────────────────── */
@@ -84,7 +85,7 @@
                                 </div>
 
                                 <!-- 본문 -->
-                                <div class="post-content editor-content" v-html="board.CONTENT"></div>
+                                <div class="post-content editor-content ql-editor" v-html="board.CONTENT"></div>
 
                                 <!-- 태그 -->
                                 <div class="tag-wrap" v-if="tagList.length > 0">
@@ -450,6 +451,23 @@
                 <%@ include file="/WEB-INF/common/footer.jsp" %>
 
                     <script>
+                        if ('scrollRestoration' in history) {
+                            history.scrollRestoration = 'manual';
+                        }
+
+                        function forceBoardDetailTop() {
+                            window.scrollTo(0, 0);
+                            document.documentElement.scrollTop = 0;
+                            document.body.scrollTop = 0;
+                        }
+
+                        window.addEventListener('pageshow', function () {
+                            forceBoardDetailTop();
+
+                            setTimeout(forceBoardDetailTop, 50);
+                            setTimeout(forceBoardDetailTop, 200);
+                        });
+
                         const { createApp } = Vue;
                         createApp({
                             data() {
@@ -928,7 +946,16 @@
                             },
 
                             mounted() {
+                                forceBoardDetailTop();
+
                                 this.fnLoad();
+
+                                this.$nextTick(() => {
+                                    forceBoardDetailTop();
+                                });
+
+                                setTimeout(forceBoardDetailTop, 200);
+
                                 document.addEventListener('click', this.fnHandleOutsideClick);
                                 window.addEventListener('scroll', this.fnHandleScroll);
                                 this.fnHandleScroll();

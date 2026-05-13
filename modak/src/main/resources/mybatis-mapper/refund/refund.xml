@@ -16,7 +16,7 @@
 	        pi.IMG_URL AS imgUrl,
 	        o.GUEST_NAME AS guestName,
 			o.GUEST_PHONE AS guestPhone,
-	
+	  
 	        GROUP_CONCAT(
 	            CONCAT(poi.ITEM_NAME, ': ', pov.OPTION_VALUE)
 	            ORDER BY pov.SORT_ORDER, pov.OPTION_VALUE_ID

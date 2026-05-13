@@ -93,37 +93,37 @@
                                             <td class="order-date">{{ order.CREATED_AT }}</td>
                                             <td>
 
-                                            <!-- 🔥 취소요청 상태 -->
-                                            <div v-if="order.ORDER_STATUS === 'CANCEL_REQUESTED'">
+                                                <!-- 🔥 취소요청 상태 -->
+                                                <div v-if="order.ORDER_STATUS === 'CANCEL_REQUESTED'">
 
-                                                <span class="o-status-badge" style="background:#f39c12;">
-                                                    취소요청
-                                                </span>
-                                                <button class="o-action-btn cancel" style="margin-top:6px;" @click="fnApproveCancel(order)">
-                                                    취소 승인
-                                                </button>
+                                                    <span class="o-status-badge" style="background:#f39c12;">
+                                                        취소요청
+                                                    </span>
+                                                    <button class="o-action-btn cancel" style="margin-top:6px;"
+                                                        @click="fnApproveCancel(order)">
+                                                        취소 승인
+                                                    </button>
 
-                                            </div>
+                                                </div>
 
-                                            <!-- 🔥 일반 상태 -->
-                                            <div v-else-if="order.ORDER_STATUS !== 'CANCELLED'">
-                                                <select class="o-select"
-                                                    v-model="order.ORDER_STATUS"
-                                                    @change="fnUpdateStatus(order)">
+                                                <!-- 🔥 일반 상태 -->
+                                                <div v-else-if="order.ORDER_STATUS !== 'CANCELLED'">
+                                                    <select class="o-select" v-model="order.ORDER_STATUS"
+                                                        @change="fnUpdateStatus(order)">
 
-                                                    <option value="PAID">✅ 결제완료</option>
-                                                    <option value="READY">📦 상품준비중</option>
-                                                    <option value="SHIPPING">🚚 배송중</option>
-                                                    <option value="DONE">🚩 배송완료</option>                                                 
-                                                </select>
-                                            </div>
-                                            <!-- 취소완료 상태 -->
-                                            <div v-else>
-                                                <span class="o-status-badge" style="background:#e74c3c;">
-                                                    취소완료
-                                                </span>
-                                            </div>
-                                        </td>
+                                                        <option value="PAID">✅ 결제완료</option>
+                                                        <option value="READY">📦 상품준비중</option>
+                                                        <option value="SHIPPING">🚚 배송중</option>
+                                                        <option value="DONE">🚩 배송완료</option>
+                                                    </select>
+                                                </div>
+                                                <!-- 취소완료 상태 -->
+                                                <div v-else>
+                                                    <span class="o-status-badge" style="background:#e74c3c;">
+                                                        취소완료
+                                                    </span>
+                                                </div>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -632,7 +632,7 @@
                                         success(data) {
                                             console.log(data);
                                             if (data.result === 'success') {
-                                                 console.log('주문상태:', data.list);
+                                                console.log('주문상태:', data.list);
                                                 // self.orderList = data.list || [];
                                                 self.orderList = (data.list || []).map(function (o) {
                                                     o.ORDER_STATUS = String(o.ORDER_STATUS || '').toUpperCase();
@@ -706,7 +706,7 @@
                                         return;
                                     }
                                     $.ajax({
-                                        url: '/admin/order/update-status.dox', 
+                                        url: '/admin/order/update-status.dox',
                                         type: 'POST',
                                         data: { orderId: order.ORDER_ID, status: order.ORDER_STATUS },
                                         success(res) { if (res.result !== 'success') alert('상태 변경 실패'); }
@@ -721,6 +721,30 @@
                                         success(res) {
                                             if (res.result === 'success') self.returnList = res.list;
                                         }
+                                    });
+                                },
+                                /* ── 반납 상태 변경 ── */
+                                fnUpdateReturnStatus(item, status) {
+                                    const msgMap = {
+                                        'RETURN_PICKED': '수거를 시작하시겠습니까?',
+                                        'RETURN_COMPLETED': '반납 완료 처리하시겠습니까?'
+                                    };
+                                    if (!confirm(msgMap[status] || '상태를 변경하시겠습니까?')) return;
+
+                                    $.ajax({
+                                        url: '/admin/rental/return/update-status.dox',
+                                        type: 'POST',
+                                        data: { rentalId: item.RENTAL_ID, status: status },
+                                        success: (res) => {
+                                            if (res.result === 'success') {
+                                                item.RENTAL_STATUS = status;
+                                                // 배지 카운트 갱신
+                                                this.returnCount;
+                                            } else {
+                                                alert(res.message || '상태 변경 실패');
+                                            }
+                                        },
+                                        error: () => alert('서버 오류')
                                     });
                                 },
 
@@ -826,7 +850,30 @@
                                             alert('서버 오류');
                                         }
                                     });
-                                }
+                                },
+                                fnUpdateReturnStatus(item, status) {
+                                    const msgMap = {
+                                        'RETURN_PICKED':     '수거를 시작하시겠습니까?',
+                                        'RETURN_COMPLETED':  '반납 완료 처리하시겠습니까?'
+                                    };
+                                    if (!confirm(msgMap[status] || '상태를 변경하시겠습니까?')) return;
+
+                                    $.ajax({
+                                        url: '/admin/rental/return/update-status.dox',
+                                        type: 'POST',
+                                        data: { rentalId: item.RENTAL_ID, status: status },
+                                        success: (res) => {
+                                            if (res.result === 'success') {
+                                                item.RENTAL_STATUS = status;
+                                                // 배지 카운트 갱신
+                                                this.returnCount;
+                                            } else {
+                                                alert(res.message || '상태 변경 실패');
+                                            }
+                                        },
+                                        error: () => alert('서버 오류')
+                                    });
+                                },
                             },
                             mounted() { this.fnGetList(); }
                         }).mount('#app');

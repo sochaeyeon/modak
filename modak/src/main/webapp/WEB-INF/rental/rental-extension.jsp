@@ -685,24 +685,35 @@
                                     confirmText: '반납 신청',
                                     onConfirm: function () {
                                         self.isApplying = true;
+
+                                        // ✅ 회원/비회원 분기
+                                        var url = self.isGuest
+                                            ? '/rental/extension/return/guest/apply.dox'
+                                            : '/rental/extension/return/apply.dox';
+
+                                        var data = {
+                                            rentalId: rental.rentalId,
+                                            zipcode: self.pickup.zipcode,
+                                            address: self.pickup.address,
+                                            detailedAddress: self.pickup.detailedAddress
+                                        };
+
+                                        // ✅ 비회원일 때만 추가 파라미터 전송
+                                        if (self.isGuest) {
+                                            data.token = self.guestToken;
+                                            data.orderId = self.guestOrderId;
+                                            data.guestName = rental.guestName;
+                                            data.guestPhone = rental.guestPhone;
+                                        }
+
                                         $.ajax({
-                                            url: '/rental/extension/return/guest/apply.dox', type: 'POST', dataType: 'json',
-                                            data: {
-                                                rentalId: rental.rentalId,
-                                                zipcode: self.pickup.zipcode,
-                                                address: self.pickup.address,
-                                                detailedAddress: self.pickup.detailedAddress,
-                                                token: self.guestToken,
-                                                orderId: self.guestOrderId,
-                                                guestName: rental.guestName,
-                                                guestPhone: rental.guestPhone
-                                            },
+                                            url: url, type: 'POST', dataType: 'json', data: data,
                                             success: function (res) {
                                                 self.isApplying = false;
                                                 self.showToast(res.message || '완료');
                                                 if (res.result === 'success') {
                                                     self.fnClosePanel();
-                                                    self.fnLoadGuestOrderRentals();
+                                                    self.isGuest ? self.fnLoadGuestOrderRentals() : self.fnLoadMemberList();
                                                 }
                                             },
                                             error: function () { self.isApplying = false; }

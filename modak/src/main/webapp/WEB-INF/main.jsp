@@ -83,6 +83,7 @@
             <div>
               <p class="section-label">인기 장비</p>
               <h2 class="section-title" style="margin-bottom:0">지금 많이 찾는 장비</h2>
+              <p class="popular-subtitle"><i class="ri-line-chart-line"></i>조회수 기준 실시간 TOP 4</p>
             </div>
             <a href="/product/list.do" class="view-all">전체보기</a>
           </div>
@@ -647,7 +648,7 @@
 
                 var html = '';
 
-                list.forEach(function (p) {
+                list.forEach(function (p, i) {
                   var pid = p.productId || p.PRODUCT_ID;
                   var name = p.productName || p.PRODUCT_NAME || '';
                   var cat = p.categoryName || p.CATEGORY_NAME || '';
@@ -661,6 +662,10 @@
 
                   var score = Number(rating);
                   if (isNaN(score)) score = 0;
+
+                  var rank = i + 1;
+                  var rankIcon = rank === 1 ? '<i class="ri-fire-fill"></i>' : '';
+                  var rankHtml = '<div class="rank-badge rank-' + rank + '">' + rankIcon + '<span>' + rank + '위</span></div>';
 
                   var imgHtml = img
                     ? '<img src="' + img + '" style="width:100%;height:100%;object-fit:cover;">'
@@ -691,6 +696,7 @@
                   html += ''
                     + '<div class="product-card fade-up pop-card" data-pid="' + pid + '" data-name="' + name.replace(/"/g, '') + '" data-img="' + img + '">'
                     + '<div class="product-img">'
+                    + rankHtml
                     + imgHtml
                     + '<button type="button" class="wish-btn" data-pid="' + pid + '">'
                     + '<svg viewBox="0 0 24 24">'

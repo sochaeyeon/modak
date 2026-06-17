@@ -516,7 +516,7 @@ nav {
   top: 86px;
   align-self: flex-start;
   width: 240px;
-  max-height: calc(100vh - 100px);
+  max-height: calc(92vh - 29px);
   overflow-y: auto;
   border: 1px solid rgba(44, 30, 15, 0.08);
   border-radius: 18px;
@@ -535,6 +535,16 @@ nav {
 
 .sidebar::-webkit-scrollbar-track {
   background: transparent;
+}
+/* 새롭게 추가할 스타일 */
+.sidebar-bottom-sticky {
+  position: sticky;
+  bottom: 0;           /* 사이드바 스크롤 영역의 가장 아래에 고정 */
+  padding: 14px 20px;
+  background: #fffdf8; /* 스크롤되는 콘텐츠를 가리기 위해 사이드바 배경색과 동일하게 지정 */
+  border-top: 1px solid rgba(44, 30, 15, 0.08); /* 윗부분에 얇은 구분선을 넣어 필터 영역과 분리 */
+  z-index: 10;         /* 다른 필터 요소들보다 항상 위에 떠있도록 설정 */
+  border-radius: 0 0 18px 18px; /* 사이드바 하단의 둥근 모서리에 맞춤 */
 }
 
 .filter-section {

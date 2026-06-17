@@ -303,12 +303,12 @@ public class AdminService {
 
 	                if ("RETURN_PICKED".equals(status)) {
 	                    alarmService.createAlarm(uid, "DELIVERY",
-	                        "물품 수거가 시작되었습니다 🚚",
+	                        "물품 수거가 시작되었습니다",
 	                        "반납 물품 수거가 시작되었습니다.", map.get("rentalId"));
 
 	                } else if ("RETURN_COMPLETED".equals(status)) {
 	                    alarmService.createAlarm(uid, "NOTICE",
-	                        "반납이 완료되었습니다 📦",
+	                        "반납이 완료되었습니다",
 	                        "반납이 정상 처리되었습니다. 보증금은 3~5일 내 환불됩니다.", map.get("rentalId"));
 	                }
 	            }
@@ -1022,7 +1022,7 @@ public class AdminService {
          mapper.insertUserCoupon(map);
          alarmService.createAlarm(
         		    String.valueOf(map.get("userId")), "EVENT",
-        		    "쿠폰이 발급되었습니다 🎫",
+        		    "쿠폰이 발급되었습니다",
         		    "새로운 쿠폰이 지급되었습니다. 마이페이지에서 확인하세요.", null);
          resultMap.put("result", "success");
      } catch (Exception e) {
@@ -1199,7 +1199,7 @@ public class AdminService {
 	        if (orderInfo != null && orderInfo.get("userId") != null) {
 	            String uid = String.valueOf(orderInfo.get("userId"));
 	            alarmService.createAlarm(uid, "DELIVERY",
-	                "상품이 출발했습니다 🚚",
+	                "상품이 출발했습니다",
 	                "운송장 번호: " + map.get("trackingNo"), map.get("orderId"));
 	        }
 
@@ -1241,7 +1241,7 @@ public class AdminService {
 	            String msg = "DAMAGED".equals(code)
 	                ? "반납 물품에 파손이 확인되어 " + map.get("deductionAmt") + "원이 공제됩니다."
 	                : "반납 물품 분실이 확인되어 배상금이 청구됩니다.";
-	            alarmService.createAlarm(userId, "NOTICE", "검수 결과 안내 📋", msg, map.get("rentalId"));
+	            alarmService.createAlarm(userId, "NOTICE", "검수 결과 안내", msg, map.get("rentalId"));
 	        }
 	        r.put("result","success");
 	    } catch (Exception e) { e.printStackTrace(); r.put("result","fail"); }
@@ -1271,10 +1271,10 @@ public class AdminService {
 	        String status = String.valueOf(map.get("status"));
 	        if (!"GUEST".equals(userId)) {
 	            if ("APPROVED".equals(status)) {
-	                alarmService.createAlarm(userId, "NOTICE", "교환 신청이 승인되었습니다 ✅",
+	                alarmService.createAlarm(userId, "NOTICE", "교환 신청이 승인되었습니다",
 	                    "교환이 승인되었습니다. 새 상품이 곧 발송됩니다.", map.get("exchangeId"));
 	            } else if ("REJECTED".equals(status)) {
-	                alarmService.createAlarm(userId, "NOTICE", "교환 신청이 거절되었습니다 ❌",
+	                alarmService.createAlarm(userId, "NOTICE", "교환 신청이 거절되었습니다",
 	                    "교환 신청이 거절되었습니다. 문의사항은 고객센터로 연락해주세요.", map.get("exchangeId"));
 	            }
 	        }

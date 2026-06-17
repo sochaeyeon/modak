@@ -7,14 +7,14 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 
 @SpringBootApplication
 public class ModakApplication extends SpringBootServletInitializer {
-	
-	@Override
+   
+   @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         return builder.sources(ModakApplication.class);
     }
 
-	public static void main(String[] args) {
-		SpringApplication.run(ModakApplication.class, args);
-	}
+   public static void main(String[] args) {
+      SpringApplication.run(ModakApplication.class, args);
+   }
 
 }

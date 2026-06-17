@@ -60,6 +60,8 @@
                             <i class="fa-regular fa-heart" v-else-if="item.TYPE === 'COMMENT_LIKE'"></i>
                             <i class="fa-solid fa-truck" v-else-if="item.TYPE === 'DELIVERY'"></i>
                             <i class="fa-solid fa-gift" v-else-if="item.TYPE === 'EVENT'"></i>
+                            <i class="fa-solid fa-bullhorn" v-else-if="item.TYPE === 'NOTICE'"></i>
+                            <i class="fa-solid fa-bullhorn" v-else-if="item.TYPE === 'MARKETING'"></i>
                             <!-- ★ 채팅 관련 아이콘 -->
                             <i class="fa-solid fa-comment-dots" v-else-if="item.TYPE === 'CHAT_REQUEST'"></i>
                             <i class="fa-solid fa-check-circle" v-else-if="item.TYPE === 'CHAT_ACCEPTED'"></i>
@@ -74,10 +76,9 @@
                             </div>
                             <div class="alarm-text">{{ item.CONTENT }}</div>
                             <div class="alarm-time">
-                                <i class="fa-regular fa-clock"></i> {{ item.CREATED_AT }}
+                                <i class="fa-regular fa-clock"></i> {{ fnFormatTime(item.CREATED_AT) }}
                             </div>
 
-                            <!-- ★ 채팅 신청 수락/거절 버튼 (CHAT_REQUEST + 미처리) -->
                             <div class="chat-respond-wrap" v-if="item.TYPE === 'CHAT_REQUEST' && !item.respondDone"
                                 @click.stop>
                                 <button class="btn-respond accept" :disabled="item.responding"
@@ -170,7 +171,6 @@
 
                     methods: {
                         // ── 목록 로드 ─────────────────────────────────
-                        // ── 목록 로드 ─────────────────────────────────
                         fnGetList() {
                             $.ajax({
                                 url: '/alarm/getAlarmList.dox',
@@ -203,54 +203,63 @@
                             });
                         },
 
-                        // ── 알림 클릭 → 읽음 + 이동 ──────────────────
-                        fnGoDetail(item) {
-                            if (item.TYPE === 'CHAT_REQUEST') return;
-
+                        // ── 알림 읽음 처리 (서버 반영용 공통 함수) ──────
+                        fnMarkRead(item) {
+                            if (item.IS_READ === 'Y') return; // 이미 읽음이면 호출 안 함
+                            item.IS_READ = 'Y';
                             $.ajax({
                                 url: '/alarm/read.dox',
                                 type: 'POST',
-                                data: { alarmId: item.ALARM_ID },
-                                complete: () => {
-                                    item.IS_READ = 'Y';
-
-                                    const boardTypes = ['BOARD_COMMENT', 'BOARD_REPLY', 'BOARD_LIKE', 'COMMENT_LIKE'];
-                                    const orderTypes = [
-                                        'ORDER',
-                                        'PAYMENT',
-                                        'ORDER_COMPLETE',
-                                        'PAYMENT_COMPLETE',
-                                        'ORDER_PAID',
-                                        'PAYMENT_SUCCESS'
-                                    ];
-
-                                    if (boardTypes.includes(item.TYPE) && item.LINK_ID) {
-                                        location.href = '/board/detail.do?boardId=' + item.LINK_ID;
-
-                                    } else if (orderTypes.includes(item.TYPE) || item.TITLE.includes('결제') || item.TITLE.includes('주문')) {
-                                        if (item.LINK_ID) {
-                                            location.href = '/order/detail.do?orderId=' + item.LINK_ID;
-                                        } else {
-                                            location.href = '/order/history.do';
-                                        }
-
-                                    } else if (item.TYPE === 'CHAT_ACCEPTED' && item.LINK_ID) {
-                                        location.href = '/chat-room/room.do?roomId=' + item.LINK_ID;
-
-                                    } else if (
-                                        item.TITLE.includes('쿠폰') ||
-                                        item.CONTENT.includes('쿠폰')
-                                    ) {
-                                        location.href = '/user/mypage.do#coupon';
-
-                                    } else if (item.TYPE === 'EVENT') {
-                                        location.href = '/user/mypage.do#coupon';
-
-                                    } else {
-                                        location.href = '/alarm/notice-detail.do?alarmId=' + item.ALARM_ID;
-                                    }
-                                }
+                                data: { alarmId: item.ALARM_ID }
+                                // 실패해도 화면 상태는 유지 (재시도는 다음 클릭에서)
                             });
+                        },
+
+                        // ── 알림 클릭 → 읽음 처리 + (이동할 곳이 있을 때만) 이동 ──
+                        fnGoDetail(item) {
+                            if (item.TYPE === 'CHAT_REQUEST') return;
+
+                            // 1) 읽음 처리는 항상 먼저 수행 (페이지 이동 여부와 무관)
+                            this.fnMarkRead(item);
+
+                            const boardTypes = ['BOARD_COMMENT', 'BOARD_REPLY', 'BOARD_LIKE', 'COMMENT_LIKE'];
+                            const orderTypes = [
+                                'ORDER',
+                                'PAYMENT',
+                                'ORDER_COMPLETE',
+                                'PAYMENT_COMPLETE',
+                                'ORDER_PAID',
+                                'PAYMENT_SUCCESS'
+                            ];
+
+                            // 2) 이동할 목적지가 명확히 있는 경우만 location.href 이동
+                            if (boardTypes.includes(item.TYPE) && item.LINK_ID) {
+                                location.href = '/board/detail.do?boardId=' + item.LINK_ID;
+
+                            } else if (orderTypes.includes(item.TYPE) || item.TITLE.includes('결제') || item.TITLE.includes('주문')) {
+                                if (item.LINK_ID) {
+                                    location.href = '/order/detail.do?orderId=' + item.LINK_ID;
+                                } else {
+                                    location.href = '/order/history.do';
+                                }
+
+                            } else if (item.TYPE === 'CHAT_ACCEPTED' && item.LINK_ID) {
+                                location.href = '/chat-room/room.do?roomId=' + item.LINK_ID;
+
+                            } else if (
+                                item.TITLE.includes('쿠폰') ||
+                                item.CONTENT.includes('쿠폰')
+                            ) {
+                                location.href = '/user/mypage.do#coupon';
+
+                            } else if (item.TYPE === 'EVENT') {
+                                location.href = '/user/mypage.do#coupon';
+
+                            }
+                            // 3) 그 외(NOTICE, MARKETING 등 이동할 곳이 정해지지 않은 알림)는
+                            //    읽음 처리만 하고 페이지 이동(새로고침)을 발생시키지 않음.
+                            //    ※ 서버(AlarmController#noticeDetail)도 DELIVERY/EVENT 외에는
+                            //      목록으로 되돌리기만 하므로, 여기서 이동시키지 않는 것이 맞음.
                         },
 
                         // ── ★ 채팅 신청 수락/거절 ─────────────────────
@@ -299,7 +308,55 @@
                                 'CHAT_REJECTED': 'icon-rejected',
                                 'BOARD_LIKE': 'icon-like',
                                 'COMMENT_LIKE': 'icon-like',
+                                'NOTICE': 'icon-notice',
+                                'EVENT': 'icon-event',
+                                'DELIVERY': 'icon-delivery',
+                                'MARKETING': 'icon-marketing',
                             }[type] || '';
+                        },
+
+                        fnFormatTime(createdAt) {
+                            if (!createdAt) { console.log('빈값 -> -'); return '-'; }
+                            let dateStr = createdAt;
+                            if (typeof dateStr === 'string' && dateStr.includes('T') && !dateStr.includes('+') && !dateStr.endsWith('Z')) {
+                                dateStr += '+09:00';
+                            }
+                            const now = new Date();
+                            const created = new Date(dateStr);
+                            if (isNaN(created.getTime())) { console.log('파싱실패 -> -', createdAt); return '-'; }
+
+                            // 12시간제 + 오전/오후 변환 헬퍼
+                            const fnToAmPmHourMin = (d) => {
+                                let h = d.getHours();
+                                const mi = String(d.getMinutes()).padStart(2, '0');
+                                const ampm = h < 12 ? '오전' : '오후';
+                                h = h % 12;
+                                if (h === 0) h = 12;
+                                return ampm + ' ' + h + '시 ' + mi + '분';
+                            };
+
+                            const diffMs = now - created;
+                            const diffMin = Math.floor(diffMs / 60000);
+                            const diffHour = Math.floor(diffMin / 60);
+                            const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                            const startOfCreated = new Date(created.getFullYear(), created.getMonth(), created.getDate());
+                            const diffCalendarDay = Math.floor((startOfToday - startOfCreated) / 86400000);
+
+                            let result;
+                            if (diffMin < 1) result = '방금 전';
+                            else if (diffMin < 60) result = diffMin + '분 전';
+                            else if (diffHour < 24 && diffCalendarDay === 0) result = diffHour + '시간 전';
+                            else if (diffCalendarDay === 1) result = '어제';
+                            else if (diffCalendarDay === 2) result = '그저께';
+                            else if (diffCalendarDay <= 3) {
+                                result = diffCalendarDay + '일 전 ' + fnToAmPmHourMin(created);
+                            } else {
+                                const mm = String(created.getMonth() + 1);
+                                const dd = String(created.getDate());
+                                result = mm + '월 ' + dd + '일 ' + fnToAmPmHourMin(created);
+                            }
+                            console.log('createdAt:', createdAt, '-> result:', result, 'diffCalendarDay:', diffCalendarDay);
+                            return result;
                         },
 
                         // ── 삭제 ─────────────────────────────────────

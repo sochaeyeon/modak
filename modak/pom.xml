@@ -14,6 +14,7 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name />
 	<description />
+	<packaging>war</packaging>
 	<url />
 	<licenses>
 		<license />
@@ -34,6 +35,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency> <!-- 추가 2-->
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mybatis.spring.boot</groupId>
@@ -165,6 +171,7 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+					<executable>false</executable>  <!-- 추가 3-->
 				</configuration>
 			</plugin>
 		</plugins>

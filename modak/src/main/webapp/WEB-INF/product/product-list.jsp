@@ -198,7 +198,13 @@
 								</div>
 							</div>
 
-							<div style="padding:14px 20px;">
+							<!-- <div style="padding:14px 20px;">
+								<button class="filter-reset" type="button" @click="resetFilter">
+									<i class="ri-refresh-line"></i>
+									필터 초기화
+								</button>
+							</div> -->
+							<div class="sidebar-bottom-sticky">
 								<button class="filter-reset" type="button" @click="resetFilter">
 									<i class="ri-refresh-line"></i>
 									필터 초기화

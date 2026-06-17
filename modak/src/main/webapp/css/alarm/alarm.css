@@ -198,6 +198,49 @@ body {
     transform: scale(1.05);
 }
 
+/* ── 알림 타입별 아이콘 배경/색상 ───────────────
+   admin-alarm.jsp의 발송 타입(NOTICE/EVENT/DELIVERY/MARKETING)
+   및 채팅/좋아요 알림과 색을 맞춰 구분되도록 함 */
+.alarm-icon.icon-notice {
+    background: rgba(52, 152, 219, 0.12);
+    color: #3498db;
+}
+
+.alarm-icon.icon-event {
+    background: rgba(232, 115, 42, 0.12);
+    color: #E8732A;
+}
+
+.alarm-icon.icon-delivery {
+    background: rgba(46, 204, 113, 0.12);
+    color: #2ecc71;
+}
+
+.alarm-icon.icon-marketing {
+    background: rgba(155, 89, 182, 0.12);
+    color: #9b59b6;
+}
+
+.alarm-icon.icon-chat {
+    background: rgba(232, 115, 42, 0.12);
+    color: #E8732A;
+}
+
+.alarm-icon.icon-accepted {
+    background: rgba(57, 143, 86, 0.12);
+    color: #2f7b45;
+}
+
+.alarm-icon.icon-rejected {
+    background: rgba(220, 53, 69, 0.10);
+    color: #c82333;
+}
+
+.alarm-icon.icon-like {
+    background: rgba(232, 115, 42, 0.12);
+    color: #E8732A;
+}
+
 /* 텍스트 정보 */
 .alarm-info {
     flex: 1;

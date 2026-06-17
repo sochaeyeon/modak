@@ -15,6 +15,11 @@
 
 > 🗓 **개발 기간** : 2026.04.08 ~ 2026.04.30 &nbsp;&nbsp;|&nbsp;&nbsp; 👥 **팀 구성** : 4인 팀 프로젝트
 
+<br>
+
+<!-- 대표 이미지 -->
+<img src="./assets/images/main-banner.png" alt="ModakModak 대표 이미지" width="100%"/>
+
 </div>
 
 <br>
@@ -30,6 +35,26 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 ```
 🏕️  캠핑장 탐색   →   🛒  장비 렌탈/구매   →   💬  커뮤니티 소통   →   ⚙️  관리자 운영
 ```
+
+<br>
+
+---
+
+## 📸 서비스 화면
+
+<div align="center">
+
+<img src="./assets/images/screenshots/main-page.png" alt="메인페이지" width="80%"/>
+
+<br><br>
+
+<img src="./assets/images/screenshots/product-list.png" alt="상품 리스트" width="80%"/>
+
+<br><br>
+
+<img src="./assets/images/screenshots/camp-search.png" alt="캠핑장 찾기" width="80%"/>
+
+</div>
 
 <br>
 

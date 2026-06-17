@@ -466,39 +466,156 @@
               }, 800);
             });
 
-            /* ── 5. Vue 날씨 ── */
-            var vueApp = Vue.createApp({
-              data: function () { return { isLoading: true, isError: false, days: [], regionName: '서울', selectedRegion: 'seoul', regionMap: { seoul: { nx: 60, ny: 127, name: '서울', taId: '11B10101', landId: '11B00000' }, gyeonggi: { nx: 60, ny: 121, name: '경기', taId: '11B20601', landId: '11B00000' }, gangwon: { nx: 73, ny: 134, name: '강원', taId: '11D10301', landId: '11D10000' }, chungbuk: { nx: 69, ny: 107, name: '충북', taId: '11C10301', landId: '11C10000' }, chungnam: { nx: 68, ny: 100, name: '충남', taId: '11C20401', landId: '11C20000' }, jeonbuk: { nx: 63, ny: 89, name: '전북', taId: '11F10201', landId: '11F10000' }, jeonnam: { nx: 51, ny: 67, name: '전남', taId: '11F20501', landId: '11F20000' }, gyeongbuk: { nx: 89, ny: 91, name: '경북', taId: '11H10501', landId: '11H10000' }, gyeongnam: { nx: 91, ny: 77, name: '경남', taId: '11H20301', landId: '11H20000' }, jeju: { nx: 52, ny: 38, name: '제주', taId: '11G00201', landId: '11G00000' } } }; },
-              methods: {
-                onRegionChange: function (e) { this.selectedRegion = e.target.value; var r = this.regionMap[this.selectedRegion]; this.regionName = r.name; this.loadWeather(r); },
-                loadWeather: async function (region) {
-                  this.isLoading = true; this.isError = false; this.days = [];
-                  try {
-                    var results = await Promise.all([this.fetchShort(region.nx, region.ny), this.fetchMid(region.taId, region.landId)]);
-                    var sR = results[0], mR = results[1], result = [], self = this;
-                    if (sR.result === 'success') {
-                      var items = sR.data.response.body.items.item, today = this.getDateStr(0), tmr = this.getDateStr(1), byDate = {};
-                      items.forEach(function (item) { if (!byDate[item.fcstDate]) byDate[item.fcstDate] = { temps: [] }; var d = byDate[item.fcstDate]; if (item.category === 'TMX') d.max = item.fcstValue; if (item.category === 'TMN') d.min = item.fcstValue; if (item.category === 'TMP') d.temps.push(parseFloat(item.fcstValue)); if (item.category === 'SKY' && item.fcstTime === '1200') d.sky = item.fcstValue; if (item.category === 'PTY' && item.fcstTime === '1200') d.pty = item.fcstValue; if (item.category === 'POP' && item.fcstTime === '1200') d.rain = item.fcstValue; });
-                      [today, tmr].forEach(function (ds, i) { var d = byDate[ds] || { temps: [] }; var mx = d.max != null ? Math.round(d.max) : d.temps.length > 0 ? Math.max.apply(null, d.temps) : null; var mn = d.min != null ? Math.round(d.min) : d.temps.length > 0 ? Math.min.apply(null, d.temps) : null; result.push({ label: i === 0 ? '오늘' : '내일', icon: self.skyToIcon(d.sky, d.pty), max: mx != null ? mx + '°' : '-°', min: mn != null ? mn + '°' : '-°', rain: d.rain != null ? d.rain + '%' : '-%' }); });
-                    }
-                    if (mR.result === 'success') {
-                      var ta = Array.isArray(mR.ta.response.body.items.item) ? mR.ta.response.body.items.item[0] : mR.ta.response.body.items.item;
-                      var land = Array.isArray(mR.land.response.body.items.item) ? mR.land.response.body.items.item[0] : mR.land.response.body.items.item;
-                      [3, 4, 5].forEach(function (d) { var dt = new Date(); dt.setDate(dt.getDate() + d); var label = (dt.getMonth() + 1) + '/' + dt.getDate(), wf = land['wf' + d + 'Am'] || ''; result.push({ label: label, icon: self.wfToIcon(wf), max: (ta['taMax' + d] != null ? ta['taMax' + d] : '-') + '°', min: (ta['taMin' + d] != null ? ta['taMin' + d] : '-') + '°', rain: (land['rnSt' + d + 'Am'] != null ? land['rnSt' + d + 'Am'] : '-') + '%' }); });
-                    }
-                    this.days = result;
-                  } catch (e) { console.error(e); this.isError = true; }
-                  this.isLoading = false;
-                },
-                fetchShort: function (nx, ny) { return new Promise(function (r) { $.ajax({ url: '/weather/short.dox', data: { nx: nx, ny: ny }, dataType: 'json', success: r, error: function () { r({ result: 'fail' }); } }); }); },
-                fetchMid: function (taRegId, landRegId) { return new Promise(function (r) { $.ajax({ url: '/weather/mid.dox', data: { taRegId: taRegId, landRegId: landRegId }, dataType: 'json', success: r, error: function () { r({ result: 'fail' }); } }); }); },
-                getDateStr: function (n) { var d = new Date(); d.setDate(d.getDate() + n); return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0'); },
-                skyToIcon: function (sky, pty) { var p = parseInt(pty); if (p === 1 || p === 4) return '🌧️'; if (p === 2) return '🌨️'; if (p === 3) return '❄️'; var s = parseInt(sky); if (s === 1) return '☀️'; if (s === 3) return '⛅'; if (s === 4) return '☁️'; return '🌤️'; },
-                wfToIcon: function (wf) { if (!wf) return '🌤️'; if (wf.indexOf('비') > -1) return '🌧️'; if (wf.indexOf('눈') > -1) return '❄️'; if (wf.indexOf('흐림') > -1) return '☁️'; if (wf.indexOf('구름') > -1) return '⛅'; return '☀️'; }
-              },
-              mounted: function () { this.loadWeather(this.regionMap['seoul']); }
-            });
-            vueApp.mount('#weatherSection');
+			var vueApp = Vue.createApp({
+			  data: function () {
+			    return {
+			      isLoading: true,
+			      isError: false,
+			      days: [],
+			      regionName: '서울',
+			      selectedRegion: 'seoul',
+			      regionMap: {
+			        seoul:     { nx: 60, ny: 127, name: '서울',  taId: '11B10101', landId: '11B00000' },
+			        gyeonggi:  { nx: 60, ny: 121, name: '경기',  taId: '11B20601', landId: '11B00000' },
+			        gangwon:   { nx: 73, ny: 134, name: '강원',  taId: '11D10301', landId: '11D10000' },
+			        chungbuk:  { nx: 69, ny: 107, name: '충북',  taId: '11C10301', landId: '11C10000' },
+			        chungnam:  { nx: 68, ny: 100, name: '충남',  taId: '11C20401', landId: '11C20000' },
+			        jeonbuk:   { nx: 63, ny:  89, name: '전북',  taId: '11F10201', landId: '11F10000' },
+			        jeonnam:   { nx: 51, ny:  67, name: '전남',  taId: '11F20501', landId: '11F20000' },
+			        gyeongbuk: { nx: 89, ny:  91, name: '경북',  taId: '11H10501', landId: '11H10000' },
+			        gyeongnam: { nx: 91, ny:  77, name: '경남',  taId: '11H20301', landId: '11H20000' },
+			        jeju:      { nx: 52, ny:  38, name: '제주',  taId: '11G00201', landId: '11G00000' }
+			      }
+			    };
+			  },
+			  methods: {
+			    onRegionChange: function (e) {
+			      this.selectedRegion = e.target.value;
+			      var r = this.regionMap[this.selectedRegion];
+			      this.regionName = r.name;
+			      this.loadWeather(r);
+			    },
+
+			    loadWeather: async function (region) {
+			      this.isLoading = true; this.isError = false; this.days = [];
+			      try {
+			        var results = await Promise.all([
+			          this.fetchShort(region.nx, region.ny),
+			          this.fetchMid(region.taId, region.landId)
+			        ]);
+			        var sR = results[0], mR = results[1], result = [], self = this;
+
+			        /* ── 단기예보 (오늘 / 내일) ── */
+			        if (sR.result === 'success') {
+			          var items = sR.data.response.body.items.item;
+			          var today = this.getDateStr(0), tmr = this.getDateStr(1);
+			          var byDate = {};
+
+			          items.forEach(function (item) {
+			            if (!byDate[item.fcstDate]) byDate[item.fcstDate] = { temps: [], pops: [] };
+			            var d = byDate[item.fcstDate];
+			            if (item.category === 'TMX') d.max = item.fcstValue;
+			            if (item.category === 'TMN') d.min = item.fcstValue;
+			            if (item.category === 'TMP') d.temps.push(parseFloat(item.fcstValue));
+			            if (item.category === 'SKY' && item.fcstTime === '1200') d.sky = item.fcstValue;
+			            if (item.category === 'PTY' && item.fcstTime === '1200') d.pty = item.fcstValue;
+			            // ✅ 수정: 1200 고정 대신 하루 중 최대 강수확률 사용
+			            if (item.category === 'POP') d.pops.push(parseInt(item.fcstValue) || 0);
+			          });
+
+			          [today, tmr].forEach(function (ds, i) {
+			            var d = byDate[ds] || { temps: [], pops: [] };
+			            var mx = d.max != null ? Math.round(d.max) : d.temps.length > 0 ? Math.max.apply(null, d.temps) : null;
+			            var mn = d.min != null ? Math.round(d.min) : d.temps.length > 0 ? Math.min.apply(null, d.temps) : null;
+			            // ✅ 수정: pops 배열에서 최대값 사용
+			            var maxPop = d.pops.length > 0 ? Math.max.apply(null, d.pops) : null;
+			            result.push({
+			              label: i === 0 ? '오늘' : '내일',
+			              icon:  self.skyToIcon(d.sky, d.pty),
+			              max:   mx != null ? mx + '°' : '-°',
+			              min:   mn != null ? mn + '°' : '-°',
+			              rain:  maxPop != null ? maxPop + '%' : '-%'
+			            });
+			          });
+			        }
+
+			        /* ── 중기예보 (D+3 ~ D+5) ── */
+			        if (mR.result === 'success') {
+			          var ta   = Array.isArray(mR.ta.response.body.items.item)
+			                      ? mR.ta.response.body.items.item[0]
+			                      : mR.ta.response.body.items.item;
+			          var land = Array.isArray(mR.land.response.body.items.item)
+			                      ? mR.land.response.body.items.item[0]
+			                      : mR.land.response.body.items.item;
+
+			          // ✅ 수정: 시간 기준 대신 실제 데이터 존재 여부로 시작 인덱스 결정
+			          var startIdx = (ta['taMin3'] != null) ? 3 : 4;
+
+			          [startIdx, startIdx + 1, startIdx + 2].forEach(function (d) {
+			            var dt = new Date();
+			            dt.setDate(dt.getDate() + d);
+			            var label = (dt.getMonth() + 1) + '/' + dt.getDate();
+			            var wf = land['wf' + d + 'Am'] || land['wf' + d] || '';
+			            var pop = land['rnSt' + d + 'Am'] != null ? land['rnSt' + d + 'Am']
+			                    : land['rnSt' + d] != null ? land['rnSt' + d] : '-';
+			            result.push({
+			              label: label,
+			              icon:  self.wfToIcon(wf),
+			              max:   (ta['taMax' + d] != null ? ta['taMax' + d] : '-') + '°',
+			              min:   (ta['taMin' + d] != null ? ta['taMin' + d] : '-') + '°',
+			              rain:  pop + '%'
+			            });
+			          });
+			        }
+
+			        this.days = result;
+			      } catch (e) {
+			        console.error(e);
+			        this.isError = true;
+			      }
+			      this.isLoading = false;
+			    },
+
+			    fetchShort: function (nx, ny) {
+			      return new Promise(function (r) {
+			        $.ajax({ url: '/weather/short.dox', data: { nx: nx, ny: ny }, dataType: 'json',
+			          success: r, error: function () { r({ result: 'fail' }); } });
+			      });
+			    },
+			    fetchMid: function (taRegId, landRegId) {
+			      return new Promise(function (r) {
+			        $.ajax({ url: '/weather/mid.dox', data: { taRegId: taRegId, landRegId: landRegId }, dataType: 'json',
+			          success: r, error: function () { r({ result: 'fail' }); } });
+			      });
+			    },
+			    getDateStr: function (n) {
+			      var d = new Date(); d.setDate(d.getDate() + n);
+			      return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
+			    },
+			    skyToIcon: function (sky, pty) {
+			      var p = parseInt(pty);
+			      if (p === 1 || p === 4) return '🌧️';
+			      if (p === 2) return '🌨️';
+			      if (p === 3) return '❄️';
+			      var s = parseInt(sky);
+			      if (s === 1) return '☀️';
+			      if (s === 3) return '⛅';
+			      if (s === 4) return '☁️';
+			      return '🌤️';
+			    },
+			    wfToIcon: function (wf) {
+			      if (!wf) return '🌤️';
+			      if (wf.indexOf('비') > -1) return '🌧️';
+			      if (wf.indexOf('눈') > -1) return '❄️';
+			      if (wf.indexOf('흐림') > -1) return '☁️';
+			      if (wf.indexOf('구름') > -1) return '⛅';
+			      return '☀️';
+			    }
+			  },
+			  mounted: function () { this.loadWeather(this.regionMap['seoul']); }
+			});
+			vueApp.mount('#weatherSection');
+
             /* ── 6. 토스트 ── */
             function showToast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(function () { t.classList.remove('show'); }, 2200); }
 

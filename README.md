@@ -18,7 +18,7 @@
 <br>
 
 <!-- 대표 이미지 -->
-<img src="./assets/images/main-banner.png" alt="ModakModak 대표 이미지" width="100%"/>
+<img src="./assets/main.png" alt="ModakModak 대표 이미지" width="100%"/>
 
 </div>
 
@@ -44,15 +44,15 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 
 <div align="center">
 
-<img src="./assets/images/screenshots/main-page.png" alt="메인페이지" width="80%"/>
+<img src="./assets/main-page.png" alt="메인페이지" width="80%"/>
 
 <br><br>
 
-<img src="./assets/images/screenshots/product-list.png" alt="상품 리스트" width="80%"/>
+<img src="./assets/product-list.png" alt="상품 리스트" width="80%"/>
 
 <br><br>
 
-<img src="./assets/images/screenshots/camp-search.png" alt="캠핑장 찾기" width="80%"/>
+<img src="./assets/camp.png" alt="캠핑장 찾기" width="80%"/>
 
 </div>
 

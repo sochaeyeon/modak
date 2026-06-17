@@ -90,8 +90,18 @@
 								<div class="pbox-buy">
 									<div class="prow"><span class="pnow">{{ formatPrice(productInfo.price) }}</span>
 									</div>
-									<div class="porig">23,150,000원</div>
-									<div class="pnote">쿠폰 적용시 최대 10% 할인</div>
+									<!-- <div class="porig">23,150,000원</div> -->
+									<!-- <div class="pnote">쿠폰 적용시 할인적용</div> -->
+									 <div class="pnote">
+										<a v-if="couponLoaded && !isLogin"
+										href="/user/register.do"
+										class="pnote-link">
+											{{ couponNoteText }}
+										</a>
+										<span v-else-if="couponLoaded">
+											{{ couponNoteText }}
+										</span>
+									</div>
 								</div>
 							</div>
 
@@ -977,6 +987,8 @@
 					selectedOptions: {},
 					cartMode: 'RENT',
 					isLogin: false,          // ← 추가: 로그인 여부
+					bestCoupon: null,     // ← 추가: 최대혜택 쿠폰 정보
+					couponLoaded: false,  // ← 추가: 쿠폰 조회 완료 여부
 					confirmModal: { open: false, message: '', okText: '확인', cancelText: '취소', onOk: null },
 					reviewImgModal: { open: false, url: '', reviewIndex: -1, imgIndex: 0 },
 					reportModal: {
@@ -1008,6 +1020,17 @@
 			},
 
 			computed: {
+				couponNoteText() {
+					if (!this.couponLoaded) return '';
+					if (!this.isLogin) return '🎁 지금 가입하면 쿠폰 할인받기 →';
+					if (!this.bestCoupon) return '😊 사용 가능한 쿠폰이 없어요';
+					if (this.bestCoupon.couponType === 'RATE') {
+						return '🎉 쿠폰 적용 시 ' + this.bestCoupon.discountRate + '% 할인!';
+					}
+					var amt = Number(this.bestCoupon.discountAmt).toLocaleString('ko-KR');
+					return '🎉 쿠폰 적용 시 최대 ' + amt + '원 할인!';
+				},
+				
 				reviewTotalPage() {
 					return Math.ceil(this.filteredReviewCount / this.reviewPageSize);
 				},
@@ -1152,6 +1175,21 @@
 						url: '/user/session-check.dox', type: 'POST', dataType: 'json',
 						success(res) { self.isLogin = res.isLogin === true; },
 						error() { self.isLogin = false; }
+					});
+				},
+				// ↓ 추가 쿠폰
+				fetchBestCoupon() {
+					let self = this;
+					$.ajax({
+						url: '/coupon/bestCoupon.dox', type: 'POST', dataType: 'json',
+						success(res) {
+							self.isLogin = res.isLogin === true;
+							self.bestCoupon = res.coupon || null;
+							self.couponLoaded = true;
+						},
+						error() {
+							self.couponLoaded = true;
+						}
 					});
 				},
 
@@ -2135,6 +2173,7 @@
 
 				this.checkLogin();
 				this.fnDetail();
+				this.fetchBestCoupon(); // ← 추가
 				this.fetchProductImages();
 				this.fnGetReviews();
 

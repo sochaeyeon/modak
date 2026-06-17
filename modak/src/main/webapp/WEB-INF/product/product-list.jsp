@@ -170,7 +170,7 @@
 									</label>
 								</div>
 							</div>
-							<div class="filter-section">
+							<div class="filter-section price-filter">
 								<div class="fs-header" @click="filterOpen.price = !filterOpen.price">
 									<span class="fs-title">가격</span>
 
@@ -634,11 +634,20 @@
 								this.childCategory = [];
 								this.currentPage = 1;
 								this.searchKeyword = '';
-
+								
+								// 1. 전체 페이지 스크롤 맨 위로
 								window.scrollTo({
 									top: 0,
 									behavior: 'smooth'
 								});
+								// 2. 사이드바 스크롤 맨 위로 (추가된 코드)
+								const sidebar = document.querySelector('.sidebar');
+								if (sidebar) {
+									sidebar.scrollTo({
+										top: 0,
+										behavior: 'smooth'
+									});
+								}
 
 								setTimeout(() => {
 									this.fnSearch(false);

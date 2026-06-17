@@ -301,6 +301,7 @@ body {
 	border-color: var(--orange);
 }
 
+/* 제품 인포 */
 .pinfo {
 	display: flex;
 	flex-direction: column;
@@ -373,6 +374,17 @@ body {
 	display: flex;
 	align-items: baseline;
 	gap: 10px;
+}
+
+/* 쿠폰 할인 멘트 */
+.pnote-link {
+    color: var(--orange);
+    font-weight: 700;
+    font-size: 13px;
+    text-decoration: none;
+}
+.pnote-link:hover {
+    text-decoration: underline;
 }
 
 .pct {

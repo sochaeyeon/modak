@@ -35,4 +35,6 @@ public interface CouponMapper {
     int selectAvailableCouponCount(HashMap<String, Object> map);	
     
     List<UserCoupon> selectAvailableUserCouponList(HashMap<String, Object> map);
+    
+    UserCoupon selectBestCoupon(HashMap<String, Object> map);  // ← 추가
 }

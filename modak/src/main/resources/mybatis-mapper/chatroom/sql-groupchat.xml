@@ -16,7 +16,6 @@
 	<select id="selectGroupMemberCount" parameterType="long" resultType="int">
 		SELECT COUNT(*) FROM GROUP_CHAT_MEMBER WHERE ROOM_ID = #{roomId}
 	</select>
-
 	<select id="selectMyGroupRooms" parameterType="string" resultType="map">
 		SELECT R.ROOM_ID AS roomId, R.ROOM_NAME AS roomName, R.HOST_ID AS
 		hostId,
@@ -26,8 +25,8 @@
 		(SELECT CONTENT FROM GROUP_CHAT_MESSAGE MS
 		WHERE MS.ROOM_ID = R.ROOM_ID ORDER BY MS.CREATED_AT DESC LIMIT 1) AS
 		lastMessage,
-		(SELECT DATE_FORMAT(CREATED_AT, '%m/%d %H:%i') FROM GROUP_CHAT_MESSAGE
-		MS
+		(SELECT DATE_FORMAT(CREATED_AT, '%Y-%m-%d %H:%i:%s') FROM
+		GROUP_CHAT_MESSAGE MS
 		WHERE MS.ROOM_ID = R.ROOM_ID ORDER BY MS.CREATED_AT DESC LIMIT 1) AS
 		lastMessageAt
 		FROM GROUP_CHAT_ROOM R
@@ -63,24 +62,26 @@
 	</delete>
 
 	<insert id="insertGroupMessage" parameterType="hashmap">
-		INSERT INTO GROUP_CHAT_MESSAGE (ROOM_ID, USER_ID, CONTENT, IMG_URL,
+		INSERT INTO GROUP_CHAT_MESSAGE (ROOM_ID, USER_ID, MESSAGE_TYPE, CONTENT,
 		CREATED_AT)
-		VALUES (#{roomId}, #{userId}, #{content}, #{imgUrl}, NOW())
+		VALUES (#{roomId}, #{userId}, #{messageType}, #{content}, NOW())
 	</insert>
 
 	<select id="selectGroupMessages" parameterType="hashmap" resultType="map">
-		SELECT MS.MESSAGE_ID AS messageId, MS.ROOM_ID AS roomId, MS.USER_ID AS
-		userId,
-		MS.CONTENT AS content, MS.IMG_URL AS imgUrl,
-		DATE_FORMAT(MS.CREATED_AT, '%Y-%m-%d %H:%i') AS createdAt,
-		U.NICKNAME AS nickname, U.PROFILE_IMG_URL AS profileImg
+		SELECT MS.MESSAGE_ID AS MESSAGE_ID,
+		MS.ROOM_ID AS ROOM_ID,
+		MS.USER_ID AS SENDER_ID,
+		MS.MESSAGE_TYPE AS MESSAGE_TYPE,
+		MS.CONTENT AS CONTENT,
+		DATE_FORMAT(MS.CREATED_AT, '%Y-%m-%d %H:%i:%s') AS CREATED_AT,
+		U.NICKNAME AS SENDER_NICK,
+		U.PROFILE_IMG_URL AS SENDER_IMG
 		FROM GROUP_CHAT_MESSAGE MS
 		JOIN USER U ON MS.USER_ID = U.USER_ID
 		WHERE MS.ROOM_ID = #{roomId}
 		ORDER BY MS.CREATED_AT ASC
 	</select>
 
-	<!-- 방장 위임 후보 (가장 먼저 들어온 멤버) -->
 	<select id="selectNextHostCandidate" parameterType="long"
 		resultType="string">
 		SELECT USER_ID FROM GROUP_CHAT_MEMBER

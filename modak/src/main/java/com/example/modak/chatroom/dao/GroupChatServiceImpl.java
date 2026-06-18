@@ -1,4 +1,4 @@
-package com.example.modak.chat.controller;
+package com.example.modak.chatroom.dao;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,48 +6,39 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 
-import com.example.modak.chat.dao.GroupChatService;
+import com.example.modak.chatroom.mapper.GroupChatMapper;
 import com.example.modak.follow.dao.FollowService;
 
-import jakarta.servlet.http.HttpSession;
-
-@RestController
-public class GroupChatController {
+@Service
+public class GroupChatServiceImpl implements GroupChatService {
 
     private static final int DEFAULT_MAX_MEMBER = 50;
 
-    @Autowired
-    private GroupChatService groupChatService;
+    @Autowired private GroupChatMapper groupChatMapper;
+    @Autowired private FollowService followService;
 
-    @Autowired
-    private FollowService followService;
+    private List<String> splitIds(String memberIds) {
+        List<String> list = new ArrayList<>();
+        if (memberIds == null) return list;
+        for (String id : memberIds.split(",")) {
+            if (!id.trim().isEmpty()) list.add(id.trim());
+        }
+        return list;
+    }
 
-    /* 단체채팅방 생성 — 맞팔 관계인 사람만 초대 가능 */
-    @PostMapping("/chat/group/create.dox")
-    public Map<String, Object> createGroupRoom(
-            @RequestParam String roomName,
-            @RequestParam String memberIds,
-            @RequestParam(required = false) Integer maxMember,
-            HttpSession session) {
-
+    @Override
+    public Map<String, Object> createRoom(String hostId, String roomName, String memberIds, Integer maxMember) {
         Map<String, Object> result = new HashMap<>();
-        String hostId = (String) session.getAttribute("userId");
 
-        if (hostId == null) {
+        if (roomName == null || roomName.trim().isEmpty()) {
             result.put("result", "fail");
-            result.put("message", "로그인이 필요합니다.");
+            result.put("message", "채팅방 이름을 입력해주세요.");
             return result;
         }
 
-        List<String> targetIds = new ArrayList<>();
-        for (String id : memberIds.split(",")) {
-            if (!id.trim().isEmpty()) targetIds.add(id.trim());
-        }
-
+        List<String> targetIds = splitIds(memberIds);
         if (targetIds.isEmpty()) {
             result.put("result", "fail");
             result.put("message", "초대할 멤버를 선택해주세요.");
@@ -62,13 +53,9 @@ public class GroupChatController {
             return result;
         }
 
-        // ★ 맞팔 관계 검증
+        // 맞팔 관계 검증
         for (String targetId : targetIds) {
-            Map<String, Object> params = new HashMap<>();
-            params.put("followerId", hostId);
-            params.put("followingId", targetId);
-
-            if (!followService.isMutual(params)) {
+            if (!followService.isMutual(hostId, targetId)) {
                 result.put("result", "fail");
                 result.put("message", "맞팔로우 관계인 사람만 초대할 수 있습니다.");
                 return result;
@@ -79,7 +66,7 @@ public class GroupChatController {
         roomParams.put("roomName", roomName);
         roomParams.put("hostId", hostId);
         roomParams.put("maxMember", limit);
-        groupChatService.createRoom(roomParams);
+        groupChatMapper.insertGroupRoom(roomParams);
 
         Long roomId = ((Number) roomParams.get("roomId")).longValue();
 
@@ -87,14 +74,14 @@ public class GroupChatController {
         hostMember.put("roomId", roomId);
         hostMember.put("userId", hostId);
         hostMember.put("role", "HOST");
-        groupChatService.addMember(hostMember);
+        groupChatMapper.insertGroupMember(hostMember);
 
         for (String targetId : targetIds) {
             Map<String, Object> memberParams = new HashMap<>();
             memberParams.put("roomId", roomId);
             memberParams.put("userId", targetId);
             memberParams.put("role", "MEMBER");
-            groupChatService.addMember(memberParams);
+            groupChatMapper.insertGroupMember(memberParams);
         }
 
         result.put("result", "success");
@@ -102,30 +89,20 @@ public class GroupChatController {
         return result;
     }
 
-    /* 기존 방에 멤버 초대 (방장만, 맞팔 검증 동일) */
-    @PostMapping("/chat/group/invite.dox")
-    public Map<String, Object> inviteMembers(
-            @RequestParam Long roomId,
-            @RequestParam String memberIds,
-            HttpSession session) {
-
+    @Override
+    public Map<String, Object> inviteMembers(String myUserId, Long roomId, String memberIds) {
         Map<String, Object> result = new HashMap<>();
-        String myUserId = (String) session.getAttribute("userId");
 
-        Map<String, Object> room = groupChatService.getRoom(roomId);
+        Map<String, Object> room = groupChatMapper.selectGroupRoom(roomId);
         if (room == null || !myUserId.equals(room.get("hostId"))) {
             result.put("result", "fail");
             result.put("message", "방장만 멤버를 초대할 수 있습니다.");
             return result;
         }
 
-        List<String> targetIds = new ArrayList<>();
-        for (String id : memberIds.split(",")) {
-            if (!id.trim().isEmpty()) targetIds.add(id.trim());
-        }
-
+        List<String> targetIds = splitIds(memberIds);
         int maxMember = ((Number) room.get("maxMember")).intValue();
-        int current = groupChatService.getMemberCount(roomId);
+        int current = groupChatMapper.selectGroupMemberCount(roomId);
 
         if (current + targetIds.size() > maxMember) {
             result.put("result", "fail");
@@ -134,11 +111,7 @@ public class GroupChatController {
         }
 
         for (String targetId : targetIds) {
-            Map<String, Object> params = new HashMap<>();
-            params.put("followerId", myUserId);
-            params.put("followingId", targetId);
-
-            if (!followService.isMutual(params)) {
+            if (!followService.isMutual(myUserId, targetId)) {
                 result.put("result", "fail");
                 result.put("message", "맞팔로우 관계인 사람만 초대할 수 있습니다.");
                 return result;
@@ -150,48 +123,48 @@ public class GroupChatController {
             memberParams.put("roomId", roomId);
             memberParams.put("userId", targetId);
             memberParams.put("role", "MEMBER");
-            groupChatService.addMember(memberParams);
+            groupChatMapper.insertGroupMember(memberParams);
         }
 
         result.put("result", "success");
         return result;
     }
 
-    @PostMapping("/chat/group/myrooms.dox")
-    public Map<String, Object> getMyRooms(HttpSession session) {
+    @Override
+    public Map<String, Object> getMyRooms(String userId) {
         Map<String, Object> result = new HashMap<>();
-        String userId = (String) session.getAttribute("userId");
+        result.put("result", "success");
+        result.put("list", groupChatMapper.selectMyGroupRooms(userId));
+        return result;
+    }
 
-        if (userId == null) {
+    @Override
+    public Map<String, Object> getMembers(Long roomId, String userId) {
+        Map<String, Object> result = new HashMap<>();
+
+        if (!isMember(roomId, userId)) {
             result.put("result", "fail");
-            result.put("message", "로그인이 필요합니다.");
+            result.put("message", "채팅방 멤버가 아닙니다.");
             return result;
         }
 
         result.put("result", "success");
-        result.put("list", groupChatService.getMyRooms(userId));
+        result.put("list", groupChatMapper.selectGroupMembers(roomId));
         return result;
     }
 
-    @PostMapping("/chat/group/members.dox")
-    public Map<String, Object> getMembers(@RequestParam Long roomId) {
-        Map<String, Object> result = new HashMap<>();
-        result.put("result", "success");
-        result.put("list", groupChatService.getMembers(roomId));
-        return result;
+    private boolean isMember(Long roomId, String userId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("roomId", roomId);
+        params.put("userId", userId);
+        return groupChatMapper.selectIsMember(params) > 0;
     }
 
-    @PostMapping("/chat/group/send.dox")
-    public Map<String, Object> sendMessage(
-            @RequestParam Long roomId,
-            @RequestParam String content,
-            @RequestParam(required = false) String imgUrl,
-            HttpSession session) {
-
+    @Override
+    public Map<String, Object> sendMessage(Long roomId, String userId, String messageType, String content) {
         Map<String, Object> result = new HashMap<>();
-        String userId = (String) session.getAttribute("userId");
 
-        if (userId == null || !groupChatService.isMember(roomId, userId)) {
+        if (!isMember(roomId, userId)) {
             result.put("result", "fail");
             result.put("message", "채팅방 멤버가 아닙니다.");
             return result;
@@ -200,20 +173,19 @@ public class GroupChatController {
         Map<String, Object> params = new HashMap<>();
         params.put("roomId", roomId);
         params.put("userId", userId);
+        params.put("messageType", messageType == null ? "TEXT" : messageType);
         params.put("content", content);
-        params.put("imgUrl", imgUrl);
+        groupChatMapper.insertGroupMessage(params);
 
-        groupChatService.sendMessage(params);
         result.put("result", "success");
         return result;
     }
 
-    @PostMapping("/chat/group/messages.dox")
-    public Map<String, Object> getMessages(@RequestParam Long roomId, HttpSession session) {
+    @Override
+    public Map<String, Object> getMessages(Long roomId, String userId) {
         Map<String, Object> result = new HashMap<>();
-        String userId = (String) session.getAttribute("userId");
 
-        if (userId == null || !groupChatService.isMember(roomId, userId)) {
+        if (!isMember(roomId, userId)) {
             result.put("result", "fail");
             result.put("message", "채팅방 멤버가 아닙니다.");
             return result;
@@ -223,20 +195,35 @@ public class GroupChatController {
         params.put("roomId", roomId);
 
         result.put("result", "success");
-        result.put("list", groupChatService.getMessages(params));
+        result.put("list", groupChatMapper.selectGroupMessages(params));
         return result;
     }
 
-    @PostMapping("/chat/group/leave.dox")
-    public Map<String, Object> leaveRoom(@RequestParam Long roomId, HttpSession session) {
+    @Override
+    public Map<String, Object> leaveRoom(Long roomId, String userId) {
         Map<String, Object> result = new HashMap<>();
-        String userId = (String) session.getAttribute("userId");
+
+        Map<String, Object> room = groupChatMapper.selectGroupRoom(roomId);
+        boolean wasHost = room != null && userId.equals(room.get("hostId"));
 
         Map<String, Object> params = new HashMap<>();
         params.put("roomId", roomId);
         params.put("userId", userId);
+        groupChatMapper.deleteGroupMember(params);
 
-        groupChatService.leaveRoom(params);
+        int remaining = groupChatMapper.selectGroupMemberCount(roomId);
+
+        if (remaining == 0) {
+            groupChatMapper.deleteGroupRoom(roomId);
+        } else if (wasHost) {
+            String nextHostId = groupChatMapper.selectNextHostCandidate(roomId);
+            Map<String, Object> roleParams = new HashMap<>();
+            roleParams.put("roomId", roomId);
+            roleParams.put("userId", nextHostId);
+            roleParams.put("role", "HOST");
+            groupChatMapper.updateMemberRole(roleParams);
+        }
+
         result.put("result", "success");
         return result;
     }

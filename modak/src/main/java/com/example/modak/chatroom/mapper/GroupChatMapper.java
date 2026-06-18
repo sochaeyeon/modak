@@ -1,4 +1,4 @@
-package com.example.modak.chat.mapper;
+package com.example.modak.chatroom.mapper;
 
 import java.util.List;
 import java.util.Map;

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.modak.follow.mapper.FollowMapper">
+
+    <insert id="insertFollow" parameterType="hashmap">
+        INSERT INTO USER_FOLLOW (FOLLOWER_ID, FOLLOWING_ID, CREATED_AT)
+        VALUES (#{followerId}, #{followingId}, NOW())
+    </insert>
+
+    <delete id="deleteFollow" parameterType="hashmap">
+        DELETE FROM USER_FOLLOW
+        WHERE FOLLOWER_ID = #{followerId} AND FOLLOWING_ID = #{followingId}
+    </delete>
+
+    <select id="selectIsFollowing" parameterType="hashmap" resultType="int">
+        SELECT COUNT(*) FROM USER_FOLLOW
+        WHERE FOLLOWER_ID = #{followerId} AND FOLLOWING_ID = #{followingId}
+    </select>
+
+    <!-- 맞팔 여부 (양방향 모두 존재해야 true) -->
+    <select id="selectIsMutual" parameterType="hashmap" resultType="int">
+        SELECT COUNT(*) FROM USER_FOLLOW A
+        JOIN USER_FOLLOW B
+            ON A.FOLLOWER_ID = B.FOLLOWING_ID AND A.FOLLOWING_ID = B.FOLLOWER_ID
+        WHERE A.FOLLOWER_ID = #{followerId} AND A.FOLLOWING_ID = #{followingId}
+    </select>
+
+ <select id="selectFollowerList" parameterType="hashmap" resultType="map">
+    SELECT U.USER_ID AS userId, U.USER_NAME AS userName, U.NICKNAME AS nickname,
+           U.PROFILE_IMG_URL AS profileImg,
+           (SELECT COUNT(*) FROM USER_FOLLOW F2
+             WHERE F2.FOLLOWER_ID = #{userId} AND F2.FOLLOWING_ID = U.USER_ID) AS isFollowingBack
+    FROM USER_FOLLOW F
+    JOIN USER U ON F.FOLLOWER_ID = U.USER_ID
+    WHERE F.FOLLOWING_ID = #{userId}
+    ORDER BY F.CREATED_AT DESC
+</select>
+
+<select id="selectFollowingList" parameterType="hashmap" resultType="map">
+    SELECT U.USER_ID AS userId, U.USER_NAME AS userName, U.NICKNAME AS nickname,
+           U.PROFILE_IMG_URL AS profileImg,
+           (SELECT COUNT(*) FROM USER_FOLLOW F2
+             WHERE F2.FOLLOWER_ID = U.USER_ID AND F2.FOLLOWING_ID = #{userId}) AS isFollowingMe
+    FROM USER_FOLLOW F
+    JOIN USER U ON F.FOLLOWING_ID = U.USER_ID
+    WHERE F.FOLLOWER_ID = #{userId}
+    ORDER BY F.CREATED_AT DESC
+</select>
+    <select id="selectFollowerCount" parameterType="string" resultType="int">
+        SELECT COUNT(*) FROM USER_FOLLOW WHERE FOLLOWING_ID = #{userId}
+    </select>
+
+    <select id="selectFollowingCount" parameterType="string" resultType="int">
+        SELECT COUNT(*) FROM USER_FOLLOW WHERE FOLLOWER_ID = #{userId}
+    </select>
+
+    <!-- 맞팔 목록 (단체채팅 초대 후보) -->
+   <select id="selectMutualFollowList" parameterType="string" resultType="map">
+    SELECT U.USER_ID AS userId, U.USER_NAME AS userName, U.NICKNAME AS nickname,
+           U.PROFILE_IMG_URL AS profileImg
+    FROM USER_FOLLOW A
+    JOIN USER_FOLLOW B
+        ON A.FOLLOWING_ID = B.FOLLOWER_ID AND A.FOLLOWER_ID = B.FOLLOWING_ID
+    JOIN USER U ON U.USER_ID = A.FOLLOWING_ID
+    WHERE A.FOLLOWER_ID = #{userId}
+</select>
+
+</mapper>

@@ -17,6 +17,33 @@
 
             <style>
                 /* ── 미니 프로필 채팅 버튼 ───────────────────── */
+                .mp-follow-btn {
+                    width: 100%;
+                    height: 34px;
+                    border: 1.5px solid var(--orange);
+                    border-radius: 10px;
+                    background: var(--white);
+                    color: var(--orange2);
+                    font-size: 12px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 5px;
+                    transition: all .18s;
+                }
+                .mp-follow-btn:hover {
+                    background: rgba(232, 115, 42, .08);
+                }
+                .mp-follow-btn.on {
+                    background: var(--orange);
+                    border-color: var(--orange);
+                    color: #fff;
+                }
+                .mp-follow-btn.on:hover {
+                    background: var(--orange2);
+                }
             </style>
         </head>
 
@@ -420,7 +447,7 @@
                             </div>
                         </div>
 
-                        <!-- 프로필 상세보기 버튼 -->
+                        <!-- 프로필 상세보기 / 팔로우 / 대화신청 버튼 -->
                         <div style="margin-top:12px;display:flex;flex-direction:column;gap:7px;">
                             <button @click="fnGoProfile(profilePopup.user.userId)" style="width:100%;height:34px;border:1.5px solid var(--border);border-radius:10px;
                            background:var(--cream);color:var(--brown3);font-size:12px;font-weight:700;
@@ -430,9 +457,19 @@
                                 프로필 상세보기
                             </button>
 
+                            <!-- ★ 팔로우 버튼 (자신에게는 표시 안 함) -->
+                            <button v-if="profilePopup.user.userId !== currentUserId" class="mp-follow-btn"
+                                :class="{ on: profilePopup.isFollowing }"
+                                @click="fnToggleFollowMini(profilePopup.user.userId)">
+                                <i
+                                    :class="profilePopup.isFollowing ? 'ri-user-unfollow-line' : 'ri-user-add-line'"></i>
+                                {{ profilePopup.isFollowing ? '팔로잉' : '팔로우' }}
+                            </button>
+
                             <!-- ★ 채팅 신청 버튼 (자신에게는 표시 안 함) -->
                             <button v-if="profilePopup.user.userId !== currentUserId" class="mp-chat-btn"
-                                :class="profilePopup.chatBtnState" :disabled="profilePopup.chatBtnState === 'pending'"
+                                :class="profilePopup.chatBtnState"
+                                :disabled="profilePopup.chatBtnState === 'pending'"
                                 @click="fnRequestChat(profilePopup.user.userId)">
                                 <i
                                     :class="profilePopup.chatBtnState === 'exists' ? 'ri-chat-3-line' : 'ri-chat-new-line'"></i>
@@ -489,7 +526,8 @@
                                     profilePopup: {
                                         show: false, user: null, x: 0, y: 0,
                                         chatBtnState: '',       // '' | 'pending' | 'exists'
-                                        chatBtnLabel: '대화 신청'
+                                        chatBtnLabel: '대화 신청',
+                                        isFollowing: false
                                     },
                                     commonModal: {
                                         show: false,
@@ -629,8 +667,36 @@
                                                     show: true, user: res.user, x, y,
                                                     chatBtnState: '',
                                                     chatBtnLabel: '대화 신청',
-                                                    chatRoomId: null
+                                                    chatRoomId: null,
+                                                    isFollowing: false   // ★ 일단 false로, 아래에서 갱신
                                                 };
+
+                                                // ★ 팔로우 상태 조회
+                                                $.ajax({
+                                                    url: '/follow/status.dox', type: 'POST',
+                                                    data: { targetUserId: userId },
+                                                    success: (fres) => {
+                                                        if (fres.result === 'success') {
+                                                            this.profilePopup.isFollowing = fres.isFollowing === true;
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                                },
+
+                                // ★ 신규 메서드
+                                fnToggleFollowMini(targetUserId) {
+                                    $.ajax({
+                                        url: '/follow/toggle.dox', type: 'POST',
+                                        data: { targetUserId },
+                                        success: (res) => {
+                                            if (res.result === 'success') {
+                                                this.profilePopup.isFollowing = res.following;
+                                                this.showToast(res.following ? '팔로우했어요!' : '팔로우를 취소했어요.');
+                                            } else {
+                                                this.showToast(res.message || '로그인이 필요합니다.');
                                             }
                                         }
                                     });

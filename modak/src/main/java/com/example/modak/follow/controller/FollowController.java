@@ -1,95 +1,81 @@
 package com.example.modak.follow.controller;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.modak.follow.dao.FollowService;
+import com.google.gson.Gson;
 
 import jakarta.servlet.http.HttpSession;
 
-@RestController
+@Controller
+@RequestMapping("/follow")
 public class FollowController {
 
-    @Autowired
-    private FollowService followService;
+    @Autowired private FollowService followService;
+    @Autowired private HttpSession session;
 
-    /* 팔로우 토글 (즉시 팔로우/언팔로우) */
-    @PostMapping("/follow/toggle.dox")
-    public Map<String, Object> toggleFollow(@RequestParam String targetUserId, HttpSession session) {
-        Map<String, Object> result = new HashMap<>();
-        String myUserId = (String) session.getAttribute("userId");
+    /** 즉시 팔로우/언팔로우 토글 */
+    @PostMapping(value = "/toggle.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String toggle(@RequestParam String targetUserId) {
+        String myUserId = (String) session.getAttribute("sessionId");
+        if (myUserId == null) {
+            return "{\"result\":\"fail\",\"message\":\"로그인이 필요합니다.\"}";
+        }
+        return new Gson().toJson(followService.toggleFollow(myUserId, targetUserId));
+    }
+
+    /** 특정 유저 기준 팔로워 목록 */
+    @PostMapping(value = "/followers.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String followers(@RequestParam String userId) {
+        return new Gson().toJson(followService.getFollowers(userId));
+    }
+
+    /** 특정 유저 기준 팔로잉 목록 */
+    @PostMapping(value = "/followings.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String followings(@RequestParam String userId) {
+        return new Gson().toJson(followService.getFollowings(userId));
+    }
+
+    /** 내 맞팔 목록 — 단체채팅 초대 후보 */
+    @PostMapping(value = "/mutual.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String mutual() {
+        String myUserId = (String) session.getAttribute("sessionId");
+        if (myUserId == null) {
+            return "{\"result\":\"fail\",\"message\":\"로그인이 필요합니다.\"}";
+        }
+        return new Gson().toJson(followService.getMutualFollowList(myUserId));
+    }
+
+    /** ★ 특정 유저에 대한 내 팔로우 상태 + 그 유저의 팔로워/팔로잉 수
+     *  (board-detail 미니프로필 팝업, user-profile 페이지에서 공통으로 사용)
+     */
+    @PostMapping(value = "/status.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String status(@RequestParam String targetUserId) {
+        String myUserId = (String) session.getAttribute("sessionId");
 
         if (myUserId == null) {
-            result.put("result", "fail");
-            result.put("message", "로그인이 필요합니다.");
-            return result;
-        }
-        if (myUserId.equals(targetUserId)) {
-            result.put("result", "fail");
-            result.put("message", "자기 자신은 팔로우할 수 없습니다.");
-            return result;
+            // 비로그인도 카운트는 보여줄 수 있게
+            java.util.Map<String, Object> result = new HashMap<>();
+            result.put("result", "success");
+            result.put("isFollowing", false);
+            result.put("isLogin", false);
+            return new Gson().toJson(result);
         }
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("followerId", myUserId);
-        params.put("followingId", targetUserId);
-
-        boolean isFollowing = followService.isFollowing(params);
-
-        if (isFollowing) {
-            followService.unfollow(params);
-            result.put("following", false);
-        } else {
-            followService.follow(params);
-            result.put("following", true);
-        }
-
-        result.put("result", "success");
-        result.put("followerCount", followService.getFollowerCount(targetUserId));
-        return result;
-    }
-
-    @PostMapping("/follow/followers.dox")
-    public Map<String, Object> getFollowers(@RequestParam String userId) {
-        Map<String, Object> result = new HashMap<>();
-        Map<String, Object> params = new HashMap<>();
-        params.put("userId", userId);
-
-        result.put("result", "success");
-        result.put("list", followService.getFollowerList(params));
-        return result;
-    }
-
-    @PostMapping("/follow/followings.dox")
-    public Map<String, Object> getFollowings(@RequestParam String userId) {
-        Map<String, Object> result = new HashMap<>();
-        Map<String, Object> params = new HashMap<>();
-        params.put("userId", userId);
-
-        result.put("result", "success");
-        result.put("list", followService.getFollowingList(params));
-        return result;
-    }
-
-    /* 맞팔 목록 — 단체채팅 초대 후보 */
-    @PostMapping("/follow/mutual.dox")
-    public Map<String, Object> getMutualFollows(HttpSession session) {
-        Map<String, Object> result = new HashMap<>();
-        String myUserId = (String) session.getAttribute("userId");
-
-        if (myUserId == null) {
-            result.put("result", "fail");
-            result.put("message", "로그인이 필요합니다.");
-            return result;
-        }
-
-        result.put("result", "success");
-        result.put("list", followService.getMutualFollowList(myUserId));
-        return result;
+        java.util.Map<String, Object> result = followService.getStatus(myUserId, targetUserId);
+        result.put("isLogin", true);
+        return new Gson().toJson(result);
     }
 }

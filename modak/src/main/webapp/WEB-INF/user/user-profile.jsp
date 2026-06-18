@@ -105,6 +105,143 @@
                     border-top: 1px solid var(--border);
                 }
 
+                .follow-row {
+                    margin-top: 14px;
+                }
+
+                .follow-btn {
+                    width: 140px;
+                    height: 38px;
+                    border: 1.5px solid var(--orange);
+                    border-radius: 12px;
+                    background: var(--white);
+                    color: var(--orange2);
+                    font-size: 13px;
+                    font-weight: 800;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 6px;
+                    transition: all .18s;
+                }
+
+                .follow-btn:hover {
+                    background: rgba(232, 115, 42, .08);
+                }
+
+                .follow-btn.on {
+                    background: var(--orange);
+                    border-color: var(--orange);
+                    color: #fff;
+                }
+
+                .follow-btn.on:hover {
+                    background: var(--orange2);
+                }
+
+                .follow-counts {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    gap: 10px;
+                    margin-top: 12px;
+                    font-size: 13px;
+                    color: var(--brown3);
+                }
+
+                .follow-count-item {
+                    cursor: pointer;
+                    font-weight: 600;
+                }
+
+                .follow-count-item:hover {
+                    color: var(--orange2);
+                }
+
+                .follow-count-item strong {
+                    color: var(--brown);
+                    font-weight: 900;
+                }
+
+                .follow-count-divider {
+                    color: var(--brown4);
+                }
+
+                .follow-modal-box {
+                    position: relative;
+                    width: min(360px, calc(100vw - 48px));
+                    max-height: 70vh;
+                    border-radius: 20px;
+                    background: var(--white);
+                    padding: 18px;
+                    overflow: hidden;
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .follow-modal-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    font-size: 16px;
+                    font-weight: 900;
+                    color: var(--brown);
+                    margin-bottom: 12px;
+                }
+
+                .follow-modal-close {
+                    position: static;
+                    width: 28px;
+                    height: 28px;
+                    font-size: 16px;
+                    background: var(--cream2);
+                    color: var(--brown3);
+                }
+
+                .follow-modal-list {
+                    overflow-y: auto;
+                }
+
+                .follow-modal-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 10px 4px;
+                    cursor: pointer;
+                    border-bottom: 1px solid rgba(44, 30, 15, .06);
+                }
+
+                .follow-modal-item:hover {
+                    background: rgba(232, 115, 42, .04);
+                }
+
+                .follow-modal-avatar {
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    background: var(--cream2);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 18px;
+                    color: var(--orange2);
+                    flex-shrink: 0;
+                }
+
+                .follow-modal-avatar img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                .follow-modal-nick {
+                    font-size: 14px;
+                    font-weight: 700;
+                    color: var(--brown);
+                }
+
                 .stat-item {
                     text-align: center;
                 }
@@ -472,6 +609,24 @@
                             <div class="profile-nickname">{{ user.nickname }}</div>
                             <div class="profile-grade">{{ fnGradeLabel(user.communityGrade) }}</div>
 
+                            <!-- ★ 팔로우 버튼 + 팔로워/팔로잉 카운트 -->
+                            <div class="follow-row" v-if="user.userId !== currentUserId">
+                                <button class="follow-btn" :class="{ on: isFollowing }" @click="fnToggleFollow">
+                                    <i :class="isFollowing ? 'ri-user-unfollow-line' : 'ri-user-add-line'"></i>
+                                    {{ isFollowing ? '팔로잉' : '팔로우' }}
+                                </button>
+                            </div>
+
+                            <div class="follow-counts">
+                                <span class="follow-count-item" @click="fnOpenFollowModal('followers')">
+                                    <strong>{{ followerCount }}</strong> 팔로워
+                                </span>
+                                <span class="follow-count-divider">·</span>
+                                <span class="follow-count-item" @click="fnOpenFollowModal('following')">
+                                    <strong>{{ followingCount }}</strong> 팔로잉
+                                </span>
+                            </div>
+
                             <!-- 통계 -->
                             <div class="profile-stats">
                                 <div class="stat-item stat-clickable" :class="{ active: activeTab === 'board' }"
@@ -501,6 +656,33 @@
                             </div>
                         </div>
 
+                        <!-- ★ 팔로워/팔로잉 목록 모달 -->
+                        <div class="profile-img-modal" v-if="followModal.show" @click.self="followModal.show = false">
+                            <div class="follow-modal-box">
+                                <div class="follow-modal-header">
+                                    <span>{{ followModal.type === 'followers' ? '팔로워' : '팔로잉' }}</span>
+                                    <button type="button" class="profile-img-modal-close follow-modal-close"
+                                        @click="followModal.show = false">
+                                        <i class="ri-close-line"></i>
+                                    </button>
+                                </div>
+
+                                <div class="follow-modal-list">
+                                    <div v-if="followModal.list.length === 0" class="empty-state">
+                                        {{ followModal.type === 'followers' ? '팔로워가 없습니다.' : '팔로잉이 없습니다.' }}
+                                    </div>
+
+                                    <div v-for="f in followModal.list" :key="f.userId" class="follow-modal-item"
+                                        @click="fnGoUserProfile(f.userId)">
+                                        <div class="follow-modal-avatar">
+                                            <img v-if="f.profileImg" :src="f.profileImg">
+                                            <i v-else class="ri-user-smile-line"></i>
+                                        </div>
+                                        <span class="follow-modal-nick">{{ f.nickname || f.userName }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <!-- 게시글 / 댓글 목록 -->
                         <div class="section-card" v-if="activeTab === 'board'">
                             <div class="section-head">
@@ -592,6 +774,15 @@
                                     recentComments: [],
                                     activeTab: 'board',
                                     profileImgModalOpen: false,
+                                    currentUserId: '${sessionScope.sessionId}' || null,
+                                    isFollowing: false,
+                                    followerCount: 0,
+                                    followingCount: 0,
+                                    followModal: {
+                                        show: false,
+                                        type: 'followers',
+                                        list: []
+                                    },
                                     gradeList: [
                                         { code: 'SPROUT', icon: 'ri-seedling-line', name: '새싹' },
                                         { code: 'EMBER', icon: 'ri-fire-line', name: '불씨' },
@@ -618,6 +809,7 @@
                                 fnLoad() {
                                     const userId = new URLSearchParams(location.search).get('userId');
                                     if (!userId) return;
+
                                     $.ajax({
                                         url: '/user/profile.dox', type: 'POST',
                                         data: { targetUserId: userId },
@@ -626,9 +818,67 @@
                                                 this.user = res.user;
                                                 this.recentBoards = res.recentBoards || [];
                                                 this.recentComments = res.recentComments || [];
+
+                                                // ★ 팔로우 상태 별도 조회
+                                                this.fnLoadFollowStatus(userId);
                                             }
                                         }
                                     });
+                                },
+
+                                // ★ 신규
+                                fnLoadFollowStatus(userId) {
+                                    $.ajax({
+                                        url: '/follow/status.dox', type: 'POST',
+                                        data: { targetUserId: userId },
+                                        success: (res) => {
+                                            if (res.result === 'success') {
+                                                this.isFollowing = res.isFollowing === true;
+                                                this.followerCount = res.followerCount || 0;
+                                                this.followingCount = res.followingCount || 0;
+                                            }
+                                        }
+                                    });
+                                },
+
+                                // ★ 신규
+                                fnToggleFollow() {
+                                    const userId = new URLSearchParams(location.search).get('userId');
+
+                                    $.ajax({
+                                        url: '/follow/toggle.dox', type: 'POST',
+                                        data: { targetUserId: userId },
+                                        success: (res) => {
+                                            if (res.result === 'success') {
+                                                this.isFollowing = res.following;
+                                                this.followerCount = res.followerCount;
+                                            } else {
+                                                alert(res.message || '로그인이 필요합니다.');
+                                            }
+                                        }
+                                    });
+                                },
+
+                                // ★ 신규
+                                fnOpenFollowModal(type) {
+                                    const userId = new URLSearchParams(location.search).get('userId');
+                                    const url = type === 'followers' ? '/follow/followers.dox' : '/follow/followings.dox';
+
+                                    $.ajax({
+                                        url, type: 'POST',
+                                        data: { userId },
+                                        success: (res) => {
+                                            if (res.result === 'success') {
+                                                this.followModal = { show: true, type, list: res.list || [] };
+                                            }
+                                        }
+                                    });
+                                },
+
+                                // ★ 신규
+                                fnGoUserProfile(userId) {
+                                    this.followModal.show = false;
+                                    location.href = '/user/profile.do?userId=' + encodeURIComponent(userId);
                                 },
                                 fnGoBoard(id) { location.href = '/board/detail.do?boardId=' + id; },
                                 fnGradeLabel(g) {

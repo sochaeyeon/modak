@@ -1,5 +1,3 @@
-@charset "UTF-8";
-
 :root {
     --cream: #F6F0E6;
     --brown: #3B2412;
@@ -61,15 +59,15 @@ body {
     text-align: center;
 }
 
-/* ── 단체채팅 만들기 버튼 (헤더) ─────────────────── */
+/* ★ 단체채팅 만들기 버튼 */
 .btn-create-group {
     display: flex;
     align-items: center;
     gap: 6px;
-    height: 38px;
-    padding: 0 14px;
+    height: 40px;
+    padding: 0 16px;
     border: none;
-    border-radius: 13px;
+    border-radius: 14px;
     background: var(--orange);
     color: #fff;
     font-size: 13px;
@@ -89,7 +87,7 @@ body {
 }
 
 .btn-create-group i {
-    font-size: 15px;
+    font-size: 16px;
 }
 
 /* 검색 */
@@ -179,7 +177,7 @@ body {
     font-size: 18px;
 }
 
-/* ── 단체채팅 그룹 아바타 ──────────────────────────── */
+/* ★ 단체채팅용 그룹 아바타 (사람 이미지 대신 아이콘) */
 .avatar.group-avatar {
     width: 52px;
     height: 52px;
@@ -228,7 +226,7 @@ body {
     text-overflow: ellipsis;
 }
 
-/* ── 채팅방 이름 옆 인원수 라벨 ────────────────────── */
+/* ★ 단체채팅 인원수 라벨 */
 .room-member-count {
     flex-shrink: 0;
     font-size: 11px;
@@ -278,7 +276,7 @@ body {
 /* 빈 상태 */
 .empty-state {
     text-align: center;
-    padding: 80px 20px;
+    padding: 64px 20px 40px;
 }
 
 .empty-state .ico {
@@ -291,9 +289,10 @@ body {
     color: var(--gray);
     font-size: 15px;
     line-height: 1.7;
+    margin-bottom: 22px;
 }
 
-/* 로딩 스켈레톤 */
+/* 스켈레톤 */
 @keyframes shimmer {
     0% { background-position: -600px 0; }
     100% { background-position: 600px 0; }
@@ -338,7 +337,9 @@ body {
     width: 80%;
 }
 
-/* ── 단체채팅 만들기 모달 ─────────────────────────── */
+/* ───────────────────────────────
+   ★ 단체채팅 만들기 모달
+─────────────────────────────── */
 .modal-bg {
     display: none;
     position: fixed;
@@ -425,7 +426,8 @@ body {
     margin-bottom: 18px;
 }
 
-.member-empty {
+.member-empty,
+.invite-empty {
     padding: 30px 0;
     text-align: center;
     color: var(--gray);
@@ -533,6 +535,7 @@ body {
     cursor: not-allowed;
 }
 
+/* 토스트 */
 .toast {
     position: fixed;
     bottom: 36px;

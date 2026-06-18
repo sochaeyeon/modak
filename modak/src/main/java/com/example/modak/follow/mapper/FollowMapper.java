@@ -15,4 +15,6 @@ public interface FollowMapper {
     int selectFollowerCount(String userId);
     int selectFollowingCount(String userId);
     List<Map<String, Object>> selectMutualFollowList(String userId);
+    List<Map<String, Object>> selectFollowerListWithMyStatus(Map<String, Object> params);
+    List<Map<String, Object>> selectFollowingListWithMyStatus(Map<String, Object> params);
 }

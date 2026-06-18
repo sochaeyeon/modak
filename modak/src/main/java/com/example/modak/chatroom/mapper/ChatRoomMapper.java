@@ -15,6 +15,7 @@ public interface ChatRoomMapper {
     Map<String, Object> selectRequestById(Long requestId);
     int updateRequestStatus(HashMap<String, Object> map);
     Map<String, Object> selectChatRoomIncludeHidden(HashMap<String, Object> param);
+    Map<String, Object> selectChatStatus(HashMap<String, Object> param);
     
     void updateRequestStatusWithRoom(HashMap<String, Object> param);
     // 채팅방

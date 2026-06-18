@@ -267,4 +267,17 @@ public class ChatRoomController {
         }
         return new Gson().toJson(chatService.sendStickerMessage(roomId, userId, content));
     }
+    
+    /** 기존 채팅방 존재 여부 확인 */
+    @PostMapping(value = "/status.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String chatStatus(@RequestParam String targetUser) {
+        String userId = (String) session.getAttribute("sessionId");
+        HashMap<String, Object> result = new HashMap<>();
+        if (userId == null) {
+            result.put("result", "fail");
+            return new Gson().toJson(result);
+        }
+        return new Gson().toJson(chatService.getChatStatus(userId, targetUser));
+    }
 }

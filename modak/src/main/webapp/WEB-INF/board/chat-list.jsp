@@ -34,7 +34,6 @@
             </span>
         </div>
 
-        <!-- 스켈레톤 (로딩 중) -->
         <div id="skeletonWrap">
             <c:forEach var="i" begin="1" end="4">
                 <div class="skeleton-card">

@@ -44,24 +44,24 @@ public class FollowServiceImpl implements FollowService {
     }
 
     @Override
-    public Map<String, Object> getFollowers(String userId) {
+    public Map<String, Object> getFollowers(String userId, String myUserId) {
         Map<String, Object> result = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId);
-
+        params.put("myUserId", myUserId == null ? "" : myUserId);
         result.put("result", "success");
-        result.put("list", followMapper.selectFollowerList(params));
+        result.put("list", followMapper.selectFollowerListWithMyStatus(params));
         return result;
     }
 
     @Override
-    public Map<String, Object> getFollowings(String userId) {
+    public Map<String, Object> getFollowings(String userId, String myUserId) {
         Map<String, Object> result = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId);
-
+        params.put("myUserId", myUserId == null ? "" : myUserId);
         result.put("result", "success");
-        result.put("list", followMapper.selectFollowingList(params));
+        result.put("list", followMapper.selectFollowingListWithMyStatus(params));
         return result;
     }
 

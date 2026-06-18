@@ -127,16 +127,18 @@
                         payBtn.addEventListener('click', function () {
                             payBtn.disabled = true;
                             payBtn.innerHTML = '<i class="ri-loader-4-line pay-loading"></i><span>결제창을 여는 중...</span>';
-
+                            const type = new URLSearchParams(location.search).get('type') || 'extension';
+                            const orderId = (type === 'overdue' ? 'ovd-' : 'ext-') + String(extensionOrderId).padStart(10, '0');
                             tossPayments.requestPayment('카드', {
                                 amount: amount,
                                 orderId: orderId,
                                 orderName: '대여 연장 - ' + productName + ' ' + days + '일',
                                 customerName: '모닥모닥 고객',
                                 successUrl: location.origin
-                                    + '/rental/extension/payment/success.do'
+                                    + (type === 'overdue'
+                                        ? '/rental/extension/overdue/payment/success.do'
+                                        : '/rental/extension/payment/success.do')
                                     + '?token=' + encodeURIComponent(token)
-                                    + '&guestOrderId=' + encodeURIComponent('${orderId}')
                                     + '&rentalId=' + encodeURIComponent('${rentalId}'),
                                 failUrl: location.origin + '/rental/extension/payment/fail.do'
                             }).catch(function (error) {

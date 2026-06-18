@@ -1629,9 +1629,7 @@
                                     if (status === "PAID") {
                                         summary.paid++;
                                     } else if (status === "READY") {
-                                        if (orderType === "PURCHASE") {
-                                            summary.ready++;
-                                        }
+                                        summary.ready++;   
                                     } else if (status === "SHIPPING") {
                                         summary.shipping++;
                                     } else if (status === "DONE" || status === "RETURNED") {
@@ -1681,8 +1679,8 @@
                                         return status === "DONE" || status === "RETURNED";
                                     }
 
-                                    if (this.selectedOrderStatus === "READY") {
-                                        return orderType === "PURCHASE" && status === "READY";
+                                   if (this.selectedOrderStatus === "READY") {
+                                        return status === "READY";  
                                     }
                                    if (this.selectedOrderStatus === "CANCELLED") {
                                         return status === "CANCELLED"

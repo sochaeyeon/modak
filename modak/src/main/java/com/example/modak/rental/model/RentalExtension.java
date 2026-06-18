@@ -14,15 +14,20 @@ public class RentalExtension {
     private String rentalStatus;
     private String guestName;
     private String guestPhone;
+    private int    overdueFee; 
 
     /* ── PRODUCT 조인 ── */
     private String productName;
     private int    pricePerDay;
-    private String imgUrl;         // ★ 상품 대표 이미지   // ★ 상품 1일 대여가격
+    private String imgUrl;         
+    private int    rentalDays; 
 
     /* ── RENTAL_EXTENSION ── */
     private Long   extensionId;
     private int    extensionDays;
     private int    price;         // 연장 결제 금액
     private String createdAt;
+    private String overduePaidAt;
+    
+    
 }

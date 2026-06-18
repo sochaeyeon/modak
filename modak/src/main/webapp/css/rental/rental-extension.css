@@ -890,49 +890,71 @@ button {
 .ext-tab-bar.is-return::after {
     transform: translateX(120px);
 }
+
 /* ── 연장 내역 인라인 ── */
-  .rental-ext-history {
-      grid-column: 1 / -1;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px dashed rgba(92, 66, 48, 0.18);
-  }
-  .ext-hist-title {
-      font-size: 12px;
-      font-weight: 800;
-      color: #8B6B4A;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-  }
-  .ext-hist-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 12px;
-      background: #fffaf2;
-      border: 1px solid rgba(232, 115, 42, 0.15);
-      border-radius: 10px;
-      margin-bottom: 6px;
-      font-size: 12px;
-  }
-  .ext-hist-days  { font-weight: 900; color: #C4621E; min-width: 44px; }
-  .ext-hist-price { font-weight: 800; color: #2C1E0F; min-width: 72px; }
-  .ext-hist-date  { color: #8B6B4A; flex: 1; }
-  .btn-ext-cancel-small {
-      border: 1.5px solid #ffd0d0;
-      background: #fff5f5;
-      color: #c0392b;
-      border-radius: 8px;
-      padding: 4px 10px;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background .15s;
-      flex-shrink: 0;
-  }
-  .btn-ext-cancel-small:hover { background: #ffe0e0; }
+.rental-ext-history {
+    grid-column: 1 / -1;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed rgba(92, 66, 48, 0.18);
+}
+
+.ext-hist-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: #8B6B4A;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.ext-hist-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: #fffaf2;
+    border: 1px solid rgba(232, 115, 42, 0.15);
+    border-radius: 10px;
+    margin-bottom: 6px;
+    font-size: 12px;
+}
+
+.ext-hist-days {
+    font-weight: 900;
+    color: #C4621E;
+    min-width: 44px;
+}
+
+.ext-hist-price {
+    font-weight: 800;
+    color: #2C1E0F;
+    min-width: 72px;
+}
+
+.ext-hist-date {
+    color: #8B6B4A;
+    flex: 1;
+}
+
+.btn-ext-cancel-small {
+    border: 1.5px solid #ffd0d0;
+    background: #fff5f5;
+    color: #c0392b;
+    border-radius: 8px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s;
+    flex-shrink: 0;
+}
+
+.btn-ext-cancel-small:hover {
+    background: #ffe0e0;
+}
+
 .ext-tab-btn {
     width: 120px;
     border-bottom: none !important;
@@ -948,4 +970,127 @@ button {
         opacity: 1;
         transform: translateY(0) scale(1);
     }
+}
+
+/* =========================
+   연장 안내 박스
+========================= */
+.ext-info-box {
+    background: #fff8f4;
+    border: 1.5px solid #E8732A;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #555;
+    line-height: 2;
+}
+
+.ext-info-box-title {
+    font-weight: 700;
+    color: #E8732A;
+    margin-bottom: 6px;
+    margin-top: 0;
+}
+
+.ext-info-overdue-text {
+    color: #c0392b;
+    font-weight: 700;
+}
+
+.overdue-strip {
+    grid-column: 1 / -1;
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: #FAEEDA;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.overdue-strip-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #633806;
+}
+
+.overdue-strip-amount {
+    font-size: 15px;
+    font-weight: 900;
+    color: #412402;
+    white-space: nowrap;
+}
+
+.ext-done-box {
+    background: #fff8f4;
+    border: 1.5px solid #E8732A;
+    border-radius: 10px;
+    padding: 18px 16px;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.ext-done-box i {
+    font-size: 28px;
+    color: #E8732A;
+}
+
+.ext-done-box-title {
+    font-weight: 700;
+    font-size: 15px;
+    margin: 8px 0 4px;
+}
+
+.ext-done-box-desc {
+    font-size: 13px;
+    color: #888;
+    margin: 0;
+}
+
+/* =========================
+   stepper max 도달 안내
+========================= */
+.stepper-max-notice {
+    font-size: 12px;
+    color: #E8732A;
+    margin-top: 6px;
+}
+
+/* =========================
+   연장 불가 안내
+========================= */
+.ext-disabled-notice {
+    padding: 8px 0;
+    font-size: 13px;
+    color: var(--brown4);
+}
+
+.overdue-strip.is-paid {
+    background: #E1F5EE;
+}
+
+.overdue-strip.is-paid .overdue-strip-label {
+    color: #085041;
+}
+
+.overdue-strip.is-paid .overdue-strip-amount {
+    color: #04342C;
+}
+
+.overdue-strip.is-additional {
+    background: #FCEBEB;
+}
+
+.overdue-strip.is-additional .overdue-strip-label {
+    color: #791F1F;
+}
+
+.overdue-strip.is-additional .overdue-strip-amount {
+    color: #501313;
 }

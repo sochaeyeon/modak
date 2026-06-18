@@ -120,8 +120,6 @@
 								</div>
 							</div>
 
-							<hr class="div">
-
 							<!-- 옵션 선택 -->
 							<div v-if="productOptions.length > 0" class="option-section">
 								<div class="section-label option-required-label">
@@ -355,54 +353,6 @@
 								<div class="detail-image-wrap" v-if="detailImgUrl">
 									<img :src="detailImgUrl" alt="상품 상세 이미지" class="detail-image">
 								</div>
-
-								<hr class="div" style="margin:24px 0">
-
-								<h3 style="font-size:15px;font-weight:700;margin:18px 0 12px">제품 특징</h3>
-								<div class="flist">
-									<div class="fi" v-for="(f, idx) in productFeatures" :key="f.featureId">
-										<div class="fic">
-											<i :class="getFeatureIcon(f, idx)"></i>
-										</div>
-										<div class="fit">
-											<h4>{{ f.title }}</h4>
-											<p>{{ f.content }}</p>
-										</div>
-									</div>
-								</div>
-
-								<hr class="div" style="margin:18px 0">
-
-								<h3 style="font-size:15px;font-weight:700;margin-bottom:12px">상품 스펙</h3>
-								<table class="spec">
-									<tr v-if="productSpec.capacity">
-										<th>수용 인원</th>
-										<td>{{ productSpec.capacity }}</td>
-									</tr>
-									<tr v-if="productSpec.size">
-										<th>전개 사이즈</th>
-										<td>{{ productSpec.size }}</td>
-									</tr>
-									<tr v-if="productSpec.weight">
-										<th>총 중량</th>
-										<td>{{ productSpec.weight }}</td>
-									</tr>
-									<tr v-if="productSpec.material">
-										<th>소재 (외피)</th>
-										<td>{{ productSpec.material }}</td>
-									</tr>
-									<tr v-if="productSpec.origin">
-										<th>원산지</th>
-										<td>{{ productSpec.origin }}</td>
-									</tr>
-
-									<tr v-if="!productSpec.capacity && !productSpec.size">
-										<td colspan="2" style="text-align:center;color:var(--muted);padding:20px">
-											등록된 스펙 정보가 없습니다.
-										</td>
-									</tr>
-								</table>
-
 							</div>
 
 							<div class="tpane" id="tp-rev">
@@ -594,26 +544,6 @@
 							</div>
 
 							<div class="tpane" id="tp-qna">
-								<div class="qna-list" v-if="faqList.length > 0">
-									<div class="qna-item" v-for="(f, idx) in faqList" :key="f.faqId || idx">
-										<button type="button" class="qna-question" @click="toggleFaq(idx)">
-
-											<span><b>Q.</b> {{ f.question }}</span>
-											<i
-												:class="openFaqIndex.includes(idx) ? 'ri-subtract-line' : 'ri-add-line'"></i>
-										</button>
-
-										<transition name="qna-slide">
-											<div v-show="openFaqIndex.includes(idx)" class="qna-answer">
-												<span>A.</span>
-												<p>{{ f.answer }}</p>
-											</div>
-										</transition>
-									</div>
-								</div>
-
-								<div v-else class="empty-qna">등록된 FAQ가 없습니다.</div>
-
 								<div class="qna-inquiry-box">
 									<p>원하는 답변을 찾지 못하셨나요?<br>평균 24시간 내 답변드립니다.</p>
 									<button type="button" class="btn-inquiry" @click="fnInquiry">1:1 문의하기</button>
@@ -1148,6 +1078,17 @@
 
 			methods: {
 				openCalendar() {
+					// 필수 옵션 선택 여부 검증
+					if (this.productOptions.length > 0) {
+						const optionGroupCount = Object.keys(this.groupedOptions).length;
+						const selectedCount = Object.keys(this.selectedOptions).length;
+
+						if (selectedCount < optionGroupCount) {
+							showToast('옵션을 먼저 선택해주세요.');
+							return; // 옵션을 모두 선택하지 않았다면 여기서 함수를 종료하여 캘린더를 열지 않음
+						}
+					}
+
 					const tomorrow = new Date();
 					tomorrow.setDate(tomorrow.getDate() + 1);
 
@@ -1621,12 +1562,28 @@
 				},
 				onDayClick(day) {
 					if (!day || day.isPast || day.isRented) return;
+					
 					if (!this.startDate || (this.startDate && this.endDate)) {
-						this.startDate = day.full; this.endDate = null;
+						this.startDate = day.full; 
+						this.endDate = null;
 					} else {
-						if (day.full < this.startDate) this.startDate = day.full;
-						else if (day.full === this.startDate) this.startDate = null;
-						else this.endDate = day.full;
+						if (day.full < this.startDate) {
+							this.startDate = day.full;
+						} else if (day.full === this.startDate) {
+							this.startDate = null;
+						} else {
+							// 대여 최대 기간 제한
+							const start = new Date(this.startDate);
+							const end = new Date(day.full);
+							const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+
+							if (diffDays > 7) {
+								showToast('최대 대여 가능 기간은 일주일(7박)입니다.');
+								return; // 7일을 초과하면 endDate를 설정하지 않고 종료
+							}
+							
+							this.endDate = day.full;
+						}
 					}
 				},
 				changeMonth(diff) {
@@ -1755,6 +1712,10 @@
 				},
 				fnInquiry() { location.href = '/inquiry.do'; },
 				selectOption(optionName, opt) {
+					// 옵션이 변경되면 대여 선택 날짜를 초기화하여 오류 방지
+					this.startDate = null;
+					this.endDate = null;
+
 					const selected = this.selectedOptions[optionName];
 
 					if (selected && selected.optionValueId === opt.optionValueId) {

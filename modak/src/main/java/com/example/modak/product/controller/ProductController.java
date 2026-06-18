@@ -143,4 +143,5 @@ public class ProductController {
 	    HashMap<String, Object> resultMap = productService.getOptionItemId(map);
 	    return new Gson().toJson(resultMap);
 	}
+	
 }

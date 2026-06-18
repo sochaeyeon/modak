@@ -520,7 +520,6 @@
 			            if (item.category === 'TMP') d.temps.push(parseFloat(item.fcstValue));
 			            if (item.category === 'SKY' && item.fcstTime === '1200') d.sky = item.fcstValue;
 			            if (item.category === 'PTY' && item.fcstTime === '1200') d.pty = item.fcstValue;
-			            // ✅ 수정: 1200 고정 대신 하루 중 최대 강수확률 사용
 			            if (item.category === 'POP') d.pops.push(parseInt(item.fcstValue) || 0);
 			          });
 
@@ -528,7 +527,6 @@
 			            var d = byDate[ds] || { temps: [], pops: [] };
 			            var mx = d.max != null ? Math.round(d.max) : d.temps.length > 0 ? Math.max.apply(null, d.temps) : null;
 			            var mn = d.min != null ? Math.round(d.min) : d.temps.length > 0 ? Math.min.apply(null, d.temps) : null;
-			            // ✅ 수정: pops 배열에서 최대값 사용
 			            var maxPop = d.pops.length > 0 ? Math.max.apply(null, d.pops) : null;
 			            result.push({
 			              label: i === 0 ? '오늘' : '내일',
@@ -549,16 +547,29 @@
 			                      ? mR.land.response.body.items.item[0]
 			                      : mR.land.response.body.items.item;
 
-			          // ✅ 수정: 시간 기준 대신 실제 데이터 존재 여부로 시작 인덱스 결정
-			          var startIdx = (ta['taMin3'] != null) ? 3 : 4;
+			          // ✅ Spring이 내려준 tmFc로 기준일 파싱 (예: "202506161800")
+			          var tmFc = mR.tmFc || '';
+			          var baseDate = new Date();
+			          if (tmFc.length >= 8) {
+			            var y  = parseInt(tmFc.substring(0, 4));
+			            var mo = parseInt(tmFc.substring(4, 6)) - 1;
+			            var dd = parseInt(tmFc.substring(6, 8));
+			            baseDate = new Date(y, mo, dd);
+			          }
+
+			          // taMin3 있으면 D+3부터, 없으면 D+4부터
+					  var startIdx = 3;
+					  for (var chk = 3; chk <= 6; chk++) {
+					    if (ta['taMin' + chk] != null) { startIdx = chk; break; }
+					  }
 
 			          [startIdx, startIdx + 1, startIdx + 2].forEach(function (d) {
-			            var dt = new Date();
+			            var dt = new Date(baseDate);
 			            dt.setDate(dt.getDate() + d);
 			            var label = (dt.getMonth() + 1) + '/' + dt.getDate();
-			            var wf = land['wf' + d + 'Am'] || land['wf' + d] || '';
+			            var wf  = land['wf' + d + 'Am'] || land['wf' + d] || '';
 			            var pop = land['rnSt' + d + 'Am'] != null ? land['rnSt' + d + 'Am']
-			                    : land['rnSt' + d] != null ? land['rnSt' + d] : '-';
+			                    : land['rnSt' + d]    != null ? land['rnSt' + d] : '-';
 			            result.push({
 			              label: label,
 			              icon:  self.wfToIcon(wf),
@@ -616,6 +627,7 @@
 			  mounted: function () { this.loadWeather(this.regionMap['seoul']); }
 			});
 			vueApp.mount('#weatherSection');
+
 
             /* ── 6. 토스트 ── */
             function showToast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(function () { t.classList.remove('show'); }, 2200); }

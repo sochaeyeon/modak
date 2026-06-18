@@ -1052,6 +1052,16 @@
                                     } else if (day.full === this.optModal.startDate) {
                                         this.optModal.startDate = null;
                                     } else {
+                                        // 7박 제한 로직
+                                        const start = new Date(this.optModal.startDate);
+                                        const end = new Date(day.full);
+                                        const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+
+                                        if (diffDays > 7) {
+                                            showToast('최대 대여 가능 기간은 일주일(7박)입니다.');
+                                            return; // 7박을 초과하면 endDate를 설정하지 않고 종료
+                                        }
+
                                         this.optModal.endDate = day.full;
                                     }
                                 }

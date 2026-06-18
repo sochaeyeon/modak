@@ -87,6 +87,7 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 | 📐 **설계 문서** | ERD, 요구사항 정의서, API 명세서 | [바로가기 →](https://drive.google.com/drive/folders/1ImcpHUeuDkVdmN7kLwLxJ86gxVyfqsfu) |
 | 🛠️ **공통 가이드라인** | 코드 컨벤션, 브랜치 전략, 공통 규칙 | [바로가기 →](https://drive.google.com/drive/folders/1fBHTVU46fD2LCtV5VhgCbF-mRSP53oqj) |
 | 🎞️ **발표 PPT** | 프로젝트 최종 발표 슬라이드 | [바로가기 →](https://drive.google.com/drive/folders/1HiUoiXSteg3I6RIs6ugyEuQGllCwXxJs) |
+| 🎞️ **시연영상** | 프로젝트 최종 시연 영상 | [바로가기 →](https://drive.google.com/drive/folders/1Pk6suZSuB2UOuNgl-HHGSGlxJqbb_u0o?usp=drive_link) |
 | 🗂️ **ERD** | ERD Cloud 다이어그램 | [바로가기 →](https://www.erdcloud.com/d/mKYg2hEbjCt6jR4kW) |
 
 </div>

@@ -1809,3 +1809,17 @@ input[type="number"] {
     border-color: #e03e3e;
     background: #fff5f5;
 }
+
+.agree-required-msg {
+    font-size: 12px;
+    color: #e74c3c;
+    text-align: center;
+    margin-top: 8px;
+}
+
+.addr-add-btn-disabled {
+    background: #f5f5f5;
+    color: #aaa;
+    border-color: #ddd;
+    cursor: not-allowed;
+}

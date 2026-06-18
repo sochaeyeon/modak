@@ -34,35 +34,30 @@ public class AlarmController {
 		return "alarm/notice-list";
 	}
 
-	/**
-	 * 2. 알림 클릭 시 처리 (읽음 업데이트 + 해당 페이지 이동) URL: /alarm/notice-detail.do?alarmId=번호
-	 */
 	@RequestMapping("/notice-detail.do")
 	public String noticeDetail(@RequestParam("alarmId") int alarmId) {
-		// 1) 알림 상세 정보 가져오기
-		Map<String, Object> alarm = alarmService.getAlarmInfo(alarmId);
+	    Map<String, Object> alarm = alarmService.getAlarmInfo(alarmId);
 
-		if (alarm != null) {
-			// 2) 해당 알림 읽음 처리 (IS_READ = 'Y')
-			alarmService.updateAlarmRead(alarmId);
+	    if (alarm != null) {
+	        alarmService.updateAlarmRead(alarmId);
 
-			String type = (String) alarm.get("TYPE");
-			Object linkId = alarm.get("LINK_ID"); // DB에 저장된 주문ID 혹은 이벤트ID
+	        String type = (String) alarm.get("TYPE");
+	        Object linkId = alarm.get("LINK_ID");
 
-			// 3) 타입에 따른 리다이렉트 (은동님 프로젝트 주소: orderId)
-			if ("DELIVERY".equals(type)) {
-				// 이미지 확인 결과: /order/detail.do?orderId=번호
-				return "redirect:/order/detail.do?orderId=" + linkId;
-			}
+	        if ("DELIVERY".equals(type)) {
+	            return "redirect:/order/detail.do?orderId=" + linkId;
+	        }
 
-			if ("EVENT".equals(type)) {
-				// 이미지 확인 결과: /event/detail.do?eventId=번호
-				return "redirect:/event/detail.do?eventId=" + linkId;
-			}
-		}
+	        if ("EVENT".equals(type)) {
+	            return "redirect:/event/detail.do?eventId=" + linkId;
+	        }
 
-		// 데이터가 없거나 알 수 없는 타입이면 다시 목록으로
-		return "redirect:/alarm/notice-list.do";
+	        if ("OVERDUE".equals(type)) {
+	            return "redirect:/rental/extension/main.do?rentalId=" + linkId;
+	        }
+	    }
+
+	    return "redirect:/alarm/notice-list.do";
 	}
 
 	/**

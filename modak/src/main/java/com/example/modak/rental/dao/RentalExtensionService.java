@@ -159,20 +159,18 @@ public class RentalExtensionService {
 				return result;
 			}
 			if (!EXTENDABLE.contains(rental.getRentalStatus())) {
-			    result.put("result", "fail");
-			    result.put("message", "현재 상태에서는 연장 신청이 불가능합니다.");
-			    return result;
+				result.put("result", "fail");
+				result.put("message", "현재 상태에서는 연장 신청이 불가능합니다.");
+				return result;
 			}
 			if (rental.getReturnDate() != null) {
-			    java.time.LocalDate today = java.time.LocalDate.now();
-			    java.time.LocalDate returnDate = java.time.LocalDate.parse(
-			            rental.getReturnDate().substring(0, 10)  
-			    );
-			    if (today.isAfter(returnDate)) {
-			        result.put("result",  "fail");
-			        result.put("message", "반납 예정일이 지난 건은 연장 신청이 불가합니다.");
-			        return result;
-			    }
+				java.time.LocalDate today = java.time.LocalDate.now();
+				java.time.LocalDate returnDate = java.time.LocalDate.parse(rental.getReturnDate().substring(0, 10));
+				if (today.isAfter(returnDate)) {
+					result.put("result", "fail");
+					result.put("message", "반납 예정일이 지난 건은 연장 신청이 불가합니다.");
+					return result;
+				}
 			}
 
 			int pricePerDay = rental.getPricePerDay() > 0 ? rental.getPricePerDay() : 5000;
@@ -580,5 +578,84 @@ public class RentalExtensionService {
 		} catch (Exception e) {
 			return false;
 		}
+	}
+
+	public HashMap<String, Object> readyOverduePayment(HashMap<String, Object> map) {
+		HashMap<String, Object> result = new HashMap<>();
+		try {
+			mapper.insertOverdueOrder(map); // RENTAL_OVERDUE_ORDER에 INSERT
+			result.put("result", "success");
+			result.put("overdueOrderId", map.get("overdueOrderId"));
+			result.put("amount", map.get("overdueFee"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.put("result", "fail");
+			result.put("message", e.getMessage());
+		}
+		return result;
+	}
+
+	@Transactional
+	public HashMap<String, Object> confirmOverduePayment(String paymentKey, String orderId, Long amount, String token) {
+		HashMap<String, Object> result = new HashMap<>();
+		try {
+			// 1. Toss API 승인
+			String auth = Base64.getEncoder().encodeToString((tossSecretKey + ":").getBytes());
+			String body = String.format("{\"paymentKey\":\"%s\",\"orderId\":\"%s\",\"amount\":%d}", paymentKey, orderId,
+					amount);
+
+			HttpClient client = HttpClient.newHttpClient();
+			HttpRequest request = HttpRequest.newBuilder()
+					.uri(URI.create("https://api.tosspayments.com/v1/payments/confirm"))
+					.header("Authorization", "Basic " + auth).header("Content-Type", "application/json")
+					.POST(HttpRequest.BodyPublishers.ofString(body)).build();
+			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+			if (response.statusCode() != 200) {
+				result.put("result", "fail");
+				result.put("message", "Toss 승인 실패: " + response.body());
+				return result;
+			}
+
+			// 2. overdueOrderId 파싱 (orderId 형식: "ovd-{id}")
+			Long overdueOrderId = Long.parseLong(orderId.replace("ovd-", ""));
+			HashMap<String, Object> orderMap = new HashMap<>();
+			orderMap.put("overdueOrderId", overdueOrderId);
+			HashMap<String, Object> overdueOrder = mapper.selectOverdueOrder(orderMap);
+
+			if (overdueOrder == null)
+				throw new RuntimeException("연체 주문 정보를 찾을 수 없습니다.");
+
+			// 3. 비회원이면 token 검증
+			String savedUserId = String.valueOf(overdueOrder.get("USER_ID"));
+			String savedGuestToken = String.valueOf(overdueOrder.get("GUEST_TOKEN"));
+
+			if ("GUEST".equals(savedUserId)) {
+				if (token == null || !token.equals(savedGuestToken)) {
+					result.put("result", "fail");
+					result.put("message", "비회원 인증 정보가 일치하지 않습니다.");
+					return result;
+				}
+			}
+
+			// 4. 반납 신청 처리 (상태변경 + 연체료 저장)
+			mapper.updateReturnRequestWithOverdue(overdueOrder);
+
+			// 5. 주문 상태 PAID
+			orderMap.put("status", "PAID");
+			mapper.updateOverdueOrderStatus(orderMap);
+
+			result.put("result", "success");
+			result.put("rentalId", overdueOrder.get("RENTAL_ID"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.put("result", "fail");
+			result.put("message", e.getMessage());
+		}
+		return result;
+	}
+
+	public HashMap<String, Object> getOverdueOrder(HashMap<String, Object> map) {
+		return mapper.selectOverdueOrder(map);
 	}
 }

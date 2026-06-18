@@ -269,23 +269,39 @@ public class RentalExtensionController {
 	    return new Gson().toJson(service.readyExtensionPayment(map));
 	}
 
-	// 연장 결제 페이지
 	@GetMapping("/payment.do")
 	public String extensionPaymentPage(@RequestParam HashMap<String, Object> map, Model model) {
 
-		HashMap<String, Object> order = service.getExtensionOrder(map);
+	    String type = String.valueOf(map.getOrDefault("type", "extension"));
+	    HashMap<String, Object> order;
 
-		model.addAttribute("tossClientKey", tossClientKey);
-		model.addAttribute("extensionOrderId", order.get("EXTENSION_ORDER_ID"));
-		model.addAttribute("amount", order.get("PRICE"));
-		model.addAttribute("days", order.get("EXTENSION_DAYS"));
-		model.addAttribute("productName", order.get("PRODUCT_NAME"));
-		model.addAttribute("imgUrl", order.get("IMG_URL"));
-		model.addAttribute("token", map.getOrDefault("token", ""));
-		model.addAttribute("orderId", map.getOrDefault("orderId", ""));
-		model.addAttribute("rentalId", map.getOrDefault("rentalId", ""));
+	    if ("overdue".equals(type)) {
+	        HashMap<String, Object> orderMap = new HashMap<>();
+	        orderMap.put("overdueOrderId", map.get("extensionOrderId")); // payUrl에서 extensionOrderId로 넘어옴
+	        order = service.getOverdueOrder(orderMap);
 
-		return "rental/extension-payment";
+	        model.addAttribute("tossClientKey", tossClientKey);
+	        model.addAttribute("extensionOrderId", order.get("OVERDUE_ORDER_ID"));
+	        model.addAttribute("amount", order.get("OVERDUE_FEE"));
+	        model.addAttribute("days", order.get("OVERDUE_DAYS"));
+	        model.addAttribute("productName", order.get("PRODUCT_NAME"));
+	        model.addAttribute("imgUrl", order.get("IMG_URL"));
+	    } else {
+	        order = service.getExtensionOrder(map);
+
+	        model.addAttribute("tossClientKey", tossClientKey);
+	        model.addAttribute("extensionOrderId", order.get("EXTENSION_ORDER_ID"));
+	        model.addAttribute("amount", order.get("PRICE"));
+	        model.addAttribute("days", order.get("EXTENSION_DAYS"));
+	        model.addAttribute("productName", order.get("PRODUCT_NAME"));
+	        model.addAttribute("imgUrl", order.get("IMG_URL"));
+	    }
+
+	    model.addAttribute("token", map.getOrDefault("token", ""));
+	    model.addAttribute("orderId", map.getOrDefault("orderId", ""));
+	    model.addAttribute("rentalId", map.getOrDefault("rentalId", ""));
+
+	    return "rental/extension-payment";
 	}
 
 	// 연장 결제 성공 콜백
@@ -322,7 +338,32 @@ public class RentalExtensionController {
 
 		return service.getGuestRentalListByOrder(orderId.trim(), token.trim());
 	}
-	
+	// 연체료 결제 준비
+	@PostMapping(value = "/overdue/payment/ready.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String overduePaymentReady(@RequestParam HashMap<String, Object> map, HttpSession session) {
+	    String userId = (String) session.getAttribute("sessionId");
+	    map.put("userId", userId != null ? userId : "GUEST");
+	    return new Gson().toJson(service.readyOverduePayment(map));
+	}
+
+	// 연체료 결제 성공 콜백
+	@GetMapping("/overdue/payment/success.do")
+	public String overduePaymentSuccess(@RequestParam String paymentKey,
+	        @RequestParam String orderId, @RequestParam Long amount,
+	        @RequestParam(required = false, defaultValue = "") String token,
+	        @RequestParam(required = false, defaultValue = "") String rentalId,
+	        Model model) {
+	    HashMap<String, Object> result = service.confirmOverduePayment(paymentKey, orderId, amount, token);
+	    if ("success".equals(result.get("result"))) {
+	        model.addAttribute("rentalId", result.get("rentalId"));
+	        model.addAttribute("token", token);
+	        model.addAttribute("type", "overdue");
+	        return "rental/extension-complete";
+	    }
+	    model.addAttribute("message", result.get("message"));
+	    return "payment/fail";
+	}
 	
 	
 }

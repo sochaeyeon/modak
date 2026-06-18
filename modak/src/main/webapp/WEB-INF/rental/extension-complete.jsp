@@ -24,12 +24,21 @@
 
                     <p class="complete-kicker">EXTENSION COMPLETE</p>
 
-                    <h1 class="complete-title">연장 신청이 완료되었습니다</h1>
-
+                    <h1 class="complete-title">
+                        ${type == 'overdue' ? '반납 신청이 완료되었습니다' : '연장 신청이 완료되었습니다'}
+                    </h1>
                     <p class="complete-desc">
-                        결제가 정상적으로 처리되었고<br>
-                        반납 예정일이 자동으로 연장되었습니다.<br>
-                        대여 내역은 비회원 조회에서 다시 확인해주세요.
+                        <c:choose>
+                            <c:when test="${type == 'overdue'}">
+                                연체료 결제가 완료되었고<br>
+                                반납 신청이 정상적으로 접수되었습니다.
+                            </c:when>
+                            <c:otherwise>
+                                결제가 정상적으로 처리되었고<br>
+                                반납 예정일이 자동으로 연장되었습니다.
+                            </c:otherwise>
+                        </c:choose>
+                        <br>대여 내역은 비회원 조회에서 다시 확인해주세요.
                     </p>
 
                     <div class="complete-info-box">
@@ -45,7 +54,7 @@
                                 <i class="ri-calendar-check-line"></i>
                                 처리 결과
                             </span>
-                            <strong>연장 확정</strong>
+                            <strong>${type == 'overdue' ? '반납 접수 완료' : '연장 확정'}</strong>
                         </div>
                     </div>
 

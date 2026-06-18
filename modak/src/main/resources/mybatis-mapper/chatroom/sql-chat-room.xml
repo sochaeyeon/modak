@@ -3,311 +3,324 @@
 
 <mapper namespace="com.example.modak.chatroom.mapper.ChatRoomMapper">
 
-    <!-- 대화 신청 -->
-    <insert id="insertChatRequest" parameterType="hashmap"
-            useGeneratedKeys="true" keyProperty="requestId">
-        INSERT INTO CHAT_REQUEST (FROM_USER, TO_USER, STATUS, CREATED_AT)
-        VALUES (#{fromUser}, #{toUser}, 'PENDING', NOW())
-    </insert>
+	<!-- 대화 신청 -->
+	<insert id="insertChatRequest" parameterType="hashmap"
+		useGeneratedKeys="true" keyProperty="requestId">
+		INSERT INTO CHAT_REQUEST (FROM_USER, TO_USER, STATUS, CREATED_AT)
+		VALUES (#{fromUser}, #{toUser}, 'PENDING', NOW())
+	</insert>
 
-    <select id="selectPendingRequest" parameterType="hashmap" resultType="map">
-        SELECT *
-        FROM CHAT_REQUEST
-        WHERE FROM_USER = #{fromUser}
-          AND TO_USER = #{toUser}
-          AND STATUS = 'PENDING'
-        LIMIT 1
-    </select>
+	<select id="selectPendingRequest" parameterType="hashmap" resultType="map">
+		SELECT *
+		FROM CHAT_REQUEST
+		WHERE FROM_USER = #{fromUser}
+		AND TO_USER = #{toUser}
+		AND STATUS = 'PENDING'
+		LIMIT 1
+	</select>
 
-    <select id="selectRequestById" parameterType="long" resultType="map">
-        SELECT *
-        FROM CHAT_REQUEST
-        WHERE REQUEST_ID = #{requestId}
-    </select>
+	<select id="selectRequestById" parameterType="long" resultType="map">
+		SELECT *
+		FROM CHAT_REQUEST
+		WHERE REQUEST_ID = #{requestId}
+	</select>
 
-    <update id="updateRequestStatus" parameterType="hashmap">
-        UPDATE CHAT_REQUEST
-        SET STATUS = #{status}
-        WHERE REQUEST_ID = #{requestId}
-    </update>
+	<update id="updateRequestStatus" parameterType="hashmap">
+		UPDATE CHAT_REQUEST
+		SET STATUS = #{status}
+		WHERE REQUEST_ID = #{requestId}
+	</update>
 
-    <update id="updateRequestStatusWithRoom" parameterType="hashmap">
-        UPDATE CHAT_REQUEST
-        SET STATUS = #{status},
-            ROOM_ID = #{roomId}
-        WHERE REQUEST_ID = #{requestId}
-    </update>
+	<update id="updateRequestStatusWithRoom" parameterType="hashmap">
+		UPDATE CHAT_REQUEST
+		SET STATUS = #{status},
+		ROOM_ID = #{roomId}
+		WHERE REQUEST_ID = #{requestId}
+	</update>
 
-    <!-- 채팅방 -->
-    <insert id="insertChatRoom" parameterType="hashmap"
-            useGeneratedKeys="true" keyProperty="roomId">
-        INSERT INTO CHAT_ROOM (USER_A, USER_B, CREATED_AT)
-        VALUES (#{userA}, #{userB}, NOW())
-    </insert>
+	<!-- 채팅방 -->
+	<insert id="insertChatRoom" parameterType="hashmap"
+		useGeneratedKeys="true" keyProperty="roomId">
+		INSERT INTO CHAT_ROOM (USER_A, USER_B, CREATED_AT)
+		VALUES (#{userA}, #{userB}, NOW())
+	</insert>
 
-    <select id="selectChatRoom" parameterType="hashmap" resultType="map">
-        SELECT *
-        FROM CHAT_ROOM R
-        WHERE (
-            (R.USER_A = #{userId} AND R.USER_B = #{otherId})
-            OR
-            (R.USER_A = #{otherId} AND R.USER_B = #{userId})
-        )
-        AND NOT EXISTS (
-            SELECT 1
-            FROM CHAT_ROOM_HIDE H
-            WHERE H.ROOM_ID = R.ROOM_ID
-              AND H.USER_ID = #{userId}
-        )
-        LIMIT 1
-    </select>
+	<select id="selectChatRoom" parameterType="hashmap" resultType="map">
+		SELECT *
+		FROM CHAT_ROOM R
+		WHERE (
+		(R.USER_A = #{userId} AND R.USER_B = #{otherId})
+		OR
+		(R.USER_A = #{otherId} AND R.USER_B = #{userId})
+		)
+		AND NOT EXISTS (
+		SELECT 1
+		FROM CHAT_ROOM_HIDE H
+		WHERE H.ROOM_ID = R.ROOM_ID
+		AND H.USER_ID = #{userId}
+		)
+		LIMIT 1
+	</select>
 
-    <select id="selectChatRoomIncludeHidden" parameterType="hashmap" resultType="map">
-        SELECT *
-        FROM CHAT_ROOM R
-        WHERE (
-            (R.USER_A = #{userId} AND R.USER_B = #{otherId})
-            OR
-            (R.USER_A = #{otherId} AND R.USER_B = #{userId})
-        )
-        LIMIT 1
-    </select>
+	<select id="selectChatRoomIncludeHidden" parameterType="hashmap"
+		resultType="map">
+		SELECT *
+		FROM CHAT_ROOM R
+		WHERE (
+		(R.USER_A = #{userId} AND R.USER_B = #{otherId})
+		OR
+		(R.USER_A = #{otherId} AND R.USER_B = #{userId})
+		)
+		LIMIT 1
+	</select>
 
-    <select id="selectMyRooms" parameterType="string" resultType="map">
-        SELECT
-            R.ROOM_ID,
-            CASE WHEN R.USER_A = #{userId} THEN R.USER_B ELSE R.USER_A END AS OTHER_ID,
-            U.NICKNAME AS OTHER_NICK,
-            U.PROFILE_IMG_URL AS OTHER_IMG,
+	<select id="selectMyRooms" parameterType="string" resultType="map">
+		SELECT
+		R.ROOM_ID,
+		CASE WHEN R.USER_A = #{userId} THEN R.USER_B ELSE R.USER_A END AS
+		OTHER_ID,
+		U.NICKNAME AS OTHER_NICK,
+		U.PROFILE_IMG_URL AS OTHER_IMG,
 
-            (
-                SELECT M.CONTENT
-                FROM CHAT_MESSAGE M
-                WHERE M.ROOM_ID = R.ROOM_ID
-                ORDER BY M.CREATED_AT DESC
-                LIMIT 1
-            ) AS LAST_MSG,
+		(
+		SELECT M.CONTENT
+		FROM CHAT_MESSAGE M
+		WHERE M.ROOM_ID = R.ROOM_ID
+		ORDER BY M.CREATED_AT DESC
+		LIMIT 1
+		) AS LAST_MSG,
 
-            (
-                SELECT COUNT(*)
-                FROM CHAT_MESSAGE M
-                WHERE M.ROOM_ID = R.ROOM_ID
-                  AND M.SENDER_ID != #{userId}
-                  AND M.IS_READ = 'N'
-            ) AS UNREAD_COUNT,
+		(
+		SELECT COUNT(*)
+		FROM CHAT_MESSAGE M
+		WHERE M.ROOM_ID = R.ROOM_ID
+		AND M.SENDER_ID != #{userId}
+		AND M.IS_READ = 'N'
+		) AS UNREAD_COUNT,
 
-            (
-                SELECT DATE_FORMAT(M.CREATED_AT, '%Y-%m-%d %H:%i')
-                FROM CHAT_MESSAGE M
-                WHERE M.ROOM_ID = R.ROOM_ID
-                ORDER BY M.CREATED_AT DESC
-                LIMIT 1
-            ) AS LAST_AT
+		(
+		SELECT DATE_FORMAT(M.CREATED_AT, '%Y-%m-%d %H:%i')
+		FROM CHAT_MESSAGE M
+		WHERE M.ROOM_ID = R.ROOM_ID
+		ORDER BY M.CREATED_AT DESC
+		LIMIT 1
+		) AS LAST_AT
 
-        FROM CHAT_ROOM R
-        JOIN USER U
-            ON U.USER_ID =
-                CASE WHEN R.USER_A = #{userId} THEN R.USER_B ELSE R.USER_A END
+		FROM CHAT_ROOM R
+		JOIN USER U
+		ON U.USER_ID =
+		CASE WHEN R.USER_A = #{userId} THEN R.USER_B ELSE R.USER_A END
 
-        LEFT JOIN CHAT_ROOM_HIDE H
-            ON H.ROOM_ID = R.ROOM_ID
-           AND H.USER_ID = #{userId}
+		LEFT JOIN CHAT_ROOM_HIDE H
+		ON H.ROOM_ID = R.ROOM_ID
+		AND H.USER_ID = #{userId}
 
-        WHERE (R.USER_A = #{userId} OR R.USER_B = #{userId})
-          AND (
-              H.ROOM_ID IS NULL
-              OR EXISTS (
-                  SELECT 1
-                  FROM CHAT_MESSAGE M
-                  WHERE M.ROOM_ID = R.ROOM_ID
-                    AND M.SENDER_ID != #{userId}
-                    AND M.CREATED_AT > H.CREATED_AT
-              )
-          )
+		WHERE (R.USER_A = #{userId} OR R.USER_B = #{userId})
+		AND (
+		H.ROOM_ID IS NULL
+		OR EXISTS (
+		SELECT 1
+		FROM CHAT_MESSAGE M
+		WHERE M.ROOM_ID = R.ROOM_ID
+		AND M.SENDER_ID != #{userId}
+		AND M.CREATED_AT > H.CREATED_AT
+		)
+		)
 
-        ORDER BY LAST_AT DESC
-    </select>
+		ORDER BY LAST_AT DESC
+	</select>
 
-    <insert id="hideRoomForMe" parameterType="hashmap">
-        INSERT IGNORE INTO CHAT_ROOM_HIDE (
-            ROOM_ID,
-            USER_ID,
-            CREATED_AT
-        )
-        VALUES (
-            #{roomId},
-            #{userId},
-            NOW()
-        )
-    </insert>
+	<insert id="hideRoomForMe" parameterType="hashmap">
+		INSERT IGNORE INTO CHAT_ROOM_HIDE (
+		ROOM_ID,
+		USER_ID,
+		CREATED_AT
+		)
+		VALUES (
+		#{roomId},
+		#{userId},
+		NOW()
+		)
+	</insert>
 
-    <delete id="showRoomAgain" parameterType="hashmap">
-        DELETE FROM CHAT_ROOM_HIDE
-        WHERE ROOM_ID = #{roomId}
-          AND USER_ID = #{userId}
-    </delete>
+	<delete id="showRoomAgain" parameterType="hashmap">
+		DELETE FROM CHAT_ROOM_HIDE
+		WHERE ROOM_ID = #{roomId}
+		AND USER_ID = #{userId}
+	</delete>
 
-    <!-- 메시지 -->
-    <insert id="insertMessage" parameterType="hashmap"
-            useGeneratedKeys="true" keyProperty="messageId">
-        INSERT INTO CHAT_MESSAGE (
-            ROOM_ID,
-            SENDER_ID,
-            CONTENT,
-            CREATED_AT
-        )
-        VALUES (
-            #{roomId},
-            #{senderId},
-            #{content},
-            NOW()
-        )
-    </insert>
+	<!-- 메시지 -->
+	<insert id="insertMessage" parameterType="hashmap"
+		useGeneratedKeys="true" keyProperty="messageId">
+		INSERT INTO CHAT_MESSAGE (
+		ROOM_ID,
+		SENDER_ID,
+		CONTENT,
+		CREATED_AT
+		)
+		VALUES (
+		#{roomId},
+		#{senderId},
+		#{content},
+		NOW()
+		)
+	</insert>
 
-    <insert id="insertImageMessage" parameterType="hashmap"
-            useGeneratedKeys="true" keyProperty="messageId">
-        INSERT INTO CHAT_MESSAGE (
-            ROOM_ID,
-            SENDER_ID,
-            CONTENT,
-            MESSAGE_TYPE,
-            CREATED_AT
-        )
-        VALUES (
-            #{roomId},
-            #{senderId},
-            #{content},
-            'IMAGE',
-            NOW()
-        )
-    </insert>
+	<insert id="insertImageMessage" parameterType="hashmap"
+		useGeneratedKeys="true" keyProperty="messageId">
+		INSERT INTO CHAT_MESSAGE (
+		ROOM_ID,
+		SENDER_ID,
+		CONTENT,
+		MESSAGE_TYPE,
+		CREATED_AT
+		)
+		VALUES (
+		#{roomId},
+		#{senderId},
+		#{content},
+		'IMAGE',
+		NOW()
+		)
+	</insert>
 
-    <insert id="insertStickerMessage" parameterType="hashmap"
-            useGeneratedKeys="true" keyProperty="messageId">
-        INSERT INTO CHAT_MESSAGE (
-            ROOM_ID,
-            SENDER_ID,
-            CONTENT,
-            MESSAGE_TYPE,
-            CREATED_AT
-        )
-        VALUES (
-            #{roomId},
-            #{senderId},
-            #{content},
-            #{messageType},
-            NOW()
-        )
-    </insert>
+	<insert id="insertStickerMessage" parameterType="hashmap"
+		useGeneratedKeys="true" keyProperty="messageId">
+		INSERT INTO CHAT_MESSAGE (
+		ROOM_ID,
+		SENDER_ID,
+		CONTENT,
+		MESSAGE_TYPE,
+		CREATED_AT
+		)
+		VALUES (
+		#{roomId},
+		#{senderId},
+		#{content},
+		#{messageType},
+		NOW()
+		)
+	</insert>
 
-    <select id="selectMessages" parameterType="hashmap" resultType="map">
-        SELECT
-            M.MESSAGE_ID,
-            M.ROOM_ID,
-            M.SENDER_ID,
+	<select id="selectMessages" parameterType="hashmap" resultType="map">
+		SELECT
+		M.MESSAGE_ID,
+		M.ROOM_ID,
+		M.SENDER_ID,
 
-            CASE
-                WHEN M.IS_DELETED = 'Y' THEN '삭제된 메시지입니다'
-                ELSE M.CONTENT
-            END AS CONTENT,
+		CASE
+		WHEN M.IS_DELETED = 'Y' THEN '삭제된 메시지입니다'
+		ELSE M.CONTENT
+		END AS CONTENT,
 
-            CASE
-                WHEN M.IS_DELETED = 'Y' THEN 'TEXT'
-                ELSE M.MESSAGE_TYPE
-            END AS MESSAGE_TYPE,
+		CASE
+		WHEN M.IS_DELETED = 'Y' THEN 'TEXT'
+		ELSE M.MESSAGE_TYPE
+		END AS MESSAGE_TYPE,
 
-            M.IS_READ,
-            M.IS_DELETED,
-            DATE_FORMAT(M.CREATED_AT, '%Y-%m-%d %H:%i:%s') AS CREATED_AT,
-            U.NICKNAME AS SENDER_NICK,
-            U.PROFILE_IMG_URL AS SENDER_IMG
+		M.IS_READ,
+		M.IS_DELETED,
+		DATE_FORMAT(M.CREATED_AT, '%Y-%m-%d %H:%i:%s') AS CREATED_AT,
+		U.NICKNAME AS SENDER_NICK,
+		U.PROFILE_IMG_URL AS SENDER_IMG
 
-        FROM CHAT_MESSAGE M
-        JOIN USER U
-            ON U.USER_ID = M.SENDER_ID
+		FROM CHAT_MESSAGE M
+		JOIN USER U
+		ON U.USER_ID = M.SENDER_ID
 
-        LEFT JOIN CHAT_ROOM_HIDE RH
-            ON RH.ROOM_ID = M.ROOM_ID
-           AND RH.USER_ID = #{userId}
+		LEFT JOIN CHAT_ROOM_HIDE RH
+		ON RH.ROOM_ID = M.ROOM_ID
+		AND RH.USER_ID = #{userId}
 
-        WHERE M.ROOM_ID = #{roomId}
-          AND (
-              RH.ROOM_ID IS NULL
-              OR M.CREATED_AT > RH.CREATED_AT
-          )
-          AND NOT EXISTS (
-              SELECT 1
-              FROM CHAT_MESSAGE_HIDE H
-              WHERE H.MESSAGE_ID = M.MESSAGE_ID
-                AND H.USER_ID = #{userId}
-          )
+		WHERE M.ROOM_ID = #{roomId}
+		AND (
+		RH.ROOM_ID IS NULL
+		OR M.CREATED_AT > RH.CREATED_AT
+		)
+		AND NOT EXISTS (
+		SELECT 1
+		FROM CHAT_MESSAGE_HIDE H
+		WHERE H.MESSAGE_ID = M.MESSAGE_ID
+		AND H.USER_ID = #{userId}
+		)
 
-        ORDER BY M.CREATED_AT ASC
-    </select>
+		ORDER BY M.CREATED_AT ASC
+	</select>
 
-    <update id="markMessagesRead" parameterType="hashmap">
-        UPDATE CHAT_MESSAGE
-        SET IS_READ = 'Y'
-        WHERE ROOM_ID = #{roomId}
-          AND SENDER_ID != #{userId}
-          AND IS_READ = 'N'
-    </update>
+	<update id="markMessagesRead" parameterType="hashmap">
+		UPDATE CHAT_MESSAGE
+		SET IS_READ = 'Y'
+		WHERE ROOM_ID = #{roomId}
+		AND SENDER_ID != #{userId}
+		AND IS_READ = 'N'
+	</update>
 
-    <insert id="hideMessageForMe" parameterType="hashmap">
-        INSERT IGNORE INTO CHAT_MESSAGE_HIDE (
-            MESSAGE_ID,
-            USER_ID,
-            CREATED_AT
-        )
-        VALUES (
-            #{messageId},
-            #{userId},
-            NOW()
-        )
-    </insert>
+	<insert id="hideMessageForMe" parameterType="hashmap">
+		INSERT IGNORE INTO CHAT_MESSAGE_HIDE (
+		MESSAGE_ID,
+		USER_ID,
+		CREATED_AT
+		)
+		VALUES (
+		#{messageId},
+		#{userId},
+		NOW()
+		)
+	</insert>
 
-    <update id="deleteMessageForAll" parameterType="hashmap">
-        UPDATE CHAT_MESSAGE
-        SET IS_DELETED = 'Y',
-            CONTENT = '삭제된 메시지입니다',
-            MESSAGE_TYPE = 'TEXT'
-        WHERE MESSAGE_ID = #{messageId}
-          AND ROOM_ID = #{roomId}
-          AND SENDER_ID = #{userId}
-          AND IS_DELETED = 'N'
-    </update>
+	<update id="deleteMessageForAll" parameterType="hashmap">
+		UPDATE CHAT_MESSAGE
+		SET IS_DELETED = 'Y',
+		CONTENT = '삭제된 메시지입니다',
+		MESSAGE_TYPE = 'TEXT'
+		WHERE MESSAGE_ID = #{messageId}
+		AND ROOM_ID = #{roomId}
+		AND SENDER_ID = #{userId}
+		AND IS_DELETED = 'N'
+	</update>
 
-    <!-- 차단 -->
-    <insert id="insertBlock" parameterType="hashmap">
-        INSERT IGNORE INTO USER_BLOCK (
-            BLOCKER_ID,
-            BLOCKED_ID,
-            CREATED_AT
-        )
-        VALUES (
-            #{blockerId},
-            #{blockedId},
-            NOW()
-        )
-    </insert>
+	<!-- 차단 -->
+	<insert id="insertBlock" parameterType="hashmap">
+		INSERT IGNORE INTO USER_BLOCK (
+		BLOCKER_ID,
+		BLOCKED_ID,
+		CREATED_AT
+		)
+		VALUES (
+		#{blockerId},
+		#{blockedId},
+		NOW()
+		)
+	</insert>
 
-    <delete id="deleteBlock" parameterType="hashmap">
-        DELETE FROM USER_BLOCK
-        WHERE BLOCKER_ID = #{blockerId}
-          AND BLOCKED_ID = #{blockedId}
-    </delete>
+	<delete id="deleteBlock" parameterType="hashmap">
+		DELETE FROM USER_BLOCK
+		WHERE BLOCKER_ID = #{blockerId}
+		AND BLOCKED_ID = #{blockedId}
+	</delete>
 
-    <select id="selectBlockExists" parameterType="hashmap" resultType="int">
-        SELECT COUNT(*)
-        FROM USER_BLOCK
-        WHERE BLOCKER_ID = #{blockerId}
-          AND BLOCKED_ID = #{blockedId}
-    </select>
+	<select id="selectBlockExists" parameterType="hashmap" resultType="int">
+		SELECT COUNT(*)
+		FROM USER_BLOCK
+		WHERE BLOCKER_ID = #{blockerId}
+		AND BLOCKED_ID = #{blockedId}
+	</select>
 
-    <select id="selectBlockedIds" parameterType="string" resultType="string">
-        SELECT BLOCKED_ID
-        FROM USER_BLOCK
-        WHERE BLOCKER_ID = #{userId}
-    </select>
+	<select id="selectBlockedIds" parameterType="string" resultType="string">
+		SELECT BLOCKED_ID
+		FROM USER_BLOCK
+		WHERE BLOCKER_ID = #{userId}
+	</select>
+
+	<select id="selectChatStatus" parameterType="hashmap" resultType="map">
+		SELECT ROOM_ID
+		FROM CHAT_ROOM
+		WHERE (
+		(USER_A = #{userId} AND USER_B = #{otherId})
+		OR
+		(USER_A = #{otherId} AND USER_B = #{userId})
+		)
+		LIMIT 1
+	</select>
 
 </mapper>

@@ -401,4 +401,27 @@ public class ChatRoomService {
 
 		return result;
 	}
+
+	public HashMap<String, Object> getChatStatus(String userId, String otherId) {
+		HashMap<String, Object> result = new HashMap<>();
+		try {
+			HashMap<String, Object> param = new HashMap<>();
+			param.put("userId", userId);
+			param.put("otherId", otherId);
+
+			Map<String, Object> room = mapper.selectChatStatus(param);
+
+			result.put("result", "success");
+			if (room != null) {
+				result.put("exists", true);
+				result.put("roomId", room.get("ROOM_ID"));
+			} else {
+				result.put("exists", false);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.put("result", "fail");
+		}
+		return result;
+	}
 }

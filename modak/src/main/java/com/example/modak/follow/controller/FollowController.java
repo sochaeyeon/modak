@@ -32,18 +32,18 @@ public class FollowController {
         return new Gson().toJson(followService.toggleFollow(myUserId, targetUserId));
     }
 
-    /** 특정 유저 기준 팔로워 목록 */
     @PostMapping(value = "/followers.dox", produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String followers(@RequestParam String userId) {
-        return new Gson().toJson(followService.getFollowers(userId));
+        String myUserId = (String) session.getAttribute("sessionId");
+        return new Gson().toJson(followService.getFollowers(userId, myUserId));
     }
 
-    /** 특정 유저 기준 팔로잉 목록 */
     @PostMapping(value = "/followings.dox", produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String followings(@RequestParam String userId) {
-        return new Gson().toJson(followService.getFollowings(userId));
+        String myUserId = (String) session.getAttribute("sessionId");
+        return new Gson().toJson(followService.getFollowings(userId, myUserId));
     }
 
     /** 내 맞팔 목록 — 단체채팅 초대 후보 */

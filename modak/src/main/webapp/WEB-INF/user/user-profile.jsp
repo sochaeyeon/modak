@@ -105,17 +105,18 @@
                     border-top: 1px solid var(--border);
                 }
 
-                .follow-row {
-                    margin-top: 14px;
+                .profile-action-row {
+                    display: flex;
+                    gap: 8px;
+                    margin-top: 20px;
+                    padding-top: 20px;
+                    border-top: 1px solid var(--border);
                 }
 
-                .follow-btn {
-                    width: 140px;
-                    height: 38px;
-                    border: 1.5px solid var(--orange);
+                .profile-action-btn {
+                    flex: 1;
+                    height: 42px;
                     border-radius: 12px;
-                    background: var(--white);
-                    color: var(--orange2);
                     font-size: 13px;
                     font-weight: 800;
                     cursor: pointer;
@@ -124,48 +125,96 @@
                     justify-content: center;
                     gap: 6px;
                     transition: all .18s;
+                    font-family: inherit;
                 }
 
-                .follow-btn:hover {
-                    background: rgba(232, 115, 42, .08);
-                }
-
-                .follow-btn.on {
+                .follow-btn {
+                    border: 1.5px solid var(--orange);
                     background: var(--orange);
-                    border-color: var(--orange);
                     color: #fff;
                 }
 
-                .follow-btn.on:hover {
+                .follow-btn:hover {
                     background: var(--orange2);
+                }
+
+                .follow-btn.on {
+                    background: var(--white);
+                    border-color: var(--orange);
+                    color: var(--orange2);
+                }
+
+                .follow-btn.on:hover {
+                    background: rgba(232, 115, 42, .08);
+                }
+
+                .chat-request-btn {
+                    border: 1.5px solid var(--border);
+                    background: var(--cream);
+                    color: var(--brown3);
+                }
+
+                .chat-request-btn:hover {
+                    border-color: var(--orange);
+                    color: var(--orange2);
+                }
+
+                .chat-request-btn.pending {
+                    background: var(--cream2);
+                    color: var(--brown4);
+                    cursor: default;
+                }
+
+                .chat-request-btn.exists {
+                    border-color: var(--orange);
+                    background: rgba(232, 115, 42, .08);
+                    color: var(--orange2);
                 }
 
                 .follow-counts {
                     display: flex;
-                    justify-content: center;
                     align-items: center;
-                    gap: 10px;
-                    margin-top: 12px;
-                    font-size: 13px;
-                    color: var(--brown3);
+                    justify-content: center;
+                    gap: 4px;
+                    margin: 18px 0 4px;
                 }
 
                 .follow-count-item {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
                     cursor: pointer;
-                    font-weight: 600;
+                    padding: 9px 20px;
+                    border-radius: 999px;
+                    transition: background .15s;
                 }
 
                 .follow-count-item:hover {
+                    background: rgba(232, 115, 42, .08);
+                }
+
+                .follow-count-item i {
+                    font-size: 16px;
                     color: var(--orange2);
                 }
 
                 .follow-count-item strong {
                     color: var(--brown);
                     font-weight: 900;
+                    font-size: 17px;
+                }
+
+                .follow-count-label {
+                    font-size: 12.5px;
+                    color: var(--brown3);
+                    font-weight: 700;
                 }
 
                 .follow-count-divider {
-                    color: var(--brown4);
+                    display: block;
+                    width: 1px;
+                    height: 20px;
+                    background: var(--border);
                 }
 
                 .follow-modal-box {
@@ -182,21 +231,89 @@
 
                 .follow-modal-header {
                     display: flex;
-                    justify-content: space-between;
                     align-items: center;
                     font-size: 16px;
                     font-weight: 900;
                     color: var(--brown);
-                    margin-bottom: 12px;
+                    margin-bottom: 14px;
+                    padding-right: 40px;
                 }
 
-                .follow-modal-close {
-                    position: static;
+                .follow-modal-close-btn {
+                    position: absolute;
+                    top: 14px;
+                    right: 14px;
                     width: 28px;
                     height: 28px;
-                    font-size: 16px;
+                    font-size: 17px;
+                    border: none;
+                    border-radius: 50%;
                     background: var(--cream2);
                     color: var(--brown3);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: background .15s, color .15s;
+                    z-index: 1;
+                }
+
+                .follow-modal-close-btn:hover {
+                    background: rgba(232, 115, 42, .14);
+                    color: var(--orange2);
+                }
+
+                .follow-modal-search {
+                    position: relative;
+                    margin-bottom: 12px;
+                    flex-shrink: 0;
+                }
+
+                .follow-modal-search i {
+                    position: absolute;
+                    left: 13px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    font-size: 15px;
+                    color: var(--brown4);
+                }
+
+                .follow-modal-search input {
+                    width: 100%;
+                    height: 38px;
+                    border: 1.5px solid var(--border);
+                    border-radius: 12px;
+                    padding: 0 14px 0 36px;
+                    font-size: 13px;
+                    font-family: inherit;
+                    color: var(--brown);
+                    background: var(--cream);
+                    outline: none;
+                    transition: border-color .15s;
+                }
+
+                .follow-modal-search input:focus {
+                    border-color: var(--orange);
+                }
+
+                .follow-modal-search input::placeholder {
+                    color: var(--brown4);
+                }
+
+                .follow-modal-empty {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 44px 20px;
+                    color: var(--brown4);
+                    text-align: center;
+                    font-size: 13px;
+                }
+
+                .follow-modal-empty i {
+                    font-size: 32px;
+                    color: var(--brown4);
                 }
 
                 .follow-modal-list {
@@ -240,6 +357,47 @@
                     font-size: 14px;
                     font-weight: 700;
                     color: var(--brown);
+                }
+
+                .follow-modal-item {
+                    justify-content: space-between;
+                }
+
+                .follow-modal-info {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    flex: 1;
+                    min-width: 0;
+                }
+
+                .follow-modal-mini-btn {
+                    flex-shrink: 0;
+                    height: 30px;
+                    padding: 0 14px;
+                    border-radius: 9px;
+                    border: 1.5px solid var(--orange);
+                    background: var(--orange);
+                    color: #fff;
+                    font-size: 12px;
+                    font-weight: 800;
+                    cursor: pointer;
+                    transition: all .15s;
+                    font-family: inherit;
+                }
+
+                .follow-modal-mini-btn:hover {
+                    background: var(--orange2);
+                }
+
+                .follow-modal-mini-btn.on {
+                    background: var(--white);
+                    border-color: var(--orange);
+                    color: var(--orange2);
+                }
+
+                .follow-modal-mini-btn.on:hover {
+                    background: rgba(232, 115, 42, .08);
                 }
 
                 .stat-item {
@@ -609,21 +767,17 @@
                             <div class="profile-nickname">{{ user.nickname }}</div>
                             <div class="profile-grade">{{ fnGradeLabel(user.communityGrade) }}</div>
 
-                            <!-- ★ 팔로우 버튼 + 팔로워/팔로잉 카운트 -->
-                            <div class="follow-row" v-if="user.userId !== currentUserId">
-                                <button class="follow-btn" :class="{ on: isFollowing }" @click="fnToggleFollow">
-                                    <i :class="isFollowing ? 'ri-user-unfollow-line' : 'ri-user-add-line'"></i>
-                                    {{ isFollowing ? '팔로잉' : '팔로우' }}
-                                </button>
-                            </div>
-
                             <div class="follow-counts">
                                 <span class="follow-count-item" @click="fnOpenFollowModal('followers')">
-                                    <strong>{{ followerCount }}</strong> 팔로워
+                                    <i class="ri-group-line"></i>
+                                    <strong>{{ followerCount }}</strong>
+                                    <span class="follow-count-label">팔로워</span>
                                 </span>
-                                <span class="follow-count-divider">·</span>
+                                <span class="follow-count-divider"></span>
                                 <span class="follow-count-item" @click="fnOpenFollowModal('following')">
-                                    <strong>{{ followingCount }}</strong> 팔로잉
+                                    <i class="ri-user-follow-line"></i>
+                                    <strong>{{ followingCount }}</strong>
+                                    <span class="follow-count-label">팔로잉</span>
                                 </span>
                             </div>
 
@@ -654,31 +808,64 @@
                                     {{ g.name }}
                                 </div>
                             </div>
+
+                            <!-- ★ 팔로우 + 채팅신청 액션 버튼 -->
+                            <div class="profile-action-row" v-if="user.userId !== currentUserId">
+                                <button class="profile-action-btn follow-btn" :class="{ on: isFollowing }"
+                                    @click="fnToggleFollow">
+                                    <i :class="isFollowing ? 'ri-user-unfollow-line' : 'ri-user-add-line'"></i>
+                                    {{ isFollowing ? '팔로잉' : '팔로우' }}
+                                </button>
+
+                                <button class="profile-action-btn chat-request-btn" :class="chatBtnState"
+                                    :disabled="chatBtnState === 'pending'" @click="fnRequestChat">
+                                    <i :class="chatBtnState === 'exists' ? 'ri-chat-3-line' : 'ri-chat-new-line'"></i>
+                                    {{ chatBtnLabel }}
+                                </button>
+                            </div>
                         </div>
 
                         <!-- ★ 팔로워/팔로잉 목록 모달 -->
-                        <div class="profile-img-modal" v-if="followModal.show" @click.self="followModal.show = false">
+                        <div class="profile-img-modal" v-if="followModal.show" @click.self="fnCloseFollowModal">
                             <div class="follow-modal-box">
                                 <div class="follow-modal-header">
                                     <span>{{ followModal.type === 'followers' ? '팔로워' : '팔로잉' }}</span>
-                                    <button type="button" class="profile-img-modal-close follow-modal-close"
-                                        @click="followModal.show = false">
+                                    <button type="button" class="follow-modal-close-btn"
+                                        @click="fnCloseFollowModal">
                                         <i class="ri-close-line"></i>
                                     </button>
                                 </div>
 
+                                <div class="follow-modal-search" v-if="followModal.list.length > 0">
+                                    <i class="ri-search-line"></i>
+                                    <input type="text" v-model="followModal.keyword" placeholder="닉네임으로 검색">
+                                </div>
+
                                 <div class="follow-modal-list">
-                                    <div v-if="followModal.list.length === 0" class="empty-state">
+                                    <div v-if="followModal.list.length === 0" class="follow-modal-empty">
+                                        <i class="ri-team-line"></i>
                                         {{ followModal.type === 'followers' ? '팔로워가 없습니다.' : '팔로잉이 없습니다.' }}
                                     </div>
 
-                                    <div v-for="f in followModal.list" :key="f.userId" class="follow-modal-item"
-                                        @click="fnGoUserProfile(f.userId)">
-                                        <div class="follow-modal-avatar">
-                                            <img v-if="f.profileImg" :src="f.profileImg">
-                                            <i v-else class="ri-user-smile-line"></i>
+                                    <div v-else-if="filteredFollowList.length === 0" class="follow-modal-empty">
+                                        <i class="ri-user-search-line"></i>
+                                        검색 결과가 없습니다.
+                                    </div>
+
+                                    <div v-for="f in filteredFollowList" :key="f.userId" class="follow-modal-item">
+                                        <div class="follow-modal-info" @click="fnGoUserProfile(f.userId)">
+                                            <div class="follow-modal-avatar">
+                                                <img v-if="f.profileImg" :src="f.profileImg">
+                                                <i v-else class="ri-user-smile-line"></i>
+                                            </div>
+                                            <span class="follow-modal-nick">{{ f.nickname || f.userName }}</span>
                                         </div>
-                                        <span class="follow-modal-nick">{{ f.nickname || f.userName }}</span>
+
+                                        <button v-if="f.userId !== currentUserId" type="button"
+                                            class="follow-modal-mini-btn" :class="{ on: f.isFollowing }"
+                                            @click.stop="fnToggleFollowInModal(f)">
+                                            {{ f.isFollowing ? '팔로잉' : '팔로우' }}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -778,10 +965,17 @@
                                     isFollowing: false,
                                     followerCount: 0,
                                     followingCount: 0,
+                                    chatBtnState: '',
+                                    chatBtnLabel: '대화 신청',
+                                    chatRoomId: null,
                                     followModal: {
                                         show: false,
                                         type: 'followers',
-                                        list: []
+                                        list: [],
+                                        keyword: '',
+                                        pendingOwnerFollowing: null,
+                                        pendingFollowerCount: null,
+                                        pendingFollowingDelta: 0
                                     },
                                     gradeList: [
                                         { code: 'SPROUT', icon: 'ri-seedling-line', name: '새싹' },
@@ -791,6 +985,15 @@
                                         { code: 'MODAK', icon: 'ri-bowl-line', name: '모닥불' }
                                     ]
                                 };
+                            },
+                            computed: {
+                                filteredFollowList() {
+                                    const kw = this.followModal.keyword.trim().toLowerCase();
+                                    if (!kw) return this.followModal.list;
+                                    return this.followModal.list.filter(f =>
+                                        (f.nickname || f.userName || '').toLowerCase().includes(kw)
+                                    );
+                                }
                             },
                             methods: {
                                 fnOpenProfileImgModal() {
@@ -821,6 +1024,7 @@
 
                                                 // ★ 팔로우 상태 별도 조회
                                                 this.fnLoadFollowStatus(userId);
+                                                this.fnLoadChatStatus(userId);
                                             }
                                         }
                                     });
@@ -836,6 +1040,21 @@
                                                 this.isFollowing = res.isFollowing === true;
                                                 this.followerCount = res.followerCount || 0;
                                                 this.followingCount = res.followingCount || 0;
+                                            }
+                                        }
+                                    });
+                                },
+
+                                // ★ 신규 - 기존 채팅방 존재 여부 미리 확인
+                                fnLoadChatStatus(userId) {
+                                    $.ajax({
+                                        url: '/chat-room/status.dox', type: 'POST',
+                                        data: { targetUser: userId },
+                                        success: (res) => {
+                                            if (res.result === 'success' && res.exists) {
+                                                this.chatBtnState = 'exists';
+                                                this.chatRoomId = res.roomId;
+                                                this.chatBtnLabel = '채팅방 이동';
                                             }
                                         }
                                     });
@@ -859,7 +1078,51 @@
                                     });
                                 },
 
-                                // ★ 신규
+                                // ★ 신규 - 채팅 신청
+                                fnRequestChat() {
+                                    const targetUserId = new URLSearchParams(location.search).get('userId');
+
+                                    if (this.chatBtnState === 'exists') {
+                                        location.href = '/chat-room/room.do?roomId=' + this.chatRoomId + '&otherId=' + targetUserId;
+                                        return;
+                                    }
+
+                                    this.chatBtnLabel = '신청 중…';
+
+                                    $.ajax({
+                                        url: '/chat-room/request.dox', type: 'POST',
+                                        data: { toUser: targetUserId },
+                                        dataType: 'json',
+                                        success: (res) => {
+                                            if (res.result === 'success') {
+                                                this.chatBtnState = 'pending';
+                                                this.chatBtnLabel = '신청 완료';
+                                                return;
+                                            }
+
+                                            if (res.result === 'exists') {
+                                                this.chatBtnState = 'exists';
+                                                this.chatRoomId = res.roomId;
+                                                this.chatBtnLabel = '채팅방 이동';
+                                                return;
+                                            }
+
+                                            if (res.result === 'pending' || res.message === '이미 신청 중입니다.') {
+                                                this.chatBtnState = 'pending';
+                                                this.chatBtnLabel = '신청 중';
+                                                return;
+                                            }
+
+                                            this.chatBtnState = '';
+                                            this.chatBtnLabel = '대화 신청';
+                                            alert(res.message || '신청할 수 없습니다.');
+                                        },
+                                        error: () => {
+                                            this.chatBtnLabel = '대화 신청';
+                                            alert('네트워크 오류가 발생했어요.');
+                                        }
+                                    });
+                                },
                                 fnOpenFollowModal(type) {
                                     const userId = new URLSearchParams(location.search).get('userId');
                                     const url = type === 'followers' ? '/follow/followers.dox' : '/follow/followings.dox';
@@ -869,13 +1132,61 @@
                                         data: { userId },
                                         success: (res) => {
                                             if (res.result === 'success') {
-                                                this.followModal = { show: true, type, list: res.list || [] };
+                                                const list = (res.list || []).map(f => ({
+                                                    ...f,
+                                                    isFollowing: !!Number(f.isFollowing)
+                                                }));
+                                                this.followModal = {
+                                                    show: true, type, list, keyword: '',
+                                                    pendingOwnerFollowing: null,
+                                                    pendingFollowerCount: null,
+                                                    pendingFollowingDelta: 0
+                                                };
                                             }
                                         }
                                     });
                                 },
 
-                                // ★ 신규
+                                fnToggleFollowInModal(f) {
+                                    $.ajax({
+                                        url: '/follow/toggle.dox', type: 'POST',
+                                        data: { targetUserId: f.userId },
+                                        success: (res) => {
+                                            if (res.result !== 'success') {
+                                                alert(res.message || '로그인이 필요합니다.');
+                                                return;
+                                            }
+
+                                            const wasFollowing = f.isFollowing;
+                                            f.isFollowing = res.following;
+
+                                            const profileUserId = new URLSearchParams(location.search).get('userId');
+
+                                            // 지금 보고 있는 프로필 주인을 토글한 경우 → 모달 닫을 때 메인 카드에 반영
+                                            if (f.userId === profileUserId) {
+                                                this.followModal.pendingOwnerFollowing = res.following;
+                                                this.followModal.pendingFollowerCount = res.followerCount;
+                                            }
+
+                                            // 내 프로필의 '팔로잉' 목록에서 토글한 경우 → 모달 닫을 때 카운트에 반영 (목록은 닫았다 열어야 갱신)
+                                            if (profileUserId === this.currentUserId && wasFollowing !== res.following) {
+                                                this.followModal.pendingFollowingDelta += res.following ? 1 : -1;
+                                            }
+                                        }
+                                    });
+                                },
+                                fnCloseFollowModal() {
+                                    if (this.followModal.pendingOwnerFollowing !== null) {
+                                        this.isFollowing = this.followModal.pendingOwnerFollowing;
+                                        this.followerCount = this.followModal.pendingFollowerCount;
+                                    }
+
+                                    if (this.followModal.pendingFollowingDelta) {
+                                        this.followingCount += this.followModal.pendingFollowingDelta;
+                                    }
+
+                                    this.followModal.show = false;
+                                },
                                 fnGoUserProfile(userId) {
                                     this.followModal.show = false;
                                     location.href = '/user/profile.do?userId=' + encodeURIComponent(userId);
@@ -894,9 +1205,13 @@
                                 fnFormatDate(dt) {
                                     if (!dt) return '';
                                     const d = new Date(dt), now = new Date(), diff = (now - d) / 1000;
+                                    const DAY = 86400, WEEK = DAY * 7, YEAR = DAY * 365;
+
                                     if (diff < 60) return '방금 전';
                                     if (diff < 3600) return Math.floor(diff / 60) + '분 전';
-                                    if (diff < 86400) return Math.floor(diff / 3600) + '시간 전';
+                                    if (diff < DAY) return Math.floor(diff / 3600) + '시간 전';
+                                    if (diff < WEEK) return Math.floor(diff / DAY) + '일 전';
+                                    if (diff < YEAR) return Math.floor(diff / WEEK) + '주 전';
                                     return dt.toString().slice(0, 10);
                                 },
                                 fnGoBack() {

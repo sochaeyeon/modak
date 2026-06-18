@@ -4,6 +4,13 @@
 <mapper namespace="com.example.modak.rental.mapper.RentalExtensionMapper">
 
 
+	<!-- 연장 횟수 조회 -->
+	<select id="selectExtensionCount" parameterType="hashmap" resultType="int">
+		SELECT COUNT(*)
+		FROM RENTAL_EXTENSION
+		WHERE RENTAL_ID = #{rentalId}
+	</select>
+
 	<!-- 회원 대여 목록 -->
 	<select id="selectMyRentals"
 		resultType="com.example.modak.rental.model.RentalExtension">

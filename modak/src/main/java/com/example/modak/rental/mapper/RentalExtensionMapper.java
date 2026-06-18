@@ -99,4 +99,6 @@ public interface RentalExtensionMapper {
     
     List<RentalExtension> selectGuestRentalListByOrder(@Param("orderId") String orderId);
     RentalExtension selectGuestRentalByPhone(HashMap<String, Object> map);
+    
+    int selectExtensionCount(HashMap<String, Object> map);
 }

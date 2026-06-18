@@ -31,6 +31,18 @@
                             대여 중인 상품을 선택해 연장 또는 반납 신청을 할 수 있습니다.
                         </p>
 
+                        <!-- 연장 안내 박스 -->
+                        <div class="ext-info-box" style="background:#fff8f4; border:1.5px solid #E8732A; border-radius:10px;
+     padding:16px 20px; margin-bottom:20px; font-size:13px; color:#555; line-height:2;">
+                            <p style="font-weight:700; color:#E8732A; margin-bottom:6px;">
+                                <i class="ri-information-line"></i> 대여 연장 안내
+                            </p>
+                            · 1일 연장 기준 요금은 상품별로 상이합니다.<br>
+                            · 최대 3일까지 연장 가능하며, 연장은 1회까지만 가능합니다.<br>
+                            · 예약완료 또는 대여중 상태의 대여만 연장 가능합니다.<br>
+                            · <strong style="color:#c0392b;">연체 시 3일째부터 하루당 총 대여금액의 20%가 추가 청구됩니다.</strong>
+                        </div>
+
                         <!-- 대여 목록 -->
                         <div class="section-card" v-if="!isGuest || guestOrderId || guestRentalId">
                             <div class="section-head">
@@ -72,13 +84,17 @@
                                             </span>
                                         </div>
 
-                                        <!-- 버튼 -->
                                         <div class="rental-card-actions">
                                             <button type="button" class="mini-action-btn"
-                                                v-if="fnCanExtension(rental.rentalStatus)"
+                                                v-if="fnCanExtension(rental.rentalStatus, rental.returnDate)"
                                                 @click.stop="isGuest ? (activeTab = 'extension', fnSelectGuestRental(rental)) : fnOpenExtension(rental)">
                                                 연장 신청
                                             </button>
+                                            <span
+                                                v-if="fnIsOverdue(rental.returnDate) && fnCanExtension(rental.rentalStatus)"
+                                                style="font-size:11px; color:#c0392b; font-weight:600;">
+                                                ⚠ 연체 중 ({{ fnOverdueDays(rental.returnDate) }}일)
+                                            </span>
                                             <button type="button" class="mini-action-btn return"
                                                 v-if="fnCanReturn(rental.rentalStatus)"
                                                 @click.stop="isGuest ? (activeTab = 'return', fnSelectGuestRental(rental)) : fnOpenReturn(rental)">
@@ -150,43 +166,60 @@
                                     </button>
                                 </div>
 
-                                <!-- 연장 탭 -->
                                 <div v-if="activeTab === 'extension'">
                                     <div class="ext-form">
-                                        <div v-if="fnCanExtension(selectedRental.rentalStatus)">
-                                            <div class="ext-form-row">
-                                                <div class="form-group">
-                                                    <label class="form-label">연장 일수</label>
-                                                    <div class="days-stepper">
-                                                        <button class="stepper-btn"
-                                                            @click="extensionDays = Math.max(1, extensionDays - 1)"
-                                                            type="button">−</button>
-                                                        <input type="number" class="stepper-input"
-                                                            v-model.number="extensionDays" min="1" max="30"
-                                                            @input="extensionDays = Math.min(30, Math.max(1, extensionDays || 1))">
-                                                        <button class="stepper-btn"
-                                                            @click="extensionDays = Math.min(30, extensionDays + 1)"
-                                                            type="button">+</button>
-                                                    </div>
-                                                </div>
-                                                <div class="price-preview">
-                                                    <span class="price-preview-label">예상 금액</span>
-                                                    <span class="price-preview-val">
-                                                        {{ fnPrice(extensionDays * (selectedRental.pricePerDay || 5000))
-                                                        }}
-                                                    </span>
-                                                </div>
-                                                <button class="btn-apply"
-                                                    :disabled="!extensionDays || extensionDays < 1 || extensionDays > 30 || isApplying"
-                                                    @click="fnApply">
-                                                    {{ isApplying ? '처리 중...' : '연장 신청' }}
-                                                </button>
+                                        <div
+                                            v-if="fnCanExtension(selectedRental.rentalStatus, selectedRental.returnDate)">
+                                            <div v-if="extensions.length >= 1" style="background:#fff8f4; border:1.5px solid #E8732A; border-radius:10px;
+                padding:18px 16px; text-align:center; margin-bottom:12px;">
+                                                <i class="ri-calendar-check-line"
+                                                    style="font-size:28px; color:#E8732A;"></i>
+                                                <p style="font-weight:700; font-size:15px; margin:8px 0 4px;">연장이 이미
+                                                    완료되었습니다</p>
+                                                <p style="font-size:13px; color:#888; margin:0;">연장은 대여 1건당 1회, 최대 3일까지만
+                                                    가능합니다.</p>
                                             </div>
-                                            <p class="ext-notice">
-                                                · 1일 연장 기준 {{ fnPrice(selectedRental.pricePerDay || 5000) }}이 부과됩니다.<br>
-                                                · 최대 30일까지 연장 가능합니다.<br>
-                                                · 예약완료 또는 대여중 상태의 대여만 연장 가능합니다.
-                                            </p>
+
+                                            <!-- 아직 연장 안 한 경우 -->
+                                            <div v-else>
+                                                <div class="ext-form-row">
+                                                    <div class="form-group">
+                                                        <label class="form-label">연장 일수</label>
+                                                        <div class="days-stepper">
+                                                            <button class="stepper-btn"
+                                                                @click="extensionDays = Math.max(1, extensionDays - 1)"
+                                                                type="button">−</button>
+                                                            <input type="number" class="stepper-input"
+                                                                v-model.number="extensionDays" min="1" max="3"
+                                                                @input="extensionDays = Math.min(3, Math.max(1, extensionDays || 1))">
+                                                            <button class="stepper-btn"
+                                                                @click="extensionDays = Math.min(3, extensionDays + 1)"
+                                                                :disabled="extensionDays >= 3"
+                                                                :style="extensionDays >= 3 ? 'opacity:0.35;cursor:not-allowed;' : ''"
+                                                                type="button">+</button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="price-preview">
+                                                        <span class="price-preview-label">예상 금액</span>
+                                                        <span class="price-preview-val">
+                                                            {{ fnPrice(extensionDays * (selectedRental.pricePerDay ||
+                                                            5000)) }}
+                                                        </span>
+                                                    </div>
+                                                    <button class="btn-apply"
+                                                        :disabled="!extensionDays || extensionDays < 1 || extensionDays > 3 || isApplying"
+                                                        @click="fnApply">
+                                                        {{ isApplying ? '처리 중...' : '연장 신청' }}
+                                                    </button>
+                                                </div>
+
+                                                <p v-if="extensionDays >= 3"
+                                                    style="font-size:12px; color:#E8732A; margin-top:6px;">
+                                                    최대 연장 가능 일수(3일)입니다.
+                                                </p>
+
+                                            </div>
+
                                         </div>
                                         <div v-else style="padding:8px 0;font-size:13px;color:var(--brown4)">
                                             ⚠ 현재 상태에서는 연장 신청이 불가능합니다.
@@ -594,8 +627,11 @@
                             fnApply: function () {
                                 var self = this;
                                 if (!self.selectedRental) { self.showToast('대여 건을 선택해주세요.'); return; }
-                                if (!self.extensionDays || self.extensionDays < 1 || self.extensionDays > 30) {
-                                    self.showToast('1일 이상 30일 이하로 입력해주세요.'); return;
+                                if (!self.extensionDays || self.extensionDays < 1 || self.extensionDays > 3) {
+                                    self.showToast('연장 일수는 최대 3일까지 가능합니다.'); return;
+                                }
+                                if (self.extensions.length >= 1) {
+                                    self.showToast('연장은 1회까지만 가능합니다.'); return;
                                 }
                                 var expectedPrice = self.fnPrice(self.extensionDays * (self.selectedRental.pricePerDay || 5000));
                                 self.fnOpenModal({
@@ -770,16 +806,39 @@
                                     PAID: '결제완료', READY: '상품준비중', SHIPPING: '배송중', DONE: '배송완료',
                                     RESERVED: '예약완료', RENTING: '대여중', IN_USE: '대여중',
                                     RETURN_REQUESTED: '반납요청', RETURN_PICKED: '수거중',
-                                    RETURNED: '반납완료', RETURN_COMPLETED: '반납완료', CANCELLED: '취소완료',     
-                                    CANCEL_REQUESTED: '취소신청'      
+                                    RETURNED: '반납완료', RETURN_COMPLETED: '반납완료', CANCELLED: '취소완료',
+                                    CANCEL_REQUESTED: '취소신청'
                                 };
                                 return map[s] || s || '-';
                             },
 
                             fnPrice: function (v) { return Number(v || 0).toLocaleString() + '원'; },
-                            fnCanExtension: function (s) { return ['PAID', 'READY', 'SHIPPING', 'DONE', 'IN_USE'].includes(s); },
-                            fnCanReturn: function (s) { return s === 'IN_USE'; },
+                            fnCanExtension: function (s, returnDate) {
+                                if (!['PAID', 'READY', 'SHIPPING', 'DONE', 'IN_USE'].includes(s)) return false;
+                                if (returnDate && this.fnIsOverdue(returnDate)) return false;
+                                return true;
+                            }, fnCanReturn: function (s) { return s === 'IN_USE'; },
+                            fnIsOverdue: function (returnDate) {
+                                if (!returnDate) return false;
+                                var today = new Date(); today.setHours(0, 0, 0, 0);
+                                var target = new Date(String(returnDate).replace(' ', 'T')); target.setHours(0, 0, 0, 0);
+                                return today > target;
+                            },
 
+                            fnOverdueDays: function (returnDate) {
+                                if (!returnDate) return 0;
+                                var today = new Date(); today.setHours(0, 0, 0, 0);
+                                var target = new Date(String(returnDate).replace(' ', 'T')); target.setHours(0, 0, 0, 0);
+                                var diff = Math.floor((today - target) / (1000 * 60 * 60 * 24));
+                                return diff > 0 ? diff : 0;
+                            },
+
+                            fnOverdueFee: function (rental) {
+                                var days = this.fnOverdueDays(rental.returnDate);
+                                if (days < 3) return 0;
+                                var totalRentalPrice = rental.pricePerDay * rental.rentalDays; // rentalDays는 백엔드에서 내려줘야 함
+                                return Math.floor(totalRentalPrice * 0.2) * days;
+                            },
                             fnDateTime: function (v) {
                                 if (!v) return '-';
                                 var d = new Date(String(v).replace(' ', 'T'));

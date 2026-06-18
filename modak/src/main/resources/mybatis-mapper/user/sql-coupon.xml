@@ -193,7 +193,7 @@
 	      AND (UC.EXPIRED_AT IS NULL OR UC.EXPIRED_AT >= NOW())
 	    ORDER BY UC.EXPIRED_AT ASC, UC.ISSUED_AT DESC
 	</select>
-	<!-- 보유 쿠폰 중 최대 혜택 쿠폰 1개 조회 -->
+	<!-- 상품 디테일 진입시 보유 쿠폰 중 최대 혜택 쿠폰 1개 조회 -->
     <select id="selectBestCoupon" parameterType="hashmap" resultType="com.example.modak.user.model.UserCoupon">
         SELECT
             UC.USER_COUPON_ID AS userCouponId,

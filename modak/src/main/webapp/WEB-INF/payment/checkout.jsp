@@ -397,6 +397,10 @@
 									{{ formatPrice(finalTotal) }} 결제하기
 								</button>
 
+								<div class="agree-required-msg" v-if="!agreeAll">
+									약관에 동의하셔야 결제할 수 있습니다.
+								</div>
+
 								<div class="pay-info">결제 완료 후 취소/변경이 어려울 수 있습니다</div>
 							</div>
 						</div>
@@ -442,8 +446,11 @@
 								</div>
 							</div>
 
-							<button class="addr-add-btn" @click="addrModal.mode = 'add'">
-								+ 새 배송지 추가
+							<button class="addr-add-btn"
+								@click="addressList.length >= 7 ? showToast('배송지는 최대 7개까지 등록할 수 있습니다.') : addrModal.mode = 'add'"
+								:disabled="addressList.length >= 7"
+								:class="{ 'addr-add-btn-disabled': addressList.length >= 7 }">
+								{{ addressList.length >= 7 ? '배송지는 최대 7개까지 등록 가능합니다' : '+ 새 배송지 추가' }}
 							</button>
 
 							<div class="modal-btns" style="margin-top:12px;">
@@ -454,57 +461,58 @@
 
 						<!-- ── 새 배송지 등록 모드 ── -->
 						<template v-if="addrModal.mode === 'add'">
-						    <div class="guest-addr-form">
-						        <div class="guest-field-wrap">
-						            <span class="guest-field-label">별칭 *</span>
-						            <input class="guest-input" v-model="newAddr.addressAlias" placeholder="집, 회사 등" />
-						        </div>
-						        <div class="guest-field-wrap">
-						            <span class="guest-field-label">수령인 이름 *</span>
-						            <input class="guest-input" v-model="newAddr.receiverName" placeholder="홍길동" />
-						        </div>
-						        <div class="guest-field-wrap">
-						            <span class="guest-field-label">연락처 *</span>
-						            <input class="guest-input" v-model="newAddr.receiverPhone"
-						                placeholder="01012345678" maxlength="11"
-						                @input="onAddrPhoneInput" />
-						        </div>
+							<div class="guest-addr-form">
+								<div class="guest-field-wrap">
+									<span class="guest-field-label">별칭 *</span>
+									<input class="guest-input" v-model="newAddr.addressAlias" placeholder="집, 회사 등" />
+								</div>
+								<div class="guest-field-wrap">
+									<span class="guest-field-label">수령인 이름 *</span>
+									<input class="guest-input" v-model="newAddr.receiverName" placeholder="홍길동" />
+								</div>
+								<div class="guest-field-wrap">
+									<span class="guest-field-label">연락처 *</span>
+									<input class="guest-input" v-model="newAddr.receiverPhone" placeholder="01012345678"
+										maxlength="11" @input="onAddrPhoneInput" />
+								</div>
 
-						        <!-- 우편번호 단독 행 -->
-						        <div class="guest-field-wrap">
-						            <span class="guest-field-label">우편번호 *</span>
-						            <div class="zipcode-row">
-						                <input class="guest-input" v-model="newAddr.zipCode"
-						                    placeholder="06234" readonly />
-						                <button type="button" class="addr-search-btn" @click="fnSearchAddressNew">
-						                    주소찾기
-						                </button>
-						            </div>
-						        </div>
+								<!-- 우편번호 단독 행 -->
+								<div class="guest-field-wrap">
+									<span class="guest-field-label">우편번호 *</span>
+									<div class="zipcode-row">
+										<input class="guest-input" v-model="newAddr.zipCode" placeholder="06234"
+											readonly />
+										<button type="button" class="addr-search-btn" @click="fnSearchAddressNew">
+											주소찾기
+										</button>
+									</div>
+								</div>
 
-						        <!-- 주소 단독 행 -->
-						        <div class="guest-field-wrap">
-						            <span class="guest-field-label">주소 *</span>
-						            <input class="guest-input" v-model="newAddr.address"
-						                placeholder="서울시 강남구 테헤란로 123" readonly />
-						        </div>
+								<!-- 주소 단독 행 -->
+								<div class="guest-field-wrap">
+									<span class="guest-field-label">주소 *</span>
+									<input class="guest-input" v-model="newAddr.address" placeholder="서울시 강남구 테헤란로 123"
+										readonly />
+								</div>
 
-						        <div class="guest-field-wrap">
-						            <span class="guest-field-label">상세주소</span>
-						            <input class="guest-input optional" ref="newAddrDetailInput"
-						                v-model="newAddr.detailedAddress" placeholder="101동 202호" />
-						        </div>
-						        <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;cursor:pointer;">
-						            <input type="checkbox" v-model="newAddr.defaultYn"> 기본 배송지로 설정
-						        </label>
-						    </div>
+								<div class="guest-field-wrap">
+									<span class="guest-field-label">상세주소</span>
+									<input class="guest-input optional" ref="newAddrDetailInput"
+										v-model="newAddr.detailedAddress" placeholder="101동 202호" />
+								</div>
+								<label
+									style="display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;cursor:pointer;">
+									<input type="checkbox" v-model="newAddr.defaultYn"> 기본 배송지로 설정
+								</label>
+							</div>
 
-						    <p v-if="addrAddMsg" style="color:#e74c3c;font-size:12px;margin-top:8px;">{{ addrAddMsg }}</p>
+							<p v-if="addrAddMsg" style="color:#e74c3c;font-size:12px;margin-top:8px;">{{ addrAddMsg }}
+							</p>
 
-						    <div class="modal-btns" style="margin-top:16px;">
-						        <button class="modal-btn-cancel" @click="addrModal.mode = 'list'">← 목록으로</button>
-						        <button class="modal-btn-ok" @click="saveNewAddressFromModal">저장하기</button>
-						    </div>
+							<div class="modal-btns" style="margin-top:16px;">
+								<button class="modal-btn-cancel" @click="addrModal.mode = 'list'">← 목록으로</button>
+								<button class="modal-btn-ok" @click="saveNewAddressFromModal">저장하기</button>
+							</div>
 						</template>
 
 					</div>
@@ -870,38 +878,38 @@
 								this.shippingFee = this.isIslandAddr ? this.ISLAND_FEE : 0;
 							},
 							deleteAddress(addressId) {
-							    if (!confirm('이 배송지를 삭제할까요?')) return;
-							    let self = this;
-							    $.ajax({
-							        url: '/user/address/delete.dox',
-							        type: 'POST',
-							        dataType: 'json',
-							        data: { addressId: addressId },
-							        success(res) {
-							            if (res.result === 'success') {
-							                // ✅ 목록에서 즉시 제거
-							                self.addressList = self.addressList.filter(a => a.addressId !== addressId);
+								if (!confirm('이 배송지를 삭제할까요?')) return;
+								let self = this;
+								$.ajax({
+									url: '/user/address/remove.dox',
+									type: 'POST',
+									dataType: 'json',
+									data: {addressId: addressId},
+									success(res) {
+										if (res.result === 'success') {
+											// ✅ 목록에서 즉시 제거
+											self.addressList = self.addressList.filter(a => a.addressId !== addressId);
 
-							                if (self.selectedAddressId === addressId) {
-							                    self.selectedAddressId = '';
-							                    self.addrForm = {
-							                        addressId: '', addressAlias: '', zipcode: '',
-							                        address: '', detailedAddress: '', defaultYn: 'N',
-							                        receiverName: '', receiverPhone: ''
-							                    };
-							                    // 남은 배송지 있으면 첫번째로 선택
-							                    if (self.addressList.length > 0) {
-							                        self.addrForm = { ...self.addressList[0] };
-							                        self.selectedAddressId = self.addressList[0].addressId;
-							                    }
-							                }
-							                self.showToast('배송지가 삭제됐어요.');
-							            } else {
-							                self.showToast(res.message || '삭제에 실패했습니다.');
-							            }
-							        },
-							        error() { self.showToast('서버 오류가 발생했습니다.'); }
-							    });
+											if (self.selectedAddressId === addressId) {
+												self.selectedAddressId = '';
+												self.addrForm = {
+													addressId: '', addressAlias: '', zipcode: '',
+													address: '', detailedAddress: '', defaultYn: 'N',
+													receiverName: '', receiverPhone: ''
+												};
+												// 남은 배송지 있으면 첫번째로 선택
+												if (self.addressList.length > 0) {
+													self.addrForm = {...self.addressList[0]};
+													self.selectedAddressId = self.addressList[0].addressId;
+												}
+											}
+											self.showToast('배송지가 삭제됐어요.');
+										} else {
+											self.showToast(res.message || '삭제에 실패했습니다.');
+										}
+									},
+									error() {self.showToast('서버 오류가 발생했습니다.');}
+								});
 							},
 
 							// ── 결제하기 ──
@@ -1155,63 +1163,69 @@
 							},
 
 							saveNewAddressFromModal() {
-							    let self = this;
-							    self.addrAddMsg = '';
+								let self = this;
+								self.addrAddMsg = '';
 
-							    if (!self.newAddr.addressAlias.trim()) { self.addrAddMsg = '별칭을 입력해주세요.'; return; }
-							    if (!self.newAddr.receiverName.trim()) { self.addrAddMsg = '수령인 이름을 입력해주세요.'; return; }
-							    if (!self.newAddr.receiverPhone.trim()) { self.addrAddMsg = '연락처를 입력해주세요.'; return; }
-							    if (!self.isValidPhone(self.newAddr.receiverPhone)) {
-							        self.addrAddMsg = '연락처는 010으로 시작하는 11자리 숫자로 입력해주세요.'; return;
-							    }
-							    if (!self.newAddr.zipCode.trim()) { self.addrAddMsg = '우편번호를 입력해주세요.'; return; }
-							    if (!self.newAddr.address.trim()) { self.addrAddMsg = '주소를 입력해주세요.'; return; }
+								if (!self.newAddr.addressAlias.trim()) {self.addrAddMsg = '별칭을 입력해주세요.'; return;}
+								if (!self.newAddr.receiverName.trim()) {self.addrAddMsg = '수령인 이름을 입력해주세요.'; return;}
+								if (!self.newAddr.receiverPhone.trim()) {self.addrAddMsg = '연락처를 입력해주세요.'; return;}
+								if (!self.isValidPhone(self.newAddr.receiverPhone)) {
+									self.addrAddMsg = '연락처는 010으로 시작하는 11자리 숫자로 입력해주세요.'; return;
+								}
+								if (!self.newAddr.zipCode.trim()) {self.addrAddMsg = '우편번호를 입력해주세요.'; return;}
+								if (!self.newAddr.address.trim()) {self.addrAddMsg = '주소를 입력해주세요.'; return;}
 
-							    $.ajax({
-							        url: '/user/address/add.dox',
-							        type: 'POST',
-							        dataType: 'json',
-							        data: {
-							            addressAlias: self.newAddr.addressAlias,
-							            receiverName: self.newAddr.receiverName,
-							            receiverPhone: self.newAddr.receiverPhone,
-							            zipCode: self.newAddr.zipCode,
-							            address: self.newAddr.address,
-							            detailedAddress: self.newAddr.detailedAddress,
-							            defaultYn: self.newAddr.defaultYn ? 'Y' : 'N'
-							        },
-							        success(res) {
-							            if (res.result === 'success') {
-							                self.showToast('배송지가 저장됐어요.');
+								$.ajax({
+									url: '/user/address/add.dox',
+									type: 'POST',
+									dataType: 'json',
+									data: {
+										addressAlias: self.newAddr.addressAlias,
+										receiverName: self.newAddr.receiverName,
+										receiverPhone: self.newAddr.receiverPhone,
+										zipCode: self.newAddr.zipCode,
+										address: self.newAddr.address,
+										detailedAddress: self.newAddr.detailedAddress,
+										defaultYn: self.newAddr.defaultYn ? 'Y' : 'N'
+									},
+									success(res) {
+										if (res.result === 'success') {
+											self.showToast('배송지가 저장됐어요.');
 
-							                // ✅ 저장한 정보를 addrForm에 바로 반영
-							                self.addrForm = {
-							                    addressId:       res.addressId || '',
-							                    addressAlias:    self.newAddr.addressAlias,
-							                    zipcode:         self.newAddr.zipCode,
-							                    address:         self.newAddr.address,
-							                    detailedAddress: self.newAddr.detailedAddress,
-							                    defaultYn:       self.newAddr.defaultYn ? 'Y' : 'N',
-							                    receiverName:    self.newAddr.receiverName,   // ✅ 이름 반영
-							                    receiverPhone:   self.newAddr.receiverPhone,  // ✅ 연락처 반영
-							                };
+											const newAddrObj = {
+												addressId: res.addressId || String(Date.now()),
+												addressAlias: self.newAddr.addressAlias,
+												zipcode: self.newAddr.zipCode,
+												address: self.newAddr.address,
+												detailedAddress: self.newAddr.detailedAddress,
+												defaultYn: self.newAddr.defaultYn ? 'Y' : 'N',
+												receiverName: self.newAddr.receiverName,
+												receiverPhone: self.newAddr.receiverPhone,
+											};
 
-							                self.newAddr = {
-							                    addressAlias: '', receiverName: '', receiverPhone: '',
-							                    zipCode: '', address: '', detailedAddress: '', defaultYn: false
-							                };
-							                self.addrAddMsg = '';
+											if (newAddrObj.defaultYn === 'Y') {
+												self.addressList.forEach(a => a.defaultYn = 'N');
+											}
 
-							                // 목록 다시 불러오고 목록 모드로 전환
-							                self.fetchAddressList();
-							                self.addrModal.mode = 'list';
-							            } else {
-							                self.addrAddMsg = res.message || '저장에 실패했습니다.';
-							            }
-							        },
-							        error() { self.addrAddMsg = '서버 오류가 발생했습니다.'; }
-							    });
-							},
+											self.addressList.push(newAddrObj);
+											self.selectedAddressId = newAddrObj.addressId;
+											self.addrForm = {...newAddrObj};
+											self.updateShippingFee();
+
+											self.newAddr = {
+												addressAlias: '', receiverName: '', receiverPhone: '',
+												zipCode: '', address: '', detailedAddress: '', defaultYn: false
+											};
+											self.addrAddMsg = '';
+											self.addrModal.mode = 'list';
+
+										} else {
+											self.addrAddMsg = res.message || '저장에 실패했습니다.';
+										}
+									},
+									error() {self.addrAddMsg = '서버 오류가 발생했습니다.';}  // ✅ error 콜백
+								});  // ✅ $.ajax 닫기
+							},   // ✅ 메서드 닫기
 							calcItemTotal(item) {
 								const price = Number(item.unitPrice || item.price || 0);
 								const quantity = Number(item.quantity || 1);

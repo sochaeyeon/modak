@@ -19,7 +19,9 @@
 		ADDRESS,
 		DETAILED_ADDRESS,
 		DEFAULT_YN,
-		USER_ID
+		USER_ID,
+		RECEIVER_NAME,
+		RECEIVER_PHONE
 		)
 		VALUES (
 		#{addressAlias},
@@ -27,27 +29,36 @@
 		#{address},
 		#{detailedAddress},
 		#{defaultYn},
-		#{userId}
+		#{userId},
+		#{receiverName},
+		#{receiverPhone}
 		)
 	</insert>
-	
+
 	<!-- 추가: USER_PHONE이 없을 때만 업데이트 -->
 	<update id="updateUserPhoneIfEmpty" parameterType="hashmap">
-	    UPDATE USER
-	    SET USER_PHONE = #{receiverPhone}
-	    WHERE USER_ID = #{userId}
-	    AND (USER_PHONE IS NULL OR USER_PHONE = '')
+		UPDATE USER
+		SET USER_PHONE = #{receiverPhone}
+		WHERE USER_ID = #{userId}
+		AND (USER_PHONE IS NULL OR USER_PHONE = '')
 	</update>
 
 	<!-- 배송지 목록 조회 -->
 	<select id="selectAddressList" parameterType="hashmap"
 		resultType="com.example.modak.address.model.Address">
-		SELECT *
+		SELECT
+		ADDRESS_ID AS addressId,
+		ADDRESS_ALIAS AS addressAlias,
+		ZIPCODE AS zipcode,
+		ADDRESS AS address,
+		DETAILED_ADDRESS AS detailedAddress,
+		DEFAULT_YN AS defaultYn,
+		USER_ID AS userId,
+		RECEIVER_NAME AS receiverName,
+		RECEIVER_PHONE AS receiverPhone
 		FROM USER_ADDRESS
 		WHERE USER_ID = #{userId}
-		ORDER BY
-		CASE WHEN DEFAULT_YN = 'Y' THEN 0 ELSE 1 END,
-		ADDRESS_ID DESC
+		ORDER BY DEFAULT_YN DESC, ADDRESS_ID DESC
 	</select>
 
 	<update id="updateAddress" parameterType="hashmap">
@@ -67,5 +78,10 @@
 		WHERE ADDRESS_ID = #{addressId}
 		AND USER_ID = #{userId}
 	</delete>
+
+	<select id="countAddress" parameterType="int" resultType="int">
+		SELECT COUNT(*) FROM USER_ADDRESS WHERE USER_ID = #{userId}
+	</select>
+
 </mapper>
 

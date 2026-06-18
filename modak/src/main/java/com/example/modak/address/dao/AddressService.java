@@ -36,16 +36,17 @@ public class AddressService {
 			}
 
 			int result = addressMapper.insertAddress(map);
-			
+
 			// ✅ 추가: USER_PHONE이 없을 때만 업데이트
-	        String receiverPhone = (String) map.get("receiverPhone");
-	        if (receiverPhone != null && !receiverPhone.trim().isEmpty()) {
-	            addressMapper.updateUserPhoneIfEmpty(map);
-	        }
+			String receiverPhone = (String) map.get("receiverPhone");
+			if (receiverPhone != null && !receiverPhone.trim().isEmpty()) {
+				addressMapper.updateUserPhoneIfEmpty(map);
+			}
 
 			if (result > 0) {
 				resultMap.put("message", Message.SUCCESS_ADD);
 				resultMap.put("result", "success");
+				resultMap.put("addressId", map.get("addressId"));
 			} else {
 				resultMap.put("message", Message.ERROR_COMMON);
 				resultMap.put("result", "fail");
@@ -80,57 +81,57 @@ public class AddressService {
 		}
 		return resultMap;
 	}
-	
+
 	// 배송지 수정
 	public HashMap<String, Object> editAddress(HashMap<String, Object> map) {
-	    HashMap<String, Object> resultMap = new HashMap<>();
-	    try {
-	        String userId = (String) session.getAttribute("sessionId");
-	        map.put("userId", userId);
+		HashMap<String, Object> resultMap = new HashMap<>();
+		try {
+			String userId = (String) session.getAttribute("sessionId");
+			map.put("userId", userId);
 
-	        String defaultYn = (String) map.get("defaultYn");
-	        if ("Y".equals(defaultYn)) {
-	            addressMapper.updateDefaultYnToN(map);
-	        }
+			String defaultYn = (String) map.get("defaultYn");
+			if ("Y".equals(defaultYn)) {
+				addressMapper.updateDefaultYnToN(map);
+			}
 
-	        int result = addressMapper.updateAddress(map);
+			int result = addressMapper.updateAddress(map);
 
-	        if (result > 0) {
-	            resultMap.put("result", "success");
-	            resultMap.put("message", Message.SUCCESS_UPDATE);
-	        } else {
-	            resultMap.put("result", "fail");
-	            resultMap.put("message", Message.ERROR_COMMON);
-	        }
-	    } catch (Exception e) {
-	        System.out.println(e.getMessage());
-	        resultMap.put("result", "fail");
-	        resultMap.put("message", Message.ERROR_SERVER);
-	    }
-	    return resultMap;
+			if (result > 0) {
+				resultMap.put("result", "success");
+				resultMap.put("message", Message.SUCCESS_UPDATE);
+			} else {
+				resultMap.put("result", "fail");
+				resultMap.put("message", Message.ERROR_COMMON);
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			resultMap.put("result", "fail");
+			resultMap.put("message", Message.ERROR_SERVER);
+		}
+		return resultMap;
 	}
 
 	// 배송지 삭제
 	public HashMap<String, Object> removeAddress(HashMap<String, Object> map) {
-	    HashMap<String, Object> resultMap = new HashMap<>();
-	    try {
-	        String userId = (String) session.getAttribute("sessionId");
-	        map.put("userId", userId);
+		HashMap<String, Object> resultMap = new HashMap<>();
+		try {
+			String userId = (String) session.getAttribute("sessionId");
+			map.put("userId", userId);
 
-	        int result = addressMapper.deleteAddress(map);
+			int result = addressMapper.deleteAddress(map);
 
-	        if (result > 0) {
-	            resultMap.put("result", "success");
-	            resultMap.put("message", Message.SUCCESS_DELETE);
-	        } else {
-	            resultMap.put("result", "fail");
-	            resultMap.put("message", Message.ERROR_COMMON);
-	        }
-	    } catch (Exception e) {
-	        System.out.println(e.getMessage());
-	        resultMap.put("result", "fail");
-	        resultMap.put("message", Message.ERROR_SERVER);
-	    }
-	    return resultMap;
+			if (result > 0) {
+				resultMap.put("result", "success");
+				resultMap.put("message", Message.SUCCESS_DELETE);
+			} else {
+				resultMap.put("result", "fail");
+				resultMap.put("message", Message.ERROR_COMMON);
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			resultMap.put("result", "fail");
+			resultMap.put("message", Message.ERROR_SERVER);
+		}
+		return resultMap;
 	}
 }

@@ -292,7 +292,9 @@
               <div class="grade-list" id="gradeListWrap"></div>
             </div>
             <div class="member-actions">
-              <button class="btn-primary" onclick="location.href='/user/sign-up.do'">회원가입 하기</button>
+              <c:if test="${empty sessionScope.sessionId}">
+                <button class="btn-primary" onclick="location.href='/user/sign-up.do'">회원가입 하기</button>
+              </c:if>
               <a href="/user/membership/info.do" class="btn-secondary" style="text-align:center">멤버십 혜택 보기</a>
             </div>
           </div>

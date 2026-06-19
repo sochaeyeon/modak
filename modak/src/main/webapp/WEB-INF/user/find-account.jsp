@@ -22,9 +22,9 @@
 
     <body>
         <!-- HEADER -->
-            <%@ include file="/WEB-INF/common/header.jsp" %>
-        <div id="app" v-cloak>
-            
+        <%@ include file="/WEB-INF/common/header.jsp" %>
+            <div id="app" v-cloak>
+
 
                 <!-- MAIN -->
                 <main>
@@ -310,7 +310,7 @@
                                     </div>
 
                                     <!-- 🔹 완료 메시지 -->
-                                    <div class="success-box">
+                                    <div class="success-box" v-if="pwResetDone">
 
                                         <div class="success-icon">✓</div>
 
@@ -340,8 +340,8 @@
                         </div><!-- /right-panel -->
                     </div><!-- /find-card -->
                 </main>
-        </div>
-        <%@ include file="/WEB-INF/common/footer.jsp" %>
+            </div>
+            <%@ include file="/WEB-INF/common/footer.jsp" %>
     </body>
 
     </html>

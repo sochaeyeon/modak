@@ -1444,3 +1444,15 @@ body {
 .same-exchange-notice .notice-title i {
     color: var(--orange);
 }
+
+.reason-chip.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #f5f5f5;
+    border-color: #e0e0e0;
+}
+
+.reason-chip.disabled:hover {
+    border-color: #e0e0e0;
+    transform: none;
+}

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import com.example.modak.product.dao.ProductService;
 import com.example.modak.user.dao.ViewService;
@@ -23,8 +24,7 @@ public class ProductController {
 	ProductService productService;
 
 	@Autowired
-	ViewService viewService; 
-	
+	ViewService viewService;
 
 	// product-list 제품리스트
 	@RequestMapping("/product/list.do")
@@ -51,41 +51,41 @@ public class ProductController {
 		resultMap = productService.getProductList(map);
 		return new Gson().toJson(resultMap);
 	}
-	
+
 	@RequestMapping("/product/brandList.dox")
 	@ResponseBody
 	public HashMap<String, Object> getBrandList(@RequestParam HashMap<String, Object> map) {
-	    // 서비스의 getBrandList를 호출하여 그대로 리턴
-	    return productService.getBrandList(map);
+		// 서비스의 getBrandList를 호출하여 그대로 리턴
+		return productService.getBrandList(map);
 	}
 
 	@RequestMapping("/product/detail.do")
 	public String view(HttpServletRequest request, @RequestParam HashMap<String, Object> map) throws Exception {
 
-	    Object productId = map.get("productId");
+		Object productId = map.get("productId");
 
-	    if (productId == null || String.valueOf(productId).isBlank()) {
-	        return "redirect:/product/list.do";
-	    }
+		if (productId == null || String.valueOf(productId).isBlank()) {
+			return "redirect:/product/list.do";
+		}
 
-	    HashMap<String, Object> resultMap = productService.getProduct(map);
+		HashMap<String, Object> resultMap = productService.getProduct(map);
 
-	    if (!"success".equals(resultMap.get("result")) || resultMap.get("info") == null) {
-	        return "redirect:/product/list.do";
-	    }
+		if (!"success".equals(resultMap.get("result")) || resultMap.get("info") == null) {
+			return "redirect:/product/list.do";
+		}
 
-	    String userId = (String) request.getSession().getAttribute("sessionId");
+		String userId = (String) request.getSession().getAttribute("sessionId");
 
-	    if (userId != null && !userId.isBlank()) {
-	        HashMap<String, Object> viewMap = new HashMap<>();
-	        viewMap.put("userId", userId);
-	        viewMap.put("productId", productId);
+		if (userId != null && !userId.isBlank()) {
+			HashMap<String, Object> viewMap = new HashMap<>();
+			viewMap.put("userId", userId);
+			viewMap.put("productId", productId);
 
-	        viewService.addViewHistory(viewMap);
-	    }
+			viewService.addViewHistory(viewMap);
+		}
 
-	    request.setAttribute("productId", productId);
-	    return "/product/product-detail";
+		request.setAttribute("productId", productId);
+		return "/product/product-detail";
 	}
 
 	// 2. 상품 상세 데이터 호출 (.dox)
@@ -100,48 +100,41 @@ public class ProductController {
 
 		return new Gson().toJson(resultMap);
 	}
-	
+
 	@RequestMapping(value = "/product/mainCategoryList.dox", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String mainCategoryList() throws Exception {
-	    HashMap<String, Object> resultMap = productService.getMainCategoryList();
-	    return new Gson().toJson(resultMap);
+		HashMap<String, Object> resultMap = productService.getMainCategoryList();
+		return new Gson().toJson(resultMap);
 	}
-	
+
 	@RequestMapping(value = "/product/popularList.dox", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String popularList() throws Exception {
-	    HashMap<String, Object> resultMap = productService.getPopularProducts();
-	    return new Gson().toJson(resultMap);
+		HashMap<String, Object> resultMap = productService.getPopularProducts();
+		return new Gson().toJson(resultMap);
 	}
-	
+
 	@RequestMapping(value = "/product/related.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String getRelated(@RequestParam HashMap<String, Object> map) throws Exception {
-	return new Gson().toJson(productService.getRelatedProducts(map));
+		return new Gson().toJson(productService.getRelatedProducts(map));
 	}
-	
+
 	@RequestMapping(value = "/product/option/list.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String getOptionList(@RequestParam HashMap<String, Object> map) throws Exception {
-	    return new Gson().toJson(productService.getProductOptions(map));
+		return new Gson().toJson(productService.getProductOptions(map));
 	}
+
 	@RequestMapping("/category/allList.dox")
 	@ResponseBody
 	public HashMap<String, Object> allList() {
-	    HashMap<String, Object> resultMap = new HashMap<>();
+		HashMap<String, Object> resultMap = new HashMap<>();
 
-	    resultMap.put("result", "success");
-	    resultMap.put("list", productService.selectAllCategoryList());
+		resultMap.put("result", "success");
+		resultMap.put("list", productService.selectAllCategoryList());
 
-	    return resultMap;
+		return resultMap;
 	}
-	
-	@RequestMapping(value = "/product/option/item/get.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public String getOptionItemId(@RequestParam HashMap<String, Object> map) {
-	    HashMap<String, Object> resultMap = productService.getOptionItemId(map);
-	    return new Gson().toJson(resultMap);
-	}
-	
 }

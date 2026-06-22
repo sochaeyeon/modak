@@ -85,13 +85,13 @@
 				<div class="footer-company">
 					<p>
 						<span>상호명 : 모닥모닥</span>
-						<span>대표 : 홍길동</span>
+						<span>대표 : 소채연</span>
 						<span>사업자등록번호 : 123-45-67890</span>
 						<span>통신판매업신고 : 2026-서울강남-0000</span>
 					</p>
 					<p>
-						<span>주소 : 서울특별시 강남구 테헤란로 123, 모닥빌딩 5층</span>
-						<span>개인정보보호책임자 : 홍길동</span>
+						<span>주소 : 인천 부평구 경원대로 1366, 상록 스테이션타워 7층</span>
+						<span>개인정보보호책임자 : 임예림</span>
 					</p>
 				</div>
 

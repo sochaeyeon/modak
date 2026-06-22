@@ -111,7 +111,8 @@
                                         </div>
 
                                         <div v-for="(item, index) in sortedCouponList" :key="item.userCouponId"
-                                            class="coupon-history-card" :class="(item.status || '').toLowerCase()">
+                                            class="coupon-history-card"
+                                            :class="fnGetCouponActualStatus(item).toLowerCase()">
                                             <div class="coupon-ticket-left">
                                                 <div class="coupon-ticket-label">MODAK COUPON</div>
 
@@ -134,16 +135,17 @@
 
                                             <div class="coupon-ticket-right">
                                                 <div class="coupon-history-status"
-                                                    :class="(item.status || '').toLowerCase()">
-                                                    {{ fnCouponStatusText(item.status) }}
+                                                    :class="fnGetCouponActualStatus(item).toLowerCase()">
+                                                    {{ fnCouponStatusText(item) }}
                                                 </div>
 
-                                                <div class="coupon-ticket-dday" v-if="item.status === 'AVAILABLE'">
+                                                <div class="coupon-ticket-dday"
+                                                    v-if="fnGetCouponActualStatus(item) === 'AVAILABLE'">
                                                     {{ fnCouponDdayText(item.expiredAt) }}
                                                 </div>
 
                                                 <button type="button" class="coupon-use-btn"
-                                                    v-if="item.status === 'AVAILABLE'"
+                                                    v-if="fnGetCouponActualStatus(item) === 'AVAILABLE'"
                                                     @click.stop="fnGoUseCoupon(item)">
                                                     사용하러 가기
                                                 </button>
@@ -207,9 +209,11 @@
                         return Math.ceil(this.couponTotalCount / this.couponPageSize);
                     },
                     sortedCouponList() {
+                        const self = this;
+                        const order = { AVAILABLE: 0, USED: 1, EXPIRED: 2 };
+
                         return [...this.couponList].sort((a, b) => {
-                            const order = { AVAILABLE: 0, USED: 1, EXPIRED: 2 };
-                            return order[a.status] - order[b.status];
+                            return order[self.fnGetCouponActualStatus(a)] - order[self.fnGetCouponActualStatus(b)];
                         });
                     }
                 },
@@ -328,10 +332,32 @@
                             window.scrollTo({ top: 0, behavior: "smooth" });
                         }
                     },
-                    fnCouponStatusText: function (status) {
+                    fnGetCouponActualStatus: function (item) {
+                        if (item.status === "USED") {
+                            return "USED";
+                        }
+
+                        if (item.expiredAt) {
+                            const expDate = new Date(String(item.expiredAt).replace(" ", "T"));
+                            const now = new Date();
+
+                            if (!isNaN(expDate.getTime())) {
+                                expDate.setHours(23, 59, 59, 999);
+                                if (now > expDate) {
+                                    return "EXPIRED";
+                                }
+                            }
+                        }
+
+                        return item.status === "EXPIRED" ? "EXPIRED" : "AVAILABLE";
+                    },
+
+                    fnCouponStatusText: function (item) {
+                        const status = this.fnGetCouponActualStatus(item);
+
                         if (status === "AVAILABLE") return "사용 가능";
                         if (status === "USED") return "사용 완료";
-                        if (status === "EXPIRED") return "만료";
+                        if (status === "EXPIRED") return "만료됨";
                         return status || "-";
                     },
                     fnUnderlineStyle: function () {

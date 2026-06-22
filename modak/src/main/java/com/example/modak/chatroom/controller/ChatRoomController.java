@@ -39,29 +39,16 @@ public class ChatRoomController {
         return "board/chat-room";
     }
 
-    // ── AJAX ────────────────────────────────────
 
-    /** 대화 신청 */
-    @PostMapping(value = "/request.dox", produces = "application/json;charset=UTF-8")
+    /** 채팅방 바로 생성 (신청 없이) */
+    @PostMapping(value = "/create.dox", produces = "application/json;charset=UTF-8")
     @ResponseBody
-    public String requestChat(@RequestParam String toUser) {
+    public String createChat(@RequestParam String toUser) {
         String fromUser = (String) session.getAttribute("sessionId");
         if (fromUser == null) {
             return "{\"result\":\"fail\",\"message\":\"로그인이 필요합니다.\"}";
         }
-        return new Gson().toJson(chatService.requestChat(fromUser, toUser));
-    }
-
-    /** 대화 신청 수락/거절 */
-    @PostMapping(value = "/respond.dox", produces = "application/json;charset=UTF-8")
-    @ResponseBody
-    public String respondChat(@RequestParam Long requestId,
-                              @RequestParam String action) {
-        String userId = (String) session.getAttribute("sessionId");
-        if (userId == null) {
-            return "{\"result\":\"fail\",\"message\":\"로그인이 필요합니다.\"}";
-        }
-        return new Gson().toJson(chatService.respondChat(userId, requestId, action));
+        return new Gson().toJson(chatService.createChatDirect(fromUser, toUser));
     }
 
     /** 내 채팅방 목록 */

@@ -402,6 +402,51 @@ public class ChatRoomService {
 		return result;
 	}
 
+	@Transactional
+	public HashMap<String, Object> createChatDirect(String fromUser, String toUser) {
+		HashMap<String, Object> result = new HashMap<>();
+		try {
+			if (fromUser.equals(toUser)) {
+				result.put("result", "fail");
+				result.put("message", "자기 자신과는 채팅 불가");
+				return result;
+			}
+
+			HashMap<String, Object> param = new HashMap<>();
+			param.put("userId", fromUser);
+			param.put("otherId", toUser);
+
+			// 기존 방 있으면 바로 반환
+			Map<String, Object> room = mapper.selectChatRoomIncludeHidden(param);
+			if (room != null) {
+				// 숨김 처리됐으면 복구
+				HashMap<String, Object> showParam = new HashMap<>();
+				showParam.put("roomId", room.get("ROOM_ID"));
+				showParam.put("userId", fromUser);
+				mapper.showRoomAgain(showParam);
+
+				result.put("result", "exists");
+				result.put("roomId", room.get("ROOM_ID"));
+				return result;
+			}
+
+			// 새 방 생성
+			HashMap<String, Object> roomParam = new HashMap<>();
+			roomParam.put("userA", fromUser);
+			roomParam.put("userB", toUser);
+			mapper.insertChatRoom(roomParam);
+
+			result.put("result", "success");
+			result.put("roomId", roomParam.get("roomId"));
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.put("result", "fail");
+			result.put("message", "서버 오류");
+		}
+		return result;
+	}
+
 	public HashMap<String, Object> getChatStatus(String userId, String otherId) {
 		HashMap<String, Object> result = new HashMap<>();
 		try {

@@ -33,14 +33,17 @@
                     gap: 5px;
                     transition: all .18s;
                 }
+
                 .mp-follow-btn:hover {
                     background: rgba(232, 115, 42, .08);
                 }
+
                 .mp-follow-btn.on {
                     background: var(--orange);
                     border-color: var(--orange);
                     color: #fff;
                 }
+
                 .mp-follow-btn.on:hover {
                     background: var(--orange2);
                 }
@@ -96,8 +99,8 @@
 
                                 <!-- 메타 -->
                                 <div class="post-meta">
-                                    <div class="author-avatar" @click="fnShowProfile($event, board.USER_ID)"
-                                        style="cursor:pointer;">
+                                    <div class="author-avatar" @mouseenter="fnShowProfile($event, board.USER_ID)"
+                                        @mouseleave="fnStartCloseProfile" style="cursor:pointer;">
                                         <img v-if="board.profileImg" :src="board.profileImg" alt="프로필">
                                         <div v-else class="default-avatar"><i class="ri-user-smile-line"></i></div>
                                     </div>
@@ -200,8 +203,9 @@
                                     <!-- 원댓글 -->
                                     <div class="comment-item" :ref="'comment-' + comment.COMMENT_ID">
                                         <div class="comment-meta">
-                                            <div class="comment-avatar" @click="fnShowProfile($event, comment.USER_ID)"
-                                                style="cursor:pointer;">
+                                            <div class="comment-avatar"
+                                                @mouseenter="fnShowProfile($event, comment.USER_ID)"
+                                                @mouseleave="fnStartCloseProfile" style="cursor:pointer;">
                                                 <img v-if="comment.profileImg" :src="comment.profileImg">
                                                 <div v-else class="default-avatar small"><i
                                                         class="ri-user-smile-line"></i></div>
@@ -269,8 +273,8 @@
                                                 :key="reply.COMMENT_ID" class="comment-item reply">
                                                 <div class="comment-meta">
                                                     <div class="comment-avatar"
-                                                        @click="fnShowProfile($event, reply.USER_ID)"
-                                                        style="cursor:pointer;">
+                                                        @mouseenter="fnShowProfile($event, reply.USER_ID)"
+                                                        @mouseleave="fnStartCloseProfile" style="cursor:pointer;">
                                                         <img v-if="reply.profileImg" :src="reply.profileImg">
                                                         <div v-else class="default-avatar small"><i
                                                                 class="ri-user-smile-line"></i></div>
@@ -413,10 +417,17 @@
                         </div>
                     </div>
 
-                    <!-- ── 미니 프로필 팝업 ───────────────────────── -->
                     <div v-if="profilePopup.show"
-                        :style="{ position:'absolute', top: profilePopup.y + 'px', left: profilePopup.x + 'px' }"
-                        class="mini-profile-popup" @click.stop>
+                        :style="{ position:'fixed', top: profilePopup.y + 'px', left: profilePopup.x + 'px' }"
+                        class="mini-profile-popup" @mouseenter="fnCancelCloseProfile" @mouseleave="fnStartCloseProfile"
+                        @click.stop @click="fnGoProfile(profilePopup.user.userId)" style="cursor:pointer;">
+
+                        <!-- 우측 상단 팔로우 버튼 -->
+                        <button v-if="profilePopup.user.userId !== currentUserId" class="mp-follow-btn-corner"
+                            :class="{ on: profilePopup.isFollowing }"
+                            @click.stop="fnToggleFollowMini(profilePopup.user.userId)">
+                            {{ profilePopup.isFollowing ? '팔로잉' : '팔로우' }}
+                        </button>
 
                         <div class="mp-header">
                             <div class="mp-avatar">
@@ -447,36 +458,18 @@
                             </div>
                         </div>
 
-                        <!-- 프로필 상세보기 / 팔로우 / 대화신청 버튼 -->
-                        <div style="margin-top:12px;display:flex;flex-direction:column;gap:7px;">
-                            <button @click="fnGoProfile(profilePopup.user.userId)" style="width:100%;height:34px;border:1.5px solid var(--border);border-radius:10px;
-                           background:var(--cream);color:var(--brown3);font-size:12px;font-weight:700;
-                           cursor:pointer;transition:all .18s;font-family:inherit;"
-                                onmouseover="this.style.borderColor='var(--orange)';this.style.color='var(--orange2)'"
-                                onmouseout="this.style.borderColor='rgba(44,30,15,.1)';this.style.color='var(--brown3)'">
-                                프로필 상세보기
-                            </button>
-
-                            <!-- ★ 팔로우 버튼 (자신에게는 표시 안 함) -->
-                            <button v-if="profilePopup.user.userId !== currentUserId" class="mp-follow-btn"
-                                :class="{ on: profilePopup.isFollowing }"
-                                @click="fnToggleFollowMini(profilePopup.user.userId)">
-                                <i
-                                    :class="profilePopup.isFollowing ? 'ri-user-unfollow-line' : 'ri-user-add-line'"></i>
-                                {{ profilePopup.isFollowing ? '팔로잉' : '팔로우' }}
-                            </button>
-
-                            <!-- ★ 채팅 신청 버튼 (자신에게는 표시 안 함) -->
-                            <button v-if="profilePopup.user.userId !== currentUserId" class="mp-chat-btn"
-                                :class="profilePopup.chatBtnState"
-                                :disabled="profilePopup.chatBtnState === 'pending'"
-                                @click="fnRequestChat(profilePopup.user.userId)">
-                                <i
-                                    :class="profilePopup.chatBtnState === 'exists' ? 'ri-chat-3-line' : 'ri-chat-new-line'"></i>
-                                {{ profilePopup.chatBtnLabel }}
-                            </button>
+                        <div class="mp-posts" v-if="profilePopup.recentPosts && profilePopup.recentPosts.length > 0">
+                            <div class="mp-posts-label">최근 글</div>
+                            <div class="mp-post-item" v-for="post in profilePopup.recentPosts" :key="post.boardId"
+                                @click.stop="fnGoPost(post.boardId)">
+                                <span class="mp-post-cat" :class="'cat-' + post.category">{{ fnCatLabel(post.category)
+                                    }}</span>
+                                <span class="mp-post-text">{{ post.title }}</span>
+                                <span class="mp-post-like"><i class="ri-heart-3-fill"></i>{{ post.likeCount }}</span>
+                            </div>
                         </div>
                     </div>
+
                     <button type="button" class="page-top-btn" :class="{ show: showTopBtn }" @click="fnScrollTop"
                         aria-label="맨 위로 이동">
                         <i class="ri-arrow-up-line"></i>
@@ -486,6 +479,7 @@
                 </div>
 
                 <%@ include file="/WEB-INF/common/footer.jsp" %>
+
 
                     <script>
                         if ('scrollRestoration' in history) {
@@ -522,12 +516,12 @@
                                     openReplies: {},
                                     closingReplies: {},
                                     tagList: [],
+                                    _profileCloseTimer: null,
                                     bookmarked: false,
                                     profilePopup: {
                                         show: false, user: null, x: 0, y: 0,
-                                        chatBtnState: '',       // '' | 'pending' | 'exists'
-                                        chatBtnLabel: '대화 신청',
-                                        isFollowing: false
+                                        isFollowing: false,
+                                        recentPosts: []
                                     },
                                     commonModal: {
                                         show: false,
@@ -586,60 +580,17 @@
                                     });
                                 },
 
-                                // ── ★ 채팅 신청 ──────────────────────────────
-                                fnRequestChat(toUser) {
-                                    const pp = this.profilePopup;
-
-                                    // 이미 채팅방 있으면 바로 이동
-                                    if (pp.chatBtnState === 'exists') {
-                                        location.href = '/chat-room/room.do?roomId=' + pp.chatRoomId + '&otherId=' + toUser;
-                                        return;
-                                    }
-
-                                    pp.chatBtnLabel = '신청 중…';
-
-                                    $.ajax({
-                                        url: '/chat-room/request.dox', type: 'POST',
-                                        data: { toUser },
-                                        dataType: 'json',
-                                        success: (res) => {
-                                            if (res.result === 'success') {
-                                                pp.chatBtnState = 'pending';
-                                                pp.chatBtnLabel = '신청 완료';
-                                                this.showToast('대화 신청을 보냈어요!');
-                                                return;
-                                            }
-
-                                            if (res.result === 'exists') {
-                                                pp.chatBtnState = 'exists';
-                                                pp.chatRoomId = res.roomId;
-                                                pp.chatBtnLabel = '채팅방 이동';
-                                                this.showToast('이미 대화 중인 상대예요!');
-                                                return;
-                                            }
-
-                                            // 이미 신청만 되어 있고 아직 수락 전인 경우
-                                            if (res.result === 'pending' || res.message === '이미 신청 중입니다.') {
-                                                pp.chatBtnState = 'pending';
-                                                pp.chatBtnLabel = '신청 중';
-                                                this.showToast('이미 대화 신청을 보낸 상태예요.');
-                                                return;
-                                            }
-
-                                            pp.chatBtnState = '';
-                                            pp.chatBtnLabel = '대화 신청';
-                                            this.showToast(res.message || '신청할 수 없습니다.');
-                                        },
-                                        error: () => {
-                                            pp.chatBtnLabel = '대화 신청';
-                                            this.showToast('네트워크 오류가 발생했어요.');
-                                        }
-                                    });
+                                fnStartCloseProfile() {
+                                    this._profileCloseTimer = setTimeout(() => {
+                                        this.profilePopup.show = false;
+                                    }, 200);
                                 },
 
-                                // ── 미니 프로필 팝업 ─────────────────────────
+                                fnCancelCloseProfile() {
+                                    clearTimeout(this._profileCloseTimer);
+                                },
                                 fnShowProfile(event, userId) {
-                                    if (event) event.stopPropagation();
+                                    clearTimeout(this._profileCloseTimer);
                                     if (!userId) return;
 
                                     $.ajax({
@@ -647,46 +598,48 @@
                                         data: { targetUserId: userId },
                                         success: (res) => {
                                             if (res.result === 'success') {
-                                                const el = event.target.closest('.comment-avatar')
-                                                    || event.target.closest('.author-avatar')
-                                                    || event.target;
+                                                const el = event.target.closest('.comment-avatar, .author-avatar') || event.target;
                                                 const rect = el.getBoundingClientRect();
 
-                                                let x = rect.left + window.scrollX;
-                                                let y = rect.bottom + window.scrollY + 8;
+                                                let x = rect.left;
+                                                let y = rect.bottom + 8;
 
                                                 const popupWidth = 236;
-                                                const popupHeight = 300;
-                                                const pageRight = window.scrollX + window.innerWidth;
-                                                const pageBottom = window.scrollY + window.innerHeight;
+                                                if (x + popupWidth > window.innerWidth - 16) x = window.innerWidth - popupWidth - 16;
 
-                                                if (x + popupWidth > pageRight - 16) x = pageRight - popupWidth - 16;
-                                                if (y + popupHeight > pageBottom - 16) y = rect.top + window.scrollY - popupHeight - 8;
-
+                                                // ★ 이 부분이 빠져있었음
                                                 this.profilePopup = {
-                                                    show: true, user: res.user, x, y,
-                                                    chatBtnState: '',
-                                                    chatBtnLabel: '대화 신청',
-                                                    chatRoomId: null,
-                                                    isFollowing: false   // ★ 일단 false로, 아래에서 갱신
+                                                    show: true,
+                                                    user: res.user,
+                                                    x, y,
+                                                    isFollowing: false,
+                                                    recentPosts: []
                                                 };
 
-                                                // ★ 팔로우 상태 조회
                                                 $.ajax({
                                                     url: '/follow/status.dox', type: 'POST',
                                                     data: { targetUserId: userId },
                                                     success: (fres) => {
-                                                        if (fres.result === 'success') {
+                                                        if (fres.result === 'success')
                                                             this.profilePopup.isFollowing = fres.isFollowing === true;
-                                                        }
+                                                    }
+                                                });
+
+                                                $.ajax({
+                                                    url: '/user/recent-posts.dox', type: 'POST',
+                                                    data: { targetUserId: userId, limit: 3 },
+                                                    success: (pres) => {
+                                                        if (pres.result === 'success')
+                                                            this.profilePopup.recentPosts = pres.posts || [];
                                                     }
                                                 });
                                             }
                                         }
                                     });
                                 },
-
-                                // ★ 신규 메서드
+                                fnGoPost(boardId) {
+                                    location.href = '/board/detail.do?boardId=' + boardId;
+                                },
                                 fnToggleFollowMini(targetUserId) {
                                     $.ajax({
                                         url: '/follow/toggle.dox', type: 'POST',
@@ -968,12 +921,9 @@
                                 showToast(msg) { this.toastMsg = msg; this.toastVisible = true; setTimeout(() => { this.toastVisible = false; }, 2500); },
                                 fnToggleCommentMenu(commentId) { this.openCommentMenuId = this.openCommentMenuId === commentId ? null : commentId; },
                                 fnHandleOutsideClick(event) {
-                                    const popup = event.target.closest('.mini-profile-popup');
-                                    const avatar = event.target.closest('.author-avatar, .comment-avatar');
                                     const postMenu = event.target.closest('.post-menu-wrap');
                                     const commentMenu = event.target.closest('.comment-menu-wrap');
-                                    if (popup || avatar || postMenu || commentMenu) return;
-                                    this.profilePopup.show = false;
+                                    if (postMenu || commentMenu) return;
                                     this.postMenuOpen = false;
                                     this.openCommentMenuId = null;
                                 },

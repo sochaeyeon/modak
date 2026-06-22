@@ -513,10 +513,11 @@
 									<div class="rhelprow">
 										<span>도움이 됐나요?</span>
 										<button class="hbtn" :class="{ 
-																	on: review.helpfulYn === 'Y',
-																	disabled: String(review.userId) === String(loginUserId)
-																}" :disabled="String(review.userId) === String(loginUserId)" @click="fnReviewHelpful(review)">
-											<i :class="review.helpfulYn === 'Y' ? 'ri-thumb-up-fill' : 'ri-thumb-up-line'"></i>
+                on: review.helpfulYn === 'Y',
+                disabled: String(review.userId) === String(loginUserId)
+            }" :disabled="String(review.userId) === String(loginUserId)" @click="fnReviewHelpful(review)">
+											<i
+												:class="review.helpfulYn === 'Y' ? 'ri-thumb-up-fill' : 'ri-thumb-up-line'"></i>
 											도움돼요 {{ review.helpfulCount || 0 }}
 										</button>
 									</div>
@@ -542,115 +543,78 @@
 								</div>
 							</div>
 
-							<div class="tpane" id="tp-qna">
+<div class="tpane" id="tp-qna">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h3 style="font-size: 18px; font-weight: 800; color: #2c1e0f;">상품 문의</h3>
+        <button type="button" class="btn-buy" style="width:auto; height:40px; padding:0 20px; border-radius: 8px;" @click="openQnaModal('add')">
+            상품 문의하기
+        </button>
+    </div>
 
-								<!-- 헤더 -->
-								<div class="qna-header-row">
-									<h3 class="qna-section-title">상품 문의</h3>
-									<button type="button" class="qna-write-btn" @click="openQnaModal('add')">
-										<i class="ri-edit-line"></i> 문의하기
-									</button>
-								</div>
+    <div v-if="qnaList.length === 0" class="review-empty">
+        등록된 상품 문의가 없습니다. 상품에 대해 궁금한 점을 남겨주세요!
+    </div>
+    
+    <div v-else class="qna-list">
+        <div v-for="qna in qnaList" :key="qna.qnaId" class="qna-item" style="border-bottom: 1px solid #eee; padding: 20px 0;">
+            
+            <div style="display:flex; justify-content:space-between; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span v-if="qna.status === 'COMPLETED'" class="badge" style="background:#fff3c4; color:#b8860b;">답변완료</span>
+                    <span v-else class="badge" style="background:#f0f0f0; color:#888;">답변대기</span>
+                    <span style="font-size:12px; color:#888;">{{ qna.optionName || '옵션 없음' }}</span>
+                </div>
+                <div style="font-size:12px; color:#aaa;">
+                    {{ qna.nickname }} <span style="margin:0 4px;">|</span> {{ qna.createdAt }}
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 12px; font-size:14px; line-height: 1.6; color:#333;">
+                <span style="font-weight:900; color:var(--orange); margin-right:4px;">Q.</span>
+                
+                <template v-if="qna.secretYn === 'Y'">
+                    <span v-if="String(qna.userId) === String(loginUserId)">
+                        <i class="ri-lock-unlock-line" style="color:#bbb; margin-right:2px;"></i> {{ qna.questionContent }}
+                    </span>
+                    <span v-else style="color:#aaa;">
+                        <i class="ri-lock-2-line"></i> 비밀글입니다.
+                    </span>
+                </template>
+                <template v-else>
+                    {{ qna.questionContent }}
+                </template>
+            </div>
 
-								<!-- 검색 -->
-								<div class="qna-search-box">
-									<input type="text" v-model.trim="qnaKeyword" class="qna-search-input"
-										placeholder="문의 내용을 검색해보세요" @keyup.enter="applyQnaFilter">
+            <div v-if="qna.status === 'COMPLETED'" style="background: #fffdf8; border-radius: 8px; padding: 16px; margin-top: 12px; border: 1px solid #f6e9bd;">
+                <div style="font-size:13px; font-weight:800; color:var(--orange-dark); margin-bottom: 6px;">
+                    A. 판매자 답변 <span style="font-weight:normal; color:#aaa; font-size:12px; margin-left:8px;">{{ qna.answeredAt }}</span>
+                </div>
+                <div style="font-size:13px; color:#5c4230; line-height: 1.6;">
+                    <template v-if="qna.secretYn === 'Y' && String(qna.userId) !== String(loginUserId)">
+                        <i class="ri-lock-2-line"></i> 비밀글 답변입니다.
+                    </template>
+                    <template v-else>
+                        {{ qna.answerContent }}
+                    </template>
+                </div>
+            </div>
 
-									<button type="button" class="qna-search-btn" @click="applyQnaFilter">
-										<i class="ri-search-line"></i> 검색
-									</button>
-								</div>
+            <div v-if="String(qna.userId) === String(loginUserId)" style="display:flex; justify-content:flex-end; gap:8px; margin-top: 12px;">
+                <button v-if="qna.status === 'WAITING'" type="button" class="btn-out" @click="openQnaModal('edit', qna)">수정</button>
+                <button type="button" class="btn-out" style="color:var(--red); border-color:var(--red-light);" @click="deleteQna(qna.qnaId)">삭제</button>
+            </div>
+        </div>
+    </div>
 
-								<!-- 검색 결과 안내줄 -->
-								<div v-if="qnaSearchKeyword" class="qna-search-result-row">
-									<span>'<strong>{{ qnaSearchKeyword }}</strong>' {{ qnaTotalCount }}개의 검색결과가 있습니다.</span>
-									<button type="button" class="qna-search-clear-btn" @click="resetQnaFilter">
-										<i class="ri-close-line"></i>
-									</button>
-								</div>
-
-								<!-- 빈 상태 -->
-								<div v-if="qnaList.length === 0" class="review-empty">
-									<template v-if="qnaSearchKeyword">'{{ qnaSearchKeyword }}'에 대한 검색 결과가 없습니다.</template>
-									<template v-else>등록된 상품 문의가 없습니다. 상품에 대해 궁금한 점을 남겨주세요!</template>
-								</div>
-
-								<!-- 문의 목록 -->
-								<div v-else class="qna-list">
-									<div v-for="qna in qnaList" :key="qna.qnaId" class="qna-item">
-
-										<!-- 질문 영역 -->
-										<div class="qna-question-area">
-											<div class="qna-meta-row">
-												<div class="qna-badges">
-													<span class="qna-badge completed" v-if="qna.status === 'COMPLETED'">답변완료</span>
-													<span class="qna-badge waiting" v-else>답변대기</span>
-													<span class="qna-secret-tag" v-if="qna.secretYn === 'Y'">
-														<i class="ri-lock-2-line"></i> 비밀글
-													</span>
-													<span class="qna-option-tag" v-if="qna.optionName">{{ qna.optionName }}</span>
-												</div>
-												<div class="qna-author-info">
-													<span class="qna-nickname">{{ qna.nickname }}</span>
-													<span class="qna-divider">·</span>
-													<span class="qna-date">{{ qna.createdAt }}</span>
-												</div>
-											</div>
-
-											<div class="qna-content-row">
-												<span class="qna-label-q">Q</span>
-												<div class="qna-text">
-													<template v-if="qna.secretYn === 'Y'">
-														<span v-if="String(qna.userId) === String(loginUserId)">
-															<i class="ri-lock-unlock-line qna-lock-icon"></i>{{ qna.questionContent }}
-														</span>
-														<span v-else class="qna-secret-text">
-															<i class="ri-lock-2-line"></i> 비밀글입니다.
-														</span>
-													</template>
-													<template v-else>{{ qna.questionContent }}</template>
-												</div>
-											</div>
-
-											<!-- 내 글 수정/삭제 버튼 -->
-											<div v-if="String(qna.userId) === String(loginUserId)" class="qna-action-row">
-												<button v-if="qna.status === 'WAITING'" type="button" class="qna-btn-edit" @click="openQnaModal('edit', qna)">수정</button>
-												<button type="button" class="qna-btn-delete" @click="deleteQna(qna.qnaId)">삭제</button>
-											</div>
-										</div>
-
-										<!-- 답변 영역 -->
-										<div v-if="qna.status === 'COMPLETED'" class="qna-answer-area">
-											<span class="qna-label-a">A</span>
-											<div class="qna-answer-body">
-												<div class="qna-answer-meta">
-													<span class="qna-answer-title">판매자 답변</span>
-													<span class="qna-answer-date">{{ qna.answeredAt }}</span>
-												</div>
-												<div class="qna-answer-text">
-													<template v-if="qna.secretYn === 'Y' && String(qna.userId) !== String(loginUserId)">
-														<i class="ri-lock-2-line"></i> 비밀글 답변입니다.
-													</template>
-													<template v-else>{{ qna.answerContent }}</template>
-												</div>
-											</div>
-										</div>
-
-									</div>
-								</div>
-
-								<!-- 페이징 -->
-								<div class="review-paging" v-if="qnaTotalPage > 1">
-									<button type="button" class="review-page-btn" :disabled="qnaPage === 1" @click="changeQnaPage(qnaPage - 1)">이전</button>
-									<button type="button" v-for="page in qnaTotalPage" :key="'q'+page"
-										class="review-page-num" :class="{ active: qnaPage === page }" @click="changeQnaPage(page)">
-										{{ page }}
-									</button>
-									<button type="button" class="review-page-btn" :disabled="qnaPage === qnaTotalPage" @click="changeQnaPage(qnaPage + 1)">다음</button>
-								</div>
-
-							</div>
+    <div class="review-paging" v-if="qnaTotalPage > 1">
+        <button type="button" class="review-page-btn" :disabled="qnaPage === 1" @click="changeQnaPage(qnaPage - 1)">이전</button>
+        <button type="button" v-for="page in qnaTotalPage" :key="'q'+page"
+            class="review-page-num" :class="{ active: qnaPage === page }" @click="changeQnaPage(page)">
+            {{ page }}
+        </button>
+        <button type="button" class="review-page-btn" :disabled="qnaPage === qnaTotalPage" @click="changeQnaPage(qnaPage + 1)">다음</button>
+    </div>
+</div>
 
 							<div class="tpane" id="tp-shp">
 								<table class="spec">
@@ -846,7 +810,7 @@
 
 											<span class="create-date">
 												<template v-if="reviewList[reviewImgModal.reviewIndex]?.updatedAt 
-        													&& reviewList[reviewImgModal.reviewIndex]?.updatedAt !== reviewList[reviewImgModal.reviewIndex]?.createdAt">
+        && reviewList[reviewImgModal.reviewIndex]?.updatedAt !== reviewList[reviewImgModal.reviewIndex]?.createdAt">
 													{{ reviewList[reviewImgModal.reviewIndex]?.updatedAt }}
 												</template>
 												<template v-else>
@@ -886,7 +850,7 @@
 							<div v-for="(options, groupName) in groupedOptions" :key="groupName" class="qna-option-item">
 								<label class="qna-label">{{ groupName }}</label>
 								<select v-model="qnaModal.selectedOptionsMap[groupName]" class="report-select">
-									<option value="" disabled>{{ groupName }}을(를) 선택해 주세요</option>
+									<option value="">{{ groupName }}을(를) 선택해 주세요</option>
 									<option v-for="opt in options" :key="opt.optionValue" :value="opt.optionValue">
 										{{ opt.optionValue }}
 									</option>
@@ -1095,8 +1059,6 @@
 					qnaPage: 1,
 					qnaPageSize: 5,
 					qnaTotalCount: 0,
-					qnaKeyword: '',
-					qnaSearchKeyword: '',
 					qnaModal: {
 						open: false,
 						mode: 'add',
@@ -2310,8 +2272,7 @@
 						data: {
 							productId: self.productId,
 							page: self.qnaPage,
-							pageSize: self.qnaPageSize,
-							keyword: self.qnaSearchKeyword
+							pageSize: self.qnaPageSize
 						},
 						dataType: 'json',
 						success(res) {
@@ -2321,19 +2282,6 @@
 							}
 						}
 					});
-				},
-
-				applyQnaFilter() {
-					this.qnaSearchKeyword = this.qnaKeyword;
-					this.qnaPage = 1;
-					this.fnGetQnaList();
-				},
-
-				resetQnaFilter() {
-					this.qnaKeyword = '';
-					this.qnaSearchKeyword = '';
-					this.qnaPage = 1;
-					this.fnGetQnaList();
 				},
 
 				changeQnaPage(page) {
@@ -2351,9 +2299,6 @@
 
 					this.qnaModal.mode = mode;
 					this.qnaModal.selectedOptionsMap = {}; // 열 때마다 선택값 싹 비우기
-					for (let groupName in this.groupedOptions) {
-						this.qnaModal.selectedOptionsMap[groupName] = '';
-					}
 
 					if (mode === 'add') {
 						this.qnaModal.qnaId = null;

@@ -95,6 +95,12 @@ public class AdminController {
 		return "admin/admin-inquiry";
 	}
 
+	@GetMapping("/product-qna.do")
+	public String productQna() {
+		if (!isAdmin()) return "redirect:/admin/login.do";
+		return "admin/admin-product-qna";
+	}
+
 	@GetMapping("/reviews.do")
 	public String reviews() {
 		if (!isAdmin()) return "redirect:/admin/login.do";

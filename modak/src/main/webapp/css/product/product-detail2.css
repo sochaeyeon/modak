@@ -1514,37 +1514,6 @@ body.rent .rent-only {
 	background: #fff1f5;
 }
 
-/* ── QnA 목록 ── */
-.qna-header-row {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 20px;
-}
-
-.qna-section-title {
-	font-size: 17px;
-	font-weight: 800;
-	color: var(--text);
-}
-
-.qna-write-btn {
-	display: inline-flex;
-	align-items: center;
-	gap: 5px;
-	padding: 8px 18px;
-	background: var(--orange);
-	color: #fff;
-	border: none;
-	border-radius: 20px;
-	font-size: 13px;
-	font-weight: 600;
-	cursor: pointer;
-	font-family: inherit;
-	transition: background 0.15s;
-}
-.qna-write-btn:hover { background: var(--orange-dark); }
-
 .qna-list {
 	margin-bottom: 20px;
 }
@@ -1553,191 +1522,53 @@ body.rent .rent-only {
 	border-bottom: 1px solid var(--border);
 }
 
-/* 질문 영역 */
-.qna-question-area {
-	padding: 20px 4px 16px;
-}
-
-.qna-meta-row {
+.qna-question {
+	width: 100%;
+	padding: 15px 4px;
+	border: none;
+	background: transparent;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 12px;
-	flex-wrap: wrap;
-	gap: 6px;
-}
-
-.qna-badges {
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	flex-wrap: wrap;
-}
-
-.qna-badge {
-	display: inline-block;
-	font-size: 11px;
-	font-weight: 700;
-	padding: 3px 9px;
-	border-radius: 20px;
-}
-.qna-badge.completed {
-	background: #fff3c4;
-	color: #a07800;
-}
-.qna-badge.waiting {
-	background: #f0f0f0;
-	color: #888;
-}
-
-.qna-secret-tag {
-	font-size: 11px;
-	color: #aaa;
-	display: inline-flex;
-	align-items: center;
-	gap: 2px;
-}
-
-.qna-option-tag {
-	font-size: 11px;
-	color: #888;
-	background: #f5f0eb;
-	padding: 2px 8px;
-	border-radius: 10px;
-}
-
-.qna-author-info {
-	display: flex;
-	align-items: center;
-	gap: 5px;
-	font-size: 12px;
-	color: #aaa;
-}
-.qna-nickname { color: #888; font-weight: 600; }
-.qna-divider { color: #ccc; }
-.qna-date { color: #bbb; }
-
-/* Q 라벨 + 텍스트 */
-.qna-content-row {
-	display: flex;
-	align-items: flex-start;
-	gap: 10px;
-}
-
-.qna-label-q {
-	flex-shrink: 0;
-	width: 24px;
-	height: 24px;
-	background: var(--orange);
-	color: #fff;
-	border-radius: 6px;
-	font-size: 12px;
-	font-weight: 800;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin-top: 1px;
-}
-
-.qna-text {
-	font-size: 14px;
-	line-height: 1.7;
-	color: #333;
-	flex: 1;
-}
-
-.qna-lock-icon { color: #bbb; margin-right: 4px; }
-
-.qna-secret-text {
-	color: #bbb;
-	font-size: 13px;
-}
-
-/* 수정/삭제 버튼 */
-.qna-action-row {
-	display: flex;
-	justify-content: flex-end;
-	gap: 6px;
-	margin-top: 12px;
-}
-
-.qna-btn-edit,
-.qna-btn-delete {
-	font-size: 12px;
-	font-weight: 600;
-	padding: 5px 12px;
-	border-radius: 6px;
 	cursor: pointer;
 	font-family: inherit;
-	transition: all 0.15s;
+	text-align: left;
 }
 
-.qna-btn-edit {
-	border: 1px solid var(--border);
-	background: #fff;
-	color: #666;
+.qna-question span {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--text);
 }
-.qna-btn-edit:hover { border-color: var(--orange); color: var(--orange); }
 
-.qna-btn-delete {
-	border: 1px solid var(--red-light);
-	background: #fff;
-	color: var(--red);
+.qna-question b {
+	color: var(--orange);
+	margin-right: 6px;
 }
-.qna-btn-delete:hover { background: var(--red-light); }
 
-/* 답변 영역 */
-.qna-answer-area {
+.qna-question i {
+	color: var(--orange);
+	font-size: 20px;
+}
+
+.qna-answer {
 	display: flex;
-	align-items: flex-start;
-	gap: 10px;
-	background: #fffaf5;
-	border-top: 1px dashed #f0e4d0;
-	padding: 16px 4px 20px;
-}
-
-.qna-label-a {
-	flex-shrink: 0;
-	width: 24px;
-	height: 24px;
-	background: #f0e4d0;
-	color: var(--orange-dark);
-	border-radius: 6px;
-	font-size: 12px;
-	font-weight: 800;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin-top: 2px;
-}
-
-.qna-answer-body { flex: 1; }
-
-.qna-answer-meta {
-	display: flex;
-	align-items: center;
 	gap: 8px;
-	margin-bottom: 8px;
-}
-
-.qna-answer-title {
+	padding: 13px 14px 16px 22px;
+	margin-bottom: 6px;
+	border-radius: 8px;
+	background: #fffaf6;
 	font-size: 13px;
-	font-weight: 800;
-	color: var(--orange-dark);
+	color: #555;
+	line-height: 1.8;
+	overflow: hidden;
 }
 
-.qna-answer-date {
-	font-size: 11px;
-	color: #bbb;
+.qna-answer span {
+	color: var(--orange);
+	font-weight: 700;
 }
 
-.qna-answer-text {
-	font-size: 13px;
-	color: #5c4230;
-	line-height: 1.7;
-}
-
-/* 슬라이드 트랜지션 (기존 유지) */
 .qna-slide-enter-active,
 .qna-slide-leave-active {
 	transition: all .24s ease;
@@ -4149,104 +3980,6 @@ body.rent .delbox .dv.rent-only {
 	text-align: center;
 	color: var(--muted);
 	font-size: 14px;
-}
-
-
-/* =========================================================
-   Q&A 검색
-========================================================= */
-
-.qna-search-box {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	margin-bottom: 14px;
-}
-
-.qna-search-input {
-	flex: 1;
-	max-width: 320px;
-	height: 38px;
-	padding: 0 13px;
-	border: 1px solid #eadfca;
-	border-radius: 10px;
-	background: #fff;
-	color: #2c2c2a;
-	font-family: inherit;
-	font-size: 13px;
-	outline: none;
-}
-
-.qna-search-input:focus {
-	border-color: var(--orange);
-	box-shadow: 0 0 0 3px rgba(224, 122, 59, 0.1);
-}
-
-.qna-search-btn {
-	display: inline-flex;
-	align-items: center;
-	gap: 5px;
-	height: 38px;
-	padding: 0 14px;
-	border: 1px solid var(--orange);
-	border-radius: 10px;
-	background: var(--orange);
-	color: #fff;
-	font-family: inherit;
-	font-size: 13px;
-	font-weight: 800;
-	cursor: pointer;
-	transition: background .16s ease, border-color .16s ease;
-}
-
-.qna-search-btn:hover {
-	border-color: var(--orange-dark);
-	background: var(--orange-dark);
-}
-
-.qna-search-result-row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 14px;
-	padding: 10px 14px;
-	border: 1px solid #eadfca;
-	border-radius: 10px;
-	background: var(--orange-light);
-	font-size: 13px;
-	color: #5b4632;
-}
-
-.qna-search-result-row strong {
-	color: var(--orange);
-}
-
-.qna-search-clear-btn {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 22px;
-	height: 22px;
-	border: none;
-	background: transparent;
-	color: #aaa;
-	font-size: 16px;
-	cursor: pointer;
-}
-
-.qna-search-clear-btn:hover {
-	color: var(--orange);
-}
-
-@media (max-width: 760px) {
-	.qna-search-box {
-		flex-direction: column;
-		align-items: stretch;
-	}
-
-	.qna-search-input {
-		max-width: none;
-	}
 }
 
 

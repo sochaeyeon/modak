@@ -34,6 +34,10 @@
         <a href="/admin/events.do" class="nav-item ${pageTitle == '이벤트관리' ? 'active' : ''}">
             <span class="nav-icon">🎁</span> 이벤트 관리
         </a>
+        <a href="/admin/product-qna.do" class="nav-item ${pageTitle == '상품문의관리' ? 'active' : ''}">
+            <span class="nav-icon">❓</span> 상품 문의 관리
+            <span class="nav-badge" id="productQnaBadge" style="display:none">0</span>
+        </a>
 
         <div class="nav-section-label">회원 · CS</div>
         <a href="/admin/members.do" class="nav-item ${pageTitle == '회원관리' ? 'active' : ''}">

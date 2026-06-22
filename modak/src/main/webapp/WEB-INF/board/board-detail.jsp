@@ -626,7 +626,7 @@
                                                 });
 
                                                 $.ajax({
-                                                    url: '/user/recent-posts.dox', type: 'POST',
+                                                    url: '/board/recent-posts.dox', type: 'POST',
                                                     data: { targetUserId: userId, limit: 3 },
                                                     success: (pres) => {
                                                         if (pres.result === 'success')

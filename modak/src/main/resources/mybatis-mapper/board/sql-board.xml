@@ -461,8 +461,22 @@
 	<select id="selectRecentBoardsByUser" parameterType="hashmap"
 		resultType="map">
 		SELECT
-		BOARD_ID, TITLE, CATEGORY,
-		LIKE_COUNT, COMMENT_COUNT, VIEW_COUNT,
+		BOARD_ID AS boardId,
+		TITLE AS title,
+		CATEGORY AS category,
+		LIKE_COUNT AS likeCount,
+		COMMENT_COUNT AS commentCount,
+		DATE_FORMAT(CREATED_AT, '%Y-%m-%d %H:%i:%s') AS createdAt
+		FROM BOARD
+		WHERE USER_ID = #{userId} AND STATUS = 'ACTIVE'
+		ORDER BY CREATED_AT DESC
+		LIMIT #{limit}
+	</select>
+
+	<select id="selectRecentBoardsByUserForProfile" parameterType="hashmap"
+		resultType="map">
+		SELECT
+		BOARD_ID, TITLE, CATEGORY, LIKE_COUNT, COMMENT_COUNT, VIEW_COUNT,
 		DATE_FORMAT(CREATED_AT, '%Y-%m-%d %H:%i:%s') AS CREATED_AT
 		FROM BOARD
 		WHERE USER_ID = #{userId}

@@ -175,7 +175,7 @@ public class MypageController {
 	            return new Gson().toJson(result);
 	        }
 
-	        List<Map<String, Object>> recentBoards = boardMapper.selectRecentBoardsByUser(map);
+	        List<Map<String, Object>> recentBoards = boardMapper.selectRecentBoardsByUserForProfile(map);
 	        List<Map<String, Object>> recentComments = boardMapper.selectRecentCommentsByUser(map);
 
 	        result.put("result", "success");

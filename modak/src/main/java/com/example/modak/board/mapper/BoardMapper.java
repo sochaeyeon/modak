@@ -44,6 +44,7 @@ public interface BoardMapper {
     int increaseCommentLikeCount(HashMap<String, Object> map);
     int decreaseCommentLikeCount(HashMap<String, Object> map);
     List<Map<String, Object>> selectMyReactions(HashMap<String, Object> map);
+    List<Map<String, Object>> selectRecentBoardsByUserForProfile(HashMap<String, Object> map);
 
     // 신고
     int selectReportExists(HashMap<String, Object> map);

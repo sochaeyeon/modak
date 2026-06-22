@@ -24,7 +24,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/user/recent/**", "/user/wishlist/**", "/board/write.do",
                         "/board/edit.do", "/board/insert.do", "/board/update.do",
                         "/board/delete.do", "/board/comment/**", "/board/scrap/**",
-                        "/board/like/**")
+                        "/board/like/**", "/chat-room/**")
                 .excludePathPatterns("/css/**", "/js/**", "/img/**", "/images/**",
                         "/static/**", "/upload/**");
     }

@@ -765,7 +765,7 @@
 														<template v-for="(item, index) in couponList"
 															:key="item.userCouponId">
 															<div v-if="index < 3" class="coupon-ticket"
-																:class="(item.status || '').toLowerCase()">
+																:class="fnCouponStatusClass(item)">
 																<div class="coupon-ticket-left">
 																	<div class="coupon-ticket-label">MODAK</div>
 
@@ -788,8 +788,8 @@
 
 																<div class="coupon-ticket-right">
 																	<div class="coupon-status"
-																		:class="(item.status || '').toLowerCase()">
-																		{{ fnCouponStatusText(item.status) }}
+																		:class="fnCouponStatusClass(item)">
+																		{{ fnCouponStatusText(item) }}
 																	</div>
 																</div>
 
@@ -2045,7 +2045,7 @@
 											url: "/user/address/remove.dox",
 											type: "POST",
 											dataType: "json",
-											data: {addressId: addressId},
+											data: { addressId: addressId },
 											success: function (data) {
 												if (data.result === "success") {
 													self.fnGetAddressList();
@@ -2121,7 +2121,7 @@
 							},
 
 							fnEditReview: function (reviewId) {
-								pageChange("/user/review/edit.do", {reviewId: reviewId});
+								pageChange("/user/review/edit.do", { reviewId: reviewId });
 							},
 
 							fnChangePassword: function () {
@@ -2265,7 +2265,7 @@
 											url: "/user/review/remove.dox",
 											type: "POST",
 											dataType: "json",
-											data: {reviewId: reviewId},
+											data: { reviewId: reviewId },
 											success: function (data) {
 												if (data.result === "success") {
 													self.showToast("리뷰가 삭제되었습니다.");
@@ -2306,7 +2306,7 @@
 								});
 							},
 							fnGoChatbotRoom: function (roomId) {
-								pageChange("/chat/bot.do", {roomId: roomId});
+								pageChange("/chat/bot.do", { roomId: roomId });
 							},
 							fnGoChatbotHistory: function () {
 								pageChange("/user/chatbot/history.do", {});
@@ -2709,7 +2709,7 @@
 								return item.replyId ? "answered" : "waiting";
 							},
 							fnEditInquiry: function (inquiryId) {
-								pageChange("/user/inquiry/edit.do", {inquiryId: inquiryId});
+								pageChange("/user/inquiry/edit.do", { inquiryId: inquiryId });
 							},
 
 							fnDeleteInquiry: function (inquiryId) {
@@ -2724,7 +2724,7 @@
 											url: "/user/inquiry/remove.dox",
 											type: "POST",
 											dataType: "json",
-											data: {inquiryId: inquiryId},
+											data: { inquiryId: inquiryId },
 											success: function (data) {
 												if (data.result === "success") {
 													self.showToast("문의가 삭제되었습니다.");
@@ -3028,7 +3028,7 @@
 								return "";
 							},
 							fnGoOrderDetail: function (orderId) {
-								pageChange("/order/detail.do", {orderId: orderId});
+								pageChange("/order/detail.do", { orderId: orderId });
 							},
 							fnRemoveWishlist: function (wishId) {
 								let self = this;
@@ -3037,7 +3037,7 @@
 									url: "/user/wishlist/remove.dox",
 									type: "POST",
 									dataType: "json",
-									data: {wishId: wishId},
+									data: { wishId: wishId },
 									success: function (data) {
 										if (data.result === "success") {
 											self.wishlist = self.wishlist.filter(function (wish) {
@@ -3155,11 +3155,39 @@
 								return "최소 주문금액 없이 사용 가능";
 							},
 
-							fnCouponStatusText: function (status) {
+							fnGetCouponActualStatus: function (item) {
+								// 이미 사용한 쿠폰이면 그대로
+								if (item.status === "USED") {
+									return "USED";
+								}
+
+								// 만료일이 지났으면 status 값과 무관하게 만료 처리
+								if (item.expiredAt) {
+									const expDate = new Date(String(item.expiredAt).replace(" ", "T"));
+									const now = new Date();
+
+									if (!isNaN(expDate.getTime())) {
+										expDate.setHours(23, 59, 59, 999); // 만료일 자정까지는 유효
+										if (now > expDate) {
+											return "EXPIRED";
+										}
+									}
+								}
+
+								return item.status === "EXPIRED" ? "EXPIRED" : "AVAILABLE";
+							},
+
+							fnCouponStatusText: function (item) {
+								const status = this.fnGetCouponActualStatus(item);
+
 								if (status === "AVAILABLE") return "사용 가능";
 								if (status === "USED") return "사용 완료";
-								if (status === "EXPIRED") return "만료";
+								if (status === "EXPIRED") return "만료됨";
 								return status || "-";
+							},
+
+							fnCouponStatusClass: function (item) {
+								return this.fnGetCouponActualStatus(item).toLowerCase();
 							},
 
 							fnBoardCategoryText: function (category) {

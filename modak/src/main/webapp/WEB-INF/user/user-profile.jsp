@@ -105,71 +105,48 @@
                     border-top: 1px solid var(--border);
                 }
 
-                .profile-action-row {
-                    display: flex;
-                    gap: 8px;
-                    margin-top: 20px;
-                    padding-top: 20px;
-                    border-top: 1px solid var(--border);
+                .profile-card {
+                    position: relative;
+                    /* 버튼 절대좌표 기준 */
                 }
 
-                .profile-action-btn {
-                    flex: 1;
-                    height: 42px;
-                    border-radius: 12px;
-                    font-size: 13px;
-                    font-weight: 800;
-                    cursor: pointer;
-                    display: inline-flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 6px;
-                    transition: all .18s;
-                    font-family: inherit;
-                }
-
-                .follow-btn {
+                /* 팔로우 버튼 - 우측 상단 */
+                .profile-follow-btn-corner {
+                    position: absolute;
+                    top: 16px;
+                    right: 14px;
+                    height: 28px;
+                    padding: 0 14px;
                     border: 1.5px solid var(--orange);
+                    border-radius: 8px;
                     background: var(--orange);
                     color: #fff;
+                    font-size: 12px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    transition: all .18s;
+                    white-space: nowrap;
+                    z-index: 1;
                 }
 
-                .follow-btn:hover {
+                .profile-follow-btn-corner:hover {
                     background: var(--orange2);
+                    border-color: var(--orange2);
                 }
 
-                .follow-btn.on {
-                    background: var(--white);
-                    border-color: var(--orange);
-                    color: var(--orange2);
-                }
-
-                .follow-btn.on:hover {
-                    background: rgba(232, 115, 42, .08);
-                }
-
-                .chat-request-btn {
-                    border: 1.5px solid var(--border);
-                    background: var(--cream);
+                .profile-follow-btn-corner.on {
+                    background: transparent;
+                    border-color: var(--border);
                     color: var(--brown3);
                 }
 
-                .chat-request-btn:hover {
-                    border-color: var(--orange);
-                    color: var(--orange2);
+                .profile-follow-btn-corner.on:hover {
+                    border-color: var(--brown3);
+                    color: var(--brown);
                 }
 
-                .chat-request-btn.pending {
-                    background: var(--cream2);
-                    color: var(--brown4);
-                    cursor: default;
-                }
-
-                .chat-request-btn.exists {
-                    border-color: var(--orange);
-                    background: rgba(232, 115, 42, .08);
-                    color: var(--orange2);
-                }
 
                 .follow-counts {
                     display: flex;
@@ -734,6 +711,69 @@
                     background: var(--orange2);
                 }
 
+                .profile-action-row {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    margin-bottom: 14px;
+                }
+
+                .profile-chat-icon-btn {
+                    height: 34px;
+                    width: 34px;
+                    border-radius: 9px;
+                    border: 1.5px solid var(--border);
+                    background: var(--white);
+                    color: var(--brown3);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 17px;
+                    cursor: pointer;
+                    transition: all .18s;
+                }
+
+                .profile-chat-icon-btn:hover {
+                    border-color: var(--orange);
+                    color: var(--orange2);
+                    background: var(--cream);
+                }
+
+                .profile-chat-icon-btn:disabled {
+                    opacity: .5;
+                    cursor: default;
+                }
+
+                .profile-follow-btn {
+                    height: 34px;
+                    padding: 0 20px;
+                    border-radius: 9px;
+                    border: 1.5px solid var(--orange);
+                    background: var(--orange);
+                    color: #fff;
+                    font-size: 13px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    transition: all .18s;
+                }
+
+                .profile-follow-btn:hover {
+                    background: var(--orange2);
+                    border-color: var(--orange2);
+                }
+
+                .profile-follow-btn.on {
+                    background: var(--white);
+                    border-color: var(--border);
+                    color: var(--brown3);
+                }
+
+                .profile-follow-btn.on:hover {
+                    border-color: var(--brown3);
+                    color: var(--brown);
+                }
+
                 @keyframes profileImgPop {
                     from {
                         opacity: 0;
@@ -764,7 +804,20 @@
                                 <img v-if="user.profileImg" :src="user.profileImg" alt="프로필 이미지">
                                 <i v-else class="ri-user-smile-line"></i>
                             </div>
+
                             <div class="profile-nickname">{{ user.nickname }}</div>
+
+                            <div class="profile-action-row" v-if="user.userId !== currentUserId">
+                                <button type="button" class="profile-chat-icon-btn" :disabled="chatLoading"
+                                    @click="fnGoChat" aria-label="대화하기">
+                                    <i class="ri-chat-3-line"></i>
+                                </button>
+                                <button type="button" class="profile-follow-btn" :class="{ on: isFollowing }"
+                                    @click="fnToggleFollow">
+                                    {{ isFollowing ? '팔로잉' : '팔로우' }}
+                                </button>
+                            </div>
+
                             <div class="profile-grade">{{ fnGradeLabel(user.communityGrade) }}</div>
 
                             <div class="follow-counts">
@@ -809,20 +862,6 @@
                                 </div>
                             </div>
 
-                            <!-- ★ 팔로우 + 채팅신청 액션 버튼 -->
-                            <div class="profile-action-row" v-if="user.userId !== currentUserId">
-                                <button class="profile-action-btn follow-btn" :class="{ on: isFollowing }"
-                                    @click="fnToggleFollow">
-                                    <i :class="isFollowing ? 'ri-user-unfollow-line' : 'ri-user-add-line'"></i>
-                                    {{ isFollowing ? '팔로잉' : '팔로우' }}
-                                </button>
-
-                                <button class="profile-action-btn chat-request-btn" :class="chatBtnState"
-                                    :disabled="chatBtnState === 'pending'" @click="fnRequestChat">
-                                    <i :class="chatBtnState === 'exists' ? 'ri-chat-3-line' : 'ri-chat-new-line'"></i>
-                                    {{ chatBtnLabel }}
-                                </button>
-                            </div>
                         </div>
 
                         <!-- ★ 팔로워/팔로잉 목록 모달 -->
@@ -830,8 +869,7 @@
                             <div class="follow-modal-box">
                                 <div class="follow-modal-header">
                                     <span>{{ followModal.type === 'followers' ? '팔로워' : '팔로잉' }}</span>
-                                    <button type="button" class="follow-modal-close-btn"
-                                        @click="fnCloseFollowModal">
+                                    <button type="button" class="follow-modal-close-btn" @click="fnCloseFollowModal">
                                         <i class="ri-close-line"></i>
                                     </button>
                                 </div>
@@ -965,9 +1003,8 @@
                                     isFollowing: false,
                                     followerCount: 0,
                                     followingCount: 0,
-                                    chatBtnState: '',
-                                    chatBtnLabel: '대화 신청',
                                     chatRoomId: null,
+                                    chatLoading: false,
                                     followModal: {
                                         show: false,
                                         type: 'followers',
@@ -1045,21 +1082,6 @@
                                     });
                                 },
 
-                                // ★ 신규 - 기존 채팅방 존재 여부 미리 확인
-                                fnLoadChatStatus(userId) {
-                                    $.ajax({
-                                        url: '/chat-room/status.dox', type: 'POST',
-                                        data: { targetUser: userId },
-                                        success: (res) => {
-                                            if (res.result === 'success' && res.exists) {
-                                                this.chatBtnState = 'exists';
-                                                this.chatRoomId = res.roomId;
-                                                this.chatBtnLabel = '채팅방 이동';
-                                            }
-                                        }
-                                    });
-                                },
-
                                 // ★ 신규
                                 fnToggleFollow() {
                                     const userId = new URLSearchParams(location.search).get('userId');
@@ -1078,47 +1100,46 @@
                                     });
                                 },
 
-                                // ★ 신규 - 채팅 신청
-                                fnRequestChat() {
+                                // 기존 채팅방 있는지 미리 확인 (있으면 클릭 시 바로 이동)
+                                fnLoadChatStatus(userId) {
+                                    $.ajax({
+                                        url: '/chat-room/status.dox', type: 'POST',
+                                        data: { targetUser: userId },
+                                        success: (res) => {
+                                            if (res.result === 'success' && res.exists) {
+                                                this.chatRoomId = res.roomId;
+                                            }
+                                        }
+                                    });
+                                },
+
+                                fnGoChat() {
                                     const targetUserId = new URLSearchParams(location.search).get('userId');
 
-                                    if (this.chatBtnState === 'exists') {
+                                    if (this.chatRoomId) {
                                         location.href = '/chat-room/room.do?roomId=' + this.chatRoomId + '&otherId=' + targetUserId;
                                         return;
                                     }
 
-                                    this.chatBtnLabel = '신청 중…';
+                                    if (this.chatLoading) return;
+                                    this.chatLoading = true;
 
                                     $.ajax({
-                                        url: '/chat-room/request.dox', type: 'POST',
+                                        url: '/chat-room/create.dox', type: 'POST',
                                         data: { toUser: targetUserId },
                                         dataType: 'json',
                                         success: (res) => {
-                                            if (res.result === 'success') {
-                                                this.chatBtnState = 'pending';
-                                                this.chatBtnLabel = '신청 완료';
+                                            this.chatLoading = false;
+
+                                            if (res.result === 'success' && res.roomId) {
+                                                location.href = '/chat-room/room.do?roomId=' + res.roomId + '&otherId=' + targetUserId;
                                                 return;
                                             }
 
-                                            if (res.result === 'exists') {
-                                                this.chatBtnState = 'exists';
-                                                this.chatRoomId = res.roomId;
-                                                this.chatBtnLabel = '채팅방 이동';
-                                                return;
-                                            }
-
-                                            if (res.result === 'pending' || res.message === '이미 신청 중입니다.') {
-                                                this.chatBtnState = 'pending';
-                                                this.chatBtnLabel = '신청 중';
-                                                return;
-                                            }
-
-                                            this.chatBtnState = '';
-                                            this.chatBtnLabel = '대화 신청';
-                                            alert(res.message || '신청할 수 없습니다.');
+                                            alert(res.message || '대화방을 열 수 없습니다.');
                                         },
                                         error: () => {
-                                            this.chatBtnLabel = '대화 신청';
+                                            this.chatLoading = false;
                                             alert('네트워크 오류가 발생했어요.');
                                         }
                                     });

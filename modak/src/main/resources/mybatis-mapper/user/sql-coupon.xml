@@ -130,13 +130,13 @@
 		WHERE UC.USER_ID = #{userId}
 		ORDER BY
 		CASE UC.STATUS
-		WHEN 'AVAILABLE' THEN 1
-		WHEN 'USED' THEN 2
-		WHEN 'EXPIRED' THEN 3
-		ELSE 4
+		    WHEN 'AVAILABLE' THEN 1
+		    WHEN 'USED' THEN 2
+		    WHEN 'EXPIRED' THEN 3
+		    ELSE 4
 		END,
-		UC.EXPIRED_AT ASC,
-		UC.ISSUED_AT DESC
+		UC.ISSUED_AT DESC,
+		UC.EXPIRED_AT ASC
 		<if test="start != null and pageSize != null">
 		   LIMIT ${start}, ${pageSize}
 		</if>

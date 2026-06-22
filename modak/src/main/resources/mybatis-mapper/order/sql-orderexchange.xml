@@ -7,44 +7,44 @@
 
     <!-- 회원 교환 신청용 주문 정보 + 기본 주소 조회 -->
     <select id="selectExchangeOrderInfo" parameterType="hashmap" resultType="hashmap">
-        SELECT
-            O.ORDER_ID AS orderId,
-            O.USER_ID AS userId,
-            O.TOTAL_PRICE AS price,
+    SELECT
+        O.ORDER_ID AS orderId,
+        O.USER_ID AS userId,
+        O.TOTAL_PRICE AS price,
 
-            OI.PRODUCT_ID AS productId,
-            P.PRODUCT_NAME AS productName,
-            OI.QUANTITY AS count,
+        OI.PRODUCT_ID AS productId,
+        P.PRODUCT_NAME AS productName,
+        OI.QUANTITY AS count,
 
-            (
-                SELECT PI.IMG_URL
-                FROM PRODUCT_IMG PI
-                WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
-                  AND PI.IS_MAIN = 'Y'
-                ORDER BY PI.SORT_ORDER ASC, PI.IMAGE_ID ASC
+        (
+            SELECT PI.IMG_URL
+            FROM PRODUCT_IMG PI
+            WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
+              AND PI.IS_MAIN = 'Y'
+            ORDER BY PI.SORT_ORDER ASC, PI.IMAGE_ID ASC
+            LIMIT 1
+        ) AS imgUrl,
+
+        UA.ZIPCODE AS zipcode,
+        UA.ADDRESS AS address,
+        UA.DETAILED_ADDRESS AS detailedAddress
+
+    FROM ORDERS O
+    JOIN ORDER_ITEM OI ON O.ORDER_ID = OI.ORDER_ID
+    INNER JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
+    LEFT JOIN USER_ADDRESS UA
+           ON O.USER_ID = UA.USER_ID
+          AND UA.ADDRESS_ID = (
+                SELECT UA2.ADDRESS_ID
+                FROM USER_ADDRESS UA2
+                WHERE UA2.USER_ID = O.USER_ID
+                ORDER BY UA2.DEFAULT_YN DESC, UA2.ADDRESS_ID ASC
                 LIMIT 1
-            ) AS imgUrl,
-
-            UA.ZIPCODE AS zipcode,
-            UA.ADDRESS AS address,
-            UA.DETAILED_ADDRESS AS detailedAddress
-
-        FROM ORDERS O
-        JOIN ORDER_ITEM OI ON O.ORDER_ID = OI.ORDER_ID
-        JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
-        LEFT JOIN USER_ADDRESS UA
-               ON O.USER_ID = UA.USER_ID
-              AND UA.ADDRESS_ID = (
-                    SELECT UA2.ADDRESS_ID
-                    FROM USER_ADDRESS UA2
-                    WHERE UA2.USER_ID = O.USER_ID
-                    ORDER BY UA2.DEFAULT_YN DESC, UA2.ADDRESS_ID ASC
-                    LIMIT 1
-              )
-        WHERE O.ORDER_ID = #{orderId}
-          AND O.USER_ID = #{userId}
-        LIMIT 1
-    </select>
+          )
+    WHERE O.ORDER_ID = #{orderId}
+      AND O.USER_ID = #{userId}
+    LIMIT 1
+</select>
 
     <!-- 회원 교환 신청 등록 -->
     <insert id="insertExchange" parameterType="hashmap">

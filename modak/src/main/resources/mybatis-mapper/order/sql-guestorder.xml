@@ -78,7 +78,7 @@
       )
 </select>
     <!-- ★ 주문 상품 목록 — PRODUCT_IMG 조인으로 이미지 추가 -->
-	<select id="selectGuestOrderItems" resultType="com.example.modak.order.model.GuestOrderItem">
+	<!--<select id="selectGuestOrderItems" resultType="com.example.modak.order.model.GuestOrderItem">
 	    SELECT
 	        OI.ITEM_ID AS itemId,
 	        OI.ORDER_ID AS orderId,
@@ -120,7 +120,50 @@
 	        OI.START_DATE,
 	        OI.END_DATE
 	    ORDER BY OI.ITEM_ID ASC
-	</select>
+	</select>-->
+	<select id="selectGuestOrderItems" resultType="com.example.modak.order.model.GuestOrderItem">
+    SELECT
+        OI.ITEM_ID AS itemId,
+        OI.ORDER_ID AS orderId,
+        OI.PRODUCT_ID AS productId,
+        P.PRODUCT_NAME AS productName,
+        OI.UNIT_PRICE AS unitPrice,
+        OI.QUANTITY AS quantity,
+        OI.START_DATE AS startDate,
+        OI.END_DATE AS endDate,
+
+        GROUP_CONCAT(
+            POV.OPTION_VALUE
+            ORDER BY POV.OPTION_GROUP_ID, POV.SORT_ORDER
+            SEPARATOR ' / '
+        ) AS optionName,
+
+        (SELECT PI.IMG_URL
+         FROM PRODUCT_IMG PI
+         WHERE PI.PRODUCT_ID = OI.PRODUCT_ID
+           AND PI.IS_MAIN = 'Y'
+         LIMIT 1) AS imgUrl
+    FROM ORDER_ITEM OI
+    INNER JOIN PRODUCT P
+        ON OI.PRODUCT_ID = P.PRODUCT_ID
+    LEFT JOIN PRODUCT_OPTION_ITEM POI
+        ON OI.OPTION_ITEM_ID = POI.OPTION_ITEM_ID
+    LEFT JOIN PRODUCT_OPTION_ITEM_VALUE POIV
+        ON POI.OPTION_ITEM_ID = POIV.OPTION_ITEM_ID
+    LEFT JOIN PRODUCT_OPTION_VALUE POV
+        ON POIV.OPTION_VALUE_ID = POV.OPTION_VALUE_ID
+    WHERE OI.ORDER_ID = #{orderId}
+    GROUP BY
+        OI.ITEM_ID,
+        OI.ORDER_ID,
+        OI.PRODUCT_ID,
+        P.PRODUCT_NAME,
+        OI.UNIT_PRICE,
+        OI.QUANTITY,
+        OI.START_DATE,
+        OI.END_DATE
+    ORDER BY OI.ITEM_ID ASC
+</select>
 
 <!-- 주문 상태 업데이트 -->
 <update id="updateOrderStatus">

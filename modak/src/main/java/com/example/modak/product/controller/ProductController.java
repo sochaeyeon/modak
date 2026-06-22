@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import com.example.modak.product.dao.ProductService;
 import com.example.modak.user.dao.ViewService;
@@ -125,6 +124,12 @@ public class ProductController {
 	@ResponseBody
 	public String getOptionList(@RequestParam HashMap<String, Object> map) throws Exception {
 		return new Gson().toJson(productService.getProductOptions(map));
+	}
+	
+	@RequestMapping(value = "/product/option/item/get.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getOptionItem(@RequestParam HashMap<String, Object> map) throws Exception {
+	    return new Gson().toJson(productService.getOptionItemId(map));
 	}
 
 	@RequestMapping("/category/allList.dox")

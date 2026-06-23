@@ -2,7 +2,6 @@
 	<!DOCTYPE html>
 	<html lang="ko">
 
-	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>교환 신청 - 모닥모닥</title>
@@ -205,20 +204,26 @@
 
 
 
-							<!-- 차액 안내 박스 -->
+							<!-- 하단 차액 안내 박스 -->
 							<div v-if="selectedOptionId && priceDiff !== 0"
-								style="margin-top:14px;padding:12px 16px;border-radius:10px;font-size:13px;"
-								:style="{ background: priceDiff > 0 ? '#FFF4EE' : '#F0F7F1', border: priceDiff > 0 ? '1px solid #F5C4A0' : '1px solid #C5E0CB' }">
-								<p :style="{ color: priceDiff > 0 ? '#E8732A' : '#4B8B57', fontWeight: 700 }">
-									<i :class="priceDiff > 0 ? 'ri-add-circle-line' : 'ri-refund-2-line'"></i>
-									{{ priceDiff > 0 ? '추가 결제 필요' : '차액 환불' }}:
-									<strong>{{ Math.abs(priceDiff).toLocaleString() }}원</strong>
-								</p>
-								<p style="color:#9B7B68;margin-top:4px;font-size:12px;">
-									{{ priceDiff > 0
-									? '교환 처리 후 고객센터를 통해 추가 결제가 안내됩니다.'
-									: '교환 처리 완료 후 차액이 환불됩니다.' }}
-								</p>
+							    style="margin-top:14px;padding:12px 16px;border-radius:10px;font-size:13px;"
+							    :style="{ background: priceDiff > 0 ? '#FFF4EE' : '#F0F7F1', border: priceDiff > 0 ? '1px solid #F5C4A0' : '1px solid #C5E0CB' }">
+							    <p :style="{ color: priceDiff > 0 ? '#E8732A' : '#4B8B57', fontWeight: 700 }">
+							        <i :class="priceDiff > 0 ? 'ri-add-circle-line' : 'ri-refund-2-line'"></i>
+							        {{ priceDiff > 0 ? '추가 결제 필요' : '환불 예정' }}:
+							        <strong>
+							            {{ priceDiff > 0
+							                ? Math.abs(priceDiff).toLocaleString()
+							                : Math.max(0, Math.abs(priceDiff) - (shippingFeeByReason > 0 ? totalShippingFee : 0)).toLocaleString() }}원
+							        </strong>
+							    </p>
+							    <p style="color:#9B7B68;margin-top:4px;font-size:12px;">
+							        {{ priceDiff > 0
+							            ? '교환 처리 후 고객센터를 통해 추가 결제가 안내됩니다.'
+							            : shippingFeeByReason > 0
+							                ? '차액 ' + Math.abs(priceDiff).toLocaleString() + '원 - 왕복배송비 ' + totalShippingFee.toLocaleString() + '원'
+							                : '교환 처리 완료 후 차액이 환불됩니다.' }}
+							    </p>
 							</div>
 				</div>
 			</div>
@@ -372,9 +377,22 @@
 									<p class="op-name">{{ orderInfo.productName }}</p>
 									<p class="op-meta">수량 {{ orderInfo.count || 1 }}개</p>
 								</div>
-								<div class="op-price">{{ fnPrice(orderInfo.price) }}</div>
+								<div class="op-price" v-if="priceDiff + totalShippingFee > 0" style="color:#E8732A;">
+									추가 결제 {{ fnPrice(priceDiff + totalShippingFee) }}
+								</div>
+								<div class="op-price" v-else style="color:#4B8B57;">
+									추가 결제 없음
+								</div>
 							</div>
 						</div>
+
+						<!-- 배송비 tr 아래에 추가 -->
+						<tr v-if="priceDiff + totalShippingFee > 0" style="border-top:2px solid var(--cream2);">
+							<td style="padding:12px 0;color:#E8732A;font-weight:700;">추가 결제</td>
+							<td style="padding:12px 0;color:#E8732A;font-weight:700;font-size:15px;">
+								{{ fnPrice(priceDiff + totalShippingFee) }}
+							</td>
+						</tr>
 
 						<!-- 요약 테이블 -->
 						<table style="width:100%;border-collapse:collapse;font-size:13px;">
@@ -424,6 +442,19 @@
 										제주/도서산간 +{{ ISLAND_FEE.toLocaleString() }}원 포함
 									</span>
 								</td>
+							</tr>
+							<!-- 환불 금액 표시 -->
+							<tr v-if="priceDiff < 0" style="border-top:2px solid var(--cream2);">
+							    <td style="padding:12px 0;color:#4B8B57;font-weight:700;">환불 예정</td>
+							    <td style="padding:12px 0;color:#4B8B57;font-weight:700;font-size:15px;">
+									<span v-if="shippingFeeByReason > 0">
+									    {{ fnPrice(Math.max(0, Math.abs(priceDiff) - totalShippingFee)) }}
+									    <span style="font-size:11px;font-weight:400;color:#B09080;display:block;">
+									        (차액 {{ fnPrice(Math.abs(priceDiff)) }} - 왕복배송비 {{ fnPrice(totalShippingFee) }})
+									    </span>
+									</span>
+							        <span v-else>{{ fnPrice(Math.abs(priceDiff)) }}</span>
+							    </td>
 							</tr>
 							<tr v-if="exchangeMethod === 'PICKUP'">
 								<td style="padding:12px 0;color:var(--brown4);font-weight:600;">회수 주소</td>
@@ -486,8 +517,10 @@
 				</button>
 
 				<button class="btn-submit" :disabled="!fnCanNext()" @click="fnNext">
-					{{ currentStep === 3 ? '교환 신청 완료' : '다음' }}
-					<i v-if="currentStep !== 3" class="ri-arrow-right-line"></i>
+					{{ currentStep === 3
+					? (priceDiff + totalShippingFee > 0 ? '결제하기'
+					: priceDiff < 0 ? '환불 신청하기' : '교환 신청 완료' ) : '다음' }} <i v-if="currentStep !== 3"
+						class="ri-arrow-right-line"></i>
 				</button>
 			</div>
 
@@ -566,16 +599,16 @@
 								return this.shippingFeeByReason + (this.isIslandAddr ? this.ISLAND_FEE : 0);
 							},
 							priceDiff: function () {
-								if (!this.selectedOptionId || !this.availableOptions.length) return 0;
-								var selected = this.availableOptions.find(function (o) {
-									return String(o.optionItemId) === String(this.selectedOptionId);
-								}.bind(this));
-								if (!selected || !selected.extraPrice) return 0;
-								var original = this.availableOptions.find(function (o) {
-									return String(o.optionItemId) === String(this.orderInfo.optionItemId);
-								}.bind(this));
-								var originalPrice = original ? (original.extraPrice || 0) : 0;
-								return (selected.extraPrice || 0) - originalPrice;
+							    if (!this.selectedOptionId || !this.availableOptions.length) return 0;
+							    var selected = this.availableOptions.find(function (o) {
+							        return String(o.optionItemId) === String(this.selectedOptionId);
+							    }.bind(this));
+							    if (!selected) return 0;  // extraPrice 체크 제거!
+							    var original = this.availableOptions.find(function (o) {
+							        return String(o.optionItemId) === String(this.orderInfo.optionItemId);
+							    }.bind(this));
+							    var originalPrice = original ? (original.extraPrice || 0) : 0;
+							    return (selected.extraPrice || 0) - originalPrice;
 							},
 						},
 
@@ -644,7 +677,7 @@
 							},
 							fnPriceDiffLabel: function (opt) {
 								var diff = this.fnPriceDiff(opt);
-								if (diff === 0) return this.fnPrice(opt.extraPrice != null ? (Number(this.orderInfo.price) + diff) : this.orderInfo.price);
+								if (diff === 0) return '동일 가격';
 								return (diff > 0 ? '+' : '') + diff.toLocaleString() + '원';
 							},
 
@@ -669,7 +702,7 @@
 								var data = {
 									oldOptionItemId: (self.orderInfo && self.orderInfo.optionItemId) ? String(self.orderInfo.optionItemId) : '',
 									newOptionItemId: self.selectedOptionId,
-									quantity: self.orderInfo ? (self.orderInfo.count || 1) : 1,            
+									quantity: self.orderInfo ? (self.orderInfo.count || 1) : 1,
 									orderId: self.orderId,
 									exchangeReason: self.selectedReason,
 									reasonDetail: self.reasonDetail,
@@ -681,7 +714,7 @@
 									memo: self.pickup.memo,
 									shippingFee: self.totalShippingFee,
 									priceDiff: self.priceDiff,
-									isSellerFault: ['DEFECT', 'WRONG', 'DIFF', 'MISSING'].indexOf(self.selectedReason) >= 0 ? 'Y' : 'N'
+									isSellerFault: ['DEFECT', 'WRONG', 'DIFF', 'MISSING'].indexOf(self.selectedReason) >= 0 ? 1 : 0
 								};
 								if (isGuest) data.token = self.token;
 
@@ -690,7 +723,40 @@
 									success: function (res) {
 										self.isSubmitting = false;
 										if (res.result === 'success') {
-											self.modal.show = true;
+											var totalPayment = self.priceDiff + self.totalShippingFee;
+
+											if (totalPayment > 0 && res.exchangeId) {
+												// 추가 결제 필요 → 결제 페이지
+												var item = {
+													productName: self.orderInfo.productName,
+													imgUrl: self.orderInfo.imgUrl,
+													price: totalPayment,
+													unitPrice: totalPayment,
+													quantity: 1,
+													optionName: (self.availableOptions.find(function (o) {
+														return String(o.optionItemId) === String(self.selectedOptionId);
+													}) || {}).itemName || '',
+													shippingFee: 0
+												};
+												localStorage.setItem('checkout_items', JSON.stringify([item]));
+												location.href = '/payment/checkout.do?buyNow=true&cartType=EXCHANGE&exchangeId=' + res.exchangeId;
+
+											} else if (self.priceDiff < 0) {
+												// 차액 환불 → 판매자 귀책이면 배송비 무료, 구매자 귀책이면 배송비 차감
+												var isSellerFault = ['DEFECT', 'WRONG', 'DIFF', 'MISSING'].indexOf(self.selectedReason) >= 0;
+												var refundAmount = Math.abs(self.priceDiff);
+
+												if (!isSellerFault) {
+												    refundAmount = Math.max(0, refundAmount - self.totalShippingFee);
+												}
+												self.fnShowToast('환불 신청이 완료되었습니다. 환불 금액: ' + refundAmount.toLocaleString() + '원');
+												setTimeout(function () {
+													self.modal.show = true;
+												}, 1500);
+
+											} else {
+												self.modal.show = true;
+											}
 										} else {
 											self.fnShowToast(res.message || '교환 신청 실패');
 										}

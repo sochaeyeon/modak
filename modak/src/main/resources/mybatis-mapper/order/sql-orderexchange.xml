@@ -12,10 +12,10 @@
 		O.TOTAL_PRICE AS price,
 		OI.ITEM_ID AS itemId,
 		OI.PRODUCT_ID AS productId,
-		OI.OPTION_ITEM_ID AS optionItemId, /* ✅ 추가 */
+		OI.OPTION_ITEM_ID AS optionItemId,
 		P.PRODUCT_NAME AS productName,
 		OI.QUANTITY AS count,
-		COALESCE(POI.ITEM_NAME, '기본 옵션') AS optionName, /* ✅ 추가 */
+		COALESCE(POI.ITEM_NAME, '기본 옵션') AS optionName,
 		(
 		SELECT PI.IMG_URL FROM PRODUCT_IMG PI
 		WHERE PI.PRODUCT_ID = OI.PRODUCT_ID AND PI.IS_MAIN = 'Y'
@@ -28,7 +28,7 @@
 		JOIN ORDER_ITEM OI ON O.ORDER_ID = OI.ORDER_ID
 		INNER JOIN PRODUCT P ON OI.PRODUCT_ID = P.PRODUCT_ID
 		LEFT JOIN PRODUCT_OPTION_ITEM POI ON OI.OPTION_ITEM_ID =
-		POI.OPTION_ITEM_ID /* ✅ 추가 */
+		POI.OPTION_ITEM_ID
 		LEFT JOIN USER_ADDRESS UA
 		ON O.USER_ID = UA.USER_ID
 		AND UA.ADDRESS_ID = (
@@ -42,24 +42,24 @@
 	</select>
 
 	<!-- 회원 교환 신청 등록 -->
-	<insert id="insertExchange" parameterType="hashmap">
+	<insert id="insertExchange" parameterType="hashmap" useGeneratedKeys="true" keyProperty="exchangeId">
 		INSERT INTO ORDER_EXCHANGE (
 		ORDER_ID, USER_ID,
 		EXCHANGE_REASON, REASON_DETAIL,
 		EXCHANGE_METHOD,
 		ZIPCODE, ADDRESS, DETAILED_ADDRESS, MEMO,
-		NEW_OPTION_ITEM_ID, /* ✅ 추가 */
-		SHIPPING_FEE, /* ✅ 추가 */
-		IS_SELLER_FAULT, /* ✅ 추가 */
+		NEW_OPTION_ITEM_ID,
+		SHIPPING_FEE,
+		IS_SELLER_FAULT,
 		EXCHANGE_STATUS, CREATED_AT
 		) VALUES (
 		#{orderId}, #{userId},
 		#{exchangeReason}, #{reasonDetail},
 		#{exchangeMethod},
 		#{zipcode}, #{address}, #{detailedAddress}, #{memo},
-		#{newOptionItemId}, /* ✅ 추가 */
-		#{shippingFee}, /* ✅ 추가 */
-		#{isSellerFault}, /* ✅ 추가 */
+		#{newOptionItemId},
+		#{shippingFee},
+		#{isSellerFault},
 		'REQUESTED', NOW()
 		)
 	</insert>

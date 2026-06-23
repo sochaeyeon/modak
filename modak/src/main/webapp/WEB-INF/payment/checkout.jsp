@@ -711,8 +711,12 @@
 									this.guestKey = 'GUEST_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
 									localStorage.setItem('guestKey', this.guestKey);
 								}
-							},
 
+								// 교환 결제인 경우 배송비 0으로 고정
+								if (params.get('exchangeId')) {
+									this.shippingFee = 0;
+								}
+							},
 							// ── 로그인 & 데이터 로드 ──
 							checkLogin() {
 								let self = this;
@@ -875,6 +879,11 @@
 							},
 
 							updateShippingFee() {
+								var params = new URLSearchParams(location.search);
+								if (params.get('exchangeId')) {
+									this.shippingFee = 0;  // 이미 price에 포함됨
+									return;
+								}
 								this.shippingFee = this.isIslandAddr ? this.ISLAND_FEE : 0;
 							},
 							deleteAddress(addressId) {

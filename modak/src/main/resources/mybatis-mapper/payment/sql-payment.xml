@@ -88,24 +88,18 @@
 	</insert>
 
 	<insert id="insertOrderItem" parameterType="hashmap">
-		INSERT INTO order_item (
-		ORDER_ID,
-		PRODUCT_ID,
-		OPTION_ITEM_ID,
-		QUANTITY,
-		UNIT_PRICE,
-		START_DATE,
-		END_DATE
-		) VALUES (
-		#{orderId},
-		#{productId},
-		#{optionItemId},
-		#{quantity},
-		#{unitPrice},
-		#{rentalStart},
-		#{rentalEnd}
-		)
-	</insert>
+    INSERT INTO order_item (
+        ORDER_ID, PRODUCT_ID, OPTION_ITEM_ID, QUANTITY, UNIT_PRICE, START_DATE, END_DATE
+    ) VALUES (
+        #{orderId},
+        #{productId},
+        #{optionItemId},
+        #{quantity},
+        #{unitPrice},
+        #{rentalStart},
+        #{rentalEnd}
+    )
+</insert>
 
 	<!-- MySQL 버전 결제성공하고 카트에서 삭제 -->
 	<delete id="deleteCartByOrderId" parameterType="hashmap">

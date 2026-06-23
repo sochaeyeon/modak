@@ -44,7 +44,7 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 
 <div align="center">
 
-<img src="./assets/main-page.png" alt="메인페이지" width="80%"/>
+<img src="./assets/main.png" alt="메인페이지" width="80%"/>
 
 <br><br>
 

@@ -43,23 +43,24 @@ public class SecurityConfig {
                 .httpBasic(basic -> basic.disable())
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/",
-                                "/user/**",
-                                "/oauth2/**",
-                                "/login/**",
-                                "/css/**",
-                                "/js/**",
-                                "/images/**",
-                                "/img/**",
-                                "/static/**",
-                                "/rental/extension/inquiry.do",
-                                "/rental/extension/main.do",
-                                "/rental/extension/guest/**"
-                        )
-                        .permitAll()
-                        .anyRequest().permitAll()
-                )
+                	    .requestMatchers(
+                	        "/",
+                	        "/user/**",
+                	        "/oauth2/**",
+                	        "/login/**",
+                	        "/css/**",
+                	        "/js/**",
+                	        "/images/**",
+                	        "/img/**",
+                	        "/static/**",
+                	        "/rental/extension/inquiry.do",
+                	        "/rental/extension/main.do",
+                	        "/rental/extension/guest/**",
+                	        "/favicon.ico"  
+                	    )
+                	    .permitAll()
+                	    .anyRequest().permitAll()  
+                	)
 
                 .formLogin(form -> form
                         .loginPage("/user/login.do")

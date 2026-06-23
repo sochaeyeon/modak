@@ -137,4 +137,10 @@ public class ProductController {
 
 		return resultMap;
 	}
+
+	@RequestMapping(value = "/product/option/item/get.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getOptionItemId(@RequestParam HashMap<String, Object> map) throws Exception {
+		return new Gson().toJson(productService.getOptionItemId(map));
+	}
 }

@@ -56,6 +56,7 @@ public class OrderExchangeService {
 	}
 
 	/* 교환 신청 */
+
 	@Transactional
 	public HashMap<String, Object> applyExchange(HashMap<String, Object> map) {
 		HashMap<String, Object> result = new HashMap<>();
@@ -73,6 +74,7 @@ public class OrderExchangeService {
 				}
 			}
 			map.put("quantity", quantity);
+			System.out.println("=== exchange map: " + map);
 
 			// 1. 기존 옵션 재고 복구
 			if (oldOptionItemId != null && !oldOptionItemId.isEmpty()) {
@@ -92,6 +94,10 @@ public class OrderExchangeService {
 			// 3. 교환 신청 등록
 			mapper.insertExchange(map);
 			mapper.updateOrderStatusToExchange(map);
+
+			Object idObj = map.get("exchangeId");
+			Long exchangeId = idObj != null ? ((Number) idObj).longValue() : null;
+			result.put("exchangeId", exchangeId);
 			result.put("result", "success");
 
 		} catch (Exception e) {

@@ -251,6 +251,26 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- 비속어 경고 모달 -->
+                <div class="modal-bg" id="badWordModal">
+                    <div class="modal-box">
+                        <div class="modal-icon block-icon">
+                            <i class="ri-alert-line"></i>
+                        </div>
+                        <div class="modal-title">비속어가 포함된 메시지예요</div>
+                        <div class="modal-desc">
+                            이 메시지에는 부적절한 표현이 포함되어 있어요.<br>
+                            전송하면 신고당해 제재를 받을 수도 있어요.<br>
+                            그래도 보내시겠습니까?
+                        </div>
+                        <div class="modal-btns">
+                            <button class="modal-btn cancel" id="badWordCancel">취소</button>
+                            <button class="modal-btn confirm-block" id="badWordConfirm">그래도 보내기</button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="toast" id="toast"></div>
 
                 <script>
@@ -265,6 +285,7 @@
                     var pollTimer = null;
                     var typingTimer = null;
                     var typingSendTimer = null;
+                    var pendingBadWordContent = null;
 
                     var lastMsgId = 0;
                     var lastDateStr = '';
@@ -542,6 +563,19 @@
 
 
                         $('#btnSend').on('click', sendMessage);
+
+                        // 비속어 경고 모달
+                        $('#badWordCancel').on('click', closeBadWordModal);
+
+                        $('#badWordModal').on('click', function (e) {
+                            if (e.target === this) closeBadWordModal();
+                        });
+
+                        $('#badWordConfirm').on('click', function () {
+                            var content = pendingBadWordContent;
+                            closeBadWordModal();
+                            if (content) doSendMessage(content);
+                        });
 
                         $('#newMsgBtn').on('click', function () {
                             scrollToBottom(true);
@@ -969,6 +1003,32 @@
                         var content = $('#msgInput').val().trim();
                         if (!content) return;
 
+                        $.ajax({
+                            url: '/badword/check.dox',
+                            type: 'POST',
+                            data: { content: content },
+                            dataType: 'json',
+                            success: function (res) {
+                                if (res.result === 'success' && res.hasBadWord) {
+                                    pendingBadWordContent = content;
+                                    $('#badWordModal').addClass('open');
+                                } else {
+                                    doSendMessage(content);
+                                }
+                            },
+                            error: function () {
+                                // 검사 실패 시에도 전송 자체는 막지 않음
+                                doSendMessage(content);
+                            }
+                        });
+                    }
+
+                    function closeBadWordModal() {
+                        $('#badWordModal').removeClass('open');
+                        pendingBadWordContent = null;
+                    }
+
+                    function doSendMessage(content) {
                         var tempId = 'temp-' + Date.now();
 
                         $('#btnSend').prop('disabled', true);

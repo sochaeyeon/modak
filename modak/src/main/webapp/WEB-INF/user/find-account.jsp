@@ -11,12 +11,12 @@
             integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
         <script src="/js/page-change.js"></script>
-        <link rel="stylesheet" href="/css/common/reset.css">
+        <!-- <link rel="stylesheet" href="/css/common/reset.css">
         <link rel="stylesheet" href="/css/common/variables.css">
         <link rel="stylesheet" href="/css/common/font.css">
         <link rel="stylesheet" href="/css/common/layout.css">
         <link rel="stylesheet" href="/css/common/component.css">
-        <link rel="stylesheet" href="/css/common/animation.css">
+        <link rel="stylesheet" href="/css/common/animation.css"> -->
         <link rel="stylesheet" href="/css/user/find-account.css">
     </head>
 

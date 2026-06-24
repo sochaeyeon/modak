@@ -803,33 +803,30 @@
 											<div class="review-list">
 												<c:choose>
 													<c:when test="${not empty reviewList}">
-														<c:forEach var="item" items="${reviewList}">
-															<div class="review-item">
+												<c:forEach var="item" items="${reviewList}">
+												<div class="review-item">
 
-																<div class="review-head">
-																	<span class="review-product clickable"
-																		@click="fnGoProductDetail(${item.productId})">
-																		${ item.productName }
-																	</span>
+													<c:if test="${item.reviewStatus == 'BLOCKED'}">
+														<div class="review-blocked-badge">
+															<i class="ri-error-warning-line"></i>
+															운영 정책 위반으로 비공개 처리된 리뷰입니다. 오탐으로 판단되시면 고객센터로 문의해 주세요.
+														</div>
+													</c:if>
 
-																	<div class="review-stars">
-																		<c:forEach begin="1" end="5" var="i">
-																			<svg class="star" viewBox="0 0 13 13"
-																				fill="${i <= item.rating ? '#e0621a' : '#ccc'}">
-																				<path
-																					d="M6.5 1l1.5 3.5H12L9 7l1 3.5-3.5-2-3.5 2L4 7 1 4.5h4Z" />
-																			</svg>
-																		</c:forEach>
-																	</div>
-																</div>
+													<div class="review-head">
+														<span class="review-product clickable"
+															@click="fnGoProductDetail(${item.productId})">
+															${ item.productName }
+														</span>
+													</div>
 
-																<div class="review-title">
-																	${item.title}
-																</div>
+													<div class="review-title" style="${item.reviewStatus == 'BLOCKED' ? 'opacity:.5' : ''}">
+														${item.title}
+													</div>
 
-																<div class="review-body">
-																	${item.content}
-																</div>
+													<div class="review-body" style="${item.reviewStatus == 'BLOCKED' ? 'opacity:.5' : ''}">
+														${item.content}
+													</div>
 																<c:if test="${not empty item.imageList}">
 																	<div class="review-image-wrap">
 

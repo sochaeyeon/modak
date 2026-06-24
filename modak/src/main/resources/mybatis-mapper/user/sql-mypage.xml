@@ -30,9 +30,9 @@
 		FROM ORDERS O
 		WHERE O.USER_ID = #{userId}
 		AND NOT (O.ORDER_STATUS = 'READY' AND NOT EXISTS (
-		    SELECT 1 FROM PAYMENT P
-		    WHERE P.ORDER_ID = O.ORDER_ID
-		    AND P.PAY_STATUS = 'PAID'
+		SELECT 1 FROM PAYMENT P
+		WHERE P.ORDER_ID = O.ORDER_ID
+		AND P.PAY_STATUS = 'PAID'
 		))
 		) AS orderCount,
 
@@ -99,13 +99,15 @@
 		R.REVIEW_ID,
 		R.RATING,
 		R.CONTENT,
+		R.REVIEW_STATUS,
+		R.PRODUCT_ID,
 		DATE_FORMAT(R.CREATED_AT, '%Y.%m.%d') AS createdAt,
 		P.PRODUCT_NAME
 		FROM REVIEW R
 		LEFT JOIN PRODUCT P
 		ON R.PRODUCT_ID = P.PRODUCT_ID
 		WHERE R.USER_ID = #{userId}
-		AND R.REVIEW_STATUS = 'ACTIVE'
+		AND R.REVIEW_STATUS IN ('ACTIVE', 'BLOCKED')
 		ORDER BY R.CREATED_AT DESC, R.REVIEW_ID DESC
 		LIMIT ${pageSize} OFFSET ${offset}
 	</select>
@@ -114,7 +116,7 @@
 		SELECT COUNT(*)
 		FROM REVIEW
 		WHERE USER_ID = #{userId}
-		AND REVIEW_STATUS = 'ACTIVE'
+		AND REVIEW_STATUS IN ('ACTIVE', 'BLOCKED')
 	</select>
 
 	<!-- 챗봇 기록 -->
@@ -204,144 +206,153 @@
 		FROM USER_COUPON
 		WHERE USER_ID = #{userId}
 	</select>
-	
-<select id="selectBookmarkList" parameterType="string" resultType="map">
-    SELECT
-        b.BOARD_ID AS boardId,
-        b.TITLE AS title,
-        b.CONTENT AS content,
-        b.CATEGORY AS category,
-        b.USER_ID AS userId,
 
-        u.USER_NAME AS userName,
-        u.NICKNAME AS nickName,
+	<select id="selectBookmarkList" parameterType="string" resultType="map">
+		SELECT
+		b.BOARD_ID AS boardId,
+		b.TITLE AS title,
+		b.CONTENT AS content,
+		b.CATEGORY AS category,
+		b.USER_ID AS userId,
 
-        DATE_FORMAT(b.CREATED_AT, '%Y.%m.%d') AS createdAt,
+		u.USER_NAME AS userName,
+		u.NICKNAME AS nickName,
 
-        b.VIEW_COUNT AS viewCount,
-        b.LIKE_COUNT AS likeCount,
+		DATE_FORMAT(b.CREATED_AT, '%Y.%m.%d') AS createdAt,
 
-        (
-            SELECT COUNT(*)
-            FROM BOARD_COMMENT bc
-            WHERE bc.BOARD_ID = b.BOARD_ID
-              AND bc.STATUS = 'ACTIVE'
-        ) AS commentCount,
+		b.VIEW_COUNT AS viewCount,
+		b.LIKE_COUNT AS likeCount,
 
-        (
-            SELECT bi.IMG_URL
-            FROM BOARD_IMG bi
-            WHERE bi.BOARD_ID = b.BOARD_ID
-            ORDER BY bi.SORT_ORDER ASC, bi.IMG_ID ASC
-            LIMIT 1
-        ) AS thumbImgUrl
+		(
+		SELECT COUNT(*)
+		FROM BOARD_COMMENT bc
+		WHERE bc.BOARD_ID = b.BOARD_ID
+		AND bc.STATUS = 'ACTIVE'
+		) AS commentCount,
 
-    FROM BOARD_BOOKMARK bb
-    JOIN BOARD b
-        ON bb.BOARD_ID = b.BOARD_ID
-    LEFT JOIN USER u
-        ON b.USER_ID = u.USER_ID
+		(
+		SELECT bi.IMG_URL
+		FROM BOARD_IMG bi
+		WHERE bi.BOARD_ID = b.BOARD_ID
+		ORDER BY bi.SORT_ORDER ASC, bi.IMG_ID ASC
+		LIMIT 1
+		) AS thumbImgUrl
 
-    WHERE bb.USER_ID = #{userId}
-      AND b.STATUS = 'ACTIVE'
+		FROM BOARD_BOOKMARK bb
+		JOIN BOARD b
+		ON bb.BOARD_ID = b.BOARD_ID
+		LEFT JOIN USER u
+		ON b.USER_ID = u.USER_ID
 
-    ORDER BY bb.CREATED_AT DESC
-</select>
-<select id="selectMiniProfile" parameterType="hashmap" resultType="hashmap">
-    SELECT
-        U.USER_ID         AS userId,   -- ★ 추가
-        U.NICKNAME        AS nickname,
-        U.PROFILE_IMG_URL AS profileImg,
-        (SELECT COUNT(*) FROM BOARD
-         WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') AS boardCount,
-        (SELECT COUNT(*) FROM BOARD_COMMENT
-         WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') AS commentCount,
-        (SELECT COALESCE(SUM(LIKE_COUNT), 0) FROM BOARD
-         WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') AS likeCount,
-        CASE
-            WHEN (SELECT COUNT(*) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') >= 100
-              OR (SELECT COALESCE(SUM(LIKE_COUNT),0) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') >= 500
-            THEN 'MODAK'
-            WHEN (SELECT COUNT(*) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') >= 50
-              OR (SELECT COALESCE(SUM(LIKE_COUNT),0) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') >= 200
-            THEN 'FIRE_CAMPER'
-            WHEN (SELECT COUNT(*) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') >= 20
-              OR (SELECT COALESCE(SUM(LIKE_COUNT),0) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') >= 50
-            THEN 'CAMPER'
-            WHEN (SELECT COUNT(*) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') >= 5
-              OR (SELECT COUNT(*) FROM BOARD_COMMENT WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') >= 10
-            THEN 'EMBER'
-            ELSE 'SPROUT'
-        END AS communityGrade
-    FROM USER U
-    WHERE U.USER_ID = #{userId}
-</select>
-<select id="selectMyChatRoomList" parameterType="string" resultType="map">
-    SELECT
-        R.ROOM_ID AS roomId,
-        CASE WHEN R.USER_A = #{userId} THEN R.USER_B ELSE R.USER_A END AS otherId,
-        U.NICKNAME AS otherNick,
-        U.PROFILE_IMG_URL AS otherImg,
+		WHERE bb.USER_ID = #{userId}
+		AND b.STATUS = 'ACTIVE'
 
-        (
-            SELECT M.CONTENT
-            FROM CHAT_MESSAGE M
-            WHERE M.ROOM_ID = R.ROOM_ID
-            ORDER BY M.CREATED_AT DESC
-            LIMIT 1
-        ) AS lastMsg,
+		ORDER BY bb.CREATED_AT DESC
+	</select>
+	<select id="selectMiniProfile" parameterType="hashmap" resultType="hashmap">
+		SELECT
+		U.USER_ID AS userId, -- ★ 추가
+		U.NICKNAME AS nickname,
+		U.PROFILE_IMG_URL AS profileImg,
+		(SELECT COUNT(*) FROM BOARD
+		WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') AS boardCount,
+		(SELECT COUNT(*) FROM BOARD_COMMENT
+		WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') AS commentCount,
+		(SELECT COALESCE(SUM(LIKE_COUNT), 0) FROM BOARD
+		WHERE USER_ID = U.USER_ID AND STATUS = 'ACTIVE') AS likeCount,
+		CASE
+		WHEN (SELECT COUNT(*) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS =
+		'ACTIVE') >= 100
+		OR (SELECT COALESCE(SUM(LIKE_COUNT),0) FROM BOARD WHERE USER_ID =
+		U.USER_ID AND STATUS = 'ACTIVE') >= 500
+		THEN 'MODAK'
+		WHEN (SELECT COUNT(*) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS =
+		'ACTIVE') >= 50
+		OR (SELECT COALESCE(SUM(LIKE_COUNT),0) FROM BOARD WHERE USER_ID =
+		U.USER_ID AND STATUS = 'ACTIVE') >= 200
+		THEN 'FIRE_CAMPER'
+		WHEN (SELECT COUNT(*) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS =
+		'ACTIVE') >= 20
+		OR (SELECT COALESCE(SUM(LIKE_COUNT),0) FROM BOARD WHERE USER_ID =
+		U.USER_ID AND STATUS = 'ACTIVE') >= 50
+		THEN 'CAMPER'
+		WHEN (SELECT COUNT(*) FROM BOARD WHERE USER_ID = U.USER_ID AND STATUS =
+		'ACTIVE') >= 5
+		OR (SELECT COUNT(*) FROM BOARD_COMMENT WHERE USER_ID = U.USER_ID AND
+		STATUS = 'ACTIVE') >= 10
+		THEN 'EMBER'
+		ELSE 'SPROUT'
+		END AS communityGrade
+		FROM USER U
+		WHERE U.USER_ID = #{userId}
+	</select>
+	<select id="selectMyChatRoomList" parameterType="string" resultType="map">
+		SELECT
+		R.ROOM_ID AS roomId,
+		CASE WHEN R.USER_A = #{userId} THEN R.USER_B ELSE R.USER_A END AS
+		otherId,
+		U.NICKNAME AS otherNick,
+		U.PROFILE_IMG_URL AS otherImg,
 
-        (
-            SELECT DATE_FORMAT(M.CREATED_AT, '%Y-%m-%d %H:%i')
-            FROM CHAT_MESSAGE M
-            WHERE M.ROOM_ID = R.ROOM_ID
-            ORDER BY M.CREATED_AT DESC
-            LIMIT 1
-        ) AS lastAt,
+		(
+		SELECT M.CONTENT
+		FROM CHAT_MESSAGE M
+		WHERE M.ROOM_ID = R.ROOM_ID
+		ORDER BY M.CREATED_AT DESC
+		LIMIT 1
+		) AS lastMsg,
 
-        (
-            SELECT COUNT(*)
-            FROM CHAT_MESSAGE M
-            WHERE M.ROOM_ID = R.ROOM_ID
-              AND M.SENDER_ID != #{userId}
-              AND M.IS_READ = 'N'
-        ) AS unreadCount
+		(
+		SELECT DATE_FORMAT(M.CREATED_AT, '%Y-%m-%d %H:%i')
+		FROM CHAT_MESSAGE M
+		WHERE M.ROOM_ID = R.ROOM_ID
+		ORDER BY M.CREATED_AT DESC
+		LIMIT 1
+		) AS lastAt,
 
-    FROM CHAT_ROOM R
+		(
+		SELECT COUNT(*)
+		FROM CHAT_MESSAGE M
+		WHERE M.ROOM_ID = R.ROOM_ID
+		AND M.SENDER_ID != #{userId}
+		AND M.IS_READ = 'N'
+		) AS unreadCount
 
-    JOIN USER U
-        ON U.USER_ID =
-            CASE WHEN R.USER_A = #{userId} THEN R.USER_B ELSE R.USER_A END
+		FROM CHAT_ROOM R
 
-    LEFT JOIN CHAT_ROOM_HIDE H
-        ON H.ROOM_ID = R.ROOM_ID
-       AND H.USER_ID = #{userId}
+		JOIN USER U
+		ON U.USER_ID =
+		CASE WHEN R.USER_A = #{userId} THEN R.USER_B ELSE R.USER_A END
 
-    WHERE (R.USER_A = #{userId} OR R.USER_B = #{userId})
-      AND (
-          H.ROOM_ID IS NULL
-          OR EXISTS (
-              SELECT 1
-              FROM CHAT_MESSAGE M
-              WHERE M.ROOM_ID = R.ROOM_ID
-                AND M.SENDER_ID != #{userId}
-                AND M.CREATED_AT > H.CREATED_AT
-          )
-      )
+		LEFT JOIN CHAT_ROOM_HIDE H
+		ON H.ROOM_ID = R.ROOM_ID
+		AND H.USER_ID = #{userId}
 
-    ORDER BY lastAt DESC
-</select>
+		WHERE (R.USER_A = #{userId} OR R.USER_B = #{userId})
+		AND (
+		H.ROOM_ID IS NULL
+		OR EXISTS (
+		SELECT 1
+		FROM CHAT_MESSAGE M
+		WHERE M.ROOM_ID = R.ROOM_ID
+		AND M.SENDER_ID != #{userId}
+		AND M.CREATED_AT > H.CREATED_AT
+		)
+		)
 
-<insert id="hideMyChatRoom" parameterType="hashmap">
-    INSERT IGNORE INTO CHAT_ROOM_HIDE (
-        ROOM_ID,
-        USER_ID,
-        CREATED_AT
-    )
-    VALUES (
-        #{roomId},
-        #{userId},
-        NOW()
-    )
-</insert>
+		ORDER BY lastAt DESC
+	</select>
+
+	<insert id="hideMyChatRoom" parameterType="hashmap">
+		INSERT IGNORE INTO CHAT_ROOM_HIDE (
+		ROOM_ID,
+		USER_ID,
+		CREATED_AT
+		)
+		VALUES (
+		#{roomId},
+		#{userId},
+		NOW()
+		)
+	</insert>
 </mapper>

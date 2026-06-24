@@ -423,4 +423,32 @@
         )
     </if>
 </select>
+<!-- ★ 클린봇: 검사 대상 리뷰 조회 (ACTIVE만) -->
+<select id="selectActiveReviewsForScan" resultType="hashmap">
+    SELECT REVIEW_ID, CONTENT, USER_ID
+    FROM REVIEW
+    WHERE REVIEW_STATUS = 'ACTIVE'
+</select>
+
+<!-- ★ 클린봇: 비속어 적중 리뷰 차단 처리 -->
+<update id="blockReviewByBot" parameterType="long">
+    UPDATE REVIEW
+    SET REVIEW_STATUS = 'BLOCKED',
+        UPDATED_AT = NOW()
+    WHERE REVIEW_ID = #{reviewId}
+</update>
+
+<!-- ★ 클린봇: 실행 이력 저장 -->
+<insert id="insertBotLog" parameterType="hashmap">
+    INSERT INTO BOT_LOG (
+        RUN_AT,
+        TOTAL_COUNT,
+        BLOCKED_COUNT
+    ) VALUES (
+        NOW(),
+        #{total},
+        #{blocked}
+    )
+</insert>
+
 </mapper>

@@ -19,5 +19,7 @@ public interface AlarmMapper {
     
     // 알람 전체 삭제
     void deleteAllAlarms(String userId);
+    int insertReviewBlockedAlarm(Map<String, Object> map);
+
     
 }

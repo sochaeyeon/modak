@@ -2,6 +2,7 @@ package com.example.modak.review.mapper;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
@@ -73,4 +74,7 @@ public interface ReviewMapper {
 	int insertReport(HashMap<String, Object> map);
 
 	int selectProductReviewCount(HashMap<String, Object> map);
+	List<Map<String, Object>> selectActiveReviewsForScan();
+	int blockReviewByBot(Long reviewId);
+	int insertBotLog(Map<String, Object> map);
 }

@@ -51,5 +51,25 @@
     <delete id="deleteAllAlarms" parameterType="string">
         DELETE FROM ALARM WHERE USER_ID = #{userId}
     </delete>
-
+<insert id="insertReviewBlockedAlarm" parameterType="hashmap">
+        INSERT INTO ALARM (
+            USER_ID,
+            TYPE,
+            TITLE,
+            CONTENT,
+            LINK_ID,
+            LINK_URL,
+            IS_READ,
+            CREATED_AT
+        ) VALUES (
+            #{userId},
+            'REVIEW_BLOCKED',
+            '리뷰가 비공개 처리되었습니다',
+            '작성하신 리뷰가 운영 정책 위반으로 비공개(차단) 처리되었습니다.',
+            #{reviewId},
+            NULL,
+            'N',
+            NOW()
+        )
+    </insert>
 </mapper>

@@ -155,6 +155,7 @@ select {
     border: 1.5px solid var(--border);
     border-radius: 16px;
     background: var(--white);
+    box-shadow: 0 4px 18px -8px rgba(44, 30, 15, 0.06);
 }
 
 .hot-title {
@@ -177,13 +178,13 @@ select {
 
 .hot-list {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: 1.4fr 1fr 1fr;
     gap: 10px;
 }
 
 .hot-card {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
     min-width: 0;
     padding: 13px;
@@ -191,12 +192,56 @@ select {
     border: 1.5px solid var(--border);
     background: #fffaf2;
     cursor: pointer;
-    transition: border-color 0.16s ease, background 0.16s ease;
+    transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
 }
 
 .hot-card:hover {
     border-color: var(--orange);
     background: var(--orange-pale);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px -12px rgba(232, 115, 42, 0.35);
+}
+
+/* 오늘의 1위 게시글 — 모닥불의 가장 밝은 불씨라는 의미로 시각적 위계를 둔다 */
+.hot-card.is-top {
+    position: relative;
+    padding: 16px;
+    border: 1.5px solid rgba(232, 115, 42, 0.45);
+    background: linear-gradient(155deg, #fffaf2 0%, var(--orange-pale) 100%);
+    box-shadow: 0 6px 20px -10px rgba(232, 115, 42, 0.28);
+}
+
+.hot-card.is-top::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 13px;
+    background: radial-gradient(circle at 0% 0%, rgba(232, 115, 42, 0.12), transparent 60%);
+    pointer-events: none;
+}
+
+.hot-card.is-top:hover {
+    box-shadow: 0 14px 28px -12px rgba(232, 115, 42, 0.4);
+}
+
+.hot-card.is-top .hot-card-title {
+    font-size: 15px;
+    -webkit-line-clamp: 2;
+}
+
+.hot-card-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    height: 18px;
+    padding: 0 7px;
+    margin-bottom: 6px;
+    border-radius: 999px;
+    background: var(--orange);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
 }
 
 .hot-rank {
@@ -207,6 +252,7 @@ select {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    margin-top: 1px;
 
     background: var(--cream2);
     color: var(--brown3);
@@ -215,8 +261,9 @@ select {
 }
 
 .rank-1 {
-    background: var(--orange);
+    background: linear-gradient(155deg, var(--orange2), var(--orange));
     color: #fff;
+    box-shadow: 0 3px 8px -2px rgba(232, 115, 42, 0.5);
 }
 
 .rank-2,
@@ -235,7 +282,10 @@ select {
     font-weight: 800;
     color: var(--brown);
     margin-bottom: 6px;
-    white-space: nowrap;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -264,6 +314,8 @@ select {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    font-size: 0;
+    color: transparent;
 }
 
 /* =========================
@@ -423,6 +475,16 @@ select {
     font-weight: 800;
     outline: none;
     cursor: pointer;
+    transition: border-color 0.16s ease, background-color 0.16s ease;
+}
+
+.sort-select:hover {
+    border-color: var(--border-strong);
+}
+
+.sort-select:focus-visible {
+    border-color: var(--orange);
+    background: var(--white);
 }
 
 .sort-select:disabled {
@@ -476,6 +538,11 @@ select {
     color: var(--orange);
     font-size: 14px;
     cursor: pointer;
+    transition: background-color 0.16s ease;
+}
+
+.search-wrap button:hover {
+    background: var(--orange-pale);
 }
 
 .board-list {
@@ -1168,7 +1235,10 @@ select {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    font-size: 0;
+    color: transparent;
 }
+
 
 /* =========================
    게시글 카드 여백/위계 개선
@@ -1183,6 +1253,7 @@ select {
     min-height: 104px;
     padding: 20px 22px;
     border-radius: 16px;
+    box-shadow: 0 3px 14px -10px rgba(44, 30, 15, 0.08);
 }
 
 /* 왼쪽 본문 영역 */
@@ -1265,8 +1336,177 @@ select {
     border-radius: 14px;
 }
 
-/* 카드 hover는 들썩임 없이 보더와 배경만 */
+/* 카드 hover는 들썩임 없이 보더와 배경, 그림자만 */
 .board-item:hover {
     background: #fffaf2;
     border-color: var(--orange) !important;
+    box-shadow: 0 8px 22px -10px rgba(232, 115, 42, 0.22);
+}
+
+/* =========================
+   ACCESSIBILITY & FINAL POLISH
+========================= */
+
+/* 키보드 포커스 가시성 */
+.tab-btn:focus-visible,
+.btn-write:focus-visible,
+.page-btn:focus-visible,
+.hot-card:focus-visible,
+.board-item:focus-visible,
+.grade-info-bar:focus-visible,
+.search-wrap input:focus-visible,
+.search-wrap button:focus-visible,
+.tag-search-banner button:focus-visible {
+    outline: 2.5px solid var(--orange2);
+    outline-offset: 2px;
+}
+
+/* 페이지네이션 버튼 디테일 */
+.page-btn {
+    transition: border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.page-btn.active {
+    box-shadow: 0 4px 12px -4px rgba(232, 115, 42, 0.4);
+}
+
+/* 카테고리 탭 hover 시 살짝 배경 (클릭 가능함을 더 명확히) */
+.tab-btn {
+    border-radius: 8px;
+}
+
+.tab-btn:hover {
+    background: rgba(232, 115, 42, 0.06);
+}
+
+/* 글쓰기 버튼 hover 시 살짝 그림자 */
+.btn-write {
+    box-shadow: 0 4px 14px -6px rgba(232, 115, 42, 0.4);
+}
+
+.btn-write:hover {
+    box-shadow: 0 6px 18px -6px rgba(196, 98, 30, 0.45);
+}
+
+/* 모션 최소화 환경 대응 */
+@media (prefers-reduced-motion: reduce) {
+    .hot-card,
+    .board-item,
+    .btn-write,
+    .page-btn,
+    .tab-line {
+        transition: none !important;
+    }
+}
+
+/* 빈 상태 아이콘 보정 (아이콘 미스매치 대비 기본 톤 유지) */
+.empty-emoji i {
+    line-height: 1;
+}
+
+/* =========================================================
+   v3 — 시그니처 디테일: 카테고리 컬러바 + 리스트 진입 모션
+========================================================= */
+
+/* 게시글 카드 왼쪽에 카테고리 색 인디케이터 — 한눈에 스캔 가능하게 */
+.board-item {
+    position: relative;
+    overflow: hidden;
+}
+
+.board-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 14px;
+    bottom: 14px;
+    width: 4px;
+    border-radius: 0 4px 4px 0;
+    background: var(--border-strong);
+    transition: background-color 0.16s ease;
+}
+
+.board-item.cat-border-FREE::before {
+    background: var(--brown3);
+}
+
+.board-item.cat-border-REVIEW::before {
+    background: #3f9b5a;
+}
+
+.board-item.cat-border-TIP::before {
+    background: #3f7fd9;
+}
+
+.board-item.cat-border-QNA::before {
+    background: var(--orange);
+}
+
+/* 리스트 진입 시 절제된 스태거드 페이드업 */
+.board-list {
+    animation: none;
+}
+
+.board-item {
+    animation: itemRise 0.34s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.board-item:nth-child(1) { animation-delay: 0.02s; }
+.board-item:nth-child(2) { animation-delay: 0.06s; }
+.board-item:nth-child(3) { animation-delay: 0.10s; }
+.board-item:nth-child(4) { animation-delay: 0.14s; }
+.board-item:nth-child(5) { animation-delay: 0.18s; }
+.board-item:nth-child(n+6) { animation-delay: 0.20s; }
+
+@keyframes itemRise {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hot-card {
+    animation: itemRise 0.36s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+.hot-card:nth-child(1) { animation-delay: 0.02s; }
+.hot-card:nth-child(2) { animation-delay: 0.08s; }
+.hot-card:nth-child(3) { animation-delay: 0.14s; }
+
+@media (prefers-reduced-motion: reduce) {
+    .board-item,
+    .hot-card {
+        animation: none !important;
+    }
+}
+
+/* 보드 타이틀에 미세한 깊이감 (단조로운 플랫 텍스트 탈피) */
+.board-title {
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* 게시글 제목 자간을 한 번 더 타이트하게, 본문 위계 명확화 */
+.item-title {
+    letter-spacing: -0.04em;
+}
+
+/* 카테고리 태그 — 컬러바와 색 통일감을 주기 위해 보더 톤 보강 */
+.cat-FREE {
+    border: 1px solid rgba(92, 66, 48, 0.18);
+}
+
+.cat-REVIEW {
+    border: 1px solid rgba(57, 143, 86, 0.22);
+}
+
+.cat-TIP {
+    border: 1px solid rgba(47, 111, 216, 0.22);
+}
+
+.cat-QNA {
+    border: 1px solid rgba(232, 115, 42, 0.24);
 }

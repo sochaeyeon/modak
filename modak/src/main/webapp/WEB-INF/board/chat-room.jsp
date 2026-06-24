@@ -33,6 +33,10 @@
                         <div class="btn-more" id="btnMore" role="button" tabindex="0" aria-label="채팅방 메뉴">
                             <i class="ri-more-2-fill"></i>
                             <div class="more-menu" id="moreMenu">
+                                <button id="menuReport" type="button">
+                                    <i class="ri-flag-2-line"></i>
+                                    <span>메시지 신고</span>
+                                </button>
                                 <button id="menuBlock" type="button">
                                     <i class="ri-forbid-2-line"></i>
                                     <span id="menuBlockTxt">차단하기</span>
@@ -101,6 +105,23 @@
 
                         <button type="button" class="delete-select-submit" id="deleteSelectedSubmit" disabled>
                             선택 삭제
+                        </button>
+                    </div>
+
+                    <!-- 신고 선택 바 -->
+                    <div class="report-select-bar" id="reportSelectBar" style="display:none;">
+                        <button type="button" class="report-select-cancel" id="reportSelectCancel">
+                            취소
+                        </button>
+
+                        <div class="report-select-info">
+                            <strong id="reportSelectedCount">0개 선택됨</strong>
+                            <span>신고할 메시지를 선택해주세요.</span>
+                        </div>
+
+                        <button type="button" class="report-select-submit" id="reportSelectedSubmit" disabled>
+                            <i class="ri-flag-2-fill"></i>
+                            신고하기
                         </button>
                     </div>
                 </div>
@@ -271,6 +292,57 @@
                     </div>
                 </div>
 
+                <!-- 메시지 신고 모달 -->
+                <div class="modal-bg" id="reportModal">
+                    <div class="modal-box report-box">
+                        <div class="modal-icon report-icon">
+                            <i class="ri-flag-2-line"></i>
+                        </div>
+
+                        <div class="modal-title">메시지 신고</div>
+                        <div class="modal-desc">
+                            <strong id="reportTargetCount">1개</strong>의 메시지를 신고합니다.<br>
+                            신고 사유를 선택해주세요.
+                        </div>
+
+                        <div class="report-reason-list" id="reportReasonList">
+                            <label class="report-reason">
+                                <input type="radio" name="reportReason" value="ABUSE">
+                                <span class="report-reason-icon"><i class="ri-chat-off-line"></i></span>
+                                <span class="report-reason-text">욕설 · 혐오 표현</span>
+                            </label>
+                            <label class="report-reason">
+                                <input type="radio" name="reportReason" value="SPAM">
+                                <span class="report-reason-icon"><i class="ri-megaphone-line"></i></span>
+                                <span class="report-reason-text">도배 · 광고</span>
+                            </label>
+                            <label class="report-reason">
+                                <input type="radio" name="reportReason" value="SCAM">
+                                <span class="report-reason-icon"><i class="ri-shield-cross-line"></i></span>
+                                <span class="report-reason-text">사기 · 사칭</span>
+                            </label>
+                            <label class="report-reason">
+                                <input type="radio" name="reportReason" value="EXPLICIT">
+                                <span class="report-reason-icon"><i class="ri-image-fill"></i></span>
+                                <span class="report-reason-text">부적절한 사진</span>
+                            </label>
+                            <label class="report-reason">
+                                <input type="radio" name="reportReason" value="ETC">
+                                <span class="report-reason-icon"><i class="ri-question-line"></i></span>
+                                <span class="report-reason-text">기타</span>
+                            </label>
+                        </div>
+
+                        <textarea class="report-etc-input" id="reportEtcInput" rows="3" maxlength="300"
+                            placeholder="신고 사유를 자세히 적어주세요 (최대 300자)" style="display:none;"></textarea>
+
+                        <div class="modal-btns">
+                            <button class="modal-btn cancel" id="reportCancel" type="button">취소</button>
+                            <button class="modal-btn confirm-report" id="reportSubmit" type="button" disabled>신고하기</button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="toast" id="toast"></div>
 
                 <script>
@@ -286,6 +358,10 @@
                     var typingTimer = null;
                     var typingSendTimer = null;
                     var pendingBadWordContent = null;
+
+                    // 신고 관련 상태
+                    var reportSelectMode = false;
+                    var selectedReportIds = [];
 
                     var lastMsgId = 0;
                     var lastDateStr = '';
@@ -353,6 +429,59 @@
                             $('#moreMenu').removeClass('open');
                             openBlockModal();
                         });
+
+                        // 더보기 → 메시지 신고 진입
+                        $('#menuReport').on('click', function (e) {
+                            e.stopPropagation();
+                            $('#moreMenu').removeClass('open');
+                            enterReportSelectMode();
+                        });
+
+                        // 신고 선택 모드 취소
+                        $('#reportSelectCancel').on('click', function () {
+                            exitReportSelectMode();
+                        });
+
+                        // 신고하기 버튼 → 사유 선택 모달
+                        $('#reportSelectedSubmit').on('click', function () {
+                            if (selectedReportIds.length === 0) {
+                                showToast('신고할 메시지를 선택해주세요.');
+                                return;
+                            }
+
+                            openReportModal();
+                        });
+
+                        // 신고 사유 선택
+                        $('#reportReasonList').on('change', 'input[name="reportReason"]', function () {
+                            var isEtc = $(this).val() === 'ETC';
+
+                            $('#reportEtcInput').toggle(isEtc);
+
+                            if (isEtc) {
+                                $('#reportEtcInput').trigger('input');
+                            } else {
+                                $('#reportSubmit').prop('disabled', false);
+                            }
+                        });
+
+                        // 기타 사유 입력 시 글자 있어야 제출 가능
+                        $('#reportEtcInput').on('input', function () {
+                            var isEtc = $('input[name="reportReason"]:checked').val() === 'ETC';
+
+                            if (isEtc) {
+                                $('#reportSubmit').prop('disabled', !$(this).val().trim());
+                            }
+                        });
+
+                        $('#reportCancel').on('click', closeReportModal);
+
+                        $('#reportModal').on('click', function (e) {
+                            if (e.target === this) closeReportModal();
+                        });
+
+                        $('#reportSubmit').on('click', submitReport);
+
                         // 선택 삭제 취소
                         $('#deleteSelectCancel').on('click', function () {
                             exitDeleteSelectMode();
@@ -385,9 +514,24 @@
                             deleteSelectedMessagesForMe();
                         });
 
-                        // 메시지 체크박스 선택
+                        // 메시지 체크박스 선택 (삭제/신고 공용)
                         $('#msgArea').on('change', '.msg-select-check', function () {
                             var messageId = String($(this).data('message-id'));
+
+                            if (reportSelectMode) {
+                                if ($(this).is(':checked')) {
+                                    if (!selectedReportIds.includes(messageId)) {
+                                        selectedReportIds.push(messageId);
+                                    }
+                                } else {
+                                    selectedReportIds = selectedReportIds.filter(function (id) {
+                                        return id !== messageId;
+                                    });
+                                }
+
+                                updateReportSelectBar();
+                                return;
+                            }
 
                             if ($(this).is(':checked')) {
                                 if (!selectedDeleteIds.includes(messageId)) {
@@ -401,9 +545,9 @@
 
                             updateDeleteSelectBar();
                         });
-                        // 선택 삭제 모드에서는 메시지 영역을 눌러도 체크/해제
+                        // 선택 모드(삭제/신고)에서는 메시지 영역을 눌러도 체크/해제
                         $('#msgArea').on('click', '.msg-row', function (e) {
-                            if (!deleteSelectMode) {
+                            if (!deleteSelectMode && !reportSelectMode) {
                                 return;
                             }
 
@@ -792,6 +936,109 @@
                         $('#deleteSelectedSubmit').prop('disabled', count === 0);
                     }
 
+                    /* ── 메시지 신고: 선택 모드 ── */
+                    function enterReportSelectMode() {
+                        reportSelectMode = true;
+                        selectedReportIds = [];
+
+                        $('body').addClass('report-select-mode');
+
+                        $('#inputWrap').hide();
+                        $('#reportSelectBar').css('display', 'flex');
+
+                        loadMessages(false);
+
+                        updateReportSelectBar();
+                    }
+
+                    function exitReportSelectMode() {
+                        reportSelectMode = false;
+                        selectedReportIds = [];
+
+                        $('body').removeClass('report-select-mode');
+
+                        $('#reportSelectBar').hide();
+
+                        if (!isBlocked) {
+                            $('#inputWrap').show();
+                        }
+
+                        $('.msg-select-check').prop('checked', false);
+
+                        updateReportSelectBar();
+
+                        loadMessages(false);
+                    }
+
+                    function updateReportSelectBar() {
+                        var count = selectedReportIds.length;
+
+                        $('#reportSelectedCount').text(count + '개 선택됨');
+                        $('#reportSelectedSubmit').prop('disabled', count === 0);
+                    }
+
+                    function openReportModal() {
+                        $('#reportTargetCount').text(selectedReportIds.length + '개');
+
+                        $('input[name="reportReason"]').prop('checked', false);
+                        $('#reportEtcInput').val('').hide();
+                        $('#reportSubmit').prop('disabled', true);
+
+                        $('#reportModal').addClass('open');
+                    }
+
+                    function closeReportModal() {
+                        $('#reportModal').removeClass('open');
+                    }
+
+                    function submitReport() {
+                        var reason = $('input[name="reportReason"]:checked').val();
+
+                        if (!reason) {
+                            showToast('신고 사유를 선택해주세요.');
+                            return;
+                        }
+
+                        var detail = reason === 'ETC' ? $('#reportEtcInput').val().trim() : '';
+
+                        if (reason === 'ETC' && !detail) {
+                            showToast('신고 사유를 입력해주세요.');
+                            return;
+                        }
+
+                        var ids = selectedReportIds.slice();
+
+                        $('#reportSubmit').prop('disabled', true).text('신고 중');
+
+                        $.ajax({
+                            url: '/chat-room/message/report.dox',
+                            type: 'POST',
+                            data: {
+                                roomId: ROOM_ID,
+                                messageIds: ids.join(','),
+                                reason: reason,
+                                detail: detail
+                            },
+                            dataType: 'json',
+                            success: function (res) {
+                                $('#reportSubmit').prop('disabled', false).text('신고하기');
+                                closeReportModal();
+
+                                if (res.result === 'success') {
+                                    showToast(res.message || '신고가 접수됐어요. 빠르게 확인할게요.');
+                                    exitReportSelectMode();
+                                } else {
+                                    showToast(res.message || '신고 접수에 실패했어요.');
+                                }
+                            },
+                            error: function () {
+                                $('#reportSubmit').prop('disabled', false).text('신고하기');
+                                closeReportModal();
+                                showToast('서버 오류로 신고 접수에 실패했어요.');
+                            }
+                        });
+                    }
+
                     function deleteSelectedMessagesForMe() {
                         if (selectedDeleteIds.length === 0) {
                             showToast('삭제할 메시지를 선택해주세요.');
@@ -960,7 +1207,7 @@
 
                         var deleteBtn = '';
 
-                        if (!isDeleted && !m.TEMP_STATUS && !deleteSelectMode) {
+                        if (!isDeleted && !m.TEMP_STATUS && !deleteSelectMode && !reportSelectMode) {
                             deleteBtn =
                                 '<button type="button" class="msg-del-btn" ' +
                                 'data-message-id="' + escAttr(m.MESSAGE_ID) + '" ' +
@@ -971,9 +1218,9 @@
 
                         var selectCheckHtml = '';
 
-                        if (deleteSelectMode && !isDeleted && !m.TEMP_STATUS) {
+                        if ((deleteSelectMode || reportSelectMode) && !isDeleted && !m.TEMP_STATUS) {
                             selectCheckHtml =
-                                '<label class="msg-select-label">' +
+                                '<label class="msg-select-label' + (reportSelectMode ? ' is-report' : '') + '">' +
                                 '<input type="checkbox" class="msg-select-check" data-message-id="' + escAttr(m.MESSAGE_ID) + '">' +
                                 '<span></span>' +
                                 '</label>';
@@ -998,7 +1245,7 @@
                     }
 
                     function sendMessage() {
-                        if (isBlocked || deleteSelectMode) return;
+                        if (isBlocked || deleteSelectMode || reportSelectMode) return;
 
                         var content = $('#msgInput').val().trim();
                         if (!content) return;
@@ -1137,7 +1384,7 @@
                             sendActive();
                             checkActive();
 
-                            if (!deleteSelectMode) {
+                            if (!deleteSelectMode && !reportSelectMode) {
                                 loadMessages(true);
                                 checkTyping();
                             }
@@ -1422,7 +1669,10 @@
                             $('#inputWrap').hide();
                         } else {
                             $('#blockedBar').hide();
-                            $('#inputWrap').show();
+
+                            if (!deleteSelectMode && !reportSelectMode) {
+                                $('#inputWrap').show();
+                            }
                         }
                     }
 

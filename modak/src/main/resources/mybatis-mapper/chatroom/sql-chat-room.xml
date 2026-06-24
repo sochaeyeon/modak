@@ -279,6 +279,37 @@
 		AND IS_DELETED = 'N'
 	</update>
 
+	<!-- 메시지 신고 -->
+	<insert id="insertMessageReport" parameterType="hashmap">
+		INSERT INTO CHAT_MESSAGE_REPORT (
+		ROOM_ID,
+		MESSAGE_ID,
+		REPORTER_ID,
+		REASON,
+		DETAIL,
+		CREATED_AT
+		)
+		VALUES (
+		#{roomId},
+		#{messageId},
+		#{reporterId},
+		#{reason},
+		#{detail},
+		NOW()
+		)
+	</insert>
+
+	<!-- 이미 신고한 메시지인지 확인 (사전 체크용) -->
+	<select id="selectReportedMessageIds" parameterType="hashmap" resultType="long">
+		SELECT MESSAGE_ID
+		FROM CHAT_MESSAGE_REPORT
+		WHERE REPORTER_ID = #{reporterId}
+		AND MESSAGE_ID IN
+		<foreach item="id" collection="messageIds" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</select>
+
 	<!-- 차단 -->
 	<insert id="insertBlock" parameterType="hashmap">
 		INSERT IGNORE INTO USER_BLOCK (

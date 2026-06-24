@@ -1133,7 +1133,7 @@ nav {
 /* =========================================================
    필터 초기화 버튼 - 중복 선언 통합
 ========================================================= */
-.sidebar > div[style] {
+.sidebar>div[style] {
   padding: 14px 18px 18px !important;
   background: #fffaf4;
 }
@@ -1232,6 +1232,7 @@ nav {
     opacity: 0;
     transform: translateY(4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1254,6 +1255,7 @@ nav {
     opacity: 0;
     transform: translateY(2px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -2076,6 +2078,7 @@ nav {
     opacity: 0;
     transform: translateY(14px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -2087,6 +2090,7 @@ nav {
     opacity: 0;
     transform: translateY(-3px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -2272,4 +2276,239 @@ nav {
   .product-grid.view-list .pcard.list-card .btn-row {
     width: 100%;
   }
+}
+
+/* 브레드크럼 */
+.breadcrumb-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  color: var(--brown4);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.breadcrumb-bar span {
+  cursor: pointer;
+  transition: color .15s ease;
+}
+
+.breadcrumb-bar span:hover {
+  color: var(--orange);
+}
+
+.breadcrumb-bar span.active {
+  color: var(--brown);
+  cursor: default;
+}
+
+.breadcrumb-bar i {
+  font-size: 14px;
+  color: var(--brown4);
+}
+
+/* 랭킹 배지 */
+.rank-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  background: var(--brown);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: 0 4px 10px rgba(44, 30, 15, 0.22);
+}
+
+.rank-badge.rank-1 {
+  background: var(--orange);
+  box-shadow: 0 4px 12px rgba(232, 115, 42, 0.4);
+}
+
+.rank-badge.rank-2 {
+  background: var(--orange2);
+}
+
+.rank-badge.rank-3 {
+  background: var(--brown3);
+}
+
+/* 퀵뷰 오버레이 */
+.quick-view-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 14px;
+  background: linear-gradient(180deg, transparent 55%, rgba(44, 30, 15, 0.45) 100%);
+  opacity: 0;
+  transition: opacity .18s ease;
+  pointer-events: none;
+}
+
+.pcard:hover .quick-view-overlay {
+  opacity: 1;
+}
+
+.quick-view-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: #fffdf8;
+  color: var(--brown);
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 6px 16px rgba(44, 30, 15, 0.2);
+}
+
+.product-grid.view-list .rank-badge,
+.product-grid.view-list .quick-view-overlay {
+  display: none;
+}
+
+.social-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #fff0e9;
+  color: var(--orange2);
+  font-size: 10.5px;
+  font-weight: 900;
+}
+
+.social-badge i {
+  font-size: 11px;
+}
+
+/* 최근 본 상품 */
+.recent-section {
+  margin-top: 50px;
+}
+
+.recent-head h3 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 14px;
+  color: var(--brown);
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.recent-head h3 i {
+  color: var(--orange);
+}
+
+.recent-scroll {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 6px;
+}
+
+.recent-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.recent-mini-card {
+  flex-shrink: 0;
+  width: 150px;
+  cursor: pointer;
+}
+
+.recent-mini-card img {
+  width: 150px;
+  height: 150px;
+  border-radius: 14px;
+  object-fit: cover;
+  background: #f1e7d8;
+  margin-bottom: 8px;
+  transition: opacity .15s ease;
+}
+
+.recent-mini-card:hover img {
+  opacity: .9;
+}
+
+.recent-mini-name {
+  font-size: 12.5px;
+  color: var(--brown);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recent-mini-price {
+  font-size: 13px;
+  color: var(--orange);
+  font-weight: 800;
+  margin-top: 2px;
+}
+.active-filter-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -8px 0 22px;
+}
+
+.active-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 8px 7px 14px;
+  border: 1.5px solid rgba(232, 115, 42, 0.3);
+  border-radius: 999px;
+  background: #fff4ea;
+  color: var(--orange2);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.active-filter-chip i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(232, 115, 42, 0.18);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .15s ease, color .15s ease;
+}
+
+.active-filter-chip i:hover {
+  background: var(--orange);
+  color: #fff;
+}
+
+.active-filter-clear {
+  border: none;
+  background: none;
+  color: var(--brown4);
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 7px 4px;
+}
+
+.active-filter-clear:hover {
+  color: var(--orange);
 }

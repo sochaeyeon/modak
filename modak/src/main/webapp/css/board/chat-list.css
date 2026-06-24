@@ -61,7 +61,7 @@ body {
     text-align: center;
 }
 
-/* ── 단체채팅 만들기 버튼 (헤더) ─────────────────── */
+/* ── 새 채팅 시작 버튼 (헤더) ─────────────────── */
 .btn-create-group {
     display: flex;
     align-items: center;
@@ -131,7 +131,7 @@ body {
 .room-list {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 14px;
 }
 
 .room-card {
@@ -141,17 +141,66 @@ body {
     background: var(--card-bg);
     border: 1.5px solid var(--border);
     border-radius: 20px;
-    padding: 20px 22px;
+    padding: 18px 22px;
     cursor: pointer;
-    transition: border-color .2s, box-shadow .2s, transform .15s;
+    transition: border-color .2s ease, box-shadow .2s ease, transform .15s cubic-bezier(.34,1.56,.64,1), background .2s;
     text-decoration: none;
     color: inherit;
+    position: relative;
+    box-shadow: 0 1px 0 rgba(59, 36, 18, 0.02);
+}
+
+/* 카드 왼쪽에 살짝 들어가는 포인트 바 - 호버 시에만 보임 */
+.room-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 16%;
+    bottom: 16%;
+    width: 3px;
+    border-radius: 0 4px 4px 0;
+    background: var(--orange);
+    opacity: 0;
+    transform: scaleY(.4);
+    transition: opacity .18s, transform .18s;
 }
 
 .room-card:hover {
     border-color: var(--orange);
-    box-shadow: 0 8px 24px rgba(232, 115, 42, 0.12);
-    transform: translateY(-1px);
+    box-shadow: 0 10px 26px rgba(232, 115, 42, 0.14);
+    transform: translateY(-2px);
+}
+
+.room-card:hover::before {
+    opacity: 1;
+    transform: scaleY(1);
+}
+
+.room-card:active {
+    transform: translateY(0) scale(.985);
+    box-shadow: 0 4px 12px rgba(232, 115, 42, 0.10);
+}
+
+/* 리스트 우측에 은근한 화살표 - 클릭 가능한 항목임을 암시 */
+.room-card::after {
+    content: "\f344"; /* remixicon arrow-right-s-line 코드포인트 */
+    font-family: "remixicon";
+    font-size: 19px;
+    color: var(--border);
+    flex-shrink: 0;
+    margin-left: -4px;
+    transition: color .2s, transform .2s;
+}
+
+.room-card:hover::after {
+    color: var(--orange);
+    transform: translateX(2px);
+}
+
+/* 안읽은 메시지가 있는 방은 살짝 강조 */
+.room-card.has-unread {
+    background: linear-gradient(0deg, rgba(232, 115, 42, 0.05), rgba(232, 115, 42, 0.05)), var(--card-bg);
+    border-color: rgba(232, 115, 42, 0.35);
 }
 
 /* 아바타 */
@@ -167,6 +216,14 @@ body {
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid var(--border);
+    box-shadow: 0 2px 6px rgba(59, 36, 18, 0.08);
+    transition: transform .2s ease, border-color .2s;
+}
+
+.room-card:hover .avatar img,
+.room-card:hover .avatar .avatar-fallback {
+    transform: scale(1.04);
+    border-color: rgba(232, 115, 42, 0.4);
 }
 
 .avatar .avatar-fallback {
@@ -177,20 +234,7 @@ body {
     color: #fff;
     font-weight: 700;
     font-size: 18px;
-}
-
-/* ── 단체채팅 그룹 아바타 ──────────────────────────── */
-.avatar.group-avatar {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--brown2), var(--brown));
-    border: 2px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 22px;
+    letter-spacing: -0.5px;
 }
 
 .avatar .unread-dot {
@@ -208,6 +252,12 @@ body {
     align-items: center;
     justify-content: center;
     font-weight: 700;
+    animation: dotPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(232, 115, 42, 0.35); }
+    50% { box-shadow: 0 0 0 4px rgba(232, 115, 42, 0.12); }
 }
 
 /* 텍스트 */
@@ -222,29 +272,35 @@ body {
     gap: 7px;
     font-weight: 600;
     font-size: 15px;
+    letter-spacing: -0.2px;
     margin-bottom: 4px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: var(--brown);
+    transition: color .2s;
 }
 
-/* ── 채팅방 이름 옆 인원수 라벨 ────────────────────── */
-.room-member-count {
-    flex-shrink: 0;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--orange);
-    background: rgba(232, 115, 42, 0.10);
-    padding: 2px 8px;
-    border-radius: 10px;
+.room-card:hover .room-name {
+    color: var(--brown2);
+}
+
+.room-card.has-unread .room-name {
+    font-weight: 800;
 }
 
 .room-last {
     font-size: 13px;
+    line-height: 1.4;
     color: var(--gray);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.room-card.has-unread .room-last {
+    color: var(--brown2);
+    font-weight: 500;
 }
 
 /* 시간 */
@@ -259,6 +315,12 @@ body {
 .room-time {
     font-size: 11px;
     color: var(--gray);
+    font-variant-numeric: tabular-nums;
+}
+
+.room-card.has-unread .room-time {
+    color: var(--orange);
+    font-weight: 700;
 }
 
 .unread-badge {
@@ -273,6 +335,7 @@ body {
     align-items: center;
     justify-content: center;
     padding: 0 5px;
+    box-shadow: 0 2px 6px rgba(232, 115, 42, 0.35);
 }
 
 /* 빈 상태 */
@@ -338,7 +401,7 @@ body {
     width: 80%;
 }
 
-/* ── 단체채팅 만들기 모달 ─────────────────────────── */
+/* ── 새 채팅 시작 모달 ─────────────────────────── */
 .modal-bg {
     display: none;
     position: fixed;
@@ -423,13 +486,35 @@ body {
     border-radius: 14px;
     padding: 6px;
     margin-bottom: 18px;
+    min-height: 70px;
 }
 
-.member-empty {
+.member-empty,
+.member-loading {
     padding: 30px 0;
     text-align: center;
     color: var(--gray);
     font-size: 13px;
+}
+
+.member-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.member-spinner {
+    width: 22px;
+    height: 22px;
+    border: 3px solid var(--border);
+    border-top-color: var(--orange);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 .member-row {
@@ -439,14 +524,21 @@ body {
     padding: 10px 8px;
     border-radius: 10px;
     cursor: pointer;
-    transition: background .12s;
+    transition: background .12s, box-shadow .12s;
 }
 
 .member-row:hover {
     background: var(--cream);
 }
 
-.member-row input[type="checkbox"] {
+.member-row.selected {
+    background: rgba(232, 115, 42, 0.10);
+    box-shadow: inset 0 0 0 1.5px rgba(232, 115, 42, 0.35);
+}
+
+/* 체크박스/라디오 둘 다 동일하게 스타일 적용 */
+.member-row input[type="checkbox"],
+.member-row input[type="radio"] {
     width: 18px;
     height: 18px;
     accent-color: var(--orange);

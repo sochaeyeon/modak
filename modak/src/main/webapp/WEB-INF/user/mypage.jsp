@@ -531,112 +531,101 @@
 												{{ addressMsg }}
 											</div>
 
-											<!-- 추가/수정 폼 -->
 											<div class="address-form-box" v-if="showAddressForm">
-												<div class="address-form-title">
-													{{ isEditMode ? '배송지 수정' : '새 배송지 입력' }}
+												<div class="address-form-header">
+													<div class="address-form-icon">
+														<i :class="isEditMode ? 'ri-edit-2-line' : 'ri-add-line'"></i>
+													</div>
+													<div>
+														<div class="address-form-title">{{ isEditMode ? '배송지 수정' : '새 배송지 입력' }}</div>
+														<div class="address-form-subtitle">정확한 수령 정보를 입력해주세요</div>
+													</div>
 												</div>
 
-												<div class="address-form-row">
+												<div class="address-form-grid">
 													<div class="setting-field">
 														<label>수령인 이름</label>
-														<input type="text" v-model="addressForm.receiverName"
-															placeholder="홍길동">
+														<input type="text" v-model="addressForm.receiverName" placeholder="홍길동">
 													</div>
-												</div>
 
-												<div class="address-form-row">
 													<div class="setting-field">
 														<label>연락처</label>
-														<input type="text" v-model="addressForm.receiverPhone"
-															placeholder="01012345678" maxlength="11"
+														<input type="text" v-model="addressForm.receiverPhone" placeholder="01012345678" maxlength="11"
 															@input="addressForm.receiverPhone = addressForm.receiverPhone.replace(/[^0-9]/g, '')">
 													</div>
-												</div>
 
-												<div class="address-form-row">
-													<div class="setting-field">
+													<div class="setting-field full-width">
 														<label>배송지 별칭</label>
-														<input type="text" v-model="addressForm.addressAlias"
-															placeholder="예: 집, 회사, 본가">
+														<input type="text" v-model="addressForm.addressAlias" placeholder="예: 집, 회사, 본가">
 													</div>
-												</div>
 
-												<div class="address-form-row">
-													<div class="setting-field">
-														<label>우편번호</label>
-														<div class="zipcode-wrap">
-															<input type="text" v-model="addressForm.zipCode"
-																placeholder="우편번호" readonly>
-															<button type="button" class="btn-outline"
-																@click="fnSearchAddress">
-																주소 검색
+													<div class="setting-field full-width">
+														<label>주소</label>
+														<div class="address-search-wrap">
+															<input type="text" v-model="addressForm.zipCode" class="zipcode-display" placeholder="우편번호" readonly>
+															<input type="text" v-model="addressForm.address" placeholder="주소 검색 버튼을 눌러주세요" readonly>
+															<button type="button" class="btn-search-address" @click="fnSearchAddress">
+																<i class="ri-search-line"></i> 주소 검색
 															</button>
 														</div>
 													</div>
-												</div>
 
-												<div class="address-form-row">
-													<div class="setting-field">
-														<label>주소</label>
-														<input type="text" v-model="addressForm.address"
-															placeholder="주소 검색 버튼을 눌러주세요" readonly>
-													</div>
-												</div>
-
-												<div class="address-form-row">
-													<div class="setting-field">
+													<div class="setting-field full-width">
 														<label>상세주소</label>
-														<input type="text" v-model="addressForm.detailedAddress"
-															placeholder="상세주소를 입력하세요" ref="detailAddressInput">
+														<input type="text" v-model="addressForm.detailedAddress" placeholder="상세주소를 입력하세요" ref="detailAddressInput">
 													</div>
 												</div>
 
-												<div class="address-form-check">
-													<label>
-														<input type="checkbox" v-model="addressForm.defaultYn">
-														기본 배송지로 설정
-													</label>
-												</div>
+												<label class="address-default-check">
+													<input type="checkbox" v-model="addressForm.defaultYn">
+													<span class="check-custom"></span>
+													기본 배송지로 설정
+												</label>
 
-												<div class="settings-actions">
+												<div class="settings-actions address-form-actions">
 													<button type="button" class="btn-save" @click="fnSaveAddress">
-														{{ isEditMode ? '수정' : '저장' }}
+														{{ isEditMode ? '수정 완료' : '배송지 저장' }}
 													</button>
-													<button type="button" class="btn-outline"
-														@click="fnCancelAddressForm">취소</button>
+													<button type="button" class="btn-outline" @click="fnCancelAddressForm">취소</button>
 												</div>
 											</div>
 
 											<!-- 배송지 목록 -->
 											<div class="address-list">
-												<div class="address-item" v-for="addr in addressList"
-													:key="addr.addressId">
+												<div class="address-item" v-for="addr in addressList" :key="addr.addressId" :class="{ 'is-default': addr.defaultYn === 'Y' }">
 													<div class="address-top">
 														<div class="address-left">
-															<div class="address-badge" v-if="addr.defaultYn === 'Y'">기본
-																배송지</div>
-															<div class="address-name">{{ addr.addressAlias }}</div>
+															<div class="address-icon">
+																<i class="ri-home-4-line"></i>
+															</div>
+															<div>
+																<div class="address-name-row">
+																	<span class="address-name">{{ addr.addressAlias }}</span>
+																	<span class="address-badge" v-if="addr.defaultYn === 'Y'">
+																		<i class="ri-star-fill"></i> 기본 배송지
+																	</span>
+																</div>
+																<div class="address-receiver" v-if="addr.receiverName || addr.receiverPhone">
+																	<span v-if="addr.receiverName">{{ addr.receiverName }}</span>
+																	<span class="addr-meta-divider" v-if="addr.receiverName && addr.receiverPhone"> · </span>
+																	<span v-if="addr.receiverPhone">{{ addr.receiverPhone }}</span>
+																</div>
+															</div>
 														</div>
-														<div class="address-actions">
-															<button type="button" class="btn-outline btn-sm"
-																@click="fnEditAddress(addr)">수정</button>
-															<button type="button" class="btn-outline btn-sm danger"
-																@click="fnDeleteAddress(addr.addressId)">삭제</button>
-														</div>
-													</div>
 
-													<div class="address-receiver"
-														v-if="addr.receiverName || addr.receiverPhone">
-														<span v-if="addr.receiverName">{{ addr.receiverName }}</span>
-														<span class="addr-meta-divider"
-															v-if="addr.receiverName && addr.receiverPhone"> · </span>
-														<span v-if="addr.receiverPhone">{{ addr.receiverPhone }}</span>
+														<div class="address-actions">
+															<button type="button" class="btn-outline btn-sm" @click="fnEditAddress(addr)">
+																<i class="ri-edit-line"></i> 수정
+															</button>
+															<button type="button" class="btn-outline btn-sm danger" @click="fnDeleteAddress(addr.addressId)">
+																<i class="ri-delete-bin-line"></i> 삭제
+															</button>
+														</div>
 													</div>
 
 													<div class="address-detail">
-														({{ addr.zipCode }}) {{ addr.address }} {{ addr.detailedAddress
-														}}
+														<i class="ri-map-pin-2-line"></i>
+														<span>({{ addr.zipCode }}) {{ addr.address }} {{ addr.detailedAddress }}</span>
 													</div>
 												</div>
 
@@ -1791,7 +1780,7 @@
 								let self = this;
 								let param = {};
 								$.ajax({
-									url: "http://localhost:8080/order/list.dox",
+									url: "/order/list.dox",
 									dataType: "json",
 									type: "POST",
 									data: param,
@@ -1978,7 +1967,7 @@
 								let self = this;
 
 								$.ajax({
-									url: "http://localhost:8080/user/address/list.dox",
+									url: "/user/address/list.dox",
 									dataType: "json",
 									type: "POST",
 									data: {},
@@ -2070,7 +2059,7 @@
 								let self = this;
 
 								$.ajax({
-									url: "http://localhost:8080/user/wishlist/list.dox",
+									url: "/user/wishlist/list.dox",
 									type: "POST",
 									dataType: "json",
 									data: {},

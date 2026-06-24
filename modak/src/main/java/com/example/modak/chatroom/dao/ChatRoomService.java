@@ -379,6 +379,70 @@ public class ChatRoomService {
 		return result;
 	}
 
+	// ════════════════════════════════════════
+	// 메시지 신고 (다중 선택)
+	// - 이미 내가 신고한 메시지는 조용히 건너뛰고 나머지만 접수한다.
+	// - 사전 체크(SELECT)로 대부분 걸러내고,
+	//   동시 요청 등으로 사전 체크를 통과해도 DB UNIQUE 제약이 최후 방어선 역할을 한다.
+	// ════════════════════════════════════════
+	@Transactional
+	public HashMap<String, Object> reportMessages(Long roomId, List<Long> messageIds, String reporterId,
+			String reason, String detail) {
+		HashMap<String, Object> result = new HashMap<>();
+
+		try {
+			HashMap<String, Object> checkParam = new HashMap<>();
+			checkParam.put("reporterId", reporterId);
+			checkParam.put("messageIds", messageIds);
+
+			List<Long> alreadyReported = mapper.selectReportedMessageIds(checkParam);
+
+			int successCount = 0;
+			int skippedCount = 0;
+
+			for (Long messageId : messageIds) {
+				if (alreadyReported.contains(messageId)) {
+					skippedCount++;
+					continue;
+				}
+
+				HashMap<String, Object> param = new HashMap<>();
+				param.put("roomId", roomId);
+				param.put("messageId", messageId);
+				param.put("reporterId", reporterId);
+				param.put("reason", reason);
+				param.put("detail", detail);
+
+				try {
+					mapper.insertMessageReport(param);
+					successCount++;
+				} catch (org.springframework.dao.DuplicateKeyException dup) {
+					// 사전 체크 이후 동시 요청 등으로 이미 신고가 들어간 경우 → 조용히 건너뛴다
+					skippedCount++;
+				}
+			}
+
+			result.put("result", "success");
+			result.put("reportedCount", successCount);
+			result.put("skippedCount", skippedCount);
+
+			if (successCount == 0 && skippedCount > 0) {
+				result.put("message", "이미 신고한 메시지예요.");
+			} else if (skippedCount > 0) {
+				result.put("message", successCount + "건 신고가 접수되었어요. (이미 신고한 " + skippedCount + "건은 제외)");
+			} else {
+				result.put("message", "신고가 접수되었습니다.");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.put("result", "fail");
+			result.put("message", "신고 처리 중 오류가 발생했습니다.");
+		}
+
+		return result;
+	}
+
 	public HashMap<String, Object> sendStickerMessage(Long roomId, String userId, String content) {
 		HashMap<String, Object> result = new HashMap<>();
 

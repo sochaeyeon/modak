@@ -1,6 +1,9 @@
 package com.example.modak.chatroom.controller;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -94,6 +97,33 @@ public class ChatRoomController {
             return "{\"result\":\"fail\",\"message\":\"로그인이 필요합니다.\"}";
         }
         return new Gson().toJson(chatService.toggleBlock(userId, targetId));
+    }
+
+    /** 메시지 신고 (다중 선택 가능) */
+    @PostMapping(value = "/message/report.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String reportMessage(@RequestParam Long roomId,
+                                @RequestParam String messageIds,   // 콤마로 구분된 메시지ID들
+                                @RequestParam String reason,        // ABUSE / SPAM / SCAM / EXPLICIT / ETC
+                                @RequestParam(required = false) String detail) {
+        String userId = (String) session.getAttribute("sessionId");
+        if (userId == null) {
+            return "{\"result\":\"fail\",\"message\":\"로그인이 필요합니다.\"}";
+        }
+
+        List<Long> ids = new ArrayList<>();
+        for (String idStr : messageIds.split(",")) {
+            idStr = idStr.trim();
+            if (!idStr.isEmpty()) {
+                ids.add(Long.parseLong(idStr));
+            }
+        }
+
+        if (ids.isEmpty()) {
+            return "{\"result\":\"fail\",\"message\":\"신고할 메시지를 선택해주세요.\"}";
+        }
+
+        return new Gson().toJson(chatService.reportMessages(roomId, ids, userId, reason, detail));
     }
 
     /** 차단 여부 확인 */
@@ -254,7 +284,7 @@ public class ChatRoomController {
         }
         return new Gson().toJson(chatService.sendStickerMessage(roomId, userId, content));
     }
-    
+
     /** 기존 채팅방 존재 여부 확인 */
     @PostMapping(value = "/status.dox", produces = "application/json;charset=UTF-8")
     @ResponseBody

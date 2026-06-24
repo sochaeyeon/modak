@@ -22,7 +22,8 @@ public interface ChatRoomMapper {
     int insertChatRoom(HashMap<String, Object> map);
     Map<String, Object> selectChatRoom(HashMap<String, Object> map);
     List<Map<String, Object>> selectMyRooms(String userId);
-
+    void insertMessageReport(Map<String, Object> param);
+    List<Long> selectReportedMessageIds(Map<String, Object> param);
     // 메시지
     int insertMessage(HashMap<String, Object> map);
     List<Map<String, Object>> selectMessages(HashMap<String, Object> map);

@@ -68,7 +68,9 @@
 		ZIPCODE = #{zipCode},
 		ADDRESS = #{address},
 		DETAILED_ADDRESS = #{detailedAddress},
-		DEFAULT_YN = #{defaultYn}
+		DEFAULT_YN = #{defaultYn},
+		RECEIVER_NAME = #{receiverName},
+		RECEIVER_PHONE = #{receiverPhone}
 		WHERE ADDRESS_ID = #{addressId}
 		AND USER_ID = #{userId}
 	</update>

@@ -68,6 +68,9 @@
 						<!-- 검색창 -->
 						<div class="search-box">
 							<input type="text" v-model="searchKeyword" placeholder="검색어를 입력하세요" @keyup.enter="fnSearch">
+							<button type="button" class="search-clear" v-show="searchKeyword" @click="searchKeyword = ''; fnSearch()">
+								<i class="ri-close-line"></i>
+							</button>
 							<button type="button" @click="fnSearch">검색</button>
 						</div>
 						<div class="controls">
@@ -241,10 +244,10 @@
 										<img :src="product.imgUrl || '/img/product/default.jpg'" class="pcard-photo"
 											alt="상품 이미지">
 
-										<div class="rank-badge"
-											v-if="sortKey === 'popular' && pagedProducts.indexOf(product) < 3"
-											:class="'rank-' + (pagedProducts.indexOf(product) + 1)">
-											{{ pagedProducts.indexOf(product) + 1 }}
+										<div class="type-badge"
+											:class="product.productType === 'RENTAL' ? 'type-rent' : 'type-buy'">
+											<i :class="product.productType === 'RENTAL' ? 'ri-calendar-check-line' : 'ri-shopping-bag-3-fill'"></i>
+											<span>{{ product.productType === 'RENTAL' ? '대여' : '구매' }}</span>
 										</div>
 									</div>
 									<button class="wish-btn" type="button"
@@ -313,18 +316,7 @@
 														1박</span>
 												</div>
 											</template>
-										</div>
-										<div class="btn-row">
-											<button v-if="product.productType !== 'PURCHASE'" type="button"
-												class="btn-rent" @click.stop="fnView(product.productId)">
-												대여하기
-											</button>
-
-											<button v-if="product.productType !== 'RENTAL'" type="button"
-												class="btn-buy" @click.stop="fnView(product.productId)">
-												구매하기
-											</button>
-										</div>
+										</div>										
 									</div>
 								</div>
 							</div>
@@ -333,19 +325,31 @@
 						</div>
 					</div>
 
-					<div class="recent-section" v-if="recentList.length > 0">
+					<div class="recent-sidebar" v-if="recentList.length > 0"
+						:class="{ 'is-expanded': recentExpanded }"
+						:style="{ left: recentLeft + 'px' }">
 						<div class="recent-head">
-							<h3><i class="ri-history-line"></i> 최근 본 상품</h3>
+							<h3><i class="ri-history-line"></i> 최근 본</h3>
 						</div>
 						<div class="recent-scroll">
-							<div class="recent-mini-card" v-for="item in recentList" :key="item.productId"
-								@click="fnView(item.productId)">
-								<img :src="item.imgUrl || '/img/product/default.jpg'" alt="">
-								<div class="recent-mini-name">{{ item.productName }}</div>
-								<div class="recent-mini-price">{{ Number(item.price || 0).toLocaleString() }}원</div>
+							<div class="recent-mini-card" v-for="item in visibleRecentList" :key="item.productId"
+								@click="fnView(item.productId)" :title="item.productName">
+								<img :src="item.imgUrl || '/img/product/default.jpg'" :alt="item.productName">
 							</div>
 						</div>
+						<div class="recent-scroll recent-extra" v-show="recentExpanded">
+							<div class="recent-mini-card" v-for="item in extraRecentList" :key="item.productId"
+								@click="fnView(item.productId)" :title="item.productName">
+								<img :src="item.imgUrl || '/img/product/default.jpg'" :alt="item.productName">
+							</div>
+						</div>
+						<button type="button" class="recent-toggle" v-if="recentList.length > 4"
+							@click="recentExpanded = !recentExpanded">
+							{{ recentExpanded ? '접기' : '더보기' }}
+							<i class="ri-arrow-down-s-line" :class="{ open: recentExpanded }"></i>
+						</button>
 					</div>
+
 					<div v-if="confirmModal.open" class="confirm-overlay" @click.self="confirmCancel">
 						<div class="confirm-box">
 							<div class="confirm-title">알림</div>
@@ -429,6 +433,8 @@
 								sidebarVisible: true,
 								wishedIds: new Set(),
 								recentList: [],
+								recentLeft: 9999,
+								recentExpanded: false,
 								searchKeyword: '', // 검색어 변수
 								priceRange: null, // 가격 필터링
 								confirmModal: {
@@ -510,6 +516,14 @@
 								}
 
 								return list;
+							},
+							// 최근 본 상품 - 앞 4개는 항상 노출
+							visibleRecentList() {
+								return this.recentList.slice(0, 4);
+							},
+							// 5~10번째는 '더보기' 클릭 시에만 노출
+							extraRecentList() {
+								return this.recentList.slice(4, 10);
 							},
 						},
 
@@ -748,11 +762,22 @@
 									dataType: "json",
 									data: { page: 1, pageSize: 10 },
 									success: function (data) {
-										self.recentList = (data.result === "success") ? (data.list || []) : [];
+										self.recentList = (data.result === "success") ? (data.list || []).slice(0, 10) : [];
+										self.fnUpdateRecentRight();
 									},
 									error: function () {
 										self.recentList = [];
 									}
+								});
+							},
+							fnUpdateRecentRight: function () {
+								this.$nextTick(() => {
+									var gridEl = document.querySelector('.grid-wrap');
+									if (!gridEl) return;
+									var rect = gridEl.getBoundingClientRect();
+									var gap = 16;
+									// grid-wrap 우측 끝 + 간격 = 패널이 시작되어야 할 left 좌표
+									this.recentLeft = rect.right + gap;
 								});
 							},
 							fetchBrandList() {
@@ -925,6 +950,7 @@
 							this.fetchCategory();
 							this.fetchBrandList();
 							this.fnGetRecentList();
+							this.fnUpdateRecentRight();
 							window.addEventListener('keydown', this.fnKeyEnter);
 
 							var self = this;
@@ -961,9 +987,11 @@
 								window.history.replaceState({}, document.title, window.location.pathname);
 							}
 							window.addEventListener('scroll', this.fnHandleScroll);
+							window.addEventListener('resize', this.fnUpdateRecentRight);
 						},
 						unmounted() {
 							window.removeEventListener('scroll', this.fnHandleScroll);
+							window.removeEventListener('resize', this.fnUpdateRecentRight);
 						}
 
 					}).mount('#app');

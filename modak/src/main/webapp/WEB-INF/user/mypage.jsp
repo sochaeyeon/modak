@@ -410,7 +410,11 @@
 															style="width:100%; height:100%; object-fit:cover;">
 														<span v-else>🛒</span>
 													</div>
-
+													<div class="wish-type-badge" :class="item.productType === 'RENTAL' ? 'rental' : 'purchase'">
+														<i :class="item.productType === 'RENTAL' ? 'ri-calendar-check-line' : 'ri-shopping-bag-3-fill'"></i>
+														{{ item.productType === 'RENTAL' ? '대여' : '구매' }}
+													</div>
+													
 													<button type="button" class="wish-remove-icon on" title="찜 해제"
 														@click.stop="fnRemoveWishlist(item.wishId)">
 														<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -475,7 +479,10 @@
 															style="width:100%; height:100%; object-fit:cover;">
 														<span v-else>🛒</span>
 													</div>
-
+													<div class="wish-type-badge" :class="item.productType === 'RENTAL' ? 'rental' : 'purchase'">
+															<i :class="item.productType === 'RENTAL' ? 'ri-calendar-check-line' : 'ri-shopping-bag-3-fill'"></i>
+															{{ item.productType === 'RENTAL' ? '대여' : '구매' }}
+														</div>
 													<button type="button" class="wish-remove-icon"
 														:class="{ on: fnIsWished(item.productId) }" title="찜하기"
 														@click.stop="fnToggleWishlist(item)">

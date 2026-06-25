@@ -10,6 +10,7 @@
         w.CREATED_AT,
         w.USER_ID,
         w.PRODUCT_ID,
+        p.PRODUCT_TYPE AS productType,
         p.PRODUCT_NAME,
         p.PRICE,
         c.CATEGORY_NAME AS categoryName,

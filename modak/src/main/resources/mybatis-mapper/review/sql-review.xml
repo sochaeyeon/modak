@@ -106,9 +106,9 @@
 		FROM REVIEW R
 		LEFT JOIN PRODUCT P
 		ON R.PRODUCT_ID = P.PRODUCT_ID
-		WHERE R.REVIEW_ID = #{reviewId}
-		AND R.USER_ID = #{userId}
-	</select>
+			WHERE R.REVIEW_ID = #{reviewId}
+			AND R.USER_ID = #{userId}
+		</select>
 
 	<update id="updateReview" parameterType="hashmap">
 	    UPDATE REVIEW

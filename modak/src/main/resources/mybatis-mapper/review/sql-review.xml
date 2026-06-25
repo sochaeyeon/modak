@@ -64,21 +64,21 @@
 		ORDER BY RI.IMG_ID ASC
 		LIMIT 1
 		) AS imageUrl
-		FROM REVIEW R
-		LEFT JOIN PRODUCT P
-		ON R.PRODUCT_ID = P.PRODUCT_ID
-		WHERE R.USER_ID = #{userId}
-		AND R.REVIEW_STATUS = 'ACTIVE'
-		ORDER BY R.CREATED_AT DESC, R.REVIEW_ID DESC
-		LIMIT ${pageSize} OFFSET ${offset}
+		  FROM REVIEW R
+    LEFT JOIN PRODUCT P
+    ON R.PRODUCT_ID = P.PRODUCT_ID
+    WHERE R.USER_ID = #{userId}
+    AND R.REVIEW_STATUS != 'DELETED'
+    ORDER BY R.CREATED_AT DESC, R.REVIEW_ID DESC
+    LIMIT ${pageSize} OFFSET ${offset}
 	</select>
 
 	<!-- 내 리뷰 총 개수 -->
 	<select id="selectReviewCount" parameterType="hashmap" resultType="int">
-		SELECT COUNT(*)
-		FROM REVIEW
-		WHERE USER_ID = #{userId}
-		AND REVIEW_STATUS = 'ACTIVE'
+	    SELECT COUNT(*)
+    FROM REVIEW
+    WHERE USER_ID = #{userId}
+    AND REVIEW_STATUS != 'DELETED'
 	</select>
 
 	<!-- 리뷰 상세 조회 -->
@@ -110,16 +110,16 @@
 		AND R.USER_ID = #{userId}
 	</select>
 
-	<!-- 리뷰 수정 -->
 	<update id="updateReview" parameterType="hashmap">
-		UPDATE REVIEW
-		SET
-		TITLE = #{title},
-		RATING = #{rating},
-		CONTENT = #{content},
-		UPDATED_AT = NOW()
-		WHERE REVIEW_ID = #{reviewId}
-		AND USER_ID = #{userId}
+	    UPDATE REVIEW
+	    SET
+	    TITLE = #{title},
+	    RATING = #{rating},
+	    CONTENT = #{content},
+	    REVIEW_STATUS = 'ACTIVE',
+	    UPDATED_AT = NOW()
+	    WHERE REVIEW_ID = #{reviewId}
+	    AND USER_ID = #{userId}
 	</update>
 
 	<!-- 리뷰 삭제 (soft delete) -->
@@ -425,7 +425,7 @@
 </select>
 <!-- ★ 클린봇: 검사 대상 리뷰 조회 (ACTIVE만) -->
 <select id="selectActiveReviewsForScan" resultType="hashmap">
-    SELECT REVIEW_ID, CONTENT, USER_ID
+    SELECT REVIEW_ID, TITLE, CONTENT, USER_ID
     FROM REVIEW
     WHERE REVIEW_STATUS = 'ACTIVE'
 </select>

@@ -180,7 +180,7 @@ body {
 .wrap {
 	max-width: 1200px;
 	margin: 30px auto;
-	padding: 10px 32px 60px;
+	padding: 10px 16px 60px;
 }
 
 .ptop {
@@ -378,13 +378,14 @@ body {
 
 /* 쿠폰 할인 멘트 */
 .pnote-link {
-    color: var(--orange);
-    font-weight: 700;
-    font-size: 13px;
-    text-decoration: none;
+	color: var(--orange);
+	font-weight: 700;
+	font-size: 13px;
+	text-decoration: none;
 }
+
 .pnote-link:hover {
-    text-decoration: underline;
+	text-decoration: underline;
 }
 
 .pct {
@@ -986,7 +987,6 @@ body.rent .rent-only {
 }
 
 .tbtn {
-	flex: 1;
 	font-weight: 500;
 	border-bottom: 2px solid transparent;
 	margin-bottom: -2px;
@@ -1000,7 +1000,6 @@ body.rent .rent-only {
 .tcont {
 	background: var(--surface);
 	border: 1px solid var(--border);
-	border-top: none;
 }
 
 .tpane {
@@ -1206,18 +1205,6 @@ body.rent .rent-only {
 	font-size: 58px;
 }
 
-.pcbdg {
-	position: absolute;
-	top: 8px;
-	left: 8px;
-	background: var(--orange);
-	color: #fff;
-	font-size: 10px;
-	font-weight: 700;
-	padding: 2px 6px;
-	border-radius: 3px;
-}
-
 .pcbody {
 	padding: 10px;
 }
@@ -1336,13 +1323,13 @@ body.rent .rent-only {
 	position: relative;
 	display: flex;
 	gap: 28px;
-	border-bottom: 1px solid var(--border);
+	border: 1px solid var(--border);
 }
 
 .tbtn {
 	background: none;
 	border: none;
-	padding: 12px 0;
+	padding: 12px 4px;
 	font-size: 14px;
 	color: var(--muted);
 	cursor: pointer;
@@ -1543,7 +1530,10 @@ body.rent .rent-only {
 	font-family: inherit;
 	transition: background 0.15s;
 }
-.qna-write-btn:hover { background: var(--orange-dark); }
+
+.qna-write-btn:hover {
+	background: var(--orange-dark);
+}
 
 .qna-list {
 	margin-bottom: 20px;
@@ -1581,10 +1571,12 @@ body.rent .rent-only {
 	padding: 3px 9px;
 	border-radius: 20px;
 }
+
 .qna-badge.completed {
 	background: #fff3c4;
 	color: #a07800;
 }
+
 .qna-badge.waiting {
 	background: #f0f0f0;
 	color: #888;
@@ -1613,9 +1605,19 @@ body.rent .rent-only {
 	font-size: 12px;
 	color: #aaa;
 }
-.qna-nickname { color: #888; font-weight: 600; }
-.qna-divider { color: #ccc; }
-.qna-date { color: #bbb; }
+
+.qna-nickname {
+	color: #888;
+	font-weight: 600;
+}
+
+.qna-divider {
+	color: #ccc;
+}
+
+.qna-date {
+	color: #bbb;
+}
 
 /* Q 라벨 + 텍스트 */
 .qna-content-row {
@@ -1646,7 +1648,10 @@ body.rent .rent-only {
 	flex: 1;
 }
 
-.qna-lock-icon { color: #bbb; margin-right: 4px; }
+.qna-lock-icon {
+	color: #bbb;
+	margin-right: 4px;
+}
 
 .qna-secret-text {
 	color: #bbb;
@@ -1677,14 +1682,21 @@ body.rent .rent-only {
 	background: #fff;
 	color: #666;
 }
-.qna-btn-edit:hover { border-color: var(--orange); color: var(--orange); }
+
+.qna-btn-edit:hover {
+	border-color: var(--orange);
+	color: var(--orange);
+}
 
 .qna-btn-delete {
 	border: 1px solid var(--red-light);
 	background: #fff;
 	color: var(--red);
 }
-.qna-btn-delete:hover { background: var(--red-light); }
+
+.qna-btn-delete:hover {
+	background: var(--red-light);
+}
 
 /* 답변 영역 */
 .qna-answer-area {
@@ -1711,7 +1723,9 @@ body.rent .rent-only {
 	margin-top: 2px;
 }
 
-.qna-answer-body { flex: 1; }
+.qna-answer-body {
+	flex: 1;
+}
 
 .qna-answer-meta {
 	display: flex;
@@ -2622,6 +2636,7 @@ body.rent .rent-only {
 	margin-top: 20px;
 	border-radius: 16px 16px 0 0;
 	padding: 0 22px;
+	gap: 28px;
 }
 
 .tcont {
@@ -4317,52 +4332,288 @@ body.rent .delbox .dv.rent-only {
    Q&A (상품 문의) 모달창 전용 스타일
 ========================================================= */
 .qna-modal-box {
-    width: 480px;
-    text-align: left;
-    padding: 28px;
+	width: 480px;
+	text-align: left;
+	padding: 28px;
 }
 
 .qna-header {
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    margin-bottom: 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
 }
 
 .qna-title {
-    font-size: 18px; 
-    font-weight: 800; 
-    color: #2c1e0f;
+	font-size: 18px;
+	font-weight: 800;
+	color: #2c1e0f;
 }
 
 .qna-close-btn {
-    background: none; 
-    border: none; 
-    font-size: 24px; 
-    cursor: pointer; 
-    color: #888;
+	background: none;
+	border: none;
+	font-size: 24px;
+	cursor: pointer;
+	color: #888;
 }
 
 .qna-option-group {
-    margin-bottom: 16px;
+	margin-bottom: 16px;
 }
 
 .qna-option-item {
-    margin-bottom: 12px;
+	margin-bottom: 12px;
 }
 
 .qna-label {
-    display: block; 
-    font-size: 13px; 
-    font-weight: 700; 
-    margin-bottom: 8px;
+	display: block;
+	font-size: 13px;
+	font-weight: 700;
+	margin-bottom: 8px;
 }
 
 .qna-textarea {
-    height: 120px; 
-    resize: none;
+	height: 120px;
+	resize: none;
 }
 
 .qna-secret-wrap {
-    margin-bottom: 24px;
+	margin-bottom: 24px;
+}
+
+.pcimg {
+	aspect-ratio: 4 / 3.3;
+	background: #faf7f4;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 58px;
+	position: relative;
+}
+
+.pcbdg {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	background: #3BA55D;
+	box-shadow: 0 3px 8px rgba(59, 165, 93, 0.4);
+	color: #fff;
+	font-size: 11px;
+	font-weight: 800;
+	padding: 5px 10px 5px 8px;
+	border-radius: 20px;
+	z-index: 2;
+	letter-spacing: -0.2px;
+}
+
+.pcbdg i {
+	font-size: 13px;
+	line-height: 1;
+}
+
+.pcbdg.rental {
+	background: var(--orange);
+	box-shadow: 0 3px 8px rgba(224, 122, 59, 0.4);
+}
+
+.trust-strip {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 8px;
+	margin-top: 14px;
+	padding: 14px 8px;
+	background: #faf7f4;
+	border: 1px solid var(--border);
+	border-radius: 14px;
+}
+
+.trust-item {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	font-size: 11px;
+	font-weight: 700;
+	color: #6b5947;
+	text-align: center;
+}
+
+.trust-item i {
+	font-size: 20px;
+	color: var(--orange);
+}
+
+@media (max-width: 640px) {
+	.trust-strip {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+.tbtn {
+	flex: 1;
+	justify-content: center;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.tbtn i {
+	font-size: 16px;
+}
+
+/* ===== 주요 특징 카드 ===== */
+.flist {
+	margin-bottom: 28px;
+}
+
+.fi {
+	border: 1px solid rgba(224, 122, 59, 0.12);
+	transition: border-color .18s ease, background .18s ease;
+}
+
+.fi:hover {
+	border-color: var(--orange);
+	background: #fffaf5;
+}
+
+.fic {
+	width: 40px;
+	height: 40px;
+	border-radius: 10px;
+	background: var(--orange-light);
+	color: var(--orange);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+/* ===== FAQ 아코디언 ===== */
+.faq-section {
+	margin-top: 32px;
+	padding-top: 24px;
+	border-top: 1px solid var(--border);
+}
+
+.faq-title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 16px;
+	font-weight: 800;
+	color: var(--text);
+	margin-bottom: 16px;
+}
+
+.faq-title i {
+	color: var(--orange);
+}
+
+.faq-item {
+	border: 1px solid var(--border);
+	border-radius: 12px;
+	margin-bottom: 8px;
+	overflow: hidden;
+	transition: border-color .18s ease;
+}
+
+.faq-item.open {
+	border-color: var(--orange);
+}
+
+.faq-q {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 14px 16px;
+	background: #fff;
+	border: none;
+	cursor: pointer;
+	font-family: inherit;
+	text-align: left;
+}
+
+.faq-mark {
+	width: 22px;
+	height: 22px;
+	border-radius: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+	font-weight: 800;
+	flex-shrink: 0;
+}
+
+.faq-mark.q {
+	background: var(--orange);
+	color: #fff;
+}
+
+.faq-mark.a {
+	background: #f0e4d0;
+	color: var(--orange-dark);
+}
+
+.faq-q-text {
+	flex: 1;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--text);
+}
+
+.faq-arrow {
+	color: var(--muted);
+	font-size: 18px;
+	transition: transform .2s ease;
+	flex-shrink: 0;
+}
+
+.faq-item.open .faq-arrow {
+	transform: rotate(180deg);
+	color: var(--orange);
+}
+
+.faq-a {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 0 16px 16px 16px;
+	background: #fffaf5;
+}
+
+.faq-a-text {
+	font-size: 13px;
+	line-height: 1.7;
+	color: #5c4230;
+	padding-top: 1px;
+}
+
+.pcard {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+    transition: box-shadow .2s ease, transform .2s ease;
+}
+
+.pcard:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-3px) !important;
+}
+
+.pinfo {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+.btn-buy, .btn-rent {
+    letter-spacing: -0.3px;
+    font-size: 15px !important;
+}
+.product-main-gallery {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.10) !important;
+}
+.tcont {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
 }

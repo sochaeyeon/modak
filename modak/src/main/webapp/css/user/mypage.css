@@ -194,7 +194,6 @@ body {
 	opacity: 1;
 }
 
-/* 섹션 공통 */
 .section-card {
 	background: var(--bg2);
 	border: 1px solid var(--border);
@@ -5803,4 +5802,126 @@ button,
 .review-blocked-badge i {
 	font-size: 15px;
 	flex-shrink: 0;
+}
+
+.review-title.is-blocked,
+.review-body.is-blocked {
+    opacity: .5;
+}
+.section-card:has(.order-list) {
+	overflow: visible;
+}.btn-order-more {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: #bbb;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color .18s ease, color .18s ease;
+    letter-spacing: 1px;
+}
+
+.btn-order-more:hover {
+    background: #f5f0ea;
+    color: #888;
+}
+
+.order-action-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    background: #fff;
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.13);
+    min-width: 100px;
+}
+
+.order-action-menu .btn-order-action {
+    width: 100%;
+    height: 36px;
+    justify-content: flex-start;
+    padding: 0 12px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #333;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.order-action-menu .btn-order-action:hover {
+    background: #f5f0ea;
+    color: #333;
+    box-shadow: none;
+}
+.order-item.menu-open {
+	position: relative;
+	z-index: 50;
+}.order-action-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px;
+    background: #fff;
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10);
+    min-width: 110px;
+}
+
+.order-action-menu .btn-order-action {
+    width: 100%;
+    height: 38px;
+    justify-content: flex-start;
+    padding: 0 12px;
+    border: none !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    color: #2c2c2c;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    text-align: left;
+}
+
+.order-action-menu .btn-order-action:hover {
+    background: #f7f2ed !important;
+    color: #2c2c2c !important;
+    box-shadow: none !important;
+}
+
+.order-action-menu .btn-order-action.cancel-btn,
+.order-action-menu .btn-order-action.refund-btn {
+    color: #c94f1e !important;
+    background: transparent !important;
+}
+
+.order-action-menu .btn-order-action.cancel-btn:hover,
+.order-action-menu .btn-order-action.refund-btn:hover {
+    background: #fff3ef !important;
+}
+.section-card:has(.order-list) {
+    overflow: visible !important;
+}
+
+.order-list {
+    overflow: visible !important;
+}
+
+.order-item {
+    overflow: visible !important;
 }

@@ -13,16 +13,18 @@
                     integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
                 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
                 <script src="/js/page-change.js"></script>
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
             </head>
 
             <body>
                 <%@ include file="/WEB-INF/common/header.jsp" %>
-                <div id="app" v-cloak>
+                    <div id="app" v-cloak>
                         <main>
                             <h1 class="page-title">리뷰 수정</h1>
-                            <p class="page-subtitle">✦ 작성한 후기를 수정하고 다시 저장할 수 있어요 🔥</p>
+                            <p class="page-subtitle"><i class="ri-fire-line"></i> 작성한 후기를 수정하고 다시 저장할 수 있어요</p>
+                            <p class="page-notice"><i class="ri-shield-check-line"></i> 등록된 리뷰는 클린봇 검사가 진행되며, 부적절한 내용이
+                                감지될 경우 비공개 처리될 수 있습니다.</p>
 
-                            <!-- 상품 정보 -->
                             <div class="card product-card review-edit-card">
                                 <div class="product-info">
                                     <div class="product-thumb">
@@ -130,11 +132,20 @@
                                     {{ mergedPhotos.length }} / 5장 · JPG, PNG, WEBP 가능
                                 </div>
                             </div>
-
+                            <div class="blocked-notice" v-if="reviewInfo.reviewStatus === 'BLOCKED'">
+                                <i class="ri-error-warning-line"></i>
+                                <div>
+                                    <div class="blocked-notice-title">운영 정책 위반으로 비공개 처리된 리뷰입니다</div>
+                                    <div class="blocked-notice-desc">
+                                        부적절한 내용이 감지되어 비공개 처리되었습니다. 내용 수정 후 저장하면 자동으로 공개 처리되나,
+                                        동일하게 정책에 위반될 경우 다시 비공개 처리될 수 있습니다.
+                                    </div>
+                                </div>
+                            </div>
                             <!-- 안내 -->
                             <div class="point-box review-edit-guide">
                                 <div class="point-row">
-                                    <span class="point-icon">ℹ</span>
+                                    <i class="ri-information-line point-icon"></i>
                                     <span>
                                         리뷰 수정 시 포인트는 추가 적립되지 않습니다.<br />
                                         새 사진을 업로드하면 기존 사진은 교체됩니다.
@@ -152,9 +163,19 @@
                         </main>
 
                         <div class="toast" :class="{ show: toastVisible }">{{ toastMsg }}</div>
-                </div>
+                        <div v-if="modal.show" class="modal-backdrop" @click.self="fnCloseModal">
+                            <div class="modal-box">
+                                <div class="modal-title">수정을 취소하시겠어요?</div>
+                                <div class="modal-desc">수정 중인 내용이 저장되지 않습니다.</div>
+                                <div class="modal-actions">
+                                    <button class="modal-confirm-btn" @click="fnModalConfirm">취소하기</button>
+                                    <button class="modal-cancel-btn" @click="fnCloseModal">계속 수정</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                <%@ include file="/WEB-INF/common/footer.jsp" %>
+                    <%@ include file="/WEB-INF/common/footer.jsp" %>
             </body>
 
             </html>
@@ -163,6 +184,10 @@
                 const app = Vue.createApp({
                     data() {
                         return {
+                            modal: {
+                                show: false,
+                                onConfirm: null
+                            },
                             reviewId: '${param.reviewId}',
 
                             reviewInfo: {
@@ -242,12 +267,12 @@
                                         const info = data.info || {};
 
                                         self.reviewInfo = info;
+                                        self.reviewInfo.reviewStatus = info.reviewStatus || '';
 
                                         self.title = info.title || '';
                                         self.rating = Number(info.rating || 0);
                                         self.reviewText = info.content || '';
 
-                                        // 🔥 여기에서 세팅해야 정상
                                         self.existingPhotos = (info.imageList || []).map(function (img) {
                                             return {
                                                 imgId: img.imgId,
@@ -396,10 +421,22 @@
                         },
 
                         handleCancel: function () {
-                            if (confirm("수정 중인 내용이 저장되지 않습니다. 취소하시겠어요?")) {
-                                location.href = self.returnUrl || "/user/review/history.do";
-                            }
-                        }
+                            let self = this;
+                            self.modal.show = true;
+                            self.modal.onConfirm = function () {
+                                self.modal.show = false;
+                                history.back();
+                            };
+                        },
+                        fnCloseModal: function () {
+                            this.modal.show = false;
+                            this.modal.onConfirm = null;
+                        },
+                        fnModalConfirm: function () {
+                            const cb = this.modal.onConfirm;
+                            this.fnCloseModal();
+                            if (typeof cb === 'function') cb();
+                        },
                     },
                     mounted() {
                         this.fnGetReviewInfo();

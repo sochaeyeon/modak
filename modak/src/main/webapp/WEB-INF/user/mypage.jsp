@@ -330,6 +330,7 @@
 
 												<div v-for="item in limitedOrderList" :key="item.orderId"
 													class="order-item order-item-clickable"
+													:class="{ 'menu-open': openActionOrderId === item.orderId }"
 													@click="fnGoOrderDetail(item.orderId)">
 													<div class="order-thumb">
 														<img v-if="item.itemList && item.itemList.length > 0 && item.itemList[0].imgUrl"
@@ -369,15 +370,20 @@
 															{{ Number(item.totalPrice || 0).toLocaleString() }}원
 														</div>
 
-														<div class="order-action-wrap"
-															v-if="fnGetOrderActions(item).length > 0">
-															<button type="button" class="btn-order-action"
-																:class="fnGetActionClass(action)"
-																v-for="action in fnGetOrderActions(item)" :key="action"
-																@click.stop="fnHandleOrderAction(item, action)">
-																{{ action }}
-															</button>
-														</div>
+													<div class="order-action-wrap" v-if="fnGetOrderActions(item).length > 0">
+													<button type="button" class="btn-order-more" @click.stop="fnToggleActionMenu(item.orderId, $event)">
+														⋯
+													</button>
+
+													<div class="order-action-menu" v-if="openActionOrderId === item.orderId">
+														<button type="button" class="btn-order-action"
+															:class="fnGetActionClass(action)"
+															v-for="action in fnGetOrderActions(item)" :key="action"
+															@click.stop="fnHandleOrderAction(item, action); openActionOrderId = null">
+															{{ action }}
+														</button>
+													</div>
+												</div>
 													</div>
 												</div>
 											</div>
@@ -820,11 +826,11 @@
 														</span>
 													</div>
 
-													<div class="review-title" style="${item.reviewStatus == 'BLOCKED' ? 'opacity:.5' : ''}">
+													<div class="review-title ${item.reviewStatus == 'BLOCKED' ? 'is-blocked' : ''}">
 														${item.title}
 													</div>
 
-													<div class="review-body" style="${item.reviewStatus == 'BLOCKED' ? 'opacity:.5' : ''}">
+													<div class="review-body ${item.reviewStatus == 'BLOCKED' ? 'is-blocked' : ''}">
 														${item.content}
 													</div>
 																<c:if test="${not empty item.imageList}">
@@ -1466,6 +1472,7 @@
 					const app = Vue.createApp({
 						data() {
 							return {
+								actionMenuPosition: { top: 0, right: 0 },
 								// 변수 - (key : value)
 								orderList: [],
 								selectedOrderStatus: 'ALL',
@@ -1514,6 +1521,7 @@
 								smsTimer: null,
 								smsTimeLeft: 0,
 								smsExpired: false,
+								openActionOrderId: null,
 
 								smsInputVisible: false,
 								passwordMsg: "",
@@ -1545,6 +1553,10 @@
 							};
 						},
 						computed: {
+							currentOpenOrder() {
+								if (!this.openActionOrderId) return null;
+								return this.orderList.find(o => o.orderId === this.openActionOrderId) || null;
+							},
 							limitedChatRoomList() {
 								return this.chatRoomList.slice(0, 5);
 							},
@@ -1706,6 +1718,21 @@
 							},
 						},
 						methods: {
+							fnToggleActionMenu: function (orderId, event) {
+								if (this.openActionOrderId === orderId) {
+									this.openActionOrderId = null;
+									return;
+								}
+								
+								const btn = event.currentTarget;
+								const rect = btn.getBoundingClientRect();
+								this.actionMenuPosition = {
+									top: rect.bottom + window.scrollY + 4,
+									right: window.innerWidth - rect.right
+								};
+								
+								this.openActionOrderId = orderId;
+							},
 							showToast: function (msg) {
 								var t = document.getElementById("toast");
 								if (!t) return;
@@ -3014,7 +3041,7 @@
 								return "";
 							},
 							fnGoOrderDetail: function (orderId) {
-								pageChange("/order/detail.do", { orderId: orderId });
+								location.href = '/order/detail.do?orderId=' + encodeURIComponent(orderId);
 							},
 							fnRemoveWishlist: function (wishId) {
 								let self = this;
@@ -3225,6 +3252,9 @@
 							},
 						}, // methods
 						mounted() {
+							document.addEventListener('click', () => {
+								this.openActionOrderId = null;
+							});
 							let profileUrl = String(this.displayUser.profileImgUrl || "").trim();
 
 							if (

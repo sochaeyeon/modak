@@ -92,10 +92,8 @@
 									</div>
 									<!-- <div class="porig">23,150,000원</div> -->
 									<!-- <div class="pnote">쿠폰 적용시 할인적용</div> -->
-									 <div class="pnote">
-										<a v-if="couponLoaded && !isLogin"
-										href="/user/register.do"
-										class="pnote-link">
+									<div class="pnote">
+										<a v-if="couponLoaded && !isLogin" href="/user/register.do" class="pnote-link">
 											{{ couponNoteText }}
 										</a>
 										<span v-else-if="couponLoaded">
@@ -334,641 +332,650 @@
 									</span>
 								</div>
 							</div>
+							<div class="trust-strip">
+								<div class="trust-item"><i class="ri-truck-line"></i><span>무료배송</span></div>
+								<div class="trust-item"><i class="ri-shield-check-line"></i><span>정품보장</span></div>
+								<div class="trust-item"><i class="ri-arrow-go-back-line"></i><span>30일 무료반품</span></div>
+								<div class="trust-item"><i class="ri-lock-2-line"></i><span>안전결제</span></div>
+							</div>
 						</div>
+
 					</div>
 
 					<!-- TABS -->
 					<div>
 						<div class="tnav">
-							<button class="tbtn on" @click="stab('det', $event)">상품 정보</button>
-							<button class="tbtn" @click="stab('rev', $event)">리뷰 ({{ reviewTotalCount }})</button>
-							<button class="tbtn" @click="stab('qna', $event)">Q&A</button>
-							<button class="tbtn" @click="stab('shp', $event)">배송/대여 안내</button>
-
+							<button class="tbtn on" @click="stab('det', $event)"><i class="ri-file-list-3-line"></i> 상품
+								정보</button>
+							<button class="tbtn" @click="stab('rev', $event)"><i class="ri-star-line"></i> 리뷰 ({{
+								reviewTotalCount }})</button>
+							<button class="tbtn" @click="stab('qna', $event)"><i class="ri-question-line"></i>
+								Q&A</button>
+							<button class="tbtn" @click="stab('shp', $event)"><i class="ri-truck-line"></i> 배송/대여
+								안내</button>
 							<div class="t-underline"></div>
-
 						</div>
-						<div class="tcont">
-							<div class="tpane on" id="tp-det">
-								<div class="detail-image-wrap" v-if="detailImgUrl">
-									<img :src="detailImgUrl" alt="상품 상세 이미지" class="detail-image">
-								</div>
-							</div>
 
-							<div class="tpane" id="tp-rev">
-								<div class="review-summary-ai" v-if="reviewSummaryLoading || reviewSummary">
-									<div class="ai-title">
-										<i class="ri-robot-2-line"></i> AI 리뷰 요약
-									</div>
-
-									<div v-if="reviewSummaryLoading" class="ai-loading">
-										<span class="ai-spinner"></span>
-										<span>리뷰를 정리하고 있어요...</span>
-									</div>
-
-									<div v-else class="ai-content">
-										{{ reviewSummary }}
-									</div>
-								</div>
-								<div class="rsum2">
-									<div class="rbig">
-										<div class="rn">{{ Number(avgRating).toFixed(1) }}</div>
-										<div class="stars review-summary-stars">
-											<span class="rating-stars">
-												<span v-for="i in 5" :key="i" class="rating-star">
-													<span class="rating-star-fill"
-														:style="{ width: getStarFill(avgRating, i) + '%' }">★</span>
-													<span class="rating-star-empty">★</span>
-												</span>
-											</span>
-										</div>
-										<div class="ro">{{ reviewTotalCount }}개 리뷰</div>
-									</div>
-									<div class="rbars">
-										<div class="bbar" v-for="d in ratingDist" :key="d.score">
-											<span class="blbl">{{ d.score }}점</span>
-											<div class="btrk">
-												<div class="bfil" :style="{ width: d.pct + '%' }"></div>
-											</div>
-											<span class="bcnt">{{ d.count }}</span>
-										</div>
-									</div>
-								</div>
-								<!-- 리뷰 필터 / 검색 -->
-								<div class="review-control-box">
-									<div class="review-filter-left">
-										<label class="photo-review-check">
-											<input type="checkbox" v-model="reviewOnlyPhoto"
-												@change="applyReviewFilter">
-											<span class="check-ui"></span>
-											<span>사진 리뷰만 보기</span>
-										</label>
-
-										<select class="review-sort-select" v-model="reviewSort"
-											@change="applyReviewFilter">
-											<option value="latest">최신순</option>
-											<option value="oldest">오래된순</option>
-											<option value="helpful">추천순</option>
-										</select>
-									</div>
-
-									<div class="review-search-box">
-										<input type="text" v-model.trim="reviewKeyword" class="review-search-input"
-											placeholder="리뷰 내용을 검색해보세요" @keyup.enter="applyReviewFilter">
-
-										<button type="button" class="review-search-btn" @click="applyReviewFilter">
-											<i class="ri-search-line"></i>
-											검색
-										</button>
-
-									</div>
-								</div>
-								<div v-if="reviewList.length === 0" class="review-empty">
-									조건에 맞는 리뷰가 없습니다.
-								</div>
-
-								<div class="rcard" v-for="review in reviewList" :key="review.reviewId">
-									<div class="rhead">
-										<div class="review-user">
-											<img class="review-profile"
-												:src="review.profileImgUrl || '/img/profile/default-profile.png'">
-
-											<div>
-												<div class="rname">
-													{{ review.nickname || review.userId }}
-													<span v-if="review.gradeId >= 4" class="grade-badge vip">VIP</span>
-													<span v-else-if="review.gradeId == 3"
-														class="grade-badge gold">GOLD</span>
-													<span v-else-if="review.gradeId == 2"
-														class="grade-badge silver">SILVER</span>
-												</div>
-
-												<div class="review-date-line">
-													<span
-														v-if="review.updatedAt && review.updatedAt !== review.createdAt">
-														{{ review.updatedAt }}
-													</span>
-													<span v-else>
-														{{ review.createdAt }}
-													</span>
-												</div>
-
-												<div class="stars" style="display:flex;gap:1px;margin-top:3px">
-													<span v-for="(star, i) in getStars(review.rating)" :key="i"
-														class="st"
-														:style="{ fontSize:'12px', color: star === '★' ? '' : '#ddd' }">
-														{{ star }}
-													</span>
-													<span style="font-size:12px;color:#999;margin-left:6px;">
-														{{ formatRatingInt(review.rating) }}점
-													</span>
-												</div>
-											</div>
-										</div>
-
-										<div class="review-menu-wrap">
-											<button type="button" class="review-more-btn"
-												@click.stop="toggleReviewMenu(review.reviewId)">
-												<i class="ri-more-2-fill"></i>
-											</button>
-
-											<div class="review-dropdown" v-if="openReviewMenuId === review.reviewId">
-												<button
-													v-if="loginUserId && String(review.userId) === String(loginUserId)"
-													type="button" @click="goReviewEdit(review.reviewId)">
-													수정
-												</button>
-
-												<button
-													v-if="loginUserId && String(review.userId) === String(loginUserId)"
-													type="button" class="danger"
-													@click="confirmDeleteReview(review.reviewId)">
-													삭제
-												</button>
-
-												<button
-													v-if="!loginUserId || String(review.userId) !== String(loginUserId)"
-													type="button" class="danger" @click="reportReview(review.reviewId)">
-													신고
-												</button>
-											</div>
-										</div>
-									</div>
-
-									<div class="rtext" style="font-weight:600;margin-bottom:4px">
-										{{ review.title }}
-									</div>
-
-									<div class="rtext">
-										{{ review.content }}
-									</div>
-
-									<div v-if="review.imageList && review.imageList.length > 0" class="review-img-list">
-										<img v-for="(img, idx) in review.imageList" :key="idx" :src="img.imgUrl"
-											class="review-img-thumb"
-											@click="openImg(img.imgUrl, reviewList.indexOf(review), idx)"
-											@error="$event.target.style.display='none'">
-									</div>
-
-									<div class="rhelprow">
-										<span>도움이 됐나요?</span>
-										<button class="hbtn" :class="{ 
-																	on: review.helpfulYn === 'Y',
-																	disabled: String(review.userId) === String(loginUserId)
-																}" :disabled="String(review.userId) === String(loginUserId)" @click="fnReviewHelpful(review)">
-											<i :class="review.helpfulYn === 'Y' ? 'ri-thumb-up-fill' : 'ri-thumb-up-line'"></i>
-											도움돼요 {{ review.helpfulCount || 0 }}
-										</button>
-									</div>
-								</div>
-
-								<div class="review-paging" v-if="reviewTotalPage > 1">
-									<button type="button" class="review-page-btn" :disabled="reviewPage === 1"
-										@click="changeReviewPage(reviewPage - 1)">
-										이전
-									</button>
-
-									<button type="button" v-for="page in reviewTotalPage" :key="page"
-										class="review-page-num" :class="{ active: reviewPage === page }"
-										@click="changeReviewPage(page)">
-										{{ page }}
-									</button>
-
-									<button type="button" class="review-page-btn"
-										:disabled="reviewPage === reviewTotalPage"
-										@click="changeReviewPage(reviewPage + 1)">
-										다음
-									</button>
-								</div>
-							</div>
-
-							<div class="tpane" id="tp-qna">
-
-								<!-- 헤더 -->
-								<div class="qna-header-row">
-									<h3 class="qna-section-title">상품 문의</h3>
-									<button type="button" class="qna-write-btn" @click="openQnaModal('add')">
-										<i class="ri-edit-line"></i> 문의하기
-									</button>
-								</div>
-
-								<!-- 검색 -->
-								<div class="qna-search-box">
-									<input type="text" v-model.trim="qnaKeyword" class="qna-search-input"
-										placeholder="문의 내용을 검색해보세요" @keyup.enter="applyQnaFilter">
-
-									<button type="button" class="qna-search-btn" @click="applyQnaFilter">
-										<i class="ri-search-line"></i> 검색
-									</button>
-								</div>
-
-								<!-- 검색 결과 안내줄 -->
-								<div v-if="qnaSearchKeyword" class="qna-search-result-row">
-									<span>'<strong>{{ qnaSearchKeyword }}</strong>' {{ qnaTotalCount }}개의 검색결과가 있습니다.</span>
-									<button type="button" class="qna-search-clear-btn" @click="resetQnaFilter">
-										<i class="ri-close-line"></i>
-									</button>
-								</div>
-
-								<!-- 빈 상태 -->
-								<div v-if="qnaList.length === 0" class="review-empty">
-									<template v-if="qnaSearchKeyword">'{{ qnaSearchKeyword }}'에 대한 검색 결과가 없습니다.</template>
-									<template v-else>등록된 상품 문의가 없습니다. 상품에 대해 궁금한 점을 남겨주세요!</template>
-								</div>
-
-								<!-- 문의 목록 -->
-								<div v-else class="qna-list">
-									<div v-for="qna in qnaList" :key="qna.qnaId" class="qna-item">
-
-										<!-- 질문 영역 -->
-										<div class="qna-question-area">
-											<div class="qna-meta-row">
-												<div class="qna-badges">
-													<span class="qna-badge completed" v-if="qna.status === 'COMPLETED'">답변완료</span>
-													<span class="qna-badge waiting" v-else>답변대기</span>
-													<span class="qna-secret-tag" v-if="qna.secretYn === 'Y'">
-														<i class="ri-lock-2-line"></i> 비밀글
-													</span>
-													<span class="qna-option-tag" v-if="qna.optionName">{{ qna.optionName }}</span>
-												</div>
-												<div class="qna-author-info">
-													<span class="qna-nickname">{{ qna.nickname }}</span>
-													<span class="qna-divider">·</span>
-													<span class="qna-date">{{ qna.createdAt }}</span>
-												</div>
-											</div>
-
-											<div class="qna-content-row">
-												<span class="qna-label-q">Q</span>
-												<div class="qna-text">
-													<template v-if="qna.secretYn === 'Y'">
-														<span v-if="String(qna.userId) === String(loginUserId)">
-															<i class="ri-lock-unlock-line qna-lock-icon"></i>{{ qna.questionContent }}
-														</span>
-														<span v-else class="qna-secret-text">
-															<i class="ri-lock-2-line"></i> 비밀글입니다.
-														</span>
-													</template>
-													<template v-else>{{ qna.questionContent }}</template>
-												</div>
-											</div>
-
-											<!-- 내 글 수정/삭제 버튼 -->
-											<div v-if="String(qna.userId) === String(loginUserId)" class="qna-action-row">
-												<button v-if="qna.status === 'WAITING'" type="button" class="qna-btn-edit" @click="openQnaModal('edit', qna)">수정</button>
-												<button type="button" class="qna-btn-delete" @click="deleteQna(qna.qnaId)">삭제</button>
-											</div>
-										</div>
-
-										<!-- 답변 영역 -->
-										<div v-if="qna.status === 'COMPLETED'" class="qna-answer-area">
-											<span class="qna-label-a">A</span>
-											<div class="qna-answer-body">
-												<div class="qna-answer-meta">
-													<span class="qna-answer-title">판매자 답변</span>
-													<span class="qna-answer-date">{{ qna.answeredAt }}</span>
-												</div>
-												<div class="qna-answer-text">
-													<template v-if="qna.secretYn === 'Y' && String(qna.userId) !== String(loginUserId)">
-														<i class="ri-lock-2-line"></i> 비밀글 답변입니다.
-													</template>
-													<template v-else>{{ qna.answerContent }}</template>
-												</div>
-											</div>
-										</div>
-
-									</div>
-								</div>
-
-								<!-- 페이징 -->
-								<div class="review-paging" v-if="qnaTotalPage > 1">
-									<button type="button" class="review-page-btn" :disabled="qnaPage === 1" @click="changeQnaPage(qnaPage - 1)">이전</button>
-									<button type="button" v-for="page in qnaTotalPage" :key="'q'+page"
-										class="review-page-num" :class="{ active: qnaPage === page }" @click="changeQnaPage(page)">
-										{{ page }}
-									</button>
-									<button type="button" class="review-page-btn" :disabled="qnaPage === qnaTotalPage" @click="changeQnaPage(qnaPage + 1)">다음</button>
-								</div>
-
-							</div>
-
-							<div class="tpane" id="tp-shp">
-								<table class="spec">
-									<tr>
-										<th>배송 방법</th>
-										<td>택배 (CJ 대한통운) 또는 매장 직수령</td>
-									</tr>
-									<tr>
-										<th>배송비</th>
-										<td>무료배송 (제주·도서산간 +3,000원)</td>
-									</tr>
-									<tr>
-										<th>대여 반납</th>
-										<td>반납일 오전 10시까지 · 택배 반납 가능</td>
-									</tr>
-									<tr>
-										<th>연체 요금</th>
-										<td>1일당 12,000원 (대여가의 150%)</td>
-									</tr>
-									<tr>
-										<th>파손/분실</th>
-										<td>수리 비용 또는 정가의 80% 배상</td>
-									</tr>
-									<tr>
-										<th>반품/교환</th>
-										<td>수령 후 30일 이내 (구매 상품)</td>
-									</tr>
-								</table>
-							</div>
-						</div>
 					</div>
+					<div class="tcont">
+						<div class="tpane on" id="tp-det">
+							<div class="detail-image-wrap" v-if="detailImgUrl">
+								<img :src="detailImgUrl" alt="상품 상세 이미지" class="detail-image">
+							</div>
+						</div>
 
-					<!-- RELATED -->
-					<div class="rel" v-if="relatedList.length > 0">
-						<h2 class="sectl">같은 카테고리 상품</h2>
-						<div class="rgrid">
-							<div class="pcard" v-for="item in relatedList" :key="item.productId"
-								@click="goDetail(item.productId)">
-								<div class="pcimg">
-									<img v-if="item.imgUrl" :src="item.imgUrl"
-										style="width:100%;height:100%;object-fit:cover;">
-									<i v-else class="ri-image-line product-empty-icon"></i>
-
-									<button type="button" class="pc-wish-btn" :class="{ on: item.isWished }"
-										@click.stop="fnRelatedWish(item)">
-										<i :class="item.isWished ? 'ri-heart-fill' : 'ri-heart-line'"></i>
-									</button>
+						<div class="tpane" id="tp-rev">
+							<div class="review-summary-ai" v-if="reviewSummaryLoading || reviewSummary">
+								<div class="ai-title">
+									<i class="ri-robot-2-line"></i> AI 리뷰 요약
 								</div>
-								<div class="pcbody">
-									<div class="pc-category-line">
-										{{ item.categoryName }}
-									</div>
-									<div class="pc-title-line">
-										<span class="pcnm">{{ item.productName }}</span>
-										<span class="pc-dot" v-if="item.brandName">·</span>
-										<span class="pcbr" v-if="item.brandName">{{ item.brandName }}</span>
-									</div>
 
+								<div v-if="reviewSummaryLoading" class="ai-loading">
+									<span class="ai-spinner"></span>
+									<span>리뷰를 정리하고 있어요...</span>
+								</div>
 
-
-									<div class="pcs">
-										<span class="pc-star-wrap">
-											<span v-for="i in 5" :key="i" class="rating-star small">
+								<div v-else class="ai-content">
+									{{ reviewSummary }}
+								</div>
+							</div>
+							<div class="rsum2">
+								<div class="rbig">
+									<div class="rn">{{ Number(avgRating).toFixed(1) }}</div>
+									<div class="stars review-summary-stars">
+										<span class="rating-stars">
+											<span v-for="i in 5" :key="i" class="rating-star">
 												<span class="rating-star-fill"
-													:style="{ width: getStarFill(item.rating, i) + '%' }">★</span>
+													:style="{ width: getStarFill(avgRating, i) + '%' }">★</span>
 												<span class="rating-star-empty">★</span>
 											</span>
 										</span>
-
-										<span class="pc-rating-num">{{ formatRatingOne(item.rating) }}</span>
-										<span class="pc-review-count">({{ item.rCount || 0 }})</span>
 									</div>
-
-									<div class="pcprice">{{ formatPrice(item.price) }}</div>
-									<div class="pcacts">
-										<button class="pca-rent" v-if="item.productType === 'RENTAL'"
-											@click.stop="goDetail(item.productId, 'rent')">
-											대여하기
-										</button>
-
-										<button class="pca-buy" v-if="item.productType === 'PURCHASE'"
-											@click.stop="goDetail(item.productId, 'buy')">
-											구매하기
-										</button>
-									</div>
+									<div class="ro">{{ reviewTotalCount }}개 리뷰</div>
 								</div>
-							</div>
-						</div>
-
-						<!-- 상품 이미지 확대 모달 -->
-						<div v-if="reviewImgModal.open && reviewImgModal.reviewIndex === -1"
-							class="modal-overlay zoom-mode" @click.self="reviewImgModal.open = false">
-
-							<div class="zoom-content-wrapper product-zoom-modal">
-								<button type="button" class="btn-close-out" @click="reviewImgModal.open = false">
-									<i class="ri-close-line"></i>
-								</button>
-
-								<button type="button" class="btn-img-nav prev product-modal-nav"
-									v-if="productImages.length > 1 && reviewImgModal.imgIndex > 0"
-									@click.stop="modalImgMove(-1)">
-									<i class="ri-arrow-left-s-line"></i>
-								</button>
-
-								<img :src="reviewImgModal.url" class="zoom-img-main">
-
-								<button type="button" class="btn-img-nav next product-modal-nav"
-									v-if="productImages.length > 1 && reviewImgModal.imgIndex < productImages.length - 1"
-									@click.stop="modalImgMove(1)">
-									<i class="ri-arrow-right-s-line"></i>
-								</button>
-
-								<div class="img-indicators product-modal-indicators" v-if="productImages.length > 1">
-									<span v-for="(img, idx) in productImages" :key="idx" class="dot"
-										:class="{ active: idx === reviewImgModal.imgIndex }"
-										@click.stop="setProductModalImg(idx)">
-									</span>
-								</div>
-							</div>
-						</div>
-
-						<!-- 2. 리뷰 이미지 상세 모달 (이미지 + 리뷰 내용) -->
-						<div v-if="reviewImgModal.open && reviewImgModal.reviewIndex >= 0"
-							class="modal-overlay detail-mode" @click.self="reviewImgModal.open = false">
-
-							<div class="detail-modal-container">
-								<div class="detail-main-body">
-
-									<!-- 왼쪽 이미지 영역 -->
-									<div class="detail-image-section">
-										<img :src="reviewImgModal.url" class="img-display">
-
-										<!-- 리뷰 이미지 이전 -->
-										<button type="button" class="btn-img-nav prev"
-											v-if="getCurrentReviewImages().length > 1 && reviewImgModal.imgIndex > 0"
-											@click.stop="modalImgMove(-1)">
-											<i class="ri-arrow-left-s-line"></i>
-										</button>
-
-										<!-- 리뷰 이미지 다음 -->
-										<button type="button" class="btn-img-nav next"
-											v-if="getCurrentReviewImages().length > 1 && reviewImgModal.imgIndex < getCurrentReviewImages().length - 1"
-											@click.stop="modalImgMove(1)">
-											<i class="ri-arrow-right-s-line"></i>
-										</button>
-
-										<!-- 이미지 순서 점 -->
-										<div class="img-indicators" v-if="getCurrentReviewImages().length > 1">
-											<span v-for="(img, idx) in getCurrentReviewImages()" :key="idx" class="dot"
-												:class="{ active: idx === reviewImgModal.imgIndex }"
-												@click.stop="setReviewModalImg(idx)">
-											</span>
+								<div class="rbars">
+									<div class="bbar" v-for="d in ratingDist" :key="d.score">
+										<span class="blbl">{{ d.score }}점</span>
+										<div class="btrk">
+											<div class="bfil" :style="{ width: d.pct + '%' }"></div>
 										</div>
+										<span class="bcnt">{{ d.count }}</span>
 									</div>
+								</div>
+							</div>
+							<!-- 리뷰 필터 / 검색 -->
+							<div class="review-control-box">
+								<div class="review-filter-left">
+									<label class="photo-review-check">
+										<input type="checkbox" v-model="reviewOnlyPhoto" @change="applyReviewFilter">
+										<span class="check-ui"></span>
+										<span>사진 리뷰만 보기</span>
+									</label>
 
-									<!-- 오른쪽 리뷰 내용 영역 -->
-									<div class="detail-info-section">
-										<button type="button" class="btn-close-in" @click="reviewImgModal.open = false">
-											<i class="ri-close-line"></i>
-										</button>
+									<select class="review-sort-select" v-model="reviewSort" @change="applyReviewFilter">
+										<option value="latest">최신순</option>
+										<option value="oldest">오래된순</option>
+										<option value="helpful">추천순</option>
+									</select>
+								</div>
 
-										<div class="user-header">
-											<img :src="reviewList[reviewImgModal.reviewIndex]?.profileImgUrl || '/img/profile/default-profile.png'"
-												class="user-avatar">
+								<div class="review-search-box">
+									<input type="text" v-model.trim="reviewKeyword" class="review-search-input"
+										placeholder="리뷰 내용을 검색해보세요" @keyup.enter="applyReviewFilter">
 
-											<div class="user-meta">
-												<div class="name-row">
-													<span class="nickname">
-														{{ reviewList[reviewImgModal.reviewIndex]?.nickname }}
-													</span>
+									<button type="button" class="review-search-btn" @click="applyReviewFilter">
+										<i class="ri-search-line"></i>
+										검색
+									</button>
 
-													<span v-if="reviewList[reviewImgModal.reviewIndex]?.gradeId >= 4"
-														class="badge vip">VIP</span>
+								</div>
+							</div>
+							<div v-if="reviewList.length === 0" class="review-empty">
+								조건에 맞는 리뷰가 없습니다.
+							</div>
 
-													<span
-														v-else-if="reviewList[reviewImgModal.reviewIndex]?.gradeId == 3"
-														class="badge gold">GOLD</span>
-												</div>
+							<div class="rcard" v-for="review in reviewList" :key="review.reviewId">
+								<div class="rhead">
+									<div class="review-user">
+										<img class="review-profile"
+											:src="review.profileImgUrl || '/img/profile/default-profile.png'">
 
-												<div class="star-row">
-													<div class="stars">
-														<span v-for="i in 5" :key="i" class="star"
-															:class="{ filled: i <= reviewList[reviewImgModal.reviewIndex]?.rating }">
-															★
-														</span>
-													</div>
-
-													<span class="rating-num">
-														{{ reviewList[reviewImgModal.reviewIndex]?.rating }}점
-													</span>
-												</div>
+										<div>
+											<div class="rname">
+												{{ review.nickname || review.userId }}
+												<span v-if="review.gradeId >= 4" class="grade-badge vip">VIP</span>
+												<span v-else-if="review.gradeId == 3"
+													class="grade-badge gold">GOLD</span>
+												<span v-else-if="review.gradeId == 2"
+													class="grade-badge silver">SILVER</span>
 											</div>
 
-											<span class="create-date">
-												<template v-if="reviewList[reviewImgModal.reviewIndex]?.updatedAt 
-        													&& reviewList[reviewImgModal.reviewIndex]?.updatedAt !== reviewList[reviewImgModal.reviewIndex]?.createdAt">
-													{{ reviewList[reviewImgModal.reviewIndex]?.updatedAt }}
-												</template>
-												<template v-else>
-													{{ reviewList[reviewImgModal.reviewIndex]?.createdAt }}
-												</template>
-											</span>
+											<div class="review-date-line">
+												<span v-if="review.updatedAt && review.updatedAt !== review.createdAt">
+													{{ review.updatedAt }}
+												</span>
+												<span v-else>
+													{{ review.createdAt }}
+												</span>
+											</div>
+
+											<div class="stars" style="display:flex;gap:1px;margin-top:3px">
+												<span v-for="(star, i) in getStars(review.rating)" :key="i" class="st"
+													:style="{ fontSize:'12px', color: star === '★' ? '' : '#ddd' }">
+													{{ star }}
+												</span>
+												<span style="font-size:12px;color:#999;margin-left:6px;">
+													{{ formatRatingInt(review.rating) }}점
+												</span>
+											</div>
+										</div>
+									</div>
+
+									<div class="review-menu-wrap">
+										<button type="button" class="review-more-btn"
+											@click.stop="toggleReviewMenu(review.reviewId)">
+											<i class="ri-more-2-fill"></i>
+										</button>
+
+										<div class="review-dropdown" v-if="openReviewMenuId === review.reviewId">
+											<button v-if="loginUserId && String(review.userId) === String(loginUserId)"
+												type="button" @click="goReviewEdit(review.reviewId)">
+												수정
+											</button>
+
+											<button v-if="loginUserId && String(review.userId) === String(loginUserId)"
+												type="button" class="danger"
+												@click="confirmDeleteReview(review.reviewId)">
+												삭제
+											</button>
+
+											<button v-if="!loginUserId || String(review.userId) !== String(loginUserId)"
+												type="button" class="danger" @click="reportReview(review.reviewId)">
+												신고
+											</button>
+										</div>
+									</div>
+								</div>
+
+								<div class="rtext" style="font-weight:600;margin-bottom:4px">
+									{{ review.title }}
+								</div>
+
+								<div class="rtext">
+									{{ review.content }}
+								</div>
+
+								<div v-if="review.imageList && review.imageList.length > 0" class="review-img-list">
+									<img v-for="(img, idx) in review.imageList" :key="idx" :src="img.imgUrl"
+										class="review-img-thumb"
+										@click="openImg(img.imgUrl, reviewList.indexOf(review), idx)"
+										@error="$event.target.style.display='none'">
+								</div>
+
+								<div class="rhelprow">
+									<span>도움이 됐나요?</span>
+									<button class="hbtn" :class="{ 
+																	on: review.helpfulYn === 'Y',
+																	disabled: String(review.userId) === String(loginUserId)
+																}" :disabled="String(review.userId) === String(loginUserId)" @click="fnReviewHelpful(review)">
+										<i
+											:class="review.helpfulYn === 'Y' ? 'ri-thumb-up-fill' : 'ri-thumb-up-line'"></i>
+										도움돼요 {{ review.helpfulCount || 0 }}
+									</button>
+								</div>
+							</div>
+
+							<div class="review-paging" v-if="reviewTotalPage > 1">
+								<button type="button" class="review-page-btn" :disabled="reviewPage === 1"
+									@click="changeReviewPage(reviewPage - 1)">
+									이전
+								</button>
+
+								<button type="button" v-for="page in reviewTotalPage" :key="page"
+									class="review-page-num" :class="{ active: reviewPage === page }"
+									@click="changeReviewPage(page)">
+									{{ page }}
+								</button>
+
+								<button type="button" class="review-page-btn" :disabled="reviewPage === reviewTotalPage"
+									@click="changeReviewPage(reviewPage + 1)">
+									다음
+								</button>
+							</div>
+						</div>
+
+						<div class="tpane" id="tp-qna">
+
+							<!-- 헤더 -->
+							<div class="qna-header-row">
+								<h3 class="qna-section-title">상품 문의</h3>
+								<button type="button" class="qna-write-btn" @click="openQnaModal('add')">
+									<i class="ri-edit-line"></i> 문의하기
+								</button>
+							</div>
+
+							<!-- 검색 -->
+							<div class="qna-search-box">
+								<input type="text" v-model.trim="qnaKeyword" class="qna-search-input"
+									placeholder="문의 내용을 검색해보세요" @keyup.enter="applyQnaFilter">
+
+								<button type="button" class="qna-search-btn" @click="applyQnaFilter">
+									<i class="ri-search-line"></i> 검색
+								</button>
+							</div>
+
+							<!-- 검색 결과 안내줄 -->
+							<div v-if="qnaSearchKeyword" class="qna-search-result-row">
+								<span>'<strong>{{ qnaSearchKeyword }}</strong>' {{ qnaTotalCount }}개의 검색결과가
+									있습니다.</span>
+								<button type="button" class="qna-search-clear-btn" @click="resetQnaFilter">
+									<i class="ri-close-line"></i>
+								</button>
+							</div>
+
+							<!-- 빈 상태 -->
+							<div v-if="qnaList.length === 0" class="review-empty">
+								<template v-if="qnaSearchKeyword">'{{ qnaSearchKeyword }}'에 대한 검색 결과가
+									없습니다.</template>
+								<template v-else>등록된 상품 문의가 없습니다. 상품에 대해 궁금한 점을 남겨주세요!</template>
+							</div>
+
+							<!-- 문의 목록 -->
+							<div v-else class="qna-list">
+								<div v-for="qna in qnaList" :key="qna.qnaId" class="qna-item">
+
+									<!-- 질문 영역 -->
+									<div class="qna-question-area">
+										<div class="qna-meta-row">
+											<div class="qna-badges">
+												<span class="qna-badge completed"
+													v-if="qna.status === 'COMPLETED'">답변완료</span>
+												<span class="qna-badge waiting" v-else>답변대기</span>
+												<span class="qna-secret-tag" v-if="qna.secretYn === 'Y'">
+													<i class="ri-lock-2-line"></i> 비밀글
+												</span>
+												<span class="qna-option-tag" v-if="qna.optionName">{{ qna.optionName
+													}}</span>
+											</div>
+											<div class="qna-author-info">
+												<span class="qna-nickname">{{ qna.nickname }}</span>
+												<span class="qna-divider">·</span>
+												<span class="qna-date">{{ qna.createdAt }}</span>
+											</div>
 										</div>
 
-										<div class="review-text-content custom-scroll">
-											<h3 class="review-title">
-												{{ reviewList[reviewImgModal.reviewIndex]?.title }}
-											</h3>
+										<div class="qna-content-row">
+											<span class="qna-label-q">Q</span>
+											<div class="qna-text">
+												<template v-if="qna.secretYn === 'Y'">
+													<span v-if="String(qna.userId) === String(loginUserId)">
+														<i class="ri-lock-unlock-line qna-lock-icon"></i>{{
+														qna.questionContent }}
+													</span>
+													<span v-else class="qna-secret-text">
+														<i class="ri-lock-2-line"></i> 비밀글입니다.
+													</span>
+												</template>
+												<template v-else>{{ qna.questionContent }}</template>
+											</div>
+										</div>
 
-											<p class="review-body">
-												{{ reviewList[reviewImgModal.reviewIndex]?.content }}
-											</p>
+										<!-- 내 글 수정/삭제 버튼 -->
+										<div v-if="String(qna.userId) === String(loginUserId)" class="qna-action-row">
+											<button v-if="qna.status === 'WAITING'" type="button" class="qna-btn-edit"
+												@click="openQnaModal('edit', qna)">수정</button>
+											<button type="button" class="qna-btn-delete"
+												@click="deleteQna(qna.qnaId)">삭제</button>
+										</div>
+									</div>
+
+									<!-- 답변 영역 -->
+									<div v-if="qna.status === 'COMPLETED'" class="qna-answer-area">
+										<span class="qna-label-a">A</span>
+										<div class="qna-answer-body">
+											<div class="qna-answer-meta">
+												<span class="qna-answer-title">판매자 답변</span>
+												<span class="qna-answer-date">{{ qna.answeredAt }}</span>
+											</div>
+											<div class="qna-answer-text">
+												<template
+													v-if="qna.secretYn === 'Y' && String(qna.userId) !== String(loginUserId)">
+													<i class="ri-lock-2-line"></i> 비밀글 답변입니다.
+												</template>
+												<template v-else>{{ qna.answerContent }}</template>
+											</div>
 										</div>
 									</div>
 
 								</div>
 							</div>
+
+							<!-- 페이징 -->
+							<div class="review-paging" v-if="qnaTotalPage > 1">
+								<button type="button" class="review-page-btn" :disabled="qnaPage === 1"
+									@click="changeQnaPage(qnaPage - 1)">이전</button>
+								<button type="button" v-for="page in qnaTotalPage" :key="'q'+page"
+									class="review-page-num" :class="{ active: qnaPage === page }"
+									@click="changeQnaPage(page)">
+									{{ page }}
+								</button>
+								<button type="button" class="review-page-btn" :disabled="qnaPage === qnaTotalPage"
+									@click="changeQnaPage(qnaPage + 1)">다음</button>
+							</div>
+
+						</div>
+
+						<div class="tpane" id="tp-shp">
+							<table class="spec">
+								<tr>
+									<th>배송 방법</th>
+									<td>택배 (CJ 대한통운) 또는 매장 직수령</td>
+								</tr>
+								<tr>
+									<th>배송비</th>
+									<td>무료배송 (제주·도서산간 +3,000원)</td>
+								</tr>
+								<tr>
+									<th>대여 반납</th>
+									<td>반납일 오전 10시까지 · 택배 반납 가능</td>
+								</tr>
+								<tr>
+									<th>연체 요금</th>
+									<td>1일당 12,000원 (대여가의 150%)</td>
+								</tr>
+								<tr>
+									<th>파손/분실</th>
+									<td>수리 비용 또는 정가의 80% 배상</td>
+								</tr>
+								<tr>
+									<th>반품/교환</th>
+									<td>수령 후 30일 이내 (구매 상품)</td>
+								</tr>
+							</table>
+						</div>
+				</div>
+
+				<!-- RELATED -->
+				<div class="rel" v-if="relatedList.length > 0">
+					<h2 class="sectl">같은 카테고리 상품</h2>
+					<div class="rgrid">
+						<div class="pcard" v-for="item in relatedList" :key="item.productId"
+							:class="{ 'is-rental': item.productType === 'RENTAL' }" @click="goDetail(item.productId)">
+							<div class="pcimg">
+								<img v-if="item.imgUrl" :src="item.imgUrl"
+									style="width:100%;height:100%;object-fit:cover;">
+								<i v-else class="ri-image-line product-empty-icon"></i>
+
+								<span class="pcbdg" :class="{ rental: item.productType === 'RENTAL' }">
+									<i
+										:class="item.productType === 'RENTAL' ? 'ri-calendar-check-line' : 'ri-shopping-bag-3-fill'"></i>
+									{{ item.productType === 'RENTAL' ? '대여' : '구매' }}
+								</span>
+
+								<button type="button" class="pc-wish-btn" :class="{ on: item.isWished }"
+									@click.stop="fnRelatedWish(item)">
+									<i :class="item.isWished ? 'ri-heart-fill' : 'ri-heart-line'"></i>
+								</button>
+							</div>
+							<div class="pcbody">
+								<div class="pc-category-line">
+									{{ item.categoryName }}
+								</div>
+								<div class="pc-title-line">
+									<span class="pcnm">{{ item.productName }}</span>
+									<span class="pc-dot" v-if="item.brandName">·</span>
+									<span class="pcbr" v-if="item.brandName">{{ item.brandName }}</span>
+								</div>
+
+								<div class="pcs">
+									<span class="pc-star-wrap">
+										<span v-for="i in 5" :key="i" class="rating-star small">
+											<span class="rating-star-fill"
+												:style="{ width: getStarFill(item.rating, i) + '%' }">★</span>
+											<span class="rating-star-empty">★</span>
+										</span>
+									</span>
+									<span class="pc-rating-num">{{ formatRatingOne(item.rating) }}</span>
+									<span class="pc-review-count">({{ item.rCount || 0 }})</span>
+								</div>
+
+								<div class="pcprice">{{ formatPrice(item.price) }}</div>
+								<!-- pcacts(구매/대여 버튼) 영역 삭제됨 -->
+							</div>
 						</div>
 					</div>
-				</div>
-				<div v-if="qnaModal.open" class="modal-overlay" @click.self="closeQnaModal" style="z-index: 100000;">
-					<div class="confirm-box qna-modal-box">
-						<div class="qna-header">
-							<h3 class="qna-title">
-								{{ qnaModal.mode === 'add' ? '상품 문의하기' : '문의 수정하기' }}
-							</h3>
-							<button type="button" class="qna-close-btn" @click="closeQnaModal">
+
+					<!-- 상품 이미지 확대 모달 -->
+					<div v-if="reviewImgModal.open && reviewImgModal.reviewIndex === -1" class="modal-overlay zoom-mode"
+						@click.self="reviewImgModal.open = false">
+
+						<div class="zoom-content-wrapper product-zoom-modal">
+							<button type="button" class="btn-close-out" @click="reviewImgModal.open = false">
 								<i class="ri-close-line"></i>
 							</button>
-						</div>
 
-						<div v-if="Object.keys(groupedOptions).length > 0" class="qna-option-group">
-							<div v-for="(options, groupName) in groupedOptions" :key="groupName" class="qna-option-item">
-								<label class="qna-label">{{ groupName }}</label>
-								<select v-model="qnaModal.selectedOptionsMap[groupName]" class="report-select">
-									<option value="" disabled>{{ groupName }}을(를) 선택해 주세요</option>
-									<option v-for="opt in options" :key="opt.optionValue" :value="opt.optionValue">
-										{{ opt.optionValue }}
-									</option>
-								</select>
+							<button type="button" class="btn-img-nav prev product-modal-nav"
+								v-if="productImages.length > 1 && reviewImgModal.imgIndex > 0"
+								@click.stop="modalImgMove(-1)">
+								<i class="ri-arrow-left-s-line"></i>
+							</button>
+
+							<img :src="reviewImgModal.url" class="zoom-img-main">
+
+							<button type="button" class="btn-img-nav next product-modal-nav"
+								v-if="productImages.length > 1 && reviewImgModal.imgIndex < productImages.length - 1"
+								@click.stop="modalImgMove(1)">
+								<i class="ri-arrow-right-s-line"></i>
+							</button>
+
+							<div class="img-indicators product-modal-indicators" v-if="productImages.length > 1">
+								<span v-for="(img, idx) in productImages" :key="idx" class="dot"
+									:class="{ active: idx === reviewImgModal.imgIndex }"
+									@click.stop="setProductModalImg(idx)">
+								</span>
 							</div>
 						</div>
-
-						<div style="margin-bottom: 16px;">
-							<label class="qna-label">문의 내용</label>
-							<textarea v-model="qnaModal.content" class="report-textarea qna-textarea" placeholder="문의하실 내용을 입력해 주세요.&#13;&#10;(개인정보는 노출되지 않도록 주의해 주세요.)"></textarea>
-						</div>
-
-						<div class="qna-secret-wrap">
-							<label class="photo-review-check">
-								<input type="checkbox" v-model="qnaModal.secretYn" true-value="Y" false-value="N">
-								<span class="check-ui"></span>
-								<span>비밀글로 작성하기 (판매자와 작성자만 볼 수 있어요)</span>
-							</label>
-						</div>
-
-						<div class="confirm-btns">
-							<button class="confirm-cancel" @click="closeQnaModal">취소</button>
-							<button class="confirm-ok" @click="submitQna">{{ qnaModal.mode === 'add' ? '등록하기' : '수정하기' }}</button>
-						</div>
 					</div>
-				</div>
-				<!-- 확인 모달 -->
-				<div v-if="confirmModal.open" class="confirm-overlay" @click.self="confirmCancel">
-					<div class="confirm-box">
-						<div class="confirm-title">알림</div>
-						<div class="confirm-message">{{ confirmModal.message }}</div>
-						<div class="confirm-btns">
-							<button class="confirm-ok" @click="confirmOk">
-								{{ confirmModal.okText }}
-							</button>
-							<button class="confirm-cancel" @click="confirmCancel">
-								{{ confirmModal.cancelText }}
-							</button>
-						</div>
-					</div>
-				</div>
-				<div v-if="reportModal.open" class="report-modal-overlay" @click.self="closeReportModal">
-					<div class="report-modal-box">
-						<div class="report-modal-title">리뷰 신고</div>
-						<div class="report-modal-desc">
-							신고 사유를 선택해 주세요.
-						</div>
 
-						<select class="report-select" v-model="reportModal.reason">
-							<option value="">신고 사유 선택</option>
-							<option value="욕설/비방">욕설/비방</option>
-							<option value="허위 정보">허위 정보</option>
-							<option value="광고성 리뷰">광고성 리뷰</option>
-							<option value="상품과 무관한 내용">상품과 무관한 내용</option>
-							<option value="개인정보 노출">개인정보 노출</option>
-							<option value="기타">직접 입력</option>
-						</select>
+					<!-- 2. 리뷰 이미지 상세 모달 (이미지 + 리뷰 내용) -->
+					<div v-if="reviewImgModal.open && reviewImgModal.reviewIndex >= 0" class="modal-overlay detail-mode"
+						@click.self="reviewImgModal.open = false">
 
-						<div v-if="reportModal.reason === '기타'" class="report-custom-wrap">
-							<textarea class="report-textarea" v-model="reportModal.content" maxlength="500"
-								placeholder="신고 사유를 직접 입력해 주세요."></textarea>
+						<div class="detail-modal-container">
+							<div class="detail-main-body">
 
-							<div class="report-count">
-								{{ reportModal.content.length }}/500
+								<!-- 왼쪽 이미지 영역 -->
+								<div class="detail-image-section">
+									<img :src="reviewImgModal.url" class="img-display">
+
+									<!-- 리뷰 이미지 이전 -->
+									<button type="button" class="btn-img-nav prev"
+										v-if="getCurrentReviewImages().length > 1 && reviewImgModal.imgIndex > 0"
+										@click.stop="modalImgMove(-1)">
+										<i class="ri-arrow-left-s-line"></i>
+									</button>
+
+									<!-- 리뷰 이미지 다음 -->
+									<button type="button" class="btn-img-nav next"
+										v-if="getCurrentReviewImages().length > 1 && reviewImgModal.imgIndex < getCurrentReviewImages().length - 1"
+										@click.stop="modalImgMove(1)">
+										<i class="ri-arrow-right-s-line"></i>
+									</button>
+
+									<!-- 이미지 순서 점 -->
+									<div class="img-indicators" v-if="getCurrentReviewImages().length > 1">
+										<span v-for="(img, idx) in getCurrentReviewImages()" :key="idx" class="dot"
+											:class="{ active: idx === reviewImgModal.imgIndex }"
+											@click.stop="setReviewModalImg(idx)">
+										</span>
+									</div>
+								</div>
+
+								<!-- 오른쪽 리뷰 내용 영역 -->
+								<div class="detail-info-section">
+									<button type="button" class="btn-close-in" @click="reviewImgModal.open = false">
+										<i class="ri-close-line"></i>
+									</button>
+
+									<div class="user-header">
+										<img :src="reviewList[reviewImgModal.reviewIndex]?.profileImgUrl || '/img/profile/default-profile.png'"
+											class="user-avatar">
+
+										<div class="user-meta">
+											<div class="name-row">
+												<span class="nickname">
+													{{ reviewList[reviewImgModal.reviewIndex]?.nickname }}
+												</span>
+
+												<span v-if="reviewList[reviewImgModal.reviewIndex]?.gradeId >= 4"
+													class="badge vip">VIP</span>
+
+												<span v-else-if="reviewList[reviewImgModal.reviewIndex]?.gradeId == 3"
+													class="badge gold">GOLD</span>
+											</div>
+
+											<div class="star-row">
+												<div class="stars">
+													<span v-for="i in 5" :key="i" class="star"
+														:class="{ filled: i <= reviewList[reviewImgModal.reviewIndex]?.rating }">
+														★
+													</span>
+												</div>
+
+												<span class="rating-num">
+													{{ reviewList[reviewImgModal.reviewIndex]?.rating }}점
+												</span>
+											</div>
+										</div>
+
+										<span class="create-date">
+											<template
+												v-if="reviewList[reviewImgModal.reviewIndex]?.updatedAt 
+        													&& reviewList[reviewImgModal.reviewIndex]?.updatedAt !== reviewList[reviewImgModal.reviewIndex]?.createdAt">
+												{{ reviewList[reviewImgModal.reviewIndex]?.updatedAt }}
+											</template>
+											<template v-else>
+												{{ reviewList[reviewImgModal.reviewIndex]?.createdAt }}
+											</template>
+										</span>
+									</div>
+
+									<div class="review-text-content custom-scroll">
+										<h3 class="review-title">
+											{{ reviewList[reviewImgModal.reviewIndex]?.title }}
+										</h3>
+
+										<p class="review-body">
+											{{ reviewList[reviewImgModal.reviewIndex]?.content }}
+										</p>
+									</div>
+								</div>
+
 							</div>
 						</div>
-
-						<div class="report-modal-actions">
-							<button type="button" class="report-cancel" @click="closeReportModal">
-								취소
-							</button>
-							<button type="button" class="report-submit" @click="submitReport">
-								신고하기
-							</button>
-						</div>
 					</div>
 				</div>
-				<!-- TOP 버튼 -->
-				<button type="button" class="scroll-top-btn" :class="{ show: showTopBtn }" @click="scrollToTop"
-					aria-label="맨 위로 이동">
-					<i class="ri-arrow-up-line"></i>
-				</button>
+			</div>
+			<div v-if="qnaModal.open" class="modal-overlay" @click.self="closeQnaModal" style="z-index: 100000;">
+				<div class="confirm-box qna-modal-box">
+					<div class="qna-header">
+						<h3 class="qna-title">
+							{{ qnaModal.mode === 'add' ? '상품 문의하기' : '문의 수정하기' }}
+						</h3>
+						<button type="button" class="qna-close-btn" @click="closeQnaModal">
+							<i class="ri-close-line"></i>
+						</button>
+					</div>
+
+					<div v-if="Object.keys(groupedOptions).length > 0" class="qna-option-group">
+						<div v-for="(options, groupName) in groupedOptions" :key="groupName" class="qna-option-item">
+							<label class="qna-label">{{ groupName }}</label>
+							<select v-model="qnaModal.selectedOptionsMap[groupName]" class="report-select">
+								<option value="" disabled>{{ groupName }}을(를) 선택해 주세요</option>
+								<option v-for="opt in options" :key="opt.optionValue" :value="opt.optionValue">
+									{{ opt.optionValue }}
+								</option>
+							</select>
+						</div>
+					</div>
+
+					<div style="margin-bottom: 16px;">
+						<label class="qna-label">문의 내용</label>
+						<textarea v-model="qnaModal.content" class="report-textarea qna-textarea"
+							placeholder="문의하실 내용을 입력해 주세요.&#13;&#10;(개인정보는 노출되지 않도록 주의해 주세요.)"></textarea>
+					</div>
+
+					<div class="qna-secret-wrap">
+						<label class="photo-review-check">
+							<input type="checkbox" v-model="qnaModal.secretYn" true-value="Y" false-value="N">
+							<span class="check-ui"></span>
+							<span>비밀글로 작성하기 (판매자와 작성자만 볼 수 있어요)</span>
+						</label>
+					</div>
+
+					<div class="confirm-btns">
+						<button class="confirm-cancel" @click="closeQnaModal">취소</button>
+						<button class="confirm-ok" @click="submitQna">{{ qnaModal.mode === 'add' ? '등록하기' : '수정하기'
+							}}</button>
+					</div>
+				</div>
+			</div>
+			<!-- 확인 모달 -->
+			<div v-if="confirmModal.open" class="confirm-overlay" @click.self="confirmCancel">
+				<div class="confirm-box">
+					<div class="confirm-title">알림</div>
+					<div class="confirm-message">{{ confirmModal.message }}</div>
+					<div class="confirm-btns">
+						<button class="confirm-ok" @click="confirmOk">
+							{{ confirmModal.okText }}
+						</button>
+						<button class="confirm-cancel" @click="confirmCancel">
+							{{ confirmModal.cancelText }}
+						</button>
+					</div>
+				</div>
+			</div>
+			<div v-if="reportModal.open" class="report-modal-overlay" @click.self="closeReportModal">
+				<div class="report-modal-box">
+					<div class="report-modal-title">리뷰 신고</div>
+					<div class="report-modal-desc">
+						신고 사유를 선택해 주세요.
+					</div>
+
+					<select class="report-select" v-model="reportModal.reason">
+						<option value="">신고 사유 선택</option>
+						<option value="욕설/비방">욕설/비방</option>
+						<option value="허위 정보">허위 정보</option>
+						<option value="광고성 리뷰">광고성 리뷰</option>
+						<option value="상품과 무관한 내용">상품과 무관한 내용</option>
+						<option value="개인정보 노출">개인정보 노출</option>
+						<option value="기타">직접 입력</option>
+					</select>
+
+					<div v-if="reportModal.reason === '기타'" class="report-custom-wrap">
+						<textarea class="report-textarea" v-model="reportModal.content" maxlength="500"
+							placeholder="신고 사유를 직접 입력해 주세요."></textarea>
+
+						<div class="report-count">
+							{{ reportModal.content.length }}/500
+						</div>
+					</div>
+
+					<div class="report-modal-actions">
+						<button type="button" class="report-cancel" @click="closeReportModal">
+							취소
+						</button>
+						<button type="button" class="report-submit" @click="submitReport">
+							신고하기
+						</button>
+					</div>
+				</div>
+			</div>
+			<!-- TOP 버튼 -->
+			<button type="button" class="scroll-top-btn" :class="{ show: showTopBtn }" @click="scrollToTop"
+				aria-label="맨 위로 이동">
+				<i class="ri-arrow-up-line"></i>
+			</button>
 
 			</div><!-- /#app -->
 
@@ -1119,7 +1126,7 @@
 					var amt = Number(this.bestCoupon.discountAmt).toLocaleString('ko-KR');
 					return '🎉 쿠폰 적용 시 최대 ' + amt + '원 할인!';
 				},
-				
+
 				reviewTotalPage() {
 					return Math.ceil(this.filteredReviewCount / this.reviewPageSize);
 				},
@@ -1726,9 +1733,9 @@
 				},
 				onDayClick(day) {
 					if (!day || day.isPast || day.isRented) return;
-					
+
 					if (!this.startDate || (this.startDate && this.endDate)) {
-						this.startDate = day.full; 
+						this.startDate = day.full;
 						this.endDate = null;
 					} else {
 						if (day.full < this.startDate) {
@@ -1745,7 +1752,7 @@
 								showToast('최대 대여 가능 기간은 일주일(7박)입니다.');
 								return; // 7일을 초과하면 endDate를 설정하지 않고 종료
 							}
-							
+
 							this.endDate = day.full;
 						}
 					}
@@ -2315,7 +2322,7 @@
 						},
 						dataType: 'json',
 						success(res) {
-							if(res.result === 'success') {
+							if (res.result === 'success') {
 								self.qnaList = res.list;
 								self.qnaTotalCount = res.totalCount;
 							}
@@ -2363,7 +2370,7 @@
 						this.qnaModal.qnaId = qna.qnaId;
 						this.qnaModal.content = qna.questionContent;
 						this.qnaModal.secretYn = qna.secretYn;
-						
+
 						// "사이즈 : L / 컬러 : 레드" 로 저장된 문자열을 쪼개서 다시 드롭다운에 세팅
 						if (qna.optionName) {
 							let parts = qna.optionName.split(' / ');
@@ -2399,7 +2406,7 @@
 
 					let self = this;
 					let url = this.qnaModal.mode === 'add' ? '/product/qna/add.dox' : '/product/qna/edit.dox';
-					
+
 					let param = {
 						productId: this.productId,
 						qnaId: this.qnaModal.qnaId,
@@ -2417,7 +2424,7 @@
 							if (res.result === 'success') {
 								showToast(self.qnaModal.mode === 'add' ? '문의가 등록되었습니다.' : '문의가 수정되었습니다.');
 								self.closeQnaModal();
-								self.qnaPage = 1; 
+								self.qnaPage = 1;
 								self.fnGetQnaList(); // 문의 리스트 새로고침
 							} else if (res.result === 'login') {
 								showToast('로그인이 필요합니다.');
@@ -2428,7 +2435,7 @@
 						error() { showToast('서버 통신 중 오류가 발생했습니다.'); }
 					});
 				},
-				
+
 				deleteQna(qnaId) {
 					let self = this;
 					this.openConfirm('이 문의를 삭제하시겠습니까?', () => {

@@ -18,7 +18,6 @@ public class ReviewCleanBotService {
     @Autowired private AlarmMapper alarmMapper;
     @Autowired private BadWordService badWordService;
 
-    /** 매일 새벽 3시 실행 */
     @Scheduled(cron = "0 0 3 * * *")
     @Transactional
     public Map<String, Object> scanAndClean() {
@@ -29,9 +28,13 @@ public class ReviewCleanBotService {
         for (Map<String, Object> r : reviews) {
             Long reviewId = Long.parseLong(String.valueOf(r.get("REVIEW_ID")));
             String userId = String.valueOf(r.get("USER_ID"));
+            String title = String.valueOf(r.get("TITLE"));
             String content = String.valueOf(r.get("CONTENT"));
 
-            if (badWordService.containsBadWord(content)) {
+            boolean hit = badWordService.containsBadWord(title)
+                    || badWordService.containsBadWord(content);
+
+            if (hit) {
                 // 1) 차단 처리
                 reviewMapper.blockReviewByBot(reviewId);
 

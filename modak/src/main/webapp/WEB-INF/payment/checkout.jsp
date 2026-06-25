@@ -639,7 +639,7 @@
 							isIslandAddr() {
 								const addr = this.isLogin
 									? (this.addrForm.address || '') + ' ' + (this.addrForm.detailedAddress || '')
-									: (this.guestAddress || '') + ' ' + (this.guestDetailAddress || '');
+									: (this.newAddr.address || '') + ' ' + (this.newAddr.detailedAddress || '');
 
 								return this.checkIsIsland(addr);
 							},
@@ -668,8 +668,8 @@
 							},
 							'addrForm.address'() {this.updateShippingFee();},
 							'addrForm.detailedAddress'() {this.updateShippingFee();},
-							guestAddress() {this.updateShippingFee();},
-							guestDetailAddress() {this.updateShippingFee();},
+							'newAddr.address'() {this.updateShippingFee();},
+							'newAddr.detailedAddress'() {this.updateShippingFee();},
 							isIslandAddr(val) {
 								if (val) {
 									this.showToast('제주/도서산간 지역은 배송비 3,000원이 추가됩니다.');
@@ -947,20 +947,20 @@
 									}
 								}
 								if (!this.isLogin) {
-									if (!this.guestName.trim()) {this.isPaying = false; this.showToast('수령인 이름을 입력해주세요.'); return;}
-									if (!this.guestPhone.trim()) {
+									if (!this.newAddr.receiverName.trim()) {this.isPaying = false; this.showToast('수령인 이름을 입력해주세요.'); return;}
+									if (!this.newAddr.receiverPhone.trim()) {
 										this.isPaying = false;
 										this.showToast('연락처를 입력해주세요.');
 										return;
 									}
 
-									if (!this.isValidPhone(this.guestPhone)) {
+									if (!this.isValidPhone(this.newAddr.receiverPhone)) {
 										this.isPaying = false;
 										this.showToast('연락처는 010으로 시작하는 11자리 숫자로 입력해주세요.');
 										return;
 									}
-									if (!this.guestZipcode.trim()) {this.isPaying = false; this.showToast('우편번호를 입력해주세요.'); return;}
-									if (!this.guestAddress.trim()) {this.isPaying = false; this.showToast('주소를 입력해주세요.'); return;}
+									if (!this.newAddr.zipCode.trim()) {this.isPaying = false; this.showToast('우편번호를 입력해주세요.'); return;}
+									if (!this.newAddr.address.trim()) {this.isPaying = false; this.showToast('주소를 입력해주세요.'); return;}
 								}
 
 								// ✅ orderId는 이제 서버에서 받아옴 (프론트에서 생성 X)
@@ -972,7 +972,7 @@
 								// 콘솔 테스트용
 								console.log("amount:", this.finalTotal, typeof this.finalTotal);
 								console.log("orderName:", orderName);
-								console.log("customerName:", this.isLogin ? this.addrForm.receiverName : this.guestName);
+								console.log("customerName:", this.isLogin ? this.addrForm.receiverName : this.newAddr.receiverName);
 
 								let self = this;
 								$.ajax({
@@ -989,15 +989,15 @@
 											: '',
 										userCouponId: self.selectedUserCouponId || '',
 										discountAmt: self.couponDiscount,
-										receiverName: self.isLogin ? self.addrForm.receiverName : self.guestName,
-										receiverPhone: self.isLogin ? self.addrForm.receiverPhone : self.guestPhone,
+										receiverName: self.isLogin ? self.addrForm.receiverName : self.newAddr.receiverName,
+										receiverPhone: self.isLogin ? self.addrForm.receiverPhone : self.newAddr.receiverPhone,
 										address: self.isLogin
 											? self.addrForm.address + ' ' + (self.addrForm.detailedAddress || '')
-											: self.guestAddress + ' ' + self.guestDetailAddress,  // ✅ 비회원 주소
-										zipcode: self.isLogin ? self.addrForm.zipcode : self.guestZipcode, // ✅ 추가
+											: self.newAddr.address + ' ' + (self.newAddr.detailedAddress || ''),  // ✅ 비회원 주소
+										zipcode: self.isLogin ? self.addrForm.zipcode : self.newAddr.zipCode, // ✅ 추가
 										deliveryMemo: self.deliveryMemo === '직접 입력' ? self.deliveryMemoCustom : self.deliveryMemo,
-										guestName: self.isLogin ? '' : self.guestName,
-										guestPhone: self.isLogin ? '' : self.guestPhone,
+										guestName: self.isLogin ? '' : self.newAddr.receiverName,
+										guestPhone: self.isLogin ? '' : self.newAddr.receiverPhone,
 										isGuest: self.isLogin ? 'N' : 'Y',
 										usePoint: self.validUsePoint,
 									},

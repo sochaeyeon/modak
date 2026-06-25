@@ -17,6 +17,7 @@
                     <script src="/js/page-change.js"></script>
 
                     <link rel="stylesheet" href="/css/user/recent-history.css">
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
                 </head>
 
                 <body>
@@ -75,7 +76,12 @@
                                                             style="width:100%; height:100%; object-fit:cover;">
                                                         <span v-else>🛒</span>
                                                     </div>
-
+                                                    <div class="wish-type-badge"
+                                                        :class="item.productType === 'RENTAL' ? 'rental' : 'purchase'">
+                                                        <i
+                                                            :class="item.productType === 'RENTAL' ? 'ri-calendar-check-line' : 'ri-shopping-bag-3-fill'"></i>
+                                                        {{ item.productType === 'RENTAL' ? '대여' : '구매' }}
+                                                    </div>
                                                     <button type="button" class="wish-remove-icon"
                                                         :class="{ on: fnIsWished(item.productId) }" title="찜하기"
                                                         @click.stop="fnToggleWishlist(item)">

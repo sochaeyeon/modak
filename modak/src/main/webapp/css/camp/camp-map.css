@@ -2490,3 +2490,36 @@ button {
 .map-detail-hero {
     border: 1.2px solid var(--border) !important;
 }
+.camp-loading {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 40px 24px;
+    color: var(--brown4);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.camp-loading-bar {
+    width: 160px;
+    height: 4px;
+    border-radius: 999px;
+    background: #F2D4AA;
+    overflow: hidden;
+}
+
+.camp-loading-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--orange);
+    animation: loadingSlide 1.2s ease-in-out infinite;
+}
+
+@keyframes loadingSlide {
+    0%   { width: 0%;   margin-left: 0; }
+    50%  { width: 60%;  margin-left: 20%; }
+    100% { width: 0%;   margin-left: 100%; }
+}

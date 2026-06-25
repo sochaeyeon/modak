@@ -44,8 +44,13 @@
                     <div class="search-info"><i class="ri-list-check-2"></i>검색 결과 <b>{{ filteredList.length }}</b>건
                     </div>
                 </div>
-
-                <ul class="camp-list">
+                <div v-if="isLoading" class="camp-loading">
+                    <div class="camp-loading-bar">
+                        <div class="camp-loading-fill"></div>
+                    </div>
+                    <span>캠핑장 정보를 불러오는 중...</span>
+                </div>
+                <ul class="camp-list" v-else>
                     <li v-for="item in filteredList" :key="item.contentId" class="camp-item"
                         :class="{ active: selectedItem && selectedItem.contentId === item.contentId }"
                         @click="panTo(item)">
@@ -338,6 +343,7 @@
             var vueApp = Vue.createApp({
                 data: function () {
                     return {
+                        isLoading: true,
                         map: null, markers: [], facMarkers: [], clusterOverlays: [], places: null,
                         allData: [], filteredList: [],
                         cities: ['서울', '경기', '강원', '인천', '충북', '충남', '대전', '세종', '전북', '전남', '광주', '경북', '경남', '대구', '울산', '부산', '제주'],
@@ -439,6 +445,7 @@
                                 self.filteredList = self.allData;
                                 self.currentClusterDepth = '';
                                 self.fnRefreshByZoom();
+                                self.isLoading = false;
                             }
                         });
                     },

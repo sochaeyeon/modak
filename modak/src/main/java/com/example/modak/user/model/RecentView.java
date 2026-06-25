@@ -14,7 +14,8 @@ public class RecentView {
     
     private String categoryName;
     private String brandName;
-    
+    private String productType;
+
     // 별점
     private Double avgRating;
     private Integer reviewCount;

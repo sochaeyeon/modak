@@ -17,6 +17,7 @@
                     <script src="/js/page-change.js"></script>
 
                     <link rel="stylesheet" href="/css/wishlist/wishlist-history.css">
+                    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css">
                 </head>
 
                 <body>
@@ -65,79 +66,77 @@
                                             </div>
                                         </div>
 
-                                        <div class="wishlist-content">
 
-                                            <div class="wishlist-content">
-                                                <div class="wishlist-content" :key="'wishlist-' + listAnimateKey">
-                                                    <div v-if="wishlist.length === 0" class="empty-state">
-                                                        <p>{{ searchedKeyword ? '검색 결과가 없습니다.' : '찜한 상품이 없습니다.' }}</p>
+                                        <div class="wishlist-content" :key="'wishlist-' + listAnimateKey">
+                                            <div v-if="wishlist.length === 0" class="empty-state">
+                                                <p>{{ searchedKeyword ? '검색 결과가 없습니다.' : '찜한 상품이 없습니다.' }}</p>
+                                            </div>
+
+                                            <div v-else class="wish-grid">
+                                                <div class="wish-item" v-for="item in wishlist" :key="item.productId"
+                                                    @click="fnGoProductDetail(item.productId)">
+
+                                                    <div class="wish-thumb">
+                                                        <img :src="item.imgUrl" v-if="item.imgUrl"
+                                                            style="width:100%; height:100%; object-fit:cover;">
+                                                        <span v-else>🛒</span>
+                                                    </div>
+                                                    <div class="wish-type-badge"
+                                                        :class="item.productType === 'RENTAL' ? 'rental' : 'purchase'">
+                                                        <i
+                                                            :class="item.productType === 'RENTAL' ? 'ri-calendar-check-line' : 'ri-shopping-bag-3-fill'"></i>
+                                                        {{ item.productType === 'RENTAL' ? '대여' : '구매' }}
+                                                    </div>
+                                                    <button type="button" class="wish-remove-icon on" title="찜 해제"
+                                                        @click.stop="fnRemoveWishlist(item.wishId)">
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                            stroke-width="2">
+                                                            <path
+                                                                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                                        </svg>
+                                                    </button>
+
+                                                    <div class="wish-body">
+                                                        <div class="wish-name-wrap">
+                                                            <span class="wish-name">
+                                                                {{ item.productName }}
+                                                                <span v-if="item.brandName" class="wish-brand-inline">
+                                                                    · {{ item.brandName }}
+                                                                </span>
+                                                            </span>
+                                                        </div>
+
+                                                        <div class="wish-category" v-if="item.categoryName">
+                                                            {{ item.categoryName }}
+                                                        </div>
+
+                                                        <div class="wish-price">{{ Number(item.price ||
+                                                            0).toLocaleString() }}원</div>
                                                     </div>
 
-                                                    <div v-else class="wish-grid">
-                                                        <div class="wish-item" v-for="item in wishlist"
-                                                            :key="item.productId"
-                                                            @click="fnGoProductDetail(item.productId)">
-
-                                                            <div class="wish-thumb">
-                                                                <img :src="item.imgUrl" v-if="item.imgUrl"
-                                                                    style="width:100%; height:100%; object-fit:cover;">
-                                                                <span v-else>🛒</span>
-                                                            </div>
-                                                            <button type="button" class="wish-remove-icon on"
-                                                                title="찜 해제"
-                                                                @click.stop="fnRemoveWishlist(item.wishId)">
-                                                                <svg viewBox="0 0 24 24" fill="none"
-                                                                    stroke="currentColor" stroke-width="2">
-                                                                    <path
-                                                                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                                                                </svg>
-                                                            </button>
-
-                                                            <div class="wish-body">
-                                                                <div class="wish-name-wrap">
-                                                                    <span class="wish-name">
-                                                                        {{ item.productName }}
-                                                                        <span v-if="item.brandName"
-                                                                            class="wish-brand-inline">
-                                                                            · {{ item.brandName }}
-                                                                        </span>
-                                                                    </span>
-                                                                </div>
-
-                                                                <div class="wish-category" v-if="item.categoryName">
-                                                                    {{ item.categoryName }}
-                                                                </div>
-
-                                                                <div class="wish-price">{{ Number(item.price ||
-                                                                    0).toLocaleString() }}원</div>
-                                                            </div>
-
-                                                            <div class="wish-bottom">
-                                                                <div class="wish-date">
-                                                                    찜한 날짜 {{ fnFormatDate(item.createdAt) }}
-                                                                </div>
-                                                            </div>
+                                                    <div class="wish-bottom">
+                                                        <div class="wish-date">
+                                                            찜한 날짜 {{ fnFormatDate(item.createdAt) }}
                                                         </div>
                                                     </div>
-                                                    <!-- 페이지네이션 -->
-                                                    <div v-if="totalPages > 1" class="pagination-wrap">
-                                                        <button class="page-btn" :disabled="page === 1"
-                                                            @click="fnChangePage(page - 1)">
-                                                            이전
-                                                        </button>
-
-                                                        <button v-for="num in totalPages" :key="num" class="page-btn"
-                                                            :class="{ active: page === num }"
-                                                            @click="fnChangePage(num)">
-                                                            {{ num }}
-                                                        </button>
-
-                                                        <button class="page-btn" :disabled="page === totalPages"
-                                                            @click="fnChangePage(page + 1)">
-                                                            다음
-                                                        </button>
-                                                    </div>
                                                 </div>
+                                            </div>
+                                            <!-- 페이지네이션 -->
+                                            <div v-if="totalPages > 1" class="pagination-wrap">
+                                                <button class="page-btn" :disabled="page === 1"
+                                                    @click="fnChangePage(page - 1)">
+                                                    이전
+                                                </button>
+
+                                                <button v-for="num in totalPages" :key="num" class="page-btn"
+                                                    :class="{ active: page === num }" @click="fnChangePage(num)">
+                                                    {{ num }}
+                                                </button>
+
+                                                <button class="page-btn" :disabled="page === totalPages"
+                                                    @click="fnChangePage(page + 1)">
+                                                    다음
+                                                </button>
                                             </div>
                                         </div>
 

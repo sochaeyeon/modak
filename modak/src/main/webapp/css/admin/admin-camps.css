@@ -1,75 +1,267 @@
 @charset "UTF-8";
 
 .camp-page-container {
-    --c-bg: #11131a;
-    --c-card: #1c1f2b;
-    --c-accent: #E8732A;
-    --c-border: rgba(255, 255, 255, 0.08);
-    --c-text: #e2e4e9;
+    --c-bg:         #11131a;
+    --c-card:       #1c1f2b;
+    --c-accent:     #E8732A;
+    --c-border:     rgba(255,255,255,.08);
+    --c-text:       #e2e4e9;
     --c-text-muted: #8a8f9d;
-    background: var(--c-bg); min-height: 100vh; padding: 28px 32px;
+    background: var(--c-bg);
+    min-height: 100vh;
+    padding: 28px 32px;
 }
 
-/* 이미지 썸네일 */
+/* ── 검색바 ── */
+.search-bar {
+    background: var(--c-card);
+    padding: 16px 18px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 12px;
+    border: 1px solid var(--c-border);
+}
+.m-input {
+    flex: 1;
+    background: #262a3a;
+    border: 1px solid var(--c-border);
+    padding: 11px 14px;
+    border-radius: 10px;
+    color: #fff;
+    outline: none;
+    font-size: 14px;
+    transition: border-color .2s;
+    font-family: inherit;
+}
+.m-input:focus { border-color: var(--c-accent); }
+.m-input::placeholder { color: var(--c-text-muted); }
+
+/* ── 이미지 썸네일 ── */
 .camp-thumb {
-    width: 65px; height: 65px; border-radius: 12px;
-    object-fit: cover; border: 1px solid var(--c-border); background: #262a3a;
+    width: 60px; height: 60px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid var(--c-border);
+    background: #262a3a;
 }
-.no-img { display: flex; align-items: center; justify-content: center; font-size: 10px; color: #555; }
+.no-img {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: #555;
+}
 
-/* 테이블 카드 */
+/* ── 테이블 카드 ── */
 .camp-table-card {
-    background: var(--c-card); border: 1px solid var(--c-border);
-    border-radius: 24px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+    background: var(--c-card);
+    border: 1px solid var(--c-border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 16px 40px rgba(0,0,0,.4);
 }
 .c-table { width: 100%; border-collapse: collapse; }
 .c-table th {
-    background: rgba(255,255,255,0.03); padding: 18px;
-    color: var(--c-text-muted); font-size: 11px; border-bottom: 1px solid var(--c-border);
+    background: rgba(255,255,255,.025);
+    padding: 16px 18px;
+    color: var(--c-text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--c-border);
 }
-.c-table td { padding: 15px 18px; border-bottom: 1px solid var(--c-border); color: var(--c-text); text-align: center; }
+.c-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--c-border);
+    color: var(--c-text);
+    text-align: center;
+}
+.c-table-row { transition: background .15s; }
+.c-table-row:hover { background: rgba(255,255,255,.025); }
+.c-table-row:last-child td { border-bottom: none; }
 
-/* 버튼 디자인 수정 (그라데이션 적용) */
+.camp-name-cell {
+    cursor: pointer;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.camp-name-cell:hover { color: var(--c-accent); }
+
+/* ── 버튼 ── */
 .p-btn {
     background: linear-gradient(135deg, #E8732A 0%, #D45D12 100%);
-    color: white; border: none; padding: 10px 22px; border-radius: 10px;
-    font-weight: 600; cursor: pointer; transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(232, 115, 42, 0.3);
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .2s;
+    box-shadow: 0 4px 14px rgba(232,115,42,.3);
+    font-family: inherit;
 }
-.p-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.p-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(232,115,42,.45);
+    filter: brightness(1.08);
+}
+.p-btn:active { transform: translateY(0); }
+
+.p-btn-danger {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+    box-shadow: 0 4px 14px rgba(231,76,60,.35) !important;
+}
+.p-btn-danger:hover {
+    box-shadow: 0 6px 20px rgba(231,76,60,.5) !important;
+}
 
 .p-btn-secondary {
-    background: rgba(255, 255, 255, 0.05); color: #e2e4e9;
-    border: 1px solid var(--c-border); padding: 8px 16px; border-radius: 8px;
-    cursor: pointer; transition: 0.2s;
+    background: rgba(255,255,255,.05);
+    color: #e2e4e9;
+    border: 1px solid var(--c-border);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .18s;
+    font-family: inherit;
 }
-.btn-delete { color: #ff5f5f; border-color: rgba(255, 95, 95, 0.3); }
-.btn-delete:hover { background: rgba(255, 95, 95, 0.1); border-color: #ff5f5f; }
+.p-btn-secondary:hover {
+    background: rgba(255,255,255,.09);
+    border-color: rgba(255,255,255,.15);
+}
+.btn-delete { color: #ff6b6b; border-color: rgba(255,107,107,.25); }
+.btn-delete:hover { background: rgba(255,107,107,.1); border-color: #ff6b6b; }
 
-/* 업종 뱃지 */
+/* ── 업종 뱃지 ── */
 .badge-induty {
-    background: rgba(232, 115, 42, 0.1); color: #E8732A;
-    padding: 4px 10px; border-radius: 6px; font-size: 12px;
-	}
-	.modal-overlay {
-	    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-	    display: flex; align-items: center; justify-content: center; z-index: 9999;
-	}
-	.modal-content {
-	    background: #1c1f2b; border: 1px solid rgba(255,255,255,0.1);
-	    border-radius: 20px; padding: 32px; width: 520px;
-	    max-height: 85vh; overflow-y: auto;
-	    box-shadow: 0 24px 64px rgba(0,0,0,0.5);
-	}
-	.modal-body { display: flex; flex-direction: column; gap: 8px; }
-	.modal-label {
-	    font-size: 11px; color: #8a8f9d;
-	    letter-spacing: 0.5px; margin-top: 4px;
-	}
-	.modal-input {
-	    width: 100%; background: #262a3a; border: 1px solid rgba(255,255,255,0.08);
-	    border-radius: 10px; padding: 11px 14px; color: #fff;
-	    font-size: 14px; outline: none; box-sizing: border-box;
-	    transition: border-color 0.2s;
-	}
-	.modal-input:focus { border-color: #E8732A; }
+    background: rgba(232,115,42,.1);
+    color: #E8732A;
+    border: 1px solid rgba(232,115,42,.2);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ── 수정/추가 모달 ── */
+.modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.72);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9000;
+}
+.modal-content {
+    background: #1c1f2b;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 20px;
+    padding: 32px;
+    width: 520px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 28px 64px rgba(0,0,0,.55);
+    animation: modalSlide .25s cubic-bezier(.22,1,.36,1);
+}
+.modal-content::-webkit-scrollbar { width: 4px; }
+.modal-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); border-radius: 4px; }
+@keyframes modalSlide {
+    from { opacity: 0; transform: translateY(16px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0)   scale(1);   }
+}
+.modal-body { display: flex; flex-direction: column; gap: 8px; }
+.modal-label {
+    font-size: 11px; color: #8a8f9d;
+    letter-spacing: .5px; margin-top: 6px; font-weight: 600;
+    text-transform: uppercase;
+}
+.modal-input {
+    width: 100%;
+    background: #262a3a;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 10px;
+    padding: 11px 14px;
+    color: #fff; font-size: 14px;
+    outline: none; box-sizing: border-box;
+    transition: border-color .2s;
+    font-family: inherit;
+}
+.modal-input:focus { border-color: #E8732A; box-shadow: 0 0 0 3px rgba(232,115,42,.1); }
+.modal-input::placeholder { color: #555; }
+
+/* ── 확인 모달 ── */
+.camp-confirm-overlay {
+    position: fixed; inset: 0;
+    background: rgba(8,10,18,.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+}
+.camp-confirm-box {
+    background: #1c1f2b;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 22px;
+    padding: 40px 32px 30px;
+    width: 360px;
+    text-align: center;
+    box-shadow: 0 28px 72px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04);
+    animation: confirmPop .28s cubic-bezier(.22,1,.36,1);
+}
+@keyframes confirmPop {
+    from { opacity: 0; transform: scale(.88) translateY(14px); }
+    to   { opacity: 1; transform: scale(1)   translateY(0);    }
+}
+.camp-confirm-icon {
+    font-size: 46px; margin-bottom: 14px; line-height: 1;
+    filter: drop-shadow(0 4px 12px rgba(232,115,42,.3));
+}
+.camp-confirm-title {
+    font-size: 18px; font-weight: 800;
+    color: #fff; margin-bottom: 12px; letter-spacing: -.3px;
+}
+.camp-confirm-msg {
+    font-size: 13px; color: #8a8f9d;
+    line-height: 2; margin-bottom: 28px;
+}
+.camp-confirm-btns { display: flex; gap: 10px; }
+
+/* ── 확인 모달 트랜지션 ── */
+.camp-modal-fade-enter-active { transition: opacity .22s ease; }
+.camp-modal-fade-leave-active { transition: opacity .18s ease; }
+.camp-modal-fade-enter-from,
+.camp-modal-fade-leave-to { opacity: 0; }
+
+/* ── 토스트 ── */
+.camp-toast {
+    position: fixed;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 280px; max-width: 440px;
+    padding: 14px 24px;
+    border-radius: 14px;
+    font-size: 14px; font-weight: 600; color: #fff;
+    z-index: 99999; pointer-events: none;
+    transition: bottom .4s cubic-bezier(.22,1,.36,1), opacity .4s;
+    opacity: 0; text-align: center;
+    background: rgba(26,29,39,.97);
+    border: 1px solid rgba(255,255,255,.08);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 12px 40px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.04);
+    white-space: nowrap;
+}
+.camp-toast.show { bottom: 40px; opacity: 1; }
+.camp-toast.success {
+    border-color: rgba(46,204,113,.35);
+    box-shadow: 0 12px 40px rgba(0,0,0,.5), 0 0 20px rgba(46,204,113,.08);
+}
+.camp-toast.error {
+    border-color: rgba(231,76,60,.35);
+    box-shadow: 0 12px 40px rgba(0,0,0,.5), 0 0 20px rgba(231,76,60,.08);
+}

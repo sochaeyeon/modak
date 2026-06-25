@@ -721,7 +721,7 @@
 			          });
 			        }
 
-			        /* ── 중기예보 (D+3 ~ D+5) ── */
+			        /* ── 중기예보 (오늘 기준 D+2 ~ D+4, 최대 3일) ── */
 			        if (mR.result === 'success') {
 			          var ta   = Array.isArray(mR.ta.response.body.items.item)
 			                      ? mR.ta.response.body.items.item[0]
@@ -730,7 +730,6 @@
 			                      ? mR.land.response.body.items.item[0]
 			                      : mR.land.response.body.items.item;
 
-			          // ✅ Spring이 내려준 tmFc로 기준일 파싱 (예: "202506161800")
 			          var tmFc = mR.tmFc || '';
 			          var baseDate = new Date();
 			          if (tmFc.length >= 8) {
@@ -740,27 +739,31 @@
 			            baseDate = new Date(y, mo, dd);
 			          }
 
-			          // taMin3 있으면 D+3부터, 없으면 D+4부터
-					  var startIdx = 3;
-					  for (var chk = 3; chk <= 6; chk++) {
-					    if (ta['taMin' + chk] != null) { startIdx = chk; break; }
-					  }
+			          // 오늘 자정 기준으로 실제 날짜 비교 → 오늘·내일(D+0,D+1)은 단기예보에서 이미 표시하므로 제외
+			          var todayMidnight = new Date();
+			          todayMidnight.setHours(0, 0, 0, 0);
 
-			          [startIdx, startIdx + 1, startIdx + 2].forEach(function (d) {
+			          var midDays = [];
+			          for (var d = 3; d <= 10 && midDays.length < 3; d++) {
+			            if (ta['taMin' + d] == null && ta['taMax' + d] == null) continue;
 			            var dt = new Date(baseDate);
 			            dt.setDate(dt.getDate() + d);
+			            dt.setHours(0, 0, 0, 0);
+			            var diffDays = Math.round((dt - todayMidnight) / (1000 * 60 * 60 * 24));
+			            if (diffDays < 2) continue;
 			            var label = (dt.getMonth() + 1) + '/' + dt.getDate();
 			            var wf  = land['wf' + d + 'Am'] || land['wf' + d] || '';
 			            var pop = land['rnSt' + d + 'Am'] != null ? land['rnSt' + d + 'Am']
 			                    : land['rnSt' + d]    != null ? land['rnSt' + d] : '-';
-			            result.push({
+			            midDays.push({
 			              label: label,
 			              icon:  self.wfToIcon(wf),
 			              max:   (ta['taMax' + d] != null ? ta['taMax' + d] : '-') + '°',
 			              min:   (ta['taMin' + d] != null ? ta['taMin' + d] : '-') + '°',
 			              rain:  pop + '%'
 			            });
-			          });
+			          }
+			          midDays.forEach(function (day) { result.push(day); });
 			        }
 
 			        this.days = result;
@@ -862,6 +865,15 @@
                   var rankIcon = rank === 1 ? '<i class="ri-fire-fill"></i>' : '';
                   var rankHtml = '<div class="rank-badge rank-' + rank + '">' + rankIcon + '<span>' + rank + '위</span></div>';
 
+                  var typeBadgeHtml = '';
+                  if (type === 'PURCHASE') {
+                    typeBadgeHtml = '<div class="type-badge type-buy"><i class="ri-shopping-bag-3-line"></i>구매</div>';
+                  } else if (type === 'RENTAL') {
+                    typeBadgeHtml = '<div class="type-badge type-rent"><i class="ri-calendar-line"></i>대여</div>';
+                  } else {
+                    typeBadgeHtml = '<div class="type-badge type-both"><i class="ri-shuffle-line"></i>대여/구매</div>';
+                  }
+
                   var imgHtml = img
                     ? '<img src="' + img + '" style="width:100%;height:100%;object-fit:cover;">'
                     : '<span style="font-size:56px">🏕️</span>';
@@ -892,6 +904,7 @@
                     + '<div class="product-card fade-up pop-card" data-pid="' + pid + '" data-name="' + name.replace(/"/g, '') + '" data-img="' + img + '">'
                     + '<div class="product-img">'
                     + rankHtml
+                    + typeBadgeHtml
                     + imgHtml
                     + '<button type="button" class="wish-btn" data-pid="' + pid + '">'
                     + '<svg viewBox="0 0 24 24">'

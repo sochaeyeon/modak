@@ -1,105 +1,213 @@
 @charset "UTF-8";
 
-/* 1. 기본 레이아웃 */
-.coupon-page-container { 
-    padding: 32px; 
-    background: #0f1117; 
+/* ── 레이아웃 ── */
+.coupon-page-container {
+    padding: 32px;
+    background: #0f1117;
     min-height: 100vh;
     font-family: 'Pretendard', -apple-system, sans-serif;
 }
 
-/* 2. 상단 헤더 및 버튼 디자인 수정 */
+/* ── 헤더 ── */
 .event-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 30px; padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
 }
-
 .event-title { font-size: 24px; font-weight: 800; color: #fff; }
-
 .header-buttons { display: flex; gap: 12px; align-items: center; }
 
-/* 🚨 공통 버튼 스타일 (상단 버튼들 해결) */
+/* ── 버튼 ── */
 .p-btn {
     background: linear-gradient(135deg, #FF8C42 0%, #E8732A 100%);
     color: #fff; border: none; padding: 12px 24px; border-radius: 12px;
-    font-weight: 700; cursor: pointer; transition: 0.3s;
-    box-shadow: 0 4px 15px rgba(232, 115, 42, 0.25);
+    font-weight: 700; font-size: 13px; cursor: pointer; transition: all .2s;
+    box-shadow: 0 4px 15px rgba(232,115,42,.25); font-family: inherit;
 }
-.p-btn:hover { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 6px 20px rgba(232, 115, 42, 0.4); }
+.p-btn:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 22px rgba(232,115,42,.4); }
+.p-btn:disabled { opacity: .55; cursor: not-allowed; transform: none; filter: none; }
+
+.p-btn-danger {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+    box-shadow: 0 4px 15px rgba(231,76,60,.35) !important;
+}
+.p-btn-danger:hover { box-shadow: 0 6px 22px rgba(231,76,60,.5) !important; }
 
 .p-btn-secondary {
-    background: rgba(255, 255, 255, 0.05);
-    color: #e2e4e9; border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 10px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.3s;
+    background: rgba(255,255,255,.05); color: #e2e4e9;
+    border: 1px solid rgba(255,255,255,.1);
+    padding: 8px 16px; border-radius: 10px;
+    font-weight: 600; font-size: 13px; cursor: pointer;
+    transition: all .18s; font-family: inherit;
 }
-.p-btn-secondary:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+.p-btn-secondary:hover { background: rgba(255,255,255,.1); color: #fff; border-color: rgba(255,255,255,.18); }
 
-/* 3. 검색 필터 영역 */
-.ev-filter-bar {
-    display: flex; gap: 10px; margin-bottom: 30px; align-items: center;
+.btn-delete-text { color: #ec7063; border-color: rgba(236,112,99,.25); }
+.btn-delete-text:hover { background: rgba(236,112,99,.1); border-color: #ec7063; }
+
+/* ── 소형 버튼 ── */
+.btn-sm {
+    padding: 5px 12px; border-radius: 7px; font-size: 12px;
+    font-weight: 700; cursor: pointer; border: none;
+    transition: all .15s; font-family: inherit;
 }
+.btn-sm-orange { background: var(--orange); color: #fff; box-shadow: 0 2px 8px rgba(232,115,42,.3); }
+.btn-sm-orange:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-sm-blue   { background: var(--blue);   color: #fff; box-shadow: 0 2px 8px rgba(52,152,219,.3); }
+.btn-sm-blue:hover   { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-sm-neutral { background: rgba(255,255,255,.08); color: #e2e4e9; border: 1px solid rgba(255,255,255,.1); }
+.btn-sm-neutral:hover { background: rgba(255,255,255,.14); }
+
+/* ── 탭 ── */
+.tab-item { font-size: 14px; font-weight: 600; color: var(--text3); transition: color .2s; }
+.tab-item.active { color: var(--orange); border-bottom: 2px solid var(--orange); }
+
+/* ── 검색바 ── */
+.ev-filter-bar { display: flex; gap: 10px; margin-bottom: 24px; align-items: center; }
+.ev-input {
+    width: 100%; background: #1a1d27; border: 1px solid rgba(255,255,255,.1);
+    padding: 12px 14px; border-radius: 10px; color: #fff;
+    margin-bottom: 16px; box-sizing: border-box;
+    font-size: 14px; outline: none; transition: border-color .2s, box-shadow .2s;
+    font-family: inherit;
+}
+.ev-input:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(232,115,42,.1); }
+.ev-input::placeholder { color: #555; }
+select.ev-input { cursor: pointer; }
+
 .filter-btn {
-    background: #E8732A; color: #fff; border: none; padding: 10px 20px;
-    border-radius: 10px; font-weight: 700; cursor: pointer;
+    background: var(--orange); color: #fff; border: none;
+    padding: 10px 20px; border-radius: 10px;
+    font-weight: 700; font-size: 13px; cursor: pointer;
+    white-space: nowrap; font-family: inherit;
+    box-shadow: 0 4px 12px rgba(232,115,42,.25);
+    transition: all .18s;
 }
+.filter-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
 
-/* 4. 테이블 디자인 */
-.camp-table-card { 
-    background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); 
-    border-radius: 24px; overflow: hidden; backdrop-filter: blur(10px);
+/* ── 테이블 ── */
+.camp-table-card {
+    background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.08);
+    border-radius: 20px; overflow: hidden; backdrop-filter: blur(10px);
 }
 .c-table { width: 100%; border-collapse: collapse; }
-.c-table th { background: rgba(255, 255, 255, 0.05); padding: 18px; color: #8a8f9d; font-size: 13px; font-weight: 700; }
-.c-table td { padding: 22px 16px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.04); color: #e2e4e9; }
-.coupon-name-cell { text-align: left !important; font-weight: 700; color: #fff !important; }
+.c-table th {
+    background: rgba(255,255,255,.03); padding: 16px 18px;
+    color: #8a8f9d; font-size: 11px; font-weight: 700;
+    letter-spacing: .8px; text-transform: uppercase;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.c-table td {
+    padding: 16px 16px; text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,.04); color: #e2e4e9;
+}
+.c-table-row { transition: background .15s; }
+.c-table-row:hover { background: rgba(255,255,255,.025); }
+.c-table-row:last-child td { border-bottom: none; }
 
-/* 혜택 컬러 포인트 */
-.benefit-amount { color: #58d68d; font-weight: 800; font-size: 17px; text-shadow: 0 0 10px rgba(88, 214, 141, 0.3); }
-.benefit-rate { color: #f4d03f; font-weight: 800; font-size: 17px; text-shadow: 0 0 10px rgba(244, 208, 63, 0.3); }
+/* ── 혜택 표시 ── */
+.benefit-amount { color: #58d68d; font-weight: 800; font-size: 16px; }
+.benefit-rate   { color: #f4d03f; font-weight: 800; font-size: 16px; }
 
-/* 상태 표시 */
-.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-.active-dot { background: #58d68d; box-shadow: 0 0 12px rgba(88, 214, 141, 0.8); }
+/* ── 상태 도트 ── */
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: middle; }
+.active-dot   { background: #58d68d; box-shadow: 0 0 8px rgba(88,214,141,.7); }
 .inactive-dot { background: #ec7063; }
 
-/* 테이블 내 버튼 그룹 */
-.table-btn-group { display: flex; gap: 8px; justify-content: center; }
+/* ── 사용 뱃지 ── */
+.badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+.badge-active { background: rgba(88,214,141,.12); color: #58d68d; border: 1px solid rgba(88,214,141,.25); }
+.badge-done   { background: rgba(142,142,142,.1);  color: #8e8e8e;  border: 1px solid rgba(142,142,142,.2); }
 
-/* 5. 모달 디자인 및 모달 버튼 해결 */
+/* ── 발행/지급 모달 ── */
 .ev-modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.78); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     display: none; align-items: center; justify-content: center; z-index: 2000;
 }
 .ev-modal-overlay.open { display: flex; }
 .ev-modal {
-    background: #1c1f26; border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 32px; width: 480px; padding: 40px; box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    background: #1c1f26; border: 1px solid rgba(255,255,255,.1);
+    border-radius: 24px; width: 480px; padding: 36px;
+    box-shadow: 0 28px 64px rgba(0,0,0,.55);
+    animation: modalSlide .25s cubic-bezier(.22,1,.36,1);
 }
-.modal-header { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 30px; text-align: center; }
-
-.modal-label { display: block; font-size: 13px; color: #8a8f9d; margin-bottom: 8px; font-weight: 700; }
-.ev-input { 
-    width: 100%; background: #0f1117; border: 1px solid rgba(255,255,255,0.15); 
-    padding: 14px; border-radius: 12px; color: #fff; margin-bottom: 20px; box-sizing: border-box;
+@keyframes modalSlide {
+    from { opacity: 0; transform: translateY(14px) scale(.97); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);   }
 }
-
-/* 🚨 모달 하단 버튼 가로 정렬 및 디자인 */
-.modal-footer { display: flex; gap: 12px; margin-top: 10px; }
-
-.m-btn-close { 
-    flex: 1; background: #2d3139; color: #fff; border: none; 
-    padding: 15px; border-radius: 14px; cursor: pointer; font-weight: 700; transition: 0.3s;
+.modal-header { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 26px; text-align: center; }
+.modal-body { display: flex; flex-direction: column; }
+.modal-label {
+    display: block; font-size: 11px; color: #8a8f9d;
+    margin-bottom: 7px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase;
 }
-.m-btn-close:hover { background: #3f444d; }
-
-.m-btn-save { 
-    flex: 2; background: linear-gradient(135deg, #FF8C42 0%, #E8732A 100%); 
-    color: #fff; border: none; padding: 15px; border-radius: 14px; 
-    cursor: pointer; font-weight: 800; box-shadow: 0 4px 15px rgba(232, 115, 42, 0.3);
+.modal-footer { display: flex; gap: 10px; margin-top: 16px; }
+.modal-close-btn {
+    background: rgba(255,255,255,.06); color: #e2e4e9;
+    border: 1px solid rgba(255,255,255,.1);
+    padding: 13px 20px; border-radius: 12px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: all .18s; font-family: inherit; flex: 1;
 }
-.m-btn-save:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.modal-close-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
+
+.selected-coupon-banner {
+    background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+    padding: 12px 14px; border-radius: 10px; margin-bottom: 16px; font-size: 14px;
+}
+.modal-hint { font-size: 12px; color: var(--text3); margin-top: -8px; margin-bottom: 4px; }
+
+/* ── 확인 모달 ── */
+.coupon-confirm-overlay {
+    position: fixed; inset: 0;
+    background: rgba(8,10,18,.8);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+}
+.coupon-confirm-box {
+    background: #1c1f26; border: 1px solid rgba(255,255,255,.1);
+    border-radius: 22px; padding: 40px 32px 30px;
+    width: 360px; text-align: center;
+    box-shadow: 0 28px 72px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04);
+    animation: confirmPop .28s cubic-bezier(.22,1,.36,1);
+}
+@keyframes confirmPop {
+    from { opacity: 0; transform: scale(.88) translateY(14px); }
+    to   { opacity: 1; transform: scale(1)   translateY(0);    }
+}
+.coupon-confirm-icon  { font-size: 44px; margin-bottom: 14px; line-height: 1; }
+.coupon-confirm-title { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 12px; letter-spacing: -.3px; }
+.coupon-confirm-msg   { font-size: 13px; color: #8a8f9d; line-height: 2; margin-bottom: 24px; }
+.coupon-confirm-btns  { display: flex; gap: 10px; }
+
+/* ── 확인 모달 트랜지션 ── */
+.coupon-modal-fade-enter-active { transition: opacity .22s ease; }
+.coupon-modal-fade-leave-active { transition: opacity .18s ease; }
+.coupon-modal-fade-enter-from,
+.coupon-modal-fade-leave-to { opacity: 0; }
+
+/* ── 토스트 ── */
+.coupon-toast {
+    position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
+    min-width: 280px; max-width: 440px; padding: 14px 24px;
+    border-radius: 14px; font-size: 14px; font-weight: 600; color: #fff;
+    z-index: 99999; pointer-events: none;
+    transition: bottom .4s cubic-bezier(.22,1,.36,1), opacity .4s;
+    opacity: 0; text-align: center;
+    background: rgba(26,29,39,.97);
+    border: 1px solid rgba(255,255,255,.08);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 12px 40px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.04);
+    white-space: nowrap;
+}
+.coupon-toast.show { bottom: 40px; opacity: 1; }
+.coupon-toast.success {
+    border-color: rgba(46,204,113,.35);
+    box-shadow: 0 12px 40px rgba(0,0,0,.5), 0 0 20px rgba(46,204,113,.08);
+}
+.coupon-toast.error {
+    border-color: rgba(231,76,60,.35);
+    box-shadow: 0 12px 40px rgba(0,0,0,.5), 0 0 20px rgba(231,76,60,.08);
+}

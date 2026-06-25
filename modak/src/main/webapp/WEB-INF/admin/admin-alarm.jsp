@@ -186,6 +186,25 @@
                 </div>
             </div>
 
+            <!-- ── 발송 확인 모달 ── -->
+            <transition name="modal-fade">
+                <div v-if="showConfirm" class="a-modal-overlay" @click.self="showConfirm=false">
+                    <div class="a-modal-box">
+                        <div class="a-modal-icon">🔔</div>
+                        <div class="a-modal-title">알람 발송 확인</div>
+                        <div class="a-modal-msg">
+                            <b style="color:var(--white)">{{ fnGetTargetText() }}</b>에게<br>
+                            <b style="color:var(--white)">「{{ form.title }}」</b><br>
+                            알람을 발송하시겠습니까?
+                        </div>
+                        <div class="a-modal-btns">
+                            <button class="a-modal-btn-cancel" @click="showConfirm=false">취소</button>
+                            <button class="a-modal-btn-confirm" @click="fnDoSend">🔔 발송하기</button>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+
             <!-- ── 오른쪽: 발송 내역 ── -->
             <div>
                 <div class="a-card">
@@ -246,7 +265,8 @@ Vue.createApp({
             ],
             alarmLogs: [],
             logTab: '',
-            isSending: false
+            isSending: false,
+            showConfirm: false
         };
     },
     methods: {
@@ -309,7 +329,11 @@ Vue.createApp({
         },
 
         fnSend() {
-            if (!confirm('알람을 발송하시겠습니까?')) return;
+            this.showConfirm = true;
+        },
+
+        fnDoSend() {
+            this.showConfirm = false;
             this.isSending = true;
 
             const userId = this.sendType === 'INDIVIDUAL' && this.foundUser
@@ -331,7 +355,7 @@ Vue.createApp({
                     this.isSending = false;
                     const data = typeof res === 'string' ? JSON.parse(res) : res;
                     if (data.result === 'success') {
-                        this.toast('✅ 발송 완료!', 'success');
+                        this.toast('✅ 알람이 성공적으로 발송되었습니다', 'success');
                         this.form.title = '';
                         this.form.content = '';
                         this.form.linkUrl = '';
@@ -340,10 +364,10 @@ Vue.createApp({
                         this.individualId = '';
                         this.fnLoadLogs();
                     } else {
-                        this.toast('발송 실패: ' + (data.message || '오류'), 'error');
+                        this.toast('⚠️ 발송 실패: ' + (data.message || '오류'), 'error');
                     }
                 },
-                error: () => { this.isSending = false; this.toast('서버 오류', 'error'); }
+                error: () => { this.isSending = false; this.toast('⚠️ 서버 오류가 발생했습니다', 'error'); }
             });
         },
 

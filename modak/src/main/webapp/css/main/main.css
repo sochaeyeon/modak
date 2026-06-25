@@ -2373,3 +2373,38 @@ a {
 .rank-2 { background: linear-gradient(135deg, #B7B7B7, #9A9A9A); }
 .rank-3 { background: linear-gradient(135deg, #CB8F5E, #B57845); }
 .rank-4 { background: linear-gradient(135deg, #E8732A, #C4621E); }
+
+/* ── 상품 타입 뱃지 (인기 장비) ── */
+.type-badge {
+    position: absolute;
+    top: 44px;
+    left: 12px;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 9px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 700;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 2px 8px rgba(44, 30, 15, .15);
+}
+.type-badge i { font-size: 11px; }
+
+.type-rent {
+    background: rgba(232, 115, 42, .88);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .25);
+}
+.type-buy {
+    background: rgba(52, 152, 219, .88);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .25);
+}
+.type-both {
+    background: rgba(46, 204, 113, .88);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, .25);
+}

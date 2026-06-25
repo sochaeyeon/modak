@@ -155,7 +155,15 @@
 
 									<div class="qty-box">
 										<button type="button" class="qty-btn" @click="chgQty(-1)">−</button>
-										<div class="qty-num">{{ qty }}</div>
+										<input
+										type="number"
+										class="qty-num"
+										:value="qty"
+										@input="onQtyInput($event)"
+										@blur="onQtyBlur"
+										min="1"
+										:max="displayQty"
+										/>
 										<button type="button" class="qty-btn" @click="chgQty(1)">+</button>
 
 										<span v-if="remainQty > 0" class="stock-text">{{ remainQty }}개 남음</span>
@@ -556,8 +564,13 @@
 
 							<!-- 검색 -->
 							<div class="qna-search-box">
-								<input type="text" v-model.trim="qnaKeyword" class="qna-search-input"
-									placeholder="문의 내용을 검색해보세요" @keyup.enter="applyQnaFilter">
+								<div class="qna-input-wrap">                          <!-- ← wrapper 추가 -->
+									<input type="text" v-model.trim="qnaKeyword" class="qna-search-input"
+										placeholder="문의 내용을 검색해보세요" @keyup.enter="applyQnaFilter">
+									<button type="button" class="qna-input-clear" v-show="qnaKeyword" @click="qnaKeyword = ''; resetQnaFilter()">
+										<i class="ri-close-line"></i>
+									</button>
+								</div>
 
 								<button type="button" class="qna-search-btn" @click="applyQnaFilter">
 									<i class="ri-search-line"></i> 검색
@@ -1704,12 +1717,42 @@
 					m.url = r.imageList[0].imgUrl;
 				},
 				formatPrice(price) { if (!price) return '0원'; return Number(price).toLocaleString('ko-KR') + '원'; },
+				// 재고 수량 +, - 버튼
 				chgQty(d) {
 					const max = this.displayQty;
 					const next = this.qty + d;
 					if (next < 1) return;
 					if (next > max) { showToast('재고가 부족합니다. (최대 ' + max + '개)'); return; }
 					this.qty = next;
+				},
+				// 재고 수량 직접 입력
+				onQtyInput(event) {
+					const raw = event.target.value;
+					const max = this.displayQty;
+
+					// 입력 중엔 건드리지 않음 (빈값, "0", "01" 등 중간 상태 허용)
+					if (raw === '' || raw === '0') {
+						this.qty = 0;  // 내부값만 0으로, input은 그대로
+						return;
+					}
+
+					const val = parseInt(raw);
+					if (isNaN(val)) return;  // 숫자가 아니면 무시
+
+					if (val > max) {
+						this.qty = max;
+						event.target.value = max;  // 초과분만 보정
+						showToast('재고가 부족합니다. (최대 ' + max + '개)');
+					} else {
+						this.qty = val;  // 정상 범위면 그냥 반영
+					}
+				},
+				onQtyBlur(event) {
+					// 포커스 벗어날 때 빈 값이면 1로 리셋
+					if (!event.target.value || parseInt(event.target.value) < 1) {
+						this.qty = 1;
+						event.target.value = 1;
+					}
 				},
 				formatDateCal(dateVal) {
 					const d = new Date(dateVal);
@@ -2003,13 +2046,17 @@
 					if (btn) {
 						btn.click();
 						setTimeout(function () {
-							document.getElementById('tp-rev')?.scrollIntoView({
-								behavior: 'smooth',
-								block: 'start'
+						const tnav = document.querySelector('.tnav');
+						if (tnav) {
+							const targetTop = tnav.getBoundingClientRect().top + window.scrollY - 90;
+							window.scrollTo({
+							top: targetTop,
+							behavior: 'smooth'
 							});
+						}
 						}, 50);
 					}
-				},
+					},
 				fnBuyNow() {
 					if (this.productOptions.length > 0) {
 						const optionGroupCount = Object.keys(this.groupedOptions).length;

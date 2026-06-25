@@ -2350,10 +2350,9 @@ nav {
 /* 최근 본 상품 - 컨텐츠 폭과 무관하게 화면 우측에 고정되는 플로팅 패널 */
 .recent-sidebar {
   position: fixed;
-  top: 220px;
   right: 24px;
   z-index: 150;
-  width: 190px;
+  width: 140px;
   max-height: calc(100vh - 260px);
   overflow-y: auto;
   scrollbar-width: none;
@@ -2362,6 +2361,11 @@ nav {
   border-radius: 22px;
   background: #fffdf8;
   box-shadow: 0 12px 28px rgba(44, 30, 15, 0.10);
+}
+
+.recent-sidebar.is-expanded {
+  max-height: none;
+  overflow-y: visible;
 }
 
 .recent-sidebar::-webkit-scrollbar {
@@ -2396,6 +2400,10 @@ nav {
   gap: 8px;
 }
 
+.recent-scroll.recent-extra {
+  margin-top: 8px;
+}
+
 .recent-mini-card {
   flex-shrink: 0;
   width: 100%;
@@ -2416,6 +2424,48 @@ nav {
   opacity: .88;
   transform: scale(0.97);
 }
+
+/* 최근 본 - 더보기 / 접기 토글 버튼 */
+.recent-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 7px 0;
+  border: 1.5px solid #eadfce;
+  border-radius: 999px;
+  background: #fffdf8;
+  color: var(--brown3);
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+
+.recent-toggle i {
+  font-size: 13px;
+  line-height: 1;
+  color: var(--brown4);
+  transition: transform .18s ease, color .18s ease;
+}
+
+.recent-toggle i.open {
+  transform: rotate(180deg);
+}
+
+.recent-toggle:hover {
+  border-color: var(--orange);
+  background: var(--orange);
+  color: #fff;
+}
+
+.recent-toggle:hover i {
+  color: #fff;
+}
+
 .active-filter-bar {
   display: flex;
   align-items: center;

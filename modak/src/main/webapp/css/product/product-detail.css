@@ -1369,10 +1369,7 @@ body.rent .rent-only {
 	border-radius: 10px;
 }
 
-.qty-num {
-	min-width: 34px;
-	text-align: center;
-}
+
 
 .stock-text {
 	padding: 5px 9px;
@@ -3418,19 +3415,35 @@ body.rent .delbox .dv.rent-only {
 	color: #e8732a;
 }
 
+/* 재고수량 */
 .qty-num {
-	width: 52px;
-	height: 38px;
-	border-top: 1px solid #eadfca;
-	border-bottom: 1px solid #eadfca;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: #fff;
-	color: #2c1e0f;
-	font-size: 14px;
-	font-weight: 800;
+    width: 52px;
+    height: 38px;
+    border-top: 1px solid #eadfca;
+    border-bottom: 1px solid #eadfca;
+    border-left: none;
+    border-right: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    color: #2c1e0f;
+    font-size: 14px;
+    font-weight: 800;
+    min-width: 34px;
+    text-align: center;
+    outline: none;
+    font-family: inherit;
+    -moz-appearance: textfield;
+    cursor: text;
 }
+
+.qty-num::-webkit-inner-spin-button,
+.qty-num::-webkit-outer-spin-button {
+    -webkit-appearance: none; /* Chrome 화살표 숨김 */
+    margin: 0;
+}
+
 
 .stock-text {
 	margin-left: 10px;
@@ -3902,7 +3915,6 @@ body.rent .delbox .dv.rent-only {
 }
 
 .option-section {
-	margin: 18px 0 18px;
 	padding: 18px 18px 16px;
 	border: 1px solid #f1e2c8;
 	border-radius: 16px;
@@ -4262,6 +4274,48 @@ body.rent .delbox .dv.rent-only {
 	.qna-search-input {
 		max-width: none;
 	}
+}
+
+/* QnA 검색 input wrapper (X 버튼 포함) */
+.qna-input-wrap {
+    position: relative;
+    flex: 1;
+    max-width: 320px;
+    display: flex;
+    align-items: center;
+}
+
+.qna-input-wrap .qna-search-input {
+    max-width: 100%;
+    width: 100%;
+    padding-right: 34px; /* X 버튼 공간 확보 */
+}
+
+.qna-input-clear {
+    position: absolute;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #bbb;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+}
+
+.qna-input-clear:hover {
+    background: #f3e8da;
+    color: var(--orange);
+}
+
+.qna-input-clear i {
+    font-size: 15px;
+    line-height: 1;
 }
 
 

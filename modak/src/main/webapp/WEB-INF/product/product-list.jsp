@@ -327,7 +327,7 @@
 
 					<div class="recent-sidebar" v-if="recentList.length > 0"
 						:class="{ 'is-expanded': recentExpanded }"
-						:style="{ left: recentLeft + 'px' }">
+						:style="{ left: recentLeft + 'px', top: recentTop + 'px' }">
 						<div class="recent-head">
 							<h3><i class="ri-history-line"></i> 최근 본</h3>
 						</div>
@@ -434,6 +434,7 @@
 								wishedIds: new Set(),
 								recentList: [],
 								recentLeft: 9999,
+								recentTop: 220, // 초기 fallback 값
 								recentExpanded: false,
 								searchKeyword: '', // 검색어 변수
 								priceRange: null, // 가격 필터링
@@ -521,9 +522,9 @@
 							visibleRecentList() {
 								return this.recentList.slice(0, 4);
 							},
-							// 5~10번째는 '더보기' 클릭 시에만 노출
+							// 5~7번째는 '더보기' 클릭 시에만 노출, 스크롤 X
 							extraRecentList() {
-								return this.recentList.slice(4, 10);
+								return this.recentList.slice(4, 6);
 							},
 						},
 
@@ -778,6 +779,11 @@
 									var gap = 16;
 									// grid-wrap 우측 끝 + 간격 = 패널이 시작되어야 할 left 좌표
 									this.recentLeft = rect.right + gap;
+
+									var sidebarEl = document.querySelector('.sidebar');
+									if (sidebarEl) {
+									this.recentTop = sidebarEl.getBoundingClientRect().top;
+									}
 								});
 							},
 							fetchBrandList() {
@@ -919,7 +925,25 @@
 
 							fnHandleScroll() {
 								this.showTopBtn = window.scrollY > 420;
-							},
+
+								// 스크롤 이벤트가 짧은 시간에 여러 번 발생해도, 화면이 실제로 그려지는 시점(rAF)에 딱 한 번만 계산
+								if (this._recentTopTicking) return;
+								this._recentTopTicking = true;
+
+								requestAnimationFrame(() => {
+									this._recentTopTicking = false;
+
+									var sidebarEl = document.querySelector('.sidebar');
+									var refEl = (sidebarEl && sidebarEl.offsetParent !== null) ? sidebarEl : document.querySelector('.grid-wrap');
+
+									if (refEl) {
+									var top = refEl.getBoundingClientRect().top;
+									if (top !== this.recentTop) {
+										this.recentTop = top;
+									}
+									}
+								});
+								},
 							fnGoEvent() {
 								location.href = "/event/list.do";
 							},

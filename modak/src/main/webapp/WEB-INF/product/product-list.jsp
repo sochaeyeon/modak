@@ -245,6 +245,11 @@
 									<div class="pcard-img">
 										<img :src="product.imgUrl || '/img/product/default.jpg'" class="pcard-photo"
 											alt="상품 이미지">
+										<div class="live-viewer-badge"
+											v-if="fnLiveViewers(product) > 0 && !isUrgentStock(product)">
+											<span class="live-dot"></span>
+											{{ fnLiveViewers(product) }}명이 보는 중
+										</div>
 
 										<div class="type-badge"
 											:class="product.productType === 'RENTAL' ? 'type-rent' : 'type-buy'">
@@ -313,6 +318,7 @@
 													v-if="product.rCount >= 10 && product.rating >= 4.5">
 													<i class="ri-fire-fill"></i> 리뷰 {{ product.rCount }}개
 												</div>
+
 												<div class="pcard-cat">{{ product.categoryName }}</div>
 												<div class="pcard-name">
 													{{ product.productName }}
@@ -548,8 +554,8 @@
 							fnLiveViewers(product) {
 								const id = product.productId;
 								if (this.liveViewers[id] === undefined) {
-									const show = Math.random() < 0.6;
-									this.liveViewers[id] = show ? Math.floor(Math.random() * 36) + 3 : 0; // 3~38명
+									const show = Math.random() < 0.2;
+									this.liveViewers[id] = show ? Math.floor(Math.random() * 36) + 3 : 0;
 								}
 								return this.liveViewers[id];
 							},

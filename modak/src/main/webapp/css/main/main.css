@@ -495,10 +495,10 @@ a {
 .product-card {
     position: relative;
     overflow: hidden;
-    border-radius: 16px !important;
+    border-radius: 18px !important;
     box-shadow: none !important;
     cursor: pointer;
-    transition: border-color .15s ease, box-shadow .15s ease !important;
+    transition: border-color .16s ease, box-shadow .16s ease !important;
 }
 
 .product-card:hover {
@@ -513,8 +513,8 @@ a {
     font-size: 56px;
     position: relative;
     aspect-ratio: 1 / 0.85 !important;
-    background: var(--cream2) !important;
-    border-radius: 16px 16px 0 0 !important;
+    background: #f1e7d8 !important;
+    border-radius: 18px 18px 0 0 !important;
     overflow: hidden;
 }
 
@@ -533,75 +533,142 @@ a {
 .wish-btn {
     position: absolute;
     border-radius: 50%;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.7);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all .2s;
+    transition: all .2s ease;
     z-index: 10;
     top: 12px !important;
     right: 12px !important;
-    width: 34px !important;
-    height: 34px !important;
-    background: rgba(255, 255, 255, 0.88) !important;
-    box-shadow: 0 2px 8px rgba(46, 26, 14, .12) !important;
+    width: 36px !important;
+    height: 36px !important;
+    background: rgba(255, 253, 248, 0.92) !important;
+    box-shadow: 0 4px 12px rgba(44, 30, 15, 0.10) !important;
 }
 
 .wish-btn:hover {
     transform: none !important;
-    background: #fff !important;
-    box-shadow: 0 6px 16px rgba(224, 75, 106, .18) !important;
+    background: #fffdf8 !important;
+    box-shadow: 0 6px 16px rgba(224, 75, 106, 0.16) !important;
 }
 
 .wish-btn svg {
-    width: 17px;
-    height: 17px;
-    stroke: #bbb;
+    width: 16px;
+    height: 16px;
+    color: #b9a18c;
     fill: none;
-    stroke-width: 1.8;
-    transition: stroke .2s, fill .2s;
+    stroke: currentColor;
+    stroke-width: 2;
+    transition: all .2s ease;
+}
+
+.wish-btn:hover svg {
+    color: #e04b6a;
+    stroke: #e04b6a;
 }
 
 .wish-btn.on svg {
-    stroke: #ee0033;
-    fill: #ee0033;
+    color: #e04b6a;
+    fill: #e04b6a;
+    stroke: #e04b6a;
 }
 
 .wish-btn.on {
-    background: #fff8f8;
+    background: rgba(255, 253, 248, 0.92) !important;
+}
+
+.wish-btn.on:hover svg {
+    color: #c83d5c;
+    fill: #c83d5c;
+    stroke: #c83d5c;
 }
 
 .product-info {
-    padding: 10px 14px 15px !important;
+    padding: 12px 14px 14px !important;
 }
 
 .product-tag {
-    align-items: center;
-    width: fit-content;
     display: inline-block !important;
+    align-self: flex-start;
+    width: fit-content;
     margin-bottom: 8px !important;
-    padding: 1px 7px !important;
-    border: 1px solid rgba(44, 30, 15, 0.08) !important;
+    padding: 3px 8px !important;
+    border: 1px solid rgba(232, 115, 42, 0.18) !important;
     border-radius: 999px !important;
-    background: rgba(212, 90, 122, 0.08) !important;
-    color: #d45a7a !important;
-    font-size: 11px !important;
-    font-weight: 600 !important;
+    background: #fff4ea !important;
+    color: var(--orange) !important;
+    font-size: 10px !important;
+    font-weight: 900 !important;
     letter-spacing: .03em !important;
 }
 
 .product-name {
-    margin-bottom: 0 !important;
     display: -webkit-box;
     overflow: hidden;
     color: var(--brown) !important;
     font-size: 13px !important;
-    font-weight: 700 !important;
+    font-weight: 500 !important;
     line-height: 1.4;
-    margin: 0 !important;
+    margin: 0 0 6px !important;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+    transition: color .18s ease;
+}
+
+.product-card:hover .product-name {
+    color: var(--orange) !important;
+}
+
+.pcard-brand {
+    color: var(--brown4);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.stars {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 6px;
+}
+
+.stars .star-layer-wrap {
+    position: relative;
+    display: inline-block;
+    width: 70px;
+    height: 16px;
+    line-height: 16px;
+    overflow: hidden;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+.stars .star-layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    white-space: nowrap;
+    font-size: 14px;
+    line-height: 16px;
+    letter-spacing: 0;
+}
+
+.stars .star-base { color: #ddd; }
+.stars .star-fill { color: #f5b301; overflow: hidden; width: 0; }
+
+.star-count {
+    color: var(--brown4);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-top: 2px;
 }
 
 .product-stars {
@@ -2178,12 +2245,13 @@ a {
 
 .product-card {
     background: #fffdf8 !important;
-    border: 1px solid rgba(226, 216, 195, .95) !important;
+    border: 1px solid #eadfce !important;
 }
 
 .product-card:hover {
-    border-color: rgba(232, 115, 42, .55) !important;
-    box-shadow: 0 8px 20px rgba(44, 30, 15, .07) !important;
+    border-color: var(--orange) !important;
+    box-shadow: 0 8px 20px rgba(232, 115, 42, 0.10) !important;
+    transform: translateY(-1px) !important;
 }
 
 .guide-title-icon {
@@ -2377,34 +2445,33 @@ a {
 /* ── 상품 타입 뱃지 (인기 장비) ── */
 .type-badge {
     position: absolute;
-    top: 44px;
+    top: 12px;
     left: 12px;
     z-index: 10;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 4px;
-    padding: 4px 9px;
-    border-radius: 7px;
-    font-size: 11px;
-    font-weight: 700;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    box-shadow: 0 2px 8px rgba(44, 30, 15, .15);
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 13px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: -0.2px;
+    box-shadow: 0 4px 10px rgba(44, 30, 15, 0.18);
 }
-.type-badge i { font-size: 11px; }
+.type-badge i { font-size: 13px; line-height: 1; }
 
 .type-rent {
-    background: rgba(232, 115, 42, .88);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, .25);
+    background: #E8732A;
+    box-shadow: 0 4px 12px rgba(232, 115, 42, 0.32);
 }
 .type-buy {
-    background: rgba(52, 152, 219, .88);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, .25);
+    background: #3BA55D;
+    box-shadow: 0 4px 12px rgba(59, 165, 93, 0.32);
 }
 .type-both {
-    background: rgba(46, 204, 113, .88);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, .25);
+    background: #3BA55D;
+    box-shadow: 0 4px 12px rgba(59, 165, 93, 0.32);
 }

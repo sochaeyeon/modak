@@ -59,7 +59,7 @@ public class WeatherController {
 
             String apiUrl = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"
                     + "?serviceKey=" + weatherKey.trim()
-                    + "&pageNo=1&numOfRows=300&dataType=JSON"
+                    + "&pageNo=1&numOfRows=1000&dataType=JSON"
                     + "&base_date=" + baseDate
                     + "&base_time=" + baseTime
                     + "&nx=" + nx
@@ -164,8 +164,8 @@ public class WeatherController {
         URL url = new URL(apiUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
-        conn.setConnectTimeout(7000);
-        conn.setReadTimeout(7000);
+        conn.setConnectTimeout(10000);
+        conn.setReadTimeout(10000);
 
         int code = conn.getResponseCode();
 

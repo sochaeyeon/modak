@@ -2,15 +2,15 @@
 	<!DOCTYPE html>
 	<html lang="ko">
 
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>교환 신청 - 모닥모닥</title>
-		<link rel="stylesheet" href="/css/common/font.css">
-		<link rel="stylesheet" href="/css/order/order-exchange.css">
-		<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-		<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-		<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-		<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>교환 신청 - 모닥모닥</title>
+	<link rel="stylesheet" href="/css/common/font.css">
+	<link rel="stylesheet" href="/css/order/order-exchange.css">
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
 
 	</head>
 
@@ -206,24 +206,26 @@
 
 							<!-- 하단 차액 안내 박스 -->
 							<div v-if="selectedOptionId && priceDiff !== 0"
-							    style="margin-top:14px;padding:12px 16px;border-radius:10px;font-size:13px;"
-							    :style="{ background: priceDiff > 0 ? '#FFF4EE' : '#F0F7F1', border: priceDiff > 0 ? '1px solid #F5C4A0' : '1px solid #C5E0CB' }">
-							    <p :style="{ color: priceDiff > 0 ? '#E8732A' : '#4B8B57', fontWeight: 700 }">
-							        <i :class="priceDiff > 0 ? 'ri-add-circle-line' : 'ri-refund-2-line'"></i>
-							        {{ priceDiff > 0 ? '추가 결제 필요' : '환불 예정' }}:
-							        <strong>
-							            {{ priceDiff > 0
-							                ? Math.abs(priceDiff).toLocaleString()
-							                : Math.max(0, Math.abs(priceDiff) - (shippingFeeByReason > 0 ? totalShippingFee : 0)).toLocaleString() }}원
-							        </strong>
-							    </p>
-							    <p style="color:#9B7B68;margin-top:4px;font-size:12px;">
-							        {{ priceDiff > 0
-							            ? '교환 처리 후 고객센터를 통해 추가 결제가 안내됩니다.'
-							            : shippingFeeByReason > 0
-							                ? '차액 ' + Math.abs(priceDiff).toLocaleString() + '원 - 왕복배송비 ' + totalShippingFee.toLocaleString() + '원'
-							                : '교환 처리 완료 후 차액이 환불됩니다.' }}
-							    </p>
+								style="margin-top:14px;padding:12px 16px;border-radius:10px;font-size:13px;"
+								:style="{ background: priceDiff > 0 ? '#FFF4EE' : '#F0F7F1', border: priceDiff > 0 ? '1px solid #F5C4A0' : '1px solid #C5E0CB' }">
+								<p :style="{ color: priceDiff > 0 ? '#E8732A' : '#4B8B57', fontWeight: 700 }">
+									<i :class="priceDiff > 0 ? 'ri-add-circle-line' : 'ri-refund-2-line'"></i>
+									{{ priceDiff > 0 ? '추가 결제 필요' : '환불 예정' }}:
+									<strong>
+										{{ priceDiff > 0
+										? Math.abs(priceDiff).toLocaleString()
+										: Math.max(0, Math.abs(priceDiff) - (shippingFeeByReason > 0 ? totalShippingFee
+										: 0)).toLocaleString() }}원
+									</strong>
+								</p>
+								<p style="color:#9B7B68;margin-top:4px;font-size:12px;">
+									{{ priceDiff > 0
+									? '교환 처리 후 고객센터를 통해 추가 결제가 안내됩니다.'
+									: shippingFeeByReason > 0
+									? '차액 ' + Math.abs(priceDiff).toLocaleString() + '원 - 왕복배송비 ' +
+									totalShippingFee.toLocaleString() + '원'
+									: '교환 처리 완료 후 차액이 환불됩니다.' }}
+								</p>
 							</div>
 				</div>
 			</div>
@@ -445,16 +447,17 @@
 							</tr>
 							<!-- 환불 금액 표시 -->
 							<tr v-if="priceDiff < 0" style="border-top:2px solid var(--cream2);">
-							    <td style="padding:12px 0;color:#4B8B57;font-weight:700;">환불 예정</td>
-							    <td style="padding:12px 0;color:#4B8B57;font-weight:700;font-size:15px;">
+								<td style="padding:12px 0;color:#4B8B57;font-weight:700;">환불 예정</td>
+								<td style="padding:12px 0;color:#4B8B57;font-weight:700;font-size:15px;">
 									<span v-if="shippingFeeByReason > 0">
-									    {{ fnPrice(Math.max(0, Math.abs(priceDiff) - totalShippingFee)) }}
-									    <span style="font-size:11px;font-weight:400;color:#B09080;display:block;">
-									        (차액 {{ fnPrice(Math.abs(priceDiff)) }} - 왕복배송비 {{ fnPrice(totalShippingFee) }})
-									    </span>
+										{{ fnPrice(Math.max(0, Math.abs(priceDiff) - totalShippingFee)) }}
+										<span style="font-size:11px;font-weight:400;color:#B09080;display:block;">
+											(차액 {{ fnPrice(Math.abs(priceDiff)) }} - 왕복배송비 {{ fnPrice(totalShippingFee)
+											}})
+										</span>
 									</span>
-							        <span v-else>{{ fnPrice(Math.abs(priceDiff)) }}</span>
-							    </td>
+									<span v-else>{{ fnPrice(Math.abs(priceDiff)) }}</span>
+								</td>
 							</tr>
 							<tr v-if="exchangeMethod === 'PICKUP'">
 								<td style="padding:12px 0;color:var(--brown4);font-weight:600;">회수 주소</td>
@@ -564,23 +567,23 @@
 								selectedReason: '',
 								reasonDetail: '',
 								reasonList: [
-									{value: 'DEFECT', icon: 'ri-tools-line', label: '상품 불량/파손'},
-									{value: 'WRONG', icon: 'ri-error-warning-line', label: '오배송'},
-									{value: 'DIFF', icon: 'ri-file-list-3-line', label: '상품 설명 상이'},
-									{value: 'MISSING', icon: 'ri-inbox-unarchive-line', label: '구성품 누락'},
-									{value: 'MIND', icon: 'ri-chat-smile-2-line', label: '단순 변심'},
-									{value: 'OTHER', icon: 'ri-edit-2-line', label: '기타 직접 입력'},
+									{ value: 'DEFECT', icon: 'ri-tools-line', label: '상품 불량/파손' },
+									{ value: 'WRONG', icon: 'ri-error-warning-line', label: '오배송' },
+									{ value: 'DIFF', icon: 'ri-file-list-3-line', label: '상품 설명 상이' },
+									{ value: 'MISSING', icon: 'ri-inbox-unarchive-line', label: '구성품 누락' },
+									{ value: 'MIND', icon: 'ri-chat-smile-2-line', label: '단순 변심' },
+									{ value: 'OTHER', icon: 'ri-edit-2-line', label: '기타 직접 입력' },
 								],
 
 								exchangeMethod: 'PICKUP',
-								pickup: {zipcode: '', address: '', detailAddress: '', memo: ''},
+								pickup: { zipcode: '', address: '', detailAddress: '', memo: '' },
 
 								availableOptions: [],
 								selectedOptionId: '',
 								shippingFee: 0,
 								ISLAND_FEE: 3000,
 
-								modal: {show: false},
+								modal: { show: false },
 							};
 						},
 
@@ -599,23 +602,23 @@
 								return this.shippingFeeByReason + (this.isIslandAddr ? this.ISLAND_FEE : 0);
 							},
 							priceDiff: function () {
-							    if (!this.selectedOptionId || !this.availableOptions.length) return 0;
-							    var selected = this.availableOptions.find(function (o) {
-							        return String(o.optionItemId) === String(this.selectedOptionId);
-							    }.bind(this));
-							    if (!selected) return 0;  // extraPrice 체크 제거!
-							    var original = this.availableOptions.find(function (o) {
-							        return String(o.optionItemId) === String(this.orderInfo.optionItemId);
-							    }.bind(this));
-							    var originalPrice = original ? (original.extraPrice || 0) : 0;
-							    return (selected.extraPrice || 0) - originalPrice;
+								if (!this.selectedOptionId || !this.availableOptions.length) return 0;
+								var selected = this.availableOptions.find(function (o) {
+									return String(o.optionItemId) === String(this.selectedOptionId);
+								}.bind(this));
+								if (!selected) return 0;  // extraPrice 체크 제거!
+								var original = this.availableOptions.find(function (o) {
+									return String(o.optionItemId) === String(this.orderInfo.optionItemId);
+								}.bind(this));
+								var originalPrice = original ? (original.extraPrice || 0) : 0;
+								return (selected.extraPrice || 0) - originalPrice;
 							},
 						},
 
 						watch: {
-							'pickup.address': function () {this.shippingFee = this.totalShippingFee;},
-							'pickup.detailAddress': function () {this.shippingFee = this.totalShippingFee;},
-							selectedReason: function () {this.shippingFee = this.totalShippingFee;},
+							'pickup.address': function () { this.shippingFee = this.totalShippingFee; },
+							'pickup.detailAddress': function () { this.shippingFee = this.totalShippingFee; },
+							selectedReason: function () { this.shippingFee = this.totalShippingFee; },
 						},
 
 						methods: {
@@ -624,7 +627,7 @@
 								this.orderId = params.get('orderId') || '';
 								this.token = params.get('token') || '';
 
-								if (!this.orderId) {this.fnShowToast('잘못된 접근입니다.'); return;}
+								if (!this.orderId) { this.fnShowToast('잘못된 접근입니다.'); return; }
 
 								var isLogin = '${sessionScope.sessionId}' !== '';
 								if (!isLogin && !this.token) {
@@ -640,8 +643,8 @@
 									type: 'POST',
 									dataType: 'json',
 									data: self.token
-										? {orderId: self.orderId, token: self.token}
-										: {orderId: self.orderId},
+										? { orderId: self.orderId, token: self.token }
+										: { orderId: self.orderId },
 									success: function (res) {
 										self.isLoading = false;
 										if (res.result === 'success') {
@@ -688,7 +691,7 @@
 									'백령도', '연평도', '덕적도', '영흥도', '대부도', '거문도', '완도', '진도', '신안',
 									'흑산도', '홍도', '가거도', '비금도', '도초도', '여수시돌산', '남해도', '창선도',
 									'통영', '거제', '욕지도', '매물도', '고흥', '보성', '장흥'];
-								return patterns.some(function (p) {return n.includes(p);});
+								return patterns.some(function (p) { return n.includes(p); });
 							},
 
 							fnSubmit: function () {
@@ -736,18 +739,19 @@
 													optionName: (self.availableOptions.find(function (o) {
 														return String(o.optionItemId) === String(self.selectedOptionId);
 													}) || {}).itemName || '',
-													shippingFee: 0
+													shippingFee: 0,
+													productId: self.orderInfo.productId,
+													optionItemId: self.selectedOptionId
 												};
 												localStorage.setItem('checkout_items', JSON.stringify([item]));
 												location.href = '/payment/checkout.do?buyNow=true&cartType=EXCHANGE&exchangeId=' + res.exchangeId;
 
 											} else if (self.priceDiff < 0) {
-												// 차액 환불 → 판매자 귀책이면 배송비 무료, 구매자 귀책이면 배송비 차감
 												var isSellerFault = ['DEFECT', 'WRONG', 'DIFF', 'MISSING'].indexOf(self.selectedReason) >= 0;
 												var refundAmount = Math.abs(self.priceDiff);
 
 												if (!isSellerFault) {
-												    refundAmount = Math.max(0, refundAmount - self.totalShippingFee);
+													refundAmount = Math.max(0, refundAmount - self.totalShippingFee);
 												}
 												self.fnShowToast('환불 신청이 완료되었습니다. 환불 금액: ' + refundAmount.toLocaleString() + '원');
 												setTimeout(function () {
@@ -799,10 +803,10 @@
 							},
 
 							fnNext: function () {
-								if (!this.fnCanNext()) {this.fnShowToast('필수 항목을 입력해 주세요.'); return;}
+								if (!this.fnCanNext()) { this.fnShowToast('필수 항목을 입력해 주세요.'); return; }
 								if (this.currentStep < 3) {
 									this.currentStep++;
-									window.scrollTo({top: 0, behavior: 'smooth'});
+									window.scrollTo({ top: 0, behavior: 'smooth' });
 								} else {
 									this.fnSubmit();
 								}
@@ -811,17 +815,17 @@
 							fnPrev: function () {
 								if (this.currentStep > 1) {
 									this.currentStep--;
-									window.scrollTo({top: 0, behavior: 'smooth'});
+									window.scrollTo({ top: 0, behavior: 'smooth' });
 								} else {
 									history.back();
 								}
 							},
 
 							fnReasonLabel: function (val) {
-								var r = this.reasonList.find(function (r) {return r.value === val;});
+								var r = this.reasonList.find(function (r) { return r.value === val; });
 								return r ? r.label : '-';
 							},
-							fnPrice: function (v) {return Number(v || 0).toLocaleString() + '원';},
+							fnPrice: function (v) { return Number(v || 0).toLocaleString() + '원'; },
 							fnCountChar: function () {
 								if (this.reasonDetail.length > 300) this.reasonDetail = this.reasonDetail.slice(0, 300);
 							},
@@ -830,14 +834,14 @@
 								if (!t) return;
 								t.textContent = msg;
 								t.classList.add('show');
-								setTimeout(function () {t.classList.remove('show');}, 2400);
+								setTimeout(function () { t.classList.remove('show'); }, 2400);
 							},
-							fnCloseModal: function () {this.modal.show = false;},
-							fnGoHistory: function () {location.href = '/order/history.do';},
-							fnGoMain: function () {location.href = '/main.do';}
+							fnCloseModal: function () { this.modal.show = false; },
+							fnGoHistory: function () { location.href = '/order/history.do'; },
+							fnGoMain: function () { location.href = '/main.do'; }
 						},
 
-						mounted: function () {this.fnInit();}
+						mounted: function () { this.fnInit(); }
 					});
 
 					app.mount('#app');

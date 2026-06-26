@@ -220,7 +220,8 @@
 	<!-- 구매 재고 차감 -->
 	<update id="decreaseStockForPurchase" parameterType="hashmap">
 		UPDATE product_stock
-		SET AVAILABLE_QTY = AVAILABLE_QTY - #{quantity}
+		SET AVAILABLE_QTY = AVAILABLE_QTY - #{quantity}, 
+		TOTAL_QTY = TOTAL_QTY - #{quantity}
 		WHERE PRODUCT_ID = #{productId}
 		AND OPTION_ITEM_ID = #{optionItemId}
 		AND STOCK_DATE IS NULL

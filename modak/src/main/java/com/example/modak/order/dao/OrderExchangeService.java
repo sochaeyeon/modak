@@ -33,6 +33,7 @@ public class OrderExchangeService {
 			orderInfo.put("optionName", info.get("optionName"));
 			orderInfo.put("optionItemId", info.get("optionItemId"));
 			orderInfo.put("itemId", info.get("itemId"));
+			orderInfo.put("productId", info.get("productId")); 
 
 			HashMap<String, Object> addr = new HashMap<>();
 			addr.put("zipcode", info.get("zipcode"));
@@ -74,7 +75,6 @@ public class OrderExchangeService {
 				}
 			}
 			map.put("quantity", quantity);
-			System.out.println("=== exchange map: " + map);
 
 			// 1. 기존 옵션 재고 복구
 			if (oldOptionItemId != null && !oldOptionItemId.isEmpty()) {

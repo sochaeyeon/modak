@@ -6,15 +6,19 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.example.modak.product.mapper.ProductMapper;
+import com.example.modak.product.mapper.ProductRecommendMapper;
 import com.example.modak.product.model.Product;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,11 +37,15 @@ public class ProductRecommendService {
     // ProductMapper는 이미 있는 거 그대로 주입
     private final ProductMapper productMapper;
 
-    public ProductRecommendService(ProductMapper productMapper) {
+    // 캐시 테이블(PRODUCT_RECOMMEND) 조회/저장용 매퍼
+    private final ProductRecommendMapper recommendMapper;
+
+    public ProductRecommendService(ProductMapper productMapper, ProductRecommendMapper recommendMapper) {
         this.productMapper = productMapper;
+        this.recommendMapper = recommendMapper;
     }
 
-    public List<Product> recommend(int productId) {
+    private List<Product> computeRecommend(int productId) {
         // ① 현재 상품 정보 조회
         HashMap<String, Object> param = new HashMap<>();
         param.put("productId", productId);
@@ -48,7 +56,7 @@ public class ProductRecommendService {
         HashMap<String, Object> candidateParam = new HashMap<>();
         candidateParam.put("categoryId", current.getCategoryId());
         candidateParam.put("productId", productId);
-        List<Product> candidates = productMapper.selectRecommendCandidates(candidateParam);
+        List<Product> candidates = productMapper.selectCoPurchasedCandidates(candidateParam);
         if (candidates.isEmpty()) return List.of();
 
         // ③ 프롬프트 구성
@@ -82,6 +90,65 @@ public class ProductRecommendService {
         return result.isEmpty()
             ? candidates.subList(0, Math.min(4, candidates.size()))
             : result;
+    }
+
+    // 매달 1일 새벽 3시에 전체 상품 재분석 → 결과를 PRODUCT_RECOMMEND 테이블에 저장
+    @Scheduled(cron = "0 0 3 1 * *")
+    public void refreshAllRecommendations() {
+        List<Integer> productIds = recommendMapper.selectAllProductIds();
+
+        for (Integer productId : productIds) {
+            try {
+                List<Product> result = computeRecommend(productId);
+
+                HashMap<String, Object> delMap = new HashMap<>();
+                delMap.put("productId", productId);
+                recommendMapper.deleteRecommendByProductId(delMap);
+
+                int rank = 1;
+                for (Product p : result) {
+                    HashMap<String, Object> insertMap = new HashMap<>();
+                    insertMap.put("productId", productId);
+                    insertMap.put("recommendedProductId", p.getProductId());
+                    insertMap.put("rankOrder", rank++);
+                    insertMap.put("basis", "co-purchase");
+                    recommendMapper.insertRecommend(insertMap);
+                }
+            } catch (Exception e) {
+                e.printStackTrace(); // 한 상품 실패해도 나머지는 계속 돌게
+            }
+        }
+    }
+
+    // 컨트롤러가 실제로 호출하는 메서드 - AI 호출 없이 캐시 테이블만 조회
+    public List<Product> getRecommend(int productId) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("productId", productId);
+
+        List<HashMap<String, Object>> cached = recommendMapper.selectCachedRecommend(map);
+
+        if (cached.isEmpty()) {
+            // 신상품 등 캐시가 아직 없는 경우 - AI를 또 부르면 절감 의미가 없으니
+            // 카테고리 기반 후보를 AI 없이 그냥 보여줌
+            HashMap<String, Object> param = new HashMap<>();
+            param.put("productId", productId);
+            Product current = productMapper.selectProduct(param);
+            if (current == null) return List.of();
+
+            HashMap<String, Object> categoryParam = new HashMap<>();
+            categoryParam.put("categoryId", current.getCategoryId());
+            categoryParam.put("productId", productId);
+            List<Product> candidates = productMapper.selectRecommendCandidates(categoryParam);
+            return candidates.subList(0, Math.min(4, candidates.size()));
+        }
+
+        List<Integer> ids = cached.stream()
+            .map(m -> ((Number) m.get("recommendedProductId")).intValue())
+            .collect(Collectors.toList());
+
+        HashMap<String, Object> idsParam = new HashMap<>();
+        idsParam.put("ids", ids);
+        return productMapper.selectProductsByIds(idsParam);
     }
 
     private List<Integer> parseIds(String text) {

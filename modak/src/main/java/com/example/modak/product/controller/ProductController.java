@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.modak.product.dao.ProductRecommendService;
 import com.example.modak.product.dao.ProductService;
+import com.example.modak.product.model.Product;
 import com.example.modak.user.dao.ViewService;
 import com.google.gson.Gson;
 
@@ -154,8 +155,7 @@ public class ProductController {
 	    HashMap<String, Object> resultMap = new HashMap<>();
 	    try {
 	        int productId = Integer.parseInt(String.valueOf(map.get("productId")));
-	        List<com.example.modak.product.model.Product> list =
-	            productRecommendService.recommend(productId);
+	        List<Product> list = productRecommendService.getRecommend(productId); // recommend() → getRecommend()
 	        resultMap.put("result", "success");
 	        resultMap.put("list", list);
 	    } catch (Exception e) {
@@ -165,8 +165,7 @@ public class ProductController {
 	    return new Gson().toJson(resultMap);
 	}
 	
-	@RequestMapping(value = "/product/option/stock.dox", method = RequestMethod.POST,
-	        produces = "application/json;charset=UTF-8")
+	@RequestMapping(value = "/product/option/stock.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String getOptionStock(@RequestParam HashMap<String, Object> map) {
 	    return new Gson().toJson(productService.getOptionStock(map));

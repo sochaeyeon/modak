@@ -1733,10 +1733,6 @@ nav {
 .floating-top-btn:active {
   transform: translateY(0);
 }
-
-/* =========================================================
-   이벤트 배너
-========================================================= */
 .event-code-banner {
   position: relative;
   min-height: 188px;
@@ -1777,7 +1773,6 @@ nav {
 .event-code-banner:hover {
   border-color: rgba(232, 115, 42, 0.55);
   box-shadow: 0 16px 36px rgba(232, 115, 42, 0.12);
-  transform: none;
 }
 
 .event-banner-content {
@@ -1811,11 +1806,22 @@ nav {
 .event-banner-badge i {
   font-size: 15px;
   line-height: 1;
+  animation: giftWiggle 2.4s ease-in-out infinite;
+}
+
+@keyframes giftWiggle {
+  0%, 70%, 100% { transform: rotate(0deg); }
+  78% { transform: rotate(-12deg); }
+  86% { transform: rotate(10deg); }
+  94% { transform: rotate(-6deg); }
 }
 
 .event-banner-title {
   margin: 0 0 9px;
-  color: #2c1e0f;
+  background: linear-gradient(95deg, #2c1e0f 35%, var(--orange) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
   font-size: 30px;
   font-weight: 900;
   line-height: 1.25;
@@ -1833,11 +1839,20 @@ nav {
 .event-banner-link {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   margin-top: 17px;
-  color: var(--orange);
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: var(--orange);
+  color: #fff;
   font-size: 13px;
   font-weight: 900;
+  box-shadow: 0 8px 20px rgba(232, 115, 42, 0.32);
+  transition: background .18s ease, transform .18s ease;
+}
+
+.event-code-banner:hover .event-banner-link {
+  background: var(--orange2);
 }
 
 .event-banner-link i {
@@ -1867,6 +1882,12 @@ nav {
   color: var(--orange);
   border: 1px solid rgba(232, 115, 42, 0.18);
   box-shadow: 0 12px 26px rgba(44, 30, 15, 0.08);
+  animation: circleFloat 3.6s ease-in-out infinite;
+}
+
+@keyframes circleFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
 }
 
 .event-circle i {
@@ -1881,6 +1902,7 @@ nav {
   border-radius: 32px;
   background: var(--orange);
   color: #fff;
+  animation-delay: 0s;
 }
 
 .event-circle.main i {
@@ -1892,6 +1914,7 @@ nav {
   top: 46px;
   width: 66px;
   height: 66px;
+  animation-delay: .5s;
 }
 
 .event-circle.sub i {
@@ -1904,6 +1927,7 @@ nav {
   width: 48px;
   height: 48px;
   border-radius: 18px;
+  animation-delay: 1s;
 }
 
 .event-circle.small i {
@@ -2639,4 +2663,14 @@ nav {
   border-radius: 50%;
   background: #ff3b30;
   animation: liveDotBlink 1.3s ease-in-out infinite;
+}
+.filter-section {
+  padding: 14px 18px 12px;  
+}
+.filter-opts,
+.category-tree {
+  gap: 6px;  
+}
+.fopt {
+  min-height: 30px;  
 }

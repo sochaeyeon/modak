@@ -68,7 +68,8 @@
 						<!-- 검색창 -->
 						<div class="search-box">
 							<input type="text" v-model="searchKeyword" placeholder="검색어를 입력하세요" @keyup.enter="fnSearch">
-							<button type="button" class="search-clear" v-show="searchKeyword" @click="searchKeyword = ''; fnSearch()">
+							<button type="button" class="search-clear" v-show="searchKeyword"
+								@click="searchKeyword = ''; fnSearch()">
 								<i class="ri-close-line"></i>
 							</button>
 							<button type="button" @click="fnSearch">검색</button>
@@ -238,7 +239,8 @@
 
 							<div v-else :class="['product-grid', currentView === 'list' ? 'view-list' : '']">
 								<div v-for="product in pagedProducts" :key="product.productId" class="pcard"
-									:class="{ 'list-card': currentView === 'list' }" @click="fnView(product.productId)">
+									:class="{ 'list-card': currentView === 'list', 'stock-urgent': isUrgentStock(product) }"
+									@click="fnView(product.productId)">
 
 									<div class="pcard-img">
 										<img :src="product.imgUrl || '/img/product/default.jpg'" class="pcard-photo"
@@ -246,8 +248,20 @@
 
 										<div class="type-badge"
 											:class="product.productType === 'RENTAL' ? 'type-rent' : 'type-buy'">
-											<i :class="product.productType === 'RENTAL' ? 'ri-calendar-check-line' : 'ri-shopping-bag-3-fill'"></i>
+											<i
+												:class="product.productType === 'RENTAL' ? 'ri-calendar-check-line' : 'ri-shopping-bag-3-fill'"></i>
 											<span>{{ product.productType === 'RENTAL' ? '대여' : '구매' }}</span>
+										</div>
+										<div class="img-urgent-overlay" v-if="isUrgentStock(product)">
+											<div class="img-urgent-text">
+												<i class="ri-fire-fill"></i>
+												품절임박 · {{ product.availableQty }}개 남음
+											</div>
+											<div class="img-urgent-bar">
+												<div class="img-urgent-fill"
+													:style="{ width: Math.min(100, Math.round((product.availableQty / 6) * 100)) + '%' }">
+												</div>
+											</div>
 										</div>
 									</div>
 									<button class="wish-btn" type="button"
@@ -264,6 +278,10 @@
 													<div class="social-badge"
 														v-if="product.rCount >= 10 && product.rating >= 4.5">
 														<i class="ri-fire-fill"></i> 리뷰 {{ product.rCount }}개
+													</div>
+													<div class="live-viewer-badge" v-if="fnLiveViewers(product) > 0">
+														<span class="live-dot"></span>
+														{{ fnLiveViewers(product) }}명이 보는 중
 													</div>
 													<div class="pcard-cat">{{ product.categoryName }}</div>
 													<div class="pcard-name">
@@ -316,7 +334,7 @@
 														1박</span>
 												</div>
 											</template>
-										</div>										
+										</div>
 									</div>
 								</div>
 							</div>
@@ -325,8 +343,7 @@
 						</div>
 					</div>
 
-					<div class="recent-sidebar" v-if="recentList.length > 0"
-						:class="{ 'is-expanded': recentExpanded }"
+					<div class="recent-sidebar" v-if="recentList.length > 0" :class="{ 'is-expanded': recentExpanded }"
 						:style="{ left: recentLeft + 'px', top: recentTop + 'px' }">
 						<div class="recent-head">
 							<h3><i class="ri-history-line"></i> 최근 본</h3>
@@ -417,6 +434,7 @@
 
 						data() {
 							return {
+								liveViewers: {},
 								products: [],
 								brandList: [],
 								loading: false,
@@ -518,18 +536,28 @@
 
 								return list;
 							},
-							// 최근 본 상품 - 앞 4개는 항상 노출
 							visibleRecentList() {
 								return this.recentList.slice(0, 4);
 							},
-							// 5~7번째는 '더보기' 클릭 시에만 노출, 스크롤 X
 							extraRecentList() {
 								return this.recentList.slice(4, 6);
 							},
 						},
 
 						methods: {
-
+							fnLiveViewers(product) {
+								const id = product.productId;
+								if (this.liveViewers[id] === undefined) {
+									const show = Math.random() < 0.6;
+									this.liveViewers[id] = show ? Math.floor(Math.random() * 36) + 3 : 0; // 3~38명
+								}
+								return this.liveViewers[id];
+							},
+							isUrgentStock(product) {
+								if (product.availableQty === undefined || product.availableQty === null) return false;
+								if (product.productType !== 'PURCHASE') return false;
+								return product.availableQty <= 6;
+							},
 							getSortLabel() {
 								if (this.sortKey === 'popular') return '인기 장비';
 								if (this.sortKey === 'newest') return '최신 장비';
@@ -598,6 +626,9 @@
 									data: param,
 									traditional: true,
 									success: function (data) {
+										console.log("전체 응답:", data);
+										console.log("list 첫번째:", data.list ? data.list[0] : 'list없음');
+
 										self.products = Array.isArray(data.list) ? data.list : [];
 										self.loading = false;
 
@@ -782,7 +813,7 @@
 
 									var sidebarEl = document.querySelector('.sidebar');
 									if (sidebarEl) {
-									this.recentTop = sidebarEl.getBoundingClientRect().top;
+										this.recentTop = sidebarEl.getBoundingClientRect().top;
 									}
 								});
 							},
@@ -937,13 +968,13 @@
 									var refEl = (sidebarEl && sidebarEl.offsetParent !== null) ? sidebarEl : document.querySelector('.grid-wrap');
 
 									if (refEl) {
-									var top = refEl.getBoundingClientRect().top;
-									if (top !== this.recentTop) {
-										this.recentTop = top;
-									}
+										var top = refEl.getBoundingClientRect().top;
+										if (top !== this.recentTop) {
+											this.recentTop = top;
+										}
 									}
 								});
-								},
+							},
 							fnGoEvent() {
 								location.href = "/event/list.do";
 							},
@@ -976,7 +1007,14 @@
 							this.fnGetRecentList();
 							this.fnUpdateRecentRight();
 							window.addEventListener('keydown', this.fnKeyEnter);
-
+							this._viewerTimer = setInterval(() => {
+								Object.keys(this.liveViewers).forEach(id => {
+									if (this.liveViewers[id] > 0) {
+										const delta = Math.floor(Math.random() * 5) - 2; // -2 ~ +2
+										this.liveViewers[id] = Math.max(2, this.liveViewers[id] + delta);
+									}
+								});
+							}, 4000);
 							var self = this;
 							var params = new URLSearchParams(window.location.search);
 
@@ -1014,6 +1052,7 @@
 							window.addEventListener('resize', this.fnUpdateRecentRight);
 						},
 						unmounted() {
+							clearInterval(this._viewerTimer);
 							window.removeEventListener('scroll', this.fnHandleScroll);
 							window.removeEventListener('resize', this.fnUpdateRecentRight);
 						}

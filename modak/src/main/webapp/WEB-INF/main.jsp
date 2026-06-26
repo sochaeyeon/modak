@@ -687,12 +687,19 @@
 			          this.fetchShort(region.nx, region.ny),
 			          this.fetchMid(region.taId, region.landId)
 			        ]);
-			        var sR = results[0], mR = results[1], result = [], self = this;
+			        var sR = results[0], mR = results[1], self = this;
+			        var today = this.getDateStr(0), tmr = this.getDateStr(1);
+
+			        /* 오늘·내일은 항상 먼저 플레이스홀더로 초기화 */
+			        var result = [
+			          { label: '오늘', icon: '🌤️', max: '-°', min: '-°', rain: '-%' },
+			          { label: '내일', icon: '🌤️', max: '-°', min: '-°', rain: '-%' }
+			        ];
 
 			        /* ── 단기예보 (오늘 / 내일) ── */
 			        if (sR.result === 'success') {
-			          var items = sR.data.response.body.items.item;
-			          var today = this.getDateStr(0), tmr = this.getDateStr(1);
+			          var rawItems = sR.data.response.body.items.item;
+			          var items = Array.isArray(rawItems) ? rawItems : (rawItems ? [rawItems] : []);
 			          var byDate = {};
 
 			          items.forEach(function (item) {
@@ -711,13 +718,13 @@
 			            var mx = d.max != null ? Math.round(d.max) : d.temps.length > 0 ? Math.max.apply(null, d.temps) : null;
 			            var mn = d.min != null ? Math.round(d.min) : d.temps.length > 0 ? Math.min.apply(null, d.temps) : null;
 			            var maxPop = d.pops.length > 0 ? Math.max.apply(null, d.pops) : null;
-			            result.push({
+			            result[i] = {
 			              label: i === 0 ? '오늘' : '내일',
 			              icon:  self.skyToIcon(d.sky, d.pty),
 			              max:   mx != null ? mx + '°' : '-°',
 			              min:   mn != null ? mn + '°' : '-°',
 			              rain:  maxPop != null ? maxPop + '%' : '-%'
-			            });
+			            };
 			          });
 			        }
 
@@ -861,10 +868,6 @@
                   var score = Number(rating);
                   if (isNaN(score)) score = 0;
 
-                  var rank = i + 1;
-                  var rankIcon = rank === 1 ? '<i class="ri-fire-fill"></i>' : '';
-                  var rankHtml = '<div class="rank-badge rank-' + rank + '">' + rankIcon + '<span>' + rank + '위</span></div>';
-
                   var typeBadgeHtml = '';
                   if (type === 'PURCHASE') {
                     typeBadgeHtml = '<div class="type-badge type-buy"><i class="ri-shopping-bag-3-line"></i>구매</div>';
@@ -878,55 +881,20 @@
                     ? '<img src="' + img + '" style="width:100%;height:100%;object-fit:cover;">'
                     : '<span style="font-size:56px">🏕️</span>';
 
-                  var catHtml = cat
-                    ? '<p class="product-tag">' + cat + '</p>'
-                    : '';
-
-                  var brandHtml = brand
-                    ? '<span class="product-brand">' + brand + '</span>'
-                    : '';
-
-                  var ratingHtml =
-                    '<div class="product-rating">'
-                    + '<span class="rating-stars">' + makeStars(score) + '</span>'
-                    + '<span class="rating-score">' + score.toFixed(1) + ' (' + reviewCnt + ')</span>'
-                    + '</div>';
-
-                  var rentBtn = type !== 'PURCHASE'
-                    ? '<button type="button" class="btn-rent pop-rent" data-pid="' + pid + '">대여하기</button>'
-                    : '';
-
-                  var buyBtn = type !== 'RENTAL'
-                    ? '<button type="button" class="btn-buy pop-buy" data-pid="' + pid + '">구매하기</button>'
-                    : '';
-
                   html += ''
                     + '<div class="product-card fade-up pop-card" data-pid="' + pid + '" data-name="' + name.replace(/"/g, '') + '" data-img="' + img + '">'
                     + '<div class="product-img">'
-                    + rankHtml
                     + typeBadgeHtml
                     + imgHtml
                     + '<button type="button" class="wish-btn" data-pid="' + pid + '">'
-                    + '<svg viewBox="0 0 24 24">'
-                    + '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 1.06-8.84z"></path>'
-                    + '</svg>'
+                    + '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 1.06-8.84z"></path></svg>'
                     + '</button>'
                     + '</div>'
                     + '<div class="product-info">'
-                    + catHtml
-                    + '<div class="product-name-line">'
-                    + '<p class="product-name">' + name + '</p>'
-                    + brandHtml
-                    + '</div>'
-                    + ratingHtml
-                    + '<div class="product-price">'
-                    + '<span class="price-main">' + price + '원</span>'
-                    + '<span class="price-unit">' + (type !== 'PURCHASE' ? '/ 1박' : '') + '</span>'
-                    + '</div>'
-                    + '<div class="product-btns">'
-                    + rentBtn
-                    + buyBtn
-                    + '</div>'
+                    + (cat ? '<span class="product-tag">' + cat + '</span>' : '')
+                    + '<p class="product-name">' + name + (brand ? ' · <span class="pcard-brand">' + brand + '</span>' : '') + '</p>'
+                    + '<div class="stars">' + makeStars(score) + '<span class="star-count">(' + reviewCnt + ')</span></div>'
+                    + '<div class="price-row"><span class="price-main">' + price + '</span><span class="price-unit">원</span></div>'
                     + '</div>'
                     + '</div>';
                 });
@@ -935,22 +903,12 @@
 
                 grid.onclick = function (e) {
                   var wish = e.target.closest('.wish-btn');
-                  var rent = e.target.closest('.pop-rent');
-                  var buy = e.target.closest('.pop-buy');
                   var card = e.target.closest('.pop-card');
 
                   if (wish) {
                     e.preventDefault();
                     e.stopPropagation();
                     fnWish(e, wish, parseInt(wish.dataset.pid));
-                    return;
-                  }
-
-                  if (rent || buy) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    var btn = rent || buy;
-                    location.href = '/product/detail.do?productId=' + btn.dataset.pid;
                     return;
                   }
 

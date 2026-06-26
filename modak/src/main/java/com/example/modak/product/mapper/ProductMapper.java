@@ -57,5 +57,14 @@ public interface ProductMapper {
 	public List<HashMap<String, Object>> selectAllCategoryList();
 
 	public Integer selectOptionItemId(HashMap<String, Object> map);
+	
+	/** AI 추천용 같은 카테고리 후보 상품 (현재 상품 제외, 최대 30개) */
+	public List<Product> selectRecommendCandidates(HashMap<String, Object> map);
+
+	/** AI가 선택한 productId 목록으로 상품 조회 */
+	public List<Product> selectProductsByIds(HashMap<String, Object> map);
+	
+	// 옵션별 재고 확인
+	public HashMap<String, Object> selectOptionStock(HashMap<String, Object> map);
 
 }

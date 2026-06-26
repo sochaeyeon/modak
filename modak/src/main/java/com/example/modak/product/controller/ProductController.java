@@ -1,6 +1,7 @@
 package com.example.modak.product.controller;
 
 import java.util.HashMap;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.example.modak.product.dao.ProductRecommendService;
 import com.example.modak.product.dao.ProductService;
 import com.example.modak.user.dao.ViewService;
 import com.google.gson.Gson;
@@ -21,6 +23,9 @@ public class ProductController {
 
 	@Autowired
 	ProductService productService;
+	
+	@Autowired
+	ProductRecommendService productRecommendService;
 
 	@Autowired
 	ViewService viewService;
@@ -141,6 +146,30 @@ public class ProductController {
 		resultMap.put("list", productService.selectAllCategoryList());
 
 		return resultMap;
+	}
+	
+	@RequestMapping(value = "/product/ai/recommend.dox", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String aiRecommend(@RequestParam HashMap<String, Object> map) {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    try {
+	        int productId = Integer.parseInt(String.valueOf(map.get("productId")));
+	        List<com.example.modak.product.model.Product> list =
+	            productRecommendService.recommend(productId);
+	        resultMap.put("result", "success");
+	        resultMap.put("list", list);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result", "fail");
+	    }
+	    return new Gson().toJson(resultMap);
+	}
+	
+	@RequestMapping(value = "/product/option/stock.dox", method = RequestMethod.POST,
+	        produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String getOptionStock(@RequestParam HashMap<String, Object> map) {
+	    return new Gson().toJson(productService.getOptionStock(map));
 	}
 
 }

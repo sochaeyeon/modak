@@ -18,29 +18,34 @@
 			<div id="app" v-cloak>
 				<div class="wrap">
 					<div class="ptop">
-						<div class="gallery">
-							<div class="gallery-sticky">
-								<div class="gm product-main-gallery" @click="openImg(mainImgUrl)">
-									<button type="button" class="gallery-arrow gallery-prev"
-										@click.stop="changeMainImg(-1)" v-if="productImages.length > 1">
-										<i class="ri-arrow-left-s-line"></i>
-									</button>
+						<div class="ptop-inner">
+							<a href="/product/list.do" class="back-to-list">
+								<i class="ri-arrow-left-line"></i>
+							</a>
+							<div class="gallery">
+								<div class="gallery-sticky">
+									<div class="gm product-main-gallery" @click="openImg(mainImgUrl)">
+										<button type="button" class="gallery-arrow gallery-prev"
+											@click.stop="changeMainImg(-1)" v-if="productImages.length > 1">
+											<i class="ri-arrow-left-s-line"></i>
+										</button>
 
-									<div class="gem">
-										<img v-if="mainImgUrl" :src="mainImgUrl" alt="상품 메인 이미지">
-										<img v-else src="/img/product/default.jpg" alt="기본 이미지">
+										<div class="gem">
+											<img v-if="mainImgUrl" :src="mainImgUrl" alt="상품 메인 이미지">
+											<img v-else src="/img/product/default.jpg" alt="기본 이미지">
+										</div>
+
+										<button type="button" class="gallery-arrow gallery-next"
+											@click.stop="changeMainImg(1)" v-if="productImages.length > 1">
+											<i class="ri-arrow-right-s-line"></i>
+										</button>
 									</div>
 
-									<button type="button" class="gallery-arrow gallery-next"
-										@click.stop="changeMainImg(1)" v-if="productImages.length > 1">
-										<i class="ri-arrow-right-s-line"></i>
-									</button>
-								</div>
-
-								<div class="gthumbs">
-									<div v-for="(img, idx) in productImages" :key="idx" class="gth"
-										:class="{ on: mainImgUrl === img.imgUrl }" @click.stop="setMainImg(img.imgUrl)">
-										<img :src="img.imgUrl">
+									<div class="gthumbs">
+										<div v-for="(img, idx) in productImages" :key="idx" class="gth"
+											:class="{ on: mainImgUrl === img.imgUrl }" @click.stop="setMainImg(img.imgUrl)">
+											<img :src="img.imgUrl">
+										</div>
 									</div>
 								</div>
 							</div>
@@ -90,8 +95,6 @@
 								<div class="pbox-buy">
 									<div class="prow"><span class="pnow">{{ formatPrice(productInfo.price) }}</span>
 									</div>
-									<!-- <div class="porig">23,150,000원</div> -->
-									<!-- <div class="pnote">쿠폰 적용시 할인적용</div> -->
 									<div class="pnote">
 										<a v-if="couponLoaded && !isLogin" href="/user/register.do" class="pnote-link">
 											{{ couponNoteText }}
@@ -149,27 +152,30 @@
 
 							<!-- BUY OPTIONS -->
 							<div class="buy-only">
-
 								<div class="qty-section">
 									<div class="section-label">수량 선택</div>
 
 									<div class="qty-box">
-										<button type="button" class="qty-btn" @click="chgQty(-1)">−</button>
-										<input
-										type="number"
-										class="qty-num"
-										:value="qty"
-										@input="onQtyInput($event)"
-										@blur="onQtyBlur"
-										min="1"
-										:max="displayQty"
-										/>
-										<button type="button" class="qty-btn" @click="chgQty(1)">+</button>
+										<button type="button" class="qty-btn" @click="chgQty(-1)" :disabled="qtyLocked">−</button>
+										<input type="number" class="qty-num" :value="qty"
+											@input="onQtyInput($event)" @blur="onQtyBlur"
+											min="1" :max="displayQty" :disabled="qtyLocked"/>
+										<button type="button" class="qty-btn" @click="chgQty(1)" :disabled="qtyLocked">+</button>
 
-										<span v-if="remainQty > 0" class="stock-text">{{ remainQty }}개 남음</span>
-										<span v-else-if="remainQty === 0 && qty > 0" class="stock-text warn">잔여 재고
-											없음</span>
-										<span v-else class="stock-text soldout">품절</span>
+										<!-- 로딩 중 -->
+										<span v-if="optionStockLoading" class="stock-text" style="color:var(--muted)">
+											재고 확인 중...
+										</span>
+										<!-- 옵션 선택 전 -->
+										<template v-else-if="productOptions.length > 0 && optionStock === null">
+											<span class="stock-text" style="color:var(--muted)">옵션을 선택하면 재고가 표시돼요</span>
+										</template>
+										<!-- 옵션 선택 후 / 옵션 없는 상품 -->
+										<template v-else>
+											<span v-if="remainQty > 0" class="stock-text">{{ remainQty }}개 남음</span>
+											<span v-else-if="remainQty === 0 && qty > 0" class="stock-text warn">잔여 재고 없음</span>
+											<span v-else class="stock-text soldout">품절</span>
+										</template>
 									</div>
 								</div>
 								<div class="booking-summary">
@@ -210,28 +216,57 @@
 
 							<!-- RENT CALENDAR -->
 							<div class="rent-only" style="max-width:700px;">
-								<button @click="openCalendar" style="width:100%;display:flex;justify-content:space-between;align-items:center;
-									padding:12px 16px;background:#f9f9f9;border:1px solid #eee;
-									border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;
-									font-family:inherit;margin-bottom:8px;">
-									<span>
-										<i class="ri-calendar-line"></i>
-										날짜 선택
-										<span v-if="startDate && endDate"
-											style="color:var(--orange);margin-left:8px;font-size:13px;">{{ startDate }}
-											~ {{ endDate }} ({{ rentDays }}박)</span>
-										<span v-else-if="startDate"
-											style="color:var(--orange);margin-left:8px;font-size:13px;">{{ startDate }}
-											선택됨</span>
-										<span v-else style="color:var(--muted);margin-left:8px;font-size:13px;">날짜를
-											선택해주세요</span>
-									</span>
-									<i class="ri-arrow-down-s-line calendar-arrow-icon"></i>
-								</button>
+								<div class="rent-date-row">
+									<!-- 수량 추가/차감 (1) -->
+									<div class="qty-box rent-qty-box">
+										<button type="button" class="qty-btn" @click="chgQty(-1)" :disabled="qtyLocked">−</button>
+										<input type="number" class="qty-num" :value="qty"
+											@input="onQtyInput($event)" @blur="onQtyBlur"
+											min="1" :max="displayQty" :disabled="qtyLocked"/>
+										<button type="button" class="qty-btn" @click="chgQty(1)" :disabled="qtyLocked">+</button>
+									</div>
+
+									<!-- 재고 뱃지 (2) -->
+									<div class="rent-stock-box">
+										<span v-if="optionStockLoading" class="stock-text" style="color:var(--muted);">
+											<i class="ri-loader-4-line"></i><br>확인 중
+										</span>
+										<template v-else-if="productOptions.length > 0 && optionStock === null">
+											<span class="rent-stock-num" style="color:var(--muted);">-</span>
+											<span class="rent-stock-label" style="color:var(--muted);">재고</span>
+										</template>
+										<template v-else>
+											<span v-if="remainQty > 0" class="rent-stock-num">{{ remainQty }}</span>
+											<span v-if="remainQty > 0" class="rent-stock-label">개 남음</span>
+											<span v-else-if="remainQty === 0 && qty > 0" class="stock-text warn" style="font-size:11px;">재고<br>없음</span>
+											<span v-else class="stock-text soldout" style="font-size:11px;">품절</span>
+										</template>
+									</div>
+
+									<!-- 날짜 선택 버튼 (3) -->
+									<button @click="openCalendar" class="rent-date-btn">
+										<span>
+											<i class="ri-calendar-line"></i>
+											날짜 선택
+											<span v-if="startDate && endDate"
+												style="color:var(--orange);margin-left:8px;font-size:13px;">
+												{{ startDate }} ~ {{ endDate }} ({{ rentDays }}박)
+											</span>
+											<span v-else-if="startDate"
+												style="color:var(--orange);margin-left:8px;font-size:13px;">
+												{{ startDate }} 선택됨
+											</span>
+											<span v-else style="color:var(--muted);margin-left:8px;font-size:13px;">
+												날짜를 선택해주세요
+											</span>
+										</span>
+										<i class="ri-arrow-down-s-line calendar-arrow-icon"></i>
+									</button>
+								</div>
 
 								<div v-if="calOpen" style="position:fixed;top:0;left:0;width:100%;height:100%;
-                               background:rgba(0,0,0,0.5);z-index:9000;
-                               display:flex;align-items:center;justify-content:center;" @click.self="calOpen = false">
+											background:rgba(0,0,0,0.5);z-index:9000;
+											display:flex;align-items:center;justify-content:center;" @click.self="calOpen = false">
 									<div
 										style="background:#fff;border-radius:16px;padding:24px;width:360px;max-width:95vw;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
 										<div
@@ -259,11 +294,9 @@
 											style="margin-top:16px;padding:12px;background:#fafafa;border-radius:8px;font-size:13px;min-height:44px;">
 											<div v-if="startDate && endDate" style="color:#333;">
 												{{ startDate }} ~ {{ endDate }}
-												<strong style="color:var(--orange);margin-left:6px;">{{ rentDays
-													}}박</strong>
+												<strong style="color:var(--orange);margin-left:6px;">{{ rentDays }}박</strong>
 											</div>
-											<div v-else-if="startDate" style="color:var(--orange);font-weight:600;">종료일을
-												선택해주세요.</div>
+											<div v-else-if="startDate" style="color:var(--orange);font-weight:600;">종료일을 선택해주세요.</div>
 											<div v-else style="color:#bbb;">시작일을 선택해주세요.</div>
 										</div>
 										<div style="display:flex;gap:8px;margin-top:12px;">
@@ -271,8 +304,8 @@
 												style="flex:1;padding:10px;border:1px solid #eee;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;font-family:inherit;">초기화</button>
 											<button @click="calOpen = false" :disabled="!startDate || !endDate"
 												:style="(startDate && endDate)
-                                        ? 'flex:2;padding:10px;border:none;border-radius:8px;background:var(--orange);color:#fff;cursor:pointer;font-size:14px;font-weight:600;font-family:inherit;'
-                                        : 'flex:2;padding:10px;border:none;border-radius:8px;background:#ddd;color:#999;cursor:not-allowed;font-size:14px;font-weight:600;font-family:inherit;'">확인</button>
+													? 'flex:2;padding:10px;border:none;border-radius:8px;background:var(--orange);color:#fff;cursor:pointer;font-size:14px;font-weight:600;font-family:inherit;'
+													: 'flex:2;padding:10px;border:none;border-radius:8px;background:#ddd;color:#999;cursor:not-allowed;font-size:14px;font-weight:600;font-family:inherit;'">확인</button>
 										</div>
 									</div>
 								</div>
@@ -291,20 +324,20 @@
 										</div>
 										<div
 											style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px;">
-											<span style="color:var(--muted)">대여료 ({{ rentDays }}박)</span>
-											<span>{{ formatPrice(unitPrice * rentDays) }}</span>
+											<span style="color:var(--muted)">대여료 ({{ rentDays }}박 × {{ qty }}개)</span>
+											<span>{{ formatPrice(rentSubtotal) }}</span>
 										</div>
 										<div
 											style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px;">
 											<span style="color:var(--muted)">보증금 <span style="font-size:11px;">(반납 후
-													환불)</span></span>
-											<span>{{ formatPrice(productInfo.deposit) }}</span>
+													환불, {{ qty }}개)</span></span>
+											<span>{{ formatPrice(rentDepositTotal) }}</span>
 										</div>
 										<hr style="border:none;border-top:1px solid #eee;margin:8px 0;">
 										<div style="display:flex;justify-content:space-between;align-items:center;">
 											<span style="font-size:14px;color:var(--muted)">결제 예정금액</span>
 											<span style="font-size:1.8rem;font-weight:bold;color:var(--orange);">{{
-												formatPrice(unitPrice * rentDays + productInfo.deposit) }}</span>
+												formatPrice(rentTotalPrice) }}</span>
 										</div>
 									</div>
 									<div v-else style="color:#bbb;">캘린더에서 예약 날짜를 선택해주세요.</div>
@@ -334,7 +367,6 @@
 									<span class="dv buy-only">
 										<strong>{{ rewardPoint }}포인트</strong> 적립
 									</span>
-
 									<span class="dv rent-only">
 										대여 확정 시 <strong>{{ rewardPointPerNight }}포인트/박</strong> 적립
 									</span>
@@ -990,6 +1022,39 @@
 				<i class="ri-arrow-up-line"></i>
 			</button>
 
+			<!-- AI 추천 모달 -->
+			<div v-if="showAiModal" class="ai-rec-overlay" @click.self="showAiModal=false">
+				<div class="ai-rec-modal">
+					<div class="ai-rec-header">
+						<span><i class="ri-robot-2-line"></i> AI 추천 상품</span>
+						<button type="button" @click="showAiModal=false">
+							<i class="ri-close-line"></i>
+						</button>
+					</div>
+					<p class="ai-rec-sub">이 상품과 함께하면 더 좋아요 ✨</p>
+
+					<div v-if="aiRecommendLoading" class="ai-loading">
+						<span class="ai-spinner"></span>
+						<span>AI가 추천 상품을 분석 중이에요...</span>
+					</div>
+
+					<div v-else class="ai-rec-grid">
+						<div v-for="item in aiRecommendList" :key="item.productId"
+							class="ai-rec-card" @click="goDetail(item.productId)">
+							<img :src="item.imgUrl || '/img/product/default.jpg'" :alt="item.productName">
+							<div class="ai-rec-info">
+								<div class="ai-rec-brand">{{ item.brandName }}</div>
+								<div class="ai-rec-name">{{ item.productName }}</div>
+								<div class="ai-rec-price">{{ formatPrice(item.price) }}</div>
+							</div>
+						</div>
+					</div>
+					<button type="button" class="ai-rec-skip-btn" v-if="!aiRecommendLoading" @click="showAiModal=false">
+						괜찮아요
+					</button>
+				</div>
+			</div>
+
 			</div><!-- /#app -->
 
 			<%@ include file="/WEB-INF/common/footer.jsp" %>
@@ -1124,7 +1189,14 @@
 						selectedOptionsMap: {}, // 여러 옵션을 담을 빈 객체
 						content: '',
 						secretYn: 'N'
-					}
+					},
+					// ai 제품 추천
+					aiRecommendList: [],
+					aiRecommendLoading: false,
+					showAiModal: false,
+					// 옵션별 재고 확인용
+					optionStock: null, // 선택된 옵션 조합의 재고 (null = 미조회)
+					optionStockLoading: false,
 				};
 			},
 
@@ -1162,9 +1234,20 @@
 
 
 				displayQty() {
+					// 옵션 재고가 있으면 옵션 재고 우선
+					if (this.optionStock !== null) {
+						return this.productType === 'PURCHASE'
+							? this.optionStock.totalQty
+							: this.optionStock.availableQty;
+					}
 					return this.productType === 'PURCHASE' ? this.totalQty : this.availableQty;
 				},
 				remainQty() { return this.displayQty - this.qty; },
+				// 옵션 선택전에 수량 X
+				qtyLocked() {
+					return this.productOptions.length > 0 && this.optionStock === null;
+				},
+
 				calendarDays() {
 					const firstDay = new Date(this.currentYear, this.currentMonth, 1).getDay();
 					const lastDate = new Date(this.currentYear, this.currentMonth + 1, 0).getDate();
@@ -1199,6 +1282,17 @@
 					if (!this.startDate || !this.endDate) return 0;
 					return Math.ceil((new Date(this.endDate) - new Date(this.startDate)) / (1000 * 60 * 60 * 24));
 				},
+				// 대여 수량 * 보증금
+				rentSubtotal() {
+					return this.unitPrice * this.rentDays * this.qty;
+				},
+				rentDepositTotal() {
+					return (this.productInfo.deposit || 0) * this.qty;
+				},
+				rentTotalPrice() {
+					return this.rentSubtotal + this.rentDepositTotal;
+				},
+
 				avgRating() {
 					if (!this.reviewAllList.length) return 0;
 
@@ -1485,6 +1579,7 @@
 							success(res) {
 								if (res.result === 'success') {
 									optionItemId = res.optionItemId;
+									self.fetchAiRecommendations();
 								}
 							}
 						});
@@ -1535,6 +1630,7 @@
 							}, '이동하기');
 						} else {
 							cart.push(newItem);
+							self.fetchAiRecommendations();
 							self.saveGuestCart(cart);
 							self.openConfirm('장바구니에 담았습니다. 장바구니로 이동할까요?', function () {
 								location.href = '/cart/list.do?cartType=' + self.productType;
@@ -1719,6 +1815,7 @@
 				formatPrice(price) { if (!price) return '0원'; return Number(price).toLocaleString('ko-KR') + '원'; },
 				// 재고 수량 +, - 버튼
 				chgQty(d) {
+					if (this.qtyLocked) return;
 					const max = this.displayQty;
 					const next = this.qty + d;
 					if (next < 1) return;
@@ -1936,6 +2033,7 @@
 						const copy = { ...this.selectedOptions };
 						delete copy[optionName];
 						this.selectedOptions = copy;
+						this.optionStock = null; // ← 선택 해제 시 재고 초기화
 						return;
 					}
 
@@ -1943,6 +2041,35 @@
 						...this.selectedOptions,
 						[optionName]: opt
 					};
+					// 모든 옵션 선택 완료 시 옵션별 재고 조회
+					const optionGroupCount = Object.keys(this.groupedOptions).length;
+					const selectedCount = Object.keys(this.selectedOptions).length;
+					if (selectedCount === optionGroupCount) {
+						this.fetchOptionStock();
+					} else {
+						this.optionStock = null;
+					}
+				},
+				fetchOptionStock() {
+					const selectedOptionValues = Object.values(this.selectedOptions);
+					const optionId = selectedOptionValues.map(opt => opt.optionValueId).join(',');
+					if (!optionId) return;
+
+					this.optionStockLoading = true;
+					this.optionStock = null;
+
+					$.ajax({
+						url: '/product/option/stock.dox',
+						type: 'POST',
+						data: { productId: this.productId, optionValueIds: optionId },
+						dataType: 'json',
+						success: (res) => {
+							if (res.result === 'success') {
+								this.optionStock = res.stock; // { totalQty, availableQty }
+							}
+						},
+						complete: () => { this.optionStockLoading = false; }
+					});
 				},
 				reportReview(reviewId) {
 					if (!this.loginUserId) {
@@ -2501,6 +2628,23 @@
 							}
 						});
 					}, '삭제하기');
+				},
+				// ai 제품 추천
+				fetchAiRecommendations() {
+					this.aiRecommendList = [];
+					this.aiRecommendLoading = true;
+					this.showAiModal = true;
+					$.ajax({
+						url: '/product/ai/recommend.dox',
+						type: 'POST',
+						data: { productId: this.productId },
+						dataType: 'json',
+						success: (res) => {
+							if (res.result === 'success') this.aiRecommendList = res.list;
+						},
+						error: () => { this.showAiModal = false; },
+						complete: () => { this.aiRecommendLoading = false; }
+					});
 				},
 
 			},

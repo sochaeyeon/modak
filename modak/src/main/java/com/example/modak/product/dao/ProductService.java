@@ -223,4 +223,23 @@ public class ProductService {
 		return resultMap;
 	}
 
+	public HashMap<String, Object> getOptionStock(HashMap<String, Object> map) {
+	    HashMap<String, Object> resultMap = new HashMap<>();
+	    try {
+	        String optionValueIds = String.valueOf(map.get("optionValueIds"));
+	        String[] arr = optionValueIds.split(",");
+	        ArrayList<Integer> list = new ArrayList<>();
+	        for (String id : arr) list.add(Integer.parseInt(id.trim()));
+	        map.put("optionValueIdList", list);
+	        map.put("optionCount", list.size());
+
+	        HashMap<String, Object> stock = productMapper.selectOptionStock(map);
+	        resultMap.put("result", stock != null ? "success" : "fail");
+	        resultMap.put("stock", stock);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("result", "fail");
+	    }
+	    return resultMap;
+	}
 }

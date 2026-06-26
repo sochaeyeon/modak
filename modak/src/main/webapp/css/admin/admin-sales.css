@@ -1,73 +1,215 @@
-@charset "UTF-8";
+/* ════════════════════════════════════════
+   admin-sales.css — 매출 관리
+════════════════════════════════════════ */
+.sp-container {
+    --sp-bg:     #0d0f18;
+    --sp-card:   #1a1d2a;
+    --sp-card2:  #1f2235;
+    --sp-border: rgba(255,255,255,.07);
+    --sp-text:   #e8eaf0;
+    --sp-sub:    #8890a8;
+    --sp-orange: #E8732A;
+    --sp-blue:   #3498DB;
+    --sp-green:  #2ECC71;
+    --sp-amber:  #F5A623;
+    --sp-radius: 14px;
+    --sp-shadow: 0 4px 24px rgba(0,0,0,.4);
 
-/* ════ 매출 관리 전용 다크 프리미엄 테마 ════ */
-.sales-page-container {
-    --s-bg: #11131a;
-    --s-card: #1c1f2b;
-    --s-accent: #E8732A;
-    --s-accent-glow: rgba(232, 115, 42, 0.2);
-    --s-border: rgba(255, 255, 255, 0.08);
-    --s-text: #e2e4e9;
-    --s-text-muted: #8a8f9d;
-    
-    background: var(--s-bg);
+    padding: 32px;
     min-height: 100vh;
-    padding: 28px 32px;
+    background: var(--sp-bg);
+    color: var(--sp-text);
+    font-family: inherit;
 }
 
-/* 상단 영역 */
-.sales-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
-.sales-title { font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
-
-.s-btn-back {
-    background: rgba(255, 255, 255, 0.05); color: #fff; border: 1px solid var(--s-border);
-    padding: 10px 18px; border-radius: 12px; font-weight: 600; font-size: 13px;
-    cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px;
+/* ── 페이지 헤더 ── */
+.sp-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 28px;
 }
-.s-btn-back:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--s-text-muted); }
-
-/* 매출 요약 레이아웃 */
-.sales-grid {
-    display: grid;
-    grid-template-columns: 1.8fr 1fr;
-    gap: 24px;
-    margin-bottom: 30px;
+.sp-title-wrap { display: flex; align-items: center; gap: 18px; }
+.sp-title-icon {
+    width: 52px; height: 52px; flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(232,115,42,.25), rgba(232,115,42,.08));
+    border: 1px solid rgba(232,115,42,.3);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--sp-orange);
 }
+.sp-title-icon svg { width: 24px; height: 24px; }
+.sp-page-title   { font-size: 22px; font-weight: 800; letter-spacing: -.5px; }
+.sp-page-sub     { font-size: 13px; color: var(--sp-sub); margin-top: 3px; }
 
-/* 차트 카드 */
-.chart-card {
-    background: var(--s-card);
-    border: 1px solid var(--s-border);
-    border-radius: 24px;
-    padding: 24px;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
-    height: 400px;
-}
-
-/* 일자별 매출 리스트 카드 */
-.list-card {
-    background: var(--s-card);
-    border: 1px solid var(--s-border);
-    border-radius: 24px;
-    padding: 24px;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
-    display: flex;
-    flex-direction: column;
-}
-
-.list-title {
-    font-size: 16px; font-weight: 700; margin-bottom: 20px;
+.sp-back-btn {
     display: flex; align-items: center; gap: 8px;
+    background: var(--sp-card2); border: 1px solid var(--sp-border);
+    color: var(--sp-sub); padding: 10px 18px; border-radius: 10px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: all .2s;
+}
+.sp-back-btn svg { width: 15px; height: 15px; }
+.sp-back-btn:hover { border-color: var(--sp-orange); color: var(--sp-orange); }
+
+/* ── KPI 카드 ── */
+.sp-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.sp-kpi-card {
+    position: relative; overflow: hidden;
+    background: var(--sp-card);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: var(--sp-radius);
+    padding: 20px 22px 24px;
+    box-shadow: var(--sp-shadow);
+    transition: transform .2s, box-shadow .2s;
+}
+.sp-kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 32px rgba(0,0,0,.45), 0 0 0 1px var(--kcb);
+}
+.sp-kpi-glow {
+    position: absolute; width: 130px; height: 130px;
+    right: -30px; top: -30px; border-radius: 50%;
+    background: radial-gradient(circle, var(--kcb) 0%, transparent 70%);
+    pointer-events: none;
+}
+.sp-kpi-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 3px; background: var(--kc); opacity: .55;
+    border-radius: 0 0 var(--sp-radius) var(--sp-radius);
+}
+.sp-kpi-top {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 14px;
+}
+.sp-kpi-label { font-size: 12px; color: var(--sp-sub); font-weight: 600; }
+.sp-kpi-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.sp-kpi-icon svg { width: 16px; height: 16px; }
+.sp-kpi-val {
+    font-size: 24px; font-weight: 900; letter-spacing: -.6px;
+    line-height: 1; margin-bottom: 8px;
+    font-variant-numeric: tabular-nums;
+}
+.sp-kpi-date { font-size: 17px; }
+.sp-kpi-unit { font-size: 13px; font-weight: 600; color: var(--sp-sub); margin-left: 2px; }
+.sp-kpi-sub  { font-size: 11px; color: var(--sp-sub); }
+
+/* ── 메인 그리드 ── */
+.sp-main-grid {
+    display: grid;
+    grid-template-columns: 1.7fr 1fr;
+    gap: 16px;
 }
 
-/* 테이블 스타일 */
-.s-table { width: 100%; border-collapse: collapse; }
-.s-table th {
-    text-align: center; padding: 12px; font-size: 11px;
-    color: var(--s-text-muted); text-transform: uppercase;
-    border-bottom: 1px solid var(--s-border);
+/* ── 카드 공통 ── */
+.sp-card {
+    background: var(--sp-card);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: var(--sp-radius);
+    padding: 22px 24px;
+    box-shadow: var(--sp-shadow);
 }
-.s-table td { padding: 14px 12px; border-bottom: 1px solid var(--s-border); color: var(--s-text); font-size: 14px; text-align: center; }
-.s-table tr:hover { background: rgba(255,255,255,0.02); }
+.sp-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px;
+}
+.sp-card-title {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 14px; font-weight: 700;
+}
+.sp-title-dot { width: 4px; height: 16px; border-radius: 2px; flex-shrink: 0; }
+.sp-card-sub  { font-size: 12px; color: var(--sp-sub); }
 
-.s-amt { font-weight: 700; color: var(--s-accent); }
+/* ── 차트 ── */
+.sp-chart-card { position: relative; }
+.sp-chart-wrap { height: 300px; position: relative; }
+.sp-chart-empty {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 10px;
+    color: var(--sp-sub); font-size: 14px;
+}
+.sp-chart-empty > div:first-child { font-size: 32px; }
+
+.sp-chart-legend {
+    display: flex; align-items: center; gap: 10px;
+}
+.sp-legend-dot {
+    display: inline-block;
+    width: 10px; height: 10px; border-radius: 50%;
+    flex-shrink: 0;
+}
+.sp-legend-bar {
+    border-radius: 2px; height: 8px; width: 12px;
+}
+.sp-legend-txt { font-size: 11px; color: var(--sp-sub); }
+
+/* ── 테이블 카드 ── */
+.sp-table-card {
+    display: flex; flex-direction: column;
+}
+.sp-table-wrap {
+    flex: 1; overflow-y: auto;
+    /* 스크롤바 */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,.1) transparent;
+}
+.sp-table-wrap::-webkit-scrollbar { width: 4px; }
+.sp-table-wrap::-webkit-scrollbar-track { background: transparent; }
+.sp-table-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 2px; }
+
+.sp-table { width: 100%; border-collapse: collapse; }
+.sp-table th {
+    font-size: 10px; font-weight: 700; letter-spacing: .8px;
+    text-transform: uppercase; color: var(--sp-sub);
+    padding: 8px 10px; text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    position: sticky; top: 0; background: var(--sp-card); z-index: 1;
+}
+.sp-table td {
+    padding: 11px 10px;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    text-align: center; font-size: 13px; vertical-align: middle;
+}
+.sp-table tr:last-child td { border-bottom: none; }
+.sp-table tr:hover td { background: rgba(255,255,255,.02); }
+
+.sp-best-row td { background: rgba(232,115,42,.05) !important; }
+
+/* 셀 요소 */
+.sp-rank {
+    display: inline-block; font-size: 13px; font-weight: 800;
+    color: var(--sp-sub); min-width: 22px; text-align: center;
+}
+.sp-rank-1, .sp-rank-2, .sp-rank-3 { font-size: 15px; }
+.sp-date-cell { text-align: left; color: var(--sp-sub); font-size: 12px; }
+.sp-order-cnt {
+    display: inline-block;
+    background: rgba(52,152,219,.1); border: 1px solid rgba(52,152,219,.2);
+    color: var(--sp-blue); padding: 2px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 600;
+}
+.sp-amt { color: var(--sp-orange); font-weight: 700; }
+.sp-empty-td { padding: 48px 0 !important; text-align: center; color: var(--sp-sub); }
+
+/* 트렌드 */
+.sp-trend    { display: inline-block; font-size: 13px; font-weight: 700; }
+.sp-up       { color: var(--sp-green); }
+.sp-down     { color: #E74C3C; }
+.sp-neutral  { color: var(--sp-sub); }
+
+/* ── 반응형 ── */
+@media (max-width: 1200px) {
+    .sp-kpi-grid  { grid-template-columns: repeat(2,1fr); }
+    .sp-main-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+    .sp-kpi-grid { grid-template-columns: 1fr 1fr; }
+    .sp-container { padding: 20px; }
+}

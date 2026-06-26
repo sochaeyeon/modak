@@ -1056,6 +1056,11 @@
 							}
 							window.addEventListener('scroll', this.fnHandleScroll);
 							window.addEventListener('resize', this.fnUpdateRecentRight);
+							var brandId = params.get('brandId');
+							if (brandId) {
+								self.filter.brandId = [parseInt(brandId)];
+								self.filterOpen.brand = true;
+							}
 						},
 						unmounted() {
 							clearInterval(this._viewerTimer);

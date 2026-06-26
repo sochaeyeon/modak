@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.modak.product.mapper.ProductRecommendMapper">
+
+    <select id="selectAllProductIds" resultType="int">
+        SELECT PRODUCT_ID FROM PRODUCT WHERE IS_AVAILABLE = 'Y'
+    </select>
+
+    <delete id="deleteRecommendByProductId" parameterType="hashmap">
+        DELETE FROM PRODUCT_RECOMMEND WHERE PRODUCT_ID = #{productId}
+    </delete>
+
+    <insert id="insertRecommend" parameterType="hashmap">
+        INSERT INTO PRODUCT_RECOMMEND (PRODUCT_ID, RECOMMENDED_PRODUCT_ID, RANK_ORDER, BASIS, CREATED_AT)
+        VALUES (#{productId}, #{recommendedProductId}, #{rankOrder}, #{basis}, NOW())
+    </insert>
+
+    <select id="selectCachedRecommend" parameterType="hashmap" resultType="hashmap">
+        SELECT RECOMMENDED_PRODUCT_ID AS recommendedProductId
+        FROM PRODUCT_RECOMMEND
+        WHERE PRODUCT_ID = #{productId}
+        ORDER BY RANK_ORDER ASC
+    </select>
+
+</mapper>

@@ -426,6 +426,41 @@
     </foreach>
 </select>
 
+<!-- AI 추천 후보(co-purchase): 같은 주문(취소 제외)에서 현재 상품과 함께 담긴 적 있는 상품을, 함께 구매된 횟수가 많은 순으로 최대 30개 -->
+<select id="selectCoPurchasedCandidates" parameterType="hashmap"
+    resultType="com.example.modak.product.model.Product">
+    SELECT
+        p.PRODUCT_ID       AS productId,
+        p.PRODUCT_NAME     AS productName,
+        p.PRODUCT_TYPE     AS productType,
+        p.PRICE            AS price,
+        p.CATEGORY_ID      AS categoryId,
+        c.CATEGORY_NAME    AS categoryName,
+        b.BRAND_NAME       AS brandName,
+        i.IMG_URL          AS imgUrl
+    FROM ORDER_ITEM OI2
+    JOIN ORDERS O ON O.ORDER_ID = OI2.ORDER_ID
+    JOIN PRODUCT p ON p.PRODUCT_ID = OI2.PRODUCT_ID
+    LEFT JOIN PRODUCT_CATEGORY c ON p.CATEGORY_ID  = c.CATEGORY_ID
+    LEFT JOIN BRAND            b ON p.BRAND_ID      = b.BRAND_ID
+    LEFT JOIN PRODUCT_IMG      i ON p.PRODUCT_ID    = i.PRODUCT_ID
+                                AND i.IS_MAIN = 'Y'
+    WHERE O.ORDER_STATUS != 'CANCELLED'
+      AND p.PRODUCT_ID  != #{productId}
+      AND p.IS_AVAILABLE = 'Y'
+      AND OI2.ORDER_ID IN (
+          SELECT OI1.ORDER_ID
+          FROM ORDER_ITEM OI1
+          JOIN ORDERS O1 ON O1.ORDER_ID = OI1.ORDER_ID
+          WHERE OI1.PRODUCT_ID = #{productId}
+            AND O1.ORDER_STATUS != 'CANCELLED'
+      )
+    GROUP BY p.PRODUCT_ID, p.PRODUCT_NAME, p.PRODUCT_TYPE, p.PRICE,
+             p.CATEGORY_ID, c.CATEGORY_NAME, b.BRAND_NAME, i.IMG_URL
+    ORDER BY COUNT(*) DESC
+    LIMIT 30
+</select>
+
 <!-- 옵션 조합의 재고 조회 -->
 <select id="selectOptionStock" parameterType="hashmap" resultType="hashmap">
     SELECT

@@ -66,5 +66,8 @@ public interface ProductMapper {
 	
 	// 옵션별 재고 확인
 	public HashMap<String, Object> selectOptionStock(HashMap<String, Object> map);
+	
+	// ai 추천 제품 (오더 기준으로 같이 자주 구매한 상품)
+	public List<Product> selectCoPurchasedCandidates(HashMap<String, Object> map);
 
 }

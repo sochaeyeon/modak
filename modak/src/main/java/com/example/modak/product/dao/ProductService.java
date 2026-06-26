@@ -223,6 +223,7 @@ public class ProductService {
 		return resultMap;
 	}
 
+	// 옵션별 재고 확인
 	public HashMap<String, Object> getOptionStock(HashMap<String, Object> map) {
 	    HashMap<String, Object> resultMap = new HashMap<>();
 	    try {

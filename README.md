@@ -17,6 +17,7 @@
 
 <br>
 
+
 <!-- 대표 이미지 -->
 <img src="./assets/main.png" alt="ModakModak 대표 이미지" width="100%"/>
 

@@ -92,4 +92,12 @@ public class CouponService {
 
         return couponMapper.selectAvailableUserCouponList(map);
     }
+    
+    // ↓ 추가
+    public UserCoupon selectBestCoupon(String userId) {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("userId", userId);
+
+        return couponMapper.selectBestCoupon(map);
+    }
 }

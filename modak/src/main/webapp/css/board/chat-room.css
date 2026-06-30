@@ -1,3 +1,5 @@
+@charset "UTF-8";
+
 :root {
     --cream: #F6F0E6;
     --cream2: #EDE6D5;
@@ -166,12 +168,24 @@ body {
     border-radius: 14px;
     box-shadow: 0 8px 28px rgba(59, 36, 18, 0.14);
     overflow: hidden;
-    min-width: 130px;
+    min-width: 168px;
     z-index: 100;
 }
 
 .more-menu.open {
     display: block;
+    animation: menuPop .14s ease;
+}
+
+@keyframes menuPop {
+    from {
+        opacity: 0;
+        transform: translateY(-4px) scale(.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .more-menu button {
@@ -186,8 +200,13 @@ body {
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 9px;
+    white-space: nowrap;
     transition: background .12s;
+}
+
+.more-menu button + button {
+    border-top: 1px solid var(--border);
 }
 
 .more-menu button:hover {
@@ -411,6 +430,20 @@ body {
     cursor: pointer;
     padding: 0;
     margin-bottom: 2px;
+    opacity: 0;
+    transition: opacity .15s ease, color .15s ease;
+}
+
+.msg-row:hover .msg-del-btn,
+.msg-del-btn:focus-visible {
+    opacity: 1;
+}
+
+@media (max-width: 520px) {
+    /* 모바일은 호버가 없으니 항상 살짝 보이게 */
+    .msg-del-btn {
+        opacity: .55;
+    }
 }
 
 .msg-del-btn:hover {
@@ -708,6 +741,37 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 32px;
+    position: relative;
+}
+
+.empty-icon::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(232, 115, 42, 0.14);
+    animation: emptyPulse 2.6s ease-out infinite;
+}
+
+@keyframes emptyPulse {
+    0% {
+        transform: scale(0.92);
+        opacity: .7;
+    }
+    70% {
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1.12);
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .empty-icon::after {
+        animation: none;
+        display: none;
+    }
 }
 
 .empty-chat p {
@@ -977,6 +1041,18 @@ body {
 
 .modal-btn.confirm-block:hover {
     background: #c0004a;
+}
+
+/* 차단만큼 파괴적이지 않은 액션(나가기 등)은 브랜드 오렌지 계열로 */
+#leaveRoomModal .modal-btn.confirm-block,
+#deleteSelectedConfirmModal .modal-btn.confirm-block {
+    background: var(--orange);
+    box-shadow: 0 3px 12px rgba(232, 115, 42, 0.30);
+}
+
+#leaveRoomModal .modal-btn.confirm-block:hover,
+#deleteSelectedConfirmModal .modal-btn.confirm-block:hover {
+    background: var(--brown2);
 }
 
 .modal-btn.confirm-unblock {
@@ -1679,5 +1755,426 @@ body {
 
     .delete-select-info span {
         display: none;
+    }
+}
+
+/* =========================
+   ACCESSIBILITY & POLISH
+========================= */
+
+/* 키보드 포커스 가시성 */
+.btn-back:focus-visible,
+.btn-more:focus-visible,
+.btn-img:focus-visible,
+.btn-emoji:focus-visible,
+.btn-send:focus-visible,
+.more-menu button:focus-visible,
+.modal-btn:focus-visible,
+.delete-option:focus-visible,
+.delete-cancel-btn:focus-visible,
+.delete-select-cancel:focus-visible,
+.delete-select-submit:focus-visible,
+.mp-btn:focus-visible,
+.top-avatar:focus-visible,
+.m-avatar:focus-visible,
+textarea#msgInput:focus-visible {
+    outline: 2.5px solid var(--orange);
+    outline-offset: 2px;
+}
+
+/* 더보기/체크박스 등 :focus-visible 미지원 폴백 */
+.msg-select-label:focus-within span {
+    box-shadow: 0 0 0 3px rgba(232, 115, 42, 0.18);
+}
+
+/* 모션 최소화 환경 대응 */
+@media (prefers-reduced-motion: reduce) {
+    .mini-profile,
+    .modal-box,
+    .more-menu.open,
+    .t-dot {
+        animation: none !important;
+    }
+
+    .toast,
+    .btn-send,
+    .btn-img,
+    .btn-emoji,
+    .msg-del-btn,
+    .delete-option,
+    .top-avatar img,
+    .m-avatar img {
+        transition: none !important;
+    }
+}
+
+/* 입력창 textarea placeholder 라인하이트 보정 (일부 브라우저 수직정렬 어긋남 방지) */
+.textarea-box textarea::placeholder {
+    line-height: 22px;
+}
+
+/* 메시지 영역 키보드 스크롤 시 살짝 부드럽게 */
+.msg-area {
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .msg-area {
+        scroll-behavior: auto;
+    }
+}
+
+/* 더보기 메뉴 버튼 아이콘 정렬 미세 조정 */
+.more-menu button i {
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* 전송 버튼 비활성 시에도 아이콘 또렷하게 */
+.btn-send:disabled i {
+    opacity: .85;
+}
+
+/* 신고/차단 등 위험 강조 텍스트 공통 톤 (다음 추가 기능에서 재사용) */
+.danger-text {
+    color: #c0392b;
+    font-weight: 800;
+}
+
+/* =========================================================
+   메시지 신고 기능
+   - 기존 :root 변수(--cream, --cream2, --brown, --brown2,
+     --orange, --orange2, --gray, --gray2, --border, --card)만 사용
+   - 위에서 정의되지 않은 변수(--brown3 등)는 절대 참조하지 않음
+========================================================= */
+
+:root {
+    --report-red: #D1453B;
+    --report-red-dark: #B23A31;
+    --report-red-pale: #FCEEEC;
+}
+
+/* ── 더보기 메뉴 항목 ── */
+#menuReport i {
+    color: var(--report-red);
+}
+
+#menuReport:hover {
+    background: var(--report-red-pale);
+}
+
+#menuReport:hover span,
+#menuReport:hover i {
+    color: var(--report-red-dark);
+}
+
+/* ── 신고 선택 모드: 메시지 영역 (삭제 선택 모드와 동일한 구조 재사용) ── */
+.report-select-mode .msg-row {
+    position: relative;
+    padding-left: 42px;
+    cursor: pointer;
+}
+
+.report-select-mode .msg-select-label {
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 26px;
+    height: 26px;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 5;
+}
+
+.report-select-mode .msg-row.me .msg-select-label {
+    order: initial;
+}
+
+/* 신고 모드 체크박스는 빨간 톤으로 구분 */
+.msg-select-label.is-report span {
+    border-color: rgba(209, 69, 59, 0.35);
+}
+
+.msg-select-label.is-report .msg-select-check:checked + span {
+    background: var(--report-red);
+    border-color: var(--report-red);
+    box-shadow: 0 0 0 3px rgba(209, 69, 59, 0.14);
+}
+
+/* ── 신고 선택 바 (삭제 선택 바와 동일한 박스 모델) ── */
+.report-select-bar {
+    flex-shrink: 0;
+    min-height: 68px;
+    padding: 10px 16px;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 60;
+}
+
+.report-select-cancel {
+    flex-shrink: 0;
+    height: 42px;
+    min-width: 62px;
+    padding: 0 16px;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    background: var(--cream2);
+    color: var(--brown2);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.report-select-cancel:hover {
+    background: var(--cream);
+    color: var(--report-red);
+    border-color: rgba(209, 69, 59, 0.28);
+}
+
+.report-select-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.report-select-info strong {
+    color: var(--brown);
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.report-select-info span {
+    color: var(--gray);
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.report-select-submit {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 44px;
+    min-width: 96px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 15px;
+    background: var(--report-red);
+    color: #fff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .15s ease, opacity .15s ease;
+}
+
+.report-select-submit:hover:not(:disabled) {
+    background: var(--report-red-dark);
+}
+
+.report-select-submit:disabled {
+    background: var(--gray2);
+    opacity: .75;
+    cursor: not-allowed;
+}
+
+@media (max-width: 520px) {
+    .report-select-mode .msg-row {
+        padding-left: 36px;
+    }
+
+    .report-select-mode .msg-select-label {
+        left: 2px;
+    }
+
+    .report-select-bar {
+        padding: 9px 10px;
+        gap: 8px;
+    }
+
+    .report-select-cancel {
+        min-width: 54px;
+        padding: 0 12px;
+    }
+
+    .report-select-submit {
+        min-width: 68px;
+        padding: 0 14px;
+    }
+
+    .report-select-info span {
+        display: none;
+    }
+}
+
+/* ── 신고 사유 모달 (기존 .modal-box / .modal-icon / .modal-title / .modal-desc 재사용) ── */
+.report-box {
+    width: min(380px, calc(100vw - 32px));
+    text-align: left;
+    padding: 28px 24px 22px;
+}
+
+.report-box .modal-icon,
+.report-box .modal-title,
+.report-box .modal-desc {
+    text-align: center;
+}
+
+.report-icon {
+    background: var(--report-red-pale);
+    color: var(--report-red);
+}
+
+.report-box .modal-desc strong {
+    color: var(--report-red-dark);
+    font-weight: 800;
+}
+
+.report-reason-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 18px 0 4px;
+}
+
+.report-reason {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    background: #fffaf2;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: border-color .15s ease, background .15s ease;
+}
+
+.report-reason:hover {
+    background: #fff5e9;
+    border-color: rgba(209, 69, 59, 0.3);
+}
+
+.report-reason input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    accent-color: var(--report-red);
+    cursor: pointer;
+}
+
+.report-reason-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: var(--cream2);
+    color: var(--gray);
+    font-size: 15px;
+}
+
+.report-reason-text {
+    flex: 1;
+    min-width: 0;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--brown2);
+    text-align: left;
+    white-space: nowrap;
+}
+
+.report-reason:has(input:checked) {
+    border-color: var(--report-red);
+    background: var(--report-red-pale);
+}
+
+.report-reason:has(input:checked) .report-reason-icon {
+    background: #fff;
+    color: var(--report-red);
+}
+
+.report-reason:has(input:checked) .report-reason-text {
+    color: var(--report-red-dark);
+}
+
+.report-etc-input {
+    width: 100%;
+    margin-top: 10px;
+    padding: 11px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    background: #fff;
+    color: var(--brown);
+    font-size: 13px;
+    font-family: inherit;
+    line-height: 1.6;
+    resize: none;
+    transition: border-color .15s ease;
+}
+
+.report-etc-input:focus {
+    outline: none;
+    border-color: var(--report-red);
+}
+
+.report-etc-input::placeholder {
+    color: var(--gray2);
+}
+
+.report-box .modal-btns {
+    margin-top: 20px;
+}
+
+.confirm-report {
+    border: none;
+    background: var(--report-red);
+    color: #fff;
+}
+
+.confirm-report:hover:not(:disabled) {
+    background: var(--report-red-dark);
+}
+
+.confirm-report:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+    background: var(--gray2);
+    color: #fff;
+}
+
+/* 포커스 가시성 */
+.report-select-cancel:focus-visible,
+.report-select-submit:focus-visible,
+.report-reason:focus-within,
+.confirm-report:focus-visible {
+    outline: 2.5px solid var(--report-red);
+    outline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+    .report-box {
+        width: calc(100vw - 32px);
+        padding: 24px 18px 18px;
     }
 }

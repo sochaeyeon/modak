@@ -11,12 +11,15 @@
 		description, p.IS_AVAILABLE as isAvailable, p.CREATED_AT as createdAt,
 		p.VIEW_COUNT as viewCount, p.CATEGORY_ID as categoryId, c.CATEGORY_NAME
 		as categoryName, p.BRAND_ID as brandId, b.BRAND_NAME as brandName,
-		i.IMG_URL as imgUrl, IFNULL(AVG(r.RATING), 0) as rating,
-		COUNT(r.REVIEW_ID) as rCount FROM PRODUCT p LEFT JOIN PRODUCT_CATEGORY c
-		ON p.CATEGORY_ID = c.CATEGORY_ID LEFT JOIN BRAND b ON p.BRAND_ID =
-		b.BRAND_ID LEFT JOIN PRODUCT_IMG i ON p.PRODUCT_ID = i.PRODUCT_ID AND
-		i.IS_MAIN = 'Y' LEFT JOIN REVIEW r ON p.PRODUCT_ID = r.PRODUCT_ID AND
-		r.REVIEW_STATUS = 'ACTIVE' WHERE 1=1 <if
+		i.IMG_URL as imgUrl,( SELECT MIN(ps.AVAILABLE_QTY) FROM PRODUCT_STOCK ps
+		WHERE ps.PRODUCT_ID = p.PRODUCT_ID AND ps.STOCK_DATE IS NULL ) AS
+		availableQty, ( SELECT MAX(ps.TOTAL_QTY) FROM PRODUCT_STOCK ps WHERE
+		ps.PRODUCT_ID = p.PRODUCT_ID AND ps.STOCK_DATE IS NULL ) AS totalQty,
+		IFNULL(AVG(r.RATING), 0) as rating, COUNT(r.REVIEW_ID) as rCount FROM
+		PRODUCT p LEFT JOIN PRODUCT_CATEGORY c ON p.CATEGORY_ID = c.CATEGORY_ID
+		LEFT JOIN BRAND b ON p.BRAND_ID = b.BRAND_ID LEFT JOIN PRODUCT_IMG i ON
+		p.PRODUCT_ID = i.PRODUCT_ID AND i.IS_MAIN = 'Y' LEFT JOIN REVIEW r ON
+		p.PRODUCT_ID = r.PRODUCT_ID AND r.REVIEW_STATUS = 'ACTIVE' WHERE 1=1 <if
 			test="childCatId != null and childCatId > 0">
 			AND p.CATEGORY_ID = #{childCatId}
 		</if>
@@ -77,10 +80,10 @@
 				item="id" collection="brandId" open="(" separator="," close=")">
 		#{id}
 			</foreach>
-		</if> GROUP BY
-		p.PRODUCT_ID, p.PRODUCT_NAME, p.PRODUCT_TYPE, p.PRICE, p.DEPOSIT,
-		p.DESCRIPTION, p.IS_AVAILABLE, p.CREATED_AT, p.VIEW_COUNT,
-		p.CATEGORY_ID, c.CATEGORY_NAME, p.BRAND_ID, b.BRAND_NAME, i.IMG_URL <choose>
+		</if> GROUP BY p.PRODUCT_ID,
+		p.PRODUCT_NAME, p.PRODUCT_TYPE, p.PRICE, p.DEPOSIT, p.DESCRIPTION,
+		p.IS_AVAILABLE, p.CREATED_AT, p.VIEW_COUNT, p.CATEGORY_ID,
+		c.CATEGORY_NAME, p.BRAND_ID, b.BRAND_NAME, i.IMG_URL <choose>
 			<when test="sortKey == 'popular'">
 				ORDER BY p.VIEW_COUNT DESC, p.PRODUCT_ID DESC
 			</when>
@@ -367,20 +370,113 @@
 		WHERE poi.PRODUCT_ID = #{productId}
 		ORDER BY poi.OPTION_ITEM_ID ASC
 	</select>
-	
+
 	<select id="selectOptionItemId" parameterType="hashmap" resultType="int">
-	    SELECT poi.OPTION_ITEM_ID
-	    FROM PRODUCT_OPTION_ITEM poi
-	    JOIN PRODUCT_OPTION_ITEM_VALUE poiv
-	      ON poi.OPTION_ITEM_ID = poiv.OPTION_ITEM_ID
-	    WHERE poi.PRODUCT_ID = #{productId}
-	      AND poi.IS_AVAILABLE = 'Y'
-	      AND poiv.OPTION_VALUE_ID IN
-	      <foreach item="id" collection="optionValueIdList" open="(" separator="," close=")">
-	          #{id}
-	      </foreach>
-	    GROUP BY poi.OPTION_ITEM_ID
-	    HAVING COUNT(DISTINCT poiv.OPTION_VALUE_ID) = #{optionCount}
-	    LIMIT 1
+		SELECT poi.OPTION_ITEM_ID FROM PRODUCT_OPTION_ITEM poi JOIN
+		PRODUCT_OPTION_ITEM_VALUE poiv ON poi.OPTION_ITEM_ID =
+		poiv.OPTION_ITEM_ID WHERE poi.PRODUCT_ID = #{productId} AND
+		poi.IS_AVAILABLE = 'Y' AND poiv.OPTION_VALUE_ID IN <foreach item="id"
+			collection="optionValueIdList" open="(" separator="," close=")">
+		#{id}
+		</foreach> GROUP BY poi.OPTION_ITEM_ID HAVING
+		COUNT(DISTINCT poiv.OPTION_VALUE_ID) = #{optionCount} LIMIT 1 
 	</select>
+	
+	<!-- AI 추천 후보: 같은 카테고리, 현재 상품 제외, 판매중, 조회수 높은 순 30개 -->
+<select id="selectRecommendCandidates" parameterType="hashmap"
+    resultType="com.example.modak.product.model.Product">
+    SELECT
+        p.PRODUCT_ID       AS productId,
+        p.PRODUCT_NAME     AS productName,
+        p.PRODUCT_TYPE     AS productType,
+        p.PRICE            AS price,
+        p.CATEGORY_ID      AS categoryId,
+        c.CATEGORY_NAME    AS categoryName,
+        b.BRAND_NAME       AS brandName,
+        i.IMG_URL          AS imgUrl
+    FROM PRODUCT p
+    LEFT JOIN PRODUCT_CATEGORY c ON p.CATEGORY_ID  = c.CATEGORY_ID
+    LEFT JOIN BRAND            b ON p.BRAND_ID      = b.BRAND_ID
+    LEFT JOIN PRODUCT_IMG      i ON p.PRODUCT_ID    = i.PRODUCT_ID
+                                AND i.IS_MAIN = 'Y'
+    WHERE p.CATEGORY_ID  = #{categoryId}
+      AND p.PRODUCT_ID  != #{productId}
+      AND p.IS_AVAILABLE = 'Y'
+    ORDER BY p.VIEW_COUNT DESC
+    LIMIT 30
+</select>
+
+<!-- AI가 뽑은 productId 목록으로 상품 조회 -->
+<select id="selectProductsByIds" parameterType="hashmap"
+    resultType="com.example.modak.product.model.Product">
+    SELECT
+        p.PRODUCT_ID    AS productId,
+        p.PRODUCT_NAME  AS productName,
+        p.PRODUCT_TYPE  AS productType,
+        p.PRICE         AS price,
+        b.BRAND_NAME    AS brandName,
+        i.IMG_URL       AS imgUrl
+    FROM PRODUCT p
+    LEFT JOIN BRAND       b ON p.BRAND_ID   = b.BRAND_ID
+    LEFT JOIN PRODUCT_IMG i ON p.PRODUCT_ID = i.PRODUCT_ID
+                            AND i.IS_MAIN = 'Y'
+    WHERE p.PRODUCT_ID IN
+    <foreach item="id" collection="ids" open="(" separator="," close=")">
+        #{id}
+    </foreach>
+</select>
+
+<!-- AI 추천 후보(co-purchase): 같은 주문(취소 제외)에서 현재 상품과 함께 담긴 적 있는 상품을, 함께 구매된 횟수가 많은 순으로 최대 30개 -->
+<select id="selectCoPurchasedCandidates" parameterType="hashmap"
+    resultType="com.example.modak.product.model.Product">
+    SELECT
+        p.PRODUCT_ID       AS productId,
+        p.PRODUCT_NAME     AS productName,
+        p.PRODUCT_TYPE     AS productType,
+        p.PRICE            AS price,
+        p.CATEGORY_ID      AS categoryId,
+        c.CATEGORY_NAME    AS categoryName,
+        b.BRAND_NAME       AS brandName,
+        i.IMG_URL          AS imgUrl
+    FROM ORDER_ITEM OI2
+    JOIN ORDERS O ON O.ORDER_ID = OI2.ORDER_ID
+    JOIN PRODUCT p ON p.PRODUCT_ID = OI2.PRODUCT_ID
+    LEFT JOIN PRODUCT_CATEGORY c ON p.CATEGORY_ID  = c.CATEGORY_ID
+    LEFT JOIN BRAND            b ON p.BRAND_ID      = b.BRAND_ID
+    LEFT JOIN PRODUCT_IMG      i ON p.PRODUCT_ID    = i.PRODUCT_ID
+                                AND i.IS_MAIN = 'Y'
+    WHERE O.ORDER_STATUS != 'CANCELLED'
+      AND p.PRODUCT_ID  != #{productId}
+      AND p.IS_AVAILABLE = 'Y'
+      AND OI2.ORDER_ID IN (
+          SELECT OI1.ORDER_ID
+          FROM ORDER_ITEM OI1
+          JOIN ORDERS O1 ON O1.ORDER_ID = OI1.ORDER_ID
+          WHERE OI1.PRODUCT_ID = #{productId}
+            AND O1.ORDER_STATUS != 'CANCELLED'
+      )
+    GROUP BY p.PRODUCT_ID, p.PRODUCT_NAME, p.PRODUCT_TYPE, p.PRICE,
+             p.CATEGORY_ID, c.CATEGORY_NAME, b.BRAND_NAME, i.IMG_URL
+    ORDER BY COUNT(*) DESC
+    LIMIT 30
+</select>
+
+<!-- 옵션 조합의 재고 조회 -->
+<select id="selectOptionStock" parameterType="hashmap" resultType="hashmap">
+    SELECT
+        IFNULL(ps.TOTAL_QTY, 0)     AS totalQty,
+        IFNULL(ps.AVAILABLE_QTY, 0) AS availableQty
+    FROM PRODUCT_OPTION_ITEM poi
+    JOIN PRODUCT_OPTION_ITEM_VALUE poiv ON poi.OPTION_ITEM_ID = poiv.OPTION_ITEM_ID
+    LEFT JOIN PRODUCT_STOCK ps ON poi.OPTION_ITEM_ID = ps.OPTION_ITEM_ID
+    WHERE poi.PRODUCT_ID = #{productId}
+      AND poiv.OPTION_VALUE_ID IN
+    <foreach item="id" collection="optionValueIdList" open="(" separator="," close=")">
+        #{id}
+    </foreach>
+    GROUP BY poi.OPTION_ITEM_ID, ps.TOTAL_QTY, ps.AVAILABLE_QTY
+    HAVING COUNT(DISTINCT poiv.OPTION_VALUE_ID) = #{optionCount}
+    LIMIT 1
+</select>
+
 </mapper>

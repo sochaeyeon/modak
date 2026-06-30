@@ -98,14 +98,21 @@
 	</select>
 
 	<select id="selectTopProducts" resultType="map">
-		SELECT p.PRODUCT_NAME,
-		COUNT(oi.PRODUCT_ID) AS sales_count
-		FROM ORDERS o
-		JOIN ORDER_ITEM oi ON o.ORDER_ID = oi.ORDER_ID
-		JOIN PRODUCT p ON oi.PRODUCT_ID = p.PRODUCT_ID
-		WHERE o.ORDER_STATUS NOT IN ('CANCELLED','REFUND')
-		GROUP BY p.PRODUCT_ID, p.PRODUCT_NAME
-		ORDER BY sales_count DESC LIMIT 5
+		SELECT
+		p.PRODUCT_ID   AS productId,
+		p.PRODUCT_NAME AS productName,
+		p.PRICE        AS price,
+		p.VIEW_COUNT   AS viewCount,
+		IFNULL(oi.orderCount, 0) AS orderCount,
+		(SELECT IMG_URL FROM product_img img WHERE img.PRODUCT_ID = p.PRODUCT_ID LIMIT 1) AS imgUrl
+		FROM product p
+		LEFT JOIN (
+		    SELECT PRODUCT_ID, COUNT(*) AS orderCount
+		    FROM ORDER_ITEM
+		    GROUP BY PRODUCT_ID
+		) oi ON p.PRODUCT_ID = oi.PRODUCT_ID
+		ORDER BY IFNULL(oi.orderCount, 0) DESC, p.VIEW_COUNT DESC
+		LIMIT 5
 	</select>
 
 	<select id="selectGradeStats" resultType="map">

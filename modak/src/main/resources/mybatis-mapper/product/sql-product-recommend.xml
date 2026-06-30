@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.modak.product.mapper.ProductRecommendMapper">
+
+	<select id="selectAllProductIds" resultType="int">
+		SELECT PRODUCT_ID FROM PRODUCT WHERE IS_AVAILABLE = 'Y'
+	</select>
+
+	<delete id="deleteRecommendByProductId" parameterType="hashmap">
+		DELETE FROM PRODUCT_RECOMMEND WHERE PRODUCT_ID = #{productId}
+	</delete>
+
+	<insert id="insertRecommend" parameterType="hashmap">
+		INSERT INTO PRODUCT_RECOMMEND (PRODUCT_ID, RECOMMENDED_PRODUCT_ID,
+		RANK_ORDER, BASIS, CREATED_AT)
+		VALUES (#{productId}, #{recommendedProductId}, #{rankOrder}, #{basis},
+		NOW())
+	</insert>
+
+<select id="selectCachedRecommend" parameterType="hashmap" resultType="hashmap">
+    SELECT
+        pr.RECOMMENDED_PRODUCT_ID AS `productId`,
+        pr.RECOMMENDED_PRODUCT_ID AS `recommendedProductId`,
+        p.PRODUCT_NAME AS `productName`,
+        p.PRICE AS `price`,
+        p.PRODUCT_TYPE AS `productType`,
+        p.CATEGORY_ID AS `categoryId`,
+        b.BRAND_NAME AS `brandName`,
+        img.IMG_URL AS `imgUrl`,
+        IFNULL(r.avgRating, 0) AS `rating`,
+        IFNULL(r.reviewCount, 0) AS `rCount`,
+        IFNULL(o.orderCount, 0) AS `orderCount`
+    FROM PRODUCT_RECOMMEND pr
+    JOIN PRODUCT p ON p.PRODUCT_ID = pr.RECOMMENDED_PRODUCT_ID
+    LEFT JOIN BRAND b ON b.BRAND_ID = p.BRAND_ID
+    LEFT JOIN (
+        SELECT PRODUCT_ID, IMG_URL
+        FROM PRODUCT_IMG
+        WHERE IS_MAIN = 'Y'
+    ) img ON img.PRODUCT_ID = p.PRODUCT_ID
+    LEFT JOIN (
+        SELECT PRODUCT_ID, AVG(RATING) AS avgRating, COUNT(*) AS reviewCount
+        FROM REVIEW
+        GROUP BY PRODUCT_ID
+    ) r ON r.PRODUCT_ID = p.PRODUCT_ID
+    LEFT JOIN (
+        SELECT PRODUCT_ID, COUNT(DISTINCT ORDER_ID) AS orderCount
+        FROM ORDER_ITEM
+        GROUP BY PRODUCT_ID
+    ) o ON o.PRODUCT_ID = p.PRODUCT_ID
+    WHERE pr.PRODUCT_ID = #{productId}
+    ORDER BY pr.RANK_ORDER ASC
+</select>
+
+</mapper>

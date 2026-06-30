@@ -56,7 +56,7 @@
                             </div>
 
                             <div class="hot-list">
-                                <div class="hot-card" v-for="(item, idx) in hotList" :key="item.BOARD_ID"
+                                <div class="hot-card" :class="{ 'is-top': idx === 0 }" v-for="(item, idx) in hotList" :key="item.BOARD_ID"
                                     @click="fnGoDetail(item.BOARD_ID)">
 
                                     <div class="hot-rank" :class="'rank-' + (idx+1)">
@@ -64,6 +64,7 @@
                                     </div>
 
                                     <div class="hot-card-body">
+                                        <div class="hot-card-badge" v-if="idx === 0">오늘의 불씨</div>
                                         <div class="hot-card-title">{{ item.TITLE }}</div>
 
                                         <div class="hot-card-meta">
@@ -154,7 +155,7 @@
 
                         <!-- 목록 -->
                         <div class="board-list" v-if="list.length > 0">
-                            <div class="board-item" v-for="item in list" :key="item.BOARD_ID"
+                            <div class="board-item" :class="'cat-border-' + item.CATEGORY" v-for="item in list" :key="item.BOARD_ID"
                                 @click="fnGoDetail(item.BOARD_ID)">
 
                                 <div class="item-main">

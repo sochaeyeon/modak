@@ -6,7 +6,7 @@
 		SELECT COUNT(*) FROM ALARM WHERE USER_ID = #{userId} AND IS_READ = 'N'
 	</select>
 
-	<select id="getAlarmList" resultType="map">
+<select id="getAlarmList" resultType="map">
     SELECT
         A.ALARM_ID,
         A.TYPE,
@@ -14,19 +14,16 @@
         A.CONTENT,
         A.LINK_ID,
         A.IS_READ,
-        DATE_FORMAT(A.CREATED_AT, '%m-%d %H:%i') AS CREATED_AT,
+        A.CREATED_AT,  
 
         CR.STATUS AS REQUEST_STATUS,
         CR.ROOM_ID AS CHAT_ROOM_ID
 
     FROM ALARM A
-
     LEFT JOIN CHAT_REQUEST CR
         ON A.TYPE = 'CHAT_REQUEST'
        AND A.LINK_ID = CR.REQUEST_ID
-
     WHERE A.USER_ID = #{userId}
-
     ORDER BY A.ALARM_ID DESC
 </select>
 
@@ -54,5 +51,25 @@
     <delete id="deleteAllAlarms" parameterType="string">
         DELETE FROM ALARM WHERE USER_ID = #{userId}
     </delete>
-
+<insert id="insertReviewBlockedAlarm" parameterType="hashmap">
+        INSERT INTO ALARM (
+            USER_ID,
+            TYPE,
+            TITLE,
+            CONTENT,
+            LINK_ID,
+            LINK_URL,
+            IS_READ,
+            CREATED_AT
+        ) VALUES (
+            #{userId},
+            'REVIEW_BLOCKED',
+            '리뷰가 비공개 처리되었습니다',
+            '작성하신 리뷰가 운영 정책 위반으로 비공개(차단) 처리되었습니다.',
+            #{reviewId},
+            NULL,
+            'N',
+            NOW()
+        )
+    </insert>
 </mapper>

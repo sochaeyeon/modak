@@ -3,9 +3,11 @@ package com.example.modak.board.controller;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -182,7 +184,31 @@ public class BoardController {
     public String getBoardEditInfo(@RequestParam Long boardId) {
         return new Gson().toJson(boardService.getBoardEditInfo(boardId));
     }
+    
+    @PostMapping(value = "/recent-posts.dox", produces = "application/json;charset=UTF-8")
+    @ResponseBody
+    public String getRecentPosts(
+            @RequestParam String targetUserId,
+            @RequestParam(defaultValue = "3") int limit) {
 
+        HashMap<String, Object> result = new HashMap<>();
+        try {
+            List<Map<String, Object>> posts = boardService.getRecentPosts(targetUserId, limit);
+            result.put("result", "success");
+            result.put("posts", posts);
+        } catch (Exception e) {
+            result.put("result", "fail");
+            result.put("message", "최근 글을 불러오지 못했습니다.");
+        }
+        return new Gson().toJson(result);
+    }
+    
+    @GetMapping("/.well-known/appspecific/com.chrome.devtools.json")
+    @ResponseBody
+    public ResponseEntity<Void> chromeDevToolsProbe() {
+        return ResponseEntity.noContent().build(); // 204
+    }
+    
     @PostMapping(value = "/edit.dox", produces = "application/json;charset=UTF-8")
     @ResponseBody
     public String editBoard(

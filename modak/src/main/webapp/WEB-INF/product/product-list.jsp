@@ -68,6 +68,10 @@
 						<!-- 검색창 -->
 						<div class="search-box">
 							<input type="text" v-model="searchKeyword" placeholder="검색어를 입력하세요" @keyup.enter="fnSearch">
+							<button type="button" class="search-clear" v-show="searchKeyword"
+								@click="searchKeyword = ''; fnSearch()">
+								<i class="ri-close-line"></i>
+							</button>
 							<button type="button" @click="fnSearch">검색</button>
 						</div>
 						<div class="controls">
@@ -97,7 +101,15 @@
 							</div>
 						</div>
 					</div>
-
+					<div class="active-filter-bar" v-if="activeFilters.length > 0">
+						<div class="active-filter-chip" v-for="f in activeFilters" :key="f.key">
+							{{ f.label }}
+							<i class="ri-close-line" @click="removeFilter(f)"></i>
+						</div>
+						<button type="button" class="active-filter-clear" @click="resetFilter">
+							전체 초기화
+						</button>
+					</div>
 					<div class="content-wrap" :class="{ 'no-sidebar': !sidebarVisible }">
 
 						<div class="sidebar" v-show="sidebarVisible">
@@ -170,7 +182,7 @@
 									</label>
 								</div>
 							</div>
-							<div class="filter-section">
+							<div class="filter-section price-filter">
 								<div class="fs-header" @click="filterOpen.price = !filterOpen.price">
 									<span class="fs-title">가격</span>
 
@@ -198,7 +210,7 @@
 								</div>
 							</div>
 
-							<div style="padding:14px 20px;">
+							<div class="sidebar-bottom-sticky">
 								<button class="filter-reset" type="button" @click="resetFilter">
 									<i class="ri-refresh-line"></i>
 									필터 초기화
@@ -227,13 +239,36 @@
 
 							<div v-else :class="['product-grid', currentView === 'list' ? 'view-list' : '']">
 								<div v-for="product in pagedProducts" :key="product.productId" class="pcard"
-									:class="{ 'list-card': currentView === 'list' }" @click="fnView(product.productId)">
+									:class="{ 'list-card': currentView === 'list', 'stock-urgent': isUrgentStock(product) }"
+									@click="fnView(product.productId)">
 
 									<div class="pcard-img">
 										<img :src="product.imgUrl || '/img/product/default.jpg'" class="pcard-photo"
 											alt="상품 이미지">
-									</div>
+										<div class="live-viewer-badge"
+											v-if="fnLiveViewers(product) > 0 && !isUrgentStock(product)">
+											<span class="live-dot"></span>
+											{{ fnLiveViewers(product) }}명이 보는 중
+										</div>
 
+										<div class="type-badge"
+											:class="product.productType === 'RENTAL' ? 'type-rent' : 'type-buy'">
+											<i
+												:class="product.productType === 'RENTAL' ? 'ri-calendar-check-line' : 'ri-shopping-bag-3-fill'"></i>
+											<span>{{ product.productType === 'RENTAL' ? '대여' : '구매' }}</span>
+										</div>
+										<div class="img-urgent-overlay" v-if="isUrgentStock(product)">
+											<div class="img-urgent-text">
+												<i class="ri-fire-fill"></i>
+												품절임박 · {{ product.availableQty }}개 남음
+											</div>
+											<div class="img-urgent-bar">
+												<div class="img-urgent-fill"
+													:style="{ width: Math.min(100, Math.round((product.availableQty / 6) * 100)) + '%' }">
+												</div>
+											</div>
+										</div>
+									</div>
 									<button class="wish-btn" type="button"
 										:class="{ on: wishedIds.has(product.productId) }"
 										@click.stop="fnWishVue($event, product.productId)">
@@ -245,6 +280,14 @@
 										<div class="pcard-top">
 											<template v-if="currentView === 'list'">
 												<div class="pcard-main">
+													<div class="social-badge"
+														v-if="product.rCount >= 10 && product.rating >= 4.5">
+														<i class="ri-fire-fill"></i> 리뷰 {{ product.rCount }}개
+													</div>
+													<div class="live-viewer-badge" v-if="fnLiveViewers(product) > 0">
+														<span class="live-dot"></span>
+														{{ fnLiveViewers(product) }}명이 보는 중
+													</div>
 													<div class="pcard-cat">{{ product.categoryName }}</div>
 													<div class="pcard-name">
 														{{ product.productName }}
@@ -271,6 +314,11 @@
 											</template>
 
 											<template v-else>
+												<div class="social-badge"
+													v-if="product.rCount >= 10 && product.rating >= 4.5">
+													<i class="ri-fire-fill"></i> 리뷰 {{ product.rCount }}개
+												</div>
+
 												<div class="pcard-cat">{{ product.categoryName }}</div>
 												<div class="pcard-name">
 													{{ product.productName }}
@@ -293,17 +341,6 @@
 												</div>
 											</template>
 										</div>
-										<div class="btn-row">
-											<button v-if="product.productType !== 'PURCHASE'" type="button"
-												class="btn-rent" @click.stop="fnView(product.productId)">
-												대여하기
-											</button>
-
-											<button v-if="product.productType !== 'RENTAL'" type="button"
-												class="btn-buy" @click.stop="fnView(product.productId)">
-												구매하기
-											</button>
-										</div>
 									</div>
 								</div>
 							</div>
@@ -312,7 +349,30 @@
 						</div>
 					</div>
 
-					<!-- /content-wrap -->
+					<div class="recent-sidebar" v-if="recentList.length > 0" :class="{ 'is-expanded': recentExpanded }"
+						:style="{ left: recentLeft + 'px', top: recentTop + 'px' }">
+						<div class="recent-head">
+							<h3><i class="ri-history-line"></i> 최근 본</h3>
+						</div>
+						<div class="recent-scroll">
+							<div class="recent-mini-card" v-for="item in visibleRecentList" :key="item.productId"
+								@click="fnView(item.productId)" :title="item.productName">
+								<img :src="item.imgUrl || '/img/product/default.jpg'" :alt="item.productName">
+							</div>
+						</div>
+						<div class="recent-scroll recent-extra" v-show="recentExpanded">
+							<div class="recent-mini-card" v-for="item in extraRecentList" :key="item.productId"
+								@click="fnView(item.productId)" :title="item.productName">
+								<img :src="item.imgUrl || '/img/product/default.jpg'" :alt="item.productName">
+							</div>
+						</div>
+						<button type="button" class="recent-toggle" v-if="recentList.length > 4"
+							@click="recentExpanded = !recentExpanded">
+							{{ recentExpanded ? '접기' : '더보기' }}
+							<i class="ri-arrow-down-s-line" :class="{ open: recentExpanded }"></i>
+						</button>
+					</div>
+
 					<div v-if="confirmModal.open" class="confirm-overlay" @click.self="confirmCancel">
 						<div class="confirm-box">
 							<div class="confirm-title">알림</div>
@@ -380,6 +440,7 @@
 
 						data() {
 							return {
+								liveViewers: {},
 								products: [],
 								brandList: [],
 								loading: false,
@@ -395,6 +456,10 @@
 								perPage: 12,
 								sidebarVisible: true,
 								wishedIds: new Set(),
+								recentList: [],
+								recentLeft: 9999,
+								recentTop: 220, // 초기 fallback 값
+								recentExpanded: false,
 								searchKeyword: '', // 검색어 변수
 								priceRange: null, // 가격 필터링
 								confirmModal: {
@@ -443,10 +508,62 @@
 								const v = Math.round(this.filter.priceRange * 500);
 								return v >= 50000 ? '50,000원+' : v.toLocaleString() + '원';
 							},
+							activeFilters() {
+								const list = [];
+
+								if (this.currentChild !== null) {
+									const parent = this.category.find(c => c.categoryId === this.currentCat);
+									const child = parent ? parent.childList.find(c => c.categoryId === this.currentChild) : null;
+									if (child) list.push({ key: 'category', label: child.categoryName });
+								} else if (this.currentCat !== null) {
+									const parent = this.category.find(c => c.categoryId === this.currentCat);
+									if (parent) list.push({ key: 'category', label: parent.categoryName });
+								}
+
+								if (this.filter.rentable && !this.filter.buyable) {
+									list.push({ key: 'rentable', label: '대여 가능' });
+								}
+								if (this.filter.buyable && !this.filter.rentable) {
+									list.push({ key: 'buyable', label: '구매 가능' });
+								}
+
+								this.filter.brandId.forEach(bid => {
+									const brand = this.brandList.find(b => b.brandId === bid);
+									if (brand) list.push({ key: 'brand', value: bid, label: brand.brandName });
+								});
+
+								if (this.filter.priceMax < 100000) {
+									list.push({ key: 'price', label: this.filter.priceMax.toLocaleString() + '원 이하' });
+								}
+
+								if (this.searchKeyword) {
+									list.push({ key: 'keyword', label: '"' + this.searchKeyword + '"' });
+								}
+
+								return list;
+							},
+							visibleRecentList() {
+								return this.recentList.slice(0, 4);
+							},
+							extraRecentList() {
+								return this.recentList.slice(4, 6);
+							},
 						},
 
 						methods: {
-
+							fnLiveViewers(product) {
+								const id = product.productId;
+								if (this.liveViewers[id] === undefined) {
+									const show = Math.random() < 0.2;
+									this.liveViewers[id] = show ? Math.floor(Math.random() * 36) + 3 : 0;
+								}
+								return this.liveViewers[id];
+							},
+							isUrgentStock(product) {
+								if (product.availableQty === undefined || product.availableQty === null) return false;
+								if (product.productType !== 'PURCHASE') return false;
+								return product.availableQty <= 6;
+							},
 							getSortLabel() {
 								if (this.sortKey === 'popular') return '인기 장비';
 								if (this.sortKey === 'newest') return '최신 장비';
@@ -515,6 +632,9 @@
 									data: param,
 									traditional: true,
 									success: function (data) {
+										console.log("전체 응답:", data);
+										console.log("list 첫번째:", data.list ? data.list[0] : 'list없음');
+
 										self.products = Array.isArray(data.list) ? data.list : [];
 										self.loading = false;
 
@@ -611,7 +731,28 @@
 
 								return parent.categoryName;
 							},
+							removeFilter(f) {
+								if (f.key === 'category') {
+									this.currentCat = null;
+									this.currentChild = null;
+									this.openParent = null;
+								} else if (f.key === 'rentable') {
+									this.filter.rentable = true;
+									this.filter.buyable = true;
+								} else if (f.key === 'buyable') {
+									this.filter.rentable = true;
+									this.filter.buyable = true;
+								} else if (f.key === 'brand') {
+									this.filter.brandId = this.filter.brandId.filter(id => id !== f.value);
+								} else if (f.key === 'price') {
+									this.filter.priceMax = 100000;
+								} else if (f.key === 'keyword') {
+									this.searchKeyword = '';
+								}
 
+								this.currentPage = 1;
+								this.fnSearch(false);
+							},
 							resetFilter() {
 								clearTimeout(this.filterTimer);
 
@@ -629,10 +770,19 @@
 								this.currentPage = 1;
 								this.searchKeyword = '';
 
+								// 1. 전체 페이지 스크롤 맨 위로
 								window.scrollTo({
 									top: 0,
 									behavior: 'smooth'
 								});
+								// 2. 사이드바 스크롤 맨 위로 (추가된 코드)
+								const sidebar = document.querySelector('.sidebar');
+								if (sidebar) {
+									sidebar.scrollTo({
+										top: 0,
+										behavior: 'smooth'
+									});
+								}
 
 								setTimeout(() => {
 									this.fnSearch(false);
@@ -640,6 +790,38 @@
 							},
 							fnView: function (productId) {
 								location.href = "/product/detail.do?productId=" + productId;
+							},
+
+							fnGetRecentList: function () {
+								let self = this;
+								$.ajax({
+									url: "/user/recent/list.dox",
+									type: "POST",
+									dataType: "json",
+									data: { page: 1, pageSize: 10 },
+									success: function (data) {
+										self.recentList = (data.result === "success") ? (data.list || []).slice(0, 10) : [];
+										self.fnUpdateRecentRight();
+									},
+									error: function () {
+										self.recentList = [];
+									}
+								});
+							},
+							fnUpdateRecentRight: function () {
+								this.$nextTick(() => {
+									var gridEl = document.querySelector('.grid-wrap');
+									if (!gridEl) return;
+									var rect = gridEl.getBoundingClientRect();
+									var gap = 16;
+									// grid-wrap 우측 끝 + 간격 = 패널이 시작되어야 할 left 좌표
+									this.recentLeft = rect.right + gap;
+
+									var sidebarEl = document.querySelector('.sidebar');
+									if (sidebarEl) {
+										this.recentTop = sidebarEl.getBoundingClientRect().top;
+									}
+								});
 							},
 							fetchBrandList() {
 								let self = this;
@@ -780,6 +962,24 @@
 
 							fnHandleScroll() {
 								this.showTopBtn = window.scrollY > 420;
+
+								// 스크롤 이벤트가 짧은 시간에 여러 번 발생해도, 화면이 실제로 그려지는 시점(rAF)에 딱 한 번만 계산
+								if (this._recentTopTicking) return;
+								this._recentTopTicking = true;
+
+								requestAnimationFrame(() => {
+									this._recentTopTicking = false;
+
+									var sidebarEl = document.querySelector('.sidebar');
+									var refEl = (sidebarEl && sidebarEl.offsetParent !== null) ? sidebarEl : document.querySelector('.grid-wrap');
+
+									if (refEl) {
+										var top = refEl.getBoundingClientRect().top;
+										if (top !== this.recentTop) {
+											this.recentTop = top;
+										}
+									}
+								});
 							},
 							fnGoEvent() {
 								location.href = "/event/list.do";
@@ -810,8 +1010,17 @@
 						mounted() {
 							this.fetchCategory();
 							this.fetchBrandList();
+							this.fnGetRecentList();
+							this.fnUpdateRecentRight();
 							window.addEventListener('keydown', this.fnKeyEnter);
-
+							this._viewerTimer = setInterval(() => {
+								Object.keys(this.liveViewers).forEach(id => {
+									if (this.liveViewers[id] > 0) {
+										const delta = Math.floor(Math.random() * 5) - 2; // -2 ~ +2
+										this.liveViewers[id] = Math.max(2, this.liveViewers[id] + delta);
+									}
+								});
+							}, 4000);
 							var self = this;
 							var params = new URLSearchParams(window.location.search);
 
@@ -846,9 +1055,17 @@
 								window.history.replaceState({}, document.title, window.location.pathname);
 							}
 							window.addEventListener('scroll', this.fnHandleScroll);
+							window.addEventListener('resize', this.fnUpdateRecentRight);
+							var brandId = params.get('brandId');
+							if (brandId) {
+								self.filter.brandId = [parseInt(brandId)];
+								self.filterOpen.brand = true;
+							}
 						},
 						unmounted() {
+							clearInterval(this._viewerTimer);
 							window.removeEventListener('scroll', this.fnHandleScroll);
+							window.removeEventListener('resize', this.fnUpdateRecentRight);
 						}
 
 					}).mount('#app');

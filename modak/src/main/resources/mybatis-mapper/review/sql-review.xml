@@ -64,21 +64,21 @@
 		ORDER BY RI.IMG_ID ASC
 		LIMIT 1
 		) AS imageUrl
-		FROM REVIEW R
-		LEFT JOIN PRODUCT P
-		ON R.PRODUCT_ID = P.PRODUCT_ID
-		WHERE R.USER_ID = #{userId}
-		AND R.REVIEW_STATUS = 'ACTIVE'
-		ORDER BY R.CREATED_AT DESC, R.REVIEW_ID DESC
-		LIMIT ${pageSize} OFFSET ${offset}
+		  FROM REVIEW R
+    LEFT JOIN PRODUCT P
+    ON R.PRODUCT_ID = P.PRODUCT_ID
+    WHERE R.USER_ID = #{userId}
+    AND R.REVIEW_STATUS != 'DELETED'
+    ORDER BY R.CREATED_AT DESC, R.REVIEW_ID DESC
+    LIMIT ${pageSize} OFFSET ${offset}
 	</select>
 
 	<!-- 내 리뷰 총 개수 -->
 	<select id="selectReviewCount" parameterType="hashmap" resultType="int">
-		SELECT COUNT(*)
-		FROM REVIEW
-		WHERE USER_ID = #{userId}
-		AND REVIEW_STATUS = 'ACTIVE'
+	    SELECT COUNT(*)
+    FROM REVIEW
+    WHERE USER_ID = #{userId}
+    AND REVIEW_STATUS != 'DELETED'
 	</select>
 
 	<!-- 리뷰 상세 조회 -->
@@ -106,20 +106,20 @@
 		FROM REVIEW R
 		LEFT JOIN PRODUCT P
 		ON R.PRODUCT_ID = P.PRODUCT_ID
-		WHERE R.REVIEW_ID = #{reviewId}
-		AND R.USER_ID = #{userId}
-	</select>
+			WHERE R.REVIEW_ID = #{reviewId}
+			AND R.USER_ID = #{userId}
+		</select>
 
-	<!-- 리뷰 수정 -->
 	<update id="updateReview" parameterType="hashmap">
-		UPDATE REVIEW
-		SET
-		TITLE = #{title},
-		RATING = #{rating},
-		CONTENT = #{content},
-		UPDATED_AT = NOW()
-		WHERE REVIEW_ID = #{reviewId}
-		AND USER_ID = #{userId}
+	    UPDATE REVIEW
+	    SET
+	    TITLE = #{title},
+	    RATING = #{rating},
+	    CONTENT = #{content},
+	    REVIEW_STATUS = 'ACTIVE',
+	    UPDATED_AT = NOW()
+	    WHERE REVIEW_ID = #{reviewId}
+	    AND USER_ID = #{userId}
 	</update>
 
 	<!-- 리뷰 삭제 (soft delete) -->
@@ -423,4 +423,32 @@
         )
     </if>
 </select>
+<!-- ★ 클린봇: 검사 대상 리뷰 조회 (ACTIVE만) -->
+<select id="selectActiveReviewsForScan" resultType="hashmap">
+    SELECT REVIEW_ID, TITLE, CONTENT, USER_ID
+    FROM REVIEW
+    WHERE REVIEW_STATUS = 'ACTIVE'
+</select>
+
+<!-- ★ 클린봇: 비속어 적중 리뷰 차단 처리 -->
+<update id="blockReviewByBot" parameterType="long">
+    UPDATE REVIEW
+    SET REVIEW_STATUS = 'BLOCKED',
+        UPDATED_AT = NOW()
+    WHERE REVIEW_ID = #{reviewId}
+</update>
+
+<!-- ★ 클린봇: 실행 이력 저장 -->
+<insert id="insertBotLog" parameterType="hashmap">
+    INSERT INTO BOT_LOG (
+        RUN_AT,
+        TOTAL_COUNT,
+        BLOCKED_COUNT
+    ) VALUES (
+        NOW(),
+        #{total},
+        #{blocked}
+    )
+</insert>
+
 </mapper>

@@ -19,23 +19,43 @@
             <div id="app" v-cloak>
 
                 <div class="cart-wrap">
-                    <!-- 움직이는 밑줄 -->
-                    <!-- <div class="tab-underline" :style="underlineStyle"></div> -->
-                    <div class="step-wrap cart-step-switch-wrap">
-                        <div class="step step-cart-switch active" @click="toggleCartType">
-                            <span class="cart-step-main">
-                                {{ activeTab === 'RENTAL' ? '대여 장바구니' : '구매 장바구니' }}
-                            </span>
-                            <span class="cart-step-divider">|</span>
-                            <span class="cart-step-sub">
-                                {{ activeTab === 'RENTAL' ? '구매' : '대여' }}
-                            </span>
-                            <span class="cart-step-swap">↻</span>
-                        </div>
+
+                    <!-- 진행 단계 안내 -->
+                    <div class="step-wrap">
+                        <div class="step active">장바구니</div>
                         <div class="step-line"></div>
                         <div class="step">주문결제</div>
                         <div class="step-line"></div>
                         <div class="step">완료</div>
+                    </div>
+
+                    <!-- 대여/구매 모드 전환 -->
+                    <div class="cart-mode-switch">
+                        <span class="cart-mode-slider"
+                            :style="{ transform: activeTab === 'RENTAL' ? 'translateX(0%)' : 'translateX(100%)' }"></span>
+
+                        <button type="button" class="cart-mode-btn" :class="{ active: activeTab === 'RENTAL' }"
+                            @click="switchCartType('RENTAL')">
+                            <svg class="mode-icon" viewBox="0 0 24 24" width="17" height="17" fill="none"
+                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 19.5L12 4l9 15.5H3z" />
+                                <path d="M9.2 19.5l2.8-5 2.8 5" />
+                            </svg>
+                            <span>대여</span>
+                            <span class="mode-count" v-if="rentalCount > 0">{{ rentalCount }}</span>
+                        </button>
+
+                        <button type="button" class="cart-mode-btn" :class="{ active: activeTab === 'PURCHASE' }"
+                            @click="switchCartType('PURCHASE')">
+                            <svg class="mode-icon" viewBox="0 0 24 24" width="17" height="17" fill="none"
+                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M5.5 8.5h13l-1.1 11.2a1.6 1.6 0 0 1-1.6 1.3H8.2a1.6 1.6 0 0 1-1.6-1.3L5.5 8.5z" />
+                                <path d="M9 8.5V6.8a3 3 0 0 1 6 0v1.7" />
+                            </svg>
+                            <span>구매</span>
+                            <span class="mode-count" v-if="purchaseCount > 0">{{ purchaseCount }}</span>
+                        </button>
                     </div>
 
                     <div class="cart-layout">
@@ -56,7 +76,13 @@
 
                             <!-- 빈 카트 -->
                             <div v-if="filteredCart.length === 0" class="empty-cart">
-                                <div class="icon">🛒</div>
+                                <svg class="icon" viewBox="0 0 24 24" width="48" height="48" fill="none"
+                                    stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <circle cx="9" cy="20" r="1.2" />
+                                    <circle cx="18" cy="20" r="1.2" />
+                                    <path d="M2 3h2l2.4 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 8H6.5" />
+                                </svg>
                                 <div>장바구니가 비어있습니다.</div>
                             </div>
 
@@ -67,8 +93,10 @@
 
                                     <!-- 브랜드 헤더 -->
                                     <div class="cart-card-header">
-                                        <div class="chk" :class="{ on: isBrandChecked(group) }" @click="toggleBrand(group)"></div>
-                                        <span @click="toggleBrand(group)" style="cursor:pointer;">{{ group.brandName || '모닥모닥' }}</span>
+                                        <div class="chk" :class="{ on: isBrandChecked(group) }"
+                                            @click="toggleBrand(group)"></div>
+                                        <span @click="toggleBrand(group)" style="cursor:pointer;">{{ group.brandName ||
+                                            '모닥모닥' }}</span>
                                     </div>
 
                                     <!-- 상품 리스트 -->
@@ -79,35 +107,50 @@
                                                 @click.stop="toggleItem(item.cartId)">
                                             </div>
 
-                                            <div class="cart-item-img"
-                                                @click.stop="goDetail(item.productId)"
+                                            <div class="cart-item-img" @click.stop="goDetail(item.productId)"
                                                 style="cursor:pointer;">
                                                 <img v-if="item.imgUrl" :src="item.imgUrl" :alt="item.productName">
-                                                <span v-else style="font-size:36px;display:flex;align-items:center;justify-content:center;height:100%;">🏕️</span>
+                                                <span v-else
+                                                    style="display:flex;align-items:center;justify-content:center;height:100%;color:#ccc;">
+                                                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none"
+                                                        stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <path d="M2 20L12 3l10 17H2z" />
+                                                        <path d="M9 20l3-5 3 5" />
+                                                    </svg>
+                                                </span>
                                             </div>
 
                                             <div class="cart-item-info">
                                                 <!-- 상품명 + 삭제 버튼 -->
-                                                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
-                                                    <div class="cart-item-name" @click="toggleItem(item.cartId)" style="cursor:pointer;">
+                                                <div
+                                                    style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                                                    <div class="cart-item-name" @click="toggleItem(item.cartId)"
+                                                        style="cursor:pointer;">
                                                         {{ item.productName }}
                                                     </div>
-                                                    <button class="item-del-btn" @click.stop="deleteItem(item.cartId)" title="삭제">✕</button>
+                                                    <button class="item-del-btn" @click.stop="deleteItem(item.cartId)"
+                                                        title="삭제">✕</button>
                                                 </div>
 
                                                 <!-- 옵션태그 + 옵션변경 버튼 한 줄 -->
-                                                <div style="display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap;">
-                                                    <span class="cart-item-option" v-if="item.optionName">{{ item.optionName }}</span>
-                                                    <button class="opt-change-btn" @click.stop="toggleInlineOption(item)">
+                                                <div
+                                                    style="display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap;">
+                                                    <span class="cart-item-option" v-if="item.optionName">{{
+                                                        item.optionName }}</span>
+                                                    <button class="opt-change-btn"
+                                                        @click.stop="toggleInlineOption(item)">
                                                         {{ inlineOption.cartId === item.cartId ? '옵션 닫기' : '옵션 변경' }}
                                                     </button>
                                                 </div>
 
                                                 <!-- 대여일 때만 날짜 표시 -->
                                                 <div v-if="item.cartType === 'RENTAL' && item.rentalStart"
-                                                    class="rental-dates" @click.stop="openDateModal(item)" style="cursor:pointer;margin-top:8px;">
+                                                    class="rental-dates" @click.stop="openDateModal(item)"
+                                                    style="cursor:pointer;margin-top:8px;">
                                                     {{ item.rentalStart }} ~ {{ item.rentalEnd }}
-                                                    <span style="background:var(--orange);color:#fff;border-radius:4px;padding:1px 6px;font-size:11px;">
+                                                    <span
+                                                        style="background:var(--orange);color:#fff;border-radius:4px;padding:1px 6px;font-size:11px;">
                                                         {{ calcNights(item.rentalStart, item.rentalEnd) }}박
                                                     </span>
                                                 </div>
@@ -124,44 +167,47 @@
                                             <div class="item-price-block">
                                                 <div class="item-unit-price">
                                                     <template v-if="item.cartType === 'RENTAL'">
-                                                        {{ formatPrice(item.unitPrice) }} × {{ calcNights(item.rentalStart, item.rentalEnd) }}박
-                                                        <span v-if="item.deposit > 0"> + 보증금 {{ formatPrice(item.deposit) }}</span>
+                                                        {{ formatPrice(item.unitPrice) }} × {{
+                                                        calcNights(item.rentalStart, item.rentalEnd) }}박
+                                                        <span v-if="item.deposit > 0"> + 보증금 {{
+                                                            formatPrice(item.deposit) }}</span>
                                                     </template>
                                                     <template v-else>
-                                                        {{ formatPrice(item.unitPrice || item.price) }} × {{ item.quantity }}개
+                                                        {{ formatPrice(item.unitPrice || item.price) }} × {{
+                                                        item.quantity }}개
                                                     </template>
                                                 </div>
-                                                <div class="item-total-price">{{ formatPrice(cartItemTotal(item)) }}</div>
+                                                <div class="item-total-price">{{ formatPrice(cartItemTotal(item)) }}
+                                                </div>
                                             </div>
                                         </div>
 
                                         <!-- 옵션 박스 그대로 유지 -->
-                                        <div v-if="inlineOption.cartId === item.cartId"
-                                            class="inline-option-box"
+                                        <div v-if="inlineOption.cartId === item.cartId" class="inline-option-box"
                                             @click.stop>
 
-                                            <div v-for="(opts, optionName) in inlineGroupedOptions"
-                                                :key="optionName"
+                                            <div v-for="(opts, optionName) in inlineGroupedOptions" :key="optionName"
                                                 class="inline-option-group">
 
                                                 <div class="inline-option-name">{{ optionName }}</div>
 
                                                 <div class="inline-option-list">
-                                                    <button type="button"
-                                                            v-for="opt in opts"
-                                                            :key="opt.optionValueId"
-                                                            class="inline-option-chip"
-                                                            :class="{ active: inlineOption.selectedOptions[optionName] && inlineOption.selectedOptions[optionName].optionValueId === opt.optionValueId }"
-                                                            @click="selectInlineOption(optionName, opt)">
+                                                    <button type="button" v-for="opt in opts" :key="opt.optionValueId"
+                                                        class="inline-option-chip"
+                                                        :class="{ active: inlineOption.selectedOptions[optionName] && inlineOption.selectedOptions[optionName].optionValueId === opt.optionValueId }"
+                                                        @click="selectInlineOption(optionName, opt)">
                                                         {{ opt.optionValue }}
-                                                        <span v-if="opt.addPrice > 0">+{{ formatPrice(opt.addPrice) }}</span>
+                                                        <span v-if="opt.addPrice > 0">+{{ formatPrice(opt.addPrice)
+                                                            }}</span>
                                                     </button>
                                                 </div>
                                             </div>
 
                                             <div class="inline-option-actions">
-                                                <button type="button" class="inline-option-cancel" @click="closeInlineOption">취소</button>
-                                                <button type="button" class="inline-option-apply" @click="applyInlineOption(item)">변경 완료</button>
+                                                <button type="button" class="inline-option-cancel"
+                                                    @click="closeInlineOption">취소</button>
+                                                <button type="button" class="inline-option-apply"
+                                                    @click="applyInlineOption(item)">변경 완료</button>
                                             </div>
                                         </div>
 
@@ -219,16 +265,11 @@
 
                                         <div class="point-input-wrap">
                                             <div class="input-box">
-                                                <input type="text"
-                                                    class="point-input"
-                                                    :value="usePoint"
-                                                    @input="onPointInput"
-                                                    placeholder="사용할 포인트">
+                                                <input type="text" class="point-input" :value="usePoint"
+                                                    @input="onPointInput" placeholder="사용할 포인트">
 
-                                                <button type="button"
-                                                    class="point-clear-btn"
-                                                    v-if="Number(usePoint || 0) > 0"
-                                                    @click="clearPoint">
+                                                <button type="button" class="point-clear-btn"
+                                                    v-if="Number(usePoint || 0) > 0" @click="clearPoint">
                                                     ✕
                                                 </button>
                                             </div>
@@ -274,7 +315,7 @@
                 <div v-if="optModal.open" class="modal-overlay" @click.self="optModal.open = false">
                     <div class="modal-box">
                         <div class="modal-header">
-                             <span class="modal-title">
+                            <span class="modal-title">
                                 {{ optModal.dateOnly ? '날짜 변경' : '옵션 변경' }}
                             </span>
                             <button class="modal-close" @click="optModal.open = false">✕</button>
@@ -309,8 +350,8 @@
                                     </div>
                                 </div>
 
-                                    <div v-if="!optModal.dateOnly && optModal.optionList && optModal.optionList.length > 0"
-                                        style="margin-top:10px;">
+                                <div v-if="!optModal.dateOnly && optModal.optionList && optModal.optionList.length > 0"
+                                    style="margin-top:10px;">
                                     <div style="font-size:13px;color:var(--muted);margin-bottom:6px;">옵션 선택</div>
                                     <div class="opt-list">
                                         <div v-for="opt in optModal.optionList" :key="opt.optionId" class="opt-item"
@@ -324,7 +365,7 @@
                                 <div class="date-result">
                                     <div v-if="optModal.startDate && optModal.endDate"
                                         style="color:#333;font-weight:600;">
-                                        📅 {{ optModal.startDate }} ~ {{ optModal.endDate }}
+                                        {{ optModal.startDate }} ~ {{ optModal.endDate }}
                                         <span style="color:var(--orange);margin-left:6px;">
                                             {{ calcNights(optModal.startDate, optModal.endDate) }}박
                                         </span>
@@ -349,7 +390,8 @@
 
                         <div class="modal-btns">
                             <button class="modal-btn-cancel" @click="optModal.open = false">취소</button>
-                            <button class="modal-btn-ok" :disabled="activeTab === 'RENTAL' && (!optModal.startDate || !optModal.endDate)"
+                            <button class="modal-btn-ok"
+                                :disabled="activeTab === 'RENTAL' && (!optModal.startDate || !optModal.endDate)"
                                 @click="optModal.dateOnly ? applyDateChange() : applyOptChange()">
                                 변경 완료
                             </button>
@@ -436,18 +478,11 @@
                         },
 
                         computed: {
-                            underlineStyle() {
-                                if (this.activeTab === 'RENTAL') {
-                                    return {
-                                        width: '50%',
-                                        transform: 'translateX(0%)'
-                                    };
-                                } else {
-                                    return {
-                                        width: '50%',
-                                        transform: 'translateX(100%)'
-                                    };
-                                }
+                            rentalCount() {
+                                return this.cartList.filter(c => c.cartType === 'RENTAL').length;
+                            },
+                            purchaseCount() {
+                                return this.cartList.filter(c => c.cartType === 'PURCHASE').length;
                             },
                             usableCouponList() {
                                 return this.couponList.filter(coupon => {
@@ -596,7 +631,7 @@
                                     this.selectedTotal - this.couponDiscount - this.validUsePoint
                                 );
                             }
-                        }, 
+                        },
                         watch: {
                             usableCouponList() {
                                 const exists = this.usableCouponList.some(c =>
@@ -899,7 +934,7 @@
                                     month: new Date().getMonth(),
                                     selectedOption: Number(item.optionId) || null,
                                     optionList: [],
-                                    dateOnly:false
+                                    dateOnly: false
                                 };
 
                                 $.ajax({
@@ -1017,6 +1052,16 @@
                                     } else if (day.full === this.optModal.startDate) {
                                         this.optModal.startDate = null;
                                     } else {
+                                        // 7박 제한 로직
+                                        const start = new Date(this.optModal.startDate);
+                                        const end = new Date(day.full);
+                                        const diffDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+
+                                        if (diffDays > 7) {
+                                            showToast('최대 대여 가능 기간은 일주일(7박)입니다.');
+                                            return; // 7박을 초과하면 endDate를 설정하지 않고 종료
+                                        }
+
                                         this.optModal.endDate = day.full;
                                     }
                                 }
@@ -1047,7 +1092,6 @@
 
                                     if (target) {
                                         target.quantity = m.qty;
-                                        // (모달에서 selectedOption이 optionValueId인지 확인 필요)
                                         target.rentalStart = m.startDate || null;
                                         target.rentalEnd = m.endDate || null;
                                     }
@@ -1213,7 +1257,6 @@
                                 };
                             },
 
-                            // ✅ 수정
                             applyInlineOption(item) {
                                 const optionGroupCount = Object.keys(this.inlineGroupedOptions).length;
                                 const selectedCount = Object.keys(this.inlineOption.selectedOptions).length;
@@ -1227,14 +1270,12 @@
                                 const optionValueIds = selectedOptionValues.map(opt => opt.optionValueId).join(',');
                                 const optionName = selectedOptionValues.map(opt => opt.optionValue).join(' / ');
 
-                                // ✅ 비회원 - localStorage 직접 수정
                                 if (!this.isLogin) {
                                     const target = this.cartList.find(c => c.cartId === item.cartId);
                                     if (target) {
                                         target.optionValueIds = optionValueIds;
                                         target.optionName = optionName;
 
-                                        // unitPrice도 재계산 (옵션 추가금 반영)
                                         const addPrice = selectedOptionValues.reduce((sum, opt) => sum + (opt.addPrice || 0), 0);
                                         target.unitPrice = Number(target.price || 0) + addPrice;
                                     }
@@ -1244,7 +1285,6 @@
                                     return;
                                 }
 
-                                // 회원 - 기존 서버 API 호출
                                 let self = this;
                                 $.ajax({
                                     url: '/cart/updateOption.dox',
@@ -1298,14 +1338,16 @@
                             rentalFee(item) {
                                 const unitPrice = Number(item.unitPrice || item.price || 0);
                                 const nights = this.calcNights(item.rentalStart, item.rentalEnd) || 1;
-                                return unitPrice * nights;  // ✅ 1개 기준 대여료
+                                return unitPrice * nights;
                             },
 
                             depositFee(item) {
-                                return Number(item.deposit || 0);  // ✅ 1개 기준 보증금
+                                return Number(item.deposit || 0);
                             },
-                            toggleCartType() {
-                                this.activeTab = this.activeTab === 'RENTAL' ? 'PURCHASE' : 'RENTAL';
+
+                            switchCartType(type) {
+                                if (this.activeTab === type) return;
+                                this.activeTab = type;
                                 this.checkedIds = [];
                                 this.selectedUserCouponId = '';
                                 this.usePoint = 0;
@@ -1314,6 +1356,7 @@
                                     this.fetchCartList();
                                 }
                             },
+
                             onPointInput(e) {
                                 let value = e.target.value.replace(/[^0-9]/g, '');
                                 let point = Number(value || 0);

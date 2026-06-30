@@ -26,4 +26,7 @@ public class Wishlist {
     
     private Double avgRating;
     private Integer reviewCount;
+    
+    private String productType;
+
 }

@@ -37,24 +37,25 @@
 			</section>
 
 			<nav class="tabbar-container">
-				<div class="tabbar">
-					<button type="button" class="tab" :class="{active: currentTab === 'all'}" @click="fnTabMove('all')">
+				<div class="tabbar" ref="tabbarEl">
+					<div class="tab-indicator" ref="indicatorEl"></div>
+					<button type="button" class="tab" :class="{active: currentTab === 'all'}" @click="fnTabMove('all')" ref="tabAll">
 						<i class="fa-solid fa-table-list"></i>
 						전체
 					</button>
-					<button type="button" class="tab" :class="{active: currentTab === 'install'}" @click="fnTabMove('install')">
+					<button type="button" class="tab" :class="{active: currentTab === 'install'}" @click="fnTabMove('install')" ref="tabInstall">
 						<i class="fa-solid fa-screwdriver-wrench"></i>
 						설치방법
 					</button>
-					<button type="button" class="tab" :class="{active: currentTab === 'qr'}" @click="fnTabMove('qr')">
+					<button type="button" class="tab" :class="{active: currentTab === 'qr'}" @click="fnTabMove('qr')" ref="tabQr">
 						<i class="fa-solid fa-qrcode"></i>
 						QR코드
 					</button>
-					<button type="button" class="tab" :class="{active: currentTab === 'waste'}" @click="fnTabMove('waste')">
+					<button type="button" class="tab" :class="{active: currentTab === 'waste'}" @click="fnTabMove('waste')" ref="tabWaste">
 						<i class="fa-solid fa-recycle"></i>
 						분리수거
 					</button>
-					<button type="button" class="tab" :class="{active: currentTab === 'rental'}" @click="fnTabMove('rental')">
+					<button type="button" class="tab" :class="{active: currentTab === 'rental'}" @click="fnTabMove('rental')" ref="tabRental">
 						<i class="fa-solid fa-box-open"></i>
 						대여안내
 					</button>
@@ -266,9 +267,26 @@
 			};
 		},
 
+		mounted() {
+			this.fnMoveIndicator();
+			window.addEventListener('resize', this.fnMoveIndicator);
+			this.fnInitScrollReveal();
+		},
+
+		beforeUnmount() {
+			window.removeEventListener('resize', this.fnMoveIndicator);
+			if (this.observer) {
+				this.observer.disconnect();
+			}
+		},
+
 		methods: {
 			fnTabMove(tab) {
 				this.currentTab = tab;
+
+				this.$nextTick(() => {
+					this.fnMoveIndicator();
+				});
 
 				if (tab === 'all') {
 					window.scrollTo({
@@ -289,6 +307,46 @@
 					top: top,
 					behavior: 'smooth'
 				});
+			},
+
+			fnMoveIndicator() {
+				const tabRefMap = {
+					all: 'tabAll',
+					install: 'tabInstall',
+					qr: 'tabQr',
+					waste: 'tabWaste',
+					rental: 'tabRental'
+				};
+
+				const targetRef = this.$refs[tabRefMap[this.currentTab]];
+				const indicator = this.$refs.indicatorEl;
+
+				if (!targetRef || !indicator) {
+					return;
+				}
+
+				indicator.style.width = targetRef.offsetWidth + 'px';
+				indicator.style.transform = 'translateX(' + targetRef.offsetLeft + 'px)';
+			},
+
+			fnInitScrollReveal() {
+				const sections = document.querySelectorAll('.section');
+
+				if (!('IntersectionObserver' in window) || sections.length === 0) {
+					sections.forEach((sec) => sec.classList.add('is-visible'));
+					return;
+				}
+
+				this.observer = new IntersectionObserver((entries) => {
+					entries.forEach((entry) => {
+						if (entry.isIntersecting) {
+							entry.target.classList.add('is-visible');
+							this.observer.unobserve(entry.target);
+						}
+					});
+				}, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+				sections.forEach((sec) => this.observer.observe(sec));
 			}
 		}
 	}).mount('#app');

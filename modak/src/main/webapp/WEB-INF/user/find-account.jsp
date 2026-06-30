@@ -11,20 +11,14 @@
             integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
         <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
         <script src="/js/page-change.js"></script>
-        <link rel="stylesheet" href="/css/common/reset.css">
-        <link rel="stylesheet" href="/css/common/variables.css">
-        <link rel="stylesheet" href="/css/common/font.css">
-        <link rel="stylesheet" href="/css/common/layout.css">
-        <link rel="stylesheet" href="/css/common/component.css">
-        <link rel="stylesheet" href="/css/common/animation.css">
         <link rel="stylesheet" href="/css/user/find-account.css">
     </head>
 
     <body>
         <!-- HEADER -->
-            <%@ include file="/WEB-INF/common/header.jsp" %>
-        <div id="app" v-cloak>
-            
+        <%@ include file="/WEB-INF/common/header.jsp" %>
+            <div id="app" v-cloak>
+
 
                 <!-- MAIN -->
                 <main>
@@ -310,7 +304,7 @@
                                     </div>
 
                                     <!-- 🔹 완료 메시지 -->
-                                    <div class="success-box">
+                                    <div class="success-box" v-if="pwResetDone">
 
                                         <div class="success-icon">✓</div>
 
@@ -340,8 +334,8 @@
                         </div><!-- /right-panel -->
                     </div><!-- /find-card -->
                 </main>
-        </div>
-        <%@ include file="/WEB-INF/common/footer.jsp" %>
+            </div>
+            <%@ include file="/WEB-INF/common/footer.jsp" %>
     </body>
 
     </html>

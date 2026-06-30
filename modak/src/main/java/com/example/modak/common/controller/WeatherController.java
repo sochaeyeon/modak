@@ -35,12 +35,10 @@ public class WeatherController {
 
         HashMap<String, Object> resultMap = new HashMap<>();
         try {
-            // 단기예보 발표시각: 0200, 0500, 0800, 1100, 1400, 1700, 2000, 2300
             Calendar cal = Calendar.getInstance();
             int hour = cal.get(Calendar.HOUR_OF_DAY);
             int min  = cal.get(Calendar.MINUTE);
 
-            // 발표시각 목록 (매시 40분 이후 데이터 완성)
             int[] fcstHours = {2, 5, 8, 11, 14, 17, 20, 23};
             int baseHour = 23;
 
@@ -51,7 +49,6 @@ public class WeatherController {
                 }
             }
 
-            // 현재 시각보다 baseHour가 크면 전날 2300 사용
             if (baseHour > hour || (baseHour == hour && min < 40)) {
                 cal.add(Calendar.DATE, -1);
                 baseHour = 23;
@@ -62,7 +59,7 @@ public class WeatherController {
 
             String apiUrl = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"
                     + "?serviceKey=" + weatherKey.trim()
-                    + "&pageNo=1&numOfRows=300&dataType=JSON"
+                    + "&pageNo=1&numOfRows=1000&dataType=JSON"
                     + "&base_date=" + baseDate
                     + "&base_time=" + baseTime
                     + "&nx=" + nx
@@ -70,14 +67,12 @@ public class WeatherController {
 
             String raw = callApi(apiUrl);
 
-            // ✅ 비정상 응답 체크 (XML, Forbidden 등)
             if (!raw.trim().startsWith("{")) {
                 resultMap.put("result", "fail");
                 resultMap.put("msg", "비정상 응답: " + raw.substring(0, Math.min(50, raw.length())));
                 return new Gson().toJson(resultMap);
             }
 
-            // ✅ JSON 파싱 시도
             try {
                 resultMap.put("result", "success");
                 resultMap.put("data", JsonParser.parseString(raw));
@@ -99,6 +94,9 @@ public class WeatherController {
     /**
      * 중기예보 (D+3 ~ D+5)
      * GET /weather/mid.dox?taRegId=11B10101&landRegId=11B00000
+     *
+     * ✅ 항상 18시 발표 기준 사용 → taMin3 데이터 보장
+     * ✅ tmFc를 응답에 포함 → Vue가 기준일 계산에 사용
      */
     @GetMapping("/mid.dox")
     public String getMidWeather(
@@ -109,18 +107,17 @@ public class WeatherController {
         try {
             Calendar cal = Calendar.getInstance();
             int hour = cal.get(Calendar.HOUR_OF_DAY);
+            int min  = cal.get(Calendar.MINUTE);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
             String tmFc;
 
-            if (hour < 6) {
+         // ✅ 현재 시각이 18:10 이후면 오늘 1800, 그 전이면 전날 1800
+            if (hour > 18 || (hour == 18 && min >= 10)) {
+                tmFc = sdf.format(cal.getTime()) + "1800";
+            } else {
                 cal.add(Calendar.DATE, -1);
                 tmFc = sdf.format(cal.getTime()) + "1800";
-            } else if (hour < 18) {
-                tmFc = sdf.format(cal.getTime()) + "0600";
-            } else {
-                tmFc = sdf.format(cal.getTime()) + "1800";
             }
-
             String taUrl = "https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa"
                     + "?serviceKey=" + weatherKey.trim()
                     + "&pageNo=1&numOfRows=10&dataType=JSON"
@@ -136,7 +133,6 @@ public class WeatherController {
             String taRaw   = callApi(taUrl);
             String landRaw = callApi(landUrl);
 
-            // 비정상 응답 체크
             if (!taRaw.trim().startsWith("{") || !landRaw.trim().startsWith("{")) {
                 resultMap.put("result", "fail");
                 resultMap.put("msg", "비정상 응답");
@@ -145,6 +141,7 @@ public class WeatherController {
 
             try {
                 resultMap.put("result", "success");
+                resultMap.put("tmFc", tmFc); // ✅ Vue가 기준일 계산에 사용
                 resultMap.put("ta",   JsonParser.parseString(taRaw));
                 resultMap.put("land", JsonParser.parseString(landRaw));
                 return new Gson().toJson(resultMap);
@@ -167,8 +164,8 @@ public class WeatherController {
         URL url = new URL(apiUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
-        conn.setConnectTimeout(7000);
-        conn.setReadTimeout(7000);
+        conn.setConnectTimeout(10000);
+        conn.setReadTimeout(10000);
 
         int code = conn.getResponseCode();
 

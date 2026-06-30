@@ -15,13 +15,15 @@ public interface ChatRoomMapper {
     Map<String, Object> selectRequestById(Long requestId);
     int updateRequestStatus(HashMap<String, Object> map);
     Map<String, Object> selectChatRoomIncludeHidden(HashMap<String, Object> param);
+    Map<String, Object> selectChatStatus(HashMap<String, Object> param);
     
     void updateRequestStatusWithRoom(HashMap<String, Object> param);
     // 채팅방
     int insertChatRoom(HashMap<String, Object> map);
     Map<String, Object> selectChatRoom(HashMap<String, Object> map);
     List<Map<String, Object>> selectMyRooms(String userId);
-
+    void insertMessageReport(Map<String, Object> param);
+    List<Long> selectReportedMessageIds(Map<String, Object> param);
     // 메시지
     int insertMessage(HashMap<String, Object> map);
     List<Map<String, Object>> selectMessages(HashMap<String, Object> map);

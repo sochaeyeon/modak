@@ -83,6 +83,7 @@
             <div>
               <p class="section-label">인기 장비</p>
               <h2 class="section-title" style="margin-bottom:0">지금 많이 찾는 장비</h2>
+              <p class="popular-subtitle"><i class="ri-line-chart-line"></i>조회수 기준 실시간 TOP 4</p>
             </div>
             <a href="/product/list.do" class="view-all">전체보기</a>
           </div>
@@ -291,7 +292,9 @@
               <div class="grade-list" id="gradeListWrap"></div>
             </div>
             <div class="member-actions">
-              <button class="btn-primary" onclick="location.href='/user/sign-up.do'">회원가입 하기</button>
+              <c:if test="${empty sessionScope.sessionId}">
+                <button class="btn-primary" onclick="location.href='/user/sign-up.do'">회원가입 하기</button>
+              </c:if>
               <a href="/user/membership/info.do" class="btn-secondary" style="text-align:center">멤버십 혜택 보기</a>
             </div>
           </div>
@@ -299,8 +302,55 @@
 
         <div class="chatbot-fab">
           <span class="fab-label">챗봇 문의</span>
-          <button class="fab-btn" onclick="location.href='/chat/bot.do'">💬</button>
+          <button class="fab-btn" id="fabChatBtn" onclick="fnToggleChatbot()">💬</button>
+        </div>
 
+        <!-- ════════════════ 챗봇 팝업 ════════════════ -->
+        <div id="chatbotPopupApp" v-cloak>
+          <transition name="cp-slide">
+            <div v-if="popupOpen" class="cp-panel">
+              <div class="cp-header">
+                <div class="cp-avatar"><i class="ri-fire-fill"></i></div>
+                <div class="cp-info">
+                  <b>모닥이</b>
+                  <span>무엇이든 물어봐라닥!</span>
+                </div>
+                <div class="cp-header-actions">
+                  <a href="/chat/bot.do" class="cp-expand-btn" title="전체 화면으로 보기"><i class="ri-external-link-line"></i></a>
+                  <button class="cp-close-btn" @click="fnClose"><i class="ri-close-line"></i></button>
+                </div>
+              </div>
+              <div class="cp-messages" id="cpMsgArea">
+                <div v-if="messages.length === 0" class="cp-welcome">
+                  <div class="cp-welcome-icon"><i class="ri-fire-fill"></i></div>
+                  <p class="cp-welcome-title">모닥불 앞에 오신 걸 환영한다닥!</p>
+                  <p class="cp-welcome-sub">캠핑 장비 · 대여 · 예약 뭐든 물어보세요.</p>
+                </div>
+                <div v-for="(msg, idx) in messages" :key="idx" :class="['cp-msg', msg.role]">
+                  <div v-if="msg.role === 'bot'" class="cp-bot-avatar"><i class="ri-fire-fill"></i></div>
+                  <span v-if="msg.role === 'user'" class="cp-time">{{ msg.time }}</span>
+                  <div class="cp-bubble">
+                    <div v-if="msg.isLoading" class="cp-dots">
+                      <div class="cp-dot"></div><div class="cp-dot"></div><div class="cp-dot"></div>
+                    </div>
+                    <div v-else class="cp-bubble-content" v-html="parseMarkdown(msg.message || '')"></div>
+                  </div>
+                  <span v-if="msg.role === 'bot'" class="cp-time">{{ msg.time }}</span>
+                </div>
+              </div>
+              <div v-if="recommends.length > 0" class="cp-faq">
+                <button v-for="q in recommends" :key="q" class="cp-chip" @click="fnFaq(q)">{{ q }}</button>
+              </div>
+              <div class="cp-input-area">
+                <div class="cp-input-wrap">
+                  <i class="ri-chat-1-line cp-input-icon"></i>
+                  <input type="text" class="cp-input" v-model="userInput" @keyup.enter="fnSend" placeholder="모닥이에게 물어봐라닥...">
+                  <button class="cp-send-btn" @click="fnSend"><i class="ri-send-plane-2-fill"></i></button>
+                </div>
+              </div>
+              <div v-if="toastOpen" class="cp-toast">{{ toastMessage }}</div>
+            </div>
+          </transition>
         </div>
         <!-- 최근 본 상품 바 -->
         <div class="recent-bar" id="recentBar">
@@ -337,6 +387,140 @@
           </div>
         </div>
         <style>
+          /* ── 챗봇 팝업 ── */
+          #chatbotPopupApp { position: fixed; bottom: 100px; right: 32px; z-index: 9998; }
+          .cp-panel {
+            width: 380px; height: 580px;
+            background: #fffdf8;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(44,30,15,.22), 0 0 0 1px rgba(232,115,42,.15);
+            display: flex; flex-direction: column; overflow: hidden;
+          }
+          .cp-slide-enter-active, .cp-slide-leave-active { transition: opacity .3s cubic-bezier(.22,1,.36,1), transform .3s cubic-bezier(.22,1,.36,1); }
+          .cp-slide-enter-from, .cp-slide-leave-to { opacity: 0; transform: translateY(20px) scale(.97); }
+          .cp-header {
+            display: flex; align-items: center; gap: 10px;
+            padding: 14px 16px;
+            background: #fffdf8;
+            border-bottom: 1px solid rgba(44,30,15,.07);
+            flex-shrink: 0;
+          }
+          .cp-avatar {
+            width: 36px; height: 36px; border-radius: 11px;
+            border: 1px solid rgba(232,115,42,.4);
+            color: #E8732A; background: #fff8f3;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; flex-shrink: 0;
+          }
+          .cp-info { flex: 1; line-height: 1.3; }
+          .cp-info b { font-size: 13px; color: #2C1E0F; display: block; }
+          .cp-info span { font-size: 11px; color: #E8732A; }
+          .cp-header-actions { display: flex; align-items: center; gap: 6px; }
+          .cp-expand-btn {
+            width: 30px; height: 30px; border-radius: 9px;
+            border: 1px solid rgba(44,30,15,.1);
+            background: transparent; color: #8B6B4A;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; cursor: pointer; text-decoration: none;
+            transition: background .15s, color .15s, border-color .15s;
+          }
+          .cp-expand-btn:hover { background: #E8732A; color: #fff; border-color: #E8732A; }
+          .cp-close-btn {
+            width: 30px; height: 30px; border-radius: 9px;
+            border: 1px solid rgba(44,30,15,.1);
+            background: transparent; color: #8B6B4A;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; cursor: pointer;
+            transition: background .15s, color .15s, border-color .15s;
+          }
+          .cp-close-btn:hover { background: #2C1E0F; color: #fff; border-color: #2C1E0F; }
+          .cp-messages {
+            flex: 1; min-height: 0; overflow-y: auto;
+            padding: 16px 14px; display: flex; flex-direction: column; gap: 14px;
+            background: radial-gradient(circle at 10% 0%, rgba(232,115,42,.06), transparent 35%), #F6F0E6;
+          }
+          .cp-messages::-webkit-scrollbar { width: 4px; }
+          .cp-messages::-webkit-scrollbar-thumb { background: rgba(184,154,122,.3); border-radius: 10px; }
+          .cp-welcome { text-align: center; padding: 24px 0; }
+          .cp-welcome-icon {
+            width: 52px; height: 52px; margin: 0 auto 12px;
+            border-radius: 15px; background: #fffdf8;
+            border: 1px solid rgba(232,115,42,.2); color: #E8732A;
+            display: flex; align-items: center; justify-content: center; font-size: 24px;
+            box-shadow: 0 0 0 6px rgba(232,115,42,.05);
+          }
+          .cp-welcome-title { font-size: 13px; font-weight: 800; color: #2C1E0F; margin-bottom: 6px; }
+          .cp-welcome-sub { font-size: 12px; color: #8B6B4A; line-height: 1.6; }
+          .cp-msg { display: flex; gap: 8px; max-width: 90%; animation: cpSlideUp .28s cubic-bezier(.22,1,.36,1); }
+          .cp-msg.bot { align-self: flex-start; }
+          .cp-msg.user { align-self: flex-end; flex-direction: row-reverse; }
+          @keyframes cpSlideUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+          .cp-bot-avatar {
+            width: 28px; height: 28px; border-radius: 9px; flex-shrink: 0;
+            border: 1px solid rgba(232,115,42,.35); color: #E8732A;
+            background: #fff8f3; display: flex; align-items: center; justify-content: center; font-size: 14px;
+          }
+          .cp-bubble { padding: 10px 13px; border-radius: 13px; font-size: 13px; line-height: 1.7; }
+          .cp-msg.bot .cp-bubble { background: #fffdf8; border: 1px solid rgba(44,30,15,.08); border-top-left-radius: 4px; color: #2C1E0F; }
+          .cp-msg.user .cp-bubble { background: #E8732A; border: 1px solid #E8732A; border-top-right-radius: 4px; color: #fffdf8; }
+          .cp-bubble-content b { font-weight: 700; }
+          .cp-bubble-content .move-btn {
+            background: #fffdf8; color: #C4621E; border: 1.5px solid #E8732A;
+            padding: 6px 12px; border-radius: 10px; font-size: 12px; font-weight: 700;
+            cursor: pointer; margin-top: 8px; display: inline-flex; align-items: center; gap: 6px;
+            transition: background .15s, color .15s;
+          }
+          .cp-bubble-content .move-btn:hover { background: #E8732A; color: #fff; }
+          .cp-time { font-size: 10px; color: #B89A7A; align-self: flex-end; white-space: nowrap; }
+          .cp-dots { display: flex; gap: 4px; align-items: center; padding: 4px 2px; }
+          .cp-dot { width: 6px; height: 6px; background: #E8732A; border-radius: 50%; opacity: .55; animation: cpBounce 1.2s infinite; }
+          .cp-dot:nth-child(2) { animation-delay: .2s; }
+          .cp-dot:nth-child(3) { animation-delay: .4s; }
+          @keyframes cpBounce { 0%,80%,100% { transform:scale(.8); opacity:.45; } 40% { transform:scale(1.15); opacity:1; } }
+          .cp-faq {
+            padding: 8px 12px 4px; display: flex; gap: 6px; flex-wrap: wrap;
+            background: rgba(255,255,255,.4); border-top: 1px solid rgba(255,213,188,.3); flex-shrink: 0;
+          }
+          .cp-chip {
+            height: 30px; padding: 0 11px; border: 1px solid rgba(44,30,15,.1);
+            border-radius: 9px; background: #fffdf8; color: #5C4230;
+            font-size: 11px; font-weight: 700; font-family: inherit; cursor: pointer;
+            transition: background .15s, color .15s, border-color .15s;
+          }
+          .cp-chip:hover { color: #E8732A; border-color: #E8732A; }
+          .cp-input-area { padding: 10px 12px 14px; flex-shrink: 0; }
+          .cp-input-wrap {
+            height: 46px; display: flex; align-items: center; gap: 8px;
+            padding: 6px 6px 6px 12px;
+            border-radius: 14px; background: #fffdf8;
+            border: 1px solid rgba(44,30,15,.08);
+            box-shadow: 0 4px 16px rgba(44,30,15,.06);
+            transition: border-color .18s, box-shadow .18s;
+          }
+          .cp-input-wrap:focus-within { border-color: #E8732A; box-shadow: 0 6px 20px rgba(232,115,42,.14); }
+          .cp-input-icon { font-size: 14px; color: #B89A7A; }
+          .cp-input { flex: 1; border: none; outline: none; font-size: 13px; font-family: inherit; background: transparent; color: #2C1E0F; }
+          .cp-input::placeholder { color: #B89A7A; }
+          .cp-send-btn {
+            width: 34px; height: 34px; flex-shrink: 0;
+            border-radius: 10px; background: #E8732A; border: 1px solid #E8732A;
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            font-size: 15px; cursor: pointer; transition: background .15s;
+          }
+          .cp-send-btn:hover { background: #C4621E; border-color: #C4621E; }
+          .cp-toast {
+            position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);
+            padding: 9px 16px; border-radius: 10px;
+            background: rgba(44,30,15,.88); color: #fffdf8;
+            font-size: 12px; font-weight: 700; white-space: nowrap;
+            box-shadow: 0 6px 20px rgba(35,24,15,.2);
+            animation: cpSlideUp .22s ease both;
+          }
+          @media (max-width: 480px) {
+            #chatbotPopupApp { right: 12px; bottom: 90px; }
+            .cp-panel { width: calc(100vw - 24px); }
+          }
+          /* ── modalPop ── */
           @keyframes modalPop {
             from {
               opacity: 0;
@@ -466,39 +650,178 @@
               }, 800);
             });
 
-            /* ── 5. Vue 날씨 ── */
-            var vueApp = Vue.createApp({
-              data: function () { return { isLoading: true, isError: false, days: [], regionName: '서울', selectedRegion: 'seoul', regionMap: { seoul: { nx: 60, ny: 127, name: '서울', taId: '11B10101', landId: '11B00000' }, gyeonggi: { nx: 60, ny: 121, name: '경기', taId: '11B20601', landId: '11B00000' }, gangwon: { nx: 73, ny: 134, name: '강원', taId: '11D10301', landId: '11D10000' }, chungbuk: { nx: 69, ny: 107, name: '충북', taId: '11C10301', landId: '11C10000' }, chungnam: { nx: 68, ny: 100, name: '충남', taId: '11C20401', landId: '11C20000' }, jeonbuk: { nx: 63, ny: 89, name: '전북', taId: '11F10201', landId: '11F10000' }, jeonnam: { nx: 51, ny: 67, name: '전남', taId: '11F20501', landId: '11F20000' }, gyeongbuk: { nx: 89, ny: 91, name: '경북', taId: '11H10501', landId: '11H10000' }, gyeongnam: { nx: 91, ny: 77, name: '경남', taId: '11H20301', landId: '11H20000' }, jeju: { nx: 52, ny: 38, name: '제주', taId: '11G00201', landId: '11G00000' } } }; },
-              methods: {
-                onRegionChange: function (e) { this.selectedRegion = e.target.value; var r = this.regionMap[this.selectedRegion]; this.regionName = r.name; this.loadWeather(r); },
-                loadWeather: async function (region) {
-                  this.isLoading = true; this.isError = false; this.days = [];
-                  try {
-                    var results = await Promise.all([this.fetchShort(region.nx, region.ny), this.fetchMid(region.taId, region.landId)]);
-                    var sR = results[0], mR = results[1], result = [], self = this;
-                    if (sR.result === 'success') {
-                      var items = sR.data.response.body.items.item, today = this.getDateStr(0), tmr = this.getDateStr(1), byDate = {};
-                      items.forEach(function (item) { if (!byDate[item.fcstDate]) byDate[item.fcstDate] = { temps: [] }; var d = byDate[item.fcstDate]; if (item.category === 'TMX') d.max = item.fcstValue; if (item.category === 'TMN') d.min = item.fcstValue; if (item.category === 'TMP') d.temps.push(parseFloat(item.fcstValue)); if (item.category === 'SKY' && item.fcstTime === '1200') d.sky = item.fcstValue; if (item.category === 'PTY' && item.fcstTime === '1200') d.pty = item.fcstValue; if (item.category === 'POP' && item.fcstTime === '1200') d.rain = item.fcstValue; });
-                      [today, tmr].forEach(function (ds, i) { var d = byDate[ds] || { temps: [] }; var mx = d.max != null ? Math.round(d.max) : d.temps.length > 0 ? Math.max.apply(null, d.temps) : null; var mn = d.min != null ? Math.round(d.min) : d.temps.length > 0 ? Math.min.apply(null, d.temps) : null; result.push({ label: i === 0 ? '오늘' : '내일', icon: self.skyToIcon(d.sky, d.pty), max: mx != null ? mx + '°' : '-°', min: mn != null ? mn + '°' : '-°', rain: d.rain != null ? d.rain + '%' : '-%' }); });
-                    }
-                    if (mR.result === 'success') {
-                      var ta = Array.isArray(mR.ta.response.body.items.item) ? mR.ta.response.body.items.item[0] : mR.ta.response.body.items.item;
-                      var land = Array.isArray(mR.land.response.body.items.item) ? mR.land.response.body.items.item[0] : mR.land.response.body.items.item;
-                      [3, 4, 5].forEach(function (d) { var dt = new Date(); dt.setDate(dt.getDate() + d); var label = (dt.getMonth() + 1) + '/' + dt.getDate(), wf = land['wf' + d + 'Am'] || ''; result.push({ label: label, icon: self.wfToIcon(wf), max: (ta['taMax' + d] != null ? ta['taMax' + d] : '-') + '°', min: (ta['taMin' + d] != null ? ta['taMin' + d] : '-') + '°', rain: (land['rnSt' + d + 'Am'] != null ? land['rnSt' + d + 'Am'] : '-') + '%' }); });
-                    }
-                    this.days = result;
-                  } catch (e) { console.error(e); this.isError = true; }
-                  this.isLoading = false;
-                },
-                fetchShort: function (nx, ny) { return new Promise(function (r) { $.ajax({ url: '/weather/short.dox', data: { nx: nx, ny: ny }, dataType: 'json', success: r, error: function () { r({ result: 'fail' }); } }); }); },
-                fetchMid: function (taRegId, landRegId) { return new Promise(function (r) { $.ajax({ url: '/weather/mid.dox', data: { taRegId: taRegId, landRegId: landRegId }, dataType: 'json', success: r, error: function () { r({ result: 'fail' }); } }); }); },
-                getDateStr: function (n) { var d = new Date(); d.setDate(d.getDate() + n); return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0'); },
-                skyToIcon: function (sky, pty) { var p = parseInt(pty); if (p === 1 || p === 4) return '🌧️'; if (p === 2) return '🌨️'; if (p === 3) return '❄️'; var s = parseInt(sky); if (s === 1) return '☀️'; if (s === 3) return '⛅'; if (s === 4) return '☁️'; return '🌤️'; },
-                wfToIcon: function (wf) { if (!wf) return '🌤️'; if (wf.indexOf('비') > -1) return '🌧️'; if (wf.indexOf('눈') > -1) return '❄️'; if (wf.indexOf('흐림') > -1) return '☁️'; if (wf.indexOf('구름') > -1) return '⛅'; return '☀️'; }
-              },
-              mounted: function () { this.loadWeather(this.regionMap['seoul']); }
-            });
-            vueApp.mount('#weatherSection');
+			var vueApp = Vue.createApp({
+			  data: function () {
+			    return {
+			      isLoading: true,
+			      isError: false,
+			      days: [],
+			      regionName: '서울',
+			      selectedRegion: 'seoul',
+			      regionMap: {
+			        seoul:     { nx: 60, ny: 127, name: '서울',  taId: '11B10101', landId: '11B00000' },
+			        gyeonggi:  { nx: 60, ny: 121, name: '경기',  taId: '11B20601', landId: '11B00000' },
+			        gangwon:   { nx: 73, ny: 134, name: '강원',  taId: '11D10301', landId: '11D10000' },
+			        chungbuk:  { nx: 69, ny: 107, name: '충북',  taId: '11C10301', landId: '11C10000' },
+			        chungnam:  { nx: 68, ny: 100, name: '충남',  taId: '11C20401', landId: '11C20000' },
+			        jeonbuk:   { nx: 63, ny:  89, name: '전북',  taId: '11F10201', landId: '11F10000' },
+			        jeonnam:   { nx: 51, ny:  67, name: '전남',  taId: '11F20501', landId: '11F20000' },
+			        gyeongbuk: { nx: 89, ny:  91, name: '경북',  taId: '11H10501', landId: '11H10000' },
+			        gyeongnam: { nx: 91, ny:  77, name: '경남',  taId: '11H20301', landId: '11H20000' },
+			        jeju:      { nx: 52, ny:  38, name: '제주',  taId: '11G00201', landId: '11G00000' }
+			      }
+			    };
+			  },
+			  methods: {
+			    onRegionChange: function (e) {
+			      this.selectedRegion = e.target.value;
+			      var r = this.regionMap[this.selectedRegion];
+			      this.regionName = r.name;
+			      this.loadWeather(r);
+			    },
+
+			    loadWeather: async function (region) {
+			      this.isLoading = true; this.isError = false; this.days = [];
+			      try {
+			        var results = await Promise.all([
+			          this.fetchShort(region.nx, region.ny),
+			          this.fetchMid(region.taId, region.landId)
+			        ]);
+			        var sR = results[0], mR = results[1], self = this;
+			        var today = this.getDateStr(0), tmr = this.getDateStr(1);
+
+			        /* 오늘·내일은 항상 먼저 플레이스홀더로 초기화 */
+			        var result = [
+			          { label: '오늘', icon: '🌤️', max: '-°', min: '-°', rain: '-%' },
+			          { label: '내일', icon: '🌤️', max: '-°', min: '-°', rain: '-%' }
+			        ];
+
+			        /* ── 단기예보 (오늘 / 내일) ── */
+			        if (sR.result === 'success') {
+			          var rawItems = sR.data.response.body.items.item;
+			          var items = Array.isArray(rawItems) ? rawItems : (rawItems ? [rawItems] : []);
+			          var byDate = {};
+
+			          items.forEach(function (item) {
+			            if (!byDate[item.fcstDate]) byDate[item.fcstDate] = { temps: [], pops: [] };
+			            var d = byDate[item.fcstDate];
+			            if (item.category === 'TMX') d.max = item.fcstValue;
+			            if (item.category === 'TMN') d.min = item.fcstValue;
+			            if (item.category === 'TMP') d.temps.push(parseFloat(item.fcstValue));
+			            if (item.category === 'SKY' && item.fcstTime === '1200') d.sky = item.fcstValue;
+			            if (item.category === 'PTY' && item.fcstTime === '1200') d.pty = item.fcstValue;
+			            if (item.category === 'POP') d.pops.push(parseInt(item.fcstValue) || 0);
+			          });
+
+			          [today, tmr].forEach(function (ds, i) {
+			            var d = byDate[ds] || { temps: [], pops: [] };
+			            var mx = d.max != null ? Math.round(d.max) : d.temps.length > 0 ? Math.max.apply(null, d.temps) : null;
+			            var mn = d.min != null ? Math.round(d.min) : d.temps.length > 0 ? Math.min.apply(null, d.temps) : null;
+			            var maxPop = d.pops.length > 0 ? Math.max.apply(null, d.pops) : null;
+			            result[i] = {
+			              label: i === 0 ? '오늘' : '내일',
+			              icon:  self.skyToIcon(d.sky, d.pty),
+			              max:   mx != null ? mx + '°' : '-°',
+			              min:   mn != null ? mn + '°' : '-°',
+			              rain:  maxPop != null ? maxPop + '%' : '-%'
+			            };
+			          });
+			        }
+
+			        /* ── 중기예보 (오늘 기준 D+2 ~ D+4, 최대 3일) ── */
+			        if (mR.result === 'success') {
+			          var ta   = Array.isArray(mR.ta.response.body.items.item)
+			                      ? mR.ta.response.body.items.item[0]
+			                      : mR.ta.response.body.items.item;
+			          var land = Array.isArray(mR.land.response.body.items.item)
+			                      ? mR.land.response.body.items.item[0]
+			                      : mR.land.response.body.items.item;
+
+			          var tmFc = mR.tmFc || '';
+			          var baseDate = new Date();
+			          if (tmFc.length >= 8) {
+			            var y  = parseInt(tmFc.substring(0, 4));
+			            var mo = parseInt(tmFc.substring(4, 6)) - 1;
+			            var dd = parseInt(tmFc.substring(6, 8));
+			            baseDate = new Date(y, mo, dd);
+			          }
+
+			          // 오늘 자정 기준으로 실제 날짜 비교 → 오늘·내일(D+0,D+1)은 단기예보에서 이미 표시하므로 제외
+			          var todayMidnight = new Date();
+			          todayMidnight.setHours(0, 0, 0, 0);
+
+			          var midDays = [];
+			          for (var d = 3; d <= 10 && midDays.length < 3; d++) {
+			            if (ta['taMin' + d] == null && ta['taMax' + d] == null) continue;
+			            var dt = new Date(baseDate);
+			            dt.setDate(dt.getDate() + d);
+			            dt.setHours(0, 0, 0, 0);
+			            var diffDays = Math.round((dt - todayMidnight) / (1000 * 60 * 60 * 24));
+			            if (diffDays < 2) continue;
+			            var label = (dt.getMonth() + 1) + '/' + dt.getDate();
+			            var wf  = land['wf' + d + 'Am'] || land['wf' + d] || '';
+			            var pop = land['rnSt' + d + 'Am'] != null ? land['rnSt' + d + 'Am']
+			                    : land['rnSt' + d]    != null ? land['rnSt' + d] : '-';
+			            midDays.push({
+			              label: label,
+			              icon:  self.wfToIcon(wf),
+			              max:   (ta['taMax' + d] != null ? ta['taMax' + d] : '-') + '°',
+			              min:   (ta['taMin' + d] != null ? ta['taMin' + d] : '-') + '°',
+			              rain:  pop + '%'
+			            });
+			          }
+			          midDays.forEach(function (day) { result.push(day); });
+			        }
+
+			        this.days = result;
+			      } catch (e) {
+			        console.error(e);
+			        this.isError = true;
+			      }
+			      this.isLoading = false;
+			    },
+
+			    fetchShort: function (nx, ny) {
+			      return new Promise(function (r) {
+			        $.ajax({ url: '/weather/short.dox', data: { nx: nx, ny: ny }, dataType: 'json',
+			          success: r, error: function () { r({ result: 'fail' }); } });
+			      });
+			    },
+			    fetchMid: function (taRegId, landRegId) {
+			      return new Promise(function (r) {
+			        $.ajax({ url: '/weather/mid.dox', data: { taRegId: taRegId, landRegId: landRegId }, dataType: 'json',
+			          success: r, error: function () { r({ result: 'fail' }); } });
+			      });
+			    },
+			    getDateStr: function (n) {
+			      var d = new Date(); d.setDate(d.getDate() + n);
+			      return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
+			    },
+			    skyToIcon: function (sky, pty) {
+			      var p = parseInt(pty);
+			      if (p === 1 || p === 4) return '🌧️';
+			      if (p === 2) return '🌨️';
+			      if (p === 3) return '❄️';
+			      var s = parseInt(sky);
+			      if (s === 1) return '☀️';
+			      if (s === 3) return '⛅';
+			      if (s === 4) return '☁️';
+			      return '🌤️';
+			    },
+			    wfToIcon: function (wf) {
+			      if (!wf) return '🌤️';
+			      if (wf.indexOf('비') > -1) return '🌧️';
+			      if (wf.indexOf('눈') > -1) return '❄️';
+			      if (wf.indexOf('흐림') > -1) return '☁️';
+			      if (wf.indexOf('구름') > -1) return '⛅';
+			      return '☀️';
+			    }
+			  },
+			  mounted: function () { this.loadWeather(this.regionMap['seoul']); }
+			});
+			vueApp.mount('#weatherSection');
+
+
             /* ── 6. 토스트 ── */
             function showToast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(function () { t.classList.remove('show'); }, 2200); }
 
@@ -530,7 +853,7 @@
 
                 var html = '';
 
-                list.forEach(function (p) {
+                list.forEach(function (p, i) {
                   var pid = p.productId || p.PRODUCT_ID;
                   var name = p.productName || p.PRODUCT_NAME || '';
                   var cat = p.categoryName || p.CATEGORY_NAME || '';
@@ -545,57 +868,33 @@
                   var score = Number(rating);
                   if (isNaN(score)) score = 0;
 
+                  var typeBadgeHtml = '';
+                  if (type === 'PURCHASE') {
+                    typeBadgeHtml = '<div class="type-badge type-buy"><i class="ri-shopping-bag-3-line"></i>구매</div>';
+                  } else if (type === 'RENTAL') {
+                    typeBadgeHtml = '<div class="type-badge type-rent"><i class="ri-calendar-line"></i>대여</div>';
+                  } else {
+                    typeBadgeHtml = '<div class="type-badge type-both"><i class="ri-shuffle-line"></i>대여/구매</div>';
+                  }
+
                   var imgHtml = img
                     ? '<img src="' + img + '" style="width:100%;height:100%;object-fit:cover;">'
                     : '<span style="font-size:56px">🏕️</span>';
 
-                  var catHtml = cat
-                    ? '<p class="product-tag">' + cat + '</p>'
-                    : '';
-
-                  var brandHtml = brand
-                    ? '<span class="product-brand">' + brand + '</span>'
-                    : '';
-
-                  var ratingHtml =
-                    '<div class="product-rating">'
-                    + '<span class="rating-stars">' + makeStars(score) + '</span>'
-                    + '<span class="rating-score">' + score.toFixed(1) + ' (' + reviewCnt + ')</span>'
-                    + '</div>';
-
-                  var rentBtn = type !== 'PURCHASE'
-                    ? '<button type="button" class="btn-rent pop-rent" data-pid="' + pid + '">대여하기</button>'
-                    : '';
-
-                  var buyBtn = type !== 'RENTAL'
-                    ? '<button type="button" class="btn-buy pop-buy" data-pid="' + pid + '">구매하기</button>'
-                    : '';
-
                   html += ''
                     + '<div class="product-card fade-up pop-card" data-pid="' + pid + '" data-name="' + name.replace(/"/g, '') + '" data-img="' + img + '">'
                     + '<div class="product-img">'
+                    + typeBadgeHtml
                     + imgHtml
                     + '<button type="button" class="wish-btn" data-pid="' + pid + '">'
-                    + '<svg viewBox="0 0 24 24">'
-                    + '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 1.06-8.84z"></path>'
-                    + '</svg>'
+                    + '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 1.06-8.84z"></path></svg>'
                     + '</button>'
                     + '</div>'
                     + '<div class="product-info">'
-                    + catHtml
-                    + '<div class="product-name-line">'
-                    + '<p class="product-name">' + name + '</p>'
-                    + brandHtml
-                    + '</div>'
-                    + ratingHtml
-                    + '<div class="product-price">'
-                    + '<span class="price-main">' + price + '원</span>'
-                    + '<span class="price-unit">' + (type !== 'PURCHASE' ? '/ 1박' : '') + '</span>'
-                    + '</div>'
-                    + '<div class="product-btns">'
-                    + rentBtn
-                    + buyBtn
-                    + '</div>'
+                    + (cat ? '<span class="product-tag">' + cat + '</span>' : '')
+                    + '<p class="product-name">' + name + (brand ? ' · <span class="pcard-brand">' + brand + '</span>' : '') + '</p>'
+                    + '<div class="stars">' + makeStars(score) + '<span class="star-count">(' + reviewCnt + ')</span></div>'
+                    + '<div class="price-row"><span class="price-main">' + price + '</span><span class="price-unit">원</span></div>'
                     + '</div>'
                     + '</div>';
                 });
@@ -604,22 +903,12 @@
 
                 grid.onclick = function (e) {
                   var wish = e.target.closest('.wish-btn');
-                  var rent = e.target.closest('.pop-rent');
-                  var buy = e.target.closest('.pop-buy');
                   var card = e.target.closest('.pop-card');
 
                   if (wish) {
                     e.preventDefault();
                     e.stopPropagation();
                     fnWish(e, wish, parseInt(wish.dataset.pid));
-                    return;
-                  }
-
-                  if (rent || buy) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    var btn = rent || buy;
-                    location.href = '/product/detail.do?productId=' + btn.dataset.pid;
                     return;
                   }
 
@@ -859,6 +1148,142 @@
                 error: function () { loadDefaultGrades(); }
               });
             })();
+            /* ── 챗봇 팝업 Vue 앱 ── */
+            (function () {
+              var cpLoginUserId = '${sessionScope.sessionId}';
+              var cpApp = Vue.createApp({
+                data: function () {
+                  return {
+                    popupOpen: false,
+                    isLogin: cpLoginUserId && cpLoginUserId !== 'null' && cpLoginUserId !== '',
+                    currentRoomId: new Date().getTime().toString(),
+                    userInput: '',
+                    isLoading: false,
+                    messages: [],
+                    recommends: [],
+                    sendLocked: false,
+                    lastSendAt: 0,
+                    sendCooldownMs: 1200,
+                    toastMessage: '',
+                    toastOpen: false
+                  };
+                },
+                methods: {
+                  fnOpen: function () {
+                    this.popupOpen = true;
+                    if (this.messages.length === 0) {
+                      this.fnGetRecommend('START');
+                    }
+                    this.$nextTick(function () {
+                      var input = document.querySelector('.cp-input');
+                      if (input) input.focus();
+                    });
+                  },
+                  fnClose: function () {
+                    this.popupOpen = false;
+                  },
+                  fnGetCurrentTime: function () {
+                    var now = new Date();
+                    var h = now.getHours();
+                    var ampm = h >= 12 ? '오후' : '오전';
+                    h = h % 12 || 12;
+                    return ampm + ' ' + h + ':' + String(now.getMinutes()).padStart(2, '0');
+                  },
+                  fnGetRecommend: function (lastMsg) {
+                    var self = this;
+                    $.ajax({
+                      url: '/api/chat/recommend.dox', type: 'POST',
+                      contentType: 'application/json',
+                      data: JSON.stringify({ message: lastMsg || 'START' }),
+                      success: function (res) { self.recommends = res; }
+                    });
+                  },
+                  fnSend: function () {
+                    var self = this;
+                    var msg = this.userInput.trim();
+                    if (!msg) return;
+                    if (this.isLoading || this.sendLocked) {
+                      this.fnShowToast('모닥이가 답변 중이에요. 잠시만 기다려달라닥!');
+                      return;
+                    }
+                    var now = Date.now();
+                    if (now - this.lastSendAt < this.sendCooldownMs) {
+                      this.fnShowToast('너무 빠르게 보내고 있어요. 잠깐만 기다려달라닥!');
+                      return;
+                    }
+                    this.lastSendAt = now;
+                    this.sendLocked = true;
+                    this.userInput = '';
+                    this.isLoading = true;
+                    this.recommends = [];
+                    var time = this.fnGetCurrentTime();
+                    this.messages.push({ role: 'user', message: msg, time: time, isLoading: false });
+                    this.messages.push({ role: 'bot', message: '', time: time, isLoading: true });
+                    this.fnScroll();
+                    $.ajax({
+                      url: '/api/chat/ask.dox', type: 'POST',
+                      contentType: 'application/json',
+                      data: JSON.stringify({ message: msg, roomId: self.currentRoomId }),
+                      success: function (res) {
+                        var last = self.messages[self.messages.length - 1];
+                        last.isLoading = false;
+                        last.message = res;
+                        self.isLoading = false;
+                        self.sendLocked = false;
+                        self.fnGetRecommend(msg);
+                        self.fnScroll();
+                      },
+                      error: function () {
+                        var last = self.messages[self.messages.length - 1];
+                        last.isLoading = false;
+                        last.message = '오류가 발생했다닥! 잠시 후 다시 시도해봐라닥. 🔥';
+                        self.isLoading = false;
+                        self.sendLocked = false;
+                      }
+                    });
+                  },
+                  fnFaq: function (q) {
+                    if (this.isLoading || this.sendLocked) {
+                      this.fnShowToast('모닥이가 답변 중이에요. 잠시만 기다려달라닥!');
+                      return;
+                    }
+                    this.userInput = q;
+                    this.fnSend();
+                  },
+                  parseMarkdown: function (t) {
+                    if (!t) return '';
+                    var html = t
+                      .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+                      .replace(/\*(.*?)\*/g, '<i>$1</i>')
+                      .replace(/\n/g, '<br>');
+                    return html.replace(/\[([^|]+)\|([^\]]+)\]/g, function (_, title, url) {
+                      return '<div class="msg-link-box"><button class="move-btn" onclick="window.open(\'' + url + '\',\'_blank\')">' + title + ' →</button></div>';
+                    });
+                  },
+                  fnScroll: function () {
+                    this.$nextTick(function () {
+                      var a = document.getElementById('cpMsgArea');
+                      if (a) a.scrollTop = a.scrollHeight;
+                    });
+                  },
+                  fnShowToast: function (message) {
+                    var self = this;
+                    this.toastMessage = message;
+                    this.toastOpen = true;
+                    setTimeout(function () { self.toastOpen = false; }, 1800);
+                  }
+                }
+              });
+              var cpInstance = cpApp.mount('#chatbotPopupApp');
+              window.fnToggleChatbot = function () {
+                if (cpInstance.popupOpen) {
+                  cpInstance.fnClose();
+                } else {
+                  cpInstance.fnOpen();
+                }
+              };
+            })();
+
             function scrollToTop() {
               window.scrollTo({
                 top: 0,

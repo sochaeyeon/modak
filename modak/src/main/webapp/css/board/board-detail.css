@@ -964,14 +964,14 @@ select {
 ========================= */
 
 .mini-profile-popup {
+    position: relative;
+    /* absolute 자식 기준 */
     width: 236px;
     padding: 16px;
-
     background: var(--white);
     border: 1.5px solid var(--border-strong);
     border-radius: 18px;
     z-index: 200;
-
     animation: popupFade 0.15s ease;
 }
 
@@ -2053,4 +2053,106 @@ select {
 
 .post-content.ql-editor p.ql-align-justify {
     text-align: justify;
+}
+
+.mp-follow-btn-corner {
+    position: absolute;
+    top: 16px;
+    right: 14px;
+    height: 25px;
+    padding: 0 10px;
+    border: 1.5px solid var(--orange);
+    border-radius: 6px;
+    background: var(--orange);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all .18s;
+    white-space: nowrap;
+    z-index: 1;
+}
+
+.mp-follow-btn-corner:hover {
+    background: var(--orange2);
+    border-color: var(--orange2);
+}
+
+.mp-follow-btn-corner.on {
+    background: transparent;
+    border-color: var(--border-strong);
+    color: var(--brown3);
+}
+
+.mp-follow-btn-corner.on:hover {
+    border-color: var(--brown);
+    color: var(--brown);
+}
+
+.mp-chat-btn.exists {
+    background: var(--cream2);
+    color: var(--brown2);
+    border: 1.5px solid var(--border-strong);
+}
+
+.mp-chat-btn.exists:hover {
+    background: var(--cream3);
+    border-color: var(--brown3);
+}
+
+/* 최근 글 */
+.mp-posts {
+    margin-top: 11px;
+    border-top: 1px solid var(--border);
+    padding-top: 9px;
+}
+
+.mp-posts-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--brown4);
+    margin-bottom: 5px;
+    letter-spacing: 0.03em;
+}
+
+.mp-post-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 3px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: background .14s;
+}
+
+.mp-post-item:hover {
+    background: var(--cream);
+}
+
+.mp-post-cat {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 5px;
+    flex-shrink: 0;
+}
+
+.mp-post-text {
+    font-size: 11px;
+    color: var(--brown2);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mp-post-like {
+    font-size: 10px;
+    color: var(--orange);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 1px;
 }

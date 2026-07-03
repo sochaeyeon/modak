@@ -680,106 +680,116 @@
 			      this.loadWeather(r);
 			    },
 
-			    loadWeather: async function (region) {
-			      this.isLoading = true; this.isError = false; this.days = [];
-			      try {
-			        var results = await Promise.all([
-			          this.fetchShort(region.nx, region.ny),
-			          this.fetchMid(region.taId, region.landId)
-			        ]);
-			        var sR = results[0], mR = results[1], self = this;
-			        var today = this.getDateStr(0), tmr = this.getDateStr(1);
+				loadWeather: async function (region) {
+				  this.isLoading = true; this.isError = false; this.days = [];
+				  try {
+				    var results = await Promise.all([
+				      this.fetchShort(region.nx, region.ny),
+				      this.fetchMid(region.taId, region.landId)
+				    ]);
+				    var sR = results[0], mR = results[1], self = this;
+				    var today = this.getDateStr(0);
+				    var tmr   = this.getDateStr(1);
+				    var d2    = this.getDateStr(2);  
+					var d3    = this.getDateStr(3);
 
-			        /* 오늘·내일은 항상 먼저 플레이스홀더로 초기화 */
-			        var result = [
-			          { label: '오늘', icon: '🌤️', max: '-°', min: '-°', rain: '-%' },
-			          { label: '내일', icon: '🌤️', max: '-°', min: '-°', rain: '-%' }
-			        ];
+				    // ✅ 3일 플레이스홀더
+				    var result = [
+				      { label: '오늘',              icon:'🌤️', max:'-°', min:'-°', rain:'-%' },
+				      { label: '내일',              icon:'🌤️', max:'-°', min:'-°', rain:'-%' },
+				      { label: this.getMonthDay(2), icon:'🌤️', max:'-°', min:'-°', rain:'-%' },
+					  { label: this.getMonthDay(3), icon:'🌤️', max:'-°', min:'-°', rain:'-%' } 
+				    ];
 
-			        /* ── 단기예보 (오늘 / 내일) ── */
-			        if (sR.result === 'success') {
-			          var rawItems = sR.data.response.body.items.item;
-			          var items = Array.isArray(rawItems) ? rawItems : (rawItems ? [rawItems] : []);
-			          var byDate = {};
+				    /* ── 단기예보 (오늘 / 내일 / 모레) ── */
+				    if (sR.result === 'success') {
+				      var rawItems = sR.data.response.body.items.item;
+				      var items = Array.isArray(rawItems) ? rawItems : (rawItems ? [rawItems] : []);
+				      var byDate = {};
 
-			          items.forEach(function (item) {
-			            if (!byDate[item.fcstDate]) byDate[item.fcstDate] = { temps: [], pops: [] };
-			            var d = byDate[item.fcstDate];
-			            if (item.category === 'TMX') d.max = item.fcstValue;
-			            if (item.category === 'TMN') d.min = item.fcstValue;
-			            if (item.category === 'TMP') d.temps.push(parseFloat(item.fcstValue));
-			            if (item.category === 'SKY' && item.fcstTime === '1200') d.sky = item.fcstValue;
-			            if (item.category === 'PTY' && item.fcstTime === '1200') d.pty = item.fcstValue;
-			            if (item.category === 'POP') d.pops.push(parseInt(item.fcstValue) || 0);
-			          });
+				      items.forEach(function (item) {
+				        if (!byDate[item.fcstDate]) byDate[item.fcstDate] = { temps:[], pops:[] };
+				        var d = byDate[item.fcstDate];
+				        if (item.category === 'TMX') d.max = item.fcstValue;
+				        if (item.category === 'TMN') d.min = item.fcstValue;
+				        if (item.category === 'TMP') d.temps.push(parseFloat(item.fcstValue));
+				        if (item.category === 'SKY' && item.fcstTime === '1200') d.sky = item.fcstValue;
+				        if (item.category === 'PTY' && item.fcstTime === '1200') d.pty = item.fcstValue;
+				        if (item.category === 'POP') d.pops.push(parseInt(item.fcstValue) || 0);
+				      });
 
-			          [today, tmr].forEach(function (ds, i) {
-			            var d = byDate[ds] || { temps: [], pops: [] };
-			            var mx = d.max != null ? Math.round(d.max) : d.temps.length > 0 ? Math.max.apply(null, d.temps) : null;
-			            var mn = d.min != null ? Math.round(d.min) : d.temps.length > 0 ? Math.min.apply(null, d.temps) : null;
-			            var maxPop = d.pops.length > 0 ? Math.max.apply(null, d.pops) : null;
-			            result[i] = {
-			              label: i === 0 ? '오늘' : '내일',
-			              icon:  self.skyToIcon(d.sky, d.pty),
-			              max:   mx != null ? mx + '°' : '-°',
-			              min:   mn != null ? mn + '°' : '-°',
-			              rain:  maxPop != null ? maxPop + '%' : '-%'
-			            };
-			          });
-			        }
+				      // ✅ 3일치 파싱
+					  [today, tmr, d2, d3].forEach(function (ds, i) {  
+					    var d = byDate[ds] || { temps:[], pops:[] };
+					    var mx = d.max != null ? Math.round(d.max) : d.temps.length > 0 ? Math.max.apply(null, d.temps) : null;
+					    var mn = d.min != null ? Math.round(d.min) : d.temps.length > 0 ? Math.min.apply(null, d.temps) : null;
+					    var maxPop = d.pops.length > 0 ? Math.max.apply(null, d.pops) : null;
+					    var labels = ['오늘', '내일', self.getMonthDay(2), self.getMonthDay(3)]; 
+					    result[i] = {
+					      label: labels[i],
+					      icon:  self.skyToIcon(d.sky, d.pty),
+					      max:   mx != null ? mx + '°' : '-°',
+					      min:   mn != null ? mn + '°' : '-°',
+					      rain:  maxPop != null ? maxPop + '%' : '-%'
+					    };
+					  });
+				    }
 
-			        /* ── 중기예보 (오늘 기준 D+2 ~ D+4, 최대 3일) ── */
-			        if (mR.result === 'success') {
-			          var ta   = Array.isArray(mR.ta.response.body.items.item)
-			                      ? mR.ta.response.body.items.item[0]
-			                      : mR.ta.response.body.items.item;
-			          var land = Array.isArray(mR.land.response.body.items.item)
-			                      ? mR.land.response.body.items.item[0]
-			                      : mR.land.response.body.items.item;
+				    /* ── 중기예보 (D+3 이후 2일) ── */
+				    if (mR.result === 'success') {
+				      var ta   = Array.isArray(mR.ta.response.body.items.item)
+				                  ? mR.ta.response.body.items.item[0]
+				                  : mR.ta.response.body.items.item;
+				      var land = Array.isArray(mR.land.response.body.items.item)
+				                  ? mR.land.response.body.items.item[0]
+				                  : mR.land.response.body.items.item;
+								  
+					console.log('tmFc:', mR.tmFc);       
+					console.log('ta 전체:', ta);          
+					console.log('taMax3:', ta['taMax3']); 
 
-			          var tmFc = mR.tmFc || '';
-			          var baseDate = new Date();
-			          if (tmFc.length >= 8) {
-			            var y  = parseInt(tmFc.substring(0, 4));
-			            var mo = parseInt(tmFc.substring(4, 6)) - 1;
-			            var dd = parseInt(tmFc.substring(6, 8));
-			            baseDate = new Date(y, mo, dd);
-			          }
+				      var tmFc = mR.tmFc || '';
+				      var baseDate = new Date();
+				      if (tmFc.length >= 8) {
+				        baseDate = new Date(
+				          parseInt(tmFc.substring(0,4)),
+				          parseInt(tmFc.substring(4,6)) - 1,
+				          parseInt(tmFc.substring(6,8))
+				        );
+				      }
 
-			          // 오늘 자정 기준으로 실제 날짜 비교 → 오늘·내일(D+0,D+1)은 단기예보에서 이미 표시하므로 제외
-			          var todayMidnight = new Date();
-			          todayMidnight.setHours(0, 0, 0, 0);
+				      var todayMidnight = new Date();
+				      todayMidnight.setHours(0,0,0,0);
 
-			          var midDays = [];
-			          for (var d = 3; d <= 10 && midDays.length < 3; d++) {
-			            if (ta['taMin' + d] == null && ta['taMax' + d] == null) continue;
-			            var dt = new Date(baseDate);
-			            dt.setDate(dt.getDate() + d);
-			            dt.setHours(0, 0, 0, 0);
-			            var diffDays = Math.round((dt - todayMidnight) / (1000 * 60 * 60 * 24));
-			            if (diffDays < 2) continue;
-			            var label = (dt.getMonth() + 1) + '/' + dt.getDate();
-			            var wf  = land['wf' + d + 'Am'] || land['wf' + d] || '';
-			            var pop = land['rnSt' + d + 'Am'] != null ? land['rnSt' + d + 'Am']
-			                    : land['rnSt' + d]    != null ? land['rnSt' + d] : '-';
-			            midDays.push({
-			              label: label,
-			              icon:  self.wfToIcon(wf),
-			              max:   (ta['taMax' + d] != null ? ta['taMax' + d] : '-') + '°',
-			              min:   (ta['taMin' + d] != null ? ta['taMin' + d] : '-') + '°',
-			              rain:  pop + '%'
-			            });
-			          }
-			          midDays.forEach(function (day) { result.push(day); });
-			        }
+					  var midDays = [];
+					  for (var d = 3; d <= 10 && midDays.length < 1; d++) { 
+					    var dt = new Date(baseDate);
+					    dt.setDate(dt.getDate() + d);
+					    dt.setHours(0,0,0,0);
+					    var diffDays = Math.round((dt - todayMidnight) / (1000*60*60*24));
+					    if (diffDays < 4) continue;   
+						
+					    var label = (dt.getMonth()+1) + '/' + dt.getDate();
+					    var wf  = land['wf'+d+'Am'] || land['wf'+d] || '';
+					    var pop = land['rnSt'+d+'Am'] != null ? land['rnSt'+d+'Am']
+					            : land['rnSt'+d]     != null ? land['rnSt'+d] : '-';
+					    midDays.push({
+					      label: label,
+					      icon:  self.wfToIcon(wf),
+					      max:   (ta['taMax'+d] != null ? ta['taMax'+d] : '-') + '°',  // null이면 -°
+					      min:   (ta['taMin'+d] != null ? ta['taMin'+d] : '-') + '°',
+					      rain:  pop + '%'
+					    });
+					  }
+				      midDays.forEach(function (day) { result.push(day); });
+				    }
 
-			        this.days = result;
-			      } catch (e) {
-			        console.error(e);
-			        this.isError = true;
-			      }
-			      this.isLoading = false;
-			    },
+				    this.days = result;
+				  } catch (e) {
+				    console.error(e); this.isError = true;
+				  }
+				  this.isLoading = false;
+				},
 
 			    fetchShort: function (nx, ny) {
 			      return new Promise(function (r) {
@@ -797,6 +807,11 @@
 			      var d = new Date(); d.setDate(d.getDate() + n);
 			      return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
 			    },
+				getMonthDay: function (n) {
+				  var d = new Date();
+				  d.setDate(d.getDate() + n);
+				  return (d.getMonth()+1) + '/' + d.getDate();
+				},
 			    skyToIcon: function (sky, pty) {
 			      var p = parseInt(pty);
 			      if (p === 1 || p === 4) return '🌧️';
@@ -1182,6 +1197,7 @@
                   fnClose: function () {
                     this.popupOpen = false;
                   },
+				 
                   fnGetCurrentTime: function () {
                     var now = new Date();
                     var h = now.getHours();

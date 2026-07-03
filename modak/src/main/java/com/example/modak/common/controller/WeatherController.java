@@ -59,7 +59,7 @@ public class WeatherController {
 
             String apiUrl = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"
                     + "?serviceKey=" + weatherKey.trim()
-                    + "&pageNo=1&numOfRows=1000&dataType=JSON"
+                    + "&pageNo=1&numOfRows=1500&dataType=JSON"
                     + "&base_date=" + baseDate
                     + "&base_time=" + baseTime
                     + "&nx=" + nx
@@ -111,13 +111,10 @@ public class WeatherController {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
             String tmFc;
 
-         // ✅ 현재 시각이 18:10 이후면 오늘 1800, 그 전이면 전날 1800
-            if (hour > 18 || (hour == 18 && min >= 10)) {
-                tmFc = sdf.format(cal.getTime()) + "1800";
-            } else {
-                cal.add(Calendar.DATE, -1);
-                tmFc = sdf.format(cal.getTime()) + "1800";
-            }
+         // 항상 전날 1800 사용
+            cal.add(Calendar.DATE, -1);
+            tmFc = sdf.format(cal.getTime()) + "1800";
+            
             String taUrl = "https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa"
                     + "?serviceKey=" + weatherKey.trim()
                     + "&pageNo=1&numOfRows=10&dataType=JSON"
@@ -141,7 +138,7 @@ public class WeatherController {
 
             try {
                 resultMap.put("result", "success");
-                resultMap.put("tmFc", tmFc); // ✅ Vue가 기준일 계산에 사용
+                resultMap.put("tmFc", tmFc); 
                 resultMap.put("ta",   JsonParser.parseString(taRaw));
                 resultMap.put("land", JsonParser.parseString(landRaw));
                 return new Gson().toJson(resultMap);

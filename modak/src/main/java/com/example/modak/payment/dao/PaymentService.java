@@ -65,7 +65,7 @@ public class PaymentService {
 
 		return resultMap;
 	}
-
+ 
 	// 임시 주문 저장 → ORDER_ID를 프론트에 반환
 	@Transactional
 	public HashMap<String, Object> readyPayment(HashMap<String, Object> map) {

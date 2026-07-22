@@ -2713,6 +2713,8 @@
 						dataType: 'json',
 						success: (res) => {
 							if (res.result === 'success') {
+								// .slice(0, 4)를 추가하여 최대 4개로 제한
+                				const list = (res.list || []).slice(0, 4);
 								this.aiRecommendList = res.list.map(item => ({
 									...item,
 									isWished: this.wishedIds.includes(item.productId)

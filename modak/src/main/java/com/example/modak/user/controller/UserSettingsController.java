@@ -243,7 +243,7 @@ public class UserSettingsController {
 			}
 
 			// 저장 경로
-			String uploadDirPath = session.getServletContext().getRealPath("/img/profile/");
+			String uploadDirPath = session.getServletContext().getRealPath("/upload/profile/");
 			File uploadDir = new File(uploadDirPath);
 
 			if (!uploadDir.exists()) {
@@ -256,7 +256,7 @@ public class UserSettingsController {
 			profileImage.transferTo(dest);
 
 			// 웹에서 접근할 경로
-			String profileImgUrl = "/img/profile/" + saveFileName;
+			String profileImgUrl = "/upload/profile/" + saveFileName;
 
 			userSettingsService.updateProfileImage(sessionId, profileImgUrl);
 
@@ -289,7 +289,7 @@ public class UserSettingsController {
 	        }
 
 	        // 기본 이미지 경로로 초기화
-	        String defaultImgUrl = "/img/profile/default-profile.png";
+	        String defaultImgUrl = "/upload/profile/default-profile.png";
 	        userSettingsService.updateProfileImage(sessionId, defaultImgUrl);
 
 	        resultMap.put("result", "success");

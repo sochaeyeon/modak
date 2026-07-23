@@ -133,7 +133,7 @@
                     <div class="row-options">
                         <label class="remember">
                         </label>
-                        <a href="http://localhost:8080/user/find-account.do" class="forgot">아이디/비밀번호 찾기</a>
+                        <a href="/user/find-account.do" class="forgot">아이디/비밀번호 찾기</a>
                     </div>
 
                     <button class="btn-login" @click="fnLogin">로그인</button>
@@ -190,7 +190,7 @@
                     </div>
                     <p class="signup-row">
                         아직 모닥이 없으신가요?
-                        <a href="http://localhost:8080/user/sign-up.do">회원가입하기 →</a>
+                        <a href="/user/sign-up.do">회원가입하기 →</a>
                     </p>
                 </div>
             </div>
@@ -275,7 +275,7 @@
                     };
 
                     $.ajax({
-                        url: "http://localhost:8080/user/login.dox",
+                        url: "/user/login.dox",
                         dataType: "json",
                         type: "POST",
                         data: param,

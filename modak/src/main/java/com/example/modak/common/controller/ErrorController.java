@@ -33,12 +33,4 @@ public class ErrorController {
 		return new Gson().toJson(resultMap);
 	}
 	
-	// 글로벌 에러 핸들러 테스트용 임시 주소
-	// http://localhost:8080/test-error.do 접속시 모닥에러화면이 떠야함
-//    @GetMapping("/test-error.do")
-//    public String testError() {
-//        // 런타임 에러
-//        throw new RuntimeException("글로벌 에러 핸들러가 잘 잡는지 테스트하는 중입니다!");
-//    }
-
 }

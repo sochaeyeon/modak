@@ -4927,12 +4927,17 @@ body.rent .delbox .dv.rent-only {
 }
 
 .ai-rec-card {
-	border: 1px solid var(--border);
-	border-radius: 14px;
-	overflow: hidden;
-	cursor: pointer;
-	background: #fff;
-	transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    width: 200px;
+    flex-shrink: 0;
+    cursor: pointer;
+
+    border: 1px solid #e5e5e5; 
+    border-radius: 12px;     
+    background-color: #fff;    
+    overflow: hidden;        
+    
+    display: flex;
+    flex-direction: column;
 }
 
 .ai-rec-card:hover {
@@ -5092,14 +5097,14 @@ body.rent .delbox .dv.rent-only {
 }
 
 .ai-rec-modal {
-    width: min(860px, 94vw);
-    max-height: 86vh;
-    overflow-y: auto;
-    background: #fffdf8;
-    border-radius: 10px;
-    padding: 32px;
-    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.28);
-    animation: modalSoftUp .22s ease both;
+    width: fit-content;
+    max-width: 90vw; 
+    min-width: 320px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    margin: 0 auto;
 }
 
 .ai-rec-header {
@@ -5127,10 +5132,12 @@ body.rent .delbox .dv.rent-only {
     color: var(--orange);
 }
 
-.ai-rec-sub {
-    font-size: 13px;
-    color: var(--muted);
-    margin-bottom: 22px;
+.ai-rec-grid {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    align-items: stretch;
+    margin-top: 16px;
 }
 
 .ai-rec-grid {
@@ -5154,6 +5161,7 @@ body.rent .delbox .dv.rent-only {
     font-weight: 700;
     cursor: pointer;
     transition: border-color .15s ease, color .15s ease;
+	margin-top: 24px;
 }
 
 .ai-rec-skip-btn:hover {

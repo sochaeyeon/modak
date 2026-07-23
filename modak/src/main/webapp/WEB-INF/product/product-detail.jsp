@@ -490,7 +490,7 @@
 								<div class="rhead">
 									<div class="review-user">
 										<img class="review-profile"
-											:src="review.profileImgUrl || '/img/profile/default-profile.png'">
+											:src="review.profileImgUrl || '/upload/profile/default-profile.png'">
 
 										<div>
 											<div class="rname">
@@ -877,7 +877,7 @@
 										</button>
 
 										<div class="user-header">
-											<img :src="reviewList[reviewImgModal.reviewIndex]?.profileImgUrl || '/img/profile/default-profile.png'"
+											<img :src="reviewList[reviewImgModal.reviewIndex]?.profileImgUrl || '/upload/profile/default-profile.png'"
 												class="user-avatar">
 
 											<div class="user-meta">
@@ -2713,6 +2713,7 @@
 						dataType: 'json',
 						success: (res) => {
 							if (res.result === 'success') {
+                				const list = (res.list || []).slice(0, 4);
 								this.aiRecommendList = res.list.map(item => ({
 									...item,
 									isWished: this.wishedIds.includes(item.productId)

@@ -130,7 +130,7 @@
 				fnError: function () {
 					let self = this;
 					$.ajax({
-						url: "http://localhost:8080/error.dox",
+						url: "/error.dox",
 						dataType: "json",
 						type: "POST",
 						data: {}, // Sending empty object if no params needed

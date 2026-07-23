@@ -226,7 +226,7 @@
                                 let self = this;
 
                                 $.ajax({
-                                    url: "http://localhost:8080/user/wishlist/remove.dox",
+                                    url: "/user/wishlist/remove.dox",
                                     type: "POST",
                                     dataType: "json",
                                     data: { wishId: wishId },

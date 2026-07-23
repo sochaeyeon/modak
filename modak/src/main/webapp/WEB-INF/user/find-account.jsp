@@ -326,9 +326,9 @@
 
                             <!-- bottom links -->
                             <div class="bottom-links">
-                                <a href="http://localhost:8080/user/login.do">로그인</a>
-                                <a href="http://localhost:8080/user/sign-up.do">회원가입</a>
-                                <a href="http://localhost:8080/cs-center.do">고객센터</a>
+                                <a href="/user/login.do">로그인</a>
+                                <a href="/user/sign-up.do">회원가입</a>
+                                <a href="/cs-center.do">고객센터</a>
                             </div>
 
                         </div><!-- /right-panel -->
@@ -565,7 +565,7 @@
                         email: self.email
                     };
                     $.ajax({
-                        url: "http://localhost:8080/user/find-id.dox",
+                        url: "/user/find-id.dox",
                         dataType: "json",
                         type: "POST",
                         data: param,

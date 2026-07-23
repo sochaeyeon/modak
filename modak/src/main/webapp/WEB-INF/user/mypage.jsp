@@ -1590,16 +1590,13 @@
 								let url = this.displayUser.profileImgUrl;
 
 								if (!url || url === "null" || url === "undefined") {
-									return "/img/profile/default-profile.png";
+									return "/upload/profile/default-profile.png";
 								}
 
 								url = String(url).trim();
 
-								if (
-									!url.startsWith("/img/profile/") &&
-									!url.startsWith("/upload/profile/")
-								) {
-									return "/img/profile/default-profile.png";
+								if (!url.startsWith("/upload/profile/")) {
+									return "/upload/profile/default-profile.png";
 								}
 
 								return url + "?v=" + this.profileImageVersion;
@@ -2351,10 +2348,7 @@
 											let profileImgUrl = info.profileImgUrl || "";
 											profileImgUrl = String(profileImgUrl).trim();
 
-											if (
-												!profileImgUrl.startsWith("/img/profile/") &&
-												!profileImgUrl.startsWith("/upload/profile/")
-											) {
+											if (!profileImgUrl.startsWith("/upload/profile/")) {
 												profileImgUrl = "";
 											}
 
@@ -3264,13 +3258,7 @@
 							});
 							let profileUrl = String(this.displayUser.profileImgUrl || "").trim();
 
-							if (
-								!profileUrl ||
-								(
-									!profileUrl.startsWith("/img/profile/") &&
-									!profileUrl.startsWith("/upload/profile/")
-								)
-							) {
+							if (!profileUrl || !profileUrl.startsWith("/upload/profile/")) {
 								this.displayUser.profileImgUrl = "";
 							}
 							let self = this;

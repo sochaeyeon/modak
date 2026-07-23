@@ -26,10 +26,6 @@ public class MainController {
     private String kakaoJsKey;
 
     
-    /**
-     * [페이지 이동] 메인 페이지 접속 (localhost:8080/main.do)
-     * 카카오 맵 API 키를 Model에 담아 JSP로 전달합니다.
-     */
     @RequestMapping("/main.do")
     public String mainPage(Model model) {
         // JSP에서 ${kakaoKey}로 사용할 수 있도록 전달
@@ -37,9 +33,6 @@ public class MainController {
         return "main"; 
     }
 
-    /**
-     * [API] 메인 화면용 캠핑장 리스트 조회 (AJAX 통신용)
-     */
     @RequestMapping("/main/list.dox")
     @ResponseBody
     public String getMainCampList(@RequestParam HashMap<String, Object> params) {

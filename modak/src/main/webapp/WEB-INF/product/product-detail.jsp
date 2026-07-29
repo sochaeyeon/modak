@@ -2627,7 +2627,7 @@
 									this.qnaModal.selectedOptionsMap[kv[0].trim()] = kv[1].trim();
 								}
 							});
-						}
+						} 
 					}
 					this.qnaModal.open = true;
 				},
@@ -2713,8 +2713,9 @@
 						dataType: 'json',
 						success: (res) => {
 							if (res.result === 'success') {
-                				const list = (res.list || []).slice(0, 4);
-								this.aiRecommendList = res.list.map(item => ({
+								// 최대 4개로 제한
+								const list = (res.list || []).slice(0, 4);
+								this.aiRecommendList = list.map(item => ({   // ← res.list가 아니라 list로 수정
 									...item,
 									isWished: this.wishedIds.includes(item.productId)
 								}));

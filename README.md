@@ -15,6 +15,12 @@
 
 > 🗓 **개발 기간** : 2026.04.08 ~ 2026.04.30 &nbsp;&nbsp;|&nbsp;&nbsp; 👥 **팀 구성** : 4인 팀 프로젝트
 
+<br>
+
+
+<!-- 대표 이미지 -->
+<img src="./assets/main.png" alt="ModakModak 대표 이미지" width="100%"/>
+
 </div>
 
 <br>
@@ -30,6 +36,26 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 ```
 🏕️  캠핑장 탐색   →   🛒  장비 렌탈/구매   →   💬  커뮤니티 소통   →   ⚙️  관리자 운영
 ```
+
+<br>
+
+---
+
+## 📸 서비스 화면
+
+<div align="center">
+
+<img src="./assets/main.png" alt="메인페이지" width="80%"/>
+
+<br><br>
+
+<img src="./assets/product-list.png" alt="상품 리스트" width="80%"/>
+
+<br><br>
+
+<img src="./assets/camp.png" alt="캠핑장 찾기" width="80%"/>
+
+</div>
 
 <br>
 
@@ -62,6 +88,7 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 | 📐 **설계 문서** | ERD, 요구사항 정의서, API 명세서 | [바로가기 →](https://drive.google.com/drive/folders/1ImcpHUeuDkVdmN7kLwLxJ86gxVyfqsfu) |
 | 🛠️ **공통 가이드라인** | 코드 컨벤션, 브랜치 전략, 공통 규칙 | [바로가기 →](https://drive.google.com/drive/folders/1fBHTVU46fD2LCtV5VhgCbF-mRSP53oqj) |
 | 🎞️ **발표 PPT** | 프로젝트 최종 발표 슬라이드 | [바로가기 →](https://drive.google.com/drive/folders/1HiUoiXSteg3I6RIs6ugyEuQGllCwXxJs) |
+| 🎞️ **시연영상** | 프로젝트 최종 시연 영상 | [바로가기 →](https://drive.google.com/drive/folders/1Pk6suZSuB2UOuNgl-HHGSGlxJqbb_u0o?usp=drive_link) |
 | 🗂️ **ERD** | ERD Cloud 다이어그램 | [바로가기 →](https://www.erdcloud.com/d/mKYg2hEbjCt6jR4kW) |
 
 </div>
@@ -393,6 +420,31 @@ modak/
 | 🏢 **운영자** | 📊 데이터 기반 관리 | 매출 통계 및 실시간 재고 대시보드로 운영 효율 극대화 |
 | 🏢 **운영자** | 💰 비용 절감 | AI 챗봇 및 자동 알림으로 고객 응대 자동화 |
 | 🏢 **운영자** | 🔧 높은 확장성 | 모듈화 설계로 부가 서비스 확장 용이 |
+
+</div>
+
+<br>
+
+---
+
+## 🔧 개선 사항
+
+<div align="center">
+
+서비스 고도화를 위해 팀에서 논의한 주요 개선 항목입니다.
+
+| 구분 | 개선 내용 |
+|:---:|:---|
+| 🎨 **CSS 전면 개편** | 어드민 대시보드 · 상품 리스트 등 화면 전반의 UI / CSS 통일 및 정비 |
+| ⏳ **대여 기간 제한** | 대여 기간 최대 1주일로 제한, 연장은 1회 · 최대 1~3일까지만 허용 |
+| 🚨 **반납 연체 조치** | 반납일로부터 1일 초과 시 연체 처리 → 연체일수만큼 재대여 제한, 연체 3일째부터는 1일당 대여금액의 20%를 추가 청구 |
+| 🧹 **리뷰 클린봇** | 욕설 · 비방성 리뷰를 자동으로 감지·필터링하는 클린봇 기능 추가 |
+| 🛒 **장바구니 UI 개선** | 대여 / 구매 항목이 한눈에 구분되도록 장바구니 UI 개선 |
+| 🤖 **AI 추천 상품** | 최근 주문 내역을 기반으로 한 맞춤 상품 추천 기능 추가 |
+
+<br>
+
+📄 더 보기 → [모닥모닥 개선점 전체 문서](https://docs.google.com/document/d/1bIn2OfpO6DPTN5aRmejuB5P_DqZQI8c9wTVqnxQ6RSQ/edit)
 
 </div>
 

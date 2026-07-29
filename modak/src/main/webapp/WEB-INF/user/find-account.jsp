@@ -328,7 +328,7 @@
                             <div class="bottom-links">
                                 <a href="/user/login.do">로그인</a>
                                 <a href="/user/sign-up.do">회원가입</a>
-                                <a href="/cs-center.do">고객센터</a>
+                                <a href="/cs/center.do">고객센터</a>
                             </div>
 
                         </div><!-- /right-panel -->

@@ -396,17 +396,24 @@ public class PaymentService {
 				}
 
 			} else if ("RENTAL".equals(itemOrderType)) {
-				stockMap.put("startDate", getValue(item, "startDate", "START_DATE"));
-				stockMap.put("endDate", getValue(item, "endDate", "END_DATE"));
-				stockMap.put("defaultQty", 10);
+				  stockMap.put("startDate", getValue(item, "startDate", "START_DATE"));
+				    stockMap.put("endDate", getValue(item, "endDate", "END_DATE"));
+				    stockMap.put("defaultQty", 10);
 
-				paymentMapper.insertStockIfNotExists(stockMap);
+				    // 대여 최대 기간(7박) 서버 검증 - 프론트 캘린더 검증과 동일한 정책을
+				    // 결제 승인 단계에서도 강제해, API 직접 호출로 프론트 검증을 우회하는 경우를 방지
+				    long rentalDays = java.time.temporal.ChronoUnit.DAYS.between(
+				            java.time.LocalDate.parse(String.valueOf(stockMap.get("startDate"))),
+				            java.time.LocalDate.parse(String.valueOf(stockMap.get("endDate"))));
 
-				int updatedRows = paymentMapper.decreaseStockForRental(stockMap);
+				    if (rentalDays > 7) {
+				        throw new RuntimeException(
+				                "최대 대여 가능 기간은 7일(7박)입니다 - PRODUCT_ID: " + stockMap.get("productId"));
+				    }
+				    
+				    paymentMapper.insertStockIfNotExists(stockMap);
 
-				long rentalDays = java.time.temporal.ChronoUnit.DAYS.between(
-						java.time.LocalDate.parse(String.valueOf(stockMap.get("startDate"))),
-						java.time.LocalDate.parse(String.valueOf(stockMap.get("endDate"))));
+				    int updatedRows = paymentMapper.decreaseStockForRental(stockMap);
 
 				if (updatedRows != rentalDays) {
 					throw new RuntimeException("대여 재고 부족 - PRODUCT_ID: " + stockMap.get("productId"));

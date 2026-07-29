@@ -16,7 +16,6 @@ import com.example.modak.guide.dao.GuideService;
 public class GuideController {
     @Autowired private GuideService guideService;
 
-    // 페이지 이동: http://localhost:8080/guide/guide.do
     @RequestMapping("/guide/guide.do")
     public String goGuide() {
         return "guide/guide"; 

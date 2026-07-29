@@ -2716,6 +2716,7 @@
 								// 최대 4개로 제한
 								const list = (res.list || []).slice(0, 4);
 								this.aiRecommendList = list.map(item => ({   // ← res.list가 아니라 list로 수정
+
 									...item,
 									isWished: this.wishedIds.includes(item.productId)
 								}));

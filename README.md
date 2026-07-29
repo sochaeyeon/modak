@@ -17,6 +17,33 @@
 
 <br>
 
+<!-- 🔥 라이브 데모 -->
+<p align="center">
+  <a href="http://54.116.238.85:8080/main.do">
+    <img src="https://img.shields.io/badge/🏕️_사용자_페이지-바로가기-FF6B35?style=for-the-badge&logo=amazonaws&logoColor=white" alt="사용자 페이지" />
+  </a>
+  &nbsp;
+  <a href="http://54.116.238.85:8080/admin/login.do">
+    <img src="https://img.shields.io/badge/⚙️_관리자_페이지-바로가기-FF9F1C?style=for-the-badge&logo=amazonaws&logoColor=white" alt="관리자 페이지" />
+  </a>
+</p>
+
+<table align="center">
+  <tr>
+    <td align="center">🏕️ <b>사용자 페이지</b></td>
+    <td><a href="http://54.116.238.85:8080/main.do">http://54.116.238.85:8080/main.do</a></td>
+  </tr>
+  <tr>
+    <td align="center">⚙️ <b>관리자 페이지</b></td>
+    <td><a href="http://54.116.238.85:8080/admin/login.do">http://54.116.238.85:8080/admin/login.do</a></td>
+  </tr>
+  <tr>
+    <td align="center">🔑 <b>관리자 계정</b></td>
+    <td>ID <code>admin</code> &nbsp;/&nbsp; PW <code>admin1234</code></td>
+  </tr>
+</table>
+
+<br>
 
 <!-- 대표 이미지 -->
 <img src="./assets/main.png" alt="ModakModak 대표 이미지" width="100%"/>
@@ -108,6 +135,7 @@ Spring Boot + MyBatis를 기반으로 구축되었으며, Google Gemini AI · �
 | Java | `17` | 개발 언어 |
 | Spring Security + OAuth2 | `-` | 인증 및 소셜 로그인 |
 | MySQL (AWS RDS) | `-` | 클라우드 데이터베이스 |
+| AWS EC2 | `-` | 애플리케이션 배포 서버 |
 
 ### 🎨 Frontend
 
@@ -370,6 +398,7 @@ modak/
 | 💬 **커뮤니티** | 게시판 (목록·상세·작성), 1:1 채팅방 및 목록 관리, AI 챗봇 구현 |
 | 🔔 **알림 / 가이드** | 알림 목록·상세, 설치·QR·분리수거 가이드 |
 | ⚙️ **Admin 전체** | 대시보드·통계·매출·회원·상품·캠핑장·쿠폰·리뷰·문의·등급·알림·취소 통합 관리 |
+| ☁️ **인프라** | AWS EC2 · RDS 환경 구축 및 배포 |
 | 🎨 **기타** | 담당 화면 CSS 구현 |
 
 </details>

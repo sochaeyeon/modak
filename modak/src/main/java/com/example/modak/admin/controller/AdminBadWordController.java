@@ -15,28 +15,35 @@ import com.google.gson.Gson;
 @RequestMapping("/admin/badword")
 public class AdminBadWordController {
 
-    @Autowired private BadWordService badWordService;
+	private static final Gson gson = new Gson();
 
-    @GetMapping("/list.do")
-    public String listPage() {
-        return "admin/badword-list";
-    }
+	@Autowired
+	private BadWordService badWordService;
 
-    @PostMapping(value = "/list.dox", produces = "application/json;charset=UTF-8")
-    @ResponseBody
-    public String list() {
-        return new Gson().toJson(badWordService.getWordList());
-    }
+	@GetMapping("/list.do")
+	public String listPage() {
+		return "admin/badword-list";
+	}
 
-    @PostMapping(value = "/add.dox", produces = "application/json;charset=UTF-8")
-    @ResponseBody
-    public String add(@RequestParam String word) {
-        return new Gson().toJson(badWordService.addWord(word));
-    }
+	@PostMapping(value = "/list.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String list() {
+		return toJson(badWordService.getWordList());
+	}
 
-    @PostMapping(value = "/delete.dox", produces = "application/json;charset=UTF-8")
-    @ResponseBody
-    public String delete(@RequestParam Long wordId) {
-        return new Gson().toJson(badWordService.deleteWord(wordId));
-    }
+	@PostMapping(value = "/add.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String add(@RequestParam String word) {
+		return toJson(badWordService.addWord(word));
+	}
+
+	@PostMapping(value = "/delete.dox", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String delete(@RequestParam Long wordId) {
+		return toJson(badWordService.deleteWord(wordId));
+	}
+
+	private String toJson(Object obj) {
+		return gson.toJson(obj);
+	}
 }

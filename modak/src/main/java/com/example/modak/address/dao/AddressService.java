@@ -3,6 +3,8 @@ package com.example.modak.address.dao;
 import java.util.HashMap;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,123 +17,126 @@ import jakarta.servlet.http.HttpSession;
 @Service
 public class AddressService {
 
-	@Autowired
-	AddressMapper addressMapper;
+	private static final Logger logger = LoggerFactory.getLogger(AddressService.class);
+
+	private static final String RESULT = "result";
+	private static final String MESSAGE = "message";
+	private static final String SUCCESS = "success";
+	private static final String FAIL = "fail";
 
 	@Autowired
-	HttpSession session;
+	private AddressMapper addressMapper;
 
-	// 배송지 추가
+	@Autowired
+	private HttpSession session;
+
 	public HashMap<String, Object> addAddress(HashMap<String, Object> map) {
 		HashMap<String, Object> resultMap = new HashMap<>();
 		try {
-			String userId = (String) session.getAttribute("sessionId");
-			map.put("userId", userId);
-
-			String defaultYn = (String) map.get("defaultYn");
-
-			// 새 배송지를 기본배송지로 설정한 경우
-			if ("Y".equals(defaultYn)) {
-				addressMapper.updateDefaultYnToN(map);
-			}
+			putUserId(map);
+			applyDefaultAddressIfNeeded(map);
 
 			int result = addressMapper.insertAddress(map);
 
-			// ✅ 추가: USER_PHONE이 없을 때만 업데이트
-			String receiverPhone = (String) map.get("receiverPhone");
-			if (receiverPhone != null && !receiverPhone.trim().isEmpty()) {
-				addressMapper.updateUserPhoneIfEmpty(map);
-			}
+			updatePhoneIfProvided(map);
 
 			if (result > 0) {
-				resultMap.put("message", Message.SUCCESS_ADD);
-				resultMap.put("result", "success");
+				resultMap.put(MESSAGE, Message.SUCCESS_ADD);
+				resultMap.put(RESULT, SUCCESS);
 				resultMap.put("addressId", map.get("addressId"));
 			} else {
-				resultMap.put("message", Message.ERROR_COMMON);
-				resultMap.put("result", "fail");
+				resultMap.put(MESSAGE, Message.ERROR_COMMON);
+				resultMap.put(RESULT, FAIL);
 			}
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			resultMap.put("message", Message.ERROR_SERVER);
-			resultMap.put("result", "fail");
+			handleException(resultMap, e);
 		}
 		return resultMap;
 	}
 
-	// 배송지 목록 조회
 	public HashMap<String, Object> getAddressList(HashMap<String, Object> map) {
 		HashMap<String, Object> resultMap = new HashMap<>();
 		try {
-			String userId = (String) session.getAttribute("sessionId");
-			map.put("userId", userId);
+			putUserId(map);
 			List<Address> list = addressMapper.selectAddressList(map);
+
 			if (list != null) {
-				resultMap.put("message", Message.SUCCESS_ADD);
+				resultMap.put(MESSAGE, Message.SUCCESS_ADD);
 				resultMap.put("list", list);
+				resultMap.put(RESULT, SUCCESS);
 			} else {
-				resultMap.put("message", Message.ERROR_COMMON);
+				resultMap.put(MESSAGE, Message.ERROR_COMMON);
+				resultMap.put(RESULT, FAIL);
 			}
-			resultMap.put("result", "success");
 		} catch (Exception e) {
-			// TODO: handle exception
-			resultMap.put("result", "fail");
-			resultMap.put("message", Message.ERROR_SERVER);
-			System.out.println(e.getMessage());
+			handleException(resultMap, e);
 		}
 		return resultMap;
 	}
 
-	// 배송지 수정
 	public HashMap<String, Object> editAddress(HashMap<String, Object> map) {
 		HashMap<String, Object> resultMap = new HashMap<>();
 		try {
-			String userId = (String) session.getAttribute("sessionId");
-			map.put("userId", userId);
-
-			String defaultYn = (String) map.get("defaultYn");
-			if ("Y".equals(defaultYn)) {
-				addressMapper.updateDefaultYnToN(map);
-			}
+			putUserId(map);
+			applyDefaultAddressIfNeeded(map);
 
 			int result = addressMapper.updateAddress(map);
 
 			if (result > 0) {
-				resultMap.put("result", "success");
-				resultMap.put("message", Message.SUCCESS_UPDATE);
+				resultMap.put(RESULT, SUCCESS);
+				resultMap.put(MESSAGE, Message.SUCCESS_UPDATE);
 			} else {
-				resultMap.put("result", "fail");
-				resultMap.put("message", Message.ERROR_COMMON);
+				resultMap.put(RESULT, FAIL);
+				resultMap.put(MESSAGE, Message.ERROR_COMMON);
 			}
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			resultMap.put("result", "fail");
-			resultMap.put("message", Message.ERROR_SERVER);
+			handleException(resultMap, e);
 		}
 		return resultMap;
 	}
 
-	// 배송지 삭제
 	public HashMap<String, Object> removeAddress(HashMap<String, Object> map) {
 		HashMap<String, Object> resultMap = new HashMap<>();
 		try {
-			String userId = (String) session.getAttribute("sessionId");
-			map.put("userId", userId);
+			putUserId(map);
 
 			int result = addressMapper.deleteAddress(map);
 
 			if (result > 0) {
-				resultMap.put("result", "success");
-				resultMap.put("message", Message.SUCCESS_DELETE);
+				resultMap.put(RESULT, SUCCESS);
+				resultMap.put(MESSAGE, Message.SUCCESS_DELETE);
 			} else {
-				resultMap.put("result", "fail");
-				resultMap.put("message", Message.ERROR_COMMON);
+				resultMap.put(RESULT, FAIL);
+				resultMap.put(MESSAGE, Message.ERROR_COMMON);
 			}
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			resultMap.put("result", "fail");
-			resultMap.put("message", Message.ERROR_SERVER);
+			handleException(resultMap, e);
 		}
 		return resultMap;
+	}
+
+	private void putUserId(HashMap<String, Object> map) {
+		String userId = (String) session.getAttribute("sessionId");
+		map.put("userId", userId);
+	}
+
+	private void applyDefaultAddressIfNeeded(HashMap<String, Object> map) {
+		String defaultYn = (String) map.get("defaultYn");
+		if ("Y".equals(defaultYn)) {
+			addressMapper.updateDefaultYnToN(map);
+		}
+	}
+
+	private void updatePhoneIfProvided(HashMap<String, Object> map) {
+		String receiverPhone = (String) map.get("receiverPhone");
+		if (receiverPhone != null && !receiverPhone.trim().isEmpty()) {
+			addressMapper.updateUserPhoneIfEmpty(map);
+		}
+	}
+
+	private void handleException(HashMap<String, Object> resultMap, Exception e) {
+		logger.error("AddressService error", e);
+		resultMap.put(RESULT, FAIL);
+		resultMap.put(MESSAGE, Message.ERROR_SERVER);
 	}
 }

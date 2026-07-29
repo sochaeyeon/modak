@@ -490,7 +490,7 @@
 								<div class="rhead">
 									<div class="review-user">
 										<img class="review-profile"
-											:src="review.profileImgUrl || '/img/profile/default-profile.png'">
+											:src="review.profileImgUrl || '/upload/profile/default-profile.png'">
 
 										<div>
 											<div class="rname">
@@ -877,7 +877,7 @@
 										</button>
 
 										<div class="user-header">
-											<img :src="reviewList[reviewImgModal.reviewIndex]?.profileImgUrl || '/img/profile/default-profile.png'"
+											<img :src="reviewList[reviewImgModal.reviewIndex]?.profileImgUrl || '/upload/profile/default-profile.png'"
 												class="user-avatar">
 
 											<div class="user-meta">
@@ -2627,7 +2627,7 @@
 									this.qnaModal.selectedOptionsMap[kv[0].trim()] = kv[1].trim();
 								}
 							});
-						}
+						} 
 					}
 					this.qnaModal.open = true;
 				},
@@ -2713,9 +2713,9 @@
 						dataType: 'json',
 						success: (res) => {
 							if (res.result === 'success') {
-								// .slice(0, 4)를 추가하여 최대 4개로 제한
-                				const list = (res.list || []).slice(0, 4);
-								this.aiRecommendList = res.list.map(item => ({
+								// 최대 4개로 제한
+								const list = (res.list || []).slice(0, 4);
+								this.aiRecommendList = list.map(item => ({   // ← res.list가 아니라 list로 수정
 									...item,
 									isWished: this.wishedIds.includes(item.productId)
 								}));

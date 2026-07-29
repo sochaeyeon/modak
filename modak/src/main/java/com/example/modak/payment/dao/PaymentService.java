@@ -407,17 +407,16 @@ public class PaymentService {
 			            java.time.LocalDate.parse(String.valueOf(stockMap.get("endDate"))));
 
 			    if (rentalDays > 7) {
-			        throw new RuntimeException(
-			                "최대 대여 가능 기간은 7일(7박)입니다 - PRODUCT_ID: " + stockMap.get("productId"));
+			        throw new RuntimeException("최대 대여 가능 기간은 7일(7박)입니다 - PRODUCT_ID: " + stockMap.get("productId"));
 			    }
-			    
+
 			    paymentMapper.insertStockIfNotExists(stockMap);
 
 			    int updatedRows = paymentMapper.decreaseStockForRental(stockMap);
 
-				if (updatedRows != rentalDays) {
-					throw new RuntimeException("대여 재고 부족 - PRODUCT_ID: " + stockMap.get("productId"));
-				}
+			    if (updatedRows != rentalDays) {
+			        throw new RuntimeException("대여 재고 부족 - PRODUCT_ID: " + stockMap.get("productId"));
+			    }
 
 				int quantity = Integer.parseInt(String.valueOf(getValue(item, "quantity", "QUANTITY")));
 

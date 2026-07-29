@@ -3,9 +3,6 @@
 
 <mapper namespace="com.example.modak.admin.mapper.AdminMapper">
 
-	<!-- ════════════════════════════════════════
-         관리자 인증
-    ════════════════════════════════════════ -->
 	<select id="selectAdminById" parameterType="string" resultType="map">
 		SELECT ADMIN_ID AS adminId, PASSWORD AS password,
 		ADMIN_NAME AS adminName, ROLE AS role
@@ -16,9 +13,6 @@
 		UPDATE admin SET LAST_LOGIN = NOW() WHERE ADMIN_ID = #{adminId}
 	</update>
 
-	<!-- ════════════════════════════════════════
-         대시보드 통계
-    ════════════════════════════════════════ -->
 	<select id="selectMonthSales" resultType="long">
 		SELECT COALESCE(SUM(TOTAL_PRICE), 0) FROM ORDERS
 		WHERE ORDER_STATUS NOT IN ('CANCELLED','REFUND')
@@ -124,9 +118,6 @@
 		ORDER BY U.GRADE_ID ASC
 	</select>
 
-	<!-- ════════════════════════════════════════
-         문의 관리
-    ════════════════════════════════════════ -->
 	<select id="selectInquiryList" parameterType="hashmap" resultType="map">
 		SELECT I.INQUIRY_ID, I.USER_ID, I.TITLE, I.CONTENT, I.INQUIRY_STATUS AS
 		STATUS, R.CONTENT AS ANSWER, DATE_FORMAT(I.CREATED_AT, '%Y-%m-%d %H:%i')
@@ -150,9 +141,6 @@
 		#{inquiryId}
 	</update>
 
-	<!-- ════════════════════════════════════════
-         회원 관리  ★ GRADE_ID / POINT / TOTAL_AMOUNT 포함
-    ════════════════════════════════════════ -->
 	<select id="selectMemberList" parameterType="hashmap" resultType="map">
 		SELECT USER_ID AS userId, USER_NAME AS userName, EMAIL AS email,
 		USER_PHONE AS userPhone, NICKNAME AS nickname, SOCIAL_TYPE AS
@@ -202,7 +190,6 @@
 		FROM USER
 	</select>
 
-	<!-- ★ status / userStatus 둘 다 허용 -->
 	<update id="updateMemberStatus" parameterType="hashmap">
 		UPDATE USER
 		SET USER_STATUS = COALESCE(#{userStatus}, #{status}),
@@ -210,7 +197,6 @@
 		WHERE USER_ID = #{userId}
 	</update>
 
-	<!-- ★ 등급 직접 변경 -->
 	<update id="updateMemberGrade" parameterType="hashmap">
 		UPDATE USER
 		SET GRADE_ID = #{gradeId},
@@ -218,9 +204,6 @@
 		WHERE USER_ID = #{userId}
 	</update>
 
-	<!-- ════════════════════════════════════════
-         상품 관리
-    ════════════════════════════════════════ -->
 	<select id="selectAdminProductList" parameterType="hashmap" resultType="map">
 		SELECT p.PRODUCT_ID, p.PRODUCT_NAME, p.PRODUCT_TYPE, p.PRICE, p.DEPOSIT,
 		p.DESCRIPTION, p.VIEW_COUNT, p.IS_AVAILABLE, p.BRAND_ID, p.CATEGORY_ID,
@@ -244,6 +227,7 @@
 			</if>
 		</where>
 		ORDER BY p.PRODUCT_ID DESC LIMIT #{offset}, #{pageSize} </select>
+
 	<select id="selectProductDetail" parameterType="int" resultType="map">
 		SELECT
 		p.PRODUCT_ID,
@@ -278,6 +262,7 @@
 		ON p.PRODUCT_ID = pf.PRODUCT_ID
 		WHERE p.PRODUCT_ID = #{productId}
 	</select>
+
 	<select id="selectBrandList" resultType="map">
 		SELECT BRAND_ID AS brandId, BRAND_NAME AS brandName
 		FROM brand
@@ -324,12 +309,10 @@
 
 	<update id="updateProduct" parameterType="hashmap"> UPDATE product SET
 		PRODUCT_NAME = #{productName}, PRODUCT_TYPE = #{productType},
-		CATEGORY_ID = #{categoryId}, BRAND_ID = NULLIF(#{brandId}, ''), <!-- ←
-		추가 --> PRICE =
+		CATEGORY_ID = #{categoryId}, BRAND_ID = NULLIF(#{brandId}, ''), PRICE =
 		NULLIF(#{price}, ''), DEPOSIT = NULLIF(#{deposit}, ''), DESCRIPTION =
 		#{description} WHERE PRODUCT_ID = #{productId} </update>
 
-	<!-- updateProductImg 삭제하고 아래 두 개로 교체 -->
 	<delete id="deleteMainProductImg" parameterType="hashmap">
 		DELETE FROM product_img
 		WHERE PRODUCT_ID = #{productId} AND IS_MAIN = 'Y'
@@ -384,6 +367,7 @@
 		WHERE p.IS_AVAILABLE = 'Y'
 		ORDER BY p.VIEW_COUNT DESC LIMIT 10
 	</select>
+
 	<select id="selectProductStockList" parameterType="hashmap"
 		resultType="hashmap">
 		SELECT STOCK_ID AS stockId,
@@ -424,6 +408,7 @@
 		RESERVED_QTY = #{reservedQty},
 		AVAILABLE_QTY = #{availableQty};
 	</insert>
+
 	<select id="selectDetailImages" parameterType="hashmap" resultType="map">
 		SELECT IMAGE_ID AS imageId,
 		IMG_URL AS imgUrl,
@@ -434,7 +419,6 @@
 		ORDER BY SORT_ORDER ASC
 	</select>
 
-	<!-- 상세 이미지 INSERT -->
 	<insert id="insertDetailImage" parameterType="hashmap">
 		INSERT INTO PRODUCT_IMG (PRODUCT_ID, IMG_URL, IS_MAIN, SORT_ORDER)
 		VALUES (#{productId}, #{imgUrl}, 'N',
@@ -443,12 +427,10 @@
 		)
 	</insert>
 
-	<!-- 상세 이미지 삭제 -->
 	<delete id="deleteDetailImage" parameterType="hashmap">
 		DELETE FROM PRODUCT_IMG WHERE IMAGE_ID = #{imageId} AND IS_MAIN = 'N'
 	</delete>
 
-	<!-- ── 옵션 그룹 ── -->
 	<select id="selectOptionGroups" parameterType="hashmap" resultType="map">
 		SELECT OPTION_GROUP_ID AS optionGroupId,
 		PRODUCT_ID AS productId,
@@ -474,7 +456,6 @@
 		#{optionGroupId}
 	</delete>
 
-	<!-- ── 옵션 값 ── -->
 	<select id="selectOptionValues" parameterType="hashmap" resultType="map">
 		SELECT OPTION_VALUE_ID AS optionValueId,
 		OPTION_GROUP_ID AS optionGroupId,
@@ -500,7 +481,6 @@
 		#{optionValueId}
 	</delete>
 
-	<!-- ── 옵션 아이템 ── -->
 	<select id="selectOptionItems" parameterType="hashmap" resultType="map">
 		SELECT OI.OPTION_ITEM_ID AS optionItemId,
 		OI.PRODUCT_ID AS productId,
@@ -518,9 +498,6 @@
 		WHERE OPTION_ITEM_ID = #{optionItemId}
 	</update>
 
-	<!-- ════════════════════════════════════════
-         주문 관리
-    ════════════════════════════════════════ -->
 	<select id="selectAdminOrderList" parameterType="hashmap" resultType="map">
 		SELECT O.ORDER_ID, O.USER_ID, DATE_FORMAT(O.CREATED_AT, '%Y-%m-%d
 		%H:%i') AS CREATED_AT, O.TOTAL_PRICE, O.ORDER_STATUS,
@@ -539,6 +516,7 @@
 		</where>
 		GROUP BY O.ORDER_ID, O.USER_ID, O.CREATED_AT, O.TOTAL_PRICE,
 		O.ORDER_STATUS ORDER BY O.CREATED_AT DESC LIMIT #{offset}, #{pageSize} </select>
+
 	<select id="selectAdminOrderCount" parameterType="hashmap" resultType="int">
 		SELECT COUNT(*) FROM ORDERS <where>
 			<if test="keyword != null and keyword != ''">
@@ -552,27 +530,27 @@
 		UPDATE ORDERS SET ORDER_STATUS = #{status} WHERE ORDER_ID = #{orderId}
 	</update>
 
-<update id="updateRentalStatusByOrderStatus" parameterType="hashmap">
-    UPDATE RENTALS R
-    INNER JOIN ORDER_ITEM OI
-        ON R.ITEM_ID = OI.ITEM_ID
-    INNER JOIN ORDERS O
-        ON OI.ORDER_ID = O.ORDER_ID
-    SET R.RENTAL_STATUS =
-        CASE
-            WHEN #{status} = 'DONE' THEN 'IN_USE'
-            ELSE #{status}
-        END
-    WHERE O.ORDER_ID = #{orderId}
-      AND O.ORDER_TYPE = 'RENTAL'
-      AND R.RENTAL_STATUS NOT IN (
-          'RETURN_REQUESTED',
-          'RETURN_PICKED',
-          'RETURNED',
-          'RETURN_COMPLETED'
-      )
-</update>
-	<!-- 반납 요청 목록 조회 (RETURN_REQUESTED, RETURN_PICKED, RETURN_COMPLETED) -->
+	<update id="updateRentalStatusByOrderStatus" parameterType="hashmap">
+		UPDATE RENTALS R
+		INNER JOIN ORDER_ITEM OI
+			ON R.ITEM_ID = OI.ITEM_ID
+		INNER JOIN ORDERS O
+			ON OI.ORDER_ID = O.ORDER_ID
+		SET R.RENTAL_STATUS =
+			CASE
+				WHEN #{status} = 'DONE' THEN 'IN_USE'
+				ELSE #{status}
+			END
+		WHERE O.ORDER_ID = #{orderId}
+		  AND O.ORDER_TYPE = 'RENTAL'
+		  AND R.RENTAL_STATUS NOT IN (
+			  'RETURN_REQUESTED',
+			  'RETURN_PICKED',
+			  'RETURNED',
+			  'RETURN_COMPLETED'
+		  )
+	</update>
+
 	<select id="selectReturnRequestList" resultType="map">
 		SELECT
 		R.RENTAL_ID AS RENTAL_ID,
@@ -606,7 +584,7 @@
 		AND RENTAL_STATUS IN ('RETURN_REQUESTED', 'RETURN_PICKED',
 		'RETURN_COMPLETED', 'IN_USE')
 	</update>
-	<!--비회원 주문취소 환불-->
+
 	<select id="selectPaymentByOrderId" parameterType="string"
 		resultType="hashmap">
 		SELECT
@@ -627,9 +605,6 @@
 		WHERE ORDER_ID = #{orderId}
 	</update>
 
-	<!-- ════════════════════════════════════════
-         대여 관리
-    ════════════════════════════════════════ -->
 	<select id="selectAdminRentalList" parameterType="hashmap" resultType="map">
 		SELECT R.RENTAL_ID, R.USER_ID, P.PRODUCT_NAME,
 		(SELECT IMG_URL FROM product_img PI WHERE PI.PRODUCT_ID = P.PRODUCT_ID
@@ -654,7 +629,7 @@
 		UPDATE rentals SET RETURN_DATE = #{returnDate} WHERE RENTAL_ID =
 		#{rentalId}
 	</update>
-	<!-- 검수 등록 -->
+
 	<insert id="insertReturnInspection" parameterType="hashmap"
 		useGeneratedKeys="true" keyProperty="inspectionId">
 		INSERT INTO RETURN_INSPECTION (RENTAL_ID, CONDITION_CODE, DEDUCTION_AMT,
@@ -663,7 +638,6 @@
 		#{adminId})
 	</insert>
 
-	<!-- 검수 목록 조회 (반납완료된 것) -->
 	<select id="selectInspectionList" resultType="map">
 		SELECT R.RENTAL_ID, R.USER_ID, R.RENTAL_STATUS,
 		P.PRODUCT_NAME,
@@ -681,7 +655,6 @@
 		LIMIT 50
 	</select>
 
-	<!-- 환불 목록 조회 -->
 	<select id="selectRefundList" resultType="map">
 		SELECT
 		RF.REFUND_ID,
@@ -711,7 +684,6 @@
 		LIMIT 50
 	</select>
 
-	<!-- 교환 목록 조회 -->
 	<select id="selectExchangeList" resultType="map">
 		SELECT
 		E.EXCHANGE_ID,
@@ -745,20 +717,19 @@
 		LIMIT 50
 	</select>
 
-	<!-- 교환 상태 변경 -->
 	<update id="updateExchangeStatus" parameterType="hashmap">
 		UPDATE ORDER_EXCHANGE
 		SET EXCHANGE_STATUS = #{status},
 		UPDATED_AT = NOW()
 		WHERE EXCHANGE_ID = #{exchangeId}
 	</update>
+
 	<update id="updateRefundStatus" parameterType="map">
 		UPDATE refund
 		SET REFUND_STATUS = #{status}
 		WHERE REFUND_ID = #{refundId}
 	</update>
 
-	<!-- 반납 1일전 스케줄러용 -->
 	<select id="selectRentalsReturnTomorrow" resultType="hashmap">
 		SELECT R.RENTAL_ID AS rentalId, R.USER_ID AS userId,
 		P.PRODUCT_NAME AS productName,
@@ -771,9 +742,6 @@
 		AND R.USER_ID != 'GUEST'
 	</select>
 
-	<!-- ════════════════════════════════════════
-         리뷰 관리
-    ════════════════════════════════════════ -->
 	<select id="selectAdminReviewList" parameterType="hashmap" resultType="map">
 		SELECT R.REVIEW_ID, R.USER_ID, R.PRODUCT_ID, R.TITLE, R.CONTENT,
 		R.RATING, P.PRODUCT_NAME AS NAME, PI.IMG_URL AS PROD_IMG,
@@ -800,9 +768,6 @@
 		DELETE FROM review WHERE REVIEW_ID = #{reviewId}
 	</delete>
 
-	<!-- ════════════════════════════════════════
-         캠핑장 관리
-    ════════════════════════════════════════ -->
 	<select id="selectCampList" parameterType="hashmap" resultType="map"> SELECT
 		MAX(C.CAMP_ID) AS CAMP_ID, C.CAMP_NAME, C.ADDRESS, C.INDUTY,
 		MAX(I.IMG_URL) AS IMG_URL FROM camp C LEFT JOIN camp_img I ON C.CAMP_ID
@@ -830,11 +795,10 @@
 		WHERE CAMP_ID = #{campId}
 	</update>
 
-
 	<delete id="deleteCamp" parameterType="hashmap">
 		DELETE FROM camp WHERE CAMP_ID = #{campId}
 	</delete>
-	<!-- 캠핑장 신규 등록 -->
+
 	<insert id="insertCamp" parameterType="hashmap" useGeneratedKeys="true"
 		keyProperty="campId" keyColumn="CAMP_ID">
 		INSERT INTO camp (CAMP_NAME, ADDRESS, LATITUDE, LONGITUDE, DESCRIPTION,
@@ -843,15 +807,11 @@
 		#{description}, #{induty})
 	</insert>
 
-	<!-- 캠핑장 이미지 등록 -->
 	<insert id="insertCampImg" parameterType="hashmap">
 		INSERT INTO camp_img (CAMP_ID, IMG_URL, IS_MAIN)
 		VALUES (#{campId}, #{imgUrl}, 'Y')
 	</insert>
 
-	<!-- ════════════════════════════════════════
-         이벤트 관리
-    ════════════════════════════════════════ -->
 	<select id="selectEventList" parameterType="hashmap" resultType="map">
 		SELECT e.EVENT_ID, e.TITLE, e.CONTENT,
 		DATE_FORMAT(e.START_DATE, '%Y-%m-%d') AS START_DATE,
@@ -912,9 +872,6 @@
 		DELETE FROM event WHERE EVENT_ID = #{eventId}
 	</delete>
 
-	<!-- ════════════════════════════════════════
-         매출 통계
-    ════════════════════════════════════════ -->
 	<select id="selectSalesByPeriod" parameterType="hashmap" resultType="map">
 		SELECT DATE_FORMAT(CREATED_AT, '%Y-%m-%d') AS SALES_DATE,
 		COUNT(ORDER_ID) AS ORDER_COUNT,
@@ -931,9 +888,6 @@
 		ORDER BY VIEW_COUNT DESC LIMIT 20
 	</select>
 
-	<!-- ════════════════════════════════════════
-         등급 관리
-    ════════════════════════════════════════ -->
 	<select id="selectGradeList" resultType="map">
 		SELECT G.GRADE_ID AS gradeId,
 		G.GRADE_NAME AS gradeName,
@@ -959,9 +913,6 @@
 		WHERE GRADE_ID = #{gradeId}
 	</update>
 
-	<!-- ════════════════════════════════════════
-         쿠폰 관리
-    ════════════════════════════════════════ -->
 	<select id="selectCouponList" parameterType="hashmap" resultType="map">
 		SELECT COUPON_ID, COUPON_NAME, COUPON_TYPE, DISCOUNT_AMT, DISCOUNT_RATE,
 		MIN_ORDER_AMT, ISSUE_TARGET, IS_ACTIVE, DATE_FORMAT(ISSUE_START_AT,
@@ -1002,7 +953,6 @@
 		DELETE FROM coupon WHERE COUPON_ID = #{couponId}
 	</delete>
 
-	<!-- 유저 쿠폰 -->
 	<select id="selectUserCouponList" parameterType="hashmap" resultType="map">
 		SELECT uc.USER_COUPON_ID, uc.USER_ID, u.USER_NAME, c.COUPON_NAME,
 		uc.USED_YN, uc.STATUS, DATE_FORMAT(uc.ISSUED_AT, '%Y-%m-%d %H:%i') AS
@@ -1047,12 +997,17 @@
 	<delete id="deleteUserCouponsByMaster" parameterType="hashmap">
 		DELETE FROM user_coupon WHERE COUPON_ID = #{couponId}
 	</delete>
-	<insert id="insertAlarm" parameterType="hashmap"> INSERT INTO alarm
-		(USER_ID, TYPE, TITLE, CONTENT, LINK_ID, LINK_URL, IS_READ, CREATED_AT)
-		VALUES ( #{userId}, #{type}, #{title}, #{content}, NULLIF(#{linkId},
-		''), <!-- ★ 빈 문자열 → NULL --> NULLIF(#{linkUrl}, ''), <!-- ★ 빈 문자열 → NULL --> 'N', NOW() ) </insert>
 
-	<!-- insertAlarmToAllUsers -->
+	<insert id="insertAlarm" parameterType="hashmap">
+		INSERT INTO alarm
+		(USER_ID, TYPE, TITLE, CONTENT, LINK_ID, LINK_URL, IS_READ, CREATED_AT)
+		VALUES (
+		#{userId}, #{type}, #{title}, #{content},
+		NULLIF(#{linkId}, ''),
+		NULLIF(#{linkUrl}, ''),
+		'N', NOW()
+		)
+	</insert>
 
 	<insert id="insertAlarmToAllUsers" parameterType="hashmap"> INSERT INTO
 		alarm (USER_ID, TYPE, TITLE, CONTENT, LINK_ID, LINK_URL, IS_READ,
@@ -1063,7 +1018,6 @@
 		</if>
 	</insert>
 
-	<!-- 발송 내역 조회 (관리자용 — 최신순) -->
 	<select id="selectAlarmLogs" parameterType="hashmap" resultType="map">
 		SELECT A.ALARM_ID AS alarmId, A.USER_ID AS userId, A.TYPE AS type,
 		A.TITLE AS title, A.CONTENT AS content, A.LINK_ID AS linkId, A.LINK_URL
@@ -1075,7 +1029,6 @@
 		</where>
 		ORDER BY A.ALARM_ID DESC LIMIT #{offset}, #{pageSize} </select>
 
-	<!-- 회원 단건 조회 -->
 	<select id="selectMemberById" parameterType="hashmap" resultType="map">
 		SELECT USER_ID AS userId,
 		USER_NAME AS userName,
@@ -1085,6 +1038,7 @@
 		FROM USER
 		WHERE USER_ID = #{userId}
 	</select>
+
 	<insert id="upsertDelivery" parameterType="hashmap">
 		INSERT INTO DELIVERY (ORDER_ID, TRACKING_NO, DELIVERY_STATUS,
 		SHIPPED_AT, RECEIVER_NAME, ADDRESS, ZIPCODE, DETAILED_ADDRESS)
@@ -1124,6 +1078,7 @@
 		ORDER BY D.SHIPPED_AT DESC
 		LIMIT 20
 	</select>
+
 	<select id="selectRentalByRentalId" parameterType="hashmap" resultType="map">
 		SELECT RENTAL_ID AS rentalId,
 		USER_ID AS userId

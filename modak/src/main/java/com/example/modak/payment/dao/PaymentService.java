@@ -65,7 +65,7 @@ public class PaymentService {
 
 		return resultMap;
 	}
-
+ 
 	// 임시 주문 저장 → ORDER_ID를 프론트에 반환
 	@Transactional
 	public HashMap<String, Object> readyPayment(HashMap<String, Object> map) {
@@ -396,28 +396,27 @@ public class PaymentService {
 				}
 
 			} else if ("RENTAL".equals(itemOrderType)) {
-				  stockMap.put("startDate", getValue(item, "startDate", "START_DATE"));
-				    stockMap.put("endDate", getValue(item, "endDate", "END_DATE"));
-				    stockMap.put("defaultQty", 10);
+			    stockMap.put("startDate", getValue(item, "startDate", "START_DATE"));
+			    stockMap.put("endDate", getValue(item, "endDate", "END_DATE"));
+			    stockMap.put("defaultQty", 10);
 
-				    // 대여 최대 기간(7박) 서버 검증 - 프론트 캘린더 검증과 동일한 정책을
-				    // 결제 승인 단계에서도 강제해, API 직접 호출로 프론트 검증을 우회하는 경우를 방지
-				    long rentalDays = java.time.temporal.ChronoUnit.DAYS.between(
-				            java.time.LocalDate.parse(String.valueOf(stockMap.get("startDate"))),
-				            java.time.LocalDate.parse(String.valueOf(stockMap.get("endDate"))));
+			    // 대여 최대 기간(7박) 서버 검증 - 프론트 캘린더 검증과 동일한 정책을
+			    // 결제 승인 단계에서도 강제해, API 직접 호출로 프론트 검증을 우회하는 경우를 방지
+			    long rentalDays = java.time.temporal.ChronoUnit.DAYS.between(
+			            java.time.LocalDate.parse(String.valueOf(stockMap.get("startDate"))),
+			            java.time.LocalDate.parse(String.valueOf(stockMap.get("endDate"))));
 
-				    if (rentalDays > 7) {
-				        throw new RuntimeException(
-				                "최대 대여 가능 기간은 7일(7박)입니다 - PRODUCT_ID: " + stockMap.get("productId"));
-				    }
-				    
-				    paymentMapper.insertStockIfNotExists(stockMap);
+			    if (rentalDays > 7) {
+			        throw new RuntimeException("최대 대여 가능 기간은 7일(7박)입니다 - PRODUCT_ID: " + stockMap.get("productId"));
+			    }
 
-				    int updatedRows = paymentMapper.decreaseStockForRental(stockMap);
+			    paymentMapper.insertStockIfNotExists(stockMap);
 
-				if (updatedRows != rentalDays) {
-					throw new RuntimeException("대여 재고 부족 - PRODUCT_ID: " + stockMap.get("productId"));
-				}
+			    int updatedRows = paymentMapper.decreaseStockForRental(stockMap);
+
+			    if (updatedRows != rentalDays) {
+			        throw new RuntimeException("대여 재고 부족 - PRODUCT_ID: " + stockMap.get("productId"));
+			    }
 
 				int quantity = Integer.parseInt(String.valueOf(getValue(item, "quantity", "QUANTITY")));
 

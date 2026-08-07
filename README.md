@@ -18,7 +18,7 @@
 <br>
 
 <!-- 🔥 라이브 데모 -->
-<p align="center">
+<!-- <p align="center">
   <a href="http://54.116.238.85:8080/main.do">
     <img src="https://img.shields.io/badge/🏕️_사용자_페이지-바로가기-FF6B35?style=for-the-badge&logo=amazonaws&logoColor=white" alt="사용자 페이지" />
   </a>
@@ -41,7 +41,7 @@
     <td align="center">🔑 <b>관리자 계정</b></td>
     <td>ID <code>admin</code> &nbsp;/&nbsp; PW <code>admin1234</code></td>
   </tr>
-</table>
+</table> -->
 
 <br>
 
